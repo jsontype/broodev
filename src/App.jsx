@@ -10,7 +10,7 @@ import SourceBadge from './components/SourceBadge.jsx'
 import Terminal from './components/Terminal.jsx'
 import { Sparkline } from './components/Sparkline.jsx'
 import Term, { TipsContext } from './components/Term.jsx'
-import { LANGS, DEFAULT_LANG, getT, I18nContext } from './i18n.js'
+import { LANGS, getT, I18nContext, detectLang } from './i18n.js'
 
 const THEMES = { green: '#00ff9c', cyan: '#00e5ff', amber: '#ffb000', red: '#ff3b5c' }
 const localeOf = (lang) => (LANGS.find((l) => l.code === lang) || LANGS[0]).locale
@@ -31,7 +31,7 @@ export default function App() {
   const [accent, setAccent] = useLocalStorage('btc:accent', THEMES.green)
   const [matrixOn, setMatrixOn] = useLocalStorage('btc:matrix', true)
   const [tipsOn, setTipsOn] = useLocalStorage('btc:tips', true)
-  const [lang, setLang] = useLocalStorage('btc:lang', DEFAULT_LANG)
+  const [lang, setLang] = useLocalStorage('btc:lang', detectLang())
   const [scoreHist, setScoreHist] = useLocalStorage('btc:scoreHist', [])
   const [booted, setBooted] = useState(() => sessionStorage.getItem('btcbooted') === '1')
   const now = useClock()
