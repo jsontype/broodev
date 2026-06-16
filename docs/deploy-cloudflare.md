@@ -5,7 +5,7 @@
 | Pages 프로젝트 | Root directory | 빌드 | 도메인 |
 | --- | --- | --- | --- |
 | `broodev-web`   | `apps/web`   | 없음(정적)        | broodev.com (+ www) |
-| `broodev-btc`   | `apps/btc`   | 아래 ★ 참고       | btc.broodev.com |
+| `broodev-btc`   | `apps/btc`   | 없음(정적)        | btc.broodev.com |
 | `broodev-admin` | `apps/admin` | 없음(정적)        | admin.broodev.com |
 
 ---
@@ -34,18 +34,14 @@
    - 발급된 ID를 `apps/admin/app.jsx` 의 `GOOGLE_CLIENT_ID` 에 입력 후 커밋.
    - ⚠ admin 은 `noindex` 이고 클라이언트측 로그인은 임시 보호임. 실제 데이터 수집/보안은 백엔드(서버리스 + DB + 서버측 토큰 검증) 필요.
 
-## 3. ★ btc (btc.broodev.com)
-btc 는 자체완결 `standalone.html` + 보조 자산(sitemap/robots/ads.txt/og-image/adsense)을 함께 발행해야 한다. **빌드 없이** 복사만 하는 설정을 권장(가장 빠르고 안정적):
+## 3. btc (btc.broodev.com) — 정적
+btc 의 `apps/btc/index.html` 은 자체완결 단일 파일(CDN React + 인라인)이라 **web/admin과 동일하게 빌드가 없다.**
 
 - 프로젝트 `broodev-btc`, **Root directory: `apps/btc`**
-- **Build command:**
-  ```bash
-  mkdir -p out && cp standalone.html out/index.html && cp standalone.html sitemap.xml robots.txt ads.txt og-image.png out/ && mkdir -p out/adsense && cp adsense/index.html out/adsense/index.html
-  ```
-- **Build output directory:** `out`
+- **Build command: 비움**
+- **Build output directory: `/`**
+- 보조 자산(sitemap/robots/ads.txt/og-image/adsense)은 이미 `apps/btc` 안에 있어 함께 발행됨.
 - Custom domains → `btc.broodev.com` 추가.
-
-> 대안(Vite 번들 배포): Build command `npm install && npm run build`, output `dist`. 단, 이 경우 sitemap/robots/ads.txt/og-image/adsense 를 `apps/btc/public/` 로 옮겨야 dist 에 포함된다.
 
 ### btc DNS 재지정 (GitHub Pages → Cloudflare Pages)
 현재 `btc` CNAME 레코드는 GitHub Pages(`jsontype.github.io`)를 가리킨다. CF Pages로 옮기려면:
@@ -53,12 +49,11 @@ btc 는 자체완결 `standalone.html` + 보조 자산(sitemap/robots/ads.txt/og
 2. 충돌하면 DNS 탭에서 기존 `btc → jsontype.github.io` 레코드를 **삭제** → CF Pages가 자기 레코드를 생성하게 둔다.
 3. 전파 후 `https://btc.broodev.com` 이 CF Pages 본을 가리키는지 확인.
 
-## 4. GitHub Pages 은퇴 (btc 가 CF Pages에서 정상 확인된 뒤에만)
-- `https://btc.broodev.com` 이 CF Pages로 잘 뜨는 것을 확인한 후:
-  - `.github/workflows/deploy-pages.yml` 삭제(또는 비활성화).
-  - `apps/btc/CNAME` 삭제(GitHub Pages 전용 파일, CF Pages에선 무시됨).
-  - GitHub 저장소 Settings → Pages 비활성화.
-- ⚠ 확인 전에는 절대 먼저 지우지 말 것(다운타임 방지).
+## 4. GitHub Pages 은퇴 (완료)
+btc 가 CF Pages(btc.broodev.com)에서 정상 확인되어 GitHub Pages는 은퇴함:
+- ✅ `.github/workflows/deploy-pages.yml` 삭제됨
+- ✅ `apps/btc/CNAME` 삭제됨
+- (남은 수동 작업) GitHub 저장소 **Settings → Pages** 에서 비활성화 + 기존 `btc → jsontype.github.io` DNS 레코드가 남아있으면 삭제.
 
 ## 5. 배포 후 체크리스트
 - [ ] https://broodev.com — 회사 포털(회사소개/유용한 앱들) 정상

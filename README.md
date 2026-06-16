@@ -25,7 +25,7 @@ broodev/
 | 앱 | 도메인 | 설명 | 스택 | 상태 |
 | --- | --- | --- | --- | --- |
 | [web](apps/web/) | broodev.com | 회사 소개 + 유용한 앱들 포털 | React 18(CDN) · 정적 | 🟡 개발 중 |
-| [btc](apps/btc/) | btc.broodev.com | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 | React 18 · Vite 5 | 🟢 라이브 |
+| [btc](apps/btc/) | btc.broodev.com | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 | React 18 (CDN) · 무빌드 | 🟢 라이브 |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 
 ## 🎨 공통 디자인
@@ -42,7 +42,7 @@ broodev/
 | broodev-btc | `apps/btc` | btc.broodev.com |
 | broodev-admin | `apps/admin` | admin.broodev.com |
 
-> 전환기 동안 btc는 GitHub Pages(`.github/workflows/deploy-pages.yml`)로도 배포됩니다. 자세한 절차는 [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
+> 세 앱 모두 Cloudflare Pages 무빌드(정적) 배포. 자세한 절차는 [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
 
 ## 📁 앱 추가 규칙
 

@@ -1,10 +1,10 @@
 # BTC_SIGNAL // buy-timing terminal ₿
 
-실시간 비트코인 지표 6종을 합성해 **"지금이 살 타이밍인가?"**를 0~100 점수로 보여주는 해커 감성 대시보드 (React + Vite).
+실시간 비트코인 지표 6종을 합성해 **"지금이 살 타이밍인가?"**를 0~100 점수로 보여주는 해커 감성 대시보드 (React · 빌드 불필요).
 
-![stack](https://img.shields.io/badge/react-18-149eca) ![stack](https://img.shields.io/badge/vite-5-646cff) ![data](https://img.shields.io/badge/data-live-00ff9c)
+![stack](https://img.shields.io/badge/react-18-149eca) ![stack](https://img.shields.io/badge/build-none-00ff9c) ![data](https://img.shields.io/badge/data-live-00ff9c)
 
-**기술 스택:** React 18 · Vite 5 · 순수 JS 지표 엔진(RSI·MACD·Mayer 등) · 빌드 불필요 `standalone.html`(CDN React + 브라우저 Babel) · i18n 13개 언어 · 데이터: CoinGecko · Binance · Alternative.me 공개 API · 배포: Cloudflare Pages(예정) / GitHub Pages(전환기)
+**기술 스택:** React 18 (CDN UMD) · 브라우저 Babel (빌드 불필요) · 순수 JS 지표 엔진(RSI·MACD·Mayer 등) · i18n 13개 언어 · 데이터: CoinGecko · Binance · Alternative.me 공개 API · 배포: Cloudflare Pages (무빌드)
 
 > [!WARNING]
 > **⚠️ 투자 유의 · 면책 고지**
@@ -13,41 +13,13 @@
 > 점수는 미래 가격을 보장하지 않으며, 암호화폐 투자는 **원금 전액 손실** 위험이 있습니다.
 > **모든 투자 판단과 그 결과(손익)에 대한 책임은 전적으로 이용자 본인에게 있습니다.** 반드시 스스로 조사하세요 (DYOR).
 
-## 🚀 배포 (Git Flow)
+## 실행 / 배포
 
-`master`에 push하면 **자동으로 GitHub Pages에 재배포**됩니다 — 별도 설정 불필요.
+자체완결 단일 파일 [`index.html`](index.html) 하나가 곧 앱입니다 — **빌드 없음**(CDN React + 브라우저 Babel, 모든 코드 인라인 · 경로 독립적).
 
-```text
-  git push origin master
-          │
-          ▼
-  GitHub Actions   ( .github/workflows/deploy-pages.yml )
-    1. standalone.html  →  index.html 로 발행
-    2. Pages 자동 활성화(enablement) + 아티팩트 업로드 + 배포
-          │
-          ▼
-  🌐 라이브 데모   https://btc.broodev.com/   (push 후 ~1분 반영)
-```
-
-- 자체완결형 `standalone.html`(CDN React · 빌드 불필요 · 경로 독립적)을 그대로 발행하므로 빌드 단계가 없습니다.
-- 코드를 고친 뒤 `master`에 push만 하면 끝 — 워크플로가 알아서 재배포합니다.
-- 데모가 잠깐 안 보이면 **CDN 전파 지연**이니 몇 초 뒤 새로고침하세요.
-
-## 실행
-
-### A. 무설치 (가장 빠름) ⚡
-
-[`standalone.html`](standalone.html) 더블클릭 → 끝. (React를 CDN으로 로드, Node 불필요 · 인터넷 필요)
-
-### B. Vite 개발 서버 (Node.js 필요)
-
-```bash
-npm install
-npm run dev        # http://localhost:5180 자동 오픈
-npm run build      # 정적 빌드
-npm run verify     # 라이브 데이터로 지표 엔진 검증 (node)
-npm run verify:api # 실제 페치 코드(api.js)를 라이브 API로 검증 (node)
-```
+- **로컬**: [`index.html`](index.html) 더블클릭 → 끝. (Node 불필요 · 인터넷 필요 — React를 CDN으로 로드)
+- **배포**: Cloudflare Pages. `master`에 push하면 자동 재배포됩니다. 프로젝트 설정 = Root `apps/btc` · **Build command 없음** · Output `/`. (라이브: https://btc.broodev.com/)
+- AdSense 버전은 [`adsense/`](adsense/) 참고.
 
 ## 데이터 소스 (전부 키 없이 브라우저 직접 호출 · CORS 허용 확인)
 
@@ -75,7 +47,7 @@ npm run verify:api # 실제 페치 코드(api.js)를 라이브 API로 검증 (no
 **판정 밴드:** `80+` STRONG BUY · `65~80` ACCUMULATE · `45~65` NEUTRAL · `25~45` CAUTION · `0~25` OVERHEATED
 
 > 지표 공식은 멀티에이전트 워크플로로 도출하고, RSI Wilder 정준 테스트벡터(70.46 / 66.25)와
-> 라이브 데이터로 검증했습니다. `npm run verify` 로 재현 가능합니다.
+> 라이브 데이터로 검증했습니다.
 
 ## 화면
 
