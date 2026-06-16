@@ -1,7 +1,7 @@
 # AdSense 버전
 
 메인 앱([standalone.html](../standalone.html))의 **Google AdSense 전용 복제본**입니다.
-- 라이브(배포 후): https://jsontype.github.io/bitcoin/adsense/
+- 라이브(배포 후): https://btc.broodev.com/adsense/
 - 코드·기능은 standalone과 동일 (자체완결 · CDN React · 빌드 불필요)
 - 차이: `<head>`에 AdSense 스크립트 자리, 본문에 광고 슬롯 자리를 **주석**으로 넣어둠 (`index.html`의 STEP 1~2)
 
