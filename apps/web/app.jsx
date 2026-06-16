@@ -216,12 +216,141 @@ function AppsPage() {
   );
 }
 
-/* ---- (#6에서 구현) 통상 부모도메인 기능 (목업) -------------------------- */
-function NewsPage()       { return (<><PageHead title="소식" /><div className="empty">준비 중…</div></>); }
-function MembershipPage() { return (<><PageHead title="멤버십" /><div className="empty">준비 중…</div></>); }
-function ContactPage()    { return (<><PageHead title="문의" /><div className="empty">준비 중…</div></>); }
-function PrivacyPage()    { return (<><PageHead title="개인정보처리방침" /><div className="empty">준비 중…</div></>); }
-function TermsPage()      { return (<><PageHead title="이용약관" /><div className="empty">준비 중…</div></>); }
+function MockNote({ children }) {
+  return <div className="mock-note"><b>⚠ 목업</b><span>{children}</span></div>;
+}
+
+/* ---- 소식 (목업) ------------------------------------------------------- */
+/* ***! TODO: 실제 공지/릴리스 노트를 CMS나 마크다운/JSON 피드로 연동. 지금은 하드코딩 목업. */
+const NEWS = [
+  { date: '2026-06-16', tag: '런칭', title: 'broodev 포털 오픈', body: '여러 무료 웹앱을 한곳에 모은 broodev 포털을 공개했습니다.' },
+  { date: '2026-06-10', tag: '업데이트', title: 'BTC_SIGNAL 13개 언어 지원', body: '비트코인 공포·탐욕 지수 앱이 다국어와 모바일 대응을 마쳤습니다.' },
+];
+function NewsPage() {
+  return (
+    <>
+      <PageHead title="소식" desc="broodev 공지 · 업데이트" />
+      <MockNote>실제 피드 연동 전까지 예시 데이터입니다.</MockNote>
+      <div className="stack">
+        {NEWS.map((n, i) => (
+          <div className="panel" key={i}>
+            <div className="row" style={{ justifyContent: 'space-between' }}>
+              <span className="tag beta">{n.tag}</span>
+              <span className="muted" style={{ fontSize: 11 }}>{n.date}</span>
+            </div>
+            <h3 style={{ color: 'var(--text)', margin: '10px 0 4px', fontSize: 15 }}>{n.title}</h3>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>{n.body}</p>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ---- 멤버십 (목업) ----------------------------------------------------- */
+/* ***! TODO: 결제(예: Stripe/토스/포트원) 연동 + 광고 제거 권한 처리. 지금은 화면만. */
+function MembershipPage() {
+  const plans = [
+    { name: 'Free', price: '₩0', cta: '지금 사용 중', accent: false,
+      feats: ['모든 앱 무료 사용', '광고 표시', '커뮤니티 지원'] },
+    { name: 'Lifetime', price: '₩—', cta: '준비 중', accent: true,
+      feats: ['광고 완전 제거', '평생 1회 결제', '신규 앱 우선 이용'] },
+  ];
+  return (
+    <>
+      <PageHead title="멤버십" desc="광고 없는 broodev — 평생 회원" />
+      <MockNote>결제는 아직 연동되지 않았습니다(가격·버튼 비활성). 화면 구성만 미리보기.</MockNote>
+      <div className="cards">
+        {plans.map(p => (
+          <div className="panel" key={p.name} style={p.accent ? { borderColor: 'var(--neon)', boxShadow: '0 0 30px -12px var(--neon)' } : null}>
+            {p.accent && <><span className="corner tl" /><span className="corner br" /></>}
+            <div className="panel-label">{p.name}</div>
+            <div style={{ fontSize: 34, fontWeight: 800, color: p.accent ? 'var(--neon)' : 'var(--text)' }}>{p.price}</div>
+            <ul style={{ margin: '12px 0', paddingLeft: 18, fontSize: 13, color: 'var(--dim)' }}>
+              {p.feats.map((f, i) => <li key={i} style={{ margin: '5px 0' }}>{f}</li>)}
+            </ul>
+            <button className={'btn block' + (p.accent ? '' : ' ghost')} disabled={p.accent}>{p.cta}</button>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ---- 문의 (목업) ------------------------------------------------------- */
+/* ***! TODO: 폼 전송 백엔드(서버리스 함수/메일 API) 연동. 지금은 mailto 폴백만 동작. */
+function ContactPage() {
+  const [f, setF] = useState({ name: '', email: '', msg: '' });
+  const [sent, setSent] = useState(false);
+  const submit = (e) => {
+    e.preventDefault();
+    const body = encodeURIComponent(`이름: ${f.name}\n회신: ${f.email}\n\n${f.msg}`);
+    window.location.href = `mailto:${COMPANY.email}?subject=${encodeURIComponent('[broodev 문의] ' + f.name)}&body=${body}`;
+    setSent(true);
+  };
+  return (
+    <>
+      <PageHead title="문의" desc="제휴 · 버그 · 제안 무엇이든" />
+      <MockNote>전송 버튼은 메일 앱을 여는 mailto 폴백입니다. 서버 전송은 추후 연동.</MockNote>
+      <form className="panel" style={{ maxWidth: 520 }} onSubmit={submit}>
+        <div className="field"><label>이름</label><input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} required /></div>
+        <div className="field"><label>회신 이메일</label><input type="email" value={f.email} onChange={e => setF({ ...f, email: e.target.value })} required /></div>
+        <div className="field"><label>내용</label><textarea value={f.msg} onChange={e => setF({ ...f, msg: e.target.value })} required /></div>
+        <button className="btn block" type="submit">✉ 보내기</button>
+        {sent && <p className="muted" style={{ fontSize: 12, marginTop: 10 }}>메일 앱이 열리지 않으면 <a href={'mailto:' + COMPANY.email}>{COMPANY.email}</a> 로 보내주세요.</p>}
+      </form>
+    </>
+  );
+}
+
+/* ---- 개인정보처리방침 (AdSense 승인용 실제 문서) ----------------------- */
+/* ***! TODO: 사업자 정보 확정 후 시행일·운영자 법적 명칭 기재, 필요 시 법률 검토. */
+function PrivacyPage() {
+  return (
+    <div className="prose">
+      <h1>개인정보처리방침</h1>
+      <p className="muted">시행일: 2026-06-16 · 운영: {COMPANY.operator}</p>
+      <p>broodev(이하 “사이트”)는 회원가입이 없으며 이용자의 개인정보를 직접 수집·저장하지 않습니다. 다만 광고 및 서비스 운영을 위해 아래와 같이 쿠키가 사용될 수 있습니다.</p>
+      <h2>1. 쿠키와 광고 (Google AdSense)</h2>
+      <p>본 사이트는 Google AdSense를 통해 광고를 게재합니다. Google을 포함한 제3자 공급업체는 쿠키를 사용하여 이용자의 이전 방문 기록을 바탕으로 광고를 제공할 수 있습니다. 이용자는 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google 광고 설정</a>에서 맞춤 광고를 비활성화할 수 있습니다.</p>
+      <h2>2. 분석</h2>
+      <p>서비스 개선을 위해 익명화된 트래픽 통계가 수집될 수 있으며, 이는 개인을 식별하지 않습니다.</p>
+      <h2>3. 로컬 저장소</h2>
+      <p>언어·테마 등 사용자 설정은 이용자 브라우저(localStorage)에만 저장되며 서버로 전송되지 않습니다.</p>
+      <h2>4. 제3자 링크</h2>
+      <p>사이트의 외부 링크로 이동한 뒤의 개인정보 처리는 해당 사이트의 방침을 따릅니다.</p>
+      <h2>5. 아동의 개인정보</h2>
+      <p>본 사이트는 만 14세 미만 아동을 대상으로 하지 않습니다.</p>
+      <h2>6. 방침 변경</h2>
+      <p>본 방침은 변경될 수 있으며, 변경 시 본 페이지에 게시합니다.</p>
+      <h2>7. 문의</h2>
+      <p>개인정보 관련 문의: <a href={'mailto:' + COMPANY.email}>{COMPANY.email}</a></p>
+    </div>
+  );
+}
+
+/* ---- 이용약관 ---------------------------------------------------------- */
+/* ***! TODO: 사업자 정보·준거법 관할 확정 후 최종화, 필요 시 법률 검토. */
+function TermsPage() {
+  return (
+    <div className="prose">
+      <h1>이용약관</h1>
+      <p className="muted">시행일: 2026-06-16 · 운영: {COMPANY.operator}</p>
+      <h2>제1조 (목적)</h2>
+      <p>본 약관은 broodev가 제공하는 웹앱 서비스의 이용 조건을 규정합니다.</p>
+      <h2>제2조 (서비스)</h2>
+      <p>사이트의 모든 앱은 무료로 제공되며, 데이터·점수·결과는 <strong>참고용</strong>입니다. 정확성·완전성을 보장하지 않습니다.</p>
+      <h2>제3조 (면책)</h2>
+      <p>특히 금융 관련 앱(예: BTC_SIGNAL)의 수치는 투자 자문이 아니며, 이용에 따른 모든 판단과 책임은 이용자 본인에게 있습니다.</p>
+      <h2>제4조 (지식재산권)</h2>
+      <p>사이트 및 앱의 콘텐츠·디자인에 대한 권리는 {COMPANY.operator}에 있습니다.</p>
+      <h2>제5조 (약관 변경)</h2>
+      <p>약관은 변경될 수 있으며, 변경 시 본 페이지에 게시합니다.</p>
+      <h2>제6조 (문의)</h2>
+      <p><a href={'mailto:' + COMPANY.email}>{COMPANY.email}</a></p>
+    </div>
+  );
+}
 
 const SECTIONS = {
   about: AboutPage, apps: AppsPage, news: NewsPage,
