@@ -24,7 +24,7 @@
     2. Pages 자동 활성화(enablement) + 아티팩트 업로드 + 배포
           │
           ▼
-  🌐 라이브 데모   https://jsontype.github.io/bitcoin/   (push 후 ~1분 반영)
+  🌐 라이브 데모   https://btc.broodev.com/   (push 후 ~1분 반영)
 ```
 
 - 자체완결형 `standalone.html`(CDN React · 빌드 불필요 · 경로 독립적)을 그대로 발행하므로 빌드 단계가 없습니다.
