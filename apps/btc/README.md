@@ -4,6 +4,8 @@
 
 ![stack](https://img.shields.io/badge/react-18-149eca) ![stack](https://img.shields.io/badge/vite-5-646cff) ![data](https://img.shields.io/badge/data-live-00ff9c)
 
+**기술 스택:** React 18 · Vite 5 · 순수 JS 지표 엔진(RSI·MACD·Mayer 등) · 빌드 불필요 `standalone.html`(CDN React + 브라우저 Babel) · i18n 13개 언어 · 데이터: CoinGecko · Binance · Alternative.me 공개 API · 배포: Cloudflare Pages(예정) / GitHub Pages(전환기)
+
 > [!WARNING]
 > **⚠️ 투자 유의 · 면책 고지**
 >
