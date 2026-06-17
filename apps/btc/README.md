@@ -13,20 +13,18 @@
 > 점수는 미래 가격을 보장하지 않으며, 암호화폐 투자는 **원금 전액 손실** 위험이 있습니다.
 > **모든 투자 판단과 그 결과(손익)에 대한 책임은 전적으로 이용자 본인에게 있습니다.** 반드시 스스로 조사하세요 (DYOR).
 
-## 구조 (라우팅)
+## 구조 (라우팅, SEO-safe)
 
-루트 `index.html`은 **컨트롤러**이고, 실제 앱은 두 버전으로 나뉩니다 (둘 다 자체완결·무빌드 standalone).
+루트 `index.html`이 **광고 버전(기본)** 이자 SEO 랜딩입니다. 비구독자·크롤러는 루트에 그대로 머물러 **검색 노출이 루트(btc.broodev.com)에 유지**되고, **구독자만** 광고 없는 `member/`로 리다이렉트됩니다.
 
 | 경로 | 역할 |
 | --- | --- |
-| [`index.html`](index.html) | **컨트롤러** — 구독 여부 판정 → 리다이렉트 (SEO 헤드 유지) |
-| [`adsense/`](adsense/) | **광고 버전 (비구독자 기본)** — AdSense + 점수 계산 게이트 |
-| [`member/`](member/) | **구독자 전용 (광고 없음)** — `noindex`, 유료 결제자만 접근 |
+| [`index.html`](index.html) | **광고 버전 (비구독자 기본)** — AdSense + 점수 계산 게이트 + 전체 SEO. 구독자면 `member/`로 이동 |
+| [`member/`](member/) | **구독자 전용 (광고 없음)** — `noindex`, 유료 결제자만 |
 
-라우팅:
-- 구독자 → `member/` (광고 없는 버전)
-- 그 외 → `adsense/` (기본)
-- 현재 구독 판정은 **임시 클라이언트 플래그**(`localStorage 'btc:member'`, `?member=1/0`)이며, **실제 검증은 결제+인증 백엔드 연동 후**(`***! TODO`).
+- 비구독자/크롤러 → 루트(광고 버전) 그대로 (리다이렉트 없음 → SEO 유지)
+- 구독자 → `member/`
+- 구독 판정은 **임시 클라이언트 플래그**(`localStorage 'btc:member'`, `?member=1/0`); **실제 검증은 결제+인증 백엔드 연동 후**(`***! TODO`).
 
 ## 배포
 Cloudflare Pages. `master` push 시 자동 재배포. 프로젝트 = Root `apps/btc` · **Build command 없음** · Output `/`. (라이브: https://btc.broodev.com/)
