@@ -181,9 +181,12 @@
       @keyframes cardalert { 50% { box-shadow: 0 0 26px -8px var(--crit); } }
       .panel-label { align-self: flex-start; font-size: 10px; letter-spacing: 2px; color: var(--dim); margin-bottom: 6px; }
       .mode-tabs { display: flex; gap: 6px; width: 100%; max-width: 340px; padding: 4px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(0,0,0,.32); }
-      .mode-tab { flex: 1; padding: 10px 8px; font-family: inherit; font-size: 13.5px; font-weight: 800; letter-spacing: .2px; white-space: nowrap; color: var(--text); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; cursor: pointer; transition: color .2s, background .2s, box-shadow .2s; }
+      .mode-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 8px 6px; font-family: inherit; line-height: 1.15; color: var(--text); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; cursor: pointer; transition: color .2s, background .2s, box-shadow .2s; }
+      .mode-tab .tab-main { font-size: 14px; font-weight: 800; letter-spacing: .2px; white-space: nowrap; }
+      .mode-tab .tab-sub { font-size: 8.5px; font-weight: 600; letter-spacing: .3px; opacity: .72; white-space: nowrap; }
       .mode-tab:hover { color: #fff; background: rgba(255,255,255,.10); }
       .mode-tab.on { color: #04110b; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 18px -2px var(--accent); }
+      .mode-tab.on .tab-sub { opacity: .85; }
       .mode-hint { font-size: 11.5px; line-height: 1.5; color: var(--text); opacity: .8; margin-bottom: 12px; max-width: 300px; text-align: center; }
       .gauge-big { position: relative; width: 210px; height: 210px; }
       .gauge-big svg { width: 100%; height: 100%; }
@@ -1781,6 +1784,8 @@
         },
       }
       const getMode = (lang) => MODE_I18N[lang] || MODE_I18N.en
+      // 탭 라벨 "단기 · 모멘텀" → [기간, 철학]. 철학은 작게 표시(긴 언어 깨짐 방지)
+      const splitModeLabel = (s) => { const i = (s || '').indexOf('·'); return i < 0 ? [(s || '').trim(), ''] : [s.slice(0, i).trim(), s.slice(i + 1).trim()] }
       const THEMES = { green: '#00ff9c', cyan: '#00e5ff', amber: '#ffb000', red: '#ff3b5c' }
       function App() {
         const [price, setPrice] = useState(null)
@@ -1926,8 +1931,8 @@
                   <span className="corner tl" /><span className="corner tr" /><span className="corner bl" /><span className="corner br" />
                   <div className="panel-label">// <Term k="score">{t.buyTimingScore}</Term></div>
                   <div className="mode-tabs" role="tablist" aria-label={xm.tabTitle}>
-                    <button role="tab" aria-selected={mode === 'short'} className={`mode-tab ${mode === 'short' ? 'on' : ''}`} onClick={() => setMode('short')} title={xm.shortHint}>{xm.short}</button>
-                    <button role="tab" aria-selected={mode === 'long'} className={`mode-tab ${mode === 'long' ? 'on' : ''}`} onClick={() => setMode('long')} title={xm.longHint}>{xm.long}</button>
+                    <button role="tab" aria-selected={mode === 'short'} className={`mode-tab ${mode === 'short' ? 'on' : ''}`} onClick={() => setMode('short')} title={xm.shortHint}><span className="tab-main">{splitModeLabel(xm.short)[0]}</span>{splitModeLabel(xm.short)[1] && <span className="tab-sub">{splitModeLabel(xm.short)[1]}</span>}</button>
+                    <button role="tab" aria-selected={mode === 'long'} className={`mode-tab ${mode === 'long' ? 'on' : ''}`} onClick={() => setMode('long')} title={xm.longHint}><span className="tab-main">{splitModeLabel(xm.long)[0]}</span>{splitModeLabel(xm.long)[1] && <span className="tab-sub">{splitModeLabel(xm.long)[1]}</span>}</button>
                   </div>
                   <div className="mode-hint">{mode === 'long' ? xm.longHint : xm.shortHint}</div>
                   <div className="gauge-big">
