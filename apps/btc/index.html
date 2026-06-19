@@ -1920,7 +1920,6 @@
         const [tipsOn, setTipsOn] = useLocalStorage('btc:tips', true)
         const [lang, setLang] = useLocalStorage('btc:lang', detectLang())
         const [scoreHist, setScoreHist] = useLocalStorage('btc:scoreHist', [])
-        const [booted, setBooted] = useState(() => sessionStorage.getItem('btcbooted') === '1')
         const now = useClock()
         const t = getT(lang)
         const locale = localeOf(lang)
@@ -2029,8 +2028,6 @@
           matrix: (on) => setMatrixOn(!!on),
         }), [refresh])
 
-        const finishBoot = useCallback(() => { sessionStorage.setItem('btcbooted', '1'); setBooted(true) }, [])
-        if (!booted) return <BootSequence onDone={finishBoot} t={t} />
 
         const band = A?.band
         const sysColor = band ? band.color : 'warn'
