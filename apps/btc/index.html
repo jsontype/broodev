@@ -233,6 +233,16 @@
       .gate-adwrap { width: 100%; max-width: 100%; overflow: hidden; }
       .gate-adlabel { display: block; font-size: 9px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; margin-bottom: 3px; text-align: left; }
       .gate-ad { display: block; width: 100%; max-width: 100%; overflow: hidden; min-height: 90px; }
+      /* 좌우 거터 광고 레일 — 데스크톱 전용, 거터가 충분히 넓을 때만 표시(콘텐츠와 안 겹침) */
+      .ad-rail { display: none; }
+      .rail-ad { display: block; width: 100%; max-width: 100%; min-height: 600px; }
+      .ad-rail-label { font-size: 9px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; margin-bottom: 4px; text-align: center; }
+      @media (min-width: 1560px) {
+        .ad-rail { display: block; position: fixed; top: 50%; transform: translateY(-50%); width: 160px; z-index: 3; }
+        .ad-rail.left { left: 14px; }
+        .ad-rail.right { right: 14px; }
+      }
+      @media (min-width: 1840px) { .ad-rail { width: 300px; } }
 
       .market { display: flex; flex-direction: column; gap: 14px; }
       .market-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
@@ -1882,6 +1892,17 @@
         )
       }
 
+      // 좌우 거터 세로 광고. 타이머 자동 새로고침은 하지 않음(AdSense 정책: 노출수 부풀리기 금지).
+      function RailAd({ slot = '' }) {
+        useEffect(() => { try { (window.adsbygoogle = window.adsbygoogle || []).push({}) } catch (e) {} }, [])
+        // ***! TODO: AdSense에서 '디스플레이'(세로/스카이스크래퍼) 광고 단위를 만들고 data-ad-slot 값을 채우세요.
+        //   슬롯이 비어 있으면 빈 영역으로 남습니다(정책 위반 아님).
+        return (
+          <ins className="adsbygoogle rail-ad" data-ad-client="ca-pub-2639315913402952"
+            data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="false" />
+        )
+      }
+
       function App() {
         const [price, setPrice] = useState(null)
         const [klines, setKlines] = useState(null)
@@ -2028,6 +2049,8 @@
           <div className={`app status-${sysColor}`}>
             <MatrixRain enabled={matrixOn} accent={accent} />
             <div className="scanlines" /><div className="vignette" />
+            <aside className="ad-rail left"><span className="ad-rail-label">{gate.adlabel}</span><RailAd /></aside>
+            <aside className="ad-rail right"><span className="ad-rail-label">{gate.adlabel}</span><RailAd /></aside>
             <div className="shell">
               <header className="topbar">
                 <div className="brand">
