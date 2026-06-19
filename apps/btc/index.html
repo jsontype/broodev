@@ -1608,14 +1608,22 @@
         const [calc, setCalc] = useState(null) // null=대기, 0..N=계산 진행 단계
         const startCalc = () => {
           if (calc != null) return
+          const n = gate.lines.length
+          const total = 6000 + Math.floor(Math.random() * 3000) // 로딩
+          // 각 항목에 가중치를 줘 총 시간 불균등 분배
+          const w = []
+          for (let k = 0; k < n; k++) w.push(0.4 + Math.random())
+          const sum = w.reduce((a, b) => a + b, 0)
+          const durs = w.map((x) => Math.round((x / sum) * total))
           setCalc(0)
           let i = 0
-          const tick = () => {
+          const step = () => {
             i += 1
-            if (i >= gate.lines.length) { setCalc(gate.lines.length); setTimeout(() => setScoreRevealed(true), 600) }
-            else { setCalc(i); setTimeout(tick, 800 + Math.floor(Math.random() * 500)) }
+            setCalc(i)
+            if (i >= n) { setTimeout(() => setScoreRevealed(true), 300 + Math.floor(Math.random() * 400)); return }
+            setTimeout(step, durs[i])
           }
-          setTimeout(tick, 650)
+          setTimeout(step, durs[0])
         }
 
         useEffect(() => { document.documentElement.style.setProperty('--neon', accent) }, [accent])
