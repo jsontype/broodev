@@ -236,7 +236,7 @@ function SettingsPage({ t }) {
         <hr className="divider" />
         <div className="panel-label">{s.integ}</div>
         {/* ***! TODO: 키는 백엔드 비밀저장소에 보관, 프런트 노출 금지 */}
-        <div className="field"><label>AdSense Publisher</label><input defaultValue="pub-2639315913402952" /></div>
+        <div className="field"><label>AdSense Publisher</label><input defaultValue="pub-5511225478572825" /></div>
         <div className="field"><label>Analytics (GA4) ID</label><input placeholder="G-XXXXXXX" /></div>
         <hr className="divider" />
         <div className="panel-label">{s.notiTheme}</div>
