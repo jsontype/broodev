@@ -14,11 +14,16 @@
 ```text
 broodev/
 ├─ apps/
-│  ├─ web/        →  broodev.com        회사 소개 + 전체 앱 포털(유용한 앱들)
-│  ├─ btc/        →  btc.broodev.com    비트코인 공포·탐욕 지수 & 매수 타이밍
-│  └─ admin/      →  admin.broodev.com  관리자(데이터 수집·운영) — Google SSO 단독 접근
+│  ├─ btc/        →  broodev.com (+ btc.broodev.com)  비트코인 매수 타이밍 시그널 (루트=대표앱)
+│  ├─ <coin>/     →  <coin>.broodev.com               eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana
+│  │                                                  (btc 복제 — scripts/gen_coin.py 로 생성)
+│  ├─ dev/        →  dev.broodev.com                  개발자 소개 + 전체 앱 포털(유용한 앱들)
+│  └─ admin/      →  admin.broodev.com                관리자(데이터 수집·운영) — Google SSO 단독 접근
 ├─ packages/
 │  └─ ui-terminal/   공통 "터미널/해킹" 테마(theme.css) — 모든 앱이 같은 룩 공유
+├─ scripts/
+│  ├─ gen_coin.py    코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화)
+│  └─ coins.json     코인 14종 데이터(id·심볼·13언어 코인명)
 └─ .github/workflows/   배포 파이프라인
 ```
 
@@ -26,9 +31,18 @@ broodev/
 
 | 앱 | 도메인 | 설명 | 스택 | 상태 |
 | --- | --- | --- | --- | --- |
-| [web](apps/web/) | broodev.com | 회사 소개 + 유용한 앱들 포털 | React 18(CDN) · 정적 | 🟡 개발 중 |
-| [btc](apps/btc/) | btc.broodev.com | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 | React 18 (CDN) · 무빌드 | 🟢 라이브 |
+| [btc](apps/btc/) | **broodev.com** (+ btc.broodev.com) | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 (대표앱) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
+| 코인 14종 | `<coin>.broodev.com` | eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana — btc 복제 매수 타이밍 시그널 | React 18 (CDN) · 무빌드 | 🟢 라이브 |
+| [dev](apps/dev/) | dev.broodev.com | 개발자 소개 + 유용한 앱들 포털 | React 18(CDN) · 정적 | 🟢 라이브 |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
+
+### 🪙 코인 시그널 패밀리 (15종) — `scripts/gen_coin.py`
+btc를 템플릿으로 **동일 구조·기능**의 코인 앱을 찍어낸다. 코인 추가/재생성:
+```bash
+python3 scripts/gen_coin.py eth          # 하나
+python3 scripts/gen_coin.py all          # 전체(14종)
+```
+데이터는 [`scripts/coins.json`](scripts/coins.json)(id·Binance 심볼·13언어 코인명). 자기참조 URL·API·브랜드·티커·코인명·푸터 현재코인 마커를 **앵커 기반 정밀 치환**(공통 자매 푸터의 코인 링크열은 보호). 광고버전 `index.html`만 생성(member/·adsense/ 제외). ⚠ og 썸네일 PNG는 btc 것 복사 상태 → 코인별 재생성 필요(TODO).
 
 ## 🎨 공통 디자인
 
@@ -40,11 +54,14 @@ broodev/
 
 | Pages 프로젝트 | Root directory | 도메인 |
 | --- | --- | --- |
-| broodev-web | `apps/btc` ⭐(전환) | broodev.com |
+| broodev (구 broodev-web) | `apps/btc` ⭐(전환) | broodev.com |
 | broodev-btc | `apps/btc` | btc.broodev.com |
+| broodev-`<coin>` | `apps/<coin>` | `<coin>.broodev.com` (14종) |
+| broodev-dev | `apps/dev` | dev.broodev.com |
 | broodev-admin | `apps/admin` | admin.broodev.com |
 
-> 세 앱 모두 Cloudflare Pages 무빌드(정적) 배포. 자세한 절차는 [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
+> 모두 Cloudflare Pages 무빌드(정적) 배포. 자세한 절차는 [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
+> **코인 14종은 각각 Pages 프로젝트(Root `apps/<coin>`) + 커스텀 도메인 `<coin>.broodev.com` 을 수동 추가**해야 한다(코드는 준비 완료). AdSense는 도메인(broodev.com) 승인이 서브도메인까지 커버.
 
 ## 📁 앱 추가 규칙
 
