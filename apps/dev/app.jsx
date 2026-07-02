@@ -8,20 +8,25 @@ const I18N = window.WEB_I18N;
 const COMPANY = { operator: 'Y-Systems', ceo: 'jsontype', email: 'jsontyper@gmail.com' };
 
 /* ---- 앱 카탈로그 (이름/링크는 고정, 설명은 추후 i18n 가능) ---- */
+const sig = (name) => `${name} 공포·탐욕 지수와 6개 지표(RSI·MACD·마이어 배수·낙폭·이동평균)를 합성한 매수 타이밍 점수(0~100).`;
 const APPS = [
-  { slug: 'btc', name: 'BTC_SIGNAL', url: 'https://btc.broodev.com', category: '금융', status: 'live',
-    desc: '비트코인 공포·탐욕 지수와 6개 지표를 합성한 매수 타이밍 점수(0~100).', tags: ['비트코인', '공포지수', '실시간'] },
+  { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: '암호화폐', status: 'live', desc: sig('비트코인'),     tags: ['비트코인', '공포지수', '실시간'] },
+  { slug: 'eth',  name: 'ETH_SIGNAL',  url: 'https://eth.broodev.com',  category: '암호화폐', status: 'live', desc: sig('이더리움'),     tags: ['이더리움', '공포지수'] },
+  { slug: 'xrp',  name: 'XRP_SIGNAL',  url: 'https://xrp.broodev.com',  category: '암호화폐', status: 'live', desc: sig('리플(XRP)'),     tags: ['리플', 'XRP'] },
+  { slug: 'doge', name: 'DOGE_SIGNAL', url: 'https://doge.broodev.com', category: '암호화폐', status: 'live', desc: sig('도지코인'),     tags: ['도지코인', '밈코인'] },
+  { slug: 'bch',  name: 'BCH_SIGNAL',  url: 'https://bch.broodev.com',  category: '암호화폐', status: 'live', desc: sig('비트코인캐시'), tags: ['비트코인캐시', 'BCH'] },
+  { slug: 'link', name: 'LINK_SIGNAL', url: 'https://link.broodev.com', category: '암호화폐', status: 'live', desc: sig('체인링크'),     tags: ['체인링크', 'LINK'] },
+  { slug: 'xlm',  name: 'XLM_SIGNAL',  url: 'https://xlm.broodev.com',  category: '암호화폐', status: 'live', desc: sig('스텔라루멘'),   tags: ['스텔라', 'XLM'] },
+  { slug: 'ltc',  name: 'LTC_SIGNAL',  url: 'https://ltc.broodev.com',  category: '암호화폐', status: 'live', desc: sig('라이트코인'),   tags: ['라이트코인', 'LTC'] },
+  { slug: 'avax', name: 'AVAX_SIGNAL', url: 'https://avax.broodev.com', category: '암호화폐', status: 'live', desc: sig('아발란체'),     tags: ['아발란체', 'AVAX'] },
+  { slug: 'shib', name: 'SHIB_SIGNAL', url: 'https://shib.broodev.com', category: '암호화폐', status: 'live', desc: sig('시바이누'),     tags: ['시바이누', '밈코인'] },
+  { slug: 'dot',  name: 'DOT_SIGNAL',  url: 'https://dot.broodev.com',  category: '암호화폐', status: 'live', desc: sig('폴카닷'),       tags: ['폴카닷', 'DOT'] },
+  { slug: 'pepe', name: 'PEPE_SIGNAL', url: 'https://pepe.broodev.com', category: '암호화폐', status: 'live', desc: sig('페페'),         tags: ['페페', '밈코인'] },
+  { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://grt.broodev.com',  category: '암호화폐', status: 'live', desc: sig('더그래프'),     tags: ['더그래프', 'GRT'] },
+  { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://sand.broodev.com', category: '암호화폐', status: 'live', desc: sig('샌드박스'),     tags: ['샌드박스', 'SAND'] },
+  { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://mana.broodev.com', category: '암호화폐', status: 'live', desc: sig('디센트럴랜드'), tags: ['디센트럴랜드', 'MANA'] },
 ];
-/* ***! TODO: ROADMAP은 "예정" 플레이스홀더. 출시 시 APPS로 이동. (이름/설명 다국어화는 추후) */
-const ROADMAP = [
-  { slug: 'fx', name: '환율 계산기', category: '금융', status: 'soon', desc: '실시간 환율로 즉시 변환하는 다통화 계산기.' },
-  { slug: 'dday', name: 'D-Day 카운터', category: '생활', status: 'soon', desc: '기념일·마감까지 남은 날짜를 카운트.' },
-  { slug: 'qr', name: 'QR 생성기', category: '도구', status: 'soon', desc: '링크·텍스트를 QR 코드로 즉시 생성.' },
-  { slug: 'unit', name: '단위 변환기', category: '도구', status: 'soon', desc: '길이·무게·온도 등 단위를 빠르게 변환.' },
-  { slug: 'color', name: '컬러 팔레트', category: '디자인', status: 'soon', desc: '브랜드 컬러·팔레트 추출과 대비 검사.' },
-  { slug: 'json', name: 'JSON 포매터', category: '개발', status: 'soon', desc: 'JSON 정렬·검증·트리 뷰.' },
-  { slug: 'timer', name: '포모도로 타이머', category: '생산성', status: 'soon', desc: '집중·휴식 사이클 타이머.' },
-];
+const ROADMAP = [];
 
 /* ---- 공용 훅/컴포넌트 ---- */
 function useHashRoute(def) {
