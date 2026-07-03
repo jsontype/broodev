@@ -69,11 +69,11 @@ def transform_index(html, c):
     html = html.replace("bitcoin fear and greed index",
                         f"{names['en'].lower()} fear and greed index")
 
-    # 6) 푸터 nav 복원 + 현재 코인 마커 스왑
-    nav = nav.replace('<span class="cur" aria-current="page">BTC</span>',
-                      '<a href="https://broodev.com/">BTC</a>')
-    nav = nav.replace(f'<a href="{base}/">{tk}</a>',
-                      f'<span class="cur" aria-current="page">{tk}</span>')
+    # 6) 푸터 nav 복원 + 현재 코인 마커 스왑 (data-coin 기준, 코인명 텍스트는 보존)
+    nav = re.sub(r'<span class="cur" data-coin="btc" aria-current="page">(.*?)</span>',
+                 r'<a data-coin="btc" href="https://broodev.com/">\1</a>', nav)
+    nav = re.sub(rf'<a data-coin="{sub}" href="https://{re.escape(sub)}\.broodev\.com/">(.*?)</a>',
+                 rf'<span class="cur" data-coin="{sub}" aria-current="page">\1</span>', nav)
     html = html.replace("@@FOOTNAV@@", nav)
     return html
 
