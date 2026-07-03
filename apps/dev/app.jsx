@@ -25,6 +25,7 @@ const APPS = [
   { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://grt.broodev.com',  category: '암호화폐', status: 'live', desc: sig('더그래프'),     tags: ['더그래프', 'GRT'] },
   { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://sand.broodev.com', category: '암호화폐', status: 'live', desc: sig('샌드박스'),     tags: ['샌드박스', 'SAND'] },
   { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://mana.broodev.com', category: '암호화폐', status: 'live', desc: sig('디센트럴랜드'), tags: ['디센트럴랜드', 'MANA'] },
+  { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: '학습',     status: 'live', desc: '단어와 뜻을 큰 글자로 번갈아 보여주는 깜빡이 단어암기장. CSV 암기장 열기·3초 자동 반복·암기 표시·TTS 지원.', tags: ['단어암기', '깜빡이', 'CSV'] },
 ];
 const ROADMAP = [];
 
