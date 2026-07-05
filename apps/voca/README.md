@@ -26,7 +26,7 @@
 - 단어(A열)는 `単語（たんご）`처럼 **한자+요미가나** 포맷 권장 — [`sample.csv`](sample.csv) 참조(첫 방문 시 자동 로드).
 
 ## 다국어 (i18n · 13개국어)
-- 지원 언어: `en, ko, ja, zh, zh-Hant, th, es, fr, de, it, pt, ru, nl` — 제어판 우측 🌐 드롭다운으로 전환.
+- 지원 언어: `en, ko, ja, zh, zh-Hant, th, es, fr, de, it, pt, ru, nl` — 최상단 슬림 헤더(좌: broodev 로고 + 앱 이름, 우: 🌐 드롭다운)에서 전환.
 - 감지 우선순위: `localStorage(voca:lang)` → URL `?lang=` → `navigator.language` → `en` 폴백. 언어 변경 시 `<html lang>`·`<title>`·meta description 동기화 + URL `?lang=` 반영.
 - 하단 정적 SEO 본문은 [`seo-i18n.js`](seo-i18n.js)(`window.renderSEO`)가 현재 언어로 다시 그림(무JS 크롤러는 정적 한국어 폴백).
 - 공유(OG) 메타는 [`functions/_middleware.js`](functions/_middleware.js)가 엣지에서 `?lang=` 별로 현지화(HTMLRewriter, btc와 동일 컨벤션).
