@@ -72,7 +72,7 @@
             "operatingSystem": "Web",
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
             "isAccessibleForFree": true,
-            "inLanguage": ["ko", "en", "ja"],
+            "inLanguage": ["ko", "en", "ja", "zh", "zh-Hant", "th", "es", "fr", "de", "it", "pt", "ru", "nl"],
             "description": "단어와 뜻을 큰 글자로 번갈아 보여주는 무료 깜빡이 단어암기장. CSV 암기장을 열면 설정한 간격(기본 3초)으로 자동 반복 재생하며, 암기 표시·무작위 순서·TTS 음성을 지원합니다."
           },
           {
@@ -169,6 +169,11 @@
       /* 제어판 숨김 모드: 하단 얇은 미니바 */
       .minibar { flex-shrink: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--panel-gray); padding: 3px 8px; font-size: 11px; border-top: 1px solid var(--panel-light); }
       .minibar .tb-btn { padding: 2px 7px; font-size: 11px; }
+
+      /* 언어 선택 (🌐) */
+      .lang-select { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; }
+      .lang-select .globe { font-size: 13px; line-height: 1; }
+      .lang-select select { font-size: 12px; border: 2px inset #9a9a9a; background: #fff; padding: 1px 2px; max-width: 110px; }
 
       /* 팝오버 (글꼴/배경 설정) */
       .pop-wrap { position: relative; }
@@ -276,6 +281,7 @@
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. VOCA_DECK의 암기장 데이터는 이용자의 브라우저에만 저장됩니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
     </footer>
 
+    <script src="seo-i18n.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
@@ -321,6 +327,347 @@
         return out
       }
 
+      /* =========================================================
+       *  다국어(i18n) — 13개국어. UI 문자열 + 문서 타이틀/메타 설명.
+       *  hreflang(?lang=)과 짝 맞춤. 하단 SEO 본문은 seo-i18n.js가 담당.
+       * ========================================================= */
+      const LANGS = [
+        { code: 'en', label: 'English' },
+        { code: 'ja', label: '日本語' },
+        { code: 'ko', label: '한국어' },
+        { code: 'zh', label: '简体中文' },
+        { code: 'zh-Hant', label: '繁體中文' },
+        { code: 'th', label: 'ไทย' },
+        { code: 'es', label: 'Español' },
+        { code: 'fr', label: 'Français' },
+        { code: 'de', label: 'Deutsch' },
+        { code: 'it', label: 'Italiano' },
+        { code: 'pt', label: 'Português' },
+        { code: 'ru', label: 'Русский' },
+        { code: 'nl', label: 'Nederlands' },
+      ]
+      const DEFAULT_LANG = 'en'
+      const DOC_TITLE = {
+        ko: '깜빡이 단어암기장 · CSV 자동 반복 암기 | VOCA_DECK',
+        en: 'Flashing Vocabulary Memorizer · Auto-repeat CSV decks | VOCA_DECK',
+        ja: '点滅式単語暗記 · CSV自動リピート | VOCA_DECK',
+        zh: '闪示单词记忆 · CSV自动循环 | VOCA_DECK',
+        'zh-Hant': '閃示單字記憶 · CSV自動循環 | VOCA_DECK',
+        th: 'ท่องศัพท์แบบแฟลช · เล่นซ้ำอัตโนมัติจาก CSV | VOCA_DECK',
+        es: 'Memorizador de vocabulario · Repetición automática CSV | VOCA_DECK',
+        fr: 'Mémorisation de vocabulaire · Répétition auto CSV | VOCA_DECK',
+        de: 'Vokabeltrainer mit Blitzanzeige · CSV-Autowiederholung | VOCA_DECK',
+        it: 'Memorizzatore di vocaboli · Ripetizione automatica CSV | VOCA_DECK',
+        pt: 'Memorizador de vocabulário · Repetição automática CSV | VOCA_DECK',
+        ru: 'Тренажёр слов · Автоповтор из CSV | VOCA_DECK',
+        nl: 'Woordjes stampen · Automatisch herhalen uit CSV | VOCA_DECK',
+      }
+      const T = {
+        en: {
+          langLabel: 'Language',
+          metaDesc: 'Free flashing vocabulary memorizer that alternates words and meanings in large type. Open a CSV deck for 3-second auto play, memorized marks, random order and TTS. No install.',
+          open: 'Open deck', next: 'Next', mem: 'Memorized', tts: 'TTS', voiceOnly: 'Voice only',
+          alwaysTop: 'Always on top', alwaysTopHint: 'Not supported in web browsers', hidePanel: 'Hide panel', quit: 'Quit',
+          gStatus: 'Status', total: 'Total :', current: 'Current :', toLearn: 'To learn :', learned: 'Learned :',
+          gMode: 'Manual/Auto', manual: 'Manual', auto: 'Auto',
+          gOrder: 'Order', fwd: 'Forward', rev: 'Backward', rnd: 'Random', startNo: 'Start # :', apply: 'Apply',
+          gRange: 'Range', unmem: 'Skip memorized', memOnly: 'Memorized only', all: 'All', delay: 'Delay (s) :',
+          font: 'Font', bg: 'Background', resetMem: 'Reset marks',
+          fontTitle: 'Font settings', fontFamily: 'Font', fontSize: 'Size (px)', bold: 'Bold', fontColor: 'Text color', close: 'Close',
+          bgTitle: 'Background color', bgHint: 'A dark navy or black background keeps the text crisp.',
+          fonts: { gothic: 'Bold sans', round: 'Rounded sans', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Open a deck to start', emptyBot: '(Open deck → CSV: word,meaning)', ariaNext: 'Next (click or spacebar)',
+          noEligible: 'No items match the current range',
+          sampleLoaded: (n) => `Sample deck loaded: ${n} items`,
+          noRows: 'No readable rows — check the CSV uses "word,meaning" format',
+          opened: (n) => `Deck opened: ${n} items`,
+          confirmReset: 'Reset all memorized marks?', resetDone: 'All memorized marks reset',
+          startRange: (m) => `Start number must be between 1 and ${m}`,
+          cantClose: 'If the browser blocks closing, please close the tab manually',
+        },
+        ja: {
+          langLabel: '言語',
+          metaDesc: '単語と意味を大きな文字で交互に表示する無料の点滅式単語暗記ツール。CSVを開くと3秒間隔の自動再生、暗記マーク、ランダム順、TTS読み上げに対応。インストール不要。',
+          open: '単語帳を開く', next: '次へ', mem: '暗記マーク', tts: 'TTS', voiceOnly: '音声のみ',
+          alwaysTop: '常に手前に', alwaysTopHint: 'ウェブブラウザでは非対応です', hidePanel: 'パネルを隠す', quit: '終了',
+          gStatus: '状態', total: '総数 :', current: '現在 :', toLearn: '未暗記 :', learned: '暗記済 :',
+          gMode: '手動/自動', manual: '手動', auto: '自動',
+          gOrder: '順序', fwd: '順方向', rev: '逆方向', rnd: 'ランダム', startNo: '開始番号 :', apply: '適用',
+          gRange: '表示範囲', unmem: '暗記済を除外', memOnly: '暗記済のみ', all: 'すべて', delay: '間隔(秒) :',
+          font: 'フォント', bg: '背景色', resetMem: '暗記マーク初期化',
+          fontTitle: 'フォント設定', fontFamily: 'フォント', fontSize: 'サイズ(px)', bold: '太字', fontColor: '文字色', close: '閉じる',
+          bgTitle: '背景色', bgHint: '文字がはっきり見えるよう濃紺または黒を推奨します。',
+          fonts: { gothic: 'ゴシック(太)', round: '丸ゴシック', serif: '明朝', mono: '等幅' },
+          emptyTop: '単語帳を開いてください', emptyBot: '(単語帳を開く → CSV: 単語,意味)', ariaNext: '次へ（クリックまたはスペース）',
+          noEligible: '表示範囲に該当する項目がありません',
+          sampleLoaded: (n) => `サンプル単語帳を読み込み: ${n}件`,
+          noRows: '読み取れる行がありません — 「単語,意味」形式のCSVか確認してください',
+          opened: (n) => `単語帳を開きました: ${n}件`,
+          confirmReset: 'すべての暗記マークを初期化しますか？', resetDone: '暗記マークを初期化しました',
+          startRange: (m) => `開始番号は1〜${m}の範囲で指定してください`,
+          cantClose: 'ブラウザの制限で閉じられない場合はタブを直接閉じてください',
+        },
+        ko: {
+          langLabel: '언어',
+          metaDesc: '단어와 뜻을 큰 글자로 번갈아 보여주는 무료 깜빡이 단어암기장. CSV 암기장을 열면 3초 간격 자동 재생, 암기 표시, 무작위 순서, TTS 음성을 지원합니다. 설치 없이 브라우저에서 바로.',
+          open: '암기장 열기', next: '다음', mem: '암기 표시', tts: 'TTS', voiceOnly: '음성만',
+          alwaysTop: '항상 위에', alwaysTopHint: '웹 브라우저에서는 지원되지 않습니다', hidePanel: '제어판 숨기기', quit: '종료',
+          gStatus: '상태', total: '총 개수 :', current: '현재 인덱스 :', toLearn: '외울 개수 :', learned: '외운 개수 :',
+          gMode: '수동/자동', manual: '수동', auto: '자동',
+          gOrder: '순서', fwd: '순방향', rev: '역방향', rnd: '무작위', startNo: '시작번호 :', apply: '적용',
+          gRange: '표시 범위', unmem: '외운 항목 제외', memOnly: '외운 항목만', all: '모두', delay: '지연시간(초) :',
+          font: '글꼴', bg: '배경 색상', resetMem: '암기표시 초기화',
+          fontTitle: '글꼴 설정', fontFamily: '글꼴', fontSize: '크기(px)', bold: '굵게', fontColor: '글자색', close: '닫기',
+          bgTitle: '배경 색상', bgHint: '글씨가 선명하게 보이도록 짙은 남색 또는 검정색을 권장합니다.',
+          fonts: { gothic: '고딕 (굵은 견고딕풍)', round: '둥근 고딕', serif: '명조', mono: '모노스페이스' },
+          emptyTop: '암기장을 열어주세요', emptyBot: '(암기장 열기 → CSV: 단어,뜻)', ariaNext: '다음 (클릭 또는 스페이스바)',
+          noEligible: '표시 범위에 해당하는 항목이 없습니다',
+          sampleLoaded: (n) => `샘플 암기장 로드: ${n}개`,
+          noRows: '읽을 수 있는 행이 없습니다 — "단어,뜻" 형식의 CSV인지 확인하세요',
+          opened: (n) => `암기장 열기 완료: ${n}개 항목`,
+          confirmReset: '모든 암기 표시를 초기화할까요?', resetDone: '암기 표시 초기화 완료',
+          startRange: (m) => `시작번호는 1~${m} 사이여야 합니다`,
+          cantClose: '브라우저 정책상 창을 닫을 수 없으면 탭을 직접 닫아주세요',
+        },
+        zh: {
+          langLabel: '语言',
+          metaDesc: '免费闪示单词记忆工具，以大字交替显示单词与释义。打开CSV即可每3秒自动播放、标记已记、随机顺序与TTS朗读。无需安装，浏览器即开即用。',
+          open: '打开单词本', next: '下一个', mem: '已记标记', tts: 'TTS', voiceOnly: '仅语音',
+          alwaysTop: '置顶', alwaysTopHint: '网页浏览器不支持', hidePanel: '隐藏控制面板', quit: '退出',
+          gStatus: '状态', total: '总数 :', current: '当前 :', toLearn: '待记 :', learned: '已记 :',
+          gMode: '手动/自动', manual: '手动', auto: '自动',
+          gOrder: '顺序', fwd: '正向', rev: '反向', rnd: '随机', startNo: '起始编号 :', apply: '应用',
+          gRange: '显示范围', unmem: '排除已记', memOnly: '仅已记', all: '全部', delay: '间隔(秒) :',
+          font: '字体', bg: '背景颜色', resetMem: '重置已记标记',
+          fontTitle: '字体设置', fontFamily: '字体', fontSize: '大小(px)', bold: '加粗', fontColor: '文字颜色', close: '关闭',
+          bgTitle: '背景颜色', bgHint: '建议使用深蓝或黑色背景，让文字更清晰。',
+          fonts: { gothic: '黑体(粗)', round: '圆体', serif: '宋体', mono: '等宽' },
+          emptyTop: '请打开单词本', emptyBot: '(打开单词本 → CSV: 单词,释义)', ariaNext: '下一个（点击或空格键）',
+          noEligible: '没有符合显示范围的条目',
+          sampleLoaded: (n) => `示例单词本已加载: ${n}条`,
+          noRows: '没有可读取的行 — 请确认CSV为"单词,释义"格式',
+          opened: (n) => `单词本已打开: ${n}条`,
+          confirmReset: '要重置所有已记标记吗？', resetDone: '已记标记已重置',
+          startRange: (m) => `起始编号须在1~${m}之间`,
+          cantClose: '如浏览器限制无法关闭窗口，请手动关闭标签页',
+        },
+        'zh-Hant': {
+          langLabel: '語言',
+          metaDesc: '免費閃示單字記憶工具，以大字交替顯示單字與釋義。開啟CSV即可每3秒自動播放、標記已記、隨機順序與TTS朗讀。免安裝，瀏覽器即開即用。',
+          open: '開啟單字本', next: '下一個', mem: '已記標記', tts: 'TTS', voiceOnly: '僅語音',
+          alwaysTop: '置頂', alwaysTopHint: '網頁瀏覽器不支援', hidePanel: '隱藏控制面板', quit: '結束',
+          gStatus: '狀態', total: '總數 :', current: '目前 :', toLearn: '待記 :', learned: '已記 :',
+          gMode: '手動/自動', manual: '手動', auto: '自動',
+          gOrder: '順序', fwd: '正向', rev: '反向', rnd: '隨機', startNo: '起始編號 :', apply: '套用',
+          gRange: '顯示範圍', unmem: '排除已記', memOnly: '僅已記', all: '全部', delay: '間隔(秒) :',
+          font: '字型', bg: '背景顏色', resetMem: '重設已記標記',
+          fontTitle: '字型設定', fontFamily: '字型', fontSize: '大小(px)', bold: '粗體', fontColor: '文字顏色', close: '關閉',
+          bgTitle: '背景顏色', bgHint: '建議使用深藍或黑色背景，讓文字更清晰。',
+          fonts: { gothic: '黑體(粗)', round: '圓體', serif: '明體', mono: '等寬' },
+          emptyTop: '請開啟單字本', emptyBot: '(開啟單字本 → CSV: 單字,釋義)', ariaNext: '下一個（點擊或空白鍵）',
+          noEligible: '沒有符合顯示範圍的項目',
+          sampleLoaded: (n) => `已載入範例單字本: ${n} 筆`,
+          noRows: '沒有可讀取的列 — 請確認CSV為「單字,釋義」格式',
+          opened: (n) => `已開啟單字本: ${n} 筆`,
+          confirmReset: '要重設所有已記標記嗎？', resetDone: '已重設已記標記',
+          startRange: (m) => `起始編號須在 1~${m} 之間`,
+          cantClose: '若瀏覽器限制無法關閉視窗，請手動關閉分頁',
+        },
+        th: {
+          langLabel: 'ภาษา',
+          metaDesc: 'โปรแกรมท่องศัพท์ฟรี สลับคำและความหมายด้วยตัวอักษรขนาดใหญ่ เปิดไฟล์ CSV เล่นซ้ำอัตโนมัติทุก 3 วินาที ทำเครื่องหมายจำ สุ่มลำดับ และ TTS ใช้ในเบราว์เซอร์ได้ทันที',
+          open: 'เปิดชุดคำศัพท์', next: 'ถัดไป', mem: 'จำได้แล้ว', tts: 'TTS', voiceOnly: 'เสียงเท่านั้น',
+          alwaysTop: 'อยู่บนสุดเสมอ', alwaysTopHint: 'ไม่รองรับบนเว็บเบราว์เซอร์', hidePanel: 'ซ่อนแผงควบคุม', quit: 'ออก',
+          gStatus: 'สถานะ', total: 'ทั้งหมด :', current: 'ปัจจุบัน :', toLearn: 'ต้องจำ :', learned: 'จำได้ :',
+          gMode: 'มือ/อัตโนมัติ', manual: 'ด้วยมือ', auto: 'อัตโนมัติ',
+          gOrder: 'ลำดับ', fwd: 'ไปข้างหน้า', rev: 'ย้อนกลับ', rnd: 'สุ่ม', startNo: 'เริ่มที่ :', apply: 'ใช้',
+          gRange: 'ขอบเขต', unmem: 'ข้ามที่จำได้', memOnly: 'เฉพาะที่จำได้', all: 'ทั้งหมด', delay: 'หน่วงเวลา(วิ) :',
+          font: 'ฟอนต์', bg: 'สีพื้นหลัง', resetMem: 'ล้างเครื่องหมายจำ',
+          fontTitle: 'ตั้งค่าฟอนต์', fontFamily: 'ฟอนต์', fontSize: 'ขนาด(px)', bold: 'ตัวหนา', fontColor: 'สีตัวอักษร', close: 'ปิด',
+          bgTitle: 'สีพื้นหลัง', bgHint: 'แนะนำพื้นหลังน้ำเงินเข้มหรือดำเพื่อให้ตัวอักษรคมชัด',
+          fonts: { gothic: 'ซานส์หนา', round: 'ซานส์มน', serif: 'เซริฟ', mono: 'โมโนสเปซ' },
+          emptyTop: 'เปิดชุดคำศัพท์เพื่อเริ่ม', emptyBot: '(เปิดชุดคำศัพท์ → CSV: คำ,ความหมาย)', ariaNext: 'ถัดไป (คลิกหรือกดสเปซบาร์)',
+          noEligible: 'ไม่มีรายการในขอบเขตปัจจุบัน',
+          sampleLoaded: (n) => `โหลดชุดตัวอย่างแล้ว: ${n} รายการ`,
+          noRows: 'ไม่มีแถวที่อ่านได้ — ตรวจสอบว่า CSV เป็นรูปแบบ "คำ,ความหมาย"',
+          opened: (n) => `เปิดชุดคำศัพท์แล้ว: ${n} รายการ`,
+          confirmReset: 'ล้างเครื่องหมายจำทั้งหมดหรือไม่?', resetDone: 'ล้างเครื่องหมายแล้ว',
+          startRange: (m) => `หมายเลขเริ่มต้นต้องอยู่ระหว่าง 1 ถึง ${m}`,
+          cantClose: 'หากเบราว์เซอร์ไม่ให้ปิดหน้าต่าง โปรดปิดแท็บด้วยตนเอง',
+        },
+        es: {
+          langLabel: 'Idioma',
+          metaDesc: 'Memorizador de vocabulario gratuito que alterna palabras y significados en letras grandes. Abre un CSV: reproducción automática cada 3 s, marcas de memorizada, orden aleatorio y TTS. Sin instalación.',
+          open: 'Abrir mazo', next: 'Siguiente', mem: 'Memorizada', tts: 'TTS', voiceOnly: 'Solo voz',
+          alwaysTop: 'Siempre visible', alwaysTopHint: 'No disponible en navegadores web', hidePanel: 'Ocultar panel', quit: 'Salir',
+          gStatus: 'Estado', total: 'Total :', current: 'Actual :', toLearn: 'Por memorizar :', learned: 'Memorizadas :',
+          gMode: 'Manual/Auto', manual: 'Manual', auto: 'Auto',
+          gOrder: 'Orden', fwd: 'Hacia delante', rev: 'Hacia atrás', rnd: 'Aleatorio', startNo: 'Nº inicial :', apply: 'Aplicar',
+          gRange: 'Rango', unmem: 'Omitir memorizadas', memOnly: 'Solo memorizadas', all: 'Todas', delay: 'Intervalo (s) :',
+          font: 'Fuente', bg: 'Color de fondo', resetMem: 'Restablecer marcas',
+          fontTitle: 'Ajustes de fuente', fontFamily: 'Fuente', fontSize: 'Tamaño (px)', bold: 'Negrita', fontColor: 'Color del texto', close: 'Cerrar',
+          bgTitle: 'Color de fondo', bgHint: 'Se recomienda azul marino oscuro o negro para que el texto se vea nítido.',
+          fonts: { gothic: 'Sans gruesa', round: 'Sans redondeada', serif: 'Serif', mono: 'Monoespaciada' },
+          emptyTop: 'Abre un mazo para empezar', emptyBot: '(Abrir mazo → CSV: palabra,significado)', ariaNext: 'Siguiente (clic o barra espaciadora)',
+          noEligible: 'No hay elementos en el rango actual',
+          sampleLoaded: (n) => `Mazo de ejemplo cargado: ${n} elementos`,
+          noRows: 'No hay filas legibles — comprueba que el CSV use el formato "palabra,significado"',
+          opened: (n) => `Mazo abierto: ${n} elementos`,
+          confirmReset: '¿Restablecer todas las marcas de memorizada?', resetDone: 'Marcas restablecidas',
+          startRange: (m) => `El número inicial debe estar entre 1 y ${m}`,
+          cantClose: 'Si el navegador impide cerrar la ventana, cierra la pestaña manualmente',
+        },
+        fr: {
+          langLabel: 'Langue',
+          metaDesc: 'Mémorisation de vocabulaire gratuite : mots et sens alternent en grands caractères. Ouvrez un CSV : lecture auto toutes les 3 s, marques mémorisé, ordre aléatoire, TTS. Sans installation.',
+          open: 'Ouvrir un paquet', next: 'Suivant', mem: 'Mémorisé', tts: 'TTS', voiceOnly: 'Voix seule',
+          alwaysTop: 'Toujours au premier plan', alwaysTopHint: 'Non pris en charge dans les navigateurs web', hidePanel: 'Masquer le panneau', quit: 'Quitter',
+          gStatus: 'État', total: 'Total :', current: 'Actuel :', toLearn: 'À apprendre :', learned: 'Mémorisés :',
+          gMode: 'Manuel/Auto', manual: 'Manuel', auto: 'Auto',
+          gOrder: 'Ordre', fwd: 'Avant', rev: 'Arrière', rnd: 'Aléatoire', startNo: 'N° de départ :', apply: 'Appliquer',
+          gRange: 'Plage', unmem: 'Exclure mémorisés', memOnly: 'Mémorisés seuls', all: 'Tous', delay: 'Intervalle (s) :',
+          font: 'Police', bg: 'Couleur de fond', resetMem: 'Réinitialiser les marques',
+          fontTitle: 'Réglages de police', fontFamily: 'Police', fontSize: 'Taille (px)', bold: 'Gras', fontColor: 'Couleur du texte', close: 'Fermer',
+          bgTitle: 'Couleur de fond', bgHint: 'Un fond bleu marine foncé ou noir est recommandé pour un texte net.',
+          fonts: { gothic: 'Sans épaisse', round: 'Sans arrondie', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Ouvrez un paquet pour commencer', emptyBot: '(Ouvrir un paquet → CSV : mot,sens)', ariaNext: 'Suivant (clic ou barre d’espace)',
+          noEligible: 'Aucun élément dans la plage actuelle',
+          sampleLoaded: (n) => `Paquet d’exemple chargé : ${n} éléments`,
+          noRows: 'Aucune ligne lisible — vérifiez que le CSV est au format « mot,sens »',
+          opened: (n) => `Paquet ouvert : ${n} éléments`,
+          confirmReset: 'Réinitialiser toutes les marques ?', resetDone: 'Marques réinitialisées',
+          startRange: (m) => `Le numéro de départ doit être entre 1 et ${m}`,
+          cantClose: 'Si le navigateur empêche la fermeture, fermez l’onglet manuellement',
+        },
+        de: {
+          langLabel: 'Sprache',
+          metaDesc: 'Kostenloser Vokabeltrainer: Wörter und Bedeutungen erscheinen abwechselnd in großer Schrift. CSV öffnen – Autoplay alle 3 s, Merk-Markierung, Zufallsreihenfolge, TTS. Ohne Installation.',
+          open: 'Deck öffnen', next: 'Weiter', mem: 'Gemerkt', tts: 'TTS', voiceOnly: 'Nur Ton',
+          alwaysTop: 'Immer im Vordergrund', alwaysTopHint: 'Im Webbrowser nicht verfügbar', hidePanel: 'Panel ausblenden', quit: 'Beenden',
+          gStatus: 'Status', total: 'Gesamt :', current: 'Aktuell :', toLearn: 'Zu lernen :', learned: 'Gemerkt :',
+          gMode: 'Manuell/Auto', manual: 'Manuell', auto: 'Auto',
+          gOrder: 'Reihenfolge', fwd: 'Vorwärts', rev: 'Rückwärts', rnd: 'Zufällig', startNo: 'Startnr. :', apply: 'Anwenden',
+          gRange: 'Bereich', unmem: 'Gemerkte auslassen', memOnly: 'Nur gemerkte', all: 'Alle', delay: 'Intervall (s) :',
+          font: 'Schrift', bg: 'Hintergrundfarbe', resetMem: 'Markierungen zurücksetzen',
+          fontTitle: 'Schrifteinstellungen', fontFamily: 'Schriftart', fontSize: 'Größe (px)', bold: 'Fett', fontColor: 'Textfarbe', close: 'Schließen',
+          bgTitle: 'Hintergrundfarbe', bgHint: 'Dunkles Marineblau oder Schwarz wird empfohlen, damit der Text scharf wirkt.',
+          fonts: { gothic: 'Fette Sans', round: 'Runde Sans', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Öffne ein Deck zum Starten', emptyBot: '(Deck öffnen → CSV: Wort,Bedeutung)', ariaNext: 'Weiter (Klick oder Leertaste)',
+          noEligible: 'Keine Einträge im aktuellen Bereich',
+          sampleLoaded: (n) => `Beispieldeck geladen: ${n} Einträge`,
+          noRows: 'Keine lesbaren Zeilen — prüfe, ob die CSV das Format "Wort,Bedeutung" hat',
+          opened: (n) => `Deck geöffnet: ${n} Einträge`,
+          confirmReset: 'Alle Merk-Markierungen zurücksetzen?', resetDone: 'Markierungen zurückgesetzt',
+          startRange: (m) => `Die Startnummer muss zwischen 1 und ${m} liegen`,
+          cantClose: 'Falls der Browser das Schließen blockiert, schließe den Tab bitte manuell',
+        },
+        it: {
+          langLabel: 'Lingua',
+          metaDesc: 'Memorizzatore di vocaboli gratuito: parole e significati si alternano a caratteri grandi. Apri un CSV: riproduzione automatica ogni 3 s, contrassegni, ordine casuale e TTS. Senza installazione.',
+          open: 'Apri mazzo', next: 'Avanti', mem: 'Memorizzata', tts: 'TTS', voiceOnly: 'Solo voce',
+          alwaysTop: 'Sempre in primo piano', alwaysTopHint: 'Non supportato nei browser web', hidePanel: 'Nascondi pannello', quit: 'Esci',
+          gStatus: 'Stato', total: 'Totale :', current: 'Attuale :', toLearn: 'Da imparare :', learned: 'Memorizzate :',
+          gMode: 'Manuale/Auto', manual: 'Manuale', auto: 'Auto',
+          gOrder: 'Ordine', fwd: 'In avanti', rev: 'All’indietro', rnd: 'Casuale', startNo: 'N. iniziale :', apply: 'Applica',
+          gRange: 'Ambito', unmem: 'Salta memorizzate', memOnly: 'Solo memorizzate', all: 'Tutte', delay: 'Intervallo (s) :',
+          font: 'Carattere', bg: 'Colore di sfondo', resetMem: 'Azzera contrassegni',
+          fontTitle: 'Impostazioni carattere', fontFamily: 'Carattere', fontSize: 'Dimensione (px)', bold: 'Grassetto', fontColor: 'Colore del testo', close: 'Chiudi',
+          bgTitle: 'Colore di sfondo', bgHint: 'Si consiglia blu scuro o nero per un testo ben leggibile.',
+          fonts: { gothic: 'Sans spessa', round: 'Sans arrotondata', serif: 'Serif', mono: 'Monospazio' },
+          emptyTop: 'Apri un mazzo per iniziare', emptyBot: '(Apri mazzo → CSV: parola,significato)', ariaNext: 'Avanti (clic o barra spaziatrice)',
+          noEligible: 'Nessun elemento nell’ambito attuale',
+          sampleLoaded: (n) => `Mazzo di esempio caricato: ${n} elementi`,
+          noRows: 'Nessuna riga leggibile — verifica che il CSV sia nel formato "parola,significato"',
+          opened: (n) => `Mazzo aperto: ${n} elementi`,
+          confirmReset: 'Azzerare tutti i contrassegni?', resetDone: 'Contrassegni azzerati',
+          startRange: (m) => `Il numero iniziale deve essere tra 1 e ${m}`,
+          cantClose: 'Se il browser impedisce la chiusura, chiudi la scheda manualmente',
+        },
+        pt: {
+          langLabel: 'Idioma',
+          metaDesc: 'Memorizador de vocabulário gratuito: palavras e significados alternam em letras grandes. Abra um CSV: reprodução automática a cada 3 s, marcas, ordem aleatória e TTS. Sem instalação.',
+          open: 'Abrir baralho', next: 'Próximo', mem: 'Memorizada', tts: 'TTS', voiceOnly: 'Só voz',
+          alwaysTop: 'Sempre no topo', alwaysTopHint: 'Não suportado em navegadores web', hidePanel: 'Ocultar painel', quit: 'Sair',
+          gStatus: 'Estado', total: 'Total :', current: 'Atual :', toLearn: 'A aprender :', learned: 'Memorizadas :',
+          gMode: 'Manual/Auto', manual: 'Manual', auto: 'Auto',
+          gOrder: 'Ordem', fwd: 'Para a frente', rev: 'Para trás', rnd: 'Aleatória', startNo: 'Nº inicial :', apply: 'Aplicar',
+          gRange: 'Âmbito', unmem: 'Omitir memorizadas', memOnly: 'Só memorizadas', all: 'Todas', delay: 'Intervalo (s) :',
+          font: 'Fonte', bg: 'Cor de fundo', resetMem: 'Repor marcas',
+          fontTitle: 'Definições de fonte', fontFamily: 'Fonte', fontSize: 'Tamanho (px)', bold: 'Negrito', fontColor: 'Cor do texto', close: 'Fechar',
+          bgTitle: 'Cor de fundo', bgHint: 'Recomenda-se azul-escuro ou preto para um texto nítido.',
+          fonts: { gothic: 'Sans grossa', round: 'Sans arredondada', serif: 'Serifada', mono: 'Monoespaçada' },
+          emptyTop: 'Abra um baralho para começar', emptyBot: '(Abrir baralho → CSV: palavra,significado)', ariaNext: 'Próximo (clique ou barra de espaço)',
+          noEligible: 'Nenhum item no âmbito atual',
+          sampleLoaded: (n) => `Baralho de exemplo carregado: ${n} itens`,
+          noRows: 'Nenhuma linha legível — confirme que o CSV usa o formato "palavra,significado"',
+          opened: (n) => `Baralho aberto: ${n} itens`,
+          confirmReset: 'Repor todas as marcas de memorizada?', resetDone: 'Marcas repostas',
+          startRange: (m) => `O número inicial deve estar entre 1 e ${m}`,
+          cantClose: 'Se o navegador impedir o fecho, feche o separador manualmente',
+        },
+        ru: {
+          langLabel: 'Язык',
+          metaDesc: 'Бесплатный тренажёр слов: слова и значения поочерёдно показываются крупным шрифтом. Откройте CSV — автоповтор каждые 3 с, отметки, случайный порядок и озвучка. Без установки.',
+          open: 'Открыть набор', next: 'Далее', mem: 'Выучено', tts: 'TTS', voiceOnly: 'Только звук',
+          alwaysTop: 'Поверх окон', alwaysTopHint: 'Недоступно в веб-браузере', hidePanel: 'Скрыть панель', quit: 'Выход',
+          gStatus: 'Статус', total: 'Всего :', current: 'Текущий :', toLearn: 'Учить :', learned: 'Выучено :',
+          gMode: 'Ручной/Авто', manual: 'Ручной', auto: 'Авто',
+          gOrder: 'Порядок', fwd: 'Вперёд', rev: 'Назад', rnd: 'Случайно', startNo: 'Начать с :', apply: 'Применить',
+          gRange: 'Диапазон', unmem: 'Пропускать выученные', memOnly: 'Только выученные', all: 'Все', delay: 'Интервал (с) :',
+          font: 'Шрифт', bg: 'Цвет фона', resetMem: 'Сбросить отметки',
+          fontTitle: 'Настройки шрифта', fontFamily: 'Шрифт', fontSize: 'Размер (px)', bold: 'Жирный', fontColor: 'Цвет текста', close: 'Закрыть',
+          bgTitle: 'Цвет фона', bgHint: 'Рекомендуется тёмно-синий или чёрный фон для чёткости текста.',
+          fonts: { gothic: 'Жирный гротеск', round: 'Округлый гротеск', serif: 'С засечками', mono: 'Моноширинный' },
+          emptyTop: 'Откройте набор, чтобы начать', emptyBot: '(Открыть набор → CSV: слово,значение)', ariaNext: 'Далее (клик или пробел)',
+          noEligible: 'Нет элементов в текущем диапазоне',
+          sampleLoaded: (n) => `Загружен пример набора: ${n} элементов`,
+          noRows: 'Нет читаемых строк — проверьте, что CSV в формате «слово,значение»',
+          opened: (n) => `Набор открыт: ${n} элементов`,
+          confirmReset: 'Сбросить все отметки «выучено»?', resetDone: 'Отметки сброшены',
+          startRange: (m) => `Начальный номер должен быть от 1 до ${m}`,
+          cantClose: 'Если браузер не даёт закрыть окно, закройте вкладку вручную',
+        },
+        nl: {
+          langLabel: 'Taal',
+          metaDesc: 'Gratis woordjestrainer: woorden en betekenissen wisselen elkaar af in grote letters. Open een CSV: elke 3 s automatisch verder, markeringen, willekeurige volgorde en TTS. Geen installatie.',
+          open: 'Deck openen', next: 'Volgende', mem: 'Gememoriseerd', tts: 'TTS', voiceOnly: 'Alleen geluid',
+          alwaysTop: 'Altijd op voorgrond', alwaysTopHint: 'Niet ondersteund in webbrowsers', hidePanel: 'Paneel verbergen', quit: 'Afsluiten',
+          gStatus: 'Status', total: 'Totaal :', current: 'Huidig :', toLearn: 'Te leren :', learned: 'Geleerd :',
+          gMode: 'Handmatig/Auto', manual: 'Handmatig', auto: 'Auto',
+          gOrder: 'Volgorde', fwd: 'Vooruit', rev: 'Achteruit', rnd: 'Willekeurig', startNo: 'Startnr. :', apply: 'Toepassen',
+          gRange: 'Bereik', unmem: 'Geleerde overslaan', memOnly: 'Alleen geleerde', all: 'Alle', delay: 'Interval (s) :',
+          font: 'Lettertype', bg: 'Achtergrondkleur', resetMem: 'Markeringen wissen',
+          fontTitle: 'Lettertype-instellingen', fontFamily: 'Lettertype', fontSize: 'Grootte (px)', bold: 'Vet', fontColor: 'Tekstkleur', close: 'Sluiten',
+          bgTitle: 'Achtergrondkleur', bgHint: 'Donker marineblauw of zwart wordt aanbevolen voor scherpe tekst.',
+          fonts: { gothic: 'Vette sans', round: 'Ronde sans', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Open een deck om te beginnen', emptyBot: '(Deck openen → CSV: woord,betekenis)', ariaNext: 'Volgende (klik of spatiebalk)',
+          noEligible: 'Geen items binnen het huidige bereik',
+          sampleLoaded: (n) => `Voorbeelddeck geladen: ${n} items`,
+          noRows: 'Geen leesbare rijen — controleer of de CSV het formaat "woord,betekenis" heeft',
+          opened: (n) => `Deck geopend: ${n} items`,
+          confirmReset: 'Alle markeringen wissen?', resetDone: 'Markeringen gewist',
+          startRange: (m) => `Het startnummer moet tussen 1 en ${m} liggen`,
+          cantClose: 'Als de browser het sluiten blokkeert, sluit het tabblad dan handmatig',
+        },
+      }
+      const getT = (lang) => T[lang] || T[DEFAULT_LANG]
+      /* 브라우저 언어 자동 감지(저장값 없을 때 초기값). 매칭 실패 시 영어 폴백. */
+      const detectLang = () => {
+        try {
+          const supported = LANGS.map((l) => l.code)
+          const cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]
+          for (const raw of cands) {
+            const lc = String(raw || '').toLowerCase(), base = lc.split('-')[0]
+            if (base === 'zh') {
+              if (/hant|tw|hk|mo/.test(lc) && supported.includes('zh-Hant')) return 'zh-Hant'
+              if (supported.includes('zh')) return 'zh'
+            }
+            if (supported.includes(base)) return base
+          }
+        } catch {}
+        return DEFAULT_LANG
+      }
+
       const DEFAULT_CFG = {
         auto: false,            // 수동/자동
         delay: 3,               // 지연시간(초)
@@ -333,10 +680,10 @@
         bg: '#000040',
       }
       const FONT_FAMILIES = {
-        gothic: { label: '고딕 (굵은 견고딕풍)', css: "'Apple SD Gothic Neo', 'Malgun Gothic', 'Arial Black', sans-serif" },
-        round: { label: '둥근 고딕', css: "'AppleGothic', 'Dotum', sans-serif" },
-        serif: { label: '명조', css: "'Apple Myungjo', 'Batang', serif" },
-        mono: { label: '모노스페이스', css: "'Menlo', 'Consolas', monospace" },
+        gothic: { css: "'Apple SD Gothic Neo', 'Malgun Gothic', 'Arial Black', sans-serif" },
+        round: { css: "'AppleGothic', 'Dotum', sans-serif" },
+        serif: { css: "'Apple Myungjo', 'Batang', serif" },
+        mono: { css: "'Menlo', 'Consolas', monospace" },
       }
       const BG_PRESETS = ['#000040', '#000000', '#000066', '#0a1a0a', '#1a0a0a']
       const FG_PRESETS = ['#ffff00', '#ffffff', '#66ff66', '#66ccff', '#ffb000']
@@ -376,27 +723,27 @@
         )
       }
 
-      function FontPopover({ cfg, setCfg, onClose }) {
+      function FontPopover({ cfg, setCfg, onClose, t }) {
         return (
           <div className="popover" onClick={(e) => e.stopPropagation()}>
-            <h4>글꼴 설정</h4>
+            <h4>{t.fontTitle}</h4>
             <div className="pop-row">
-              <span>글꼴</span>
+              <span>{t.fontFamily}</span>
               <select value={cfg.fontFamily} onChange={(e) => setCfg((c) => ({ ...c, fontFamily: e.target.value }))}>
-                {Object.entries(FONT_FAMILIES).map(([k, f]) => <option key={k} value={k}>{f.label}</option>)}
+                {Object.keys(FONT_FAMILIES).map((k) => <option key={k} value={k}>{t.fonts[k]}</option>)}
               </select>
             </div>
             <div className="pop-row">
-              <span>크기(px)</span>
+              <span>{t.fontSize}</span>
               <input type="number" min="20" max="200" style={{ width: 64 }} value={cfg.fontSize}
                 onChange={(e) => setCfg((c) => ({ ...c, fontSize: Math.max(20, Math.min(200, Number(e.target.value) || 88)) }))} />
             </div>
             <div className="pop-row">
-              <span>굵게</span>
+              <span>{t.bold}</span>
               <input type="checkbox" checked={cfg.fontBold} onChange={(e) => setCfg((c) => ({ ...c, fontBold: e.target.checked }))} />
             </div>
             <div className="pop-row">
-              <span>글자색</span>
+              <span>{t.fontColor}</span>
               <span className="swatches">
                 {FG_PRESETS.map((col) => (
                   <button key={col} className={'swatch' + (cfg.fontColor === col ? ' sel' : '')} style={{ background: col }}
@@ -407,16 +754,16 @@
               </span>
             </div>
             <div className="pop-row" style={{ justifyContent: 'flex-end' }}>
-              <button className="mini-btn" onClick={onClose}>닫기</button>
+              <button className="mini-btn" onClick={onClose}>{t.close}</button>
             </div>
           </div>
         )
       }
 
-      function BgPopover({ cfg, setCfg, onClose }) {
+      function BgPopover({ cfg, setCfg, onClose, t }) {
         return (
           <div className="popover" onClick={(e) => e.stopPropagation()}>
-            <h4>배경 색상</h4>
+            <h4>{t.bgTitle}</h4>
             <div className="pop-row">
               <span className="swatches">
                 {BG_PRESETS.map((col) => (
@@ -427,11 +774,23 @@
                   onChange={(e) => setCfg((c) => ({ ...c, bg: e.target.value }))} />
               </span>
             </div>
-            <p style={{ margin: '6px 0 8px', fontSize: 11, color: '#444' }}>글씨가 선명하게 보이도록 질은 남색 또는 검정색을 권장합니다.</p>
+            <p style={{ margin: '6px 0 8px', fontSize: 11, color: '#444' }}>{t.bgHint}</p>
             <div className="pop-row" style={{ justifyContent: 'flex-end' }}>
-              <button className="mini-btn" onClick={onClose}>닫기</button>
+              <button className="mini-btn" onClick={onClose}>{t.close}</button>
             </div>
           </div>
+        )
+      }
+
+      /* 🌐 언어 선택 드롭다운 (제어판/미니바 공용) */
+      function LangSelect({ lang, onChange, t }) {
+        return (
+          <label className="lang-select" title={t.langLabel}>
+            <span className="globe" aria-hidden="true">🌐</span>
+            <select value={lang} onChange={(e) => onChange(e.target.value)} aria-label={t.langLabel}>
+              {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+            </select>
+          </label>
         )
       }
 
@@ -442,6 +801,7 @@
         // ⚠ 모든 훅은 조건 분기/early-return 앞에서 호출 (하드 규칙)
         const [deck, setDeck] = useLocalStorage('voca:deck', [])
         const [cfg, setCfg] = useLocalStorage('voca:cfg', DEFAULT_CFG)
+        const [lang, setLang] = useLocalStorage('voca:lang', detectLang())
         const [pos, setPos] = useState(0)
         const [phase, setPhase] = useState('a')       // 'a' = 앞면만 / 'ab' = 앞+뒷면
         const [startNo, setStartNo] = useState('1')
@@ -453,6 +813,30 @@
 
         const cfgAll = { ...DEFAULT_CFG, ...cfg }
         const { auto, delay, dir, order, range, tts, voiceOnly, hidePanel } = cfgAll
+        const t = getT(lang)
+
+        /* URL ?lang= 이 저장값보다 우선 (hreflang 진입 대응) */
+        useEffect(() => {
+          const q = new URLSearchParams(window.location.search).get('lang')
+          if (q && LANGS.some((l) => l.code === q)) setLang(q)
+        }, [])
+
+        /* 현재 언어를 URL(?lang=)에 반영 → 공유 링크가 그 언어로 열리게 (엣지 함수가 ?lang 사용) */
+        useEffect(() => {
+          try {
+            const u = new URL(window.location.href)
+            if (u.searchParams.get('lang') !== lang) { u.searchParams.set('lang', lang); window.history.replaceState(null, '', u) }
+          } catch {}
+        }, [lang])
+
+        /* 언어 변경 시 <html lang> / <title> / meta description / 하단 SEO 본문 현지화 */
+        useEffect(() => {
+          document.documentElement.lang = lang
+          document.title = DOC_TITLE[lang] || DOC_TITLE[DEFAULT_LANG]
+          const m = document.querySelector('meta[name="description"]')
+          if (m) m.setAttribute('content', t.metaDesc)
+          if (window.renderSEO) window.renderSEO(lang)
+        }, [lang, t])
 
         const total = deck.length
         const memCnt = deck.reduce((s, c) => s + (c.mem ? 1 : 0), 0)
@@ -495,9 +879,9 @@
           if (!total) return
           if (phase === 'a') { setPhase('ab'); return }
           const n = findNext(pos, false)
-          if (n < 0) { showToast('표시 범위에 해당하는 항목이 없습니다'); return }
+          if (n < 0) { showToast(t.noEligible); return }
           setPos(n); setPhase('a')
-        }, [total, phase, pos, findNext, showToast])
+        }, [total, phase, pos, findNext, showToast, t])
 
         const stepBack = useCallback(() => {
           if (!total) return
@@ -540,9 +924,9 @@
           sampleTried.current = true
           fetch('sample.csv').then((r) => (r.ok ? r.text() : Promise.reject())).then((text) => {
             const rows = parseCSV(text)
-            if (rows.length) { setDeck(rows); setPos(0); setPhase('a'); showToast(`샘플 암기장 로드: ${rows.length}개`) }
+            if (rows.length) { setDeck(rows); setPos(0); setPhase('a'); showToast(t.sampleLoaded(rows.length)) }
           }).catch(() => {})
-        }, [deck.length, setDeck, showToast])
+        }, [deck.length, setDeck, showToast, t])
 
         /* 팝오버 바깥 클릭 시 닫기 */
         useEffect(() => {
@@ -565,9 +949,9 @@
           const reader = new FileReader()
           reader.onload = () => {
             const rows = parseCSV(reader.result)
-            if (!rows.length) { showToast('읽을 수 있는 행이 없습니다 — "단어,뜻" 형식의 CSV인지 확인하세요'); return }
+            if (!rows.length) { showToast(t.noRows); return }
             setDeck(rows); setPos(0); setPhase('a')
-            showToast(`암기장 열기 완료: ${rows.length}개 항목`)
+            showToast(t.opened(rows.length))
           }
           reader.readAsText(f, 'utf-8')
         }
@@ -579,23 +963,23 @@
         }
         const resetMem = () => {
           if (!total) return
-          if (confirm('모든 암기 표시를 초기화할까요?')) {
+          if (confirm(t.confirmReset)) {
             setDeck((prev) => prev.map((c) => ({ ...c, mem: false })))
-            showToast('암기 표시 초기화 완료')
+            showToast(t.resetDone)
           }
         }
 
         /* ---- 시작번호 적용 ---- */
         const applyStart = () => {
           const n = Math.floor(Number(startNo))
-          if (!total || !n || n < 1 || n > total) { showToast(`시작번호는 1~${total} 사이여야 합니다`); return }
+          if (!total || !n || n < 1 || n > total) { showToast(t.startRange(total)); return }
           setPos(n - 1); setPhase('a')
         }
 
         /* ---- 종료 ---- */
         const quit = () => {
           window.close()
-          setTimeout(() => showToast('브라우저 정책상 창을 닫을 수 없으면 탭을 직접 닫아주세요'), 100)
+          setTimeout(() => showToast(t.cantClose), 100)
         }
 
         /* ---- 표시 텍스트 ---- */
@@ -610,8 +994,8 @@
           fontSize: `min(${cfgAll.fontSize}px, 13vw)`,
         }
         const emptyMsg = total === 0
-        const displayTop = emptyMsg ? '암기장을 열어주세요' : (voiceOnly && tts ? '' : topText)
-        const displayBot = emptyMsg ? '(암기장 열기 → CSV: 단어,뜻)' : (phase === 'ab' ? (voiceOnly && tts ? '' : botText) : '')
+        const displayTop = emptyMsg ? t.emptyTop : (voiceOnly && tts ? '' : topText)
+        const displayBot = emptyMsg ? t.emptyBot : (phase === 'ab' ? (voiceOnly && tts ? '' : botText) : '')
 
         const setCfgK = (patch) => setCfg((c) => ({ ...DEFAULT_CFG, ...c, ...patch }))
 
@@ -625,13 +1009,14 @@
         /* ---- 미니바 (제어판 숨김) ---- */
         const miniBar = (
           <div className="minibar">
-            <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> 암기장 열기</button>
-            <button className="tb-btn next" onClick={step}><span className="ic">→</span> 다음</button>
-            <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> 암기 표시</label>
-            <label className="tb-check"><input type="checkbox" checked={tts} onChange={(e) => setCfgK({ tts: e.target.checked, voiceOnly: e.target.checked ? voiceOnly : false })} /> TTS</label>
+            <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> {t.open}</button>
+            <button className="tb-btn next" onClick={step}><span className="ic">→</span> {t.next}</button>
+            <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> {t.mem}</label>
+            <label className="tb-check"><input type="checkbox" checked={tts} onChange={(e) => setCfgK({ tts: e.target.checked, voiceOnly: e.target.checked ? voiceOnly : false })} /> {t.tts}</label>
             <span className="tb-spacer" />
-            <label className="tb-check"><input type="checkbox" checked={hidePanel} onChange={(e) => setCfgK({ hidePanel: e.target.checked })} /> 제어판 숨기기</label>
-            <button className="tb-btn quit" onClick={quit}><span className="ic">X</span> 종료</button>
+            <LangSelect lang={lang} onChange={setLang} t={t} />
+            <label className="tb-check"><input type="checkbox" checked={hidePanel} onChange={(e) => setCfgK({ hidePanel: e.target.checked })} /> {t.hidePanel}</label>
+            <button className="tb-btn quit" onClick={quit}><span className="ic">X</span> {t.quit}</button>
           </div>
         )
 
@@ -639,36 +1024,37 @@
         const fullPanel = (
           <div className="cpanel">
             <div className="toolbar">
-              <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> 암기장 열기</button>
-              <button className="tb-btn next" onClick={step}><span className="ic">→</span> 다음</button>
-              <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> 암기 표시</label>
+              <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> {t.open}</button>
+              <button className="tb-btn next" onClick={step}><span className="ic">→</span> {t.next}</button>
+              <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> {t.mem}</label>
               <div className="tb-col">
-                <label className="tb-check"><input type="checkbox" checked={tts} onChange={(e) => setCfgK({ tts: e.target.checked, voiceOnly: e.target.checked ? voiceOnly : false })} /> TTS</label>
-                <label className={'tb-check' + (tts ? '' : ' disabled')}><input type="checkbox" disabled={!tts} checked={voiceOnly} onChange={(e) => setCfgK({ voiceOnly: e.target.checked })} /> 음성만</label>
+                <label className="tb-check"><input type="checkbox" checked={tts} onChange={(e) => setCfgK({ tts: e.target.checked, voiceOnly: e.target.checked ? voiceOnly : false })} /> {t.tts}</label>
+                <label className={'tb-check' + (tts ? '' : ' disabled')}><input type="checkbox" disabled={!tts} checked={voiceOnly} onChange={(e) => setCfgK({ voiceOnly: e.target.checked })} /> {t.voiceOnly}</label>
               </div>
               <div className="tb-col">
-                <label className="tb-check disabled" title="웹 브라우저에서는 지원되지 않습니다"><input type="checkbox" disabled /> 항상 위에</label>
-                <label className="tb-check"><input type="checkbox" checked={hidePanel} onChange={(e) => setCfgK({ hidePanel: e.target.checked })} /> 제어판 숨기기</label>
+                <label className="tb-check disabled" title={t.alwaysTopHint}><input type="checkbox" disabled /> {t.alwaysTop}</label>
+                <label className="tb-check"><input type="checkbox" checked={hidePanel} onChange={(e) => setCfgK({ hidePanel: e.target.checked })} /> {t.hidePanel}</label>
               </div>
               <span className="tb-spacer" />
-              <button className="tb-btn quit" onClick={quit}><span className="ic">X</span> 종료</button>
+              <LangSelect lang={lang} onChange={setLang} t={t} />
+              <button className="tb-btn quit" onClick={quit}><span className="ic">X</span> {t.quit}</button>
             </div>
 
             <div className="groups">
-              <Group title="상태" style={{ flex: '0 0 auto' }}>
+              <Group title={t.gStatus} style={{ flex: '0 0 auto' }}>
                 <div className="stat-rows">
-                  <span>총 개수 :</span><span className="v">{total}</span>
-                  <span>현재 인덱스 :</span><span className="v">{total ? pos + 1 : 0}</span>
-                  <span>외울 개수 :</span><span className="v">{total - memCnt}</span>
-                  <span>외운 개수 :</span><span className="v">{memCnt}</span>
+                  <span>{t.total}</span><span className="v">{total}</span>
+                  <span>{t.current}</span><span className="v">{total ? pos + 1 : 0}</span>
+                  <span>{t.toLearn}</span><span className="v">{total - memCnt}</span>
+                  <span>{t.learned}</span><span className="v">{memCnt}</span>
                 </div>
               </Group>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <Group title="수동/자동">
+                <Group title={t.gMode}>
                   <div className="radio-row">
-                    <LedRadio name="auto" checked={!auto} onChange={() => setCfgK({ auto: false })} label="수동" />
-                    <LedRadio name="auto" checked={auto} onChange={() => setCfgK({ auto: true })} label="자동" />
+                    <LedRadio name="auto" checked={!auto} onChange={() => setCfgK({ auto: false })} label={t.manual} />
+                    <LedRadio name="auto" checked={auto} onChange={() => setCfgK({ auto: true })} label={t.auto} />
                   </div>
                 </Group>
                 <Group title="A ↔ B">
@@ -679,38 +1065,38 @@
                 </Group>
               </div>
 
-              <Group title="순서">
+              <Group title={t.gOrder}>
                 <div className="radio-col">
-                  <LedRadio name="order" checked={order === 'fwd'} onChange={() => setCfgK({ order: 'fwd' })} label="순방향" />
-                  <LedRadio name="order" checked={order === 'rev'} onChange={() => setCfgK({ order: 'rev' })} label="역방향" />
-                  <LedRadio name="order" checked={order === 'rnd'} onChange={() => setCfgK({ order: 'rnd' })} label="무작위" />
+                  <LedRadio name="order" checked={order === 'fwd'} onChange={() => setCfgK({ order: 'fwd' })} label={t.fwd} />
+                  <LedRadio name="order" checked={order === 'rev'} onChange={() => setCfgK({ order: 'rev' })} label={t.rev} />
+                  <LedRadio name="order" checked={order === 'rnd'} onChange={() => setCfgK({ order: 'rnd' })} label={t.rnd} />
                 </div>
                 <div className="inline-field">
-                  <span>시작번호 :</span>
+                  <span>{t.startNo}</span>
                   <input className="num-input" type="number" min="1" max={total || 1} value={startNo} onChange={(e) => setStartNo(e.target.value)} />
-                  <button className="mini-btn" onClick={applyStart}>적용</button>
+                  <button className="mini-btn" onClick={applyStart}>{t.apply}</button>
                 </div>
               </Group>
 
-              <Group title="표시 범위">
+              <Group title={t.gRange}>
                 <div className="radio-col">
-                  <LedRadio name="range" checked={range === 'unmem'} onChange={() => setCfgK({ range: 'unmem' })} label="외운 항목 제외" />
-                  <LedRadio name="range" checked={range === 'mem'} onChange={() => setCfgK({ range: 'mem' })} label="외운 항목만" />
-                  <LedRadio name="range" checked={range === 'all'} onChange={() => setCfgK({ range: 'all' })} label="모두" />
+                  <LedRadio name="range" checked={range === 'unmem'} onChange={() => setCfgK({ range: 'unmem' })} label={t.unmem} />
+                  <LedRadio name="range" checked={range === 'mem'} onChange={() => setCfgK({ range: 'mem' })} label={t.memOnly} />
+                  <LedRadio name="range" checked={range === 'all'} onChange={() => setCfgK({ range: 'all' })} label={t.all} />
                 </div>
                 <div className="inline-field spin-field">
-                  <span>지연시간(초) :</span>
+                  <span>{t.delay}</span>
                   <input className="num-input" type="number" min="1" max="60" step="1" value={delay}
                     onChange={(e) => setCfgK({ delay: Math.max(1, Math.min(60, Number(e.target.value) || 3)) })} />
                 </div>
               </Group>
 
               <div className="side-btns pop-wrap" onClick={(e) => e.stopPropagation()}>
-                <button className="link-btn" onClick={() => setPop(pop === 'font' ? null : 'font')}>글꼴</button>
-                <button className="link-btn" onClick={() => setPop(pop === 'bg' ? null : 'bg')}>배경 색상</button>
-                <button className="link-btn" onClick={resetMem}>암기표시 초기화</button>
-                {pop === 'font' && <FontPopover cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} />}
-                {pop === 'bg' && <BgPopover cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} />}
+                <button className="link-btn" onClick={() => setPop(pop === 'font' ? null : 'font')}>{t.font}</button>
+                <button className="link-btn" onClick={() => setPop(pop === 'bg' ? null : 'bg')}>{t.bg}</button>
+                <button className="link-btn" onClick={resetMem}>{t.resetMem}</button>
+                {pop === 'font' && <FontPopover cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} t={t} />}
+                {pop === 'bg' && <BgPopover cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} t={t} />}
               </div>
             </div>
           </div>
@@ -720,7 +1106,7 @@
           <div className="stage" style={{ background: cfgAll.bg }}>
             <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={openFile} />
             <div className="display" style={{ background: cfgAll.bg }} onClick={step} onWheel={onWheel}
-              role="button" tabIndex={0} aria-label="다음 (클릭 또는 스페이스바)">
+              role="button" tabIndex={0} aria-label={t.ariaNext}>
               <div className="pane top"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(44px, 7vw)', color: '#8888aa' } : textStyle}>{displayTop}</span></div>
               <div className="pane"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(24px, 5vw)', color: '#666688' } : textStyle}>{displayBot}</span></div>
             </div>

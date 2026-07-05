@@ -25,10 +25,19 @@
 - **trim 적용**, 아무것도 없는 행은 무시. 뜻에 쉼표가 있어도 첫 쉼표 기준으로 분리되므로 안전. `"..."` 인용도 지원.
 - 단어(A열)는 `単語（たんご）`처럼 **한자+요미가나** 포맷 권장 — [`sample.csv`](sample.csv) 참조(첫 방문 시 자동 로드).
 
+## 다국어 (i18n · 13개국어)
+- 지원 언어: `en, ko, ja, zh, zh-Hant, th, es, fr, de, it, pt, ru, nl` — 제어판 우측 🌐 드롭다운으로 전환.
+- 감지 우선순위: `localStorage(voca:lang)` → URL `?lang=` → `navigator.language` → `en` 폴백. 언어 변경 시 `<html lang>`·`<title>`·meta description 동기화 + URL `?lang=` 반영.
+- 하단 정적 SEO 본문은 [`seo-i18n.js`](seo-i18n.js)(`window.renderSEO`)가 현재 언어로 다시 그림(무JS 크롤러는 정적 한국어 폴백).
+- 공유(OG) 메타는 [`functions/_middleware.js`](functions/_middleware.js)가 엣지에서 `?lang=` 별로 현지화(HTMLRewriter, btc와 동일 컨벤션).
+- 새 UI 문자열 추가 시 `index.html`의 `T` 번들에 13개 언어를 동시에 작성한다.
+
 ## 구조
 | 파일 | 역할 |
 | --- | --- |
-| `index.html` | 앱 본체 (스타일·로직 전부 인라인, 자기완결형) |
+| `index.html` | 앱 본체 (스타일·로직·UI i18n 13개국어 전부 인라인, 자기완결형) |
+| `seo-i18n.js` | 하단 SEO 본문 13개국어 데이터 + 렌더러(`window.renderSEO`) |
+| `functions/_middleware.js` | Cloudflare Pages Function: `?lang` 별 title/OG 메타 현지화 |
 | `sample.csv` | 샘플 암기장 (일본어 어휘 ~380행, 첫 방문 시 자동 로드) |
 | `privacy.html` / `terms.html` | 정적 정책 페이지 (AdSense 필수) |
 | `ads.txt` / `robots.txt` / `sitemap.xml` | AdSense·SEO 실제 파일 |
