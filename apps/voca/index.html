@@ -116,7 +116,7 @@
       }
       * { box-sizing: border-box; }
       html, body { height: 100%; margin: 0; }
-      body { background: #222; font-family: var(--ui-font); overflow-x: hidden; }
+      body { background: #222; font-family: var(--ui-font); overflow-x: hidden; overscroll-behavior-y: none; }
       #root { min-height: 100vh; }
 
       /* ===== 최상단 슬림 헤더 (broodev 로고 + 앱 이름 + 🌐 언어) ===== */
@@ -132,8 +132,8 @@
       @media (max-width: 560px) { .app-header .app-name .full { display: none; } }
 
       /* ===== 상단 표시 영역 (남색 + 노란 대형 글자) ===== */
-      .stage { display: flex; flex-direction: column; height: 100vh; }
-      .display { flex: 1; display: flex; flex-direction: column; min-height: 0; cursor: pointer; user-select: none; border: 2px inset #9a9a9a; }
+      .stage { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+      .display { flex: 1; display: flex; flex-direction: column; min-height: 0; cursor: pointer; user-select: none; -webkit-user-select: none; border: 2px inset #9a9a9a; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
       .pane { flex: 1; min-height: 0; display: flex; align-items: center; padding: 2vh 3vw; overflow: hidden; }
       .pane.top { border-bottom: 3px solid #e8e8e8; }
       .pane-text { font-weight: 800; line-height: 1.15; word-break: break-word; overflow-wrap: anywhere; max-width: 100%; }
@@ -199,11 +199,44 @@
 
       .toast { position: fixed; left: 50%; bottom: 130px; transform: translateX(-50%); z-index: 80; background: rgba(0,0,0,.85); color: #ffff66; padding: 9px 18px; font-size: 13px; border: 1px solid #666; border-radius: 3px; pointer-events: none; }
 
-      /* ===== 반응형 ===== */
+      /* ===== 반응형 (모바일) ===== */
       @media (max-width: 860px) {
-        .groups { flex-direction: column; }
+        /* 제어판이 화면을 다 먹지 않게: 최대 절반 높이 + 내부 스크롤 */
+        .cpanel { max-height: 48dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+        .minibar { padding: 7px 10px calc(7px + env(safe-area-inset-bottom)); gap: 12px; }
+        .minibar .tb-btn { padding: 7px 11px; font-size: 13px; }
+
+        /* 터치 타깃 확대 */
+        .toolbar { gap: 10px 14px; }
+        .tb-btn { padding: 8px 12px; font-size: 13px; touch-action: manipulation; }
+        .tb-check { font-size: 13px; gap: 7px; padding: 4px 0; }
+        .tb-check input, .popover input[type="checkbox"] { width: 17px; height: 17px; }
+        .led-radio { padding: 5px 0; gap: 9px; font-size: 13px; }
+        .led { width: 16px; height: 16px; }
+        .mini-btn { padding: 7px 14px; font-size: 13px; }
+        .stat-rows { font-size: 13px; gap: 6px 14px; }
+        .group-title { font-size: 12px; }
+
+        /* iOS 포커스 자동 줌 방지: 폼 컨트롤 글자 16px 이상 */
+        .num-input, .cpanel select, .popover select, .popover input[type="number"], .lang-select select { font-size: 16px; }
+        .num-input { width: 68px; padding: 5px 6px; }
+        .lang-select select { max-width: 130px; }
+
+        /* 설정 그룹: 세로 나열 대신 2열 그리드 (⚠ minmax(0,1fr) — 우측 잘림 방지) */
+        .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; }
         .radio-row { flex-wrap: wrap; }
-        .stage { height: 100vh; height: 100dvh; }
+        .side-btns { grid-column: 1 / -1; flex-direction: row; justify-content: space-around; gap: 6px; padding: 2px 0; }
+        .side-btns .link-btn { font-size: 13px; padding: 7px 10px; text-align: center; }
+
+        /* 팝오버: 앵커 대신 화면 하단 고정 시트 */
+        .popover { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); width: auto; z-index: 90; }
+
+        .toast { bottom: 52dvh; max-width: 86vw; text-align: center; }
+      }
+      @media (max-width: 560px) {
+        .pane { padding: 1.5vh 4vw; }
+        .groups { grid-template-columns: minmax(0, 1fr); }
+        .stat-rows { grid-template-columns: auto auto auto auto; }
       }
 
       /* ===== 정적 SEO 본문 (앱 하단, #root 바깥) ===== */
@@ -388,7 +421,7 @@
           fontTitle: 'Font settings', fontFamily: 'Font', fontSize: 'Size (px)', bold: 'Bold', fontColor: 'Text color', close: 'Close',
           bgTitle: 'Background color', bgHint: 'A dark navy or black background keeps the text crisp.',
           fonts: { gothic: 'Bold sans', round: 'Rounded sans', serif: 'Serif', mono: 'Monospace' },
-          emptyTop: 'Open a deck to start', emptyBot: '(Open deck → CSV: word,meaning)', ariaNext: 'Next (click or spacebar)',
+          emptyTop: 'Open a CSV deck to start', emptyBot: '(Open deck → CSV file: word,meaning)', ariaNext: 'Next (click or spacebar)',
           noEligible: 'No items match the current range',
           sampleLoaded: (n) => `Sample deck loaded: ${n} items`,
           noRows: 'No readable rows — check the CSV uses "word,meaning" format',
@@ -410,7 +443,7 @@
           fontTitle: 'フォント設定', fontFamily: 'フォント', fontSize: 'サイズ(px)', bold: '太字', fontColor: '文字色', close: '閉じる',
           bgTitle: '背景色', bgHint: '文字がはっきり見えるよう濃紺または黒を推奨します。',
           fonts: { gothic: 'ゴシック(太)', round: '丸ゴシック', serif: '明朝', mono: '等幅' },
-          emptyTop: '単語帳を開いてください', emptyBot: '(単語帳を開く → CSV: 単語,意味)', ariaNext: '次へ（クリックまたはスペース）',
+          emptyTop: 'CSV単語帳を開いてください', emptyBot: '(単語帳を開く → CSVファイル: 単語,意味)', ariaNext: '次へ（クリックまたはスペース）',
           noEligible: '表示範囲に該当する項目がありません',
           sampleLoaded: (n) => `サンプル単語帳を読み込み: ${n}件`,
           noRows: '読み取れる行がありません — 「単語,意味」形式のCSVか確認してください',
@@ -432,7 +465,7 @@
           fontTitle: '글꼴 설정', fontFamily: '글꼴', fontSize: '크기(px)', bold: '굵게', fontColor: '글자색', close: '닫기',
           bgTitle: '배경 색상', bgHint: '글씨가 선명하게 보이도록 짙은 남색 또는 검정색을 권장합니다.',
           fonts: { gothic: '고딕 (굵은 견고딕풍)', round: '둥근 고딕', serif: '명조', mono: '모노스페이스' },
-          emptyTop: '암기장을 열어주세요', emptyBot: '(암기장 열기 → CSV: 단어,뜻)', ariaNext: '다음 (클릭 또는 스페이스바)',
+          emptyTop: 'CSV 암기장을 열어주세요', emptyBot: '(암기장 열기 → CSV 파일: 단어,뜻)', ariaNext: '다음 (클릭 또는 스페이스바)',
           noEligible: '표시 범위에 해당하는 항목이 없습니다',
           sampleLoaded: (n) => `샘플 암기장 로드: ${n}개`,
           noRows: '읽을 수 있는 행이 없습니다 — "단어,뜻" 형식의 CSV인지 확인하세요',
@@ -454,7 +487,7 @@
           fontTitle: '字体设置', fontFamily: '字体', fontSize: '大小(px)', bold: '加粗', fontColor: '文字颜色', close: '关闭',
           bgTitle: '背景颜色', bgHint: '建议使用深蓝或黑色背景，让文字更清晰。',
           fonts: { gothic: '黑体(粗)', round: '圆体', serif: '宋体', mono: '等宽' },
-          emptyTop: '请打开单词本', emptyBot: '(打开单词本 → CSV: 单词,释义)', ariaNext: '下一个（点击或空格键）',
+          emptyTop: '请打开CSV单词本', emptyBot: '(打开单词本 → CSV文件: 单词,释义)', ariaNext: '下一个（点击或空格键）',
           noEligible: '没有符合显示范围的条目',
           sampleLoaded: (n) => `示例单词本已加载: ${n}条`,
           noRows: '没有可读取的行 — 请确认CSV为"单词,释义"格式',
@@ -476,7 +509,7 @@
           fontTitle: '字型設定', fontFamily: '字型', fontSize: '大小(px)', bold: '粗體', fontColor: '文字顏色', close: '關閉',
           bgTitle: '背景顏色', bgHint: '建議使用深藍或黑色背景，讓文字更清晰。',
           fonts: { gothic: '黑體(粗)', round: '圓體', serif: '明體', mono: '等寬' },
-          emptyTop: '請開啟單字本', emptyBot: '(開啟單字本 → CSV: 單字,釋義)', ariaNext: '下一個（點擊或空白鍵）',
+          emptyTop: '請開啟CSV單字本', emptyBot: '(開啟單字本 → CSV檔案: 單字,釋義)', ariaNext: '下一個（點擊或空白鍵）',
           noEligible: '沒有符合顯示範圍的項目',
           sampleLoaded: (n) => `已載入範例單字本: ${n} 筆`,
           noRows: '沒有可讀取的列 — 請確認CSV為「單字,釋義」格式',
@@ -498,7 +531,7 @@
           fontTitle: 'ตั้งค่าฟอนต์', fontFamily: 'ฟอนต์', fontSize: 'ขนาด(px)', bold: 'ตัวหนา', fontColor: 'สีตัวอักษร', close: 'ปิด',
           bgTitle: 'สีพื้นหลัง', bgHint: 'แนะนำพื้นหลังน้ำเงินเข้มหรือดำเพื่อให้ตัวอักษรคมชัด',
           fonts: { gothic: 'ซานส์หนา', round: 'ซานส์มน', serif: 'เซริฟ', mono: 'โมโนสเปซ' },
-          emptyTop: 'เปิดชุดคำศัพท์เพื่อเริ่ม', emptyBot: '(เปิดชุดคำศัพท์ → CSV: คำ,ความหมาย)', ariaNext: 'ถัดไป (คลิกหรือกดสเปซบาร์)',
+          emptyTop: 'เปิดชุดคำศัพท์ CSV เพื่อเริ่ม', emptyBot: '(เปิดชุดคำศัพท์ → ไฟล์ CSV: คำ,ความหมาย)', ariaNext: 'ถัดไป (คลิกหรือกดสเปซบาร์)',
           noEligible: 'ไม่มีรายการในขอบเขตปัจจุบัน',
           sampleLoaded: (n) => `โหลดชุดตัวอย่างแล้ว: ${n} รายการ`,
           noRows: 'ไม่มีแถวที่อ่านได้ — ตรวจสอบว่า CSV เป็นรูปแบบ "คำ,ความหมาย"',
@@ -520,7 +553,7 @@
           fontTitle: 'Ajustes de fuente', fontFamily: 'Fuente', fontSize: 'Tamaño (px)', bold: 'Negrita', fontColor: 'Color del texto', close: 'Cerrar',
           bgTitle: 'Color de fondo', bgHint: 'Se recomienda azul marino oscuro o negro para que el texto se vea nítido.',
           fonts: { gothic: 'Sans gruesa', round: 'Sans redondeada', serif: 'Serif', mono: 'Monoespaciada' },
-          emptyTop: 'Abre un mazo para empezar', emptyBot: '(Abrir mazo → CSV: palabra,significado)', ariaNext: 'Siguiente (clic o barra espaciadora)',
+          emptyTop: 'Abre un mazo CSV para empezar', emptyBot: '(Abrir mazo → archivo CSV: palabra,significado)', ariaNext: 'Siguiente (clic o barra espaciadora)',
           noEligible: 'No hay elementos en el rango actual',
           sampleLoaded: (n) => `Mazo de ejemplo cargado: ${n} elementos`,
           noRows: 'No hay filas legibles — comprueba que el CSV use el formato "palabra,significado"',
@@ -542,7 +575,7 @@
           fontTitle: 'Réglages de police', fontFamily: 'Police', fontSize: 'Taille (px)', bold: 'Gras', fontColor: 'Couleur du texte', close: 'Fermer',
           bgTitle: 'Couleur de fond', bgHint: 'Un fond bleu marine foncé ou noir est recommandé pour un texte net.',
           fonts: { gothic: 'Sans épaisse', round: 'Sans arrondie', serif: 'Serif', mono: 'Monospace' },
-          emptyTop: 'Ouvrez un paquet pour commencer', emptyBot: '(Ouvrir un paquet → CSV : mot,sens)', ariaNext: 'Suivant (clic ou barre d’espace)',
+          emptyTop: 'Ouvrez un paquet CSV pour commencer', emptyBot: '(Ouvrir un paquet → fichier CSV : mot,sens)', ariaNext: 'Suivant (clic ou barre d’espace)',
           noEligible: 'Aucun élément dans la plage actuelle',
           sampleLoaded: (n) => `Paquet d’exemple chargé : ${n} éléments`,
           noRows: 'Aucune ligne lisible — vérifiez que le CSV est au format « mot,sens »',
@@ -564,7 +597,7 @@
           fontTitle: 'Schrifteinstellungen', fontFamily: 'Schriftart', fontSize: 'Größe (px)', bold: 'Fett', fontColor: 'Textfarbe', close: 'Schließen',
           bgTitle: 'Hintergrundfarbe', bgHint: 'Dunkles Marineblau oder Schwarz wird empfohlen, damit der Text scharf wirkt.',
           fonts: { gothic: 'Fette Sans', round: 'Runde Sans', serif: 'Serif', mono: 'Monospace' },
-          emptyTop: 'Öffne ein Deck zum Starten', emptyBot: '(Deck öffnen → CSV: Wort,Bedeutung)', ariaNext: 'Weiter (Klick oder Leertaste)',
+          emptyTop: 'Öffne ein CSV-Deck zum Starten', emptyBot: '(Deck öffnen → CSV-Datei: Wort,Bedeutung)', ariaNext: 'Weiter (Klick oder Leertaste)',
           noEligible: 'Keine Einträge im aktuellen Bereich',
           sampleLoaded: (n) => `Beispieldeck geladen: ${n} Einträge`,
           noRows: 'Keine lesbaren Zeilen — prüfe, ob die CSV das Format "Wort,Bedeutung" hat',
@@ -586,7 +619,7 @@
           fontTitle: 'Impostazioni carattere', fontFamily: 'Carattere', fontSize: 'Dimensione (px)', bold: 'Grassetto', fontColor: 'Colore del testo', close: 'Chiudi',
           bgTitle: 'Colore di sfondo', bgHint: 'Si consiglia blu scuro o nero per un testo ben leggibile.',
           fonts: { gothic: 'Sans spessa', round: 'Sans arrotondata', serif: 'Serif', mono: 'Monospazio' },
-          emptyTop: 'Apri un mazzo per iniziare', emptyBot: '(Apri mazzo → CSV: parola,significato)', ariaNext: 'Avanti (clic o barra spaziatrice)',
+          emptyTop: 'Apri un mazzo CSV per iniziare', emptyBot: '(Apri mazzo → file CSV: parola,significato)', ariaNext: 'Avanti (clic o barra spaziatrice)',
           noEligible: 'Nessun elemento nell’ambito attuale',
           sampleLoaded: (n) => `Mazzo di esempio caricato: ${n} elementi`,
           noRows: 'Nessuna riga leggibile — verifica che il CSV sia nel formato "parola,significato"',
@@ -608,7 +641,7 @@
           fontTitle: 'Definições de fonte', fontFamily: 'Fonte', fontSize: 'Tamanho (px)', bold: 'Negrito', fontColor: 'Cor do texto', close: 'Fechar',
           bgTitle: 'Cor de fundo', bgHint: 'Recomenda-se azul-escuro ou preto para um texto nítido.',
           fonts: { gothic: 'Sans grossa', round: 'Sans arredondada', serif: 'Serifada', mono: 'Monoespaçada' },
-          emptyTop: 'Abra um baralho para começar', emptyBot: '(Abrir baralho → CSV: palavra,significado)', ariaNext: 'Próximo (clique ou barra de espaço)',
+          emptyTop: 'Abra um baralho CSV para começar', emptyBot: '(Abrir baralho → ficheiro CSV: palavra,significado)', ariaNext: 'Próximo (clique ou barra de espaço)',
           noEligible: 'Nenhum item no âmbito atual',
           sampleLoaded: (n) => `Baralho de exemplo carregado: ${n} itens`,
           noRows: 'Nenhuma linha legível — confirme que o CSV usa o formato "palavra,significado"',
@@ -630,7 +663,7 @@
           fontTitle: 'Настройки шрифта', fontFamily: 'Шрифт', fontSize: 'Размер (px)', bold: 'Жирный', fontColor: 'Цвет текста', close: 'Закрыть',
           bgTitle: 'Цвет фона', bgHint: 'Рекомендуется тёмно-синий или чёрный фон для чёткости текста.',
           fonts: { gothic: 'Жирный гротеск', round: 'Округлый гротеск', serif: 'С засечками', mono: 'Моноширинный' },
-          emptyTop: 'Откройте набор, чтобы начать', emptyBot: '(Открыть набор → CSV: слово,значение)', ariaNext: 'Далее (клик или пробел)',
+          emptyTop: 'Откройте CSV-набор, чтобы начать', emptyBot: '(Открыть набор → CSV-файл: слово,значение)', ariaNext: 'Далее (клик или пробел)',
           noEligible: 'Нет элементов в текущем диапазоне',
           sampleLoaded: (n) => `Загружен пример набора: ${n} элементов`,
           noRows: 'Нет читаемых строк — проверьте, что CSV в формате «слово,значение»',
@@ -652,7 +685,7 @@
           fontTitle: 'Lettertype-instellingen', fontFamily: 'Lettertype', fontSize: 'Grootte (px)', bold: 'Vet', fontColor: 'Tekstkleur', close: 'Sluiten',
           bgTitle: 'Achtergrondkleur', bgHint: 'Donker marineblauw of zwart wordt aanbevolen voor scherpe tekst.',
           fonts: { gothic: 'Vette sans', round: 'Ronde sans', serif: 'Serif', mono: 'Monospace' },
-          emptyTop: 'Open een deck om te beginnen', emptyBot: '(Deck openen → CSV: woord,betekenis)', ariaNext: 'Volgende (klik of spatiebalk)',
+          emptyTop: 'Open een CSV-deck om te beginnen', emptyBot: '(Deck openen → CSV-bestand: woord,betekenis)', ariaNext: 'Volgende (klik of spatiebalk)',
           noEligible: 'Geen items binnen het huidige bereik',
           sampleLoaded: (n) => `Voorbeelddeck geladen: ${n} items`,
           noRows: 'Geen leesbare rijen — controleer of de CSV het formaat "woord,betekenis" heeft',
@@ -822,6 +855,8 @@
         const fileRef = useRef(null)
         const wheelLock = useRef(0)
         const sampleTried = useRef(false)
+        const touchRef = useRef(null)
+        const swipedRef = useRef(false)
 
         const cfgAll = { ...DEFAULT_CFG, ...cfg }
         const { auto, delay, dir, order, range, tts, voiceOnly, hidePanel } = cfgAll
@@ -1018,6 +1053,28 @@
           if (e.deltaY > 0) step(); else stepBack()
         }
 
+        /* 모바일: 좌스와이프 = 다음, 우스와이프 = 이전 (탭 = 다음은 onClick이 처리) */
+        const onTouchStart = (e) => {
+          swipedRef.current = false
+          const t0 = e.touches && e.touches[0]
+          touchRef.current = t0 ? { x: t0.clientX, y: t0.clientY } : null
+        }
+        const onTouchEnd = (e) => {
+          const s = touchRef.current
+          touchRef.current = null
+          const t1 = e.changedTouches && e.changedTouches[0]
+          if (!s || !t1) return
+          const dx = t1.clientX - s.x, dy = t1.clientY - s.y
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            swipedRef.current = true // 스와이프 뒤에 따라오는 click 무시
+            if (dx < 0) step(); else stepBack()
+          }
+        }
+        const onDisplayClick = () => {
+          if (swipedRef.current) { swipedRef.current = false; return }
+          step()
+        }
+
         /* ---- 미니바 (제어판 숨김) ---- */
         const miniBar = (
           <div className="minibar">
@@ -1124,7 +1181,8 @@
               <LangSelect lang={lang} onChange={setLang} t={t} />
             </header>
             <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={openFile} />
-            <div className="display" style={{ background: cfgAll.bg }} onClick={step} onWheel={onWheel}
+            <div className="display" style={{ background: cfgAll.bg }} onClick={onDisplayClick} onWheel={onWheel}
+              onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
               role="button" tabIndex={0} aria-label={t.ariaNext}>
               <div className="pane top"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(44px, 7vw)', color: '#8888aa' } : textStyle}>{displayTop}</span></div>
               <div className="pane"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(24px, 5vw)', color: '#666688' } : textStyle}>{displayBot}</span></div>
