@@ -11,7 +11,7 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
-- 현재 **17개 앱**: `btc`(대표) + **코인 14종** + `dev`(포털) + `admin`(관리자).
+- 현재 **19개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `dev`(포털) + `admin`(관리자).
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
@@ -76,6 +76,8 @@ broodev/
 │  │  └─ ads.txt·robots.txt·sitemap.xml·README.md
 │  ├─ eth/ xrp/ doge/ bch/ link/ xlm/ ltc/ avax/ shib/ dot/ pepe/ grt/ sand/ mana/
 │  │                        ← 코인 14종. btc 복제(gen_coin.py 생성). member/·adsense/ 없음.
+│  ├─ voca/                 깜빡이 단어암기장 (자기완결형·13개국어·CSV·모바일 대응)
+│  ├─ voca-tutorial/        voca 사용법 10단계 튜토리얼 (자기완결형·복제 아님·미니 데모)
 │  ├─ dev/                  개발자 소개 + 전체 앱 포털 (분리형: index.html + app.jsx + i18n/)
 │  │  ├─ index.html  app.jsx  theme.css  i18n.js  i18n/<lang>.js  foot-i18n.js  robots/sitemap/ads.txt
 │  └─ admin/                운영 관리자 콘솔 (분리형, noindex, Google SSO, 광고 없음)
@@ -216,6 +218,8 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 | `broodev-btc` | `apps/btc` | btc.broodev.com | 라이브 |
 | `broodev-dev` | `apps/dev` | dev.broodev.com | 라이브 |
 | `broodev-admin` | `apps/admin` | admin.broodev.com | 라이브 |
+| `broodev-voca` | `apps/voca` | voca.broodev.com | 라이브 |
+| `broodev-voca-tutorial` | `apps/voca-tutorial` | voca-tutorial.broodev.com | **미생성 — 수동 추가 필요** |
 | `broodev-<coin>` | `apps/<coin>` | `<coin>.broodev.com` | **미생성(14종) — 수동 추가 필요** |
 
 절차 상세: [`docs/deploy-cloudflare.md`](docs/deploy-cloudflare.md).

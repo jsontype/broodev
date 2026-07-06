@@ -33,6 +33,8 @@ broodev/
 | --- | --- | --- | --- | --- |
 | [btc](apps/btc/) | **broodev.com** (+ btc.broodev.com) | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 (대표앱) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
 | 코인 14종 | `<coin>.broodev.com` | eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana — btc 복제 매수 타이밍 시그널 | React 18 (CDN) · 무빌드 | 🟢 라이브 |
+| [voca](apps/voca/) | voca.broodev.com | 깜빡이 단어암기장 (CSV 자동 반복 암기·13개국어) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
+| [voca-tutorial](apps/voca-tutorial/) | voca-tutorial.broodev.com | 깜빡이 사용법 10단계 인터랙티브 튜토리얼 | React 18 (CDN) · 무빌드 | 🟡 배포 대기 |
 | [dev](apps/dev/) | dev.broodev.com | 개발자 소개 + 유용한 앱들 포털 | React 18(CDN) · 정적 | 🟢 라이브 |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 
@@ -57,6 +59,8 @@ python3 scripts/gen_coin.py all          # 전체(14종)
 | broodev (구 broodev-web) | `apps/btc` ⭐(전환) | broodev.com |
 | broodev-btc | `apps/btc` | btc.broodev.com |
 | broodev-`<coin>` | `apps/<coin>` | `<coin>.broodev.com` (14종) |
+| broodev-voca | `apps/voca` | voca.broodev.com |
+| broodev-voca-tutorial | `apps/voca-tutorial` | voca-tutorial.broodev.com |
 | broodev-dev | `apps/dev` | dev.broodev.com |
 | broodev-admin | `apps/admin` | admin.broodev.com |
 
