@@ -25,8 +25,10 @@
 ## 샘플 암기장 게시판 (`samples/`)
 - 앱 화면 아래 스크롤 영역에 클래식 룩 게시판. 진입점: 툴바 "📚 샘플 암기장" 버튼 + 빈 화면 하단 링크(스크롤 이동).
 - **탭 = 학습 타깃 언어 13종**(수요순 정렬) — 현재 UI 언어와 같은 탭은 자동 숨김(한국어 사용자에겐 한국어 탭이 안 보임).
-- **덱 1개 = 13언어 매트릭스 CSV 1개** (`samples/*.csv`, 헤더 = 언어 코드). 적용 시 A면=타깃 언어 컬럼, B면=현재 UI 언어 컬럼(없으면 en 폴백). 미국인이 JLPT를 누르면 日→英, 한국인이 누르면 日→韓.
-- `core-basic.csv`(기초 어휘 135)는 **모든 타깃의 "기초 어휘" 덱을 공용**으로 커버. 시험 덱은 타깃별 파일(현재 `en-toeic.csv`·`ja-jlpt-n5.csv` 활성, 나머지 JLPT/HSK/TOCFL/TOPIK/DELE/DELF/Goethe/CILS/CAPLE/TORFL/NT2는 "준비 중" 표시).
+- **13언어 매트릭스 CSV** (`samples/*.csv`, 헤더 = 언어 코드). 적용 시 A면=타깃 언어 컬럼, B면=현재 UI 언어 컬럼(없으면 en 폴백). 미국인이 JLPT를 누르면 日→英, 한국인이 누르면 日→韓.
+- **티어 공용 구조**: CEFR급 파일 1개(`tier-a1/a2/b1/b2/adv/academic/business.csv`)가 **13개 타깃의 동급 덱을 전부 커버** — `tier-a1.csv`(586단어) 하나로 초등영어·JLPT N5·HSK 1–2·TOCFL A1·TOPIK 1·DELE/DELF/Goethe/CILS/CAPLE/TORFL A1·NT2/태국어 기초가 동시에 활성화된다. 코드에선 `TIERS`(파일·count) ↔ `SAMPLE_DECKS`(덱→`tier` 참조)로 분리, 티어 파일이 랜딩되면 `TIERS`에 등록만 하면 전 타깃 동시 오픈.
+- **시험명은 난이도 근사 라벨**(공식 어휘표 아님 — 저작권·유지보수 문제). 게시판 하단에 13언어 고지(`t.lvlNote`).
+- 검증: `node scripts/validate_samples.mjs` — 13열 정합성·빈 셀·en 중복(파일 내+교차)·컬럼 중복 경고·`TIERS` count 일치를 검사. JSX는 `node scripts/check_jsx.mjs apps/voca/index.html`.
 - [▶ 적용]: 기존 덱이 있으면 교체 확인 1회 → 적용 + TTS 로케일(`voca:deckLang`)을 타깃/UI 언어로 갱신 + 상단 스크롤. [⬇ CSV]: 현재 언어 조합의 2열 CSV(BOM 포함)로 다운로드 — 수정 후 📂로 다시 열 수 있음.
 - 덱 파일은 세션 내 fetch 캐시(`matrixCache`, 키 고정)로 재요청 방지.
 
