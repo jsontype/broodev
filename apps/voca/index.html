@@ -260,6 +260,47 @@
         .stat-rows { grid-template-columns: auto auto auto auto; }
       }
 
+      /* ===== 샘플 암기장 게시판 (앱 화면 아래 스크롤 영역) ===== */
+      .display { position: relative; }
+      .samples-jump { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); background: rgba(13, 21, 38, .8); border: 1px dashed #4a5680; color: #8fb3ff; font-size: 13px; padding: 8px 14px; cursor: pointer; font-family: var(--ui-font); max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .samples-jump:hover { color: #ffe14d; border-color: #ffe14d; }
+      .samples { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; padding: 26px 14px 8px; background: #0a0a14; font-family: var(--ui-font); }
+      .samples-panel { background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); padding: 14px 14px 14px; }
+      .samples-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #000; margin: 0 0 4px; }
+      .samples-sub { font-size: 12px; color: #444; margin: 0 0 12px; }
+      .samples .tabs { display: flex; gap: 0; flex-wrap: wrap; border-bottom: 2px solid var(--panel-dark); }
+      .samples .tab { font-family: var(--ui-font); font-size: 12.5px; padding: 7px 13px; background: #bcb8ae; border: 2px solid; border-color: var(--panel-light) var(--panel-dark) transparent var(--panel-light); cursor: pointer; margin-bottom: -2px; color: #333; }
+      .samples .tab.on { background: var(--panel-gray); font-weight: 800; color: #000; border-bottom: 2px solid var(--panel-gray); }
+      table.board { width: 100%; border-collapse: collapse; background: #fff; border: 2px inset #9a9a9a; font-size: 12.5px; color: #111; }
+      .board th { background: #e8e4dc; border-bottom: 2px solid var(--panel-dark); padding: 7px 8px; font-size: 12px; text-align: left; white-space: nowrap; }
+      .board td { border-bottom: 1px solid #ddd8ce; padding: 8px; vertical-align: middle; }
+      .board tr:hover td { background: #f4f8ff; }
+      .board .no { color: #888; text-align: center; width: 34px; }
+      .board .title { font-weight: 700; }
+      .board .cnt { text-align: center; white-space: nowrap; width: 70px; }
+      .board .act { text-align: center; white-space: nowrap; width: 150px; }
+      .board .act-btns { display: inline-flex; gap: 6px; }
+      .apply-btn { font-family: var(--ui-font); font-size: 12px; font-weight: 800; padding: 5px 10px; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; white-space: nowrap; }
+      .apply-btn:active { border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .apply-btn .tri { color: #0a7a0a; }
+      .apply-btn.dl { font-weight: 400; }
+      .board .applied { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #0a7a0a; }
+      .board .led-dot { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b6ffb6, #22dd22 65%); border: 1px solid #0c380c; box-shadow: 0 0 6px rgba(40,255,40,.8); }
+      .board tr.row-applied td { background: #eefaee; }
+      .board .soon-mark { color: #999; font-size: 12px; }
+      .board-foot { font-size: 11.5px; color: #555; padding: 8px 2px 0; }
+      @media (max-width: 640px) {
+        .board thead { display: none; }
+        table.board, .board tbody, .board tr, .board td { display: block; width: 100%; }
+        .board tr { border-bottom: 2px solid var(--panel-dark); padding: 8px 6px; }
+        .board td { border: none; padding: 3px 6px; }
+        .board .no { display: none; }
+        .board .cnt, .board .act { width: auto; text-align: left; }
+        .board .act { padding-top: 7px; }
+        .apply-btn { padding: 8px 14px; font-size: 13px; }
+        .samples .tab { padding: 9px 12px; font-size: 13px; }
+      }
+
       /* ===== 정적 SEO 본문 (앱 하단, #root 바깥) ===== */
       .seo { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 34px 20px 40px; background: #0a0a14; color: #9db0c8; font-size: 13px; line-height: 1.75; font-family: var(--ui-font); }
       .seo h1 { font-size: 19px; color: #ffe14d; margin: 0 0 10px; }
@@ -447,6 +488,13 @@
           sampleLoaded: (n) => `Sample deck loaded: ${n} items`,
           noRows: 'No readable rows — check the CSV uses "word,meaning" format',
           opened: (n) => `Deck opened: ${n} items`,
+          samples: 'Sample decks', samplesSub: 'Ready-made decks — apply instantly, or download the CSV, edit it and open it again.',
+          thTitle: 'Deck', thCount: 'Words', thAct: 'Apply / Download', basicDeck: 'Basic vocabulary', interDeck: 'Intermediate vocabulary', advDeck: 'Advanced vocabulary', bizDeck: 'Business vocabulary',
+          enElem: 'Elementary English', enMiddle: 'Middle school English', enHigh: 'High school English', enCollege: 'Academic English',
+          soon: 'Coming soon', applyBtn: 'Apply', dlTip: 'Download CSV — edit it and open it again', appliedMark: 'Applied', lvlNote: 'Exam names indicate approximate difficulty tiers, not official word lists',
+          confirmReplace: 'Replace the current deck? Memorized marks will be reset.',
+          sampleDone: (name, n) => `${name} applied — ${n} words`, sampleFailNet: 'Could not load the sample — check your connection',
+          emptySamples: '↓ Or pick a sample deck below to start right away',
           confirmReset: 'Reset all memorized marks?', resetDone: 'All memorized marks reset',
           startRange: (m) => `Start number must be between 1 and ${m}`,
           cantClose: 'If the browser blocks closing, please close the tab manually',
@@ -469,6 +517,13 @@
           sampleLoaded: (n) => `サンプル単語帳を読み込み: ${n}件`,
           noRows: '読み取れる行がありません — 「単語,意味」形式のCSVか確認してください',
           opened: (n) => `単語帳を開きました: ${n}件`,
+          samples: 'サンプル単語帳', samplesSub: 'すぐ使える単語帳です。ワンタップで適用、またはCSVをダウンロードして編集後に開き直せます。',
+          thTitle: '単語帳', thCount: '語数', thAct: '適用 / DL', basicDeck: '基礎語彙', interDeck: '中級語彙', advDeck: '上級語彙', bizDeck: 'ビジネス語彙',
+          enElem: '小学英語', enMiddle: '中学英語', enHigh: '高校英語', enCollege: '大学英語（学術）',
+          soon: '準備中', applyBtn: '適用', dlTip: 'CSVをダウンロード — 編集して開き直せます', appliedMark: '適用中', lvlNote: '試験名は難易度の目安です（公式語彙表ではありません）',
+          confirmReplace: '現在の単語帳を置き換えますか？暗記マークはリセットされます。',
+          sampleDone: (name, n) => `${name} を適用 — ${n}語`, sampleFailNet: 'サンプルを読み込めませんでした — 接続を確認してください',
+          emptySamples: '↓ 下のサンプル単語帳からすぐ始めることもできます',
           confirmReset: 'すべての暗記マークを初期化しますか？', resetDone: '暗記マークを初期化しました',
           startRange: (m) => `開始番号は1〜${m}の範囲で指定してください`,
           cantClose: 'ブラウザの制限で閉じられない場合はタブを直接閉じてください',
@@ -491,6 +546,13 @@
           sampleLoaded: (n) => `샘플 암기장 로드: ${n}개`,
           noRows: '읽을 수 있는 행이 없습니다 — "단어,뜻" 형식의 CSV인지 확인하세요',
           opened: (n) => `암기장 열기 완료: ${n}개 항목`,
+          samples: '샘플 암기장', samplesSub: '바로 쓸 수 있는 기본 제공 암기장입니다. 한 번에 적용하거나, CSV로 내려받아 수정한 뒤 다시 열 수 있어요.',
+          thTitle: '암기장', thCount: '단어 수', thAct: '적용 / 다운로드', basicDeck: '기초 어휘', interDeck: '중급 어휘', advDeck: '고급 어휘', bizDeck: '비즈니스 어휘',
+          enElem: '초등영어', enMiddle: '중학영어', enHigh: '고등영어', enCollege: '대학영어(학술)',
+          soon: '준비 중', applyBtn: '적용', dlTip: 'CSV 다운로드 — 수정해서 다시 열 수 있어요', appliedMark: '적용됨', lvlNote: '시험명은 난이도 기준의 근사 어휘 구성입니다 (공식 어휘표 아님)',
+          confirmReplace: '현재 암기장을 교체할까요? 암기 표시는 초기화됩니다.',
+          sampleDone: (name, n) => `${name} 적용됨 — ${n}단어`, sampleFailNet: '샘플을 불러오지 못했어요 — 네트워크를 확인해 주세요',
+          emptySamples: '↓ 아래 샘플 암기장에서 골라 바로 시작할 수도 있어요',
           confirmReset: '모든 암기 표시를 초기화할까요?', resetDone: '암기 표시 초기화 완료',
           startRange: (m) => `시작번호는 1~${m} 사이여야 합니다`,
           cantClose: '브라우저 정책상 창을 닫을 수 없으면 탭을 직접 닫아주세요',
@@ -513,6 +575,13 @@
           sampleLoaded: (n) => `示例单词本已加载: ${n}条`,
           noRows: '没有可读取的行 — 请确认CSV为"单词,释义"格式',
           opened: (n) => `单词本已打开: ${n}条`,
+          samples: '示例单词本', samplesSub: '开箱即用的单词本。一键应用，或下载CSV编辑后重新打开。',
+          thTitle: '单词本', thCount: '词数', thAct: '应用 / 下载', basicDeck: '基础词汇', interDeck: '中级词汇', advDeck: '高级词汇', bizDeck: '商务词汇',
+          enElem: '小学英语', enMiddle: '初中英语', enHigh: '高中英语', enCollege: '大学英语（学术）',
+          soon: '即将推出', applyBtn: '应用', dlTip: '下载CSV — 可编辑后重新打开', appliedMark: '使用中', lvlNote: '考试名称仅表示难度分级（非官方词表）',
+          confirmReplace: '要替换当前单词本吗？已记标记将被重置。',
+          sampleDone: (name, n) => `已应用 ${name} — ${n}词`, sampleFailNet: '无法加载示例 — 请检查网络',
+          emptySamples: '↓ 也可以从下方示例单词本直接开始',
           confirmReset: '要重置所有已记标记吗？', resetDone: '已记标记已重置',
           startRange: (m) => `起始编号须在1~${m}之间`,
           cantClose: '如浏览器限制无法关闭窗口，请手动关闭标签页',
@@ -535,6 +604,13 @@
           sampleLoaded: (n) => `已載入範例單字本: ${n} 筆`,
           noRows: '沒有可讀取的列 — 請確認CSV為「單字,釋義」格式',
           opened: (n) => `已開啟單字本: ${n} 筆`,
+          samples: '範例單字本', samplesSub: '開箱即用的單字本。一鍵套用，或下載CSV編輯後重新開啟。',
+          thTitle: '單字本', thCount: '字數', thAct: '套用 / 下載', basicDeck: '基礎詞彙', interDeck: '中級詞彙', advDeck: '高級詞彙', bizDeck: '商務詞彙',
+          enElem: '國小英語', enMiddle: '國中英語', enHigh: '高中英語', enCollege: '大學英語（學術）',
+          soon: '即將推出', applyBtn: '套用', dlTip: '下載CSV — 可編輯後重新開啟', appliedMark: '使用中', lvlNote: '考試名稱僅代表難度分級（非官方詞表）',
+          confirmReplace: '要替換目前的單字本嗎？已記標記將被重設。',
+          sampleDone: (name, n) => `已套用 ${name} — ${n} 字`, sampleFailNet: '無法載入範例 — 請檢查網路',
+          emptySamples: '↓ 也可以從下方範例單字本直接開始',
           confirmReset: '要重設所有已記標記嗎？', resetDone: '已重設已記標記',
           startRange: (m) => `起始編號須在 1~${m} 之間`,
           cantClose: '若瀏覽器限制無法關閉視窗，請手動關閉分頁',
@@ -557,6 +633,13 @@
           sampleLoaded: (n) => `โหลดชุดตัวอย่างแล้ว: ${n} รายการ`,
           noRows: 'ไม่มีแถวที่อ่านได้ — ตรวจสอบว่า CSV เป็นรูปแบบ "คำ,ความหมาย"',
           opened: (n) => `เปิดชุดคำศัพท์แล้ว: ${n} รายการ`,
+          samples: 'ชุดคำศัพท์ตัวอย่าง', samplesSub: 'ชุดคำศัพท์พร้อมใช้ — ใช้ได้ทันที หรือดาวน์โหลด CSV ไปแก้ไขแล้วเปิดใหม่',
+          thTitle: 'ชุดคำศัพท์', thCount: 'จำนวนคำ', thAct: 'ใช้ / ดาวน์โหลด', basicDeck: 'คำศัพท์พื้นฐาน', interDeck: 'คำศัพท์ระดับกลาง', advDeck: 'คำศัพท์ขั้นสูง', bizDeck: 'คำศัพท์ธุรกิจ',
+          enElem: 'อังกฤษประถม', enMiddle: 'อังกฤษมัธยมต้น', enHigh: 'อังกฤษมัธยมปลาย', enCollege: 'อังกฤษเชิงวิชาการ',
+          soon: 'เร็วๆ นี้', applyBtn: 'ใช้', dlTip: 'ดาวน์โหลด CSV — แก้ไขแล้วเปิดใหม่ได้', appliedMark: 'กำลังใช้', lvlNote: 'ชื่อข้อสอบใช้บอกระดับความยากโดยประมาณ (ไม่ใช่รายการคำศัพท์ทางการ)',
+          confirmReplace: 'แทนที่ชุดคำศัพท์ปัจจุบันหรือไม่? เครื่องหมายจำจะถูกรีเซ็ต',
+          sampleDone: (name, n) => `ใช้ ${name} แล้ว — ${n} คำ`, sampleFailNet: 'โหลดตัวอย่างไม่ได้ — ตรวจสอบการเชื่อมต่อ',
+          emptySamples: '↓ หรือเลือกชุดตัวอย่างด้านล่างเพื่อเริ่มทันที',
           confirmReset: 'ล้างเครื่องหมายจำทั้งหมดหรือไม่?', resetDone: 'ล้างเครื่องหมายแล้ว',
           startRange: (m) => `หมายเลขเริ่มต้นต้องอยู่ระหว่าง 1 ถึง ${m}`,
           cantClose: 'หากเบราว์เซอร์ไม่ให้ปิดหน้าต่าง โปรดปิดแท็บด้วยตนเอง',
@@ -579,6 +662,13 @@
           sampleLoaded: (n) => `Mazo de ejemplo cargado: ${n} elementos`,
           noRows: 'No hay filas legibles — comprueba que el CSV use el formato "palabra,significado"',
           opened: (n) => `Mazo abierto: ${n} elementos`,
+          samples: 'Mazos de ejemplo', samplesSub: 'Mazos listos para usar: aplícalos al instante o descarga el CSV, edítalo y vuelve a abrirlo.',
+          thTitle: 'Mazo', thCount: 'Palabras', thAct: 'Aplicar / Descargar', basicDeck: 'Vocabulario básico', interDeck: 'Vocabulario intermedio', advDeck: 'Vocabulario avanzado', bizDeck: 'Vocabulario de negocios',
+          enElem: 'Inglés de primaria', enMiddle: 'Inglés de secundaria', enHigh: 'Inglés de bachillerato', enCollege: 'Inglés académico',
+          soon: 'Próximamente', applyBtn: 'Aplicar', dlTip: 'Descargar CSV — edítalo y vuelve a abrirlo', appliedMark: 'Aplicado', lvlNote: 'Los nombres de exámenes indican niveles aproximados de dificultad (no son listas oficiales)',
+          confirmReplace: '¿Reemplazar el mazo actual? Las marcas de memorizado se restablecerán.',
+          sampleDone: (name, n) => `${name} aplicado — ${n} palabras`, sampleFailNet: 'No se pudo cargar el ejemplo — comprueba tu conexión',
+          emptySamples: '↓ O elige un mazo de ejemplo abajo para empezar ya',
           confirmReset: '¿Restablecer todas las marcas de memorizada?', resetDone: 'Marcas restablecidas',
           startRange: (m) => `El número inicial debe estar entre 1 y ${m}`,
           cantClose: 'Si el navegador impide cerrar la ventana, cierra la pestaña manualmente',
@@ -601,6 +691,13 @@
           sampleLoaded: (n) => `Paquet d’exemple chargé : ${n} éléments`,
           noRows: 'Aucune ligne lisible — vérifiez que le CSV est au format « mot,sens »',
           opened: (n) => `Paquet ouvert : ${n} éléments`,
+          samples: 'Paquets d’exemple', samplesSub: 'Des paquets prêts à l’emploi : appliquez-les en un clic, ou téléchargez le CSV, modifiez-le et rouvrez-le.',
+          thTitle: 'Paquet', thCount: 'Mots', thAct: 'Appliquer / Télécharger', basicDeck: 'Vocabulaire de base', interDeck: 'Vocabulaire intermédiaire', advDeck: 'Vocabulaire avancé', bizDeck: 'Vocabulaire des affaires',
+          enElem: 'Anglais primaire', enMiddle: 'Anglais collège', enHigh: 'Anglais lycée', enCollege: 'Anglais académique',
+          soon: 'Bientôt', applyBtn: 'Appliquer', dlTip: 'Télécharger le CSV — modifiable puis réouvrable', appliedMark: 'Appliqué', lvlNote: 'Les noms d’examens indiquent des niveaux de difficulté approximatifs (pas des listes officielles)',
+          confirmReplace: 'Remplacer le paquet actuel ? Les marques seront réinitialisées.',
+          sampleDone: (name, n) => `${name} appliqué — ${n} mots`, sampleFailNet: 'Impossible de charger l’exemple — vérifiez la connexion',
+          emptySamples: '↓ Ou choisissez un paquet d’exemple ci-dessous pour commencer',
           confirmReset: 'Réinitialiser toutes les marques ?', resetDone: 'Marques réinitialisées',
           startRange: (m) => `Le numéro de départ doit être entre 1 et ${m}`,
           cantClose: 'Si le navigateur empêche la fermeture, fermez l’onglet manuellement',
@@ -623,6 +720,13 @@
           sampleLoaded: (n) => `Beispieldeck geladen: ${n} Einträge`,
           noRows: 'Keine lesbaren Zeilen — prüfe, ob die CSV das Format "Wort,Bedeutung" hat',
           opened: (n) => `Deck geöffnet: ${n} Einträge`,
+          samples: 'Beispieldecks', samplesSub: 'Fertige Decks — sofort anwenden oder als CSV herunterladen, bearbeiten und wieder öffnen.',
+          thTitle: 'Deck', thCount: 'Wörter', thAct: 'Anwenden / Download', basicDeck: 'Grundwortschatz', interDeck: 'Mittelstufen-Wortschatz', advDeck: 'Fortgeschrittenen-Wortschatz', bizDeck: 'Business-Wortschatz',
+          enElem: 'Grundschul-Englisch', enMiddle: 'Mittelstufen-Englisch', enHigh: 'Oberstufen-Englisch', enCollege: 'Akademisches Englisch',
+          soon: 'Demnächst', applyBtn: 'Anwenden', dlTip: 'CSV herunterladen — bearbeiten und wieder öffnen', appliedMark: 'Aktiv', lvlNote: 'Prüfungsnamen dienen als ungefähre Schwierigkeitsangabe (keine offiziellen Wortlisten)',
+          confirmReplace: 'Aktuelles Deck ersetzen? Merk-Markierungen werden zurückgesetzt.',
+          sampleDone: (name, n) => `${name} angewendet — ${n} Wörter`, sampleFailNet: 'Beispiel konnte nicht geladen werden — Verbindung prüfen',
+          emptySamples: '↓ Oder unten ein Beispieldeck wählen und sofort loslegen',
           confirmReset: 'Alle Merk-Markierungen zurücksetzen?', resetDone: 'Markierungen zurückgesetzt',
           startRange: (m) => `Die Startnummer muss zwischen 1 und ${m} liegen`,
           cantClose: 'Falls der Browser das Schließen blockiert, schließe den Tab bitte manuell',
@@ -645,6 +749,13 @@
           sampleLoaded: (n) => `Mazzo di esempio caricato: ${n} elementi`,
           noRows: 'Nessuna riga leggibile — verifica che il CSV sia nel formato "parola,significato"',
           opened: (n) => `Mazzo aperto: ${n} elementi`,
+          samples: 'Mazzi di esempio', samplesSub: 'Mazzi pronti all’uso: applicali subito o scarica il CSV, modificalo e riaprilo.',
+          thTitle: 'Mazzo', thCount: 'Parole', thAct: 'Applica / Scarica', basicDeck: 'Vocabolario di base', interDeck: 'Vocabolario intermedio', advDeck: 'Vocabolario avanzato', bizDeck: 'Vocabolario commerciale',
+          enElem: 'Inglese elementari', enMiddle: 'Inglese medie', enHigh: 'Inglese superiori', enCollege: 'Inglese accademico',
+          soon: 'In arrivo', applyBtn: 'Applica', dlTip: 'Scarica il CSV — modificalo e riaprilo', appliedMark: 'In uso', lvlNote: 'I nomi degli esami indicano livelli di difficoltà approssimativi (non liste ufficiali)',
+          confirmReplace: 'Sostituire il mazzo attuale? I contrassegni verranno azzerati.',
+          sampleDone: (name, n) => `${name} applicato — ${n} parole`, sampleFailNet: 'Impossibile caricare l’esempio — controlla la connessione',
+          emptySamples: '↓ Oppure scegli un mazzo di esempio qui sotto per iniziare subito',
           confirmReset: 'Azzerare tutti i contrassegni?', resetDone: 'Contrassegni azzerati',
           startRange: (m) => `Il numero iniziale deve essere tra 1 e ${m}`,
           cantClose: 'Se il browser impedisce la chiusura, chiudi la scheda manualmente',
@@ -667,6 +778,13 @@
           sampleLoaded: (n) => `Baralho de exemplo carregado: ${n} itens`,
           noRows: 'Nenhuma linha legível — confirme que o CSV usa o formato "palavra,significado"',
           opened: (n) => `Baralho aberto: ${n} itens`,
+          samples: 'Baralhos de exemplo', samplesSub: 'Baralhos prontos a usar: aplica já ou descarrega o CSV, edita-o e abre-o de novo.',
+          thTitle: 'Baralho', thCount: 'Palavras', thAct: 'Aplicar / Descarregar', basicDeck: 'Vocabulário básico', interDeck: 'Vocabulário intermédio', advDeck: 'Vocabulário avançado', bizDeck: 'Vocabulário de negócios',
+          enElem: 'Inglês da primária', enMiddle: 'Inglês do ensino básico', enHigh: 'Inglês do secundário', enCollege: 'Inglês académico',
+          soon: 'Em breve', applyBtn: 'Aplicar', dlTip: 'Descarregar CSV — edita e abre de novo', appliedMark: 'Aplicado', lvlNote: 'Os nomes dos exames indicam níveis aproximados de dificuldade (não são listas oficiais)',
+          confirmReplace: 'Substituir o baralho atual? As marcas serão repostas.',
+          sampleDone: (name, n) => `${name} aplicado — ${n} palavras`, sampleFailNet: 'Não foi possível carregar o exemplo — verifica a ligação',
+          emptySamples: '↓ Ou escolhe um baralho de exemplo abaixo para começar já',
           confirmReset: 'Repor todas as marcas de memorizada?', resetDone: 'Marcas repostas',
           startRange: (m) => `O número inicial deve estar entre 1 e ${m}`,
           cantClose: 'Se o navegador impedir o fecho, feche o separador manualmente',
@@ -689,6 +807,13 @@
           sampleLoaded: (n) => `Загружен пример набора: ${n} элементов`,
           noRows: 'Нет читаемых строк — проверьте, что CSV в формате «слово,значение»',
           opened: (n) => `Набор открыт: ${n} элементов`,
+          samples: 'Примеры наборов', samplesSub: 'Готовые наборы: применяйте мгновенно или скачайте CSV, отредактируйте и откройте снова.',
+          thTitle: 'Набор', thCount: 'Слов', thAct: 'Применить / Скачать', basicDeck: 'Базовая лексика', interDeck: 'Средний уровень', advDeck: 'Продвинутая лексика', bizDeck: 'Деловая лексика',
+          enElem: 'Английский: начальная школа', enMiddle: 'Английский: средняя школа', enHigh: 'Английский: старшая школа', enCollege: 'Академический английский',
+          soon: 'Скоро', applyBtn: 'Применить', dlTip: 'Скачать CSV — отредактируйте и откройте снова', appliedMark: 'Применён', lvlNote: 'Названия экзаменов указывают примерный уровень сложности (не официальные списки слов)',
+          confirmReplace: 'Заменить текущий набор? Отметки «выучено» будут сброшены.',
+          sampleDone: (name, n) => `${name} применён — ${n} слов`, sampleFailNet: 'Не удалось загрузить пример — проверьте соединение',
+          emptySamples: '↓ Или выберите готовый набор ниже и начните сразу',
           confirmReset: 'Сбросить все отметки «выучено»?', resetDone: 'Отметки сброшены',
           startRange: (m) => `Начальный номер должен быть от 1 до ${m}`,
           cantClose: 'Если браузер не даёт закрыть окно, закройте вкладку вручную',
@@ -711,6 +836,13 @@
           sampleLoaded: (n) => `Voorbeelddeck geladen: ${n} items`,
           noRows: 'Geen leesbare rijen — controleer of de CSV het formaat "woord,betekenis" heeft',
           opened: (n) => `Deck geopend: ${n} items`,
+          samples: 'Voorbeelddecks', samplesSub: 'Kant-en-klare decks: direct toepassen of download de CSV, bewerk hem en open opnieuw.',
+          thTitle: 'Deck', thCount: 'Woorden', thAct: 'Toepassen / Downloaden', basicDeck: 'Basiswoordenschat', interDeck: 'Woordenschat middenniveau', advDeck: 'Gevorderde woordenschat', bizDeck: 'Zakelijke woordenschat',
+          enElem: 'Engels basisschool', enMiddle: 'Engels onderbouw', enHigh: 'Engels bovenbouw', enCollege: 'Academisch Engels',
+          soon: 'Binnenkort', applyBtn: 'Toepassen', dlTip: 'CSV downloaden — bewerken en opnieuw openen', appliedMark: 'Actief', lvlNote: 'Examennamen geven een geschatte moeilijkheidsgraad aan (geen officiële woordenlijsten)',
+          confirmReplace: 'Huidig deck vervangen? Markeringen worden gereset.',
+          sampleDone: (name, n) => `${name} toegepast — ${n} woorden`, sampleFailNet: 'Voorbeeld kon niet worden geladen — controleer de verbinding',
+          emptySamples: '↓ Of kies hieronder een voorbeelddeck om meteen te beginnen',
           confirmReset: 'Alle markeringen wissen?', resetDone: 'Markeringen gewist',
           startRange: (m) => `Het startnummer moet tussen 1 en ${m} liggen`,
           cantClose: 'Als de browser het sluiten blokkeert, sluit het tabblad dan handmatig',
@@ -754,18 +886,154 @@
       const BG_PRESETS = ['#000040', '#000000', '#000066', '#0a1a0a', '#1a0a0a']
       const FG_PRESETS = ['#ffff00', '#ffffff', '#66ff66', '#66ccff', '#ffb000']
 
-      /* TTS: 読み가 괄호（）안에 있으면 그것만 읽음. A=일본어, B=한국어로 추정 발음 */
-      const speak = (text, isA) => {
+      /* TTS: 読み가 괄호（）안에 있으면 그것만 읽음. 로케일은 덱 메타(deckLang)를 따름 — 기본 A=일본어·B=한국어 */
+      const DEFAULT_DECK_LANG = { a: 'ja-JP', b: 'ko-KR' }
+      const speak = (text, isA, deckLang) => {
         try {
           if (!window.speechSynthesis) return
           window.speechSynthesis.cancel()
           const m = String(text).match(/[（(]([^）)]+)[）)]/)
           const say = isA && m ? m[1] : String(text).replace(/[（(][^）)]*[）)]/g, ' ')
           const u = new SpeechSynthesisUtterance(say)
-          u.lang = isA ? 'ja-JP' : 'ko-KR'
+          const dl = deckLang || DEFAULT_DECK_LANG
+          u.lang = isA ? dl.a : dl.b
           u.rate = 1
           window.speechSynthesis.speak(u)
         } catch {}
+      }
+
+      /* =========================================================
+       *  샘플 암기장 (게시판) — 덱 1개 = 13언어 매트릭스 CSV 1개
+       *  A면 = 타깃 언어 컬럼, B면(뜻) = 현재 UI 언어 컬럼 (없으면 en)
+       * ========================================================= */
+      const LOCALE = { en: 'en-US', ja: 'ja-JP', ko: 'ko-KR', zh: 'zh-CN', 'zh-Hant': 'zh-TW', th: 'th-TH', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', it: 'it-IT', pt: 'pt-PT', ru: 'ru-RU', nl: 'nl-NL' }
+      /* 탭 순서(수요 순). 현재 UI 언어와 같은 타깃은 탭에서 숨김 */
+      const SAMPLE_TARGETS = ['en', 'ja', 'zh', 'zh-Hant', 'ko', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl', 'th']
+      /* 티어 = CEFR급 공용 매트릭스 파일. 같은 급의 파일 1개가 13개 타깃의 동급 덱을 전부 커버
+         (예: tier-a1 = 초등영어·JLPT N5·HSK 1–2·DELF A1·TOPIK 1 …). 파일이 랜딩되면 여기에 등록 → 전 타깃 동시 활성 */
+      const TIERS = {
+        a1: { file: 'samples/tier-a1.csv', count: 586 },
+        a2: { file: 'samples/tier-a2.csv', count: 534 },
+        b1: { file: 'samples/tier-b1.csv', count: 523 },
+        b2: { file: 'samples/tier-b2.csv', count: 503 },
+        adv: { file: 'samples/tier-adv.csv', count: 404 },
+        academic: { file: 'samples/tier-academic.csv', count: 392 },
+        business: { file: 'samples/tier-business.csv', count: 500 },
+      }
+      /* 덱 소스 해석: tier 참조 또는 개별 file. 둘 다 없거나 티어 미랜딩이면 "준비 중" */
+      const deckSrc = (d) => (d.file ? d : d.tier && TIERS[d.tier] ? TIERS[d.tier] : null)
+      /* name: (t) => 표시명 — 시험명(JLPT·HSK…)은 만국 공통이라 그대로 (난이도 근사 라벨, t.lvlNote로 고지) */
+      const SAMPLE_DECKS = {
+        en: [
+          { id: 'en-elem', tier: 'a1', name: (t) => t.enElem },
+          { id: 'en-middle', tier: 'a2', name: (t) => t.enMiddle },
+          { id: 'en-high', tier: 'b1', name: (t) => t.enHigh },
+          { id: 'en-toefl', tier: 'adv', name: () => 'TOEFL' },
+          { id: 'en-college', tier: 'academic', name: (t) => t.enCollege },
+          { id: 'en-toeic', tier: 'business', name: () => 'TOEIC' },
+        ],
+        ja: [
+          { id: 'ja-n5', tier: 'a1', name: () => 'JLPT N5' },
+          { id: 'ja-n4', tier: 'a2', name: () => 'JLPT N4' },
+          { id: 'ja-n3', tier: 'b1', name: () => 'JLPT N3' },
+          { id: 'ja-n2', tier: 'b2', name: () => 'JLPT N2' },
+          { id: 'ja-n1', tier: 'adv', name: () => 'JLPT N1' },
+          { id: 'ja-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        zh: [
+          { id: 'zh-hsk12', tier: 'a1', name: () => 'HSK 1–2' },
+          { id: 'zh-hsk34', tier: 'a2', name: () => 'HSK 3–4' },
+          { id: 'zh-hsk5', tier: 'b1', name: () => 'HSK 5' },
+          { id: 'zh-hsk6', tier: 'b2', name: () => 'HSK 6' },
+          { id: 'zh-adv', tier: 'adv', name: (t) => t.advDeck },
+          { id: 'zh-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        'zh-Hant': [
+          { id: 'zht-tocfl-a1', tier: 'a1', name: () => 'TOCFL A1' },
+          { id: 'zht-tocfl-a2', tier: 'a2', name: () => 'TOCFL A2' },
+          { id: 'zht-tocfl-b1', tier: 'b1', name: () => 'TOCFL B1' },
+          { id: 'zht-tocfl-b2', tier: 'b2', name: () => 'TOCFL B2' },
+          { id: 'zht-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        ko: [
+          { id: 'ko-topik1', tier: 'a1', name: () => 'TOPIK 1' },
+          { id: 'ko-topik2', tier: 'a2', name: () => 'TOPIK 2' },
+          { id: 'ko-topik34', tier: 'b1', name: () => 'TOPIK 3–4' },
+          { id: 'ko-topik56', tier: 'b2', name: () => 'TOPIK 5–6' },
+          { id: 'ko-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        es: [
+          { id: 'es-a1', tier: 'a1', name: () => 'DELE A1' },
+          { id: 'es-a2', tier: 'a2', name: () => 'DELE A2' },
+          { id: 'es-b1', tier: 'b1', name: () => 'DELE B1' },
+          { id: 'es-b2', tier: 'b2', name: () => 'DELE B2' },
+          { id: 'es-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        fr: [
+          { id: 'fr-a1', tier: 'a1', name: () => 'DELF A1' },
+          { id: 'fr-a2', tier: 'a2', name: () => 'DELF A2' },
+          { id: 'fr-b1', tier: 'b1', name: () => 'DELF B1' },
+          { id: 'fr-b2', tier: 'b2', name: () => 'DELF B2' },
+          { id: 'fr-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        de: [
+          { id: 'de-a1', tier: 'a1', name: () => 'Goethe A1' },
+          { id: 'de-a2', tier: 'a2', name: () => 'Goethe A2' },
+          { id: 'de-b1', tier: 'b1', name: () => 'Goethe B1' },
+          { id: 'de-b2', tier: 'b2', name: () => 'Goethe B2' },
+          { id: 'de-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        it: [
+          { id: 'it-a1', tier: 'a1', name: () => 'CILS A1' },
+          { id: 'it-a2', tier: 'a2', name: () => 'CILS A2' },
+          { id: 'it-b1', tier: 'b1', name: () => 'CILS B1' },
+          { id: 'it-b2', tier: 'b2', name: () => 'CILS B2' },
+          { id: 'it-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        pt: [
+          { id: 'pt-a1', tier: 'a1', name: () => 'CAPLE A1' },
+          { id: 'pt-a2', tier: 'a2', name: () => 'CAPLE A2' },
+          { id: 'pt-b1', tier: 'b1', name: () => 'CAPLE B1' },
+          { id: 'pt-b2', tier: 'b2', name: () => 'CAPLE B2' },
+          { id: 'pt-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        ru: [
+          { id: 'ru-a1', tier: 'a1', name: () => 'TORFL A1' },
+          { id: 'ru-a2', tier: 'a2', name: () => 'TORFL A2' },
+          { id: 'ru-b1', tier: 'b1', name: () => 'TORFL B1' },
+          { id: 'ru-b2', tier: 'b2', name: () => 'TORFL B2' },
+          { id: 'ru-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        nl: [
+          { id: 'nl-basic', tier: 'a1', name: (t) => t.basicDeck },
+          { id: 'nl-a2', tier: 'a2', name: () => 'NT2 A2' },
+          { id: 'nl-b1', tier: 'b1', name: () => 'NT2 B1' },
+          { id: 'nl-b2', tier: 'b2', name: () => 'NT2 B2' },
+          { id: 'nl-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        th: [
+          { id: 'th-basic', tier: 'a1', name: (t) => t.basicDeck },
+          { id: 'th-inter', tier: 'b1', name: (t) => t.interDeck },
+          { id: 'th-adv', tier: 'b2', name: (t) => t.advDeck },
+          { id: 'th-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+      }
+      /* 매트릭스 CSV → {a,b} 행 배열 (target/ui 컬럼 선택, ui 없으면 en 폴백) */
+      const parseMatrixCSV = (text, target, ui) => {
+        const lines = String(text).replace(/^\uFEFF/, '').split(/\r?\n/).filter((l) => l.trim())
+        if (lines.length < 2) return []
+        const header = lines[0].split(',').map((s) => s.trim())
+        const ai = header.indexOf(target)
+        let bi = header.indexOf(ui)
+        if (bi < 0 || bi === ai) bi = header.indexOf('en')
+        if (ai < 0 || bi < 0 || bi === ai) return []
+        const out = []
+        for (let i = 1; i < lines.length; i++) {
+          const cells = lines[i].split(',')
+          const a = (cells[ai] || '').trim(), b = (cells[bi] || '').trim()
+          if (a && b) out.push({ a, b, mem: false })
+        }
+        return out
       }
 
       /* =========================================================
@@ -861,6 +1129,70 @@
       }
 
       /* =========================================================
+       *  샘플 암기장 게시판 (앱 화면 아래) — 현재 UI 언어 탭은 숨김
+       * ========================================================= */
+      function SamplesBoard({ uiLang, t, appliedId, onApply, onDownload }) {
+        const targets = SAMPLE_TARGETS.filter((c) => c !== uiLang)
+        const [tab, setTab] = useState(targets[0])
+        const cur = targets.includes(tab) ? tab : targets[0] // UI 언어 변경으로 현재 탭이 숨겨진 경우 보정
+        const decks = SAMPLE_DECKS[cur] || []
+        /* 탭 = "학습할 외국어" → 현재 UI 언어로 표기 (en UI면 Korean, ko UI면 일본어).
+           Intl.DisplayNames 내장 번역 사용, 미지원 브라우저는 원어 표기 폴백 */
+        const tabLabel = (code) => {
+          const native = (LANGS.find((l) => l.code === code) || {}).label || code
+          try {
+            const bcp = code === 'zh' ? 'zh-Hans' : code
+            const s = new Intl.DisplayNames([uiLang], { type: 'language' }).of(bcp)
+            if (s && s !== bcp) return s.charAt(0).toUpperCase() + s.slice(1)
+          } catch {}
+          return native
+        }
+        return (
+          <section className="samples" id="samples" aria-label={t.samples}>
+            <div className="samples-panel">
+              <h2 className="samples-title">📚 {t.samples}</h2>
+              <p className="samples-sub">{t.samplesSub}</p>
+              <div className="tabs" role="tablist">
+                {targets.map((c) => (
+                  <button key={c} role="tab" aria-selected={c === cur} className={'tab' + (c === cur ? ' on' : '')} onClick={() => setTab(c)}>{tabLabel(c)}</button>
+                ))}
+              </div>
+              <table className="board">
+                <thead>
+                  <tr><th className="no">#</th><th>{t.thTitle}</th><th className="cnt">{t.thCount}</th><th className="act">{t.thAct}</th></tr>
+                </thead>
+                <tbody>
+                  {decks.map((d, i) => { const src = deckSrc(d); return (
+                    <tr key={d.id} className={appliedId === d.id ? 'row-applied' : ''}>
+                      <td className="no">{i + 1}</td>
+                      <td className="title">{d.name(t)}</td>
+                      <td className="cnt">{src ? src.count : '—'}</td>
+                      <td className="act">
+                        {!src ? (
+                          <span className="soon-mark">{t.soon}</span>
+                        ) : appliedId === d.id ? (
+                          <span className="act-btns">
+                            <span className="applied"><span className="led-dot" /> {t.appliedMark}</span>
+                            <button className="apply-btn dl" title={t.dlTip} onClick={() => onDownload(d, cur)}>⬇ CSV</button>
+                          </span>
+                        ) : (
+                          <span className="act-btns">
+                            <button className="apply-btn" onClick={() => onApply(d, cur)}><span className="tri">▶</span> {t.applyBtn}</button>
+                            <button className="apply-btn dl" title={t.dlTip} onClick={() => onDownload(d, cur)}>⬇ CSV</button>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ) })}
+                </tbody>
+              </table>
+              <div className="board-foot">ⓘ {t.confirmReplace} · {t.dlTip}<br />ⓘ {t.lvlNote}</div>
+            </div>
+          </section>
+        )
+      }
+
+      /* =========================================================
        *  앱 본체
        * ========================================================= */
       function App() {
@@ -868,6 +1200,9 @@
         const [deck, setDeck] = useLocalStorage('voca:deck', [])
         const [cfg, setCfg] = useLocalStorage('voca:cfg', DEFAULT_CFG)
         const [lang, setLang] = useLocalStorage('voca:lang', detectLang())
+        const [deckLang, setDeckLang] = useLocalStorage('voca:deckLang', DEFAULT_DECK_LANG) // TTS 로케일 (샘플 적용 시 갱신)
+        const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
+        const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
         const [pos, setPos] = useState(0)
         const [phase, setPhase] = useState('a')       // 'a' = 앞면만 / 'ab' = 앞+뒷면
         const [startNo, setStartNo] = useState('1')
@@ -978,12 +1313,12 @@
           return () => window.removeEventListener('keydown', onKey)
         }, [step, stepBack])
 
-        /* TTS: 앞면 표시 시 A(단어), 뒷면 표시 시 B(뜻) 읽기 */
+        /* TTS: 앞면 표시 시 A(단어), 뒷면 표시 시 B(뜻) 읽기 — 로케일은 덱 메타 */
         useEffect(() => {
           if (!tts || !card) return
           const firstIsA = dir === 'ab'
-          if (phase === 'a') speak(firstIsA ? card.a : card.b, firstIsA)
-          else speak(firstIsA ? card.b : card.a, !firstIsA)
+          if (phase === 'a') speak(firstIsA ? card.a : card.b, firstIsA, deckLang)
+          else speak(firstIsA ? card.b : card.a, !firstIsA, deckLang)
         }, [tts, phase, pos]) // eslint 무관: card/dir 변화는 pos/phase에 수반
 
         /* 첫 방문(암기장 없음) 시 샘플 암기장 자동 로드 */
@@ -1019,9 +1354,48 @@
             const rows = parseCSV(reader.result)
             if (!rows.length) { showToast(t.noRows); return }
             setDeck(rows); setPos(0); setPhase('a')
+            setSampleId(null); setDeckLang(DEFAULT_DECK_LANG) // 내 CSV → 샘플 표시 해제 + 기존 TTS 기본값 유지
             showToast(t.opened(rows.length))
           }
           reader.readAsText(f, 'utf-8')
+        }
+
+        /* ---- 샘플 암기장: 적용 / 다운로드 ---- */
+        const fetchMatrix = (file) => {
+          if (matrixCache.current[file]) return Promise.resolve(matrixCache.current[file])
+          return fetch(file).then((r) => (r.ok ? r.text() : Promise.reject())).then((text) => {
+            matrixCache.current[file] = text
+            return text
+          })
+        }
+        const applySample = (d, target) => {
+          const src = deckSrc(d)
+          if (!src) return
+          fetchMatrix(src.file).then((text) => {
+            const rows = parseMatrixCSV(text, target, lang)
+            if (!rows.length) { showToast(t.sampleFailNet); return }
+            if (deck.length && !window.confirm(t.confirmReplace)) return
+            setDeck(rows); setPos(0); setPhase('a')
+            setSampleId(d.id)
+            setDeckLang({ a: LOCALE[target] || 'en-US', b: LOCALE[lang] || 'en-US' })
+            showToast(t.sampleDone(d.name(t), rows.length))
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }).catch(() => showToast(t.sampleFailNet))
+        }
+        const downloadSample = (d, target) => {
+          const src = deckSrc(d)
+          if (!src) return
+          fetchMatrix(src.file).then((text) => {
+            const rows = parseMatrixCSV(text, target, lang)
+            if (!rows.length) { showToast(t.sampleFailNet); return }
+            const csv = '\uFEFF' + rows.map((r) => r.a + ',' + r.b).join('\r\n')
+            const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+            const a = document.createElement('a')
+            a.href = url
+            a.download = d.id + '.' + lang + '.csv'
+            a.click()
+            URL.revokeObjectURL(url)
+          }).catch(() => showToast(t.sampleFailNet))
         }
 
         /* ---- 암기 표시 ---- */
@@ -1096,6 +1470,12 @@
           step()
         }
 
+        const jumpSamples = (e) => {
+          e.stopPropagation()
+          const el = document.getElementById('samples')
+          if (el) el.scrollIntoView({ behavior: 'smooth' })
+        }
+
         /* ---- 미니바 (제어판 숨김) ---- */
         const miniBar = (
           <div className="minibar">
@@ -1114,6 +1494,7 @@
           <div className="cpanel">
             <div className="toolbar">
               <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> {t.open}</button>
+              <button className="tb-btn" onClick={jumpSamples}><span className="ic">📚</span> {t.samples}</button>
               <button className="tb-btn next" onClick={step}><span className="ic">→</span> {t.next}</button>
               <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> {t.mem}</label>
               <div className="tb-col">
@@ -1191,6 +1572,7 @@
         )
 
         return (
+          <React.Fragment>
           <div className="stage" style={{ background: cfgAll.bg }}>
             <header className="app-header">
               <a className="brand" href="https://broodev.com/" title="broodev">
@@ -1208,10 +1590,13 @@
               role="button" tabIndex={0} aria-label={t.ariaNext}>
               <div className="pane top"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(44px, 7vw)', color: '#8888aa' } : textStyle}>{displayTop}</span></div>
               <div className="pane"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(24px, 5vw)', color: '#666688' } : textStyle}>{displayBot}</span></div>
+              {emptyMsg && <button className="samples-jump" onClick={jumpSamples}>{t.emptySamples}</button>}
             </div>
             {hidePanel ? miniBar : fullPanel}
             {toast && <div className="toast">{toast}</div>}
           </div>
+          <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample} />
+          </React.Fragment>
         )
       }
 
