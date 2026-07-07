@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[목업] voca 샘플 암기장 게시판 — 디자인 시안 (실동작 아님)</title>
+    <style>
+      :root {
+        --navy: #000040;
+        --panel-gray: #d4d0c8;
+        --panel-dark: #808080;
+        --panel-light: #ffffff;
+        --ui-font: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Dotum', sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #0a0a14; font-family: var(--ui-font); }
+
+      .mock-banner { position: sticky; top: 0; z-index: 99; background: #7a1fa2; color: #fff; text-align: center; font-size: 12.5px; font-weight: 700; padding: 6px 10px; }
+
+      /* ── 상단: voca 앱 축약 표현 (스크롤 위에 앱이 있다는 맥락 전달용) ── */
+      .app-header { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; background: #05080a; border-bottom: 1px solid #16203a; }
+      .app-header .logo { color: #00ff9c; font-family: Menlo, Consolas, monospace; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; text-shadow: 0 0 8px rgba(0,255,156,.45); }
+      .app-header .app-name { color: #ffe14d; font-size: 12px; font-weight: 800; }
+      .app-header .dot { color: #3a4a6a; margin: 0 6px; }
+      .app-header .sp { flex: 1; }
+      .app-header .hdr-btn { color: #9db0c8; font-size: 12px; font-weight: 700; padding: 3px 8px; border: 1px solid #2a3a5f; background: #0d1526; }
+
+      .display { height: 200px; background: var(--navy); display: flex; flex-direction: column; }
+      .display .pane { flex: 1; display: flex; align-items: center; padding: 0 4vw; }
+      .display .pane.top { border-bottom: 3px solid #e8e8e8; }
+      .display .word { color: #ffff00; font-weight: 800; font-size: min(44px, 8vw); }
+      .display .fade { text-align: center; color: #44507a; font-size: 12px; padding: 8px 0 10px; background: var(--navy); }
+
+      .toolbar-hint { background: var(--panel-gray); border-top: 2px solid var(--panel-light); padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #000; }
+      .tb-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; font-size: 12px; font-family: var(--ui-font); background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; white-space: nowrap; }
+      .tb-btn:active { border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .tb-btn.hl { outline: 2px solid #1a6cff; outline-offset: 1px; }
+      .muted { color: #555; }
+
+      .scroll-cue { text-align: center; color: #8fb3ff; font-size: 12.5px; padding: 14px 0 4px; }
+      .scroll-cue .arr { display: block; font-size: 16px; animation: bob 1.4s infinite; }
+      @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(4px) } }
+
+      /* ── 핵심: 샘플 암기장 게시판 섹션 ── */
+      .samples { max-width: 860px; margin: 10px auto 30px; padding: 0 14px; }
+      .samples-panel { background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); padding: 14px 14px 16px; }
+      .samples-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #000; margin: 0 0 4px; }
+      .samples-sub { font-size: 12px; color: #444; margin: 0 0 12px; }
+
+      .tabs { display: flex; gap: 0; flex-wrap: wrap; border-bottom: 2px solid var(--panel-dark); margin-bottom: 0; }
+      .tab { font-family: var(--ui-font); font-size: 12.5px; padding: 7px 14px; background: #bcb8ae; border: 2px solid; border-color: var(--panel-light) var(--panel-dark) transparent var(--panel-light); cursor: pointer; margin-bottom: -2px; color: #333; }
+      .tab.on { background: var(--panel-gray); font-weight: 800; color: #000; border-bottom: 2px solid var(--panel-gray); }
+
+      table.board { width: 100%; border-collapse: collapse; background: #fff; border: 2px inset #9a9a9a; font-size: 12.5px; color: #111; }
+      .board th { background: #e8e4dc; border-bottom: 2px solid var(--panel-dark); padding: 7px 8px; font-size: 12px; text-align: left; white-space: nowrap; }
+      .board td { border-bottom: 1px solid #ddd8ce; padding: 8px; vertical-align: middle; }
+      .board tr:hover td { background: #f4f8ff; }
+      .board .no { color: #888; text-align: center; width: 34px; }
+      .board .title { font-weight: 700; }
+      .board .desc { font-weight: 400; color: #666; font-size: 11.5px; margin-top: 2px; }
+      .board .cnt, .board .lv { text-align: center; white-space: nowrap; }
+      .board .lv { color: #c8951a; letter-spacing: 1px; }
+      .board .act { text-align: center; width: 96px; }
+      .apply-btn { font-family: var(--ui-font); font-size: 12px; font-weight: 800; padding: 5px 10px; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; white-space: nowrap; }
+      .apply-btn:active { border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .apply-btn .tri { color: #0a7a0a; }
+      .applied { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #0a7a0a; }
+      .led { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b6ffb6, #22dd22 65%); border: 1px solid #0c380c; box-shadow: 0 0 6px rgba(40,255,40,.8); }
+      tr.row-applied td { background: #eefaee; }
+
+      .board-foot { display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: #555; padding: 8px 2px 0; flex-wrap: wrap; }
+
+      /* 모바일: 게시판 행 → 카드 */
+      @media (max-width: 640px) {
+        .board thead { display: none; }
+        table.board, .board tbody, .board tr, .board td { display: block; width: 100%; }
+        .board tr { border-bottom: 2px solid var(--panel-dark); padding: 8px 6px; }
+        .board td { border: none; padding: 3px 6px; }
+        .board .no { display: none; }
+        .board .cnt, .board .lv { display: inline-block; width: auto; }
+        .board .act { width: auto; text-align: left; padding-top: 7px; }
+        .apply-btn { padding: 8px 14px; font-size: 13px; }
+      }
+
+      /* SEO 본문이 이 아래 이어진다는 표시 */
+      .seo-ghost { max-width: 760px; margin: 0 auto; padding: 22px 20px 60px; color: #4a5670; font-size: 12.5px; border-top: 1px dashed #23233c; text-align: center; }
+
+      .toast { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%); z-index: 80; background: rgba(0,0,0,.88); color: #ffff66; padding: 10px 20px; font-size: 13px; border: 1px solid #666; border-radius: 3px; opacity: 0; transition: opacity .25s; pointer-events: none; max-width: 86vw; text-align: center; }
+      .toast.show { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <div class="mock-banner">🧪 디자인 목업 — 실제 앱 아님 · 버튼은 데모 토스트만 표시</div>
+
+    <!-- 앱 상단부 (맥락용 축약) -->
+    <header class="app-header">
+      <span class="logo">broodev</span>
+      <span class="app-name">VOCA_DECK<span class="dot">·</span>깜빡이</span>
+      <span class="sp"></span>
+      <span class="hdr-btn">📖 튜토리얼</span>
+      <span class="hdr-btn">🌐 한국어</span>
+    </header>
+    <div class="display">
+      <div class="pane top"><span class="word">abandon</span></div>
+      <div class="pane"><span class="word">버리다, 포기하다</span></div>
+    </div>
+    <div class="fade" style="background:var(--navy)"></div>
+    <div class="toolbar-hint">
+      <button class="tb-btn">📂 암기장 열기</button>
+      <button class="tb-btn hl" onclick="document.getElementById('samples').scrollIntoView({behavior:'smooth'})">📚 샘플 암기장</button>
+      <span class="muted">← 툴바에 신설되는 진입 버튼 (누르면 아래로 스크롤)</span>
+    </div>
+
+    <div class="scroll-cue">샘플 암기장 골라서 바로 시작 <span class="arr">▼</span></div>
+
+    <!-- ══ 핵심 시안: 샘플 암기장 게시판 ══ -->
+    <section class="samples" id="samples">
+      <div class="samples-panel">
+        <h2 class="samples-title">📚 샘플 암기장 <span style="font-size:11px;font-weight:400;color:#666">— 누르면 즉시 적용</span></h2>
+        <p class="samples-sub">CSV를 직접 만들지 않아도 바로 체험할 수 있는 기본 제공 단어장입니다. 적용해도 언제든 내 CSV로 교체할 수 있습니다.</p>
+
+        <div class="tabs">
+          <button class="tab on" onclick="demo('탭 전환 (데모)')">영어</button>
+          <button class="tab" onclick="demo('일본어 탭 — 추후 확장 (데모)')">일본어</button>
+          <button class="tab" onclick="demo('한국어 탭 — 추후 확장 (데모)')">한국어</button>
+        </div>
+
+        <table class="board">
+          <thead>
+            <tr><th class="no">#</th><th>제목</th><th class="cnt">단어 수</th><th class="lv">난이도</th><th class="act">적용</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="no">1</td>
+              <td class="title">초등영어 기초 500<div class="desc">알파벳 다음 단계, 생활 기초 어휘 (school, family, apple …)</div></td>
+              <td class="cnt">500</td><td class="lv">★☆☆☆☆</td>
+              <td class="act"><button class="apply-btn" onclick="apply(this,'초등영어 기초 500')"><span class="tri">▶</span> 바로 적용</button></td>
+            </tr>
+            <tr class="row-applied">
+              <td class="no">2</td>
+              <td class="title">중학영어 필수 800<div class="desc">교육과정 필수 어휘, 내신·기초 독해 대비</div></td>
+              <td class="cnt">800</td><td class="lv">★★☆☆☆</td>
+              <td class="act"><span class="applied"><span class="led"></span> 적용됨</span></td>
+            </tr>
+            <tr>
+              <td class="no">3</td>
+              <td class="title">고등영어 수능 1200<div class="desc">수능·모의고사 빈출 어휘, 파생어 뜻 병기</div></td>
+              <td class="cnt">1,200</td><td class="lv">★★★☆☆</td>
+              <td class="act"><button class="apply-btn" onclick="apply(this,'고등영어 수능 1200')"><span class="tri">▶</span> 바로 적용</button></td>
+            </tr>
+            <tr>
+              <td class="no">4</td>
+              <td class="title">대학영어 아카데믹 1000<div class="desc">교양·원서 강독용 학술 어휘 (AWL 기반)</div></td>
+              <td class="cnt">1,000</td><td class="lv">★★★★☆</td>
+              <td class="act"><button class="apply-btn" onclick="apply(this,'대학영어 아카데믹 1000')"><span class="tri">▶</span> 바로 적용</button></td>
+            </tr>
+            <tr>
+              <td class="no">5</td>
+              <td class="title">TOEIC 빈출 1000<div class="desc">파트5·7 빈출, 비즈니스 상황 어휘 중심</div></td>
+              <td class="cnt">1,000</td><td class="lv">★★★☆☆</td>
+              <td class="act"><button class="apply-btn" onclick="apply(this,'TOEIC 빈출 1000')"><span class="tri">▶</span> 바로 적용</button></td>
+            </tr>
+            <tr>
+              <td class="no">6</td>
+              <td class="title">TOEFL 고급 800<div class="desc">리딩·리스닝 학술 지문 고급 어휘</div></td>
+              <td class="cnt">800</td><td class="lv">★★★★★</td>
+              <td class="act"><button class="apply-btn" onclick="apply(this,'TOEFL 고급 800')"><span class="tri">▶</span> 바로 적용</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="board-foot">
+          <span>ⓘ 적용 시 현재 암기장이 교체됩니다 — 내 덱이 있으면 확인창 1회.</span>
+          <span>뜻 언어: 한국어 (추후 UI 언어별 확장)</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="seo-ghost">▾ 이 아래로 기존 SEO 본문(사용법·FAQ)·푸터가 그대로 이어짐 ▾</div>
+
+    <div class="toast" id="toast"></div>
+    <script>
+      let tm
+      function showToast(msg) {
+        const el = document.getElementById('toast')
+        el.textContent = msg
+        el.classList.add('show')
+        clearTimeout(tm)
+        tm = setTimeout(() => el.classList.remove('show'), 2400)
+      }
+      function demo(msg) { showToast(msg) }
+      function apply(btn, name) {
+        showToast('✅ 「' + name + '」 적용됨 — 화면 상단으로 이동해 1번부터 시작 (데모)')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    </script>
+  </body>
+</html>
