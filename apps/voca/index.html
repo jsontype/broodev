@@ -1113,7 +1113,17 @@
         const [tab, setTab] = useState(targets[0])
         const cur = targets.includes(tab) ? tab : targets[0] // UI 언어 변경으로 현재 탭이 숨겨진 경우 보정
         const decks = SAMPLE_DECKS[cur] || []
-        const tabLabel = (code) => (LANGS.find((l) => l.code === code) || {}).label || code
+        /* 탭 = "학습할 외국어" → 현재 UI 언어로 표기 (en UI면 Korean, ko UI면 일본어).
+           Intl.DisplayNames 내장 번역 사용, 미지원 브라우저는 원어 표기 폴백 */
+        const tabLabel = (code) => {
+          const native = (LANGS.find((l) => l.code === code) || {}).label || code
+          try {
+            const bcp = code === 'zh' ? 'zh-Hans' : code
+            const s = new Intl.DisplayNames([uiLang], { type: 'language' }).of(bcp)
+            if (s && s !== bcp) return s.charAt(0).toUpperCase() + s.slice(1)
+          } catch {}
+          return native
+        }
         return (
           <section className="samples" id="samples" aria-label={t.samples}>
             <div className="samples-panel">
