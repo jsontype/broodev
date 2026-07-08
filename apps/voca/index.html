@@ -320,9 +320,8 @@
       .board tr.row-applied td { background: #eefaee; }
       .board .soon-mark { color: #999; font-size: 12px; }
       .board-foot { font-size: 11.5px; color: #555; padding: 8px 2px 0; }
-      /* 게시판에서 암기장(최상단)으로 즉시 복귀 — sticky라 샘플 영역을 스크롤하는 동안만 화면 좌상단에 떠 있음 */
-      .top-jump-wrap { position: sticky; top: 12px; z-index: 6; display: flex; justify-content: flex-start; margin-bottom: 12px; pointer-events: none; }
-      .top-jump { pointer-events: auto; font-family: var(--ui-font); font-size: 13px; font-weight: 700; color: #8fb3ff; background: rgba(13, 21, 38, .92); border: 1px dashed #4a5680; padding: 9px 14px; cursor: pointer; max-width: 80vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 10px rgba(0,0,0,.5); touch-action: manipulation; }
+      /* 암기장(최상단) 즉시 복귀 — 앱 화면을 지나 스크롤하면 페이지 끝까지 좌상단에 고정(fixed) */
+      .top-jump { position: fixed; top: 12px; left: 12px; z-index: 50; font-family: var(--ui-font); font-size: 13px; font-weight: 700; color: #8fb3ff; background: rgba(13, 21, 38, .92); border: 1px dashed #4a5680; padding: 9px 14px; cursor: pointer; max-width: 80vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 10px rgba(0,0,0,.5); touch-action: manipulation; }
       .top-jump:hover { color: #ffe14d; border-color: #ffe14d; }
 
       /* ===== CSV 편집기 (샘플 게시판 아래) — 왼쪽 컨트롤 / 오른쪽 2열 시트 ===== */
@@ -1640,9 +1639,6 @@
         }
         return (
           <section className="samples" id="samples" aria-label={t.samples}>
-            <div className="top-jump-wrap">
-              <button className="top-jump" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>⬆ {t.backToTop}</button>
-            </div>
             <div className="samples-panel">
               <h2 className="samples-title">📚 {t.samples}</h2>
               <p className="samples-sub">{t.samplesSub}</p>
@@ -1919,6 +1915,7 @@
         const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
         const [myDecks, setMyDecks] = useLocalStorage('voca:mydecks', [])                   // 마이 단어장 [{id,name,rows,savedAt}]
         const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 단어장 → 편집기 로드 요청
+        const [showJump, setShowJump] = useState(false)                                     // "⬆ 암기장으로" 고정 버튼 표시 여부
         const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
         const [pos, setPos] = useState(0)
         const [phase, setPhase] = useState('a')       // 'a' = 앞면만 / 'ab' = 앞+뒷면
@@ -2088,6 +2085,14 @@
         useEffect(() => {
           if (total && pos >= total) { setPos(0); setPhase('a') }
         }, [total, pos])
+
+        /* 앱 화면(100dvh)을 절반 이상 지나 스크롤하면 "⬆ 암기장으로" 고정 버튼 표시 — 페이지 끝까지 유지 */
+        useEffect(() => {
+          const onScroll = () => setShowJump(window.scrollY > window.innerHeight * 0.5)
+          onScroll()
+          window.addEventListener('scroll', onScroll, { passive: true })
+          return () => window.removeEventListener('scroll', onScroll)
+        }, [])
 
         /* ---- 파일 열기 ---- */
         const openFile = (e) => {
@@ -2431,6 +2436,7 @@
           <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast} />
           <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
             onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
+          {showJump && <button className="top-jump" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>⬆ {t.backToTop}</button>}
           </React.Fragment>
         )
       }
