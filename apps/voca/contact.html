@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>문의 &amp; 버그신고 | VOCA_DECK · broodev</title>
+    <meta name="description" content="VOCA_DECK(voca.broodev.com) 문의 및 버그신고 — 서비스 이용 중 발견한 버그나 개선 제안을 운영자에게 직접 보낼 수 있습니다." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://voca.broodev.com/contact.html" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <style>
+      :root { --bg:#05080a; --panel:#0a1014; --neon:#00ff9c; --text:#c8ffe6; --dim:#8fb3a6; --warn:#ffe14d; }
+      * { box-sizing: border-box; }
+      body { margin:0; background:var(--bg); color:var(--text); font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace; line-height:1.8; }
+      .wrap { max-width:640px; margin:0 auto; padding:48px 20px 96px; }
+      a { color:var(--neon); }
+      h1 { color:var(--neon); font-size:26px; margin:0 0 6px; }
+      p { color:var(--dim); font-size:14px; }
+      .muted { color:#5f776e; font-size:12px; }
+      .nav { margin-bottom:28px; font-size:13px; }
+      .nav a { text-decoration:none; margin-right:14px; }
+      hr { border:0; border-top:1px solid rgba(0,255,156,.18); margin:36px 0; }
+      footer { color:#5f776e; font-size:12px; text-align:center; }
+
+      form { background:var(--panel); border:1px solid rgba(0,255,156,.18); padding:22px 18px; margin-top:18px; }
+      label { display:block; font-size:13px; color:var(--text); margin:14px 0 5px; }
+      label:first-child { margin-top:0; }
+      .req { color:var(--warn); }
+      input, select, textarea {
+        width:100%; padding:10px 11px; font-size:16px; /* 16px — iOS 포커스 줌 방지 */
+        font-family:inherit; color:var(--text); background:#060b0e;
+        border:1px solid #1e3a30; outline:none;
+      }
+      input:focus, select:focus, textarea:focus { border-color:var(--neon); }
+      textarea { min-height:160px; resize:vertical; }
+      button[type="submit"] {
+        margin-top:20px; width:100%; padding:13px; font-size:15px; font-weight:700; font-family:inherit;
+        color:#04140d; background:var(--neon); border:0; cursor:pointer; touch-action:manipulation;
+      }
+      button[type="submit"]:disabled { opacity:.5; cursor:default; }
+      .status { margin-top:14px; font-size:13px; min-height:1.4em; }
+      .status.ok { color:var(--neon); }
+      .status.err { color:#ff8080; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <nav class="nav">
+        <a href="/">← 홈</a><a href="/privacy.html">개인정보처리방침</a><a href="/terms.html">이용약관</a>
+      </nav>
+
+      <h1>📮 문의 &amp; 버그신고</h1>
+      <p>VOCA_DECK을 쓰다가 발견한 버그, 개선 제안, 기타 문의를 남겨주세요. 내용은 운영자 메일로 바로 전달됩니다.</p>
+      <p class="muted">회신이 필요하면 이메일 주소를 함께 남겨주세요. 남긴 내용 외에 어떤 정보도 수집하지 않습니다.</p>
+
+      <form id="contact-form">
+        <label for="f-kind">구분</label>
+        <select id="f-kind" name="kind">
+          <option value="버그신고">🐞 버그신고</option>
+          <option value="개선 제안">💡 개선 제안</option>
+          <option value="일반 문의">✉ 일반 문의</option>
+        </select>
+
+        <label for="f-name">이름 / 닉네임</label>
+        <input id="f-name" name="name" type="text" maxlength="50" placeholder="(선택)" />
+
+        <label for="f-email">회신 받을 이메일</label>
+        <input id="f-email" name="email" type="email" maxlength="100" placeholder="(선택) 회신이 필요할 때만" />
+
+        <label for="f-msg">내용 <span class="req">*</span></label>
+        <textarea id="f-msg" name="message" required maxlength="3000"
+          placeholder="버그라면: 어떤 기기·브라우저에서, 어떤 조작을 했을 때, 무엇이 잘못되는지 적어주시면 큰 도움이 됩니다."></textarea>
+
+        <button type="submit" id="f-send">보내기</button>
+        <p class="status" id="f-status"></p>
+      </form>
+
+      <hr />
+      <footer>© 2026 broodev · 운영 Y-Systems · <a href="/">voca.broodev.com</a></footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      /* ── EmailJS 설정 ─────────────────────────────────────────
+         emailjs.com 대시보드에서 발급받은 값 3개를 붙여넣으면 활성화됩니다.
+         비어 있으면 자동으로 mailto(메일 앱 열기) 폴백으로 동작합니다. */
+      var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
+      var EMAILJS_SERVICE_ID = 'broodev_service';
+      var EMAILJS_TEMPLATE_ID = 'broodev_template';
+      var FALLBACK_MAIL = 'jsontyper@gmail.com';
+      /* ───────────────────────────────────────────────────────── */
+
+      var configured = EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs;
+      if (configured) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+      var form = document.getElementById('contact-form');
+      var btn = document.getElementById('f-send');
+      var status = document.getElementById('f-status');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var kind = document.getElementById('f-kind').value;
+        var name = document.getElementById('f-name').value.trim();
+        var email = document.getElementById('f-email').value.trim();
+        var message = document.getElementById('f-msg').value.trim();
+        if (!message) return;
+
+        if (!configured) {
+          /* 키 미설정 시 폴백: 메일 앱을 열어 내용을 채워줌 */
+          var body = '[' + kind + ']' + (name ? ' from ' + name : '') + (email ? ' <' + email + '>' : '') + '\n\n' + message;
+          location.href = 'mailto:' + FALLBACK_MAIL +
+            '?subject=' + encodeURIComponent('[VOCA_DECK] ' + kind) +
+            '&body=' + encodeURIComponent(body);
+          return;
+        }
+
+        btn.disabled = true;
+        status.className = 'status';
+        status.textContent = '전송 중…';
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          kind: kind, name: name || '(무기명)', email: email || '(회신 주소 없음)', message: message,
+          page: location.href, ua: navigator.userAgent,
+        }).then(function () {
+          status.className = 'status ok';
+          status.textContent = '✔ 전송되었습니다. 소중한 의견 감사합니다!';
+          form.reset();
+          btn.disabled = false;
+        }).catch(function () {
+          status.className = 'status err';
+          status.textContent = '✖ 전송에 실패했습니다. 잠시 후 다시 시도하거나 ' + FALLBACK_MAIL + ' 로 직접 보내주세요.';
+          btn.disabled = false;
+        });
+      });
+    </script>
+  </body>
+</html>
