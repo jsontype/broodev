@@ -135,12 +135,12 @@ function AppsPage({ t, fmt }) {
   const catName = (c) => catLabel(c, t);
   const CATS = [...new Set(ALL.map(a => a.category))];
   const [q, setQ] = useState(''); const [page, setPage] = useState(1);
-  const [cats, setCats] = useState([]); // 선택된 카테고리 배열 — 복수 선택(OR)
-  const toggleCat = (c) => setCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  const [cat, setCat] = useState(null); // 선택된 카테고리 — 단일 선택(재클릭 시 해제 = 전체)
+  const toggleCat = (c) => setCat(prev => (prev === c ? null : c));
   const pageSize = 6; const ql = q.trim().toLowerCase();
-  useEffect(() => { setPage(1); }, [ql, cats.join('|')]);
+  useEffect(() => { setPage(1); }, [ql, cat]);
   const filtered = ALL.filter(a =>
-    (cats.length === 0 || cats.includes(a.category)) &&
+    (!cat || a.category === cat) &&
     (!ql || (a.name + ' ' + appDesc(a, t, fmt) + ' ' + catName(a.category) + ' ' + (a.tags || []).join(' ')).toLowerCase().includes(ql)));
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const cur = Math.min(page, pages);
@@ -154,8 +154,8 @@ function AppsPage({ t, fmt }) {
       </div>
       <div className="cat-tags" role="group" aria-label={t.apps.thCat}>
         {CATS.map(c => (
-          <button key={c} type="button" className={'cat-tag' + (cats.includes(c) ? ' on' : '')}
-            aria-pressed={cats.includes(c)} onClick={() => toggleCat(c)}>#{catName(c)}</button>
+          <button key={c} type="button" className={'cat-tag' + (cat === c ? ' on' : '')}
+            aria-pressed={cat === c} onClick={() => toggleCat(c)}>#{catName(c)}</button>
         ))}
       </div>
       <div className="table-wrap">
