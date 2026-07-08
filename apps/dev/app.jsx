@@ -28,11 +28,15 @@ const APPS = [
   { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: 'learn', status: 'live', tags: ['튜토리얼', '사용법', '깜빡이'] },
 ];
 const ROADMAP = [];
-/* 앱 설명 — 현재 UI 언어의 번들에서 생성 */
-const appDesc = (a, t, fmt) =>
-  a.slug === 'voca' ? t.apps.vocaDesc
-  : a.slug === 'voca-tutorial' ? t.apps.vocaTutDesc
-  : fmt(t.apps.sigTpl, { name: (t.apps.coin || {})[a.slug] || a.name });
+/* 앱 설명/카테고리 라벨 — 현재 UI 언어 번들에서 조회, 구버전 캐시 번들이면 ko로 폴백(코드·빈칸 노출 방지) */
+const KO_APPS = I18N.getT('ko').apps;
+const catLabel = (c, t) => (t.apps.cat || KO_APPS.cat)[c] || c;
+const appDesc = (a, t, fmt) => {
+  const ap = t.apps.sigTpl ? t.apps : KO_APPS;
+  if (a.slug === 'voca') return ap.vocaDesc;
+  if (a.slug === 'voca-tutorial') return ap.vocaTutDesc;
+  return fmt(ap.sigTpl, { name: (ap.coin || {})[a.slug] || a.name });
+};
 
 /* ---- 공용 훅/컴포넌트 ---- */
 function useHashRoute(def) {
@@ -128,7 +132,7 @@ function Pager({ page, pages, onGo, label }) {
 }
 function AppsPage({ t, fmt }) {
   const ALL = [...APPS, ...ROADMAP];
-  const catName = (c) => (t.apps.cat && t.apps.cat[c]) || c;
+  const catName = (c) => catLabel(c, t);
   const CATS = [...new Set(ALL.map(a => a.category))];
   const [q, setQ] = useState(''); const [page, setPage] = useState(1);
   const [cats, setCats] = useState([]); // 선택된 카테고리 배열 — 복수 선택(OR)
