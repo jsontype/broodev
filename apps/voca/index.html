@@ -319,6 +319,37 @@
       .top-jump-wrap { position: sticky; top: 12px; z-index: 6; display: flex; justify-content: flex-start; margin-bottom: 12px; pointer-events: none; }
       .top-jump { pointer-events: auto; font-family: var(--ui-font); font-size: 13px; font-weight: 700; color: #8fb3ff; background: rgba(13, 21, 38, .92); border: 1px dashed #4a5680; padding: 9px 14px; cursor: pointer; max-width: 80vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 10px rgba(0,0,0,.5); touch-action: manipulation; }
       .top-jump:hover { color: #ffe14d; border-color: #ffe14d; }
+
+      /* ===== CSV 편집기 (샘플 게시판 아래) — 왼쪽 컨트롤 / 오른쪽 2열 시트 ===== */
+      .editor-grid { display: grid; grid-template-columns: 212px minmax(0, 1fr); gap: 14px; align-items: start; margin-top: 4px; }
+      .ed-ctrl { background: #c8c4bc; border: 1px solid var(--panel-dark); padding: 10px; }
+      .ed-label { font-size: 11px; font-weight: 800; color: #444; letter-spacing: .5px; margin: 2px 0 8px; }
+      .ed-sep { border: none; border-top: 1px solid var(--panel-dark); margin: 12px 0; }
+      .apply-btn.ed-block { display: block; width: 100%; text-align: left; margin-bottom: 8px; }
+      .apply-btn:disabled { color: #888; cursor: not-allowed; }
+      .ed-name { width: 100%; font-family: var(--ui-font); font-size: 13px; padding: 6px 8px; border: 2px inset #9a9a9a; background: #fff; margin-bottom: 10px; }
+      .ed-stat { font-size: 12px; color: #333; margin: 8px 0 0; }
+      .ed-stat b.ok { color: #0a7a0a; }
+      .ed-stat b.bad { color: #cc1111; }
+      .ed-err { font-size: 12px; font-weight: 800; color: #cc1111; margin: 8px 0 0; }
+      .ed-sheet-wrap { background: #fff; border: 2px inset #9a9a9a; max-height: 420px; overflow: auto; }
+      table.ed-sheet { width: 100%; border-collapse: collapse; font-size: 13px; color: #111; }
+      .ed-sheet th { position: sticky; top: 0; z-index: 1; background: #e8e4dc; border: 1px solid #b8b4ac; padding: 6px 8px; font-size: 12px; text-align: left; white-space: nowrap; }
+      .ed-sheet th.no, .ed-sheet td.no { width: 42px; text-align: center; background: #e8e4dc; color: #777; font-size: 11px; border: 1px solid #d8d4cc; }
+      .ed-sheet td { border: 1px solid #e2ded6; padding: 0; }
+      .ed-sheet td.cell input { width: 100%; border: none; outline: none; font-family: var(--ui-font); font-size: 13px; padding: 7px 8px; background: transparent; color: #111; }
+      .ed-sheet td.cell input:focus { background: #fffbe0; outline: 2px solid #2a6ad4; outline-offset: -2px; }
+      .ed-sheet td.cell.err { background: #ffe3e3; }
+      .ed-sheet td.cell.err input { color: #cc1111; }
+      .ed-sheet td.del { width: 34px; text-align: center; }
+      .ed-sheet td.del button { border: none; background: none; color: #a00; font-weight: 800; cursor: pointer; font-size: 13px; padding: 4px 8px; }
+      .ed-foot { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+      .ed-hint { font-size: 11.5px; color: #555; }
+      @media (max-width: 720px) {
+        .editor-grid { grid-template-columns: 1fr; }
+        .ed-sheet-wrap { max-height: 320px; }
+        .ed-sheet td.cell input, .ed-name { font-size: 16px; } /* iOS 포커스 줌 방지 */
+      }
       @media (max-width: 640px) {
         .board thead { display: none; }
         table.board, .board tbody, .board tr, .board td { display: block; width: 100%; }
@@ -1487,6 +1518,143 @@
       }
 
       /* =========================================================
+       *  CSV 편집기 (샘플 게시판 아래) — 2열 시트 + 빈칸 검증 + 로드/저장
+       *  ⚠ 문구는 일단 한국어 — i18n 일괄 적용 커밋에서 T 번들로 이동 예정
+       * ========================================================= */
+      /* 행 컴포넌트 — memo로 편집 중인 행만 리렌더 (대형 덱 성능) */
+      const EdRow = React.memo(function EdRow({ i, a, b, onCell, onDel, onKey }) {
+        const filled = a.trim() || b.trim() // 완전 빈 행은 에러 아님(저장 시 무시)
+        return (
+          <tr>
+            <td className="no">{i + 1}</td>
+            <td className={'cell' + (filled && !a.trim() ? ' err' : '')}>
+              <input value={a} data-i={i} data-c="0" onChange={(e) => onCell(i, 0, e.target.value)} onKeyDown={onKey} aria-label={'A' + (i + 1)} />
+            </td>
+            <td className={'cell' + (filled && !b.trim() ? ' err' : '')}>
+              <input value={b} data-i={i} data-c="1" onChange={(e) => onCell(i, 1, e.target.value)} onKeyDown={onKey} aria-label={'B' + (i + 1)} />
+            </td>
+            <td className="del"><button title="행 삭제" tabIndex={-1} onClick={() => onDel(i)}>✕</button></td>
+          </tr>
+        )
+      })
+
+      function CsvEditor({ t, deck, onApplyRows, showToast }) {
+        const BLANK = () => [['', ''], ['', ''], ['', ''], ['', ''], ['', '']]
+        const [rows, setRows] = useState(BLANK)
+        const [name, setName] = useState('')
+        const fileRef = useRef(null)
+        const tableRef = useRef(null)
+
+        const onCell = useCallback((i, c, v) => {
+          setRows((prev) => prev.map((r, j) => (j === i ? (c === 0 ? [v, r[1]] : [r[0], v]) : r)))
+        }, [])
+        const onDel = useCallback((i) => {
+          setRows((prev) => (prev.length > 1 ? prev.filter((_, j) => j !== i) : [['', '']]))
+        }, [])
+        const focusCell = useCallback((i, c) => {
+          const el = tableRef.current && tableRef.current.querySelector('input[data-i="' + i + '"][data-c="' + c + '"]')
+          if (el) el.focus()
+        }, [])
+        /* Enter = 다음 칸(B → 다음 행 A, 마지막 행이면 행 추가) — 엑셀식 입력 흐름 */
+        const onKey = useCallback((e) => {
+          if (e.key !== 'Enter') return
+          e.preventDefault()
+          const i = +e.target.dataset.i, c = +e.target.dataset.c
+          if (c === 0) { focusCell(i, 1); return }
+          setRows((prev) => (i === prev.length - 1 ? [...prev, ['', '']] : prev))
+          requestAnimationFrame(() => focusCell(i + 1, 0)) // 새 행 렌더 후 포커스
+        }, [focusCell])
+
+        const errCnt = rows.reduce((n, r) => n + ((r[0].trim() || r[1].trim()) && (!r[0].trim() || !r[1].trim()) ? 1 : 0), 0)
+        const validRows = rows.filter((r) => r[0].trim() && r[1].trim())
+        const dirty = rows.some((r) => r[0].trim() || r[1].trim())
+        const canSave = errCnt === 0 && validRows.length > 0
+
+        const confirmOverwrite = () => !dirty || window.confirm('지금 시트에 있는 내용을 덮어씁니다. 계속할까요?')
+        const loadFile = (e) => {
+          const f = e.target.files && e.target.files[0]
+          e.target.value = ''
+          if (!f) return
+          const reader = new FileReader()
+          reader.onload = () => {
+            const parsed = parseCSV(reader.result)
+            if (!parsed.length) { showToast(t.noRows); return }
+            if (!confirmOverwrite()) return
+            setRows(parsed.map((r) => [r.a, r.b]))
+            setName(f.name.replace(/\.csv$/i, ''))
+            showToast('시트에 ' + parsed.length + '행을 불러왔습니다')
+          }
+          reader.readAsText(f, 'utf-8')
+        }
+        const loadCurrent = () => {
+          if (!deck.length) { showToast(t.noRows); return }
+          if (!confirmOverwrite()) return
+          setRows(deck.map((c) => [c.a, c.b]))
+          showToast('지금 열려있는 덱 ' + deck.length + '행을 가져왔습니다')
+        }
+        const newSheet = () => {
+          if (!confirmOverwrite()) return
+          setRows(BLANK()); setName('')
+        }
+        const saveCsv = () => {
+          if (!canSave) return
+          const esc = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v)
+          const csv = '\uFEFF' + validRows.map((r) => esc(r[0].trim()) + ',' + esc(r[1].trim())).join('\r\n')
+          const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+          const a = document.createElement('a')
+          a.href = url
+          a.download = (name.trim().replace(/[\\/:*?"<>|]/g, '') || 'my-deck') + '.csv'
+          a.click()
+          URL.revokeObjectURL(url)
+        }
+        const applyNow = () => {
+          if (!canSave) return
+          onApplyRows(validRows.map((r) => [r[0].trim(), r[1].trim()]))
+        }
+
+        return (
+          <section className="samples" id="editor" aria-label="CSV 편집기">
+            <div className="samples-panel">
+              <h2 className="samples-title">📝 CSV 편집기</h2>
+              <p className="samples-sub">샘플 CSV를 다운받아 로드하거나 빈 시트에서 시작해, 엑셀처럼 나만의 단어장을 만들어 보세요. 모든 저장은 이 기기 안에서만 이뤄집니다.</p>
+              <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={loadFile} />
+              <div className="editor-grid">
+                <div className="ed-ctrl">
+                  <div className="ed-label">불러오기</div>
+                  <button className="apply-btn ed-block" onClick={() => fileRef.current && fileRef.current.click()}>📂 CSV 파일 로드…</button>
+                  <button className="apply-btn dl ed-block" onClick={loadCurrent}>⬇ 지금 열려있는 덱 가져오기</button>
+                  <button className="apply-btn dl ed-block" onClick={newSheet}>🗒 새 시트 (비우기)</button>
+                  <hr className="ed-sep" />
+                  <div className="ed-label">단어장 이름</div>
+                  <input className="ed-name" value={name} placeholder="나의 단어장" onChange={(e) => setName(e.target.value)} />
+                  <div className="ed-label">저장하기</div>
+                  <button className="apply-btn ed-block" disabled={!canSave} onClick={saveCsv}>💾 CSV로 저장(다운로드)</button>
+                  <button className="apply-btn dl ed-block" disabled={!canSave} onClick={applyNow}><span className="tri">▶</span> 이 내용으로 바로 암기 시작</button>
+                  <p className="ed-stat">행 <b>{rows.length}</b> · 유효 <b className="ok">{validRows.length}</b> · 오류 <b className={errCnt ? 'bad' : 'ok'}>{errCnt}</b></p>
+                  {errCnt > 0 && <p className="ed-err">⚠ 빈 칸이 있어 저장할 수 없습니다. 빨간 칸을 채우거나 행을 삭제하세요.</p>}
+                </div>
+                <div>
+                  <div className="ed-sheet-wrap">
+                    <table className="ed-sheet" ref={tableRef}>
+                      <thead><tr><th className="no">#</th><th>A면 (단어)</th><th>B면 (뜻)</th><th className="no"> </th></tr></thead>
+                      <tbody>
+                        {rows.map((r, i) => <EdRow key={i} i={i} a={r[0]} b={r[1]} onCell={onCell} onDel={onDel} onKey={onKey} />)}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="ed-foot">
+                    <button className="apply-btn dl" onClick={() => setRows((p) => [...p, ['', '']])}>＋ 행 추가</button>
+                    <button className="apply-btn dl" onClick={() => setRows((p) => [...p, ...Array.from({ length: 10 }, () => ['', ''])])}>＋ 10행 추가</button>
+                    <span className="ed-hint">Tab/Enter로 다음 칸 이동 · 양쪽 다 빈 행은 저장 시 무시됩니다</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      /* =========================================================
        *  앱 본체
        * ========================================================= */
       function App() {
@@ -1704,6 +1872,17 @@
             window.scrollTo({ top: 0, behavior: 'smooth' })
           }).catch(() => showToast(t.sampleFailNet))
         }
+        /* ---- CSV 편집기에서 만든 내용을 덱으로 적용 ---- */
+        const applyEditorRows = (pairs) => {
+          const rows = pairs.map((p) => ({ a: p[0], b: p[1], mem: false }))
+          if (!rows.length) { showToast(t.noRows); return }
+          if (deck.length && !window.confirm(t.confirmReplace)) return
+          setDeck(rows); setPos(0); setPhase('a')
+          setSampleId(null); setDeckLang(DEFAULT_DECK_LANG)
+          showToast(t.opened(rows.length))
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+
         const downloadSample = (d, target) => {
           const src = deckSrc(d)
           if (!src) return
@@ -1972,6 +2151,7 @@
             {toast && <div className="toast">{toast}</div>}
           </div>
           <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample} />
+          <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} showToast={showToast} />
           </React.Fragment>
         )
       }
