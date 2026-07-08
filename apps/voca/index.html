@@ -352,6 +352,9 @@
         .editor-grid { grid-template-columns: 1fr; }
         .ed-sheet-wrap { max-height: 320px; }
         .ed-sheet td.cell input, .ed-name { font-size: 16px; } /* iOS 포커스 줌 방지 */
+        .apply-btn.ed-block { padding: 9px 14px; font-size: 13px; } /* 터치 타깃 확대 */
+        .ed-sheet td.del button { padding: 8px 10px; font-size: 15px; }
+        .ed-foot .apply-btn { padding: 8px 14px; font-size: 13px; }
       }
       @media (max-width: 640px) {
         .board thead { display: none; }
@@ -1590,6 +1593,35 @@
           requestAnimationFrame(() => focusCell(i + 1, 0)) // 새 행 렌더 후 포커스
         }, [focusCell])
 
+        /* 여러 줄/여러 칸 붙여넣기 — 엑셀·시트(탭 구분)와 CSV(쉼표 구분) 모두 지원.
+           현재 칸부터 아래로 채우고 모자라면 행 자동 추가. 한 줄짜리 일반 붙여넣기는 기본 동작. */
+        const onPaste = useCallback((e) => {
+          const tgt = e.target
+          if (!tgt.dataset || tgt.dataset.i === undefined) return
+          const text = e.clipboardData && e.clipboardData.getData('text')
+          if (!text || (text.indexOf('\n') < 0 && text.indexOf('\t') < 0)) return
+          e.preventDefault()
+          const i = +tgt.dataset.i, c = +tgt.dataset.c
+          const grid = text.replace(/\r/g, '').split('\n')
+            .filter((l) => l.trim() !== '')
+            .map((l) => {
+              if (l.indexOf('\t') >= 0) return l.split('\t')
+              const k = l.indexOf(',')
+              return k < 0 ? [l] : [l.slice(0, k), l.slice(k + 1)]
+            })
+          if (!grid.length) return
+          setRows((prev) => {
+            const next = prev.map((r) => [r[0], r[1]])
+            grid.forEach((cells, k) => {
+              const ri = i + k
+              while (next.length <= ri) next.push(['', ''])
+              if (cells.length >= 2) { next[ri][0] = String(cells[0]).trim(); next[ri][1] = String(cells[1]).trim() }
+              else next[ri][c] = String(cells[0]).trim() // 1열 데이터는 붙여넣은 열에만
+            })
+            return next
+          })
+        }, [])
+
         const errCnt = rows.reduce((n, r) => n + ((r[0].trim() || r[1].trim()) && (!r[0].trim() || !r[1].trim()) ? 1 : 0), 0)
         const validRows = rows.filter((r) => r[0].trim() && r[1].trim())
         const dirty = rows.some((r) => r[0].trim() || r[1].trim())
@@ -1651,7 +1683,7 @@
                 </div>
                 <div>
                   <div className="ed-sheet-wrap">
-                    <table className="ed-sheet" ref={tableRef}>
+                    <table className="ed-sheet" ref={tableRef} onPaste={onPaste}>
                       <thead><tr><th className="no">#</th><th>A면 (단어)</th><th>B면 (뜻)</th><th className="no"> </th></tr></thead>
                       <tbody>
                         {rows.map((r, i) => <EdRow key={i} i={i} a={r[0]} b={r[1]} onCell={onCell} onDel={onDel} onKey={onKey} />)}
@@ -1661,7 +1693,7 @@
                   <div className="ed-foot">
                     <button className="apply-btn dl" onClick={() => setRows((p) => [...p, ['', '']])}>＋ 행 추가</button>
                     <button className="apply-btn dl" onClick={() => setRows((p) => [...p, ...Array.from({ length: 10 }, () => ['', ''])])}>＋ 10행 추가</button>
-                    <span className="ed-hint">Tab/Enter로 다음 칸 이동 · 양쪽 다 빈 행은 저장 시 무시됩니다</span>
+                    <span className="ed-hint">Tab/Enter로 다음 칸 이동 · 엑셀에서 복사한 여러 행 붙여넣기 지원 · 양쪽 다 빈 행은 저장 시 무시</span>
                   </div>
                 </div>
               </div>
