@@ -412,11 +412,24 @@
     <!-- ===== 간이 푸터 (비코인 앱 — 공통 코인 자매 푸터 미사용) ===== -->
     <footer class="site-foot" aria-label="사이트 정보">
       <nav class="foot-links">
-        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a href="/contact.html">📮 문의 &amp; 버그 신고</a>
+        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a class="contact-link" href="/contact.html?app=voca">📮 문의 &amp; 버그 신고</a>
       </nav>
       <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. VOCA_DECK의 암기장 데이터는 이용자의 브라우저에만 저장됩니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
     </footer>
+    <script>
+      /* 문의 링크에 현재 i18n 언어를 클릭 시점에 부착 — 문의 페이지가 같은 언어로 열림 */
+      (function () {
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest ? e.target.closest('a.contact-link') : null;
+          if (!a) return;
+          try {
+            var l = JSON.parse(localStorage.getItem('voca:lang') || 'null');
+            if (l) a.href = a.href.split('&lang=')[0] + '&lang=' + encodeURIComponent(l);
+          } catch (err) {}
+        });
+      })();
+    </script>
 
     <script src="seo-i18n.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>

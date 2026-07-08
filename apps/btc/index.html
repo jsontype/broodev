@@ -535,7 +535,7 @@
         <a class="dev" data-coin="dev" href="https://dev.broodev.com/">◈ dev</a>
       </nav>
       <nav class="foot-links">
-        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a href="mailto:jsontyper@gmail.com">문의</a>
+        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact.html?app=btc">📮 문의 &amp; 버그 신고</a>
       </nav>
       <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. 이 페이지의 비트코인 공포·탐욕 지수와 매수 타이밍 점수는 공개 지표를 합성한 참고 정보이며 투자 자문이 아닙니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
@@ -2259,6 +2259,19 @@
       }
 
       ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+    </script>
+      <script>
+      /* 문의 링크에 현재 i18n 언어를 클릭 시점에 부착 — 문의 페이지가 같은 언어로 열림 */
+      (function () {
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest ? e.target.closest('a.contact-link') : null;
+          if (!a) return;
+          try {
+            var l = JSON.parse(localStorage.getItem('btc:lang') || 'null');
+            if (l) a.href = a.href.split('&lang=')[0] + '&lang=' + encodeURIComponent(l);
+          } catch (err) {}
+        });
+      })();
     </script>
   </body>
 </html>
