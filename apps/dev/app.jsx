@@ -7,28 +7,32 @@ const I18N = window.WEB_I18N;
 
 const COMPANY = { operator: 'Y-Systems', ceo: 'jsontype', email: 'jsontyper@gmail.com' };
 
-/* ---- 앱 카탈로그 (이름/링크는 고정, 설명은 추후 i18n 가능) ---- */
-const sig = (name) => `${name} 공포·탐욕 지수와 6개 지표(RSI·MACD·마이어 배수·낙폭·이동평균)를 합성한 매수 타이밍 점수(0~100).`;
+/* ---- 앱 카탈로그 (이름/링크 고정 · 설명/카테고리는 i18n 번들에서 조회) ---- */
 const APPS = [
-  { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: '암호화폐', status: 'live', desc: sig('비트코인'),     tags: ['비트코인', '공포지수', '실시간'] },
-  { slug: 'eth',  name: 'ETH_SIGNAL',  url: 'https://eth.broodev.com',  category: '암호화폐', status: 'live', desc: sig('이더리움'),     tags: ['이더리움', '공포지수'] },
-  { slug: 'xrp',  name: 'XRP_SIGNAL',  url: 'https://xrp.broodev.com',  category: '암호화폐', status: 'live', desc: sig('리플(XRP)'),     tags: ['리플', 'XRP'] },
-  { slug: 'doge', name: 'DOGE_SIGNAL', url: 'https://doge.broodev.com', category: '암호화폐', status: 'live', desc: sig('도지코인'),     tags: ['도지코인', '밈코인'] },
-  { slug: 'bch',  name: 'BCH_SIGNAL',  url: 'https://bch.broodev.com',  category: '암호화폐', status: 'live', desc: sig('비트코인캐시'), tags: ['비트코인캐시', 'BCH'] },
-  { slug: 'link', name: 'LINK_SIGNAL', url: 'https://link.broodev.com', category: '암호화폐', status: 'live', desc: sig('체인링크'),     tags: ['체인링크', 'LINK'] },
-  { slug: 'xlm',  name: 'XLM_SIGNAL',  url: 'https://xlm.broodev.com',  category: '암호화폐', status: 'live', desc: sig('스텔라루멘'),   tags: ['스텔라', 'XLM'] },
-  { slug: 'ltc',  name: 'LTC_SIGNAL',  url: 'https://ltc.broodev.com',  category: '암호화폐', status: 'live', desc: sig('라이트코인'),   tags: ['라이트코인', 'LTC'] },
-  { slug: 'avax', name: 'AVAX_SIGNAL', url: 'https://avax.broodev.com', category: '암호화폐', status: 'live', desc: sig('아발란체'),     tags: ['아발란체', 'AVAX'] },
-  { slug: 'shib', name: 'SHIB_SIGNAL', url: 'https://shib.broodev.com', category: '암호화폐', status: 'live', desc: sig('시바이누'),     tags: ['시바이누', '밈코인'] },
-  { slug: 'dot',  name: 'DOT_SIGNAL',  url: 'https://dot.broodev.com',  category: '암호화폐', status: 'live', desc: sig('폴카닷'),       tags: ['폴카닷', 'DOT'] },
-  { slug: 'pepe', name: 'PEPE_SIGNAL', url: 'https://pepe.broodev.com', category: '암호화폐', status: 'live', desc: sig('페페'),         tags: ['페페', '밈코인'] },
-  { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://grt.broodev.com',  category: '암호화폐', status: 'live', desc: sig('더그래프'),     tags: ['더그래프', 'GRT'] },
-  { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://sand.broodev.com', category: '암호화폐', status: 'live', desc: sig('샌드박스'),     tags: ['샌드박스', 'SAND'] },
-  { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://mana.broodev.com', category: '암호화폐', status: 'live', desc: sig('디센트럴랜드'), tags: ['디센트럴랜드', 'MANA'] },
-  { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: '학습',     status: 'live', desc: '단어와 뜻을 큰 글자로 번갈아 보여주는 깜빡이 단어암기장. CSV 암기장 열기·3초 자동 반복·암기 표시·TTS 지원.', tags: ['단어암기', '깜빡이', 'CSV'] },
-  { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: '학습', status: 'live', desc: '깜빡이 단어암기장 사용법을 10단계 인터랙티브 데모로 안내하는 튜토리얼. 직접 눌러보며 익히고 본 앱으로 이동.', tags: ['튜토리얼', '사용법', '깜빡이'] },
+  { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: 'crypto', status: 'live', tags: ['비트코인', '공포지수', '실시간'] },
+  { slug: 'eth',  name: 'ETH_SIGNAL',  url: 'https://eth.broodev.com',  category: 'crypto', status: 'live', tags: ['이더리움', '공포지수'] },
+  { slug: 'xrp',  name: 'XRP_SIGNAL',  url: 'https://xrp.broodev.com',  category: 'crypto', status: 'live', tags: ['리플', 'XRP'] },
+  { slug: 'doge', name: 'DOGE_SIGNAL', url: 'https://doge.broodev.com', category: 'crypto', status: 'live', tags: ['도지코인', '밈코인'] },
+  { slug: 'bch',  name: 'BCH_SIGNAL',  url: 'https://bch.broodev.com',  category: 'crypto', status: 'live', tags: ['비트코인캐시', 'BCH'] },
+  { slug: 'link', name: 'LINK_SIGNAL', url: 'https://link.broodev.com', category: 'crypto', status: 'live', tags: ['체인링크', 'LINK'] },
+  { slug: 'xlm',  name: 'XLM_SIGNAL',  url: 'https://xlm.broodev.com',  category: 'crypto', status: 'live', tags: ['스텔라', 'XLM'] },
+  { slug: 'ltc',  name: 'LTC_SIGNAL',  url: 'https://ltc.broodev.com',  category: 'crypto', status: 'live', tags: ['라이트코인', 'LTC'] },
+  { slug: 'avax', name: 'AVAX_SIGNAL', url: 'https://avax.broodev.com', category: 'crypto', status: 'live', tags: ['아발란체', 'AVAX'] },
+  { slug: 'shib', name: 'SHIB_SIGNAL', url: 'https://shib.broodev.com', category: 'crypto', status: 'live', tags: ['시바이누', '밈코인'] },
+  { slug: 'dot',  name: 'DOT_SIGNAL',  url: 'https://dot.broodev.com',  category: 'crypto', status: 'live', tags: ['폴카닷', 'DOT'] },
+  { slug: 'pepe', name: 'PEPE_SIGNAL', url: 'https://pepe.broodev.com', category: 'crypto', status: 'live', tags: ['페페', '밈코인'] },
+  { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://grt.broodev.com',  category: 'crypto', status: 'live', tags: ['더그래프', 'GRT'] },
+  { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://sand.broodev.com', category: 'crypto', status: 'live', tags: ['샌드박스', 'SAND'] },
+  { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://mana.broodev.com', category: 'crypto', status: 'live', tags: ['디센트럴랜드', 'MANA'] },
+  { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: 'learn',  status: 'live', tags: ['단어암기', '깜빡이', 'CSV'] },
+  { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: 'learn', status: 'live', tags: ['튜토리얼', '사용법', '깜빡이'] },
 ];
 const ROADMAP = [];
+/* 앱 설명 — 현재 UI 언어의 번들에서 생성 */
+const appDesc = (a, t, fmt) =>
+  a.slug === 'voca' ? t.apps.vocaDesc
+  : a.slug === 'voca-tutorial' ? t.apps.vocaTutDesc
+  : fmt(t.apps.sigTpl, { name: (t.apps.coin || {})[a.slug] || a.name });
 
 /* ---- 공용 훅/컴포넌트 ---- */
 function useHashRoute(def) {
@@ -124,10 +128,16 @@ function Pager({ page, pages, onGo, label }) {
 }
 function AppsPage({ t, fmt }) {
   const ALL = [...APPS, ...ROADMAP];
+  const catName = (c) => (t.apps.cat && t.apps.cat[c]) || c;
+  const CATS = [...new Set(ALL.map(a => a.category))];
   const [q, setQ] = useState(''); const [page, setPage] = useState(1);
+  const [cats, setCats] = useState([]); // 선택된 카테고리 배열 — 복수 선택(OR)
+  const toggleCat = (c) => setCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
   const pageSize = 6; const ql = q.trim().toLowerCase();
-  useEffect(() => { setPage(1); }, [ql]);
-  const filtered = ALL.filter(a => !ql || (a.name + a.desc + a.category).toLowerCase().includes(ql));
+  useEffect(() => { setPage(1); }, [ql, cats.join('|')]);
+  const filtered = ALL.filter(a =>
+    (cats.length === 0 || cats.includes(a.category)) &&
+    (!ql || (a.name + ' ' + appDesc(a, t, fmt) + ' ' + catName(a.category) + ' ' + (a.tags || []).join(' ')).toLowerCase().includes(ql)));
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const cur = Math.min(page, pages);
   const rows = filtered.slice((cur - 1) * pageSize, cur * pageSize);
@@ -135,8 +145,14 @@ function AppsPage({ t, fmt }) {
   return (
     <>
       <PageHead title={t.apps.title} desc={fmt(t.apps.descTpl, { a: APPS.length, b: ROADMAP.length })} />
-      <div className="row" style={{ marginBottom: 14 }}>
+      <div className="row" style={{ marginBottom: 10 }}>
         <input className="input" placeholder={t.apps.search} value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 220 }} />
+      </div>
+      <div className="cat-tags" role="group" aria-label={t.apps.thCat}>
+        {CATS.map(c => (
+          <button key={c} type="button" className={'cat-tag' + (cats.includes(c) ? ' on' : '')}
+            aria-pressed={cats.includes(c)} onClick={() => toggleCat(c)}>#{catName(c)}</button>
+        ))}
       </div>
       <div className="table-wrap">
         <table className="tbl">
@@ -146,8 +162,8 @@ function AppsPage({ t, fmt }) {
             {rows.map(a => (
               <tr key={a.slug} className={a.status === 'live' ? 'clickable' : ''} onClick={() => open(a)}>
                 <td className="t-name">{a.name}</td>
-                <td className="t-muted">{a.desc}</td>
-                <td className="t-muted">{a.category}</td>
+                <td className="t-muted">{appDesc(a, t, fmt)}</td>
+                <td className="t-muted">{catName(a.category)}</td>
                 <td><StatusTag status={a.status} t={t} /></td>
                 <td style={{ textAlign: 'right' }} className={a.status === 'live' ? 'neon' : 't-muted'}>{a.status === 'live' ? a.url.replace('https://', '') + ' ↗' : t.apps.soonCell}</td>
               </tr>
