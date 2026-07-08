@@ -345,6 +345,9 @@
       .ed-sheet td.del button { border: none; background: none; color: #a00; font-weight: 800; cursor: pointer; font-size: 13px; padding: 4px 8px; }
       .ed-foot { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
       .ed-hint { font-size: 11.5px; color: #555; }
+      /* 마이 단어장 */
+      .my-empty { padding: 16px 10px; text-align: center; color: #666; font-size: 13px; background: #fff; border: 2px inset #9a9a9a; margin: 0; }
+      .board .act.my-act { width: 275px; }
       @media (max-width: 720px) {
         .editor-grid { grid-template-columns: 1fr; }
         .ed-sheet-wrap { max-height: 320px; }
@@ -1521,6 +1524,17 @@
        *  CSV 편집기 (샘플 게시판 아래) — 2열 시트 + 빈칸 검증 + 로드/저장
        *  ⚠ 문구는 일단 한국어 — i18n 일괄 적용 커밋에서 T 번들로 이동 예정
        * ========================================================= */
+      /* [단어,뜻] 쌍 배열 → CSV 다운로드 (편집기·마이 단어장 공용) */
+      const downloadCsvPairs = (pairs, filename) => {
+        const esc = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v)
+        const csv = '\uFEFF' + pairs.map((r) => esc(r[0]) + ',' + esc(r[1])).join('\r\n')
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+        const a = document.createElement('a')
+        a.href = url
+        a.download = (filename.replace(/[\\/:*?"<>|]/g, '') || 'my-deck') + '.csv'
+        a.click()
+        URL.revokeObjectURL(url)
+      }
       /* 행 컴포넌트 — memo로 편집 중인 행만 리렌더 (대형 덱 성능) */
       const EdRow = React.memo(function EdRow({ i, a, b, onCell, onDel, onKey }) {
         const filled = a.trim() || b.trim() // 완전 빈 행은 에러 아님(저장 시 무시)
@@ -1538,12 +1552,23 @@
         )
       })
 
-      function CsvEditor({ t, deck, onApplyRows, showToast }) {
+      function CsvEditor({ t, deck, onApplyRows, onSaveMy, seed, showToast }) {
         const BLANK = () => [['', ''], ['', ''], ['', ''], ['', ''], ['', '']]
         const [rows, setRows] = useState(BLANK)
         const [name, setName] = useState('')
         const fileRef = useRef(null)
         const tableRef = useRef(null)
+        const dirtyRef = useRef(false)
+
+        /* 마이 단어장 "✎ 편집기로" → 시트에 로드 (미저장 내용이 있으면 확인) */
+        useEffect(() => {
+          if (!seed) return
+          if (dirtyRef.current && !window.confirm('지금 시트에 있는 내용을 덮어씁니다. 계속할까요?')) return
+          setRows(seed.rows.map((r) => [r[0], r[1]]))
+          setName(seed.name)
+          const el = document.getElementById('editor')
+          if (el) el.scrollIntoView({ behavior: 'smooth' })
+        }, [seed])
 
         const onCell = useCallback((i, c, v) => {
           setRows((prev) => prev.map((r, j) => (j === i ? (c === 0 ? [v, r[1]] : [r[0], v]) : r)))
@@ -1569,6 +1594,7 @@
         const validRows = rows.filter((r) => r[0].trim() && r[1].trim())
         const dirty = rows.some((r) => r[0].trim() || r[1].trim())
         const canSave = errCnt === 0 && validRows.length > 0
+        dirtyRef.current = dirty
 
         const confirmOverwrite = () => !dirty || window.confirm('지금 시트에 있는 내용을 덮어씁니다. 계속할까요?')
         const loadFile = (e) => {
@@ -1596,21 +1622,10 @@
           if (!confirmOverwrite()) return
           setRows(BLANK()); setName('')
         }
-        const saveCsv = () => {
-          if (!canSave) return
-          const esc = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v)
-          const csv = '\uFEFF' + validRows.map((r) => esc(r[0].trim()) + ',' + esc(r[1].trim())).join('\r\n')
-          const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
-          const a = document.createElement('a')
-          a.href = url
-          a.download = (name.trim().replace(/[\\/:*?"<>|]/g, '') || 'my-deck') + '.csv'
-          a.click()
-          URL.revokeObjectURL(url)
-        }
-        const applyNow = () => {
-          if (!canSave) return
-          onApplyRows(validRows.map((r) => [r[0].trim(), r[1].trim()]))
-        }
+        const trimmed = () => validRows.map((r) => [r[0].trim(), r[1].trim()])
+        const saveCsv = () => { if (canSave) downloadCsvPairs(trimmed(), name.trim()) }
+        const saveMy = () => { if (canSave) onSaveMy(name.trim() || '나의 단어장', trimmed()) }
+        const applyNow = () => { if (canSave) onApplyRows(trimmed()) }
 
         return (
           <section className="samples" id="editor" aria-label="CSV 편집기">
@@ -1629,6 +1644,7 @@
                   <input className="ed-name" value={name} placeholder="나의 단어장" onChange={(e) => setName(e.target.value)} />
                   <div className="ed-label">저장하기</div>
                   <button className="apply-btn ed-block" disabled={!canSave} onClick={saveCsv}>💾 CSV로 저장(다운로드)</button>
+                  <button className="apply-btn ed-block" disabled={!canSave} onClick={saveMy}>⭐ 마이 단어장에 저장</button>
                   <button className="apply-btn dl ed-block" disabled={!canSave} onClick={applyNow}><span className="tri">▶</span> 이 내용으로 바로 암기 시작</button>
                   <p className="ed-stat">행 <b>{rows.length}</b> · 유효 <b className="ok">{validRows.length}</b> · 오류 <b className={errCnt ? 'bad' : 'ok'}>{errCnt}</b></p>
                   {errCnt > 0 && <p className="ed-err">⚠ 빈 칸이 있어 저장할 수 없습니다. 빨간 칸을 채우거나 행을 삭제하세요.</p>}
@@ -1655,6 +1671,49 @@
       }
 
       /* =========================================================
+       *  마이 단어장 (CSV 편집기 아래) — localStorage 보관·적용·관리
+       * ========================================================= */
+      function MyDecks({ t, decks, onApply, onEdit, onDownload, onDelete }) {
+        const usageKb = Math.ceil(JSON.stringify(decks).length / 1024)
+        return (
+          <section className="samples" id="mydecks" aria-label="마이 단어장">
+            <div className="samples-panel">
+              <h2 className="samples-title">⭐ 마이 단어장</h2>
+              <p className="samples-sub">저장한 단어장은 이 브라우저(localStorage)에만 보관됩니다. 다른 기기로 옮길 땐 CSV로 다운로드한 뒤 새 기기에서 로드하세요.</p>
+              {decks.length === 0 ? (
+                <p className="my-empty">아직 저장된 단어장이 없습니다. 위 CSV 편집기에서 「⭐ 마이 단어장에 저장」을 눌러 추가하세요.</p>
+              ) : (
+                <table className="board">
+                  <thead>
+                    <tr><th className="no">#</th><th>이름</th><th className="cnt">단어 수</th><th className="cnt">저장일</th><th className="act my-act">동작</th></tr>
+                  </thead>
+                  <tbody>
+                    {decks.map((d, i) => (
+                      <tr key={d.id}>
+                        <td className="no">{i + 1}</td>
+                        <td className="title">{d.name}</td>
+                        <td className="cnt">{d.rows.length}</td>
+                        <td className="cnt">{d.savedAt}</td>
+                        <td className="act my-act">
+                          <span className="act-btns">
+                            <button className="apply-btn" onClick={() => onApply(d)}><span className="tri">▶</span> 적용</button>
+                            <button className="apply-btn dl" onClick={() => onEdit(d)}>✎ 편집기로</button>
+                            <button className="apply-btn dl" onClick={() => onDownload(d)}>⬇ CSV</button>
+                            <button className="apply-btn dl" title="삭제" onClick={() => onDelete(d)}>🗑</button>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              <p className="ed-stat">저장 공간: 약 <b>{usageKb} KB</b> / 5 MB (브라우저 localStorage 한도)</p>
+            </div>
+          </section>
+        )
+      }
+
+      /* =========================================================
        *  앱 본체
        * ========================================================= */
       function App() {
@@ -1664,6 +1723,8 @@
         const [lang, setLang] = useLocalStorage('voca:lang', detectLang())
         const [deckLang, setDeckLang] = useLocalStorage('voca:deckLang', DEFAULT_DECK_LANG) // TTS 로케일 (샘플 적용 시 갱신)
         const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
+        const [myDecks, setMyDecks] = useLocalStorage('voca:mydecks', [])                   // 마이 단어장 [{id,name,rows,savedAt}]
+        const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 단어장 → 편집기 로드 요청
         const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
         const [pos, setPos] = useState(0)
         const [phase, setPhase] = useState('a')       // 'a' = 앞면만 / 'ab' = 앞+뒷면
@@ -1882,6 +1943,28 @@
           showToast(t.opened(rows.length))
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
+
+        /* ---- 마이 단어장 (localStorage 보관) ---- */
+        const saveMyDeck = (name, pairs) => {
+          const exists = myDecks.find((d) => d.name === name)
+          if (exists && !window.confirm('「' + name + '」이(가) 이미 있습니다. 덮어쓸까요?')) return
+          const entry = {
+            id: exists ? exists.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            name, rows: pairs, savedAt: new Date().toISOString().slice(0, 10),
+          }
+          const next = exists ? myDecks.map((d) => (d.id === exists.id ? entry : d)) : [entry, ...myDecks]
+          if (JSON.stringify(next).length > 4.5 * 1024 * 1024) { // localStorage 5MB 한도 방어
+            showToast('저장 공간이 가득 찼습니다. 안 쓰는 단어장을 삭제해 주세요.')
+            return
+          }
+          setMyDecks(next)
+          showToast('마이 단어장에 「' + name + '」 저장 완료 (' + pairs.length + '단어)')
+        }
+        const deleteMyDeck = (d) => {
+          if (!window.confirm('「' + d.name + '」을(를) 삭제할까요?')) return
+          setMyDecks((prev) => prev.filter((x) => x.id !== d.id))
+        }
+        const editMyDeck = (d) => setEditorSeed({ name: d.name, rows: d.rows, nonce: Date.now() })
 
         const downloadSample = (d, target) => {
           const src = deckSrc(d)
@@ -2151,7 +2234,9 @@
             {toast && <div className="toast">{toast}</div>}
           </div>
           <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample} />
-          <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} showToast={showToast} />
+          <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast} />
+          <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
+            onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
           </React.Fragment>
         )
       }
