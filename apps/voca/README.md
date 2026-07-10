@@ -1,4 +1,4 @@
-# voca — VOCA_DECK (깜빡이 단어암기장)
+# voca — VOCA DECK (깜빡이 단어암기장)
 
 > **기술 스택**: React 18 UMD(CDN unpkg) + `@babel/standalone@7`(브라우저 런타임 JSX 컴파일) · 무빌드 정적 · 자기완결형 단일 `index.html` · localStorage 영속 · Cloudflare Pages 배포
 
