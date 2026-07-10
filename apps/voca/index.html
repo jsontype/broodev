@@ -339,17 +339,17 @@
       .ed-stat b.ok { color: #0a7a0a; }
       .ed-stat b.bad { color: #cc1111; }
       .ed-err { font-size: 12px; font-weight: 800; color: #cc1111; margin: 8px 0 0; }
-      .ed-sheet-wrap { background: #fff; border: 2px inset #9a9a9a; max-height: 420px; overflow: auto; }
-      table.ed-sheet { width: 100%; border-collapse: collapse; font-size: 13px; color: #111; }
-      .ed-sheet th { position: sticky; top: 0; z-index: 1; background: #e8e4dc; border: 1px solid #b8b4ac; padding: 6px 8px; font-size: 12px; text-align: left; white-space: nowrap; }
-      .ed-sheet th.no, .ed-sheet td.no { width: 42px; text-align: center; background: #e8e4dc; color: #777; font-size: 11px; border: 1px solid #d8d4cc; }
-      .ed-sheet td { border: 1px solid #e2ded6; padding: 0; }
-      .ed-sheet td.cell input { width: 100%; border: none; outline: none; font-family: var(--ui-font); font-size: 13px; padding: 7px 8px; background: transparent; color: #111; }
-      .ed-sheet td.cell input:focus { background: #fffbe0; outline: 2px solid #2a6ad4; outline-offset: -2px; }
-      .ed-sheet td.cell.err { background: #ffe3e3; }
-      .ed-sheet td.cell.err input { color: #cc1111; }
-      .ed-sheet td.del { width: 34px; text-align: center; }
-      .ed-sheet td.del button { border: none; background: none; color: #a00; font-weight: 800; cursor: pointer; font-size: 13px; padding: 4px 8px; }
+      /* jspreadsheet(엑셀식 시트) — 레트로 테마 덧입히기 */
+      .ed-sheet-wrap { background: #fff; border: 2px inset #9a9a9a; }
+      .ed-sheet .jexcel_container { padding: 0; }
+      .ed-sheet .jexcel_content { max-width: 100%; }
+      .ed-sheet table.jexcel { font-family: var(--ui-font); font-size: 13px; color: #111; }
+      .ed-sheet .jexcel > thead > tr > td { background: #e8e4dc; border-color: #b8b4ac; font-size: 12px; font-weight: 700; padding: 6px 8px; }
+      .ed-sheet .jexcel > tbody > tr > td:first-child { background: #e8e4dc; color: #777; font-size: 11px; }
+      .ed-sheet .jexcel > tbody > tr > td { border-color: #e2ded6; padding: 6px 8px; }
+      .ed-sheet .jexcel > tbody > tr > td.ed-cell-err { background: #ffe3e3; color: #cc1111; }
+      .ed-sheet .jexcel > tbody > tr > td.highlight { background-color: rgba(42, 106, 212, .12); }
+      .ed-sheet .jexcel_corner { background: #2a6ad4; }
       .ed-foot { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
       .ed-hint { font-size: 11.5px; color: #555; }
       /* 마이 보카덱 */
@@ -358,10 +358,8 @@
       .board .act.my-act { width: 275px; }
       @media (max-width: 720px) {
         .editor-grid { grid-template-columns: 1fr; }
-        .ed-sheet-wrap { max-height: 320px; }
-        .ed-sheet td.cell input, .ed-name { font-size: 16px; } /* iOS 포커스 줌 방지 */
+        .ed-sheet table.jexcel, .ed-sheet .jexcel textarea, .ed-name { font-size: 16px; } /* iOS 포커스 줌 방지 */
         .apply-btn.ed-block { padding: 9px 14px; font-size: 13px; } /* 터치 타깃 확대 */
-        .ed-sheet td.del button { padding: 8px 10px; font-size: 15px; }
         .ed-foot .apply-btn { padding: 8px 14px; font-size: 13px; }
       }
       @media (max-width: 640px) {
@@ -482,6 +480,11 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+    <!-- 엑셀식 시트 (CSV 편집기) — jspreadsheet-ce v4 (MIT) + jsuites v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/jsuites@4/dist/jsuites.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsuites@4/dist/jsuites.min.css" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4/dist/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4/dist/jspreadsheet.min.css" type="text/css" />
 
     <script type="text/babel" data-presets="react">
       const { useState, useEffect, useRef, useMemo, useCallback } = React
@@ -573,7 +576,7 @@
           volAll: 'Master volume', volA: 'Volume A', volB: 'Volume B', rateALbl: 'Reading speed A', rateBLbl: 'Reading speed B', readLbl: 'Read aloud', readBoth: 'Both', voiceAuto: 'Auto (default)', voiceSel: 'TTS voice (language / speaker)',
           repeatLbl: 'Repeats', infLbl: 'Infinite', repeatNote: 'When the set delay elapses, speech stops automatically',
           playSec: 'Playback', delayALbl: 'Side A delay (s)', delayBLbl: 'Side B delay (s)', delayBackHint: '0 = same as the delay set in the control panel', wakeLbl: 'Keep screen on during auto play',
-          backupSec: 'CSV backup', backupNote: 'Includes memorized marks and progress. Use when moving to another device.', exportBtn: 'Export (JSON)', importBtn: 'Import', importDone: (n) => `Restored: ${n} items`, importFail: 'Could not read the backup file',
+          backupSec: 'Progress backup (JSON)', backupNote: 'Includes memorized marks and progress. Use when moving to another device.', exportBtn: 'Export', importBtn: 'Import', importDone: (n) => `Restored: ${n} items`, importFail: 'Could not read the backup file',
           fsSec: 'Screen', fsBtn: 'Toggle fullscreen', fsUnsupported: 'Fullscreen is not supported in this browser',
           resetSec: 'Reset', resetAllBtn: 'Reset all settings', resetAllConfirm: 'Restore all settings to their defaults?', resetAllNote: 'Your deck, memorized marks and language are kept',
           fontTitle: 'Font settings', fontFamily: 'Font', fontSize: 'Size (px)', bold: 'Bold', fontColor: 'Text color', close: 'Close',
@@ -596,11 +599,11 @@
           cantClose: 'If the browser blocks closing, please close the tab manually',
           edTitle: 'CSV Editor', edSub: 'Load a downloaded sample CSV or start from a blank sheet and build your own deck like a spreadsheet. Everything is saved on this device only.',
           edLoad: 'Open', edLoadFile: 'Load', edLoadCur: 'Import current deck', edNew: 'New sheet (clear)',
-          edName: 'Deck name', edNamePh: 'My deck', edSave: 'Save & apply', edSaveCsv: 'Save', edSaveMy: 'Save to My Voca Decks', edApplyNow: 'Start memorizing with this',
+          edName: 'Deck name', edNamePh: 'My deck', edSave: 'Save & apply', edSaveCsv: 'Save', edSaveMy: 'Save to My Voca Decks', edApplyNow: 'Start memorizing now',
           edRows: 'Rows', edValid: 'Valid', edErrs: 'Errors', edErrMsg: 'There are empty cells — fill the red cells or delete those rows to save.',
           edColA: 'Side A (word)', edColB: 'Side B (meaning)', edAddRow: 'Add row', edAdd10: 'Add 10 rows', edDelRow: 'Delete row',
-          edHint: 'Tab/Enter moves to the next cell · multi-row paste from Excel supported · rows empty on both sides are ignored on save',
-          edOverwrite: 'This will overwrite the current sheet. Continue?', edLoadedFile: (n) => `Loaded ${n} rows into the sheet`, edLoadedCur: (n) => `Imported ${n} rows from the open deck`,
+          edHint: 'Drag or Shift+click to select a range, click a row number to select the row · Delete clears, Ctrl+C/V copy & paste (Excel-compatible) · right-click to add/delete rows · rows empty on both sides are ignored on save',
+          edOverwrite: 'This will overwrite the current sheet. Continue?', edDelRowsConfirm: 'Delete the selected rows?', edLoadedFile: (n) => `Loaded ${n} rows into the sheet`, edLoadedCur: (n) => `Imported ${n} rows from the open deck`,
           myTitle: 'My Voca Decks', mySub: 'Saved decks are kept only in this browser (localStorage). To move to another device, download the CSV and load it there.',
           myEmpty: 'No saved decks yet. Use "Save to My Voca Decks" in the CSV editor above.',
           myThName: 'Name', myThCount: 'Words', myThDate: 'Saved', myThAct: 'Actions', myApplyBtn: 'Apply', myEditBtn: 'Edit', myDelTitle: 'Delete',
@@ -620,7 +623,7 @@
           volAll: '全体音量', volA: 'A面の音量', volB: 'B面の音量', rateALbl: 'A面の読み上げ速度', rateBLbl: 'B面の読み上げ速度', readLbl: '読み上げ対象', readBoth: '両方', voiceAuto: '自動（既定）', voiceSel: '読み上げの声（言語 / 話者）',
           repeatLbl: '繰り返し回数', infLbl: '無限', repeatNote: '設定した間隔が経過すると読み上げは自動的に停止します',
           playSec: '再生', delayALbl: 'A面の間隔調整(秒)', delayBLbl: 'B面の間隔調整(秒)', delayBackHint: '0 = 操作パネルで設定した間隔と同じ', wakeLbl: '自動再生中は画面をオンのまま維持',
-          backupSec: 'CSVバックアップ', backupNote: '暗記マークなどの進捗も含まれます。機種変更時にご利用ください。', exportBtn: 'エクスポート(JSON)', importBtn: 'インポート', importDone: (n) => `復元しました: ${n}件`, importFail: 'バックアップファイルを読み込めません',
+          backupSec: '暗記状況バックアップ (JSON)', backupNote: '暗記マークなどの進捗も含まれます。機種変更時にご利用ください。', exportBtn: 'エクスポート', importBtn: 'インポート', importDone: (n) => `復元しました: ${n}件`, importFail: 'バックアップファイルを読み込めません',
           fsSec: '画面', fsBtn: '全画面切替', fsUnsupported: 'このブラウザは全画面表示に対応していません',
           resetSec: '初期化', resetAllBtn: 'すべての設定を初期化', resetAllConfirm: 'すべての設定を既定値に戻しますか？', resetAllNote: '単語帳・暗記マーク・言語は保持されます',
           fontTitle: 'フォント設定', fontFamily: 'フォント', fontSize: 'サイズ(px)', bold: '太字', fontColor: '文字色', close: '閉じる',
@@ -643,14 +646,14 @@
           cantClose: 'ブラウザの制限で閉じられない場合はタブを直接閉じてください',
           edTitle: 'CSVエディタ', edSub: 'ダウンロードしたサンプルCSVを読み込むか、空のシートから表計算のように自分だけの単語帳を作れます。保存はすべてこの端末内のみです。',
           edLoad: '読み込み', edLoadFile: 'ロード', edLoadCur: '現在の単語帳を取り込む', edNew: '新規シート（クリア）',
-          edName: '単語帳の名前', edNamePh: 'マイ単語帳', edSave: '保存', edSaveCsv: 'セーブ', edSaveMy: 'マイVOCAデッキに保存', edApplyNow: 'この内容ですぐ暗記を開始',
+          edName: '単語帳の名前', edNamePh: 'マイ単語帳', edSave: '保存', edSaveCsv: 'セーブ', edSaveMy: 'マイVOCAデッキに保存', edApplyNow: 'このまま暗記を開始',
           edRows: '行', edValid: '有効', edErrs: 'エラー', edErrMsg: '空欄があるため保存できません。赤いセルを埋めるか行を削除してください。',
           edColA: 'A面（単語）', edColB: 'B面（意味）', edAddRow: '行を追加', edAdd10: '10行追加', edDelRow: '行を削除',
-          edHint: 'Tab/Enterで次のセルへ移動 · Excelからの複数行貼り付けに対応 · 両側とも空の行は保存時に無視',
-          edOverwrite: '現在のシートの内容を上書きします。続けますか？', edLoadedFile: (n) => `シートに${n}行を読み込みました`, edLoadedCur: (n) => `開いている単語帳から${n}行を取り込みました`,
+          edHint: 'ドラッグ・Shiftクリックで範囲選択、行番号クリックで行全体を選択 · Deleteで消去、Ctrl+C/VでExcel互換のコピー＆貼り付け · 右クリックで行の追加/削除 · 両側とも空の行は保存時に無視',
+          edOverwrite: '現在のシートの内容を上書きします。続けますか？', edDelRowsConfirm: '選択した行を削除しますか？', edLoadedFile: (n) => `シートに${n}行を読み込みました`, edLoadedCur: (n) => `開いている単語帳から${n}行を取り込みました`,
           myTitle: 'マイVOCAデッキ', mySub: '保存した単語帳はこのブラウザ(localStorage)内にのみ保管されます。別の端末へ移すにはCSVをダウンロードして読み込んでください。',
           myEmpty: 'まだ保存された単語帳がありません。上のCSVエディタで「マイVOCAデッキに保存」を押してください。',
-          myThName: '名前', myThCount: '単語数', myThDate: '保存日', myThAct: '操作', myApplyBtn: '適用', myEditBtn: 'エディタへ', myDelTitle: '削除',
+          myThName: '名前', myThCount: '単語数', myThDate: '保存日', myThAct: '操作', myApplyBtn: '適用', myEditBtn: '編集', myDelTitle: '削除',
           myConfirmDel: (name) => `「${name}」を削除しますか？`, myConfirmOverwrite: (name) => `「${name}」は既に存在します。上書きしますか？`, mySavedMsg: (name, n) => `マイVOCAデッキに「${name}」を保存しました（${n}語）`,
           myFull: '保存容量がいっぱいです。使わない単語帳を削除してください。', myUsage: (kb) => `使用容量: 約${kb} KB / 5 MB（ブラウザlocalStorageの上限）`,
         },
@@ -667,7 +670,7 @@
           volAll: '전체 볼륨', volA: 'A면 볼륨', volB: 'B면 볼륨', rateALbl: 'A면 읽기 속도', rateBLbl: 'B면 읽기 속도', readLbl: '읽기 대상', readBoth: '둘 다', voiceAuto: '자동(기본)', voiceSel: 'TTS 목소리 선택 (언어 / 발화자)',
           repeatLbl: '반복 횟수', infLbl: '무한', repeatNote: '지정한 지연시간이 지나면 읽기는 자동 중단됩니다',
           playSec: '재생', delayALbl: 'A면 지연시간 조절(초)', delayBLbl: 'B면 지연시간 조절(초)', delayBackHint: '0 = 제어판에서 설정한 지연시간과 동일', wakeLbl: '자동재생 중 화면 꺼짐 방지',
-          backupSec: 'CSV 백업', backupNote: '외운 개수 등이 포함됩니다. 기기 이동시 사용하세요.', exportBtn: '내보내기(JSON)', importBtn: '가져오기', importDone: (n) => `복원 완료: ${n}개`, importFail: '백업 파일을 읽을 수 없습니다',
+          backupSec: '암기상황 백업 (JSON)', backupNote: '외운 개수 등이 포함됩니다. 기기 이동시 사용하세요.', exportBtn: '내보내기', importBtn: '가져오기', importDone: (n) => `복원 완료: ${n}개`, importFail: '백업 파일을 읽을 수 없습니다',
           fsSec: '화면', fsBtn: '전체화면 전환', fsUnsupported: '이 브라우저는 전체화면을 지원하지 않습니다',
           resetSec: '초기화', resetAllBtn: '모든 설정 초기화', resetAllConfirm: '모든 설정을 기본값으로 되돌릴까요?', resetAllNote: '덱·암기 표시·언어는 유지됩니다',
           fontTitle: '글꼴 설정', fontFamily: '글꼴', fontSize: '크기(px)', bold: '굵게', fontColor: '글자색', close: '닫기',
@@ -690,14 +693,14 @@
           cantClose: '브라우저 정책상 창을 닫을 수 없으면 탭을 직접 닫아주세요',
           edTitle: 'CSV 편집기', edSub: '샘플 CSV를 다운받아 로드하거나 빈 시트에서 시작해, 엑셀처럼 나만의 단어장을 만들어 보세요. 모든 저장은 이 기기 안에서만 이뤄집니다.',
           edLoad: '불러오기', edLoadFile: '로드', edLoadCur: '현재 덱 가져오기', edNew: '새 시트 (비우기)',
-          edName: '단어장 이름', edNamePh: '나의 단어장', edSave: '저장하기', edSaveCsv: '저장', edSaveMy: '마이 보카덱에 저장', edApplyNow: '이 내용으로 바로 암기 시작',
+          edName: '단어장 이름', edNamePh: '나의 단어장', edSave: '저장하기', edSaveCsv: '저장', edSaveMy: '마이 보카덱에 저장', edApplyNow: '이대로 암기 시작',
           edRows: '행', edValid: '유효', edErrs: '오류', edErrMsg: '빈 칸이 있어 저장할 수 없습니다. 빨간 칸을 채우거나 행을 삭제하세요.',
           edColA: 'A면 (단어)', edColB: 'B면 (뜻)', edAddRow: '행 추가', edAdd10: '10행 추가', edDelRow: '행 삭제',
-          edHint: 'Tab/Enter로 다음 칸 이동 · 엑셀에서 복사한 여러 행 붙여넣기 지원 · 양쪽 다 빈 행은 저장 시 무시',
-          edOverwrite: '지금 시트에 있는 내용을 덮어씁니다. 계속할까요?', edLoadedFile: (n) => `시트에 ${n}행을 불러왔습니다`, edLoadedCur: (n) => `지금 열려있는 덱 ${n}행을 가져왔습니다`,
+          edHint: '드래그·Shift클릭으로 범위 선택, 행 번호 클릭 = 행 전체 선택 · Delete로 지우기, Ctrl+C/V 복사·붙여넣기(엑셀 호환) · 우클릭으로 행 추가/삭제 · 양쪽 다 빈 행은 저장 시 무시',
+          edOverwrite: '지금 시트에 있는 내용을 덮어씁니다. 계속할까요?', edDelRowsConfirm: '선택한 행을 삭제할까요?', edLoadedFile: (n) => `시트에 ${n}행을 불러왔습니다`, edLoadedCur: (n) => `지금 열려있는 덱 ${n}행을 가져왔습니다`,
           myTitle: '마이 보카덱', mySub: '저장한 단어장은 이 브라우저(localStorage)에만 보관됩니다. 다른 기기로 옮길 땐 CSV로 다운로드한 뒤 새 기기에서 로드하세요.',
           myEmpty: '아직 저장된 단어장이 없습니다. 위 CSV 편집기에서 「마이 보카덱에 저장」을 눌러 추가하세요.',
-          myThName: '이름', myThCount: '단어 수', myThDate: '저장일', myThAct: '동작', myApplyBtn: '적용', myEditBtn: '편집기로', myDelTitle: '삭제',
+          myThName: '이름', myThCount: '단어 수', myThDate: '저장일', myThAct: '동작', myApplyBtn: '적용', myEditBtn: '편집', myDelTitle: '삭제',
           myConfirmDel: (name) => `「${name}」을(를) 삭제할까요?`, myConfirmOverwrite: (name) => `「${name}」이(가) 이미 있습니다. 덮어쓸까요?`, mySavedMsg: (name, n) => `마이 보카덱에 「${name}」 저장 완료 (${n}단어)`,
           myFull: '저장 공간이 가득 찼습니다. 안 쓰는 단어장을 삭제해 주세요.', myUsage: (kb) => `저장 공간: 약 ${kb} KB / 5 MB (브라우저 localStorage 한도)`,
         },
@@ -714,7 +717,7 @@
           volAll: '总音量', volA: 'A面音量', volB: 'B面音量', rateALbl: 'A面朗读速度', rateBLbl: 'B面朗读速度', readLbl: '朗读对象', readBoth: '两者', voiceAuto: '自动(默认)', voiceSel: '朗读语音（语言 / 发音人）',
           repeatLbl: '重复次数', infLbl: '无限', repeatNote: '到达设定的间隔后朗读会自动停止',
           playSec: '播放', delayALbl: 'A面间隔调整(秒)', delayBLbl: 'B面间隔调整(秒)', delayBackHint: '0 = 与控制面板中设置的间隔相同', wakeLbl: '自动播放时保持屏幕常亮',
-          backupSec: 'CSV备份', backupNote: '包含已记标记等学习进度，更换设备时使用。', exportBtn: '导出(JSON)', importBtn: '导入', importDone: (n) => `已恢复: ${n}条`, importFail: '无法读取备份文件',
+          backupSec: '背诵进度备份 (JSON)', backupNote: '包含已记标记等学习进度，更换设备时使用。', exportBtn: '导出', importBtn: '导入', importDone: (n) => `已恢复: ${n}条`, importFail: '无法读取备份文件',
           fsSec: '屏幕', fsBtn: '切换全屏', fsUnsupported: '此浏览器不支持全屏',
           resetSec: '重置', resetAllBtn: '重置所有设置', resetAllConfirm: '将所有设置恢复为默认值？', resetAllNote: '词库、已记标记和语言将保留',
           fontTitle: '字体设置', fontFamily: '字体', fontSize: '大小(px)', bold: '加粗', fontColor: '文字颜色', close: '关闭',
@@ -737,11 +740,11 @@
           cantClose: '如浏览器限制无法关闭窗口，请手动关闭标签页',
           edTitle: 'CSV编辑器', edSub: '加载下载的示例CSV，或从空白表格开始，像电子表格一样制作自己的单词本。所有保存仅在本设备内进行。',
           edLoad: '加载方式', edLoadFile: '加载', edLoadCur: '导入当前单词本', edNew: '新建表格（清空）',
-          edName: '单词本名称', edNamePh: '我的单词本', edSave: '保存方式', edSaveCsv: '保存', edSaveMy: '保存到我的Voca Deck', edApplyNow: '用此内容立即开始背诵',
+          edName: '单词本名称', edNamePh: '我的单词本', edSave: '保存方式', edSaveCsv: '保存', edSaveMy: '保存到我的Voca Deck', edApplyNow: '立即开始背诵',
           edRows: '行', edValid: '有效', edErrs: '错误', edErrMsg: '存在空单元格，无法保存。请填写红色单元格或删除该行。',
           edColA: 'A面（单词）', edColB: 'B面（释义）', edAddRow: '添加行', edAdd10: '添加10行', edDelRow: '删除行',
-          edHint: 'Tab/Enter移动到下一格 · 支持从Excel粘贴多行 · 两侧均为空的行在保存时忽略',
-          edOverwrite: '将覆盖当前表格内容。继续吗？', edLoadedFile: (n) => `已向表格加载${n}行`, edLoadedCur: (n) => `已从当前单词本导入${n}行`,
+          edHint: '拖动或Shift点击选择范围，点击行号选择整行 · Delete清除，Ctrl+C/V复制粘贴（兼容Excel） · 右键添加/删除行 · 两侧均为空的行在保存时忽略',
+          edOverwrite: '将覆盖当前表格内容。继续吗？', edDelRowsConfirm: '删除选中的行吗？', edLoadedFile: (n) => `已向表格加载${n}行`, edLoadedCur: (n) => `已从当前单词本导入${n}行`,
           myTitle: '我的Voca Deck', mySub: '保存的单词本仅存放在此浏览器(localStorage)中。换设备时请下载CSV后在新设备加载。',
           myEmpty: '还没有保存的单词本。请在上方CSV编辑器中点击「保存到我的Voca Deck」。',
           myThName: '名称', myThCount: '单词数', myThDate: '保存日期', myThAct: '操作', myApplyBtn: '应用', myEditBtn: '编辑', myDelTitle: '删除',
@@ -761,7 +764,7 @@
           volAll: '總音量', volA: 'A面音量', volB: 'B面音量', rateALbl: 'A面朗讀速度', rateBLbl: 'B面朗讀速度', readLbl: '朗讀對象', readBoth: '兩者', voiceAuto: '自動(預設)', voiceSel: '朗讀語音（語言 / 發音人）',
           repeatLbl: '重複次數', infLbl: '無限', repeatNote: '到達設定的間隔後朗讀會自動停止',
           playSec: '播放', delayALbl: 'A面間隔調整(秒)', delayBLbl: 'B面間隔調整(秒)', delayBackHint: '0 = 與控制面板中設定的間隔相同', wakeLbl: '自動播放時保持螢幕常亮',
-          backupSec: 'CSV備份', backupNote: '包含已記標記等學習進度，更換裝置時使用。', exportBtn: '匯出(JSON)', importBtn: '匯入', importDone: (n) => `已還原: ${n}條`, importFail: '無法讀取備份檔案',
+          backupSec: '背誦進度備份 (JSON)', backupNote: '包含已記標記等學習進度，更換裝置時使用。', exportBtn: '匯出', importBtn: '匯入', importDone: (n) => `已還原: ${n}條`, importFail: '無法讀取備份檔案',
           fsSec: '螢幕', fsBtn: '切換全螢幕', fsUnsupported: '此瀏覽器不支援全螢幕',
           resetSec: '重設', resetAllBtn: '重設所有設定', resetAllConfirm: '將所有設定恢復為預設值？', resetAllNote: '單字庫、已記標記與語言將保留',
           fontTitle: '字型設定', fontFamily: '字型', fontSize: '大小(px)', bold: '粗體', fontColor: '文字顏色', close: '關閉',
@@ -784,11 +787,11 @@
           cantClose: '若瀏覽器限制無法關閉視窗，請手動關閉分頁',
           edTitle: 'CSV編輯器', edSub: '載入下載的範例CSV，或從空白表格開始，像試算表一樣製作自己的單字本。所有儲存僅在本裝置內進行。',
           edLoad: '載入方式', edLoadFile: '載入', edLoadCur: '匯入目前單字本', edNew: '新表格（清空）',
-          edName: '單字本名稱', edNamePh: '我的單字本', edSave: '儲存方式', edSaveCsv: '儲存', edSaveMy: '儲存到我的Voca Deck', edApplyNow: '用此內容立即開始背誦',
+          edName: '單字本名稱', edNamePh: '我的單字本', edSave: '儲存方式', edSaveCsv: '儲存', edSaveMy: '儲存到我的Voca Deck', edApplyNow: '立即開始背誦',
           edRows: '列', edValid: '有效', edErrs: '錯誤', edErrMsg: '有空白儲存格，無法儲存。請填寫紅色儲存格或刪除該列。',
           edColA: 'A面（單字）', edColB: 'B面（釋義）', edAddRow: '新增列', edAdd10: '新增10列', edDelRow: '刪除列',
-          edHint: 'Tab/Enter移至下一格 · 支援從Excel貼上多列 · 兩側皆空的列在儲存時忽略',
-          edOverwrite: '將覆寫目前表格內容。要繼續嗎？', edLoadedFile: (n) => `已在表格載入${n}列`, edLoadedCur: (n) => `已從目前單字本匯入${n}列`,
+          edHint: '拖曳或Shift點擊選取範圍，點列號選取整列 · Delete清除，Ctrl+C/V複製貼上（相容Excel） · 右鍵新增/刪除列 · 兩側皆空的列在儲存時忽略',
+          edOverwrite: '將覆寫目前表格內容。要繼續嗎？', edDelRowsConfirm: '要刪除選取的列嗎？', edLoadedFile: (n) => `已在表格載入${n}列`, edLoadedCur: (n) => `已從目前單字本匯入${n}列`,
           myTitle: '我的Voca Deck', mySub: '儲存的單字本僅存放在此瀏覽器(localStorage)中。換裝置時請下載CSV後在新裝置載入。',
           myEmpty: '還沒有儲存的單字本。請在上方CSV編輯器中按「儲存到我的Voca Deck」。',
           myThName: '名稱', myThCount: '單字數', myThDate: '儲存日期', myThAct: '操作', myApplyBtn: '套用', myEditBtn: '編輯', myDelTitle: '刪除',
@@ -808,7 +811,7 @@
           volAll: 'ระดับเสียงรวม', volA: 'เสียงด้าน A', volB: 'เสียงด้าน B', rateALbl: 'ความเร็วการอ่านด้าน A', rateBLbl: 'ความเร็วการอ่านด้าน B', readLbl: 'อ่านออกเสียง', readBoth: 'ทั้งคู่', voiceAuto: 'อัตโนมัติ(ค่าเริ่มต้น)', voiceSel: 'เสียงอ่าน (ภาษา / ผู้พูด)',
           repeatLbl: 'จำนวนครั้งอ่านซ้ำ', infLbl: 'ไม่จำกัด', repeatNote: 'เมื่อครบเวลาหน่วงที่ตั้งไว้ การอ่านจะหยุดโดยอัตโนมัติ',
           playSec: 'การเล่น', delayALbl: 'ปรับเวลาหน่วงด้าน A (วิ)', delayBLbl: 'ปรับเวลาหน่วงด้าน B (วิ)', delayBackHint: '0 = เท่ากับเวลาหน่วงที่ตั้งในแผงควบคุม', wakeLbl: 'กันหน้าจอดับระหว่างเล่นอัตโนมัติ',
-          backupSec: 'สำรองข้อมูล CSV', backupNote: 'รวมเครื่องหมายจำและความคืบหน้า ใช้เมื่อย้ายอุปกรณ์', exportBtn: 'ส่งออก(JSON)', importBtn: 'นำเข้า', importDone: (n) => `กู้คืนแล้ว: ${n} รายการ`, importFail: 'อ่านไฟล์สำรองไม่ได้',
+          backupSec: 'สำรองความคืบหน้าการท่องจำ (JSON)', backupNote: 'รวมเครื่องหมายจำและความคืบหน้า ใช้เมื่อย้ายอุปกรณ์', exportBtn: 'ส่งออก', importBtn: 'นำเข้า', importDone: (n) => `กู้คืนแล้ว: ${n} รายการ`, importFail: 'อ่านไฟล์สำรองไม่ได้',
           fsSec: 'หน้าจอ', fsBtn: 'สลับเต็มหน้าจอ', fsUnsupported: 'เบราว์เซอร์นี้ไม่รองรับเต็มหน้าจอ',
           resetSec: 'รีเซ็ต', resetAllBtn: 'รีเซ็ตการตั้งค่าทั้งหมด', resetAllConfirm: 'คืนค่าการตั้งค่าทั้งหมดเป็นค่าเริ่มต้น?', resetAllNote: 'ชุดคำศัพท์ เครื่องหมายจำ และภาษาจะยังคงอยู่',
           fontTitle: 'ตั้งค่าฟอนต์', fontFamily: 'ฟอนต์', fontSize: 'ขนาด(px)', bold: 'ตัวหนา', fontColor: 'สีตัวอักษร', close: 'ปิด',
@@ -831,11 +834,11 @@
           cantClose: 'หากเบราว์เซอร์ไม่ให้ปิดหน้าต่าง โปรดปิดแท็บด้วยตนเอง',
           edTitle: 'ตัวแก้ไข CSV', edSub: 'โหลดไฟล์ CSV ตัวอย่างที่ดาวน์โหลดไว้ หรือเริ่มจากชีตว่างเพื่อสร้างชุดคำศัพท์ของคุณเองเหมือนสเปรดชีต ทุกอย่างบันทึกในเครื่องนี้เท่านั้น',
           edLoad: 'การโหลด', edLoadFile: 'โหลด', edLoadCur: 'นำเข้าชุดคำศัพท์ปัจจุบัน', edNew: 'ชีตใหม่ (ล้าง)',
-          edName: 'ชื่อชุดคำศัพท์', edNamePh: 'ชุดคำศัพท์ของฉัน', edSave: 'การบันทึก', edSaveCsv: 'บันทึก', edSaveMy: 'บันทึกลง Voca Deck ของฉัน', edApplyNow: 'เริ่มท่องด้วยเนื้อหานี้ทันที',
+          edName: 'ชื่อชุดคำศัพท์', edNamePh: 'ชุดคำศัพท์ของฉัน', edSave: 'การบันทึก', edSaveCsv: 'บันทึก', edSaveMy: 'บันทึกลง Voca Deck ของฉัน', edApplyNow: 'เริ่มท่องจำเลย',
           edRows: 'แถว', edValid: 'ใช้ได้', edErrs: 'ผิดพลาด', edErrMsg: 'มีช่องว่าง จึงบันทึกไม่ได้ กรุณากรอกช่องสีแดงหรือลบแถวนั้น',
           edColA: 'ด้าน A (คำศัพท์)', edColB: 'ด้าน B (ความหมาย)', edAddRow: 'เพิ่มแถว', edAdd10: 'เพิ่ม 10 แถว', edDelRow: 'ลบแถว',
-          edHint: 'Tab/Enter เลื่อนไปช่องถัดไป · รองรับการวางหลายแถวจาก Excel · แถวที่ว่างทั้งสองด้านจะถูกข้ามตอนบันทึก',
-          edOverwrite: 'จะเขียนทับเนื้อหาในชีตปัจจุบัน ดำเนินการต่อหรือไม่?', edLoadedFile: (n) => `โหลด ${n} แถวลงชีตแล้ว`, edLoadedCur: (n) => `นำเข้า ${n} แถวจากชุดที่เปิดอยู่แล้ว`,
+          edHint: 'ลากหรือ Shift+คลิกเพื่อเลือกช่วง คลิกเลขแถวเพื่อเลือกทั้งแถว · Delete ลบข้อมูล, Ctrl+C/V คัดลอกวาง (ใช้กับ Excel ได้) · คลิกขวาเพื่อเพิ่ม/ลบแถว · แถวที่ว่างทั้งสองด้านจะถูกข้ามตอนบันทึก',
+          edOverwrite: 'จะเขียนทับเนื้อหาในชีตปัจจุบัน ดำเนินการต่อหรือไม่?', edDelRowsConfirm: 'ลบแถวที่เลือกหรือไม่?', edLoadedFile: (n) => `โหลด ${n} แถวลงชีตแล้ว`, edLoadedCur: (n) => `นำเข้า ${n} แถวจากชุดที่เปิดอยู่แล้ว`,
           myTitle: 'Voca Deck ของฉัน', mySub: 'ชุดที่บันทึกจะเก็บไว้ในเบราว์เซอร์นี้ (localStorage) เท่านั้น หากเปลี่ยนเครื่องให้ดาวน์โหลด CSV แล้วไปโหลดที่เครื่องใหม่',
           myEmpty: 'ยังไม่มีชุดคำศัพท์ที่บันทึกไว้ กด "บันทึกลง Voca Deck ของฉัน" ในตัวแก้ไข CSV ด้านบน',
           myThName: 'ชื่อ', myThCount: 'จำนวนคำ', myThDate: 'วันที่บันทึก', myThAct: 'การทำงาน', myApplyBtn: 'ใช้', myEditBtn: 'แก้ไข', myDelTitle: 'ลบ',
@@ -855,7 +858,7 @@
           volAll: 'Volumen general', volA: 'Volumen cara A', volB: 'Volumen cara B', rateALbl: 'Velocidad de lectura cara A', rateBLbl: 'Velocidad de lectura cara B', readLbl: 'Leer en voz alta', readBoth: 'Ambas', voiceAuto: 'Automática (predeterminada)', voiceSel: 'Voz de lectura (idioma / voz)',
           repeatLbl: 'Repeticiones', infLbl: 'Infinito', repeatNote: 'Al agotarse el intervalo establecido, la lectura se detiene automáticamente',
           playSec: 'Reproducción', delayALbl: 'Intervalo cara A (s)', delayBLbl: 'Intervalo cara B (s)', delayBackHint: '0 = igual que el intervalo configurado en el panel de control', wakeLbl: 'Mantener la pantalla encendida en reproducción automática',
-          backupSec: 'Copia de seguridad CSV', backupNote: 'Incluye las marcas de memorizadas y el progreso. Úselo al cambiar de dispositivo.', exportBtn: 'Exportar (JSON)', importBtn: 'Importar', importDone: (n) => `Restaurado: ${n} elementos`, importFail: 'No se pudo leer el archivo de copia',
+          backupSec: 'Copia del progreso (JSON)', backupNote: 'Incluye las marcas de memorizadas y el progreso. Úselo al cambiar de dispositivo.', exportBtn: 'Exportar', importBtn: 'Importar', importDone: (n) => `Restaurado: ${n} elementos`, importFail: 'No se pudo leer el archivo de copia',
           fsSec: 'Pantalla', fsBtn: 'Alternar pantalla completa', fsUnsupported: 'Este navegador no admite pantalla completa',
           resetSec: 'Restablecer', resetAllBtn: 'Restablecer todos los ajustes', resetAllConfirm: '¿Restaurar todos los ajustes a los valores predeterminados?', resetAllNote: 'Se conservan el mazo, las marcas y el idioma',
           fontTitle: 'Ajustes de fuente', fontFamily: 'Fuente', fontSize: 'Tamaño (px)', bold: 'Negrita', fontColor: 'Color del texto', close: 'Cerrar',
@@ -878,11 +881,11 @@
           cantClose: 'Si el navegador impide cerrar la ventana, cierra la pestaña manualmente',
           edTitle: 'Editor CSV', edSub: 'Carga un CSV de ejemplo descargado o empieza desde una hoja en blanco y crea tu propio mazo como en una hoja de cálculo. Todo se guarda solo en este dispositivo.',
           edLoad: 'Carga', edLoadFile: 'Cargar', edLoadCur: 'Importar el mazo actual', edNew: 'Hoja nueva (vaciar)',
-          edName: 'Nombre del mazo', edNamePh: 'Mi mazo', edSave: 'Guardado', edSaveCsv: 'Guardar', edSaveMy: 'Guardar en Mis Voca Decks', edApplyNow: 'Empezar a memorizar con esto',
+          edName: 'Nombre del mazo', edNamePh: 'Mi mazo', edSave: 'Guardado', edSaveCsv: 'Guardar', edSaveMy: 'Guardar en Mis Voca Decks', edApplyNow: 'Empezar a memorizar ya',
           edRows: 'Filas', edValid: 'Válidas', edErrs: 'Errores', edErrMsg: 'Hay celdas vacías y no se puede guardar. Rellena las celdas rojas o elimina esas filas.',
           edColA: 'Lado A (palabra)', edColB: 'Lado B (significado)', edAddRow: 'Añadir fila', edAdd10: 'Añadir 10 filas', edDelRow: 'Eliminar fila',
-          edHint: 'Tab/Enter pasa a la siguiente celda · admite pegar varias filas desde Excel · las filas vacías por ambos lados se ignoran al guardar',
-          edOverwrite: 'Se sobrescribirá el contenido actual de la hoja. ¿Continuar?', edLoadedFile: (n) => `Se cargaron ${n} filas en la hoja`, edLoadedCur: (n) => `Se importaron ${n} filas del mazo abierto`,
+          edHint: 'Arrastra o Mayús+clic para seleccionar un rango; clic en el número de fila selecciona toda la fila · Supr borra, Ctrl+C/V copia y pega (compatible con Excel) · clic derecho para añadir/eliminar filas · las filas vacías por ambos lados se ignoran al guardar',
+          edOverwrite: 'Se sobrescribirá el contenido actual de la hoja. ¿Continuar?', edDelRowsConfirm: '¿Eliminar las filas seleccionadas?', edLoadedFile: (n) => `Se cargaron ${n} filas en la hoja`, edLoadedCur: (n) => `Se importaron ${n} filas del mazo abierto`,
           myTitle: 'Mis Voca Decks', mySub: 'Los mazos guardados se conservan solo en este navegador (localStorage). Para pasarlos a otro dispositivo, descarga el CSV y cárgalo allí.',
           myEmpty: 'Aún no hay mazos guardados. Usa «Guardar en Mis Voca Decks» en el editor CSV de arriba.',
           myThName: 'Nombre', myThCount: 'Palabras', myThDate: 'Guardado', myThAct: 'Acciones', myApplyBtn: 'Aplicar', myEditBtn: 'Editar', myDelTitle: 'Eliminar',
@@ -902,7 +905,7 @@
           volAll: 'Volume général', volA: 'Volume face A', volB: 'Volume face B', rateALbl: 'Vitesse de lecture face A', rateBLbl: 'Vitesse de lecture face B', readLbl: 'Lecture vocale', readBoth: 'Les deux', voiceAuto: 'Auto (par défaut)', voiceSel: 'Voix de lecture (langue / voix)',
           repeatLbl: 'Répétitions', infLbl: 'Infini', repeatNote: "À la fin de l'intervalle défini, la lecture s'arrête automatiquement",
           playSec: 'Lecture', delayALbl: 'Délai face A (s)', delayBLbl: 'Délai face B (s)', delayBackHint: "0 = identique à l'intervalle défini dans le panneau de commande", wakeLbl: "Garder l'écran allumé pendant la lecture auto",
-          backupSec: 'Sauvegarde CSV', backupNote: "Inclut les marques mémorisées et la progression. À utiliser lors d'un changement d'appareil.", exportBtn: 'Exporter (JSON)', importBtn: 'Importer', importDone: (n) => `Restauré : ${n} éléments`, importFail: 'Impossible de lire le fichier de sauvegarde',
+          backupSec: 'Sauvegarde de la progression (JSON)', backupNote: "Inclut les marques mémorisées et la progression. À utiliser lors d'un changement d'appareil.", exportBtn: 'Exporter', importBtn: 'Importer', importDone: (n) => `Restauré : ${n} éléments`, importFail: 'Impossible de lire le fichier de sauvegarde',
           fsSec: 'Écran', fsBtn: 'Basculer le plein écran', fsUnsupported: 'Ce navigateur ne prend pas en charge le plein écran',
           resetSec: 'Réinitialisation', resetAllBtn: 'Réinitialiser tous les réglages', resetAllConfirm: 'Rétablir tous les réglages par défaut ?', resetAllNote: 'Le paquet, les marques et la langue sont conservés',
           fontTitle: 'Réglages de police', fontFamily: 'Police', fontSize: 'Taille (px)', bold: 'Gras', fontColor: 'Couleur du texte', close: 'Fermer',
@@ -925,11 +928,11 @@
           cantClose: 'Si le navigateur empêche la fermeture, fermez l’onglet manuellement',
           edTitle: 'Éditeur CSV', edSub: 'Chargez un CSV d’exemple téléchargé ou partez d’une feuille vierge pour créer votre propre paquet, comme dans un tableur. Tout est enregistré uniquement sur cet appareil.',
           edLoad: 'Chargement', edLoadFile: 'Charger', edLoadCur: 'Importer le paquet actuel', edNew: 'Nouvelle feuille (vider)',
-          edName: 'Nom du paquet', edNamePh: 'Mon paquet', edSave: 'Enregistrement', edSaveCsv: 'Enregistrer', edSaveMy: 'Enregistrer dans Mes Voca Decks', edApplyNow: 'Commencer à mémoriser avec ceci',
+          edName: 'Nom du paquet', edNamePh: 'Mon paquet', edSave: 'Enregistrement', edSaveCsv: 'Enregistrer', edSaveMy: 'Enregistrer dans Mes Voca Decks', edApplyNow: 'Mémoriser tout de suite',
           edRows: 'Lignes', edValid: 'Valides', edErrs: 'Erreurs', edErrMsg: 'Des cellules sont vides : impossible d’enregistrer. Remplissez les cellules rouges ou supprimez ces lignes.',
           edColA: 'Face A (mot)', edColB: 'Face B (sens)', edAddRow: 'Ajouter une ligne', edAdd10: 'Ajouter 10 lignes', edDelRow: 'Supprimer la ligne',
-          edHint: 'Tab/Entrée passe à la cellule suivante · collage multi-lignes depuis Excel pris en charge · les lignes vides des deux côtés sont ignorées à l’enregistrement',
-          edOverwrite: 'Le contenu actuel de la feuille sera écrasé. Continuer ?', edLoadedFile: (n) => `${n} lignes chargées dans la feuille`, edLoadedCur: (n) => `${n} lignes importées du paquet ouvert`,
+          edHint: 'Glissez ou Maj+clic pour sélectionner une plage ; clic sur le numéro de ligne sélectionne toute la ligne · Suppr efface, Ctrl+C/V copie-colle (compatible Excel) · clic droit pour ajouter/supprimer des lignes · les lignes vides des deux côtés sont ignorées à l’enregistrement',
+          edOverwrite: 'Le contenu actuel de la feuille sera écrasé. Continuer ?', edDelRowsConfirm: 'Supprimer les lignes sélectionnées ?', edLoadedFile: (n) => `${n} lignes chargées dans la feuille`, edLoadedCur: (n) => `${n} lignes importées du paquet ouvert`,
           myTitle: 'Mes Voca Decks', mySub: 'Les paquets enregistrés restent uniquement dans ce navigateur (localStorage). Pour changer d’appareil, téléchargez le CSV puis chargez-le sur le nouveau.',
           myEmpty: 'Aucun paquet enregistré pour l’instant. Utilisez « Enregistrer dans Mes Voca Decks » dans l’éditeur CSV ci-dessus.',
           myThName: 'Nom', myThCount: 'Mots', myThDate: 'Enregistré le', myThAct: 'Actions', myApplyBtn: 'Appliquer', myEditBtn: 'Éditer', myDelTitle: 'Supprimer',
@@ -949,7 +952,7 @@
           volAll: 'Gesamtlautstärke', volA: 'Lautstärke Seite A', volB: 'Lautstärke Seite B', rateALbl: 'Vorlesetempo Seite A', rateBLbl: 'Vorlesetempo Seite B', readLbl: 'Vorlesen', readBoth: 'Beide', voiceAuto: 'Automatisch (Standard)', voiceSel: 'Vorlesestimme (Sprache / Stimme)',
           repeatLbl: 'Wiederholungen', infLbl: 'Endlos', repeatNote: 'Nach Ablauf des eingestellten Intervalls stoppt die Wiedergabe automatisch',
           playSec: 'Wiedergabe', delayALbl: 'Intervall Seite A (s)', delayBLbl: 'Intervall Seite B (s)', delayBackHint: '0 = wie das im Bedienfeld eingestellte Intervall', wakeLbl: 'Bildschirm bei Auto-Wiedergabe anlassen',
-          backupSec: 'CSV-Sicherung', backupNote: 'Enthält Merk-Markierungen und Lernfortschritt. Beim Gerätewechsel verwenden.', exportBtn: 'Exportieren (JSON)', importBtn: 'Importieren', importDone: (n) => `Wiederhergestellt: ${n} Einträge`, importFail: 'Sicherungsdatei konnte nicht gelesen werden',
+          backupSec: 'Lernstand-Sicherung (JSON)', backupNote: 'Enthält Merk-Markierungen und Lernfortschritt. Beim Gerätewechsel verwenden.', exportBtn: 'Exportieren', importBtn: 'Importieren', importDone: (n) => `Wiederhergestellt: ${n} Einträge`, importFail: 'Sicherungsdatei konnte nicht gelesen werden',
           fsSec: 'Bildschirm', fsBtn: 'Vollbild umschalten', fsUnsupported: 'Dieser Browser unterstützt kein Vollbild',
           resetSec: 'Zurücksetzen', resetAllBtn: 'Alle Einstellungen zurücksetzen', resetAllConfirm: 'Alle Einstellungen auf Standardwerte zurücksetzen?', resetAllNote: 'Deck, Markierungen und Sprache bleiben erhalten',
           fontTitle: 'Schrifteinstellungen', fontFamily: 'Schriftart', fontSize: 'Größe (px)', bold: 'Fett', fontColor: 'Textfarbe', close: 'Schließen',
@@ -972,11 +975,11 @@
           cantClose: 'Falls der Browser das Schließen blockiert, schließe den Tab bitte manuell',
           edTitle: 'CSV-Editor', edSub: 'Lade ein heruntergeladenes Beispiel-CSV oder starte mit einem leeren Blatt und erstelle dein eigenes Deck wie in einer Tabellenkalkulation. Alles wird nur auf diesem Gerät gespeichert.',
           edLoad: 'Öffnen', edLoadFile: 'Laden', edLoadCur: 'Aktuelles Deck übernehmen', edNew: 'Neues Blatt (leeren)',
-          edName: 'Deck-Name', edNamePh: 'Mein Deck', edSave: 'Sichern', edSaveCsv: 'Speichern', edSaveMy: 'In Meine Voca Decks speichern', edApplyNow: 'Mit diesem Inhalt sofort lernen',
+          edName: 'Deck-Name', edNamePh: 'Mein Deck', edSave: 'Sichern', edSaveCsv: 'Speichern', edSaveMy: 'In Meine Voca Decks speichern', edApplyNow: 'Sofort loslernen',
           edRows: 'Zeilen', edValid: 'Gültig', edErrs: 'Fehler', edErrMsg: 'Es gibt leere Zellen — zum Speichern rote Zellen ausfüllen oder die Zeilen löschen.',
           edColA: 'Seite A (Wort)', edColB: 'Seite B (Bedeutung)', edAddRow: 'Zeile hinzufügen', edAdd10: '10 Zeilen hinzufügen', edDelRow: 'Zeile löschen',
-          edHint: 'Tab/Enter springt zur nächsten Zelle · mehrzeiliges Einfügen aus Excel unterstützt · beidseitig leere Zeilen werden beim Speichern ignoriert',
-          edOverwrite: 'Der aktuelle Blattinhalt wird überschrieben. Fortfahren?', edLoadedFile: (n) => `${n} Zeilen in das Blatt geladen`, edLoadedCur: (n) => `${n} Zeilen aus dem geöffneten Deck übernommen`,
+          edHint: 'Ziehen oder Shift+Klick wählt einen Bereich, Klick auf die Zeilennummer die ganze Zeile · Entf löscht, Strg+C/V kopiert & fügt ein (Excel-kompatibel) · Rechtsklick zum Hinzufügen/Löschen von Zeilen · beidseitig leere Zeilen werden beim Speichern ignoriert',
+          edOverwrite: 'Der aktuelle Blattinhalt wird überschrieben. Fortfahren?', edDelRowsConfirm: 'Ausgewählte Zeilen löschen?', edLoadedFile: (n) => `${n} Zeilen in das Blatt geladen`, edLoadedCur: (n) => `${n} Zeilen aus dem geöffneten Deck übernommen`,
           myTitle: 'Meine Voca Decks', mySub: 'Gespeicherte Decks bleiben nur in diesem Browser (localStorage). Für ein anderes Gerät das CSV herunterladen und dort laden.',
           myEmpty: 'Noch keine gespeicherten Decks. Nutze „In Meine Voca Decks speichern“ im CSV-Editor oben.',
           myThName: 'Name', myThCount: 'Wörter', myThDate: 'Gespeichert', myThAct: 'Aktionen', myApplyBtn: 'Anwenden', myEditBtn: 'Bearbeiten', myDelTitle: 'Löschen',
@@ -996,7 +999,7 @@
           volAll: 'Volume generale', volA: 'Volume lato A', volB: 'Volume lato B', rateALbl: 'Velocità di lettura lato A', rateBLbl: 'Velocità di lettura lato B', readLbl: 'Lettura vocale', readBoth: 'Entrambi', voiceAuto: 'Automatica (predefinita)', voiceSel: 'Voce di lettura (lingua / voce)',
           repeatLbl: 'Ripetizioni', infLbl: 'Infinito', repeatNote: "Allo scadere dell'intervallo impostato la lettura si interrompe automaticamente",
           playSec: 'Riproduzione', delayALbl: 'Intervallo lato A (s)', delayBLbl: 'Intervallo lato B (s)', delayBackHint: "0 = uguale all'intervallo impostato nel pannello di controllo", wakeLbl: 'Mantieni lo schermo acceso durante la riproduzione automatica',
-          backupSec: 'Backup CSV', backupNote: 'Include i contrassegni e i progressi. Da usare quando si cambia dispositivo.', exportBtn: 'Esporta (JSON)', importBtn: 'Importa', importDone: (n) => `Ripristinati: ${n} elementi`, importFail: 'Impossibile leggere il file di backup',
+          backupSec: 'Backup dei progressi (JSON)', backupNote: 'Include i contrassegni e i progressi. Da usare quando si cambia dispositivo.', exportBtn: 'Esporta', importBtn: 'Importa', importDone: (n) => `Ripristinati: ${n} elementi`, importFail: 'Impossibile leggere il file di backup',
           fsSec: 'Schermo', fsBtn: 'Attiva/disattiva schermo intero', fsUnsupported: 'Questo browser non supporta lo schermo intero',
           resetSec: 'Ripristino', resetAllBtn: 'Ripristina tutte le impostazioni', resetAllConfirm: 'Ripristinare tutte le impostazioni predefinite?', resetAllNote: 'Mazzo, contrassegni e lingua vengono mantenuti',
           fontTitle: 'Impostazioni carattere', fontFamily: 'Carattere', fontSize: 'Dimensione (px)', bold: 'Grassetto', fontColor: 'Colore del testo', close: 'Chiudi',
@@ -1019,11 +1022,11 @@
           cantClose: 'Se il browser impedisce la chiusura, chiudi la scheda manualmente',
           edTitle: 'Editor CSV', edSub: 'Carica un CSV di esempio scaricato o parti da un foglio vuoto e crea il tuo mazzo come in un foglio di calcolo. Tutto viene salvato solo su questo dispositivo.',
           edLoad: 'Caricamento', edLoadFile: 'Carica', edLoadCur: 'Importa il mazzo attuale', edNew: 'Nuovo foglio (svuota)',
-          edName: 'Nome del mazzo', edNamePh: 'Il mio mazzo', edSave: 'Salvataggio', edSaveCsv: 'Salva', edSaveMy: 'Salva nei Miei Voca Deck', edApplyNow: 'Inizia a memorizzare con questo',
+          edName: 'Nome del mazzo', edNamePh: 'Il mio mazzo', edSave: 'Salvataggio', edSaveCsv: 'Salva', edSaveMy: 'Salva nei Miei Voca Deck', edApplyNow: 'Inizia subito a memorizzare',
           edRows: 'Righe', edValid: 'Valide', edErrs: 'Errori', edErrMsg: 'Ci sono celle vuote: impossibile salvare. Riempi le celle rosse o elimina quelle righe.',
           edColA: 'Lato A (parola)', edColB: 'Lato B (significato)', edAddRow: 'Aggiungi riga', edAdd10: 'Aggiungi 10 righe', edDelRow: 'Elimina riga',
-          edHint: 'Tab/Invio passa alla cella successiva · supporta l’incollaggio di più righe da Excel · le righe vuote su entrambi i lati vengono ignorate al salvataggio',
-          edOverwrite: 'Il contenuto attuale del foglio verrà sovrascritto. Continuare?', edLoadedFile: (n) => `Caricate ${n} righe nel foglio`, edLoadedCur: (n) => `Importate ${n} righe dal mazzo aperto`,
+          edHint: 'Trascina o Shift+clic per selezionare un intervallo; clic sul numero di riga seleziona l’intera riga · Canc cancella, Ctrl+C/V copia e incolla (compatibile con Excel) · clic destro per aggiungere/eliminare righe · le righe vuote su entrambi i lati vengono ignorate al salvataggio',
+          edOverwrite: 'Il contenuto attuale del foglio verrà sovrascritto. Continuare?', edDelRowsConfirm: 'Eliminare le righe selezionate?', edLoadedFile: (n) => `Caricate ${n} righe nel foglio`, edLoadedCur: (n) => `Importate ${n} righe dal mazzo aperto`,
           myTitle: 'I miei Voca Deck', mySub: 'I mazzi salvati restano solo in questo browser (localStorage). Per un altro dispositivo, scarica il CSV e caricalo lì.',
           myEmpty: 'Nessun mazzo salvato. Usa «Salva nei Miei Voca Deck» nell’editor CSV qui sopra.',
           myThName: 'Nome', myThCount: 'Parole', myThDate: 'Salvato', myThAct: 'Azioni', myApplyBtn: 'Applica', myEditBtn: 'Modifica', myDelTitle: 'Elimina',
@@ -1043,7 +1046,7 @@
           volAll: 'Volume geral', volA: 'Volume lado A', volB: 'Volume lado B', rateALbl: 'Velocidade de leitura lado A', rateBLbl: 'Velocidade de leitura lado B', readLbl: 'Leitura em voz alta', readBoth: 'Ambos', voiceAuto: 'Automática (predefinida)', voiceSel: 'Voz de leitura (idioma / voz)',
           repeatLbl: 'Repetições', infLbl: 'Infinito', repeatNote: 'Quando o intervalo definido termina, a leitura para automaticamente',
           playSec: 'Reprodução', delayALbl: 'Intervalo lado A (s)', delayBLbl: 'Intervalo lado B (s)', delayBackHint: '0 = igual ao intervalo definido no painel de controlo', wakeLbl: 'Manter o ecrã ligado durante a reprodução automática',
-          backupSec: 'Cópia de segurança CSV', backupNote: 'Inclui as marcas de memorizadas e o progresso. Use ao mudar de dispositivo.', exportBtn: 'Exportar (JSON)', importBtn: 'Importar', importDone: (n) => `Restaurado: ${n} itens`, importFail: 'Não foi possível ler o ficheiro de cópia',
+          backupSec: 'Cópia do progresso (JSON)', backupNote: 'Inclui as marcas de memorizadas e o progresso. Use ao mudar de dispositivo.', exportBtn: 'Exportar', importBtn: 'Importar', importDone: (n) => `Restaurado: ${n} itens`, importFail: 'Não foi possível ler o ficheiro de cópia',
           fsSec: 'Ecrã', fsBtn: 'Alternar ecrã inteiro', fsUnsupported: 'Este navegador não suporta ecrã inteiro',
           resetSec: 'Repor', resetAllBtn: 'Repor todas as definições', resetAllConfirm: 'Repor todas as definições para os valores predefinidos?', resetAllNote: 'O baralho, as marcas e o idioma são mantidos',
           fontTitle: 'Definições de fonte', fontFamily: 'Fonte', fontSize: 'Tamanho (px)', bold: 'Negrito', fontColor: 'Cor do texto', close: 'Fechar',
@@ -1066,11 +1069,11 @@
           cantClose: 'Se o navegador impedir o fecho, feche o separador manualmente',
           edTitle: 'Editor CSV', edSub: 'Carrega um CSV de exemplo descarregado ou começa numa folha em branco e cria o teu baralho como numa folha de cálculo. Tudo é guardado apenas neste dispositivo.',
           edLoad: 'Abrir', edLoadFile: 'Carregar', edLoadCur: 'Importar o baralho atual', edNew: 'Nova folha (limpar)',
-          edName: 'Nome do baralho', edNamePh: 'O meu baralho', edSave: 'Gravar', edSaveCsv: 'Guardar', edSaveMy: 'Guardar nos Meus Voca Decks', edApplyNow: 'Começar a memorizar com isto',
+          edName: 'Nome do baralho', edNamePh: 'O meu baralho', edSave: 'Gravar', edSaveCsv: 'Guardar', edSaveMy: 'Guardar nos Meus Voca Decks', edApplyNow: 'Começar a memorizar já',
           edRows: 'Linhas', edValid: 'Válidas', edErrs: 'Erros', edErrMsg: 'Há células vazias e não é possível guardar. Preenche as células vermelhas ou apaga essas linhas.',
           edColA: 'Lado A (palavra)', edColB: 'Lado B (significado)', edAddRow: 'Adicionar linha', edAdd10: 'Adicionar 10 linhas', edDelRow: 'Apagar linha',
-          edHint: 'Tab/Enter passa à célula seguinte · suporta colar várias linhas do Excel · linhas vazias dos dois lados são ignoradas ao guardar',
-          edOverwrite: 'O conteúdo atual da folha será substituído. Continuar?', edLoadedFile: (n) => `${n} linhas carregadas na folha`, edLoadedCur: (n) => `${n} linhas importadas do baralho aberto`,
+          edHint: 'Arrasta ou Shift+clique para selecionar um intervalo; clique no número da linha seleciona a linha inteira · Delete apaga, Ctrl+C/V copia e cola (compatível com Excel) · clique direito para adicionar/apagar linhas · linhas vazias dos dois lados são ignoradas ao guardar',
+          edOverwrite: 'O conteúdo atual da folha será substituído. Continuar?', edDelRowsConfirm: 'Apagar as linhas selecionadas?', edLoadedFile: (n) => `${n} linhas carregadas na folha`, edLoadedCur: (n) => `${n} linhas importadas do baralho aberto`,
           myTitle: 'Os meus Voca Decks', mySub: 'Os baralhos guardados ficam apenas neste navegador (localStorage). Para outro dispositivo, transfere o CSV e carrega-o lá.',
           myEmpty: 'Ainda não há baralhos guardados. Usa «Guardar nos Meus Voca Decks» no editor CSV acima.',
           myThName: 'Nome', myThCount: 'Palavras', myThDate: 'Guardado', myThAct: 'Ações', myApplyBtn: 'Aplicar', myEditBtn: 'Editar', myDelTitle: 'Apagar',
@@ -1090,7 +1093,7 @@
           volAll: 'Общая громкость', volA: 'Громкость стороны A', volB: 'Громкость стороны B', rateALbl: 'Скорость чтения стороны A', rateBLbl: 'Скорость чтения стороны B', readLbl: 'Озвучивать', readBoth: 'Обе', voiceAuto: 'Авто (по умолчанию)', voiceSel: 'Голос озвучивания (язык / голос)',
           repeatLbl: 'Повторы', infLbl: 'Бесконечно', repeatNote: 'По истечении заданного интервала озвучивание автоматически прекращается',
           playSec: 'Воспроизведение', delayALbl: 'Интервал стороны A (с)', delayBLbl: 'Интервал стороны B (с)', delayBackHint: '0 = как интервал заданный на панели управления', wakeLbl: 'Не гасить экран при автовоспроизведении',
-          backupSec: 'Резервная копия CSV', backupNote: 'Включает отметки о выученном и прогресс. Используйте при смене устройства.', exportBtn: 'Экспорт (JSON)', importBtn: 'Импорт', importDone: (n) => `Восстановлено: ${n}`, importFail: 'Не удалось прочитать файл резервной копии',
+          backupSec: 'Резервная копия прогресса (JSON)', backupNote: 'Включает отметки о выученном и прогресс. Используйте при смене устройства.', exportBtn: 'Экспорт', importBtn: 'Импорт', importDone: (n) => `Восстановлено: ${n}`, importFail: 'Не удалось прочитать файл резервной копии',
           fsSec: 'Экран', fsBtn: 'Полноэкранный режим', fsUnsupported: 'Этот браузер не поддерживает полноэкранный режим',
           resetSec: 'Сброс', resetAllBtn: 'Сбросить все настройки', resetAllConfirm: 'Вернуть все настройки к значениям по умолчанию?', resetAllNote: 'Колода, отметки и язык сохраняются',
           fontTitle: 'Настройки шрифта', fontFamily: 'Шрифт', fontSize: 'Размер (px)', bold: 'Жирный', fontColor: 'Цвет текста', close: 'Закрыть',
@@ -1113,11 +1116,11 @@
           cantClose: 'Если браузер не даёт закрыть окно, закройте вкладку вручную',
           edTitle: 'Редактор CSV', edSub: 'Загрузите скачанный пример CSV или начните с пустого листа и создайте свой набор, как в электронной таблице. Всё сохраняется только на этом устройстве.',
           edLoad: 'Загрузка', edLoadFile: 'Загрузить', edLoadCur: 'Импортировать текущий набор', edNew: 'Новый лист (очистить)',
-          edName: 'Название набора', edNamePh: 'Мой набор', edSave: 'Сохранение', edSaveCsv: 'Сохранить', edSaveMy: 'Сохранить в «Мои Voca Deck»', edApplyNow: 'Сразу начать заучивание с этим',
+          edName: 'Название набора', edNamePh: 'Мой набор', edSave: 'Сохранение', edSaveCsv: 'Сохранить', edSaveMy: 'Сохранить в «Мои Voca Deck»', edApplyNow: 'Сразу начать заучивание',
           edRows: 'Строк', edValid: 'Годных', edErrs: 'Ошибок', edErrMsg: 'Есть пустые ячейки — сохранить нельзя. Заполните красные ячейки или удалите эти строки.',
           edColA: 'Сторона A (слово)', edColB: 'Сторона B (значение)', edAddRow: 'Добавить строку', edAdd10: 'Добавить 10 строк', edDelRow: 'Удалить строку',
-          edHint: 'Tab/Enter — к следующей ячейке · поддерживается вставка нескольких строк из Excel · строки, пустые с обеих сторон, при сохранении игнорируются',
-          edOverwrite: 'Текущее содержимое листа будет перезаписано. Продолжить?', edLoadedFile: (n) => `В лист загружено строк: ${n}`, edLoadedCur: (n) => `Из открытого набора импортировано строк: ${n}`,
+          edHint: 'Перетаскивание или Shift+клик — выделение диапазона, клик по номеру строки — вся строка · Delete очищает, Ctrl+C/V — копирование и вставка (совместимо с Excel) · правый клик — добавить/удалить строки · строки, пустые с обеих сторон, при сохранении игнорируются',
+          edOverwrite: 'Текущее содержимое листа будет перезаписано. Продолжить?', edDelRowsConfirm: 'Удалить выбранные строки?', edLoadedFile: (n) => `В лист загружено строк: ${n}`, edLoadedCur: (n) => `Из открытого набора импортировано строк: ${n}`,
           myTitle: 'Мои Voca Deck', mySub: 'Сохранённые наборы хранятся только в этом браузере (localStorage). Для другого устройства скачайте CSV и загрузите его там.',
           myEmpty: 'Сохранённых наборов пока нет. Нажмите «Сохранить в „Мои Voca Deck“» в редакторе CSV выше.',
           myThName: 'Название', myThCount: 'Слов', myThDate: 'Сохранён', myThAct: 'Действия', myApplyBtn: 'Применить', myEditBtn: 'Изменить', myDelTitle: 'Удалить',
@@ -1137,7 +1140,7 @@
           volAll: 'Totaalvolume', volA: 'Volume kant A', volB: 'Volume kant B', rateALbl: 'Voorleessnelheid kant A', rateBLbl: 'Voorleessnelheid kant B', readLbl: 'Voorlezen', readBoth: 'Beide', voiceAuto: 'Automatisch (standaard)', voiceSel: 'Voorleesstem (taal / stem)',
           repeatLbl: 'Herhalingen', infLbl: 'Oneindig', repeatNote: 'Na het verstrijken van het ingestelde interval stopt het voorlezen automatisch',
           playSec: 'Afspelen', delayALbl: 'Interval kant A (s)', delayBLbl: 'Interval kant B (s)', delayBackHint: '0 = gelijk aan het interval ingesteld in het bedieningspaneel', wakeLbl: 'Scherm aan houden tijdens automatisch afspelen',
-          backupSec: 'CSV-back-up', backupNote: 'Bevat markeringen en voortgang. Gebruik bij overstap naar een ander apparaat.', exportBtn: 'Exporteren (JSON)', importBtn: 'Importeren', importDone: (n) => `Hersteld: ${n} items`, importFail: 'Back-upbestand kan niet worden gelezen',
+          backupSec: 'Voortgangsback-up (JSON)', backupNote: 'Bevat markeringen en voortgang. Gebruik bij overstap naar een ander apparaat.', exportBtn: 'Exporteren', importBtn: 'Importeren', importDone: (n) => `Hersteld: ${n} items`, importFail: 'Back-upbestand kan niet worden gelezen',
           fsSec: 'Scherm', fsBtn: 'Volledig scherm wisselen', fsUnsupported: 'Deze browser ondersteunt geen volledig scherm',
           resetSec: 'Resetten', resetAllBtn: 'Alle instellingen resetten', resetAllConfirm: 'Alle instellingen terugzetten naar standaard?', resetAllNote: 'Deck, markeringen en taal blijven behouden',
           fontTitle: 'Lettertype-instellingen', fontFamily: 'Lettertype', fontSize: 'Grootte (px)', bold: 'Vet', fontColor: 'Tekstkleur', close: 'Sluiten',
@@ -1160,11 +1163,11 @@
           cantClose: 'Als de browser het sluiten blokkeert, sluit het tabblad dan handmatig',
           edTitle: 'CSV-editor', edSub: 'Laad een gedownload voorbeeld-CSV of begin met een leeg blad en maak je eigen deck zoals in een spreadsheet. Alles wordt alleen op dit apparaat opgeslagen.',
           edLoad: 'Openen', edLoadFile: 'Laden', edLoadCur: 'Huidig deck importeren', edNew: 'Nieuw blad (leegmaken)',
-          edName: 'Decknaam', edNamePh: 'Mijn deck', edSave: 'Bewaren', edSaveCsv: 'Opslaan', edSaveMy: 'Opslaan in Mijn Voca Decks', edApplyNow: 'Meteen hiermee gaan stampen',
+          edName: 'Decknaam', edNamePh: 'Mijn deck', edSave: 'Bewaren', edSaveCsv: 'Opslaan', edSaveMy: 'Opslaan in Mijn Voca Decks', edApplyNow: 'Meteen gaan stampen',
           edRows: 'Rijen', edValid: 'Geldig', edErrs: 'Fouten', edErrMsg: 'Er zijn lege cellen — opslaan kan niet. Vul de rode cellen in of verwijder die rijen.',
           edColA: 'Kant A (woord)', edColB: 'Kant B (betekenis)', edAddRow: 'Rij toevoegen', edAdd10: '10 rijen toevoegen', edDelRow: 'Rij verwijderen',
-          edHint: 'Tab/Enter gaat naar de volgende cel · meerregelig plakken vanuit Excel ondersteund · rijen die aan beide kanten leeg zijn worden bij het opslaan genegeerd',
-          edOverwrite: 'De huidige inhoud van het blad wordt overschreven. Doorgaan?', edLoadedFile: (n) => `${n} rijen in het blad geladen`, edLoadedCur: (n) => `${n} rijen uit het geopende deck geïmporteerd`,
+          edHint: 'Sleep of Shift+klik om een bereik te selecteren; klik op het rijnummer voor de hele rij · Delete wist, Ctrl+C/V kopieert & plakt (Excel-compatibel) · rechtsklik om rijen toe te voegen/te verwijderen · rijen die aan beide kanten leeg zijn worden bij het opslaan genegeerd',
+          edOverwrite: 'De huidige inhoud van het blad wordt overschreven. Doorgaan?', edDelRowsConfirm: 'Geselecteerde rijen verwijderen?', edLoadedFile: (n) => `${n} rijen in het blad geladen`, edLoadedCur: (n) => `${n} rijen uit het geopende deck geïmporteerd`,
           myTitle: 'Mijn Voca Decks', mySub: 'Opgeslagen decks blijven alleen in deze browser (localStorage). Voor een ander apparaat: download de CSV en laad die daar.',
           myEmpty: 'Nog geen opgeslagen decks. Gebruik “Opslaan in Mijn Voca Decks” in de CSV-editor hierboven.',
           myThName: 'Naam', myThCount: 'Woorden', myThDate: 'Opgeslagen', myThAct: 'Acties', myApplyBtn: 'Toepassen', myEditBtn: 'Bewerken', myDelTitle: 'Verwijderen',
@@ -1700,89 +1703,107 @@
         a.click()
         URL.revokeObjectURL(url)
       }
-      /* 행 컴포넌트 — memo로 편집 중인 행만 리렌더 (대형 덱 성능) */
-      const EdRow = React.memo(function EdRow({ i, a, b, delTitle, onCell, onDel, onKey }) {
-        const filled = a.trim() || b.trim() // 완전 빈 행은 에러 아님(저장 시 무시)
-        return (
-          <tr>
-            <td className="no">{i + 1}</td>
-            <td className={'cell' + (filled && !a.trim() ? ' err' : '')}>
-              <input value={a} data-i={i} data-c="0" onChange={(e) => onCell(i, 0, e.target.value)} onKeyDown={onKey} aria-label={'A' + (i + 1)} />
-            </td>
-            <td className={'cell' + (filled && !b.trim() ? ' err' : '')}>
-              <input value={b} data-i={i} data-c="1" onChange={(e) => onCell(i, 1, e.target.value)} onKeyDown={onKey} aria-label={'B' + (i + 1)} />
-            </td>
-            <td className="del"><button title={delTitle} tabIndex={-1} onClick={() => onDel(i)}>✕</button></td>
-          </tr>
-        )
-      })
-
       function CsvEditor({ t, deck, onApplyRows, onSaveMy, seed, showToast }) {
         const BLANK = () => [['', ''], ['', ''], ['', ''], ['', ''], ['', '']]
-        const [rows, setRows] = useState(BLANK)
+        const [rows, setRows] = useState(BLANK)                 // 시트 미러 (검증·버튼 활성화용)
         const [name, setName] = useState('')
         const fileRef = useRef(null)
-        const tableRef = useRef(null)
+        const sheetRef = useRef(null)                           // jspreadsheet 컨테이너
+        const instRef = useRef(null)                            // jspreadsheet 인스턴스
         const dirtyRef = useRef(false)
+        const rafRef = useRef(0)
+        const tRef = useRef(t)
+        tRef.current = t
+
+        const norm = (v) => (v == null ? '' : String(v))
+        const getData = () => (instRef.current ? instRef.current.getData().map((r) => [norm(r[0]), norm(r[1])]) : [])
+
+        /* 반쪽만 채운 행의 빈 칸에 빨간 표시 (jspreadsheet TD에 클래스 토글) */
+        const markErrors = () => {
+          const root = sheetRef.current
+          if (!root || !instRef.current) return
+          root.querySelectorAll('td.ed-cell-err').forEach((td) => td.classList.remove('ed-cell-err'))
+          getData().forEach((r, y) => {
+            const a = r[0].trim(), b = r[1].trim()
+            if ((a || b) && (!a || !b)) {
+              const td = root.querySelector('td[data-x="' + (a ? 1 : 0) + '"][data-y="' + y + '"]')
+              if (td) td.classList.add('ed-cell-err')
+            }
+          })
+        }
+        /* 시트 → React 미러 동기화. 셀 단위 이벤트가 몰릴 수 있어 rAF로 1회 배칭 */
+        const sync = () => {
+          cancelAnimationFrame(rafRef.current)
+          rafRef.current = requestAnimationFrame(() => {
+            const d = getData()
+            setRows(d.length ? d : [['', '']])
+            markErrors()
+          })
+        }
+        const setSheet = (pairs) => {
+          instRef.current.setData(pairs.length ? pairs.map((r) => [r[0], r[1]]) : [['', '']])
+          sync()
+        }
+
+        /* 엑셀식 시트 생성 (마운트 1회) — 범위 선택·행 선택·Delete·Ctrl+C/V/Z 는 jspreadsheet 네이티브 */
+        useEffect(() => {
+          const colW = () => Math.max(120, Math.floor(((sheetRef.current.parentNode.clientWidth || 600) - 64) / 2))
+          const inst = jspreadsheet(sheetRef.current, {
+            data: BLANK(),
+            columns: [
+              { type: 'text', title: tRef.current.edColA, width: colW(), align: 'left', wordWrap: true },
+              { type: 'text', title: tRef.current.edColB, width: colW(), align: 'left', wordWrap: true },
+            ],
+            minDimensions: [2, 1],
+            tableOverflow: true, tableHeight: '420px',
+            columnSorting: false, parseFormulas: false,
+            /* 열은 2열 고정 — 열 추가/삭제/이름변경/드래그 전부 차단 */
+            allowInsertColumn: false, allowManualInsertColumn: false, allowDeleteColumn: false, allowRenameColumn: false, columnDrag: false,
+            /* 우클릭 메뉴 — 행 추가/삭제만 (기존 i18n 키 재사용, 열 메뉴 없음) */
+            contextMenu: (obj, x, y) => {
+              if (y == null) return []
+              const T = tRef.current
+              const sel = obj.selectedCell
+              const from = sel ? Math.min(+sel[1], +sel[3]) : +y
+              const cnt = sel ? Math.abs(+sel[3] - +sel[1]) + 1 : 1
+              return [
+                { title: T.edAddRow, onclick: () => obj.insertRow(1, from, 1) },
+                { title: T.edDelRow, onclick: () => {
+                  if (cnt >= obj.getData().length) obj.setData([['', '']])
+                  else obj.deleteRow(from, cnt)
+                } },
+              ]
+            },
+            text: { areYouSureToDeleteTheSelectedRows: tRef.current.edDelRowsConfirm },
+            onchange: sync, onpaste: sync, oninsertrow: sync, ondeleterow: sync, onundo: sync, onredo: sync,
+          })
+          instRef.current = inst
+          const onResize = () => { const w = colW(); inst.setWidth(0, w); inst.setWidth(1, w) }
+          window.addEventListener('resize', onResize)
+          return () => {
+            window.removeEventListener('resize', onResize)
+            try { jspreadsheet.destroy(sheetRef.current) } catch (e) {}
+          }
+        }, [])
+
+        /* 언어 변경 → 열 제목·확인창 문구 갱신 */
+        useEffect(() => {
+          const inst = instRef.current
+          if (!inst) return
+          inst.setHeader(0, t.edColA)
+          inst.setHeader(1, t.edColB)
+          if (inst.options && inst.options.text) inst.options.text.areYouSureToDeleteTheSelectedRows = t.edDelRowsConfirm
+        }, [t])
 
         /* 마이 보카덱 "✎ 편집기로" → 시트에 로드 (미저장 내용이 있으면 확인) */
         useEffect(() => {
           if (!seed) return
           if (dirtyRef.current && !window.confirm(t.edOverwrite)) return
-          setRows(seed.rows.map((r) => [r[0], r[1]]))
+          setSheet(seed.rows)
           setName(seed.name)
           const el = document.getElementById('editor')
           if (el) el.scrollIntoView({ behavior: 'smooth' })
         }, [seed]) // eslint 무관: t는 언어 변경 시 갱신되는 안내문일 뿐
-
-        const onCell = useCallback((i, c, v) => {
-          setRows((prev) => prev.map((r, j) => (j === i ? (c === 0 ? [v, r[1]] : [r[0], v]) : r)))
-        }, [])
-        const onDel = useCallback((i) => {
-          setRows((prev) => (prev.length > 1 ? prev.filter((_, j) => j !== i) : [['', '']]))
-        }, [])
-        const focusCell = useCallback((i, c) => {
-          const el = tableRef.current && tableRef.current.querySelector('input[data-i="' + i + '"][data-c="' + c + '"]')
-          if (el) el.focus()
-        }, [])
-        /* Enter = 다음 칸(B → 다음 행 A, 마지막 행이면 행 추가) — 엑셀식 입력 흐름 */
-        const onKey = useCallback((e) => {
-          if (e.key !== 'Enter') return
-          e.preventDefault()
-          const i = +e.target.dataset.i, c = +e.target.dataset.c
-          if (c === 0) { focusCell(i, 1); return }
-          setRows((prev) => (i === prev.length - 1 ? [...prev, ['', '']] : prev))
-          requestAnimationFrame(() => focusCell(i + 1, 0)) // 새 행 렌더 후 포커스
-        }, [focusCell])
-
-        /* 여러 줄/여러 칸 붙여넣기 — 엑셀·시트(탭 구분)와 CSV(쉼표 구분) 모두 지원.
-           현재 칸부터 아래로 채우고 모자라면 행 자동 추가. 한 줄짜리 일반 붙여넣기는 기본 동작. */
-        const onPaste = useCallback((e) => {
-          const tgt = e.target
-          if (!tgt.dataset || tgt.dataset.i === undefined) return
-          const text = e.clipboardData && e.clipboardData.getData('text')
-          if (!text || (text.indexOf('\n') < 0 && text.indexOf('\t') < 0)) return
-          e.preventDefault()
-          const i = +tgt.dataset.i, c = +tgt.dataset.c
-          const grid = text.replace(/\r/g, '').split('\n')
-            .filter((l) => l.trim() !== '')
-            .map((l) => {
-              if (l.indexOf('\t') >= 0) return l.split('\t')
-              const k = l.indexOf(',')
-              return k < 0 ? [l] : [l.slice(0, k), l.slice(k + 1)]
-            })
-          if (!grid.length) return
-          setRows((prev) => {
-            const next = prev.map((r) => [r[0], r[1]])
-            grid.forEach((cells, k) => {
-              const ri = i + k
-              while (next.length <= ri) next.push(['', ''])
-              if (cells.length >= 2) { next[ri][0] = String(cells[0]).trim(); next[ri][1] = String(cells[1]).trim() }
-              else next[ri][c] = String(cells[0]).trim() // 1열 데이터는 붙여넣은 열에만
-            })
-            return next
-          })
-        }, [])
 
         const errCnt = rows.reduce((n, r) => n + ((r[0].trim() || r[1].trim()) && (!r[0].trim() || !r[1].trim()) ? 1 : 0), 0)
         const validRows = rows.filter((r) => r[0].trim() && r[1].trim())
@@ -1800,7 +1821,7 @@
             const parsed = parseCSV(reader.result)
             if (!parsed.length) { showToast(t.noRows); return }
             if (!confirmOverwrite()) return
-            setRows(parsed.map((r) => [r.a, r.b]))
+            setSheet(parsed.map((r) => [r.a, r.b]))
             setName(f.name.replace(/\.csv$/i, ''))
             showToast(t.edLoadedFile(parsed.length))
           }
@@ -1809,12 +1830,21 @@
         const loadCurrent = () => {
           if (!deck.length) { showToast(t.noRows); return }
           if (!confirmOverwrite()) return
-          setRows(deck.map((c) => [c.a, c.b]))
+          setSheet(deck.map((c) => [c.a, c.b]))
           showToast(t.edLoadedCur(deck.length))
         }
         const newSheet = () => {
           if (!confirmOverwrite()) return
-          setRows(BLANK()); setName('')
+          setSheet(BLANK()); setName('')
+        }
+        const addRows = (n) => { const inst = instRef.current; if (inst) inst.insertRow(n) }
+        const delLastRow = () => {
+          const inst = instRef.current
+          if (!inst) return
+          const len = inst.getData().length
+          if (len > 1) inst.deleteRow(len - 1, 1)
+          else inst.setData([['', '']])
+          sync()
         }
         const trimmed = () => validRows.map((r) => [r[0].trim(), r[1].trim()])
         const saveCsv = () => { if (canSave) downloadCsvPairs(trimmed(), name.trim()) }
@@ -1845,17 +1875,12 @@
                 </div>
                 <div>
                   <div className="ed-sheet-wrap">
-                    <table className="ed-sheet" ref={tableRef} onPaste={onPaste}>
-                      <thead><tr><th className="no">#</th><th>{t.edColA}</th><th>{t.edColB}</th><th className="no"> </th></tr></thead>
-                      <tbody>
-                        {rows.map((r, i) => <EdRow key={i} i={i} a={r[0]} b={r[1]} delTitle={t.edDelRow} onCell={onCell} onDel={onDel} onKey={onKey} />)}
-                      </tbody>
-                    </table>
+                    <div className="ed-sheet" ref={sheetRef} />
                   </div>
                   <div className="ed-foot">
-                    <button className="apply-btn dl" onClick={() => setRows((p) => [...p, ['', '']])}>＋ {t.edAddRow}</button>
-                    <button className="apply-btn dl" onClick={() => setRows((p) => [...p, ...Array.from({ length: 10 }, () => ['', ''])])}>＋ {t.edAdd10}</button>
-                    <button className="apply-btn dl" onClick={() => setRows((p) => (p.length > 1 ? p.slice(0, -1) : [['', '']]))}>－ {t.edDelRow}</button>
+                    <button className="apply-btn dl" onClick={() => addRows(1)}>＋ {t.edAddRow}</button>
+                    <button className="apply-btn dl" onClick={() => addRows(10)}>＋ {t.edAdd10}</button>
+                    <button className="apply-btn dl" onClick={delLastRow}>－ {t.edDelRow}</button>
                     <span className="ed-hint">{t.edHint}</span>
                   </div>
                 </div>
