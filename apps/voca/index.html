@@ -552,15 +552,10 @@
        *  다국어(i18n) — 13개국어. UI 문자열 + 문서 타이틀/메타 설명.
        *  hreflang(?lang=)과 짝 맞춤. 하단 SEO 본문은 seo-i18n.js가 담당.
        * ========================================================= */
-      /* =========================================================
-       *  프리미엄 (평생 이용권 1회 결제) — launch=false 면 게이트 비활성(전부 무료, 기존과 동일)
-       *  출시 절차: Polar 상품 개설 → checkoutUrl 입력 → launch: true
-       *  개발 테스트: localStorage 'voca:premiumDev' = '1' 로 게이트 강제 활성
-       * ========================================================= */
       const PREMIUM = {
-        launch: false,
+        launch: true, // ***!
         price: '¥6,990',
-        checkoutUrl: '', // Polar 체크아웃 링크 (상품 개설 후 입력)
+        checkoutUrl: '',
         trialDays: 3,
       }
 
@@ -2074,7 +2069,7 @@
       }
 
       /* =========================================================
-       *  프리미엄 — 모달 + 잠금 섹션 (PREMIUM.launch=false 면 렌더되지 않음)
+       *  프리미엄 — 모달 + 잠금 섹션
        * ========================================================= */
       function PremiumModal({ t, onClose, isPremium, trialActive, trialLeft, trialUsed, onStartTrial, onBuy, onActivate }) {
         const [key, setKey] = useState('')
@@ -2157,9 +2152,9 @@
         const [deckLang, setDeckLang] = useLocalStorage('voca:deckLang', DEFAULT_DECK_LANG) // TTS 로케일 (샘플 적용 시 갱신)
         const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
         const [myDecks, setMyDecks] = useLocalStorage('voca:mydecks', [])                   // 마이 보카덱 [{id,name,rows,savedAt}]
-        const [prm, setPrm] = useLocalStorage('voca:premium', null)                         // { keyMask, token, activatedAt }
-        const [trial, setTrial] = useLocalStorage('voca:trial', null)                       // { start } — 3일 무료 체험 (1회)
-        const [showPrm, setShowPrm] = useState(false)                                       // 프리미엄 모달 표시
+        const [prm, setPrm] = useLocalStorage('voca:premium', null)
+        const [trial, setTrial] = useLocalStorage('voca:trial', null)
+        const [showPrm, setShowPrm] = useState(false)
         const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 보카덱 → 편집기 로드 요청
         const [showJump, setShowJump] = useState(false)                                     // "⬆ 암기장으로" 고정 버튼 표시 여부
         const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
@@ -2179,8 +2174,17 @@
         const [tts, setTts] = useState(false) // 세션 한정 — 새로고침/재방문 시 항상 해제, 켜는 클릭이 곧 TTS 잠금 해제 제스처
         const t = getT(lang)
 
-        /* ---- 프리미엄 상태 (launch 전에는 게이트 자체가 꺼져 전부 무료) ---- */
-        const gateOn = PREMIUM.launch || (() => { try { return localStorage.getItem('voca:premiumDev') === '1' } catch { return false } })()
+        /* ---- 프리미엄 상태 ---- */
+        const gateOn = (() => {
+          try {
+            if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+              const d = localStorage.getItem('voca:premiumDev')
+              if (d === '1') return true
+              if (d === '0') return false
+            }
+          } catch {}
+          return PREMIUM.launch
+        })()
         const isPremium = !!(prm && prm.token)
         const trialLeft = trial ? Math.ceil((trial.start + PREMIUM.trialDays * 864e5 - Date.now()) / 864e5) : 0
         const trialActive = !!trial && trialLeft > 0
@@ -2196,7 +2200,7 @@
           if (PREMIUM.checkoutUrl) window.open(PREMIUM.checkoutUrl, '_blank', 'noopener')
           else showToast(t.soon)
         }
-        /* 라이선스 키 활성화 — 검증 API(2차 구현 예정: Cloudflare Function → Polar) */
+        /* 라이선스 키 활성화 */
         const activateKey = (key) =>
           fetch('/api/license/activate', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },

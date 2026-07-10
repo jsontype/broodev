@@ -59,7 +59,11 @@
 - **무료 vs 프리미엄**: 내 CSV 열어서 암기(핵심 기능)는 무료. 샘플 암기장·CSV 편집기·마이 보카덱·광고 제거는 프리미엄. 잠금 시 샘플 게시판은 목록을 그대로 보여주되 적용/다운로드 버튼만 🔒로 바뀌고, 편집기·마이 보카덱은 자물쇠 커버로 대체된다.
 - **3일 무료 체험**: 프리미엄 모달에서 시작(1회 한정, `voca:trial`에 시작 시각 저장). 만료 시 다시 잠기고 체험 버튼은 사라진다. localStorage 삭제로 리셋 가능한 건 의도적 허용(서버 계정 없는 앱 철학).
 - **라이선스 키**: 구매 시 Polar가 키 발급 → 모달의 키 입력란 → `/api/license/activate`(Cloudflare Function, **2차 구현 예정**)가 Polar API로 검증 → 서명 토큰을 `voca:premium`에 저장. 키당 활성화 5대 제한(Polar 측 설정).
-- **개발 테스트**: 배포 전 게이트를 미리 보려면 브라우저 콘솔에서 `localStorage.setItem('voca:premiumDev', '1')` 후 새로고침 (`launch` 값과 무관하게 게이트 강제 ON. 해제는 키 삭제).
+- **개발 테스트** (localhost 전용, 운영 도메인에서는 무시됨): 브라우저 콘솔에서 `launch` 값과 무관하게 게이트를 강제 토글할 수 있다. 새로고침 필요.
+  - 강제 ON: `localStorage.setItem('voca:premiumDev', '1')`
+  - 강제 OFF: `localStorage.setItem('voca:premiumDev', '0')`
+  - 원복(launch 값 따름): `localStorage.removeItem('voca:premiumDev')`
+  - HTML 소스에 노출되는 안내 주석은 두지 않는다 — 운영 문서는 이 README에만 적는다.
 - 관련 i18n 키는 `prm*` 접두사(13언어 · 모달·칩·잠금 문구 전부).
 
 ## 암기장 파일 (CSV)
