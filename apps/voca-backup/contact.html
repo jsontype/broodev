@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>문의 &amp; 버그 신고 | broodev</title>
+    <meta name="description" content="broodev 앱 문의 및 버그 신고 — 서비스 이용 중 발견한 버그나 개선 제안을 운영자에게 직접 보낼 수 있습니다." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://voca.broodev.com/contact.html" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <style>
+      :root { --bg:#05080a; --panel:#0a1014; --neon:#00ff9c; --text:#c8ffe6; --dim:#8fb3a6; --warn:#ffe14d; }
+      * { box-sizing: border-box; }
+      body { margin:0; background:var(--bg); color:var(--text); font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace; line-height:1.8; }
+      .wrap { max-width:640px; margin:0 auto; padding:48px 20px 96px; }
+      a { color:var(--neon); }
+      h1 { color:var(--neon); font-size:26px; margin:0 0 6px; }
+      p { color:var(--dim); font-size:14px; }
+      .muted { color:#5f776e; font-size:12px; }
+      .nav { display:flex; align-items:center; flex-wrap:wrap; gap:4px 14px; margin-bottom:28px; font-size:13px; }
+      .nav a { text-decoration:none; }
+      .nav .sp { flex:1; }
+      .lang-pick { font-size:13px; font-family:inherit; color:var(--text); background:#060b0e; border:1px solid #1e3a30; padding:4px 6px; }
+      hr { border:0; border-top:1px solid rgba(0,255,156,.18); margin:36px 0; }
+      footer { color:#5f776e; font-size:12px; text-align:center; }
+
+      form { background:var(--panel); border:1px solid rgba(0,255,156,.18); padding:22px 18px; margin-top:18px; }
+      label { display:block; font-size:13px; color:var(--text); margin:14px 0 5px; }
+      label:first-child { margin-top:0; }
+      .req { color:var(--warn); }
+      input, select, textarea {
+        width:100%; padding:10px 11px; font-size:16px; /* 16px — iOS 포커스 줌 방지 */
+        font-family:inherit; color:var(--text); background:#060b0e;
+        border:1px solid #1e3a30; outline:none;
+      }
+      input:focus, select:focus, textarea:focus { border-color:var(--neon); }
+      textarea { min-height:160px; resize:vertical; }
+      button[type="submit"] {
+        margin-top:20px; width:100%; padding:13px; font-size:15px; font-weight:700; font-family:inherit;
+        color:#04140d; background:var(--neon); border:0; cursor:pointer; touch-action:manipulation;
+      }
+      button[type="submit"]:disabled { opacity:.5; cursor:default; }
+      .status { margin-top:14px; font-size:13px; min-height:1.4em; }
+      .status.ok { color:var(--neon); }
+      .status.err { color:#ff8080; }
+
+      .shot-hint { margin:6px 0 0; font-size:12px; color:var(--dim); }
+      .shot-btn {
+        margin-top:8px; padding:9px 14px; font-size:13px; font-family:inherit;
+        color:var(--text); background:#060b0e; border:1px dashed #1e3a30; cursor:pointer; touch-action:manipulation;
+      }
+      .shot-btn:hover { border-color:var(--neon); color:var(--neon); }
+      .shots { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+      .shot { position:relative; width:84px; height:84px; border:1px solid #1e3a30; }
+      .shot img { width:100%; height:100%; object-fit:cover; display:block; }
+      .shot .del {
+        position:absolute; top:-8px; right:-8px; width:22px; height:22px; line-height:20px; text-align:center;
+        font-size:13px; color:#fff; background:#cc2222; border:1px solid #881111; border-radius:50%; cursor:pointer; padding:0;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <nav class="nav">
+        <a id="n-back" href="/">← 홈</a><a id="n-privacy" href="/privacy.html">개인정보처리방침</a><a id="n-terms" href="/terms.html">이용약관</a>
+        <span class="sp"></span>
+        <select class="lang-pick" id="n-lang" aria-label="Language"></select>
+      </nav>
+
+      <h1 id="c-h1">📮 문의 &amp; 버그 신고</h1>
+      <p id="c-intro">이용 중 발견한 버그, 개선 제안, 기타 문의를 남겨주세요. 내용은 운영자 메일로 바로 전달됩니다.</p>
+      <p class="muted" id="c-note">회신이 필요하면 이메일 주소를 함께 남겨주세요. 남긴 내용 외에 어떤 정보도 수집하지 않습니다.</p>
+
+      <form id="contact-form">
+        <label for="f-kind" id="l-kind">구분</label>
+        <select id="f-kind" name="kind">
+          <option value="버그 신고" id="o-bug">🐞 버그 신고</option>
+          <option value="개선 제안" id="o-idea">💡 개선 제안</option>
+          <option value="일반 문의" id="o-etc">💬 일반 문의</option>
+        </select>
+
+        <label for="f-name" id="l-name">이름 / 닉네임</label>
+        <input id="f-name" name="name" type="text" maxlength="50" />
+
+        <label for="f-email" id="l-email">회신 받을 이메일</label>
+        <input id="f-email" name="email" type="email" maxlength="100" />
+
+        <label for="f-msg" id="l-msg">내용 <span class="req">*</span></label>
+        <textarea id="f-msg" name="message" required maxlength="3000"></textarea>
+        <p class="shot-hint" id="c-shot-hint"></p>
+        <button type="button" class="shot-btn" id="f-shot-btn">🖼 스크린샷 첨부</button>
+        <input id="f-shot-file" type="file" accept="image/*" multiple style="display:none" />
+        <div class="shots" id="f-shots"></div>
+
+        <button type="submit" id="f-send">보내기</button>
+        <p class="status" id="f-status"></p>
+      </form>
+
+      <hr />
+      <footer>© 2026 broodev · 운영 Y-Systems · <a href="https://broodev.com/">broodev.com</a></footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      /* ── EmailJS 설정 ───────────────────────────────────────── */
+      var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
+      var EMAILJS_SERVICE_ID = 'broodev_service';
+      var EMAILJS_TEMPLATE_ID = 'broodev_template';
+      var FALLBACK_MAIL = 'jsontyper@gmail.com';
+
+      /* ── 출발 앱 (?app=) — 돌아가기 링크 + 메일 제목 태그 ───── */
+      var APPS = {
+        voca: 'https://voca.broodev.com/', 'voca-tutorial': 'https://voca-tutorial.broodev.com/', dev: 'https://dev.broodev.com/',
+        btc: 'https://btc.broodev.com/', eth: 'https://eth.broodev.com/', xrp: 'https://xrp.broodev.com/',
+        xlm: 'https://xlm.broodev.com/', shib: 'https://shib.broodev.com/', sand: 'https://sand.broodev.com/',
+        pepe: 'https://pepe.broodev.com/', mana: 'https://mana.broodev.com/', ltc: 'https://ltc.broodev.com/',
+        link: 'https://link.broodev.com/', grt: 'https://grt.broodev.com/', dot: 'https://dot.broodev.com/',
+        doge: 'https://doge.broodev.com/', bch: 'https://bch.broodev.com/', avax: 'https://avax.broodev.com/',
+      };
+      var qs = new URLSearchParams(location.search);
+      var APP = APPS[qs.get('app')] ? qs.get('app') : 'voca';
+
+      /* ── i18n (13언어) — 값(value)은 한국어 고정: 운영자 메일용 ── */
+      var LANGS = [
+        ['en', 'English'], ['ja', '日本語'], ['ko', '한국어'], ['zh', '简体中文'], ['zh-Hant', '繁體中文'],
+        ['th', 'ไทย'], ['es', 'Español'], ['fr', 'Français'], ['de', 'Deutsch'], ['it', 'Italiano'],
+        ['pt', 'Português'], ['ru', 'Русский'], ['nl', 'Nederlands'],
+      ];
+      var C = {
+        ko: {
+          doc: '문의 & 버그 신고 | broodev', h1: '📮 문의 & 버그 신고',
+          intro: '이용 중 발견한 버그, 개선 제안, 기타 문의를 남겨주세요. 내용은 운영자 메일로 바로 전달됩니다.',
+          note: '회신이 필요하면 이메일 주소를 함께 남겨주세요. 남긴 내용 외에 어떤 정보도 수집하지 않습니다.',
+          back: '← 앱으로 돌아가기', privacy: '개인정보처리방침', terms: '이용약관',
+          kind: '구분', bug: '🐞 버그 신고', idea: '💡 개선 제안', etc: '💬 일반 문의',
+          name: '이름 / 닉네임', namePh: '(선택)', email: '회신 받을 이메일', emailPh: '(선택) 회신이 필요할 때만',
+          msg: '내용', msgPh: '어떤 기기·브라우저에서 무엇을 했을 때 어떤 문제가 생겼는지 적어주시면 큰 도움이 됩니다.',
+          shotHint: '🖼 스크린샷을 붙여넣기(Ctrl+V)하거나 버튼으로 첨부할 수 있어요(최대 3장). 문제 화면을 함께 보내주시면 훨씬 확실하게 고칠 수 있습니다.',
+          shotBtn: '🖼 스크린샷 첨부', send: '보내기', sending: '전송 중…',
+          sent: '✔ 전송되었습니다. 소중한 의견 감사합니다!',
+          sendFail: '✖ 전송에 실패했습니다. 잠시 후 다시 시도하거나 이 주소로 직접 보내주세요: ',
+          uploading: '스크린샷 업로드 중…', uploadFail: '✖ 스크린샷 업로드에 실패했습니다. 텍스트만으로도 보내실 수 있어요.',
+          shotAlt: '첨부 스크린샷', shotDel: '스크린샷 삭제', shotWord: '스크린샷', noShot: '(스크린샷 없음)',
+        },
+        en: {
+          doc: 'Contact & Bug Report | broodev', h1: '📮 Contact & Bug Report',
+          intro: 'Found a bug, have a suggestion or a question? Leave it here — it goes straight to the operator’s inbox.',
+          note: 'Add your email address if you need a reply. Nothing is collected beyond what you write here.',
+          back: '← Back to the app', privacy: 'Privacy Policy', terms: 'Terms of Service',
+          kind: 'Type', bug: '🐞 Bug report', idea: '💡 Suggestion', etc: '💬 General inquiry',
+          name: 'Name / nickname', namePh: '(optional)', email: 'Reply-to email', emailPh: '(optional) only if you need a reply',
+          msg: 'Message', msgPh: 'Tell us which device/browser, what you did and what went wrong — it helps a lot.',
+          shotHint: '🖼 Paste screenshots (Ctrl+V) or attach them with the button (up to 3). Sending the problem screen makes the fix much more certain.',
+          shotBtn: '🖼 Attach screenshot', send: 'Send', sending: 'Sending…',
+          sent: '✔ Sent. Thank you for your feedback!',
+          sendFail: '✖ Sending failed. Try again later or email directly: ',
+          uploading: 'Uploading screenshot…', uploadFail: '✖ Screenshot upload failed. You can still send text only.',
+          shotAlt: 'Attached screenshot', shotDel: 'Remove screenshot', shotWord: 'Screenshot', noShot: '(no screenshots)',
+        },
+        ja: {
+          doc: 'お問い合わせ & バグ報告 | broodev', h1: '📮 お問い合わせ & バグ報告',
+          intro: 'ご利用中に見つけたバグ、改善のご提案、その他のお問い合わせをお寄せください。内容は運営者のメールに直接届きます。',
+          note: '返信が必要な場合はメールアドレスもご記入ください。ご記入内容以外の情報は一切収集しません。',
+          back: '← アプリへ戻る', privacy: 'プライバシーポリシー', terms: '利用規約',
+          kind: '種別', bug: '🐞 バグ報告', idea: '💡 改善提案', etc: '💬 一般的なお問い合わせ',
+          name: 'お名前 / ニックネーム', namePh: '(任意)', email: '返信用メールアドレス', emailPh: '(任意) 返信が必要な場合のみ',
+          msg: '内容', msgPh: 'どの端末・ブラウザで、何をしたら、どんな問題が起きたかを書いていただけると助かります。',
+          shotHint: '🖼 スクリーンショットは貼り付け(Ctrl+V)またはボタンで添付できます(最大3枚)。問題の画面を一緒に送っていただくと、より確実に修正できます。',
+          shotBtn: '🖼 スクリーンショット添付', send: '送信', sending: '送信中…',
+          sent: '✔ 送信しました。貴重なご意見ありがとうございます！',
+          sendFail: '✖ 送信に失敗しました。しばらくしてから再試行するか、こちらへ直接お送りください: ',
+          uploading: 'スクリーンショットをアップロード中…', uploadFail: '✖ スクリーンショットのアップロードに失敗しました。テキストのみでも送信できます。',
+          shotAlt: '添付スクリーンショット', shotDel: 'スクリーンショットを削除', shotWord: 'スクリーンショット', noShot: '(スクリーンショットなし)',
+        },
+        zh: {
+          doc: '联系与错误报告 | broodev', h1: '📮 联系与错误报告',
+          intro: '使用中发现的错误、改进建议或其他问题，请在此留言，内容会直接送达运营者邮箱。',
+          note: '如需回复请留下邮箱地址。除您填写的内容外，不收集任何信息。',
+          back: '← 返回应用', privacy: '隐私政策', terms: '服务条款',
+          kind: '类型', bug: '🐞 错误报告', idea: '💡 改进建议', etc: '💬 一般咨询',
+          name: '姓名 / 昵称', namePh: '(可选)', email: '回复邮箱', emailPh: '(可选) 仅在需要回复时填写',
+          msg: '内容', msgPh: '请写明设备·浏览器、操作步骤以及出现的问题，这对我们帮助很大。',
+          shotHint: '🖼 可粘贴截图(Ctrl+V)或用按钮附加(最多3张)。附上问题画面能让修复更有把握。',
+          shotBtn: '🖼 附加截图', send: '发送', sending: '发送中…',
+          sent: '✔ 已发送。感谢您的宝贵意见！',
+          sendFail: '✖ 发送失败。请稍后重试，或直接发送至: ',
+          uploading: '截图上传中…', uploadFail: '✖ 截图上传失败。您仍可只发送文字。',
+          shotAlt: '附加的截图', shotDel: '删除截图', shotWord: '截图', noShot: '(无截图)',
+        },
+        'zh-Hant': {
+          doc: '聯絡與錯誤回報 | broodev', h1: '📮 聯絡與錯誤回報',
+          intro: '使用中發現的錯誤、改進建議或其他問題，請在此留言，內容會直接送達營運者信箱。',
+          note: '如需回覆請留下信箱地址。除您填寫的內容外，不蒐集任何資訊。',
+          back: '← 返回應用程式', privacy: '隱私權政策', terms: '服務條款',
+          kind: '類型', bug: '🐞 錯誤回報', idea: '💡 改進建議', etc: '💬 一般諮詢',
+          name: '姓名 / 暱稱', namePh: '(選填)', email: '回覆信箱', emailPh: '(選填) 僅在需要回覆時填寫',
+          msg: '內容', msgPh: '請寫明裝置·瀏覽器、操作步驟以及出現的問題，這對我們幫助很大。',
+          shotHint: '🖼 可貼上截圖(Ctrl+V)或用按鈕附加(最多3張)。附上問題畫面能讓修復更有把握。',
+          shotBtn: '🖼 附加截圖', send: '送出', sending: '傳送中…',
+          sent: '✔ 已送出。感謝您的寶貴意見！',
+          sendFail: '✖ 傳送失敗。請稍後再試，或直接寄至: ',
+          uploading: '截圖上傳中…', uploadFail: '✖ 截圖上傳失敗。您仍可只傳送文字。',
+          shotAlt: '附加的截圖', shotDel: '刪除截圖', shotWord: '截圖', noShot: '(無截圖)',
+        },
+        th: {
+          doc: 'ติดต่อและรายงานบั๊ก | broodev', h1: '📮 ติดต่อและรายงานบั๊ก',
+          intro: 'พบบั๊ก มีข้อเสนอแนะ หรือคำถามอื่น ๆ ฝากไว้ที่นี่ได้เลย เนื้อหาจะส่งตรงถึงอีเมลของผู้ดูแล',
+          note: 'หากต้องการคำตอบกลับ กรุณาระบุอีเมลด้วย เราไม่เก็บข้อมูลใดนอกเหนือจากที่คุณเขียน',
+          back: '← กลับไปที่แอป', privacy: 'นโยบายความเป็นส่วนตัว', terms: 'ข้อกำหนดการใช้งาน',
+          kind: 'ประเภท', bug: '🐞 รายงานบั๊ก', idea: '💡 ข้อเสนอแนะ', etc: '💬 สอบถามทั่วไป',
+          name: 'ชื่อ / ชื่อเล่น', namePh: '(ไม่บังคับ)', email: 'อีเมลสำหรับตอบกลับ', emailPh: '(ไม่บังคับ) เฉพาะเมื่อต้องการคำตอบ',
+          msg: 'รายละเอียด', msgPh: 'โปรดระบุอุปกรณ์·เบราว์เซอร์ สิ่งที่ทำ และปัญหาที่เกิดขึ้น จะช่วยได้มาก',
+          shotHint: '🖼 วางภาพหน้าจอ (Ctrl+V) หรือแนบด้วยปุ่ม (สูงสุด 3 ภาพ) การส่งภาพหน้าจอปัญหามาด้วยช่วยให้แก้ไขได้แม่นยำขึ้นมาก',
+          shotBtn: '🖼 แนบภาพหน้าจอ', send: 'ส่ง', sending: 'กำลังส่ง…',
+          sent: '✔ ส่งแล้ว ขอบคุณสำหรับความคิดเห็น!',
+          sendFail: '✖ ส่งไม่สำเร็จ ลองใหม่ภายหลังหรือส่งตรงไปที่: ',
+          uploading: 'กำลังอัปโหลดภาพหน้าจอ…', uploadFail: '✖ อัปโหลดภาพหน้าจอไม่สำเร็จ ยังส่งเฉพาะข้อความได้',
+          shotAlt: 'ภาพหน้าจอที่แนบ', shotDel: 'ลบภาพหน้าจอ', shotWord: 'ภาพหน้าจอ', noShot: '(ไม่มีภาพหน้าจอ)',
+        },
+        es: {
+          doc: 'Contacto e informe de errores | broodev', h1: '📮 Contacto e informe de errores',
+          intro: '¿Encontraste un error, tienes una sugerencia o una pregunta? Déjala aquí: llega directamente al correo del operador.',
+          note: 'Añade tu correo si necesitas respuesta. No se recopila nada más allá de lo que escribas.',
+          back: '← Volver a la app', privacy: 'Política de privacidad', terms: 'Términos del servicio',
+          kind: 'Tipo', bug: '🐞 Informe de error', idea: '💡 Sugerencia', etc: '💬 Consulta general',
+          name: 'Nombre / apodo', namePh: '(opcional)', email: 'Correo de respuesta', emailPh: '(opcional) solo si necesitas respuesta',
+          msg: 'Mensaje', msgPh: 'Indica dispositivo/navegador, qué hiciste y qué salió mal; ayuda mucho.',
+          shotHint: '🖼 Pega capturas (Ctrl+V) o adjúntalas con el botón (hasta 3). Enviar la pantalla del problema hace la corrección mucho más segura.',
+          shotBtn: '🖼 Adjuntar captura', send: 'Enviar', sending: 'Enviando…',
+          sent: '✔ Enviado. ¡Gracias por tu opinión!',
+          sendFail: '✖ Error al enviar. Inténtalo más tarde o escribe directamente a: ',
+          uploading: 'Subiendo captura…', uploadFail: '✖ No se pudo subir la captura. Puedes enviar solo texto.',
+          shotAlt: 'Captura adjunta', shotDel: 'Eliminar captura', shotWord: 'Captura', noShot: '(sin capturas)',
+        },
+        fr: {
+          doc: 'Contact & signalement de bug | broodev', h1: '📮 Contact & signalement de bug',
+          intro: 'Un bug, une suggestion ou une question ? Laissez votre message ici : il arrive directement dans la boîte mail de l’opérateur.',
+          note: 'Ajoutez votre adresse e-mail si vous attendez une réponse. Rien d’autre que ce que vous écrivez n’est collecté.',
+          back: '← Retour à l’appli', privacy: 'Politique de confidentialité', terms: 'Conditions d’utilisation',
+          kind: 'Type', bug: '🐞 Signalement de bug', idea: '💡 Suggestion', etc: '💬 Question générale',
+          name: 'Nom / pseudo', namePh: '(facultatif)', email: 'E-mail de réponse', emailPh: '(facultatif) seulement si vous attendez une réponse',
+          msg: 'Message', msgPh: 'Indiquez l’appareil/navigateur, la manipulation et le problème rencontré — cela aide beaucoup.',
+          shotHint: '🖼 Collez des captures (Ctrl+V) ou joignez-les avec le bouton (3 max). Envoyer l’écran du problème rend la correction bien plus sûre.',
+          shotBtn: '🖼 Joindre une capture', send: 'Envoyer', sending: 'Envoi…',
+          sent: '✔ Envoyé. Merci pour votre retour !',
+          sendFail: '✖ Échec de l’envoi. Réessayez plus tard ou écrivez directement à : ',
+          uploading: 'Envoi de la capture…', uploadFail: '✖ Échec de l’envoi de la capture. Vous pouvez envoyer le texte seul.',
+          shotAlt: 'Capture jointe', shotDel: 'Supprimer la capture', shotWord: 'Capture', noShot: '(aucune capture)',
+        },
+        de: {
+          doc: 'Kontakt & Fehlerbericht | broodev', h1: '📮 Kontakt & Fehlerbericht',
+          intro: 'Einen Fehler gefunden, einen Vorschlag oder eine Frage? Hinterlassen Sie Ihre Nachricht hier – sie geht direkt an das Postfach des Betreibers.',
+          note: 'Geben Sie Ihre E-Mail-Adresse an, wenn Sie eine Antwort wünschen. Außer Ihrer Eingabe wird nichts erfasst.',
+          back: '← Zurück zur App', privacy: 'Datenschutzerklärung', terms: 'Nutzungsbedingungen',
+          kind: 'Art', bug: '🐞 Fehlerbericht', idea: '💡 Vorschlag', etc: '💬 Allgemeine Anfrage',
+          name: 'Name / Spitzname', namePh: '(optional)', email: 'Antwort-E-Mail', emailPh: '(optional) nur wenn Sie eine Antwort brauchen',
+          msg: 'Nachricht', msgPh: 'Gerät/Browser, Ihre Aktion und das Problem angeben – das hilft sehr.',
+          shotHint: '🖼 Screenshots einfügen (Strg+V) oder per Button anhängen (max. 3). Mit dem Problembildschirm lässt sich der Fehler viel sicherer beheben.',
+          shotBtn: '🖼 Screenshot anhängen', send: 'Senden', sending: 'Wird gesendet…',
+          sent: '✔ Gesendet. Vielen Dank für Ihr Feedback!',
+          sendFail: '✖ Senden fehlgeschlagen. Versuchen Sie es später erneut oder schreiben Sie direkt an: ',
+          uploading: 'Screenshot wird hochgeladen…', uploadFail: '✖ Screenshot-Upload fehlgeschlagen. Sie können auch nur Text senden.',
+          shotAlt: 'Angehängter Screenshot', shotDel: 'Screenshot entfernen', shotWord: 'Screenshot', noShot: '(keine Screenshots)',
+        },
+        it: {
+          doc: 'Contatto e segnalazione bug | broodev', h1: '📮 Contatto e segnalazione bug',
+          intro: 'Hai trovato un bug, hai un suggerimento o una domanda? Lascialo qui: arriva direttamente alla casella dell’operatore.',
+          note: 'Aggiungi la tua e-mail se ti serve una risposta. Non viene raccolto nulla oltre a ciò che scrivi.',
+          back: '← Torna all’app', privacy: 'Informativa sulla privacy', terms: 'Termini di servizio',
+          kind: 'Tipo', bug: '🐞 Segnalazione bug', idea: '💡 Suggerimento', etc: '💬 Richiesta generale',
+          name: 'Nome / nickname', namePh: '(facoltativo)', email: 'E-mail per la risposta', emailPh: '(facoltativo) solo se serve una risposta',
+          msg: 'Messaggio', msgPh: 'Indica dispositivo/browser, cosa hai fatto e cosa è andato storto: aiuta molto.',
+          shotHint: '🖼 Incolla screenshot (Ctrl+V) o allegali con il pulsante (max 3). Inviare la schermata del problema rende la correzione molto più sicura.',
+          shotBtn: '🖼 Allega screenshot', send: 'Invia', sending: 'Invio…',
+          sent: '✔ Inviato. Grazie per il tuo contributo!',
+          sendFail: '✖ Invio non riuscito. Riprova più tardi o scrivi direttamente a: ',
+          uploading: 'Caricamento screenshot…', uploadFail: '✖ Caricamento screenshot non riuscito. Puoi inviare solo il testo.',
+          shotAlt: 'Screenshot allegato', shotDel: 'Rimuovi screenshot', shotWord: 'Screenshot', noShot: '(nessuno screenshot)',
+        },
+        pt: {
+          doc: 'Contacto e relatório de erros | broodev', h1: '📮 Contacto e relatório de erros',
+          intro: 'Encontrou um erro, tem uma sugestão ou uma pergunta? Deixe aqui: vai diretamente para o e-mail do operador.',
+          note: 'Adicione o seu e-mail se precisar de resposta. Nada é recolhido além do que escrever.',
+          back: '← Voltar à app', privacy: 'Política de privacidade', terms: 'Termos de serviço',
+          kind: 'Tipo', bug: '🐞 Relatório de erro', idea: '💡 Sugestão', etc: '💬 Questão geral',
+          name: 'Nome / alcunha', namePh: '(opcional)', email: 'E-mail para resposta', emailPh: '(opcional) apenas se precisar de resposta',
+          msg: 'Mensagem', msgPh: 'Indique o dispositivo/navegador, o que fez e o que correu mal — ajuda muito.',
+          shotHint: '🖼 Cole capturas (Ctrl+V) ou anexe-as com o botão (até 3). Enviar o ecrã do problema torna a correção muito mais certa.',
+          shotBtn: '🖼 Anexar captura', send: 'Enviar', sending: 'A enviar…',
+          sent: '✔ Enviado. Obrigado pela sua opinião!',
+          sendFail: '✖ Falha no envio. Tente mais tarde ou escreva diretamente para: ',
+          uploading: 'A carregar captura…', uploadFail: '✖ Falha ao carregar a captura. Pode enviar apenas o texto.',
+          shotAlt: 'Captura anexada', shotDel: 'Remover captura', shotWord: 'Captura', noShot: '(sem capturas)',
+        },
+        ru: {
+          doc: 'Связь и сообщения об ошибках | broodev', h1: '📮 Связь и сообщения об ошибках',
+          intro: 'Нашли ошибку, есть предложение или вопрос? Оставьте сообщение здесь — оно попадёт прямо на почту оператора.',
+          note: 'Укажите e-mail, если нужен ответ. Кроме написанного вами, ничего не собирается.',
+          back: '← Назад в приложение', privacy: 'Политика конфиденциальности', terms: 'Условия использования',
+          kind: 'Тип', bug: '🐞 Сообщение об ошибке', idea: '💡 Предложение', etc: '💬 Общий вопрос',
+          name: 'Имя / ник', namePh: '(необязательно)', email: 'E-mail для ответа', emailPh: '(необязательно) только если нужен ответ',
+          msg: 'Сообщение', msgPh: 'Укажите устройство/браузер, что вы делали и что пошло не так — это очень помогает.',
+          shotHint: '🖼 Вставьте скриншоты (Ctrl+V) или прикрепите кнопкой (до 3). С экраном проблемы исправление гораздо надёжнее.',
+          shotBtn: '🖼 Прикрепить скриншот', send: 'Отправить', sending: 'Отправка…',
+          sent: '✔ Отправлено. Спасибо за отзыв!',
+          sendFail: '✖ Не удалось отправить. Повторите позже или напишите напрямую: ',
+          uploading: 'Загрузка скриншота…', uploadFail: '✖ Не удалось загрузить скриншот. Можно отправить только текст.',
+          shotAlt: 'Прикреплённый скриншот', shotDel: 'Удалить скриншот', shotWord: 'Скриншот', noShot: '(без скриншотов)',
+        },
+        nl: {
+          doc: 'Contact & bugmelding | broodev', h1: '📮 Contact & bugmelding',
+          intro: 'Een bug gevonden, een suggestie of een vraag? Laat het hier achter — het gaat rechtstreeks naar de mailbox van de beheerder.',
+          note: 'Voeg je e-mailadres toe als je antwoord wilt. Er wordt niets verzameld buiten wat je schrijft.',
+          back: '← Terug naar de app', privacy: 'Privacybeleid', terms: 'Gebruiksvoorwaarden',
+          kind: 'Type', bug: '🐞 Bugmelding', idea: '💡 Suggestie', etc: '💬 Algemene vraag',
+          name: 'Naam / bijnaam', namePh: '(optioneel)', email: 'E-mail voor antwoord', emailPh: '(optioneel) alleen als je antwoord wilt',
+          msg: 'Bericht', msgPh: 'Vermeld apparaat/browser, wat je deed en wat er misging — dat helpt enorm.',
+          shotHint: '🖼 Plak screenshots (Ctrl+V) of voeg ze toe met de knop (max. 3). Met het probleemscherm erbij is de fix veel zekerder.',
+          shotBtn: '🖼 Screenshot bijvoegen', send: 'Versturen', sending: 'Versturen…',
+          sent: '✔ Verstuurd. Bedankt voor je feedback!',
+          sendFail: '✖ Versturen mislukt. Probeer het later opnieuw of mail rechtstreeks naar: ',
+          uploading: 'Screenshot uploaden…', uploadFail: '✖ Screenshot uploaden mislukt. Je kunt ook alleen tekst versturen.',
+          shotAlt: 'Bijgevoegde screenshot', shotDel: 'Screenshot verwijderen', shotWord: 'Screenshot', noShot: '(geen screenshots)',
+        },
+      };
+
+      function detectLang() {
+        var q = qs.get('lang');
+        if (q && C[q]) return q;
+        try {
+          var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+          for (var i = 0; i < cands.length; i++) {
+            var lc = String(cands[i] || '').toLowerCase(), base = lc.split('-')[0];
+            if (base === 'zh') return /hant|tw|hk|mo/.test(lc) ? 'zh-Hant' : 'zh';
+            if (C[base]) return base;
+          }
+        } catch (e) {}
+        return 'en';
+      }
+
+      var LANG = detectLang();
+      var t = C[LANG];
+
+      var langSel = document.getElementById('n-lang');
+      LANGS.forEach(function (l) {
+        var o = document.createElement('option');
+        o.value = l[0]; o.textContent = l[1];
+        langSel.appendChild(o);
+      });
+      langSel.value = LANG;
+      langSel.addEventListener('change', function () { applyLang(langSel.value); });
+
+      function applyLang(code) {
+        LANG = code; t = C[code];
+        document.documentElement.lang = code;
+        document.title = t.doc;
+        var back = document.getElementById('n-back');
+        back.textContent = t.back;
+        back.href = APPS[APP];
+        document.getElementById('n-privacy').textContent = t.privacy;
+        document.getElementById('n-terms').textContent = t.terms;
+        document.getElementById('c-h1').textContent = t.h1;
+        document.getElementById('c-intro').textContent = t.intro;
+        document.getElementById('c-note').textContent = t.note;
+        document.getElementById('l-kind').textContent = t.kind;
+        document.getElementById('o-bug').textContent = t.bug;
+        document.getElementById('o-idea').textContent = t.idea;
+        document.getElementById('o-etc').textContent = t.etc;
+        document.getElementById('l-name').textContent = t.name;
+        document.getElementById('f-name').placeholder = t.namePh;
+        document.getElementById('l-email').textContent = t.email;
+        document.getElementById('f-email').placeholder = t.emailPh;
+        document.getElementById('l-msg').innerHTML = '';
+        document.getElementById('l-msg').append(t.msg + ' ');
+        var star = document.createElement('span'); star.className = 'req'; star.textContent = '*';
+        document.getElementById('l-msg').appendChild(star);
+        document.getElementById('f-msg').placeholder = t.msgPh;
+        document.getElementById('c-shot-hint').textContent = t.shotHint;
+        document.getElementById('f-shot-btn').textContent = t.shotBtn;
+        document.getElementById('f-send').textContent = t.send;
+      }
+      applyLang(LANG);
+
+      var configured = EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs;
+      if (configured) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+      var form = document.getElementById('contact-form');
+      var btn = document.getElementById('f-send');
+      /* ⚠ 'status'는 window.status(문자열 전용 전역)와 충돌 — DOM 할당이 무시되므로 다른 이름 필수 */
+      var statusEl = document.getElementById('f-status');
+
+      /* ── 스크린샷 첨부 (붙여넣기 + 파일 선택) ──────────────────
+         EmailJS 무료 플랜은 첨부 미지원이고 Gmail은 본문 base64 이미지를
+         제거하므로, 이미지는 /api/shot(Pages Function + KV)에 올리고
+         메일에는 https 링크만 담는다. 템플릿 본문에 {{shots}} 필요. */
+      var MAX_SHOTS = 3;
+      var shots = []; // { url, thumb }
+      var shotsBox = document.getElementById('f-shots');
+      var shotBtn = document.getElementById('f-shot-btn');
+      var shotFile = document.getElementById('f-shot-file');
+
+      function renderShots() {
+        shotsBox.innerHTML = '';
+        shots.forEach(function (s, i) {
+          var d = document.createElement('div');
+          d.className = 'shot';
+          var img = document.createElement('img');
+          img.src = s.thumb;
+          img.alt = t.shotAlt + ' ' + (i + 1);
+          var del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'del';
+          del.textContent = '×';
+          del.setAttribute('aria-label', t.shotDel);
+          del.onclick = function () { shots.splice(i, 1); renderShots(); };
+          d.appendChild(img); d.appendChild(del);
+          shotsBox.appendChild(d);
+        });
+        shotBtn.style.display = shots.length >= MAX_SHOTS ? 'none' : '';
+      }
+
+      /* 과도한 원본 업로드 방지: 최대 1600px·JPEG 0.85로 축소 (썸네일은 별도 160px) */
+      function shrink(img, maxW, q) {
+        var scale = Math.min(1, maxW / img.width);
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.width * scale));
+        c.height = Math.max(1, Math.round(img.height * scale));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        return c;
+      }
+
+      function uploadShot(file) {
+        if (shots.length >= MAX_SHOTS) return;
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          URL.revokeObjectURL(url);
+          var thumb = shrink(img, 160, .6).toDataURL('image/jpeg', .6);
+          shrink(img, 1600, .85).toBlob(function (blob) {
+            if (!blob) return;
+            statusEl.className = 'status';
+            statusEl.textContent = t.uploading;
+            fetch('/api/shot', { method: 'POST', headers: { 'content-type': 'image/jpeg' }, body: blob })
+              .then(function (r) {
+                return r.json().catch(function () { return {}; }).then(function (j) {
+                  if (!r.ok) throw new Error((j && j.error) || ('HTTP ' + r.status));
+                  return j;
+                });
+              })
+              .then(function (j) {
+                if (shots.length >= MAX_SHOTS) return;
+                shots.push({ url: j.url, thumb: thumb });
+                renderShots();
+                statusEl.textContent = '';
+              })
+              .catch(function (err) {
+                statusEl.className = 'status err';
+                statusEl.textContent = t.uploadFail + (err && err.message ? ' [' + err.message + ']' : '');
+              });
+          }, 'image/jpeg', .85);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); };
+        img.src = url;
+      }
+
+      function addShotFiles(files) {
+        Array.prototype.slice.call(files).forEach(function (f) {
+          if (f && /^image\//.test(f.type)) uploadShot(f);
+        });
+      }
+
+      shotBtn.addEventListener('click', function () { shotFile.click(); });
+      shotFile.addEventListener('change', function () { addShotFiles(shotFile.files); shotFile.value = ''; });
+      document.addEventListener('paste', function (e) {
+        if (!e.clipboardData) return;
+        var imgs = Array.prototype.filter.call(e.clipboardData.items, function (it) { return /^image\//.test(it.type); });
+        if (!imgs.length) return;
+        e.preventDefault();
+        addShotFiles(imgs.map(function (it) { return it.getAsFile(); }));
+      });
+      /* ───────────────────────────────────────────────────────── */
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var kind = document.getElementById('f-kind').value; // 한국어 고정값 — 운영자 메일용
+        var name = document.getElementById('f-name').value.trim();
+        var email = document.getElementById('f-email').value.trim();
+        var message = document.getElementById('f-msg').value.trim();
+        if (!message) return;
+        var kindTag = '[' + APP + '] ' + kind;
+        /* 메일 제목: 카테고리별 아이콘 + "OO앱에서 OO이 들어왔습니다" — 템플릿 Subject는 {{subject}} 하나만 사용 */
+        var SUBJ = {
+          '버그 신고': ['🚨 버그 신고', '버그 신고가'],
+          '개선 제안': ['💡 개선 제안', '개선 제안이'],
+          '일반 문의': ['💬 문의', '문의가'],
+        }[kind];
+        var subject = '[' + SUBJ[0] + '] broodev-' + APP + '에서 ' + SUBJ[1] + ' 들어왔습니다.';
+
+        if (!configured) {
+          /* 키 미설정 시 폴백: 메일 앱을 열어 내용을 채워줌 */
+          var body = '[' + kindTag + ']' + (name ? ' from ' + name : '') + (email ? ' <' + email + '>' : '') + '\n\n' + message +
+            (shots.length ? '\n\n' + shots.map(function (s, i) { return t.shotWord + ' ' + (i + 1) + ': ' + s.url; }).join('\n') : '');
+          location.href = 'mailto:' + FALLBACK_MAIL +
+            '?subject=' + encodeURIComponent(subject) +
+            '&body=' + encodeURIComponent(body);
+          return;
+        }
+
+        btn.disabled = true;
+        statusEl.className = 'status';
+        statusEl.textContent = t.sending;
+        var shotLinks = shots.length
+          ? shots.map(function (s, i) { return '스크린샷 ' + (i + 1) + ': ' + s.url; }).join('\n')
+          : t.noShot;
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          subject: subject, kind: kindTag, name: name || '(무기명)', email: email || '(회신 주소 없음)', message: message,
+          page: location.href, ua: navigator.userAgent,
+          shots: shotLinks,
+        }).then(function () {
+          statusEl.className = 'status ok';
+          statusEl.textContent = t.sent;
+          form.reset();
+          shots = [];
+          renderShots();
+          btn.disabled = false;
+        }).catch(function () {
+          statusEl.className = 'status err';
+          statusEl.textContent = t.sendFail + FALLBACK_MAIL;
+          btn.disabled = false;
+        });
+      });
+    </script>
+  </body>
+</html>

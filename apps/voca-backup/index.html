@@ -1,0 +1,2477 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
+
+    <!-- ===== SEO ===== -->
+    <title>깜빡이 단어암기장 · CSV 자동 반복 암기 | VOCA DECK</title>
+    <meta
+      name="description"
+      content="단어와 뜻을 큰 글자로 번갈아 보여주는 무료 깜빡이 단어암기장. CSV 암기장을 열면 3초 간격 자동 재생, 스페이스바 수동 진행, 암기 표시, 무작위 순서, TTS 음성을 지원합니다. 설치 없이 브라우저에서 바로."
+    />
+    <meta name="keywords" content="깜빡이, 깜빡이 단어암기, 단어암기장, 단어장, 영단어 암기, 일본어 단어 암기, 어휘 학습기, 플래시카드, CSV 단어장, vocabulary" />
+    <meta name="author" content="VOCA DECK" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#000040" />
+
+    <!-- 최초 방문 1회만 튜토리얼로 리다이렉트 (React 로드 전 실행 → 깜빡임 없음).
+         voca:visited 영구 플래그로 재발 방지. 기존 사용자(저장값 보유)·봇·운영 외 도메인은 제외. -->
+    <script>
+      (function () {
+        try {
+          if (location.hostname !== 'voca.broodev.com') return
+          if (localStorage.getItem('voca:visited')) return
+          if (localStorage.getItem('voca:lang') || localStorage.getItem('voca:deck') || localStorage.getItem('voca:cfg')) {
+            localStorage.setItem('voca:visited', '1') // 기존 사용자 → 재방문자로 승격만
+            return
+          }
+          if (/bot|crawl|spider|slurp|bingpreview|yandex|baidu|duckduck|facebookexternalhit|whatsapp|telegram|slack|discord|embedly|pinterest|quora|vkshare|w3c_validator|lighthouse|headless/i.test(navigator.userAgent)) return
+          localStorage.setItem('voca:visited', '1')
+          var q = new URLSearchParams(location.search).get('lang')
+          location.replace('https://voca-tutorial.broodev.com/' + (q ? '?lang=' + encodeURIComponent(q) : ''))
+        } catch (e) {}
+      })()
+    </script>
+    <!-- 검색엔진 소유확인: 각 도구에서 발급한 토큰으로 교체 후 주석 해제 -->
+    <!-- <meta name="google-site-verification" content="GOOGLE_TOKEN" /> -->
+    <!-- <meta name="naver-site-verification" content="NAVER_TOKEN" /> -->
+
+    <!-- Google AdSense (Auto ads) — 사이트 승인 후 자동 게재 -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+
+    <link rel="canonical" href="https://voca.broodev.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://voca.broodev.com/" />
+    <link rel="alternate" hreflang="ko" href="https://voca.broodev.com/?lang=ko" />
+    <link rel="alternate" hreflang="en" href="https://voca.broodev.com/?lang=en" />
+    <link rel="alternate" hreflang="ja" href="https://voca.broodev.com/?lang=ja" />
+    <link rel="alternate" hreflang="zh-Hans" href="https://voca.broodev.com/?lang=zh" />
+    <link rel="alternate" hreflang="zh-Hant" href="https://voca.broodev.com/?lang=zh-Hant" />
+    <link rel="alternate" hreflang="th" href="https://voca.broodev.com/?lang=th" />
+    <link rel="alternate" hreflang="es" href="https://voca.broodev.com/?lang=es" />
+    <link rel="alternate" hreflang="fr" href="https://voca.broodev.com/?lang=fr" />
+    <link rel="alternate" hreflang="de" href="https://voca.broodev.com/?lang=de" />
+    <link rel="alternate" hreflang="it" href="https://voca.broodev.com/?lang=it" />
+    <link rel="alternate" hreflang="pt" href="https://voca.broodev.com/?lang=pt" />
+    <link rel="alternate" hreflang="ru" href="https://voca.broodev.com/?lang=ru" />
+    <link rel="alternate" hreflang="nl" href="https://voca.broodev.com/?lang=nl" />
+    <!-- 파비콘: 구글 검색결과는 data: URI를 안 씀 → 실제 파일 필요 -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VOCA DECK" />
+    <meta property="og:title" content="깜빡이 단어암기장 · CSV 자동 반복 암기 | VOCA DECK" />
+    <meta property="og:description" content="단어와 뜻을 큰 글자로 번갈아 보여주는 깜빡이 암기. CSV 암기장 열기·3초 자동 재생·암기 표시·TTS. 무료·설치 불필요." />
+    <meta property="og:url" content="https://voca.broodev.com/" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
+    <meta property="og:image" content="https://voca.broodev.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="깜빡이 단어암기장 VOCA DECK" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="깜빡이 단어암기장 · CSV 자동 반복 암기 | VOCA DECK" />
+    <meta name="twitter:description" content="단어와 뜻을 큰 글자로 번갈아 보여주는 깜빡이 암기. CSV 암기장·자동 재생·암기 표시·TTS. 무료." />
+    <meta name="twitter:image" content="https://voca.broodev.com/og-image.png" />
+    <!-- 구조화 데이터: 웹앱 + FAQ (아래 정적 FAQ와 텍스트 일치) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "VOCA DECK — 깜빡이 단어암기장",
+            "url": "https://voca.broodev.com/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "isAccessibleForFree": true,
+            "inLanguage": ["ko", "en", "ja", "zh", "zh-Hant", "th", "es", "fr", "de", "it", "pt", "ru", "nl"],
+            "description": "단어와 뜻을 큰 글자로 번갈아 보여주는 무료 깜빡이 단어암기장. CSV 암기장을 열면 설정한 간격(기본 3초)으로 자동 반복 재생하며, 암기 표시·무작위 순서·TTS 음성을 지원합니다."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "깜빡이 암기란 무엇인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "어휘와 의미를 화면에 연속적으로 제시해 단기간에 이미지 연상으로 어휘를 암기하게 하는 방식입니다. 단어가 먼저 크게 표시되고, 이어서 뜻이 표시되는 것을 반복하면서 어휘와 의미 사이의 연결고리를 두껍게 만듭니다." }
+              },
+              {
+                "@type": "Question",
+                "name": "암기장 파일은 어떤 형식인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "CSV 파일입니다. 한 줄에 '단어,뜻' 형식으로 2열을 쉼표로 구분해 적으며 행 수 제한은 없습니다. 앞뒤 공백은 자동으로 제거(trim)되고 빈 행은 무시됩니다. 엑셀·Numbers·메모장 어디서든 만들 수 있습니다." }
+              },
+              {
+                "@type": "Question",
+                "name": "자동 재생 간격을 바꿀 수 있나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "네. 제어판의 지연시간(초)에서 간격을 조절할 수 있으며 기본값은 3초입니다. 수동 모드에서는 스페이스바나 다음 버튼으로 한 단계씩 진행합니다." }
+              },
+              {
+                "@type": "Question",
+                "name": "VOCA DECK은 무료인가요? 데이터는 어디에 저장되나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 샘플 암기장·CSV 편집기·마이 보카덱·광고 제거 등 고급 기능은 프리미엄으로 제공됩니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다." }
+              },
+              {
+                "@type": "Question",
+                "name": "단어장을 직접 만들 수 있나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "네. 앱 하단의 CSV 편집기(프리미엄)에서 엑셀처럼 2열 시트로 단어장을 만들고, CSV로 내려받거나 마이 보카덱에 저장해 언제든 다시 쓸 수 있습니다. 마이 보카덱도 브라우저에만 저장됩니다." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      :root {
+        --navy: #000040;
+        --panel-gray: #d4d0c8;
+        --panel-dark: #808080;
+        --panel-light: #ffffff;
+        --led-on: #22dd22;
+        --led-off: #1a5c1a;
+        --ui-font: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Dotum', sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body { background: #222; font-family: var(--ui-font); overflow-x: hidden; overscroll-behavior-y: none; }
+      #root { min-height: 100vh; }
+
+      /* ===== 최상단 슬림 헤더 (broodev 로고 + 앱 이름 + 🌐 언어) ===== */
+      .app-header { flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; background: #05080a; border-bottom: 1px solid #16203a; }
+      .app-header .brand { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; white-space: nowrap; flex-shrink: 0; } /* 로고는 축소 금지 — 좁은 화면에선 app-name이 말줄임으로 줄어듦 */
+      .app-header .brand img { width: 17px; height: 17px; display: block; }
+      .app-header .logo { color: #00ff9c; font-family: 'Menlo', 'Consolas', monospace; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; text-shadow: 0 0 8px rgba(0, 255, 156, .45); }
+      .app-header .app-name { color: #ffe14d; font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+      .app-header .app-name .dot { color: #3a4a6a; margin: 0 6px; font-weight: 400; }
+      .app-header .tb-spacer { flex: 1; }
+      .app-header .tut-link { color: #9db0c8; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; padding: 3px 8px; border: 1px solid #2a3a5f; background: #0d1526; }
+      .app-header .tut-link:hover { color: #ffe14d; border-color: #ffe14d; }
+      .app-header .lang-select .globe { font-size: 14px; }
+      .app-header .lang-select select { background: #0d1526; color: #cfe0ff; border: 1px solid #2a3a5f; }
+      @media (max-width: 560px) {
+        .app-header .app-name .full { display: none; }
+        .app-header .brand .logo { display: none; } /* 모바일: 아이콘만 남기고 'broodev' 문구 숨김 */
+      }
+
+      /* ===== 상단 표시 영역 (남색 + 노란 대형 글자) ===== */
+      .stage { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+      .display { flex: 1; display: flex; flex-direction: column; min-height: 0; cursor: pointer; user-select: none; -webkit-user-select: none; border: 2px inset #9a9a9a; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+      .pane { flex: 1; min-height: 0; display: flex; align-items: center; padding: 2vh 3vw; overflow: hidden; }
+      .pane.top { border-bottom: 3px solid #e8e8e8; }
+      .pane-text { font-weight: 800; line-height: 1.15; word-break: break-word; overflow-wrap: anywhere; max-width: 100%; }
+
+      /* ===== 제어판 (회색 클래식 UI) ===== */
+      .cpanel { flex-shrink: 0; background: var(--panel-gray); border-top: 2px solid var(--panel-light); padding: 6px 8px 8px; font-size: 12px; color: #000; }
+      .cpanel, .cpanel button, .cpanel input, .cpanel select, .cpanel label { font-family: var(--ui-font); }
+      .toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 2px 2px 16px; } /* 하단 16px = 그룹 제목이 테두리 위로 8px 돌출하는 만큼 보정 → 상하 시각 여백 8px 동일 */
+      .tb-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; white-space: nowrap; }
+      .tb-btn:active { border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .tb-btn .ic { font-size: 14px; line-height: 1; }
+      .tb-btn.quit .ic { color: #fff; background: #cc2222; padding: 1px 4px; font-weight: 800; border: 1px solid #881111; }
+      .tb-btn.open .ic { color: #c8951a; }
+      .tb-btn.next .ic { color: #fff; background: #1a8c1a; padding: 1px 5px; font-weight: 800; border: 1px solid #0e5c0e; }
+      .tb-check { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; }
+      .tb-check input { margin: 0; }
+      .tb-check.disabled { color: #888; cursor: default; }
+      .tb-col { display: flex; flex-direction: column; gap: 4px; }
+      .tb-spacer { flex: 1; }
+
+      .groups { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+      .group { position: relative; border: 2px groove #fff; padding: 12px 10px 8px; min-width: 0; }
+      .group-title { position: absolute; top: -8px; left: 8px; background: var(--panel-gray); padding: 0 4px; font-size: 11.5px; }
+      .stat-rows { display: grid; grid-template-columns: auto auto; gap: 5px 14px; font-size: 12px; padding-top: 2px; }
+      .stat-rows .v { text-align: right; font-weight: 700; min-width: 30px; }
+
+      /* 초록 LED 라디오 */
+      .led-radio { display: flex; align-items: center; gap: 7px; cursor: pointer; padding: 2px 0; white-space: nowrap; }
+      .led-radio input { position: absolute; opacity: 0; pointer-events: none; }
+      .led { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; background: radial-gradient(circle at 35% 30%, #2a7a2a, var(--led-off) 70%); border: 1px solid #0c380c; box-shadow: inset 0 1px 2px rgba(0,0,0,.5); }
+      .led-radio input:checked + .led { background: radial-gradient(circle at 35% 30%, #b6ffb6, var(--led-on) 65%); box-shadow: 0 0 6px rgba(40,255,40,.8), inset 0 1px 1px rgba(255,255,255,.6); }
+      .led-radio .lbl.on { background: #fff; outline: 1px dotted #555; padding: 0 2px; }
+      .radio-col { display: flex; flex-direction: column; gap: 3px; }
+      .radio-row { display: flex; gap: 12px; }
+
+      .num-input { width: 52px; padding: 2px 4px; font-size: 12px; border: 2px inset #9a9a9a; background: #fff; }
+      .mini-btn { padding: 2px 10px; font-size: 12px; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; }
+      .mini-btn:active { border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .inline-field { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+      .side-btns { display: flex; flex-direction: column; gap: 10px; justify-content: center; padding: 4px 6px; }
+      .side-btns .link-btn { background: none; border: none; padding: 2px 4px; font-size: 12px; cursor: pointer; text-align: right; color: #000; }
+      .side-btns .link-btn:hover { text-decoration: underline; }
+      .spin-field { display: flex; align-items: center; gap: 6px; }
+
+      /* 제어판 숨김 모드: 하단 얇은 미니바 */
+      .minibar { flex-shrink: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--panel-gray); padding: 3px 8px; font-size: 11px; border-top: 1px solid var(--panel-light); }
+      .minibar .tb-btn { padding: 2px 7px; font-size: 11px; }
+
+      /* 언어 선택 (🌐) */
+      .lang-select { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; }
+      .lang-select .globe { font-size: 13px; line-height: 1; }
+      .lang-select select { font-size: 12px; border: 2px inset #9a9a9a; background: #fff; padding: 1px 2px; max-width: 110px; }
+
+      /* 팝오버 (글꼴/배경 설정) */
+      .pop-wrap { position: relative; }
+      .popover { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 60; width: 230px; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); box-shadow: 3px 3px 8px rgba(0,0,0,.4); padding: 10px; font-size: 12px; }
+      .popover h4 { margin: 0 0 8px; font-size: 12px; border-bottom: 1px solid var(--panel-dark); padding-bottom: 4px; }
+      .pop-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 7px 0; }
+      .pop-row select, .pop-row input[type="number"] { border: 2px inset #9a9a9a; background: #fff; font-size: 12px; padding: 2px 4px; }
+      .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+      .swatch { width: 24px; height: 20px; border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; padding: 0; }
+      .swatch.sel { outline: 2px solid #1a6cff; }
+
+      .toast { position: fixed; left: 50%; bottom: 130px; transform: translateX(-50%); z-index: 80; background: rgba(0,0,0,.85); color: #ffff66; padding: 9px 18px; font-size: 13px; border: 1px solid #666; border-radius: 3px; pointer-events: none; }
+
+      /* 고급 설정 모달 (클래식 룩) */
+      .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 12px; }
+      .modal { width: min(660px, 100%); max-height: 92dvh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); box-shadow: 4px 4px 12px rgba(0,0,0,.5); padding: 12px; font-size: 12px; color: #000; font-family: var(--ui-font); }
+      .adv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; align-items: start; }
+      .adv-cols > div { min-width: 0; } /* 그리드 블로아웃 방지 — 내용이 열 폭을 밀어내지 못하게 */
+      @media (max-width: 620px) {
+        .adv-cols { grid-template-columns: 1fr; }
+        .modal { padding: 10px; }
+        .vol-row { flex-wrap: wrap; row-gap: 4px; }
+        .vol-lbl { flex: 1 1 100%; min-width: 0; } /* 좁은 화면: 라벨을 한 줄 통째로 → 컨트롤은 다음 줄 */
+      }
+      .modal h4 { margin: 0 0 10px; font-size: 12px; border-bottom: 1px solid var(--panel-dark); padding-bottom: 5px; }
+      .adv-sec { margin: 12px 0 6px; padding: 3px 6px; font-weight: 800; font-size: 11.5px; background: #c4c0b8; border: 1px solid; border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .adv-sec:first-of-type { margin-top: 0; }
+      .adv-note { margin: 4px 0 6px; font-size: 11px; color: #444; white-space: normal; }
+      .adv-sub { margin: 8px 0 3px; font-weight: 700; font-size: 11px; color: #222; }
+      .vol-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; } /* nowrap 금지 — 긴 번역 라벨이 횡스크롤을 만들지 않게 줄바꿈 허용 */
+      .vol-row input[type="range"] { flex: 1; min-width: 60px; }
+      .vol-lbl { min-width: 76px; }
+      .vol-val { min-width: 46px; text-align: right; font-weight: 700; }
+      .read-radios { display: flex; gap: 12px; flex-wrap: wrap; }
+      .modal select { max-width: 100%; }
+
+      /* ===== 반응형 (모바일) ===== */
+      @media (max-width: 860px) {
+        /* 제어판이 화면을 다 먹지 않게: 최대 절반 높이 + 내부 스크롤 */
+        .cpanel { max-height: 48dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+        .minibar { padding: 7px 10px calc(7px + env(safe-area-inset-bottom)); gap: 12px; }
+        .minibar .tb-btn { padding: 7px 11px; font-size: 13px; }
+
+        /* 터치 타깃 확대 */
+        .toolbar { gap: 10px 14px; }
+        .tb-btn { padding: 8px 12px; font-size: 13px; touch-action: manipulation; }
+        .tb-check { font-size: 13px; gap: 7px; padding: 4px 0; }
+        .tb-check input, .popover input[type="checkbox"] { width: 17px; height: 17px; }
+        .led-radio { padding: 5px 0; gap: 9px; font-size: 13px; }
+        .led { width: 16px; height: 16px; }
+        .mini-btn { padding: 7px 14px; font-size: 13px; }
+        .stat-rows { font-size: 13px; gap: 6px 14px; }
+        .group-title { font-size: 12px; }
+
+        /* iOS 포커스 자동 줌 방지: 폼 컨트롤 글자 16px 이상 */
+        .num-input, .cpanel select, .popover select, .popover input[type="number"], .lang-select select, .modal select, .modal input[type="number"] { font-size: 16px; }
+        .num-input { width: 68px; padding: 5px 6px; }
+        .lang-select select { max-width: 130px; }
+
+        /* 설정 그룹: 세로 나열 대신 2열 그리드 (⚠ minmax(0,1fr) — 우측 잘림 방지) */
+        .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; }
+        .radio-row { flex-wrap: wrap; }
+        .side-btns { grid-column: 1 / -1; flex-direction: row; justify-content: space-around; gap: 6px; padding: 2px 0; }
+        .side-btns .link-btn { font-size: 13px; padding: 7px 10px; text-align: center; }
+
+        /* 팝오버: 앵커 대신 화면 하단 고정 시트 */
+        .popover { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); width: auto; z-index: 90; }
+
+        .toast { bottom: 52dvh; max-width: 86vw; text-align: center; }
+      }
+      @media (max-width: 560px) {
+        .pane { padding: 1.5vh 4vw; }
+        .groups { grid-template-columns: minmax(0, 1fr); }
+        .stat-rows { grid-template-columns: auto auto auto auto; }
+      }
+
+      /* ===== 샘플 암기장 게시판 (앱 화면 아래 스크롤 영역) ===== */
+      .display { position: relative; }
+      .samples-jump { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); background: rgba(13, 21, 38, .8); border: 1px dashed #4a5680; color: #8fb3ff; font-size: 13px; padding: 8px 14px; cursor: pointer; font-family: var(--ui-font); max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .samples-jump:hover { color: #ffe14d; border-color: #ffe14d; }
+      .samples { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; padding: 26px 14px 8px; background: #0a0a14; font-family: var(--ui-font); }
+      .samples-panel { background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); padding: 14px 14px 14px; }
+      .samples-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #000; margin: 0 0 4px; }
+      .samples-sub { font-size: 12px; color: #444; margin: 0 0 12px; }
+      .samples .tabs { display: flex; gap: 0; flex-wrap: wrap; border-bottom: 2px solid var(--panel-dark); }
+      .samples .tab { font-family: var(--ui-font); font-size: 12.5px; padding: 7px 13px; background: #bcb8ae; border: 2px solid; border-color: var(--panel-light) var(--panel-dark) transparent var(--panel-light); cursor: pointer; margin-bottom: -2px; color: #333; }
+      .samples .tab.on { background: var(--panel-gray); font-weight: 800; color: #000; border-bottom: 2px solid var(--panel-gray); }
+      table.board { width: 100%; border-collapse: collapse; background: #fff; border: 2px inset #9a9a9a; font-size: 12.5px; color: #111; }
+      .board th { background: #e8e4dc; border-bottom: 2px solid var(--panel-dark); padding: 7px 8px; font-size: 12px; text-align: left; white-space: nowrap; }
+      .board td { border-bottom: 1px solid #ddd8ce; padding: 8px; vertical-align: middle; }
+      .board tr:hover td { background: #f4f8ff; }
+      .board .no { color: #888; text-align: center; width: 34px; }
+      .board .title { font-weight: 700; }
+      .board .cnt { text-align: center; white-space: nowrap; width: 70px; }
+      .board .act { text-align: center; white-space: nowrap; width: 150px; }
+      .board .act-btns { display: inline-flex; gap: 6px; }
+      .apply-btn { font-family: var(--ui-font); font-size: 12px; font-weight: 800; padding: 5px 10px; background: var(--panel-gray); border: 2px solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); cursor: pointer; white-space: nowrap; }
+      .apply-btn:active { border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
+      .apply-btn .tri { color: #0a7a0a; }
+      .apply-btn.dl { font-weight: 400; }
+      .board .applied { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #0a7a0a; }
+      .board .led-dot { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b6ffb6, #22dd22 65%); border: 1px solid #0c380c; box-shadow: 0 0 6px rgba(40,255,40,.8); }
+      .board tr.row-applied td { background: #eefaee; }
+      .board .soon-mark { color: #999; font-size: 12px; }
+      .board-foot { font-size: 11.5px; color: #555; padding: 8px 2px 0; }
+      /* 암기장(최상단) 즉시 복귀 — 앱 화면을 지나 스크롤하면 페이지 끝까지 좌상단에 고정(fixed) */
+      .top-jump { position: fixed; top: 12px; left: 12px; z-index: 50; font-family: var(--ui-font); font-size: 13px; font-weight: 700; color: #8fb3ff; background: rgba(13, 21, 38, .92); border: 1px dashed #4a5680; padding: 9px 14px; cursor: pointer; max-width: 80vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 10px rgba(0,0,0,.5); touch-action: manipulation; }
+      .top-jump:hover { color: #ffe14d; border-color: #ffe14d; }
+
+      /* ===== CSV 편집기 (샘플 게시판 아래) — 왼쪽 컨트롤 / 오른쪽 2열 시트 ===== */
+      .editor-grid { display: grid; grid-template-columns: 212px minmax(0, 1fr); gap: 14px; align-items: start; margin-top: 4px; }
+      .ed-ctrl { background: #c8c4bc; border: 1px solid var(--panel-dark); padding: 10px; }
+      .ed-label { font-size: 11px; font-weight: 800; color: #444; letter-spacing: .5px; margin: 2px 0 8px; }
+      .ed-sep { border: none; border-top: 1px solid var(--panel-dark); margin: 12px 0; }
+      /* flex + 줄바꿈 허용 — 긴 번역 라벨(de·fr·ru 등)이 버튼 밖으로 넘치지 않게 */
+      .apply-btn.ed-block { display: flex; align-items: center; width: 100%; text-align: left; margin-bottom: 8px; white-space: normal; word-break: keep-all; }
+      /* 아이콘(이모지)마다 폭이 달라 라벨 시작점이 어긋나는 것 방지 — 아이콘 칸 고정폭 */
+      .ed-block .ed-ic { flex: 0 0 22px; text-align: center; margin-right: 6px; }
+      .apply-btn:disabled { color: #888; cursor: not-allowed; }
+      .ed-name { width: 100%; font-family: var(--ui-font); font-size: 13px; padding: 6px 8px; border: 2px inset #9a9a9a; background: #fff; margin-bottom: 10px; }
+      .ed-stat { font-size: 12px; color: #333; margin: 8px 0 0; }
+      .ed-stat b.ok { color: #0a7a0a; }
+      .ed-stat b.bad { color: #cc1111; }
+      .ed-err { font-size: 12px; font-weight: 800; color: #cc1111; margin: 8px 0 0; }
+      /* jspreadsheet(엑셀식 시트) — 레트로 테마 덧입히기 */
+      .ed-sheet-wrap { background: #fff; border: 2px inset #9a9a9a; }
+      .ed-sheet .jexcel_container { padding: 0; }
+      .ed-sheet .jexcel_content { max-width: 100%; }
+      .ed-sheet table.jexcel { font-family: var(--ui-font); font-size: 13px; color: #111; }
+      .ed-sheet .jexcel > thead > tr > td { background: #e8e4dc; border-color: #b8b4ac; font-size: 12px; font-weight: 700; padding: 6px 8px; }
+      .ed-sheet .jexcel > tbody > tr > td:first-child { background: #e8e4dc; color: #777; font-size: 11px; }
+      .ed-sheet .jexcel > tbody > tr > td { border-color: #e2ded6; padding: 6px 8px; }
+      .ed-sheet .jexcel > tbody > tr > td.ed-cell-err { background: #ffe3e3; color: #cc1111; }
+      .ed-sheet .jexcel > tbody > tr > td.highlight { background-color: rgba(42, 106, 212, .12); }
+      .ed-sheet .jexcel_corner { background: #2a6ad4; }
+      .ed-foot { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+      .ed-hint { font-size: 11.5px; color: #555; }
+      /* 마이 보카덱 */
+      .samples#mydecks { padding-bottom: 26px; } /* 페이지 마지막 섹션 — 샘플 암기장 위 간격(26px)과 동일하게 */
+      .my-empty { padding: 16px 10px; text-align: center; color: #666; font-size: 13px; background: #fff; border: 2px inset #9a9a9a; margin: 0; }
+      .board .act.my-act { width: 275px; }
+      @media (max-width: 720px) {
+        .editor-grid { grid-template-columns: 1fr; }
+        .ed-sheet table.jexcel, .ed-sheet .jexcel textarea, .ed-name { font-size: 16px; } /* iOS 포커스 줌 방지 */
+        .apply-btn.ed-block { padding: 9px 14px; font-size: 13px; } /* 터치 타깃 확대 */
+        .ed-foot .apply-btn { padding: 8px 14px; font-size: 13px; }
+      }
+      @media (max-width: 640px) {
+        .board thead { display: none; }
+        table.board, .board tbody, .board tr, .board td { display: block; width: 100%; }
+        .board tr { border-bottom: 2px solid var(--panel-dark); padding: 8px 6px; }
+        .board td { border: none; padding: 3px 6px; }
+        .board .no { display: none; }
+        .board .cnt, .board .act { width: auto; text-align: left; }
+        .board .act { padding-top: 7px; }
+        .apply-btn { padding: 8px 14px; font-size: 13px; }
+        .samples .tab { padding: 9px 12px; font-size: 13px; }
+      }
+
+      /* ===== 정적 SEO 본문 (앱 하단, #root 바깥) ===== */
+      .seo { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 34px 20px 40px; background: #0a0a14; color: #9db0c8; font-size: 13px; line-height: 1.75; font-family: var(--ui-font); }
+      .seo h1 { font-size: 19px; color: #ffe14d; margin: 0 0 10px; }
+      .seo h2 { font-size: 14.5px; color: #e8eef8; margin: 24px 0 8px; }
+      .seo p { margin: 8px 0; }
+      .seo strong { color: #e8eef8; }
+      .seo ul, .seo ol { margin: 8px 0; padding-left: 18px; }
+      .seo li { margin: 3px 0; }
+      .seo dl { margin: 8px 0; }
+      .seo dt { color: #e8eef8; font-weight: 700; margin-top: 12px; }
+      .seo dd { margin: 3px 0 0; }
+      .seo code { background: #131324; color: #ffe14d; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+      @media (max-width: 560px) { .seo { padding: 24px 14px 32px; } }
+
+      /* ===== 간이 푸터 (비코인 앱 — 공통 코인 자매 푸터 미사용) ===== */
+      .site-foot { position: relative; z-index: 2; margin: 0 auto; padding: 20px 20px 56px; background: #0a0a14; border-top: 1px solid #23233c; color: #7d8aa0; font-size: 12.5px; line-height: 1.7; text-align: center; font-family: var(--ui-font); }
+      .site-foot a { color: #ffe14d; text-decoration: none; }
+      .site-foot .sep { opacity: .4; }
+      .foot-desc { margin: 8px auto 0; max-width: 680px; opacity: .85; font-size: 11.5px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- ===== 정적 SEO 콘텐츠 (JS 없이도 검색엔진/소셜 크롤러가 읽는 본문) ===== -->
+    <section class="seo" aria-label="깜빡이 단어암기장 안내">
+      <h1>깜빡이 단어암기장 — CSV 자동 반복 암기</h1>
+
+      <!-- (선택) 수동 광고 단위. 기본 Auto ads는 위 헤드 스크립트로 이미 동작.
+           특정 위치에 광고를 고정하려면 AdSense에서 만든 광고 단위의 data-ad-slot 값을 채우고 주석을 푸세요.
+           (광고는 #root 바깥인 이 본문 영역에 두어야 React 렌더에 안 지워집니다) -->
+      <!--
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-5511225478572825"
+           data-ad-slot="여기에_광고단위_슬롯ID"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+
+      <p>
+        <strong>VOCA DECK</strong>은 어휘와 의미를 화면에 연속적으로 제시해 단기간에 이미지 연상으로 어휘를 암기하게 하는
+        <strong>깜빡이 방식</strong>의 무료 단어암기장입니다. 위쪽에는 단어, 아래쪽에는 의미가 큰 글자로 표시되며,
+        설정한 간격(기본 3초)으로 자동 반복 재생됩니다. 설치·회원가입 없이 브라우저에서 바로 실행됩니다.
+      </p>
+
+      <h2>사용법</h2>
+      <ol>
+        <li><strong>암기장 열기</strong> — 직접 만든 CSV 암기장 파일을 엽니다. 한 줄에 <code>단어,뜻</code> 형식(2열, 행 수 무제한)이며, 앞뒤 공백은 자동 제거되고 빈 행은 무시됩니다.</li>
+        <li><strong>글꼴 / 배경 색상</strong> — 시각적으로 확 들어오는 큰 글꼴(노란 굵은 글씨)과 질은 남색·검정 배경을 권장합니다.</li>
+        <li><strong>수동/자동</strong> — 자동 모드는 지연시간(초) 간격으로 단어가 흘러가고, 수동 모드는 스페이스바 또는 다음 버튼으로 진행합니다. 한 번 누르면 단어가 위쪽에, 또 한 번 누르면 아래쪽에 의미가 제시되고, 또 누르면 그다음 단어로 넘어갑니다.</li>
+        <li><strong>제어판 숨기기</strong> — 설정이 끝나면 제어판을 숨기고 화면을 크게 보면서 진행합니다.</li>
+      </ol>
+
+      <h2>주요 기능</h2>
+      <ul>
+        <li><strong>순서</strong> — 순방향·역방향·무작위 출제</li>
+        <li><strong>표시 범위</strong> — 외운 항목 제외 / 외운 항목만 / 모두</li>
+        <li><strong>암기 표시</strong> — 외운 단어를 표시해 반복에서 제외하고, 언제든 초기화 가능</li>
+        <li><strong>A↔B</strong> — 단어→뜻, 뜻→단어 방향 전환</li>
+        <li><strong>TTS</strong> — 브라우저 음성 합성으로 단어를 읽어주기(음성만 모드 지원)</li>
+        <li><strong>시작번호</strong> — 원하는 번호부터 시작</li>
+      </ul>
+
+      <h2>자주 묻는 질문</h2>
+      <dl>
+        <dt>깜빡이 암기란 무엇인가요?</dt>
+        <dd>어휘와 의미를 화면에 연속적으로 제시해 단기간에 이미지 연상으로 어휘를 암기하게 하는 방식입니다. 단어가 먼저 크게 표시되고, 이어서 뜻이 표시되는 것을 반복하면서 어휘와 의미 사이의 연결고리를 두껍게 만듭니다.</dd>
+        <dt>암기장 파일은 어떤 형식인가요?</dt>
+        <dd>CSV 파일입니다. 한 줄에 '단어,뜻' 형식으로 2열을 쉼표로 구분해 적으며 행 수 제한은 없습니다. 앞뒤 공백은 자동으로 제거(trim)되고 빈 행은 무시됩니다. 엑셀·Numbers·메모장 어디서든 만들 수 있습니다.</dd>
+        <dt>자동 재생 간격을 바꿀 수 있나요?</dt>
+        <dd>네. 제어판의 지연시간(초)에서 간격을 조절할 수 있으며 기본값은 3초입니다. 수동 모드에서는 스페이스바나 다음 버튼으로 한 단계씩 진행합니다.</dd>
+        <dt>VOCA DECK은 무료인가요? 데이터는 어디에 저장되나요?</dt>
+        <dd>기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 샘플 암기장·CSV 편집기·마이 보카덱·광고 제거 등 고급 기능은 프리미엄으로 제공됩니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다.</dd>
+        <dt>단어장을 직접 만들 수 있나요?</dt>
+        <dd>네. 앱 하단의 CSV 편집기(프리미엄)에서 엑셀처럼 2열 시트로 단어장을 만들고, CSV로 내려받거나 마이 보카덱에 저장해 언제든 다시 쓸 수 있습니다. 마이 보카덱도 브라우저에만 저장됩니다.</dd>
+      </dl>
+    </section>
+
+    <!-- ===== 간이 푸터 (비코인 앱 — 공통 코인 자매 푸터 미사용) ===== -->
+    <footer class="site-foot" aria-label="사이트 정보">
+      <nav class="foot-links">
+        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a class="contact-link" href="/contact.html?app=voca">📮 문의 &amp; 버그 신고</a>
+      </nav>
+      <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
+      <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. VOCA DECK의 암기장 데이터는 이용자의 브라우저에만 저장됩니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
+    </footer>
+    <script>
+      /* 문의 링크에 현재 i18n 언어를 클릭 시점에 부착 — 문의 페이지가 같은 언어로 열림 */
+      (function () {
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest ? e.target.closest('a.contact-link') : null;
+          if (!a) return;
+          try {
+            var l = JSON.parse(localStorage.getItem('voca:lang') || 'null');
+            if (l) a.href = a.href.split('&lang=')[0] + '&lang=' + encodeURIComponent(l);
+          } catch (err) {}
+        });
+      })();
+    </script>
+
+    <script src="seo-i18n.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+    <!-- 엑셀식 시트 (CSV 편집기) — jspreadsheet-ce v4 (MIT) + jsuites v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/jsuites@4/dist/jsuites.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsuites@4/dist/jsuites.min.css" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4/dist/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4/dist/jspreadsheet.min.css" type="text/css" />
+
+    <script type="text/babel" data-presets="react">
+      const { useState, useEffect, useRef, useMemo, useCallback } = React
+
+      /* =========================================================
+       *  저장/유틸
+       * ========================================================= */
+      const useLocalStorage = (key, initial) => {
+        const [v, setV] = useState(() => {
+          try { const s = localStorage.getItem(key); return s !== null ? JSON.parse(s) : initial } catch { return initial }
+        })
+        useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)) } catch {} }, [key, v])
+        return [v, setV]
+      }
+
+      /* CSV 파서 — 2열(단어,뜻) · trim · 빈 행 무시 · 첫 쉼표 기준 분리(뜻에 쉼표 허용) · "..." 인용 지원 */
+      const parseCSV = (text) => {
+        const out = []
+        for (const raw of String(text).replace(/^\uFEFF/, '').split(/\r?\n/)) {
+          const line = raw.trim()
+          if (!line) continue // 아무것도 없는 행은 무시
+          let a, b
+          if (line[0] === '"') {
+            // "단어","뜻" 또는 "단어",뜻
+            const m = line.match(/^"((?:[^"]|"")*)"\s*,\s*(.*)$/)
+            if (!m) continue
+            a = m[1].replace(/""/g, '"')
+            b = m[2].trim()
+            if (b[0] === '"' && b[b.length - 1] === '"') b = b.slice(1, -1).replace(/""/g, '"')
+          } else {
+            const i = line.indexOf(',')
+            if (i < 0) continue
+            a = line.slice(0, i)
+            b = line.slice(i + 1)
+          }
+          a = a.trim(); b = b.trim()
+          if (!a || !b) continue
+          out.push({ a, b, mem: false })
+        }
+        return out
+      }
+
+      /* =========================================================
+       *  다국어(i18n) — 13개국어. UI 문자열 + 문서 타이틀/메타 설명.
+       *  hreflang(?lang=)과 짝 맞춤. 하단 SEO 본문은 seo-i18n.js가 담당.
+       * ========================================================= */
+      const LANGS = [
+        { code: 'en', label: 'English' },
+        { code: 'ja', label: '日本語' },
+        { code: 'ko', label: '한국어' },
+        { code: 'zh', label: '简体中文' },
+        { code: 'zh-Hant', label: '繁體中文' },
+        { code: 'th', label: 'ไทย' },
+        { code: 'es', label: 'Español' },
+        { code: 'fr', label: 'Français' },
+        { code: 'de', label: 'Deutsch' },
+        { code: 'it', label: 'Italiano' },
+        { code: 'pt', label: 'Português' },
+        { code: 'ru', label: 'Русский' },
+        { code: 'nl', label: 'Nederlands' },
+      ]
+      const DEFAULT_LANG = 'en'
+      const DOC_TITLE = {
+        ko: '깜빡이 단어암기장 · CSV 자동 반복 암기 | VOCA DECK',
+        en: 'Flashing Vocabulary Memorizer · Auto-repeat CSV decks | VOCA DECK',
+        ja: '点滅式単語暗記 · CSV自動リピート | VOCA DECK',
+        zh: '闪示单词记忆 · CSV自动循环 | VOCA DECK',
+        'zh-Hant': '閃示單字記憶 · CSV自動循環 | VOCA DECK',
+        th: 'ท่องศัพท์แบบแฟลช · เล่นซ้ำอัตโนมัติจาก CSV | VOCA DECK',
+        es: 'Memorizador de vocabulario · Repetición automática CSV | VOCA DECK',
+        fr: 'Mémorisation de vocabulaire · Répétition auto CSV | VOCA DECK',
+        de: 'Vokabeltrainer mit Blitzanzeige · CSV-Autowiederholung | VOCA DECK',
+        it: 'Memorizzatore di vocaboli · Ripetizione automatica CSV | VOCA DECK',
+        pt: 'Memorizador de vocabulário · Repetição automática CSV | VOCA DECK',
+        ru: 'Тренажёр слов · Автоповтор из CSV | VOCA DECK',
+        nl: 'Woordjes stampen · Automatisch herhalen uit CSV | VOCA DECK',
+      }
+      const T = {
+        en: {
+          appName: 'Flashing Memorizer', langLabel: 'Language', tutorialLink: 'Tutorial',
+          metaDesc: 'Free flashing vocabulary memorizer that alternates words and meanings in large type. Open a CSV deck for 3-second auto play, memorized marks, random order and TTS. No install.',
+          open: 'Open deck', next: 'Next', mem: 'Memorized', tts: 'TTS', voiceOnly: 'Voice only',
+          alwaysTop: 'Always on top', alwaysTopHint: 'Not supported in web browsers', hidePanel: 'Hide panel', quit: 'Quit',
+          gStatus: 'Status', total: 'Total :', current: 'Current :', toLearn: 'To learn :', learned: 'Learned :',
+          gMode: 'Manual/Auto', manual: 'Manual', auto: 'Auto',
+          gOrder: 'Order', fwd: 'Forward', rev: 'Backward', rnd: 'Random', startNo: 'Start # :', apply: 'Apply',
+          gRange: 'Range', unmem: 'Skip memorized', memOnly: 'Memorized only', all: 'All', delay: 'Delay (s) :',
+          font: 'Font', bg: 'Background', resetMem: 'Reset marks', adv: 'Advanced', advTitle: 'Advanced settings',
+          volAll: 'Master volume', volA: 'Volume A', volB: 'Volume B', rateALbl: 'Reading speed A', rateBLbl: 'Reading speed B', readLbl: 'Read aloud', readBoth: 'Both', voiceAuto: 'Auto (default)', voiceSel: 'TTS voice (language / speaker)',
+          repeatLbl: 'Repeats', infLbl: 'Infinite', repeatNote: 'When the set delay elapses, speech stops automatically',
+          playSec: 'Playback', delayALbl: 'Side A delay (s)', delayBLbl: 'Side B delay (s)', delayBackHint: '0 = same as the delay set in the control panel', wakeLbl: 'Keep screen on during auto play',
+          backupSec: 'Progress backup (JSON)', backupNote: 'Includes memorized marks and progress. Use when moving to another device.', exportBtn: 'Export', importBtn: 'Import', importDone: (n) => `Restored: ${n} items`, importFail: 'Could not read the backup file',
+          fsSec: 'Screen', fsBtn: 'Toggle fullscreen', fsUnsupported: 'Fullscreen is not supported in this browser',
+          resetSec: 'Reset', resetAllBtn: 'Reset all settings', resetAllConfirm: 'Restore all settings to their defaults?', resetAllNote: 'Your deck, memorized marks and language are kept',
+          fontTitle: 'Font settings', fontFamily: 'Font', fontSize: 'Size (px)', bold: 'Bold', fontColor: 'Text color', close: 'Close',
+          bgTitle: 'Background color', bgHint: 'A dark navy or black background keeps the text crisp.',
+          fonts: { gothic: 'Bold sans', round: 'Rounded sans', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Open a CSV deck to start', emptyBot: '(Open deck → CSV file: word,meaning)', ariaNext: 'Next (click or spacebar)',
+          noEligible: 'No items match the current range',
+          sampleLoaded: (n) => `Sample deck loaded: ${n} items`,
+          noRows: 'No readable rows — check the CSV uses "word,meaning" format',
+          opened: (n) => `Deck opened: ${n} items`,
+          samples: 'Sample decks', samplesSub: 'Ready-made decks — apply instantly, or download the CSV, edit it and open it again.', backToTop: 'Back to the deck',
+          thTitle: 'Deck', thCount: 'Words', thAct: 'Apply / Download', basicDeck: 'Basic vocabulary', interDeck: 'Intermediate vocabulary', advDeck: 'Advanced vocabulary', bizDeck: 'Business vocabulary',
+          enElem: 'Elementary English', enMiddle: 'Middle school English', enHigh: 'High school English', enCollege: 'Academic English',
+          soon: 'Coming soon', applyBtn: 'Apply', dlTip: 'Download CSV — edit it and open it again', appliedMark: 'Applied', lvlNote: 'Exam names indicate approximate difficulty tiers, not official word lists',
+          confirmReplace: 'Replace the current deck? Memorized marks will be reset.',
+          sampleDone: (name, n) => `${name} applied — ${n} words`, sampleFailNet: 'Could not load the sample — check your connection',
+          emptySamples: '↓ Or pick a sample deck below to start right away',
+          confirmReset: 'Reset all memorized marks?', resetDone: 'All memorized marks reset',
+          startRange: (m) => `Start number must be between 1 and ${m}`,
+          cantClose: 'If the browser blocks closing, please close the tab manually',
+          edTitle: 'CSV Editor', edSub: 'Load a downloaded sample CSV or start from a blank sheet and build your own deck like a spreadsheet. Everything is saved on this device only.',
+          edLoad: 'Open', edLoadFile: 'Load', edLoadCur: 'Import current deck', edNew: 'New sheet (clear)',
+          edName: 'Deck name', edNamePh: 'My deck', edSave: 'Save & apply', edSaveCsv: 'Save', edSaveMy: 'Save to My Voca Decks', edApplyNow: 'Start memorizing now',
+          edRows: 'Rows', edValid: 'Valid', edErrs: 'Errors', edErrMsg: 'There are empty cells — fill the red cells or delete those rows to save.',
+          edColA: 'Side A (word)', edColB: 'Side B (meaning)', edAddRow: 'Add row', edAdd10: 'Add 10 rows', edDelRow: 'Delete row',
+          edHint: 'Drag or Shift+click to select a range, click a row number to select the row · Delete clears, Ctrl+C/V copy & paste (Excel-compatible) · right-click to add/delete rows · rows empty on both sides are ignored on save',
+          edOverwrite: 'This will overwrite the current sheet. Continue?', edDelRowsConfirm: 'Delete the selected rows?', edLoadedFile: (n) => `Loaded ${n} rows into the sheet`, edLoadedCur: (n) => `Imported ${n} rows from the open deck`,
+          myTitle: 'My Voca Decks', mySub: 'Saved decks are kept only in this browser (localStorage). To move to another device, download the CSV and load it there.',
+          myEmpty: 'No saved decks yet. Use "Save to My Voca Decks" in the CSV editor above.',
+          myThName: 'Name', myThCount: 'Words', myThDate: 'Saved', myThAct: 'Actions', myApplyBtn: 'Apply', myEditBtn: 'Edit', myDelTitle: 'Delete',
+          myConfirmDel: (name) => `Delete "${name}"?`, myConfirmOverwrite: (name) => `"${name}" already exists. Overwrite?`, mySavedMsg: (name, n) => `Saved "${name}" to My Voca Decks (${n} words)`,
+          myFull: 'Storage is full — delete unused decks first.', myUsage: (kb) => `Storage used: about ${kb} KB / 5 MB (browser localStorage limit)`,
+        },
+        ja: {
+          appName: '点滅式単語帳', langLabel: '言語', tutorialLink: 'チュートリアル',
+          metaDesc: '単語と意味を大きな文字で交互に表示する無料の点滅式単語暗記ツール。CSVを開くと3秒間隔の自動再生、暗記マーク、ランダム順、TTS読み上げに対応。インストール不要。',
+          open: '単語帳を開く', next: '次へ', mem: '暗記マーク', tts: 'TTS', voiceOnly: '音声のみ',
+          alwaysTop: '常に手前に', alwaysTopHint: 'ウェブブラウザでは非対応です', hidePanel: 'パネルを隠す', quit: '終了',
+          gStatus: '状態', total: '総数 :', current: '現在 :', toLearn: '未暗記 :', learned: '暗記済 :',
+          gMode: '手動/自動', manual: '手動', auto: '自動',
+          gOrder: '順序', fwd: '順方向', rev: '逆方向', rnd: 'ランダム', startNo: '開始番号 :', apply: '適用',
+          gRange: '表示範囲', unmem: '暗記済を除外', memOnly: '暗記済のみ', all: 'すべて', delay: '間隔(秒) :',
+          font: 'フォント', bg: '背景色', resetMem: '暗記マーク初期化', adv: '詳細設定', advTitle: '詳細設定',
+          volAll: '全体音量', volA: 'A面の音量', volB: 'B面の音量', rateALbl: 'A面の読み上げ速度', rateBLbl: 'B面の読み上げ速度', readLbl: '読み上げ対象', readBoth: '両方', voiceAuto: '自動（既定）', voiceSel: '読み上げの声（言語 / 話者）',
+          repeatLbl: '繰り返し回数', infLbl: '無限', repeatNote: '設定した間隔が経過すると読み上げは自動的に停止します',
+          playSec: '再生', delayALbl: 'A面の間隔調整(秒)', delayBLbl: 'B面の間隔調整(秒)', delayBackHint: '0 = 操作パネルで設定した間隔と同じ', wakeLbl: '自動再生中は画面をオンのまま維持',
+          backupSec: '暗記状況バックアップ (JSON)', backupNote: '暗記マークなどの進捗も含まれます。機種変更時にご利用ください。', exportBtn: 'エクスポート', importBtn: 'インポート', importDone: (n) => `復元しました: ${n}件`, importFail: 'バックアップファイルを読み込めません',
+          fsSec: '画面', fsBtn: '全画面切替', fsUnsupported: 'このブラウザは全画面表示に対応していません',
+          resetSec: '初期化', resetAllBtn: 'すべての設定を初期化', resetAllConfirm: 'すべての設定を既定値に戻しますか？', resetAllNote: '単語帳・暗記マーク・言語は保持されます',
+          fontTitle: 'フォント設定', fontFamily: 'フォント', fontSize: 'サイズ(px)', bold: '太字', fontColor: '文字色', close: '閉じる',
+          bgTitle: '背景色', bgHint: '文字がはっきり見えるよう濃紺または黒を推奨します。',
+          fonts: { gothic: 'ゴシック(太)', round: '丸ゴシック', serif: '明朝', mono: '等幅' },
+          emptyTop: 'CSV単語帳を開いてください', emptyBot: '(単語帳を開く → CSVファイル: 単語,意味)', ariaNext: '次へ（クリックまたはスペース）',
+          noEligible: '表示範囲に該当する項目がありません',
+          sampleLoaded: (n) => `サンプル単語帳を読み込み: ${n}件`,
+          noRows: '読み取れる行がありません — 「単語,意味」形式のCSVか確認してください',
+          opened: (n) => `単語帳を開きました: ${n}件`,
+          samples: 'サンプル単語帳', samplesSub: 'すぐ使える単語帳です。ワンタップで適用、またはCSVをダウンロードして編集後に開き直せます。', backToTop: '単語帳へ戻る',
+          thTitle: '単語帳', thCount: '語数', thAct: '適用 / DL', basicDeck: '基礎語彙', interDeck: '中級語彙', advDeck: '上級語彙', bizDeck: 'ビジネス語彙',
+          enElem: '小学英語', enMiddle: '中学英語', enHigh: '高校英語', enCollege: '大学英語（学術）',
+          soon: '準備中', applyBtn: '適用', dlTip: 'CSVをダウンロード — 編集して開き直せます', appliedMark: '適用中', lvlNote: '試験名は難易度の目安です（公式語彙表ではありません）',
+          confirmReplace: '現在の単語帳を置き換えますか？暗記マークはリセットされます。',
+          sampleDone: (name, n) => `${name} を適用 — ${n}語`, sampleFailNet: 'サンプルを読み込めませんでした — 接続を確認してください',
+          emptySamples: '↓ 下のサンプル単語帳からすぐ始めることもできます',
+          confirmReset: 'すべての暗記マークを初期化しますか？', resetDone: '暗記マークを初期化しました',
+          startRange: (m) => `開始番号は1〜${m}の範囲で指定してください`,
+          cantClose: 'ブラウザの制限で閉じられない場合はタブを直接閉じてください',
+          edTitle: 'CSVエディタ', edSub: 'ダウンロードしたサンプルCSVを読み込むか、空のシートから表計算のように自分だけの単語帳を作れます。保存はすべてこの端末内のみです。',
+          edLoad: '読み込み', edLoadFile: 'ロード', edLoadCur: '現在の単語帳を取り込む', edNew: '新規シート（クリア）',
+          edName: '単語帳の名前', edNamePh: 'マイ単語帳', edSave: '保存', edSaveCsv: 'セーブ', edSaveMy: 'マイVOCAデッキに保存', edApplyNow: 'このまま暗記を開始',
+          edRows: '行', edValid: '有効', edErrs: 'エラー', edErrMsg: '空欄があるため保存できません。赤いセルを埋めるか行を削除してください。',
+          edColA: 'A面（単語）', edColB: 'B面（意味）', edAddRow: '行を追加', edAdd10: '10行追加', edDelRow: '行を削除',
+          edHint: 'ドラッグ・Shiftクリックで範囲選択、行番号クリックで行全体を選択 · Deleteで消去、Ctrl+C/VでExcel互換のコピー＆貼り付け · 右クリックで行の追加/削除 · 両側とも空の行は保存時に無視',
+          edOverwrite: '現在のシートの内容を上書きします。続けますか？', edDelRowsConfirm: '選択した行を削除しますか？', edLoadedFile: (n) => `シートに${n}行を読み込みました`, edLoadedCur: (n) => `開いている単語帳から${n}行を取り込みました`,
+          myTitle: 'マイVOCAデッキ', mySub: '保存した単語帳はこのブラウザ(localStorage)内にのみ保管されます。別の端末へ移すにはCSVをダウンロードして読み込んでください。',
+          myEmpty: 'まだ保存された単語帳がありません。上のCSVエディタで「マイVOCAデッキに保存」を押してください。',
+          myThName: '名前', myThCount: '単語数', myThDate: '保存日', myThAct: '操作', myApplyBtn: '適用', myEditBtn: '編集', myDelTitle: '削除',
+          myConfirmDel: (name) => `「${name}」を削除しますか？`, myConfirmOverwrite: (name) => `「${name}」は既に存在します。上書きしますか？`, mySavedMsg: (name, n) => `マイVOCAデッキに「${name}」を保存しました（${n}語）`,
+          myFull: '保存容量がいっぱいです。使わない単語帳を削除してください。', myUsage: (kb) => `使用容量: 約${kb} KB / 5 MB（ブラウザlocalStorageの上限）`,
+        },
+        ko: {
+          appName: '깜빡이', langLabel: '언어', tutorialLink: '튜토리얼',
+          metaDesc: '단어와 뜻을 큰 글자로 번갈아 보여주는 무료 깜빡이 단어암기장. CSV 암기장을 열면 3초 간격 자동 재생, 암기 표시, 무작위 순서, TTS 음성을 지원합니다. 설치 없이 브라우저에서 바로.',
+          open: '암기장 열기', next: '다음', mem: '암기 표시', tts: 'TTS', voiceOnly: '음성만',
+          alwaysTop: '항상 위에', alwaysTopHint: '웹 브라우저에서는 지원되지 않습니다', hidePanel: '제어판 숨기기', quit: '종료',
+          gStatus: '상태', total: '총 개수 :', current: '현재 인덱스 :', toLearn: '외울 개수 :', learned: '외운 개수 :',
+          gMode: '수동/자동', manual: '수동', auto: '자동',
+          gOrder: '순서', fwd: '순방향', rev: '역방향', rnd: '무작위', startNo: '시작번호 :', apply: '적용',
+          gRange: '표시 범위', unmem: '외운 항목 제외', memOnly: '외운 항목만', all: '모두', delay: '지연시간(초) :',
+          font: '글꼴', bg: '배경 색상', resetMem: '암기표시 초기화', adv: '고급 설정', advTitle: '고급 설정',
+          volAll: '전체 볼륨', volA: 'A면 볼륨', volB: 'B면 볼륨', rateALbl: 'A면 읽기 속도', rateBLbl: 'B면 읽기 속도', readLbl: '읽기 대상', readBoth: '둘 다', voiceAuto: '자동(기본)', voiceSel: 'TTS 목소리 선택 (언어 / 발화자)',
+          repeatLbl: '반복 횟수', infLbl: '무한', repeatNote: '지정한 지연시간이 지나면 읽기는 자동 중단됩니다',
+          playSec: '재생', delayALbl: 'A면 지연시간 조절(초)', delayBLbl: 'B면 지연시간 조절(초)', delayBackHint: '0 = 제어판에서 설정한 지연시간과 동일', wakeLbl: '자동재생 중 화면 꺼짐 방지',
+          backupSec: '암기상황 백업 (JSON)', backupNote: '외운 개수 등이 포함됩니다. 기기 이동시 사용하세요.', exportBtn: '내보내기', importBtn: '가져오기', importDone: (n) => `복원 완료: ${n}개`, importFail: '백업 파일을 읽을 수 없습니다',
+          fsSec: '화면', fsBtn: '전체화면 전환', fsUnsupported: '이 브라우저는 전체화면을 지원하지 않습니다',
+          resetSec: '초기화', resetAllBtn: '모든 설정 초기화', resetAllConfirm: '모든 설정을 기본값으로 되돌릴까요?', resetAllNote: '덱·암기 표시·언어는 유지됩니다',
+          fontTitle: '글꼴 설정', fontFamily: '글꼴', fontSize: '크기(px)', bold: '굵게', fontColor: '글자색', close: '닫기',
+          bgTitle: '배경 색상', bgHint: '글씨가 선명하게 보이도록 짙은 남색 또는 검정색을 권장합니다.',
+          fonts: { gothic: '고딕 (굵은 견고딕풍)', round: '둥근 고딕', serif: '명조', mono: '모노스페이스' },
+          emptyTop: 'CSV 암기장을 열어주세요', emptyBot: '(암기장 열기 → CSV 파일: 단어,뜻)', ariaNext: '다음 (클릭 또는 스페이스바)',
+          noEligible: '표시 범위에 해당하는 항목이 없습니다',
+          sampleLoaded: (n) => `샘플 암기장 로드: ${n}개`,
+          noRows: '읽을 수 있는 행이 없습니다 — "단어,뜻" 형식의 CSV인지 확인하세요',
+          opened: (n) => `암기장 열기 완료: ${n}개 항목`,
+          samples: '샘플 암기장', samplesSub: '바로 쓸 수 있는 기본 제공 암기장입니다. 한 번에 적용하거나, CSV로 내려받아 수정한 뒤 다시 열 수 있어요.', backToTop: '암기장으로',
+          thTitle: '암기장', thCount: '단어 수', thAct: '적용 / 다운로드', basicDeck: '기초 어휘', interDeck: '중급 어휘', advDeck: '고급 어휘', bizDeck: '비즈니스 어휘',
+          enElem: '초등영어', enMiddle: '중학영어', enHigh: '고등영어', enCollege: '대학영어(학술)',
+          soon: '준비 중', applyBtn: '적용', dlTip: 'CSV 다운로드 — 수정해서 다시 열 수 있어요', appliedMark: '적용됨', lvlNote: '시험명은 난이도 기준의 근사 어휘 구성입니다 (공식 어휘표 아님)',
+          confirmReplace: '현재 암기장을 교체할까요? 암기 표시는 초기화됩니다.',
+          sampleDone: (name, n) => `${name} 적용됨 — ${n}단어`, sampleFailNet: '샘플을 불러오지 못했어요 — 네트워크를 확인해 주세요',
+          emptySamples: '↓ 아래 샘플 암기장에서 골라 바로 시작할 수도 있어요',
+          confirmReset: '모든 암기 표시를 초기화할까요?', resetDone: '암기 표시 초기화 완료',
+          startRange: (m) => `시작번호는 1~${m} 사이여야 합니다`,
+          cantClose: '브라우저 정책상 창을 닫을 수 없으면 탭을 직접 닫아주세요',
+          edTitle: 'CSV 편집기', edSub: '샘플 CSV를 다운받아 로드하거나 빈 시트에서 시작해, 엑셀처럼 나만의 단어장을 만들어 보세요. 모든 저장은 이 기기 안에서만 이뤄집니다.',
+          edLoad: '불러오기', edLoadFile: '로드', edLoadCur: '현재 덱 가져오기', edNew: '새 시트 (비우기)',
+          edName: '단어장 이름', edNamePh: '나의 단어장', edSave: '저장하기', edSaveCsv: '저장', edSaveMy: '마이 보카덱에 저장', edApplyNow: '이대로 암기 시작',
+          edRows: '행', edValid: '유효', edErrs: '오류', edErrMsg: '빈 칸이 있어 저장할 수 없습니다. 빨간 칸을 채우거나 행을 삭제하세요.',
+          edColA: 'A면 (단어)', edColB: 'B면 (뜻)', edAddRow: '행 추가', edAdd10: '10행 추가', edDelRow: '행 삭제',
+          edHint: '드래그·Shift클릭으로 범위 선택, 행 번호 클릭 = 행 전체 선택 · Delete로 지우기, Ctrl+C/V 복사·붙여넣기(엑셀 호환) · 우클릭으로 행 추가/삭제 · 양쪽 다 빈 행은 저장 시 무시',
+          edOverwrite: '지금 시트에 있는 내용을 덮어씁니다. 계속할까요?', edDelRowsConfirm: '선택한 행을 삭제할까요?', edLoadedFile: (n) => `시트에 ${n}행을 불러왔습니다`, edLoadedCur: (n) => `지금 열려있는 덱 ${n}행을 가져왔습니다`,
+          myTitle: '마이 보카덱', mySub: '저장한 단어장은 이 브라우저(localStorage)에만 보관됩니다. 다른 기기로 옮길 땐 CSV로 다운로드한 뒤 새 기기에서 로드하세요.',
+          myEmpty: '아직 저장된 단어장이 없습니다. 위 CSV 편집기에서 「마이 보카덱에 저장」을 눌러 추가하세요.',
+          myThName: '이름', myThCount: '단어 수', myThDate: '저장일', myThAct: '동작', myApplyBtn: '적용', myEditBtn: '편집', myDelTitle: '삭제',
+          myConfirmDel: (name) => `「${name}」을(를) 삭제할까요?`, myConfirmOverwrite: (name) => `「${name}」이(가) 이미 있습니다. 덮어쓸까요?`, mySavedMsg: (name, n) => `마이 보카덱에 「${name}」 저장 완료 (${n}단어)`,
+          myFull: '저장 공간이 가득 찼습니다. 안 쓰는 단어장을 삭제해 주세요.', myUsage: (kb) => `저장 공간: 약 ${kb} KB / 5 MB (브라우저 localStorage 한도)`,
+        },
+        zh: {
+          appName: '闪示单词', langLabel: '语言', tutorialLink: '教程',
+          metaDesc: '免费闪示单词记忆工具，以大字交替显示单词与释义。打开CSV即可每3秒自动播放、标记已记、随机顺序与TTS朗读。无需安装，浏览器即开即用。',
+          open: '打开单词本', next: '下一个', mem: '已记标记', tts: 'TTS', voiceOnly: '仅语音',
+          alwaysTop: '置顶', alwaysTopHint: '网页浏览器不支持', hidePanel: '隐藏控制面板', quit: '退出',
+          gStatus: '状态', total: '总数 :', current: '当前 :', toLearn: '待记 :', learned: '已记 :',
+          gMode: '手动/自动', manual: '手动', auto: '自动',
+          gOrder: '顺序', fwd: '正向', rev: '反向', rnd: '随机', startNo: '起始编号 :', apply: '应用',
+          gRange: '显示范围', unmem: '排除已记', memOnly: '仅已记', all: '全部', delay: '间隔(秒) :',
+          font: '字体', bg: '背景颜色', resetMem: '重置已记标记', adv: '高级设置', advTitle: '高级设置',
+          volAll: '总音量', volA: 'A面音量', volB: 'B面音量', rateALbl: 'A面朗读速度', rateBLbl: 'B面朗读速度', readLbl: '朗读对象', readBoth: '两者', voiceAuto: '自动(默认)', voiceSel: '朗读语音（语言 / 发音人）',
+          repeatLbl: '重复次数', infLbl: '无限', repeatNote: '到达设定的间隔后朗读会自动停止',
+          playSec: '播放', delayALbl: 'A面间隔调整(秒)', delayBLbl: 'B面间隔调整(秒)', delayBackHint: '0 = 与控制面板中设置的间隔相同', wakeLbl: '自动播放时保持屏幕常亮',
+          backupSec: '背诵进度备份 (JSON)', backupNote: '包含已记标记等学习进度，更换设备时使用。', exportBtn: '导出', importBtn: '导入', importDone: (n) => `已恢复: ${n}条`, importFail: '无法读取备份文件',
+          fsSec: '屏幕', fsBtn: '切换全屏', fsUnsupported: '此浏览器不支持全屏',
+          resetSec: '重置', resetAllBtn: '重置所有设置', resetAllConfirm: '将所有设置恢复为默认值？', resetAllNote: '词库、已记标记和语言将保留',
+          fontTitle: '字体设置', fontFamily: '字体', fontSize: '大小(px)', bold: '加粗', fontColor: '文字颜色', close: '关闭',
+          bgTitle: '背景颜色', bgHint: '建议使用深蓝或黑色背景，让文字更清晰。',
+          fonts: { gothic: '黑体(粗)', round: '圆体', serif: '宋体', mono: '等宽' },
+          emptyTop: '请打开CSV单词本', emptyBot: '(打开单词本 → CSV文件: 单词,释义)', ariaNext: '下一个（点击或空格键）',
+          noEligible: '没有符合显示范围的条目',
+          sampleLoaded: (n) => `示例单词本已加载: ${n}条`,
+          noRows: '没有可读取的行 — 请确认CSV为"单词,释义"格式',
+          opened: (n) => `单词本已打开: ${n}条`,
+          samples: '示例单词本', samplesSub: '开箱即用的单词本。一键应用，或下载CSV编辑后重新打开。', backToTop: '返回单词本',
+          thTitle: '单词本', thCount: '词数', thAct: '应用 / 下载', basicDeck: '基础词汇', interDeck: '中级词汇', advDeck: '高级词汇', bizDeck: '商务词汇',
+          enElem: '小学英语', enMiddle: '初中英语', enHigh: '高中英语', enCollege: '大学英语（学术）',
+          soon: '即将推出', applyBtn: '应用', dlTip: '下载CSV — 可编辑后重新打开', appliedMark: '使用中', lvlNote: '考试名称仅表示难度分级（非官方词表）',
+          confirmReplace: '要替换当前单词本吗？已记标记将被重置。',
+          sampleDone: (name, n) => `已应用 ${name} — ${n}词`, sampleFailNet: '无法加载示例 — 请检查网络',
+          emptySamples: '↓ 也可以从下方示例单词本直接开始',
+          confirmReset: '要重置所有已记标记吗？', resetDone: '已记标记已重置',
+          startRange: (m) => `起始编号须在1~${m}之间`,
+          cantClose: '如浏览器限制无法关闭窗口，请手动关闭标签页',
+          edTitle: 'CSV编辑器', edSub: '加载下载的示例CSV，或从空白表格开始，像电子表格一样制作自己的单词本。所有保存仅在本设备内进行。',
+          edLoad: '加载方式', edLoadFile: '加载', edLoadCur: '导入当前单词本', edNew: '新建表格（清空）',
+          edName: '单词本名称', edNamePh: '我的单词本', edSave: '保存方式', edSaveCsv: '保存', edSaveMy: '保存到我的Voca Deck', edApplyNow: '立即开始背诵',
+          edRows: '行', edValid: '有效', edErrs: '错误', edErrMsg: '存在空单元格，无法保存。请填写红色单元格或删除该行。',
+          edColA: 'A面（单词）', edColB: 'B面（释义）', edAddRow: '添加行', edAdd10: '添加10行', edDelRow: '删除行',
+          edHint: '拖动或Shift点击选择范围，点击行号选择整行 · Delete清除，Ctrl+C/V复制粘贴（兼容Excel） · 右键添加/删除行 · 两侧均为空的行在保存时忽略',
+          edOverwrite: '将覆盖当前表格内容。继续吗？', edDelRowsConfirm: '删除选中的行吗？', edLoadedFile: (n) => `已向表格加载${n}行`, edLoadedCur: (n) => `已从当前单词本导入${n}行`,
+          myTitle: '我的Voca Deck', mySub: '保存的单词本仅存放在此浏览器(localStorage)中。换设备时请下载CSV后在新设备加载。',
+          myEmpty: '还没有保存的单词本。请在上方CSV编辑器中点击「保存到我的Voca Deck」。',
+          myThName: '名称', myThCount: '单词数', myThDate: '保存日期', myThAct: '操作', myApplyBtn: '应用', myEditBtn: '编辑', myDelTitle: '删除',
+          myConfirmDel: (name) => `删除「${name}」吗？`, myConfirmOverwrite: (name) => `「${name}」已存在。要覆盖吗？`, mySavedMsg: (name, n) => `已将「${name}」保存到我的Voca Deck（${n}个单词）`,
+          myFull: '存储空间已满，请先删除不用的单词本。', myUsage: (kb) => `已用空间: 约${kb} KB / 5 MB（浏览器localStorage上限）`,
+        },
+        'zh-Hant': {
+          appName: '閃示單字', langLabel: '語言', tutorialLink: '教學',
+          metaDesc: '免費閃示單字記憶工具，以大字交替顯示單字與釋義。開啟CSV即可每3秒自動播放、標記已記、隨機順序與TTS朗讀。免安裝，瀏覽器即開即用。',
+          open: '開啟單字本', next: '下一個', mem: '已記標記', tts: 'TTS', voiceOnly: '僅語音',
+          alwaysTop: '置頂', alwaysTopHint: '網頁瀏覽器不支援', hidePanel: '隱藏控制面板', quit: '結束',
+          gStatus: '狀態', total: '總數 :', current: '目前 :', toLearn: '待記 :', learned: '已記 :',
+          gMode: '手動/自動', manual: '手動', auto: '自動',
+          gOrder: '順序', fwd: '正向', rev: '反向', rnd: '隨機', startNo: '起始編號 :', apply: '套用',
+          gRange: '顯示範圍', unmem: '排除已記', memOnly: '僅已記', all: '全部', delay: '間隔(秒) :',
+          font: '字型', bg: '背景顏色', resetMem: '重設已記標記', adv: '進階設定', advTitle: '進階設定',
+          volAll: '總音量', volA: 'A面音量', volB: 'B面音量', rateALbl: 'A面朗讀速度', rateBLbl: 'B面朗讀速度', readLbl: '朗讀對象', readBoth: '兩者', voiceAuto: '自動(預設)', voiceSel: '朗讀語音（語言 / 發音人）',
+          repeatLbl: '重複次數', infLbl: '無限', repeatNote: '到達設定的間隔後朗讀會自動停止',
+          playSec: '播放', delayALbl: 'A面間隔調整(秒)', delayBLbl: 'B面間隔調整(秒)', delayBackHint: '0 = 與控制面板中設定的間隔相同', wakeLbl: '自動播放時保持螢幕常亮',
+          backupSec: '背誦進度備份 (JSON)', backupNote: '包含已記標記等學習進度，更換裝置時使用。', exportBtn: '匯出', importBtn: '匯入', importDone: (n) => `已還原: ${n}條`, importFail: '無法讀取備份檔案',
+          fsSec: '螢幕', fsBtn: '切換全螢幕', fsUnsupported: '此瀏覽器不支援全螢幕',
+          resetSec: '重設', resetAllBtn: '重設所有設定', resetAllConfirm: '將所有設定恢復為預設值？', resetAllNote: '單字庫、已記標記與語言將保留',
+          fontTitle: '字型設定', fontFamily: '字型', fontSize: '大小(px)', bold: '粗體', fontColor: '文字顏色', close: '關閉',
+          bgTitle: '背景顏色', bgHint: '建議使用深藍或黑色背景，讓文字更清晰。',
+          fonts: { gothic: '黑體(粗)', round: '圓體', serif: '明體', mono: '等寬' },
+          emptyTop: '請開啟CSV單字本', emptyBot: '(開啟單字本 → CSV檔案: 單字,釋義)', ariaNext: '下一個（點擊或空白鍵）',
+          noEligible: '沒有符合顯示範圍的項目',
+          sampleLoaded: (n) => `已載入範例單字本: ${n} 筆`,
+          noRows: '沒有可讀取的列 — 請確認CSV為「單字,釋義」格式',
+          opened: (n) => `已開啟單字本: ${n} 筆`,
+          samples: '範例單字本', samplesSub: '開箱即用的單字本。一鍵套用，或下載CSV編輯後重新開啟。', backToTop: '返回單字本',
+          thTitle: '單字本', thCount: '字數', thAct: '套用 / 下載', basicDeck: '基礎詞彙', interDeck: '中級詞彙', advDeck: '高級詞彙', bizDeck: '商務詞彙',
+          enElem: '國小英語', enMiddle: '國中英語', enHigh: '高中英語', enCollege: '大學英語（學術）',
+          soon: '即將推出', applyBtn: '套用', dlTip: '下載CSV — 可編輯後重新開啟', appliedMark: '使用中', lvlNote: '考試名稱僅代表難度分級（非官方詞表）',
+          confirmReplace: '要替換目前的單字本嗎？已記標記將被重設。',
+          sampleDone: (name, n) => `已套用 ${name} — ${n} 字`, sampleFailNet: '無法載入範例 — 請檢查網路',
+          emptySamples: '↓ 也可以從下方範例單字本直接開始',
+          confirmReset: '要重設所有已記標記嗎？', resetDone: '已重設已記標記',
+          startRange: (m) => `起始編號須在 1~${m} 之間`,
+          cantClose: '若瀏覽器限制無法關閉視窗，請手動關閉分頁',
+          edTitle: 'CSV編輯器', edSub: '載入下載的範例CSV，或從空白表格開始，像試算表一樣製作自己的單字本。所有儲存僅在本裝置內進行。',
+          edLoad: '載入方式', edLoadFile: '載入', edLoadCur: '匯入目前單字本', edNew: '新表格（清空）',
+          edName: '單字本名稱', edNamePh: '我的單字本', edSave: '儲存方式', edSaveCsv: '儲存', edSaveMy: '儲存到我的Voca Deck', edApplyNow: '立即開始背誦',
+          edRows: '列', edValid: '有效', edErrs: '錯誤', edErrMsg: '有空白儲存格，無法儲存。請填寫紅色儲存格或刪除該列。',
+          edColA: 'A面（單字）', edColB: 'B面（釋義）', edAddRow: '新增列', edAdd10: '新增10列', edDelRow: '刪除列',
+          edHint: '拖曳或Shift點擊選取範圍，點列號選取整列 · Delete清除，Ctrl+C/V複製貼上（相容Excel） · 右鍵新增/刪除列 · 兩側皆空的列在儲存時忽略',
+          edOverwrite: '將覆寫目前表格內容。要繼續嗎？', edDelRowsConfirm: '要刪除選取的列嗎？', edLoadedFile: (n) => `已在表格載入${n}列`, edLoadedCur: (n) => `已從目前單字本匯入${n}列`,
+          myTitle: '我的Voca Deck', mySub: '儲存的單字本僅存放在此瀏覽器(localStorage)中。換裝置時請下載CSV後在新裝置載入。',
+          myEmpty: '還沒有儲存的單字本。請在上方CSV編輯器中按「儲存到我的Voca Deck」。',
+          myThName: '名稱', myThCount: '單字數', myThDate: '儲存日期', myThAct: '操作', myApplyBtn: '套用', myEditBtn: '編輯', myDelTitle: '刪除',
+          myConfirmDel: (name) => `要刪除「${name}」嗎？`, myConfirmOverwrite: (name) => `「${name}」已存在。要覆寫嗎？`, mySavedMsg: (name, n) => `已將「${name}」儲存到我的Voca Deck（${n}個單字）`,
+          myFull: '儲存空間已滿，請先刪除不用的單字本。', myUsage: (kb) => `已用空間: 約${kb} KB / 5 MB（瀏覽器localStorage上限）`,
+        },
+        th: {
+          appName: 'ท่องศัพท์แบบแฟลช', langLabel: 'ภาษา', tutorialLink: 'บทช่วยสอน',
+          metaDesc: 'โปรแกรมท่องศัพท์ฟรี สลับคำและความหมายด้วยตัวอักษรขนาดใหญ่ เปิดไฟล์ CSV เล่นซ้ำอัตโนมัติทุก 3 วินาที ทำเครื่องหมายจำ สุ่มลำดับ และ TTS ใช้ในเบราว์เซอร์ได้ทันที',
+          open: 'เปิดชุดคำศัพท์', next: 'ถัดไป', mem: 'จำได้แล้ว', tts: 'TTS', voiceOnly: 'เสียงเท่านั้น',
+          alwaysTop: 'อยู่บนสุดเสมอ', alwaysTopHint: 'ไม่รองรับบนเว็บเบราว์เซอร์', hidePanel: 'ซ่อนแผงควบคุม', quit: 'ออก',
+          gStatus: 'สถานะ', total: 'ทั้งหมด :', current: 'ปัจจุบัน :', toLearn: 'ต้องจำ :', learned: 'จำได้ :',
+          gMode: 'มือ/อัตโนมัติ', manual: 'ด้วยมือ', auto: 'อัตโนมัติ',
+          gOrder: 'ลำดับ', fwd: 'ไปข้างหน้า', rev: 'ย้อนกลับ', rnd: 'สุ่ม', startNo: 'เริ่มที่ :', apply: 'ใช้',
+          gRange: 'ขอบเขต', unmem: 'ข้ามที่จำได้', memOnly: 'เฉพาะที่จำได้', all: 'ทั้งหมด', delay: 'หน่วงเวลา(วิ) :',
+          font: 'ฟอนต์', bg: 'สีพื้นหลัง', resetMem: 'ล้างเครื่องหมายจำ', adv: 'ตั้งค่าขั้นสูง', advTitle: 'การตั้งค่าขั้นสูง',
+          volAll: 'ระดับเสียงรวม', volA: 'เสียงด้าน A', volB: 'เสียงด้าน B', rateALbl: 'ความเร็วการอ่านด้าน A', rateBLbl: 'ความเร็วการอ่านด้าน B', readLbl: 'อ่านออกเสียง', readBoth: 'ทั้งคู่', voiceAuto: 'อัตโนมัติ(ค่าเริ่มต้น)', voiceSel: 'เสียงอ่าน (ภาษา / ผู้พูด)',
+          repeatLbl: 'จำนวนครั้งอ่านซ้ำ', infLbl: 'ไม่จำกัด', repeatNote: 'เมื่อครบเวลาหน่วงที่ตั้งไว้ การอ่านจะหยุดโดยอัตโนมัติ',
+          playSec: 'การเล่น', delayALbl: 'ปรับเวลาหน่วงด้าน A (วิ)', delayBLbl: 'ปรับเวลาหน่วงด้าน B (วิ)', delayBackHint: '0 = เท่ากับเวลาหน่วงที่ตั้งในแผงควบคุม', wakeLbl: 'กันหน้าจอดับระหว่างเล่นอัตโนมัติ',
+          backupSec: 'สำรองความคืบหน้าการท่องจำ (JSON)', backupNote: 'รวมเครื่องหมายจำและความคืบหน้า ใช้เมื่อย้ายอุปกรณ์', exportBtn: 'ส่งออก', importBtn: 'นำเข้า', importDone: (n) => `กู้คืนแล้ว: ${n} รายการ`, importFail: 'อ่านไฟล์สำรองไม่ได้',
+          fsSec: 'หน้าจอ', fsBtn: 'สลับเต็มหน้าจอ', fsUnsupported: 'เบราว์เซอร์นี้ไม่รองรับเต็มหน้าจอ',
+          resetSec: 'รีเซ็ต', resetAllBtn: 'รีเซ็ตการตั้งค่าทั้งหมด', resetAllConfirm: 'คืนค่าการตั้งค่าทั้งหมดเป็นค่าเริ่มต้น?', resetAllNote: 'ชุดคำศัพท์ เครื่องหมายจำ และภาษาจะยังคงอยู่',
+          fontTitle: 'ตั้งค่าฟอนต์', fontFamily: 'ฟอนต์', fontSize: 'ขนาด(px)', bold: 'ตัวหนา', fontColor: 'สีตัวอักษร', close: 'ปิด',
+          bgTitle: 'สีพื้นหลัง', bgHint: 'แนะนำพื้นหลังน้ำเงินเข้มหรือดำเพื่อให้ตัวอักษรคมชัด',
+          fonts: { gothic: 'ซานส์หนา', round: 'ซานส์มน', serif: 'เซริฟ', mono: 'โมโนสเปซ' },
+          emptyTop: 'เปิดชุดคำศัพท์ CSV เพื่อเริ่ม', emptyBot: '(เปิดชุดคำศัพท์ → ไฟล์ CSV: คำ,ความหมาย)', ariaNext: 'ถัดไป (คลิกหรือกดสเปซบาร์)',
+          noEligible: 'ไม่มีรายการในขอบเขตปัจจุบัน',
+          sampleLoaded: (n) => `โหลดชุดตัวอย่างแล้ว: ${n} รายการ`,
+          noRows: 'ไม่มีแถวที่อ่านได้ — ตรวจสอบว่า CSV เป็นรูปแบบ "คำ,ความหมาย"',
+          opened: (n) => `เปิดชุดคำศัพท์แล้ว: ${n} รายการ`,
+          samples: 'ชุดคำศัพท์ตัวอย่าง', samplesSub: 'ชุดคำศัพท์พร้อมใช้ — ใช้ได้ทันที หรือดาวน์โหลด CSV ไปแก้ไขแล้วเปิดใหม่', backToTop: 'กลับไปชุดคำศัพท์',
+          thTitle: 'ชุดคำศัพท์', thCount: 'จำนวนคำ', thAct: 'ใช้ / ดาวน์โหลด', basicDeck: 'คำศัพท์พื้นฐาน', interDeck: 'คำศัพท์ระดับกลาง', advDeck: 'คำศัพท์ขั้นสูง', bizDeck: 'คำศัพท์ธุรกิจ',
+          enElem: 'อังกฤษประถม', enMiddle: 'อังกฤษมัธยมต้น', enHigh: 'อังกฤษมัธยมปลาย', enCollege: 'อังกฤษเชิงวิชาการ',
+          soon: 'เร็วๆ นี้', applyBtn: 'ใช้', dlTip: 'ดาวน์โหลด CSV — แก้ไขแล้วเปิดใหม่ได้', appliedMark: 'กำลังใช้', lvlNote: 'ชื่อข้อสอบใช้บอกระดับความยากโดยประมาณ (ไม่ใช่รายการคำศัพท์ทางการ)',
+          confirmReplace: 'แทนที่ชุดคำศัพท์ปัจจุบันหรือไม่? เครื่องหมายจำจะถูกรีเซ็ต',
+          sampleDone: (name, n) => `ใช้ ${name} แล้ว — ${n} คำ`, sampleFailNet: 'โหลดตัวอย่างไม่ได้ — ตรวจสอบการเชื่อมต่อ',
+          emptySamples: '↓ หรือเลือกชุดตัวอย่างด้านล่างเพื่อเริ่มทันที',
+          confirmReset: 'ล้างเครื่องหมายจำทั้งหมดหรือไม่?', resetDone: 'ล้างเครื่องหมายแล้ว',
+          startRange: (m) => `หมายเลขเริ่มต้นต้องอยู่ระหว่าง 1 ถึง ${m}`,
+          cantClose: 'หากเบราว์เซอร์ไม่ให้ปิดหน้าต่าง โปรดปิดแท็บด้วยตนเอง',
+          edTitle: 'ตัวแก้ไข CSV', edSub: 'โหลดไฟล์ CSV ตัวอย่างที่ดาวน์โหลดไว้ หรือเริ่มจากชีตว่างเพื่อสร้างชุดคำศัพท์ของคุณเองเหมือนสเปรดชีต ทุกอย่างบันทึกในเครื่องนี้เท่านั้น',
+          edLoad: 'การโหลด', edLoadFile: 'โหลด', edLoadCur: 'นำเข้าชุดคำศัพท์ปัจจุบัน', edNew: 'ชีตใหม่ (ล้าง)',
+          edName: 'ชื่อชุดคำศัพท์', edNamePh: 'ชุดคำศัพท์ของฉัน', edSave: 'การบันทึก', edSaveCsv: 'บันทึก', edSaveMy: 'บันทึกลง Voca Deck ของฉัน', edApplyNow: 'เริ่มท่องจำเลย',
+          edRows: 'แถว', edValid: 'ใช้ได้', edErrs: 'ผิดพลาด', edErrMsg: 'มีช่องว่าง จึงบันทึกไม่ได้ กรุณากรอกช่องสีแดงหรือลบแถวนั้น',
+          edColA: 'ด้าน A (คำศัพท์)', edColB: 'ด้าน B (ความหมาย)', edAddRow: 'เพิ่มแถว', edAdd10: 'เพิ่ม 10 แถว', edDelRow: 'ลบแถว',
+          edHint: 'ลากหรือ Shift+คลิกเพื่อเลือกช่วง คลิกเลขแถวเพื่อเลือกทั้งแถว · Delete ลบข้อมูล, Ctrl+C/V คัดลอกวาง (ใช้กับ Excel ได้) · คลิกขวาเพื่อเพิ่ม/ลบแถว · แถวที่ว่างทั้งสองด้านจะถูกข้ามตอนบันทึก',
+          edOverwrite: 'จะเขียนทับเนื้อหาในชีตปัจจุบัน ดำเนินการต่อหรือไม่?', edDelRowsConfirm: 'ลบแถวที่เลือกหรือไม่?', edLoadedFile: (n) => `โหลด ${n} แถวลงชีตแล้ว`, edLoadedCur: (n) => `นำเข้า ${n} แถวจากชุดที่เปิดอยู่แล้ว`,
+          myTitle: 'Voca Deck ของฉัน', mySub: 'ชุดที่บันทึกจะเก็บไว้ในเบราว์เซอร์นี้ (localStorage) เท่านั้น หากเปลี่ยนเครื่องให้ดาวน์โหลด CSV แล้วไปโหลดที่เครื่องใหม่',
+          myEmpty: 'ยังไม่มีชุดคำศัพท์ที่บันทึกไว้ กด "บันทึกลง Voca Deck ของฉัน" ในตัวแก้ไข CSV ด้านบน',
+          myThName: 'ชื่อ', myThCount: 'จำนวนคำ', myThDate: 'วันที่บันทึก', myThAct: 'การทำงาน', myApplyBtn: 'ใช้', myEditBtn: 'แก้ไข', myDelTitle: 'ลบ',
+          myConfirmDel: (name) => `ลบ "${name}" หรือไม่?`, myConfirmOverwrite: (name) => `มี "${name}" อยู่แล้ว เขียนทับหรือไม่?`, mySavedMsg: (name, n) => `บันทึก "${name}" ลง Voca Deck ของฉันแล้ว (${n} คำ)`,
+          myFull: 'พื้นที่จัดเก็บเต็ม กรุณาลบชุดที่ไม่ใช้ก่อน', myUsage: (kb) => `ใช้พื้นที่ไปประมาณ ${kb} KB / 5 MB (ขีดจำกัด localStorage ของเบราว์เซอร์)`,
+        },
+        es: {
+          appName: 'Memorización flash', langLabel: 'Idioma', tutorialLink: 'Tutorial',
+          metaDesc: 'Memorizador de vocabulario gratuito que alterna palabras y significados en letras grandes. Abre un CSV: reproducción automática cada 3 s, marcas de memorizada, orden aleatorio y TTS. Sin instalación.',
+          open: 'Abrir mazo', next: 'Siguiente', mem: 'Memorizada', tts: 'TTS', voiceOnly: 'Solo voz',
+          alwaysTop: 'Siempre visible', alwaysTopHint: 'No disponible en navegadores web', hidePanel: 'Ocultar panel', quit: 'Salir',
+          gStatus: 'Estado', total: 'Total :', current: 'Actual :', toLearn: 'Por memorizar :', learned: 'Memorizadas :',
+          gMode: 'Manual/Auto', manual: 'Manual', auto: 'Auto',
+          gOrder: 'Orden', fwd: 'Hacia delante', rev: 'Hacia atrás', rnd: 'Aleatorio', startNo: 'Nº inicial :', apply: 'Aplicar',
+          gRange: 'Rango', unmem: 'Omitir memorizadas', memOnly: 'Solo memorizadas', all: 'Todas', delay: 'Intervalo (s) :',
+          font: 'Fuente', bg: 'Color de fondo', resetMem: 'Restablecer marcas', adv: 'Avanzado', advTitle: 'Ajustes avanzados',
+          volAll: 'Volumen general', volA: 'Volumen cara A', volB: 'Volumen cara B', rateALbl: 'Velocidad de lectura cara A', rateBLbl: 'Velocidad de lectura cara B', readLbl: 'Leer en voz alta', readBoth: 'Ambas', voiceAuto: 'Automática (predeterminada)', voiceSel: 'Voz de lectura (idioma / voz)',
+          repeatLbl: 'Repeticiones', infLbl: 'Infinito', repeatNote: 'Al agotarse el intervalo establecido, la lectura se detiene automáticamente',
+          playSec: 'Reproducción', delayALbl: 'Intervalo cara A (s)', delayBLbl: 'Intervalo cara B (s)', delayBackHint: '0 = igual que el intervalo configurado en el panel de control', wakeLbl: 'Mantener la pantalla encendida en reproducción automática',
+          backupSec: 'Copia del progreso (JSON)', backupNote: 'Incluye las marcas de memorizadas y el progreso. Úselo al cambiar de dispositivo.', exportBtn: 'Exportar', importBtn: 'Importar', importDone: (n) => `Restaurado: ${n} elementos`, importFail: 'No se pudo leer el archivo de copia',
+          fsSec: 'Pantalla', fsBtn: 'Alternar pantalla completa', fsUnsupported: 'Este navegador no admite pantalla completa',
+          resetSec: 'Restablecer', resetAllBtn: 'Restablecer todos los ajustes', resetAllConfirm: '¿Restaurar todos los ajustes a los valores predeterminados?', resetAllNote: 'Se conservan el mazo, las marcas y el idioma',
+          fontTitle: 'Ajustes de fuente', fontFamily: 'Fuente', fontSize: 'Tamaño (px)', bold: 'Negrita', fontColor: 'Color del texto', close: 'Cerrar',
+          bgTitle: 'Color de fondo', bgHint: 'Se recomienda azul marino oscuro o negro para que el texto se vea nítido.',
+          fonts: { gothic: 'Sans gruesa', round: 'Sans redondeada', serif: 'Serif', mono: 'Monoespaciada' },
+          emptyTop: 'Abre un mazo CSV para empezar', emptyBot: '(Abrir mazo → archivo CSV: palabra,significado)', ariaNext: 'Siguiente (clic o barra espaciadora)',
+          noEligible: 'No hay elementos en el rango actual',
+          sampleLoaded: (n) => `Mazo de ejemplo cargado: ${n} elementos`,
+          noRows: 'No hay filas legibles — comprueba que el CSV use el formato "palabra,significado"',
+          opened: (n) => `Mazo abierto: ${n} elementos`,
+          samples: 'Mazos de ejemplo', samplesSub: 'Mazos listos para usar: aplícalos al instante o descarga el CSV, edítalo y vuelve a abrirlo.', backToTop: 'Volver al mazo',
+          thTitle: 'Mazo', thCount: 'Palabras', thAct: 'Aplicar / Descargar', basicDeck: 'Vocabulario básico', interDeck: 'Vocabulario intermedio', advDeck: 'Vocabulario avanzado', bizDeck: 'Vocabulario de negocios',
+          enElem: 'Inglés de primaria', enMiddle: 'Inglés de secundaria', enHigh: 'Inglés de bachillerato', enCollege: 'Inglés académico',
+          soon: 'Próximamente', applyBtn: 'Aplicar', dlTip: 'Descargar CSV — edítalo y vuelve a abrirlo', appliedMark: 'Aplicado', lvlNote: 'Los nombres de exámenes indican niveles aproximados de dificultad (no son listas oficiales)',
+          confirmReplace: '¿Reemplazar el mazo actual? Las marcas de memorizado se restablecerán.',
+          sampleDone: (name, n) => `${name} aplicado — ${n} palabras`, sampleFailNet: 'No se pudo cargar el ejemplo — comprueba tu conexión',
+          emptySamples: '↓ O elige un mazo de ejemplo abajo para empezar ya',
+          confirmReset: '¿Restablecer todas las marcas de memorizada?', resetDone: 'Marcas restablecidas',
+          startRange: (m) => `El número inicial debe estar entre 1 y ${m}`,
+          cantClose: 'Si el navegador impide cerrar la ventana, cierra la pestaña manualmente',
+          edTitle: 'Editor CSV', edSub: 'Carga un CSV de ejemplo descargado o empieza desde una hoja en blanco y crea tu propio mazo como en una hoja de cálculo. Todo se guarda solo en este dispositivo.',
+          edLoad: 'Carga', edLoadFile: 'Cargar', edLoadCur: 'Importar el mazo actual', edNew: 'Hoja nueva (vaciar)',
+          edName: 'Nombre del mazo', edNamePh: 'Mi mazo', edSave: 'Guardado', edSaveCsv: 'Guardar', edSaveMy: 'Guardar en Mis Voca Decks', edApplyNow: 'Empezar a memorizar ya',
+          edRows: 'Filas', edValid: 'Válidas', edErrs: 'Errores', edErrMsg: 'Hay celdas vacías y no se puede guardar. Rellena las celdas rojas o elimina esas filas.',
+          edColA: 'Lado A (palabra)', edColB: 'Lado B (significado)', edAddRow: 'Añadir fila', edAdd10: 'Añadir 10 filas', edDelRow: 'Eliminar fila',
+          edHint: 'Arrastra o Mayús+clic para seleccionar un rango; clic en el número de fila selecciona toda la fila · Supr borra, Ctrl+C/V copia y pega (compatible con Excel) · clic derecho para añadir/eliminar filas · las filas vacías por ambos lados se ignoran al guardar',
+          edOverwrite: 'Se sobrescribirá el contenido actual de la hoja. ¿Continuar?', edDelRowsConfirm: '¿Eliminar las filas seleccionadas?', edLoadedFile: (n) => `Se cargaron ${n} filas en la hoja`, edLoadedCur: (n) => `Se importaron ${n} filas del mazo abierto`,
+          myTitle: 'Mis Voca Decks', mySub: 'Los mazos guardados se conservan solo en este navegador (localStorage). Para pasarlos a otro dispositivo, descarga el CSV y cárgalo allí.',
+          myEmpty: 'Aún no hay mazos guardados. Usa «Guardar en Mis Voca Decks» en el editor CSV de arriba.',
+          myThName: 'Nombre', myThCount: 'Palabras', myThDate: 'Guardado', myThAct: 'Acciones', myApplyBtn: 'Aplicar', myEditBtn: 'Editar', myDelTitle: 'Eliminar',
+          myConfirmDel: (name) => `¿Eliminar «${name}»?`, myConfirmOverwrite: (name) => `«${name}» ya existe. ¿Sobrescribir?`, mySavedMsg: (name, n) => `«${name}» guardado en Mis Voca Decks (${n} palabras)`,
+          myFull: 'El almacenamiento está lleno; elimina mazos que no uses.', myUsage: (kb) => `Espacio usado: unos ${kb} KB / 5 MB (límite de localStorage del navegador)`,
+        },
+        fr: {
+          appName: 'Mémorisation flash', langLabel: 'Langue', tutorialLink: 'Tutoriel',
+          metaDesc: 'Mémorisation de vocabulaire gratuite : mots et sens alternent en grands caractères. Ouvrez un CSV : lecture auto toutes les 3 s, marques mémorisé, ordre aléatoire, TTS. Sans installation.',
+          open: 'Ouvrir un paquet', next: 'Suivant', mem: 'Mémorisé', tts: 'TTS', voiceOnly: 'Voix seule',
+          alwaysTop: 'Toujours au premier plan', alwaysTopHint: 'Non pris en charge dans les navigateurs web', hidePanel: 'Masquer le panneau', quit: 'Quitter',
+          gStatus: 'État', total: 'Total :', current: 'Actuel :', toLearn: 'À apprendre :', learned: 'Mémorisés :',
+          gMode: 'Manuel/Auto', manual: 'Manuel', auto: 'Auto',
+          gOrder: 'Ordre', fwd: 'Avant', rev: 'Arrière', rnd: 'Aléatoire', startNo: 'N° de départ :', apply: 'Appliquer',
+          gRange: 'Plage', unmem: 'Exclure mémorisés', memOnly: 'Mémorisés seuls', all: 'Tous', delay: 'Intervalle (s) :',
+          font: 'Police', bg: 'Couleur de fond', resetMem: 'Réinitialiser les marques', adv: 'Avancé', advTitle: 'Réglages avancés',
+          volAll: 'Volume général', volA: 'Volume face A', volB: 'Volume face B', rateALbl: 'Vitesse de lecture face A', rateBLbl: 'Vitesse de lecture face B', readLbl: 'Lecture vocale', readBoth: 'Les deux', voiceAuto: 'Auto (par défaut)', voiceSel: 'Voix de lecture (langue / voix)',
+          repeatLbl: 'Répétitions', infLbl: 'Infini', repeatNote: "À la fin de l'intervalle défini, la lecture s'arrête automatiquement",
+          playSec: 'Lecture', delayALbl: 'Délai face A (s)', delayBLbl: 'Délai face B (s)', delayBackHint: "0 = identique à l'intervalle défini dans le panneau de commande", wakeLbl: "Garder l'écran allumé pendant la lecture auto",
+          backupSec: 'Sauvegarde de la progression (JSON)', backupNote: "Inclut les marques mémorisées et la progression. À utiliser lors d'un changement d'appareil.", exportBtn: 'Exporter', importBtn: 'Importer', importDone: (n) => `Restauré : ${n} éléments`, importFail: 'Impossible de lire le fichier de sauvegarde',
+          fsSec: 'Écran', fsBtn: 'Basculer le plein écran', fsUnsupported: 'Ce navigateur ne prend pas en charge le plein écran',
+          resetSec: 'Réinitialisation', resetAllBtn: 'Réinitialiser tous les réglages', resetAllConfirm: 'Rétablir tous les réglages par défaut ?', resetAllNote: 'Le paquet, les marques et la langue sont conservés',
+          fontTitle: 'Réglages de police', fontFamily: 'Police', fontSize: 'Taille (px)', bold: 'Gras', fontColor: 'Couleur du texte', close: 'Fermer',
+          bgTitle: 'Couleur de fond', bgHint: 'Un fond bleu marine foncé ou noir est recommandé pour un texte net.',
+          fonts: { gothic: 'Sans épaisse', round: 'Sans arrondie', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Ouvrez un paquet CSV pour commencer', emptyBot: '(Ouvrir un paquet → fichier CSV : mot,sens)', ariaNext: 'Suivant (clic ou barre d’espace)',
+          noEligible: 'Aucun élément dans la plage actuelle',
+          sampleLoaded: (n) => `Paquet d’exemple chargé : ${n} éléments`,
+          noRows: 'Aucune ligne lisible — vérifiez que le CSV est au format « mot,sens »',
+          opened: (n) => `Paquet ouvert : ${n} éléments`,
+          samples: 'Paquets d’exemple', samplesSub: 'Des paquets prêts à l’emploi : appliquez-les en un clic, ou téléchargez le CSV, modifiez-le et rouvrez-le.', backToTop: 'Retour au paquet',
+          thTitle: 'Paquet', thCount: 'Mots', thAct: 'Appliquer / Télécharger', basicDeck: 'Vocabulaire de base', interDeck: 'Vocabulaire intermédiaire', advDeck: 'Vocabulaire avancé', bizDeck: 'Vocabulaire des affaires',
+          enElem: 'Anglais primaire', enMiddle: 'Anglais collège', enHigh: 'Anglais lycée', enCollege: 'Anglais académique',
+          soon: 'Bientôt', applyBtn: 'Appliquer', dlTip: 'Télécharger le CSV — modifiable puis réouvrable', appliedMark: 'Appliqué', lvlNote: 'Les noms d’examens indiquent des niveaux de difficulté approximatifs (pas des listes officielles)',
+          confirmReplace: 'Remplacer le paquet actuel ? Les marques seront réinitialisées.',
+          sampleDone: (name, n) => `${name} appliqué — ${n} mots`, sampleFailNet: 'Impossible de charger l’exemple — vérifiez la connexion',
+          emptySamples: '↓ Ou choisissez un paquet d’exemple ci-dessous pour commencer',
+          confirmReset: 'Réinitialiser toutes les marques ?', resetDone: 'Marques réinitialisées',
+          startRange: (m) => `Le numéro de départ doit être entre 1 et ${m}`,
+          cantClose: 'Si le navigateur empêche la fermeture, fermez l’onglet manuellement',
+          edTitle: 'Éditeur CSV', edSub: 'Chargez un CSV d’exemple téléchargé ou partez d’une feuille vierge pour créer votre propre paquet, comme dans un tableur. Tout est enregistré uniquement sur cet appareil.',
+          edLoad: 'Chargement', edLoadFile: 'Charger', edLoadCur: 'Importer le paquet actuel', edNew: 'Nouvelle feuille (vider)',
+          edName: 'Nom du paquet', edNamePh: 'Mon paquet', edSave: 'Enregistrement', edSaveCsv: 'Enregistrer', edSaveMy: 'Enregistrer dans Mes Voca Decks', edApplyNow: 'Mémoriser tout de suite',
+          edRows: 'Lignes', edValid: 'Valides', edErrs: 'Erreurs', edErrMsg: 'Des cellules sont vides : impossible d’enregistrer. Remplissez les cellules rouges ou supprimez ces lignes.',
+          edColA: 'Face A (mot)', edColB: 'Face B (sens)', edAddRow: 'Ajouter une ligne', edAdd10: 'Ajouter 10 lignes', edDelRow: 'Supprimer la ligne',
+          edHint: 'Glissez ou Maj+clic pour sélectionner une plage ; clic sur le numéro de ligne sélectionne toute la ligne · Suppr efface, Ctrl+C/V copie-colle (compatible Excel) · clic droit pour ajouter/supprimer des lignes · les lignes vides des deux côtés sont ignorées à l’enregistrement',
+          edOverwrite: 'Le contenu actuel de la feuille sera écrasé. Continuer ?', edDelRowsConfirm: 'Supprimer les lignes sélectionnées ?', edLoadedFile: (n) => `${n} lignes chargées dans la feuille`, edLoadedCur: (n) => `${n} lignes importées du paquet ouvert`,
+          myTitle: 'Mes Voca Decks', mySub: 'Les paquets enregistrés restent uniquement dans ce navigateur (localStorage). Pour changer d’appareil, téléchargez le CSV puis chargez-le sur le nouveau.',
+          myEmpty: 'Aucun paquet enregistré pour l’instant. Utilisez « Enregistrer dans Mes Voca Decks » dans l’éditeur CSV ci-dessus.',
+          myThName: 'Nom', myThCount: 'Mots', myThDate: 'Enregistré le', myThAct: 'Actions', myApplyBtn: 'Appliquer', myEditBtn: 'Éditer', myDelTitle: 'Supprimer',
+          myConfirmDel: (name) => `Supprimer « ${name} » ?`, myConfirmOverwrite: (name) => `« ${name} » existe déjà. Écraser ?`, mySavedMsg: (name, n) => `« ${name} » enregistré dans Mes Voca Decks (${n} mots)`,
+          myFull: 'Le stockage est plein : supprimez d’abord les paquets inutilisés.', myUsage: (kb) => `Espace utilisé : env. ${kb} Ko / 5 Mo (limite localStorage du navigateur)`,
+        },
+        de: {
+          appName: 'Blitz-Vokabeltrainer', langLabel: 'Sprache', tutorialLink: 'Tutorial',
+          metaDesc: 'Kostenloser Vokabeltrainer: Wörter und Bedeutungen erscheinen abwechselnd in großer Schrift. CSV öffnen – Autoplay alle 3 s, Merk-Markierung, Zufallsreihenfolge, TTS. Ohne Installation.',
+          open: 'Deck öffnen', next: 'Weiter', mem: 'Gemerkt', tts: 'TTS', voiceOnly: 'Nur Ton',
+          alwaysTop: 'Immer im Vordergrund', alwaysTopHint: 'Im Webbrowser nicht verfügbar', hidePanel: 'Panel ausblenden', quit: 'Beenden',
+          gStatus: 'Status', total: 'Gesamt :', current: 'Aktuell :', toLearn: 'Zu lernen :', learned: 'Gemerkt :',
+          gMode: 'Manuell/Auto', manual: 'Manuell', auto: 'Auto',
+          gOrder: 'Reihenfolge', fwd: 'Vorwärts', rev: 'Rückwärts', rnd: 'Zufällig', startNo: 'Startnr. :', apply: 'Anwenden',
+          gRange: 'Bereich', unmem: 'Gemerkte auslassen', memOnly: 'Nur gemerkte', all: 'Alle', delay: 'Intervall (s) :',
+          font: 'Schrift', bg: 'Hintergrundfarbe', resetMem: 'Markierungen zurücksetzen', adv: 'Erweitert', advTitle: 'Erweiterte Einstellungen',
+          volAll: 'Gesamtlautstärke', volA: 'Lautstärke Seite A', volB: 'Lautstärke Seite B', rateALbl: 'Vorlesetempo Seite A', rateBLbl: 'Vorlesetempo Seite B', readLbl: 'Vorlesen', readBoth: 'Beide', voiceAuto: 'Automatisch (Standard)', voiceSel: 'Vorlesestimme (Sprache / Stimme)',
+          repeatLbl: 'Wiederholungen', infLbl: 'Endlos', repeatNote: 'Nach Ablauf des eingestellten Intervalls stoppt die Wiedergabe automatisch',
+          playSec: 'Wiedergabe', delayALbl: 'Intervall Seite A (s)', delayBLbl: 'Intervall Seite B (s)', delayBackHint: '0 = wie das im Bedienfeld eingestellte Intervall', wakeLbl: 'Bildschirm bei Auto-Wiedergabe anlassen',
+          backupSec: 'Lernstand-Sicherung (JSON)', backupNote: 'Enthält Merk-Markierungen und Lernfortschritt. Beim Gerätewechsel verwenden.', exportBtn: 'Exportieren', importBtn: 'Importieren', importDone: (n) => `Wiederhergestellt: ${n} Einträge`, importFail: 'Sicherungsdatei konnte nicht gelesen werden',
+          fsSec: 'Bildschirm', fsBtn: 'Vollbild umschalten', fsUnsupported: 'Dieser Browser unterstützt kein Vollbild',
+          resetSec: 'Zurücksetzen', resetAllBtn: 'Alle Einstellungen zurücksetzen', resetAllConfirm: 'Alle Einstellungen auf Standardwerte zurücksetzen?', resetAllNote: 'Deck, Markierungen und Sprache bleiben erhalten',
+          fontTitle: 'Schrifteinstellungen', fontFamily: 'Schriftart', fontSize: 'Größe (px)', bold: 'Fett', fontColor: 'Textfarbe', close: 'Schließen',
+          bgTitle: 'Hintergrundfarbe', bgHint: 'Dunkles Marineblau oder Schwarz wird empfohlen, damit der Text scharf wirkt.',
+          fonts: { gothic: 'Fette Sans', round: 'Runde Sans', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Öffne ein CSV-Deck zum Starten', emptyBot: '(Deck öffnen → CSV-Datei: Wort,Bedeutung)', ariaNext: 'Weiter (Klick oder Leertaste)',
+          noEligible: 'Keine Einträge im aktuellen Bereich',
+          sampleLoaded: (n) => `Beispieldeck geladen: ${n} Einträge`,
+          noRows: 'Keine lesbaren Zeilen — prüfe, ob die CSV das Format "Wort,Bedeutung" hat',
+          opened: (n) => `Deck geöffnet: ${n} Einträge`,
+          samples: 'Beispieldecks', samplesSub: 'Fertige Decks — sofort anwenden oder als CSV herunterladen, bearbeiten und wieder öffnen.', backToTop: 'Zurück zum Deck',
+          thTitle: 'Deck', thCount: 'Wörter', thAct: 'Anwenden / Download', basicDeck: 'Grundwortschatz', interDeck: 'Mittelstufen-Wortschatz', advDeck: 'Fortgeschrittenen-Wortschatz', bizDeck: 'Business-Wortschatz',
+          enElem: 'Grundschul-Englisch', enMiddle: 'Mittelstufen-Englisch', enHigh: 'Oberstufen-Englisch', enCollege: 'Akademisches Englisch',
+          soon: 'Demnächst', applyBtn: 'Anwenden', dlTip: 'CSV herunterladen — bearbeiten und wieder öffnen', appliedMark: 'Aktiv', lvlNote: 'Prüfungsnamen dienen als ungefähre Schwierigkeitsangabe (keine offiziellen Wortlisten)',
+          confirmReplace: 'Aktuelles Deck ersetzen? Merk-Markierungen werden zurückgesetzt.',
+          sampleDone: (name, n) => `${name} angewendet — ${n} Wörter`, sampleFailNet: 'Beispiel konnte nicht geladen werden — Verbindung prüfen',
+          emptySamples: '↓ Oder unten ein Beispieldeck wählen und sofort loslegen',
+          confirmReset: 'Alle Merk-Markierungen zurücksetzen?', resetDone: 'Markierungen zurückgesetzt',
+          startRange: (m) => `Die Startnummer muss zwischen 1 und ${m} liegen`,
+          cantClose: 'Falls der Browser das Schließen blockiert, schließe den Tab bitte manuell',
+          edTitle: 'CSV-Editor', edSub: 'Lade ein heruntergeladenes Beispiel-CSV oder starte mit einem leeren Blatt und erstelle dein eigenes Deck wie in einer Tabellenkalkulation. Alles wird nur auf diesem Gerät gespeichert.',
+          edLoad: 'Öffnen', edLoadFile: 'Laden', edLoadCur: 'Aktuelles Deck übernehmen', edNew: 'Neues Blatt (leeren)',
+          edName: 'Deck-Name', edNamePh: 'Mein Deck', edSave: 'Sichern', edSaveCsv: 'Speichern', edSaveMy: 'In Meine Voca Decks speichern', edApplyNow: 'Sofort loslernen',
+          edRows: 'Zeilen', edValid: 'Gültig', edErrs: 'Fehler', edErrMsg: 'Es gibt leere Zellen — zum Speichern rote Zellen ausfüllen oder die Zeilen löschen.',
+          edColA: 'Seite A (Wort)', edColB: 'Seite B (Bedeutung)', edAddRow: 'Zeile hinzufügen', edAdd10: '10 Zeilen hinzufügen', edDelRow: 'Zeile löschen',
+          edHint: 'Ziehen oder Shift+Klick wählt einen Bereich, Klick auf die Zeilennummer die ganze Zeile · Entf löscht, Strg+C/V kopiert & fügt ein (Excel-kompatibel) · Rechtsklick zum Hinzufügen/Löschen von Zeilen · beidseitig leere Zeilen werden beim Speichern ignoriert',
+          edOverwrite: 'Der aktuelle Blattinhalt wird überschrieben. Fortfahren?', edDelRowsConfirm: 'Ausgewählte Zeilen löschen?', edLoadedFile: (n) => `${n} Zeilen in das Blatt geladen`, edLoadedCur: (n) => `${n} Zeilen aus dem geöffneten Deck übernommen`,
+          myTitle: 'Meine Voca Decks', mySub: 'Gespeicherte Decks bleiben nur in diesem Browser (localStorage). Für ein anderes Gerät das CSV herunterladen und dort laden.',
+          myEmpty: 'Noch keine gespeicherten Decks. Nutze „In Meine Voca Decks speichern“ im CSV-Editor oben.',
+          myThName: 'Name', myThCount: 'Wörter', myThDate: 'Gespeichert', myThAct: 'Aktionen', myApplyBtn: 'Anwenden', myEditBtn: 'Bearbeiten', myDelTitle: 'Löschen',
+          myConfirmDel: (name) => `„${name}“ löschen?`, myConfirmOverwrite: (name) => `„${name}“ existiert bereits. Überschreiben?`, mySavedMsg: (name, n) => `„${name}“ in Meine Voca Decks gespeichert (${n} Wörter)`,
+          myFull: 'Der Speicher ist voll — lösche zunächst ungenutzte Decks.', myUsage: (kb) => `Belegter Speicher: ca. ${kb} KB / 5 MB (localStorage-Limit des Browsers)`,
+        },
+        it: {
+          appName: 'Memorizzazione flash', langLabel: 'Lingua', tutorialLink: 'Tutorial',
+          metaDesc: 'Memorizzatore di vocaboli gratuito: parole e significati si alternano a caratteri grandi. Apri un CSV: riproduzione automatica ogni 3 s, contrassegni, ordine casuale e TTS. Senza installazione.',
+          open: 'Apri mazzo', next: 'Avanti', mem: 'Memorizzata', tts: 'TTS', voiceOnly: 'Solo voce',
+          alwaysTop: 'Sempre in primo piano', alwaysTopHint: 'Non supportato nei browser web', hidePanel: 'Nascondi pannello', quit: 'Esci',
+          gStatus: 'Stato', total: 'Totale :', current: 'Attuale :', toLearn: 'Da imparare :', learned: 'Memorizzate :',
+          gMode: 'Manuale/Auto', manual: 'Manuale', auto: 'Auto',
+          gOrder: 'Ordine', fwd: 'In avanti', rev: 'All’indietro', rnd: 'Casuale', startNo: 'N. iniziale :', apply: 'Applica',
+          gRange: 'Ambito', unmem: 'Salta memorizzate', memOnly: 'Solo memorizzate', all: 'Tutte', delay: 'Intervallo (s) :',
+          font: 'Carattere', bg: 'Colore di sfondo', resetMem: 'Azzera contrassegni', adv: 'Avanzate', advTitle: 'Impostazioni avanzate',
+          volAll: 'Volume generale', volA: 'Volume lato A', volB: 'Volume lato B', rateALbl: 'Velocità di lettura lato A', rateBLbl: 'Velocità di lettura lato B', readLbl: 'Lettura vocale', readBoth: 'Entrambi', voiceAuto: 'Automatica (predefinita)', voiceSel: 'Voce di lettura (lingua / voce)',
+          repeatLbl: 'Ripetizioni', infLbl: 'Infinito', repeatNote: "Allo scadere dell'intervallo impostato la lettura si interrompe automaticamente",
+          playSec: 'Riproduzione', delayALbl: 'Intervallo lato A (s)', delayBLbl: 'Intervallo lato B (s)', delayBackHint: "0 = uguale all'intervallo impostato nel pannello di controllo", wakeLbl: 'Mantieni lo schermo acceso durante la riproduzione automatica',
+          backupSec: 'Backup dei progressi (JSON)', backupNote: 'Include i contrassegni e i progressi. Da usare quando si cambia dispositivo.', exportBtn: 'Esporta', importBtn: 'Importa', importDone: (n) => `Ripristinati: ${n} elementi`, importFail: 'Impossibile leggere il file di backup',
+          fsSec: 'Schermo', fsBtn: 'Attiva/disattiva schermo intero', fsUnsupported: 'Questo browser non supporta lo schermo intero',
+          resetSec: 'Ripristino', resetAllBtn: 'Ripristina tutte le impostazioni', resetAllConfirm: 'Ripristinare tutte le impostazioni predefinite?', resetAllNote: 'Mazzo, contrassegni e lingua vengono mantenuti',
+          fontTitle: 'Impostazioni carattere', fontFamily: 'Carattere', fontSize: 'Dimensione (px)', bold: 'Grassetto', fontColor: 'Colore del testo', close: 'Chiudi',
+          bgTitle: 'Colore di sfondo', bgHint: 'Si consiglia blu scuro o nero per un testo ben leggibile.',
+          fonts: { gothic: 'Sans spessa', round: 'Sans arrotondata', serif: 'Serif', mono: 'Monospazio' },
+          emptyTop: 'Apri un mazzo CSV per iniziare', emptyBot: '(Apri mazzo → file CSV: parola,significato)', ariaNext: 'Avanti (clic o barra spaziatrice)',
+          noEligible: 'Nessun elemento nell’ambito attuale',
+          sampleLoaded: (n) => `Mazzo di esempio caricato: ${n} elementi`,
+          noRows: 'Nessuna riga leggibile — verifica che il CSV sia nel formato "parola,significato"',
+          opened: (n) => `Mazzo aperto: ${n} elementi`,
+          samples: 'Mazzi di esempio', samplesSub: 'Mazzi pronti all’uso: applicali subito o scarica il CSV, modificalo e riaprilo.', backToTop: 'Torna al mazzo',
+          thTitle: 'Mazzo', thCount: 'Parole', thAct: 'Applica / Scarica', basicDeck: 'Vocabolario di base', interDeck: 'Vocabolario intermedio', advDeck: 'Vocabolario avanzato', bizDeck: 'Vocabolario commerciale',
+          enElem: 'Inglese elementari', enMiddle: 'Inglese medie', enHigh: 'Inglese superiori', enCollege: 'Inglese accademico',
+          soon: 'In arrivo', applyBtn: 'Applica', dlTip: 'Scarica il CSV — modificalo e riaprilo', appliedMark: 'In uso', lvlNote: 'I nomi degli esami indicano livelli di difficoltà approssimativi (non liste ufficiali)',
+          confirmReplace: 'Sostituire il mazzo attuale? I contrassegni verranno azzerati.',
+          sampleDone: (name, n) => `${name} applicato — ${n} parole`, sampleFailNet: 'Impossibile caricare l’esempio — controlla la connessione',
+          emptySamples: '↓ Oppure scegli un mazzo di esempio qui sotto per iniziare subito',
+          confirmReset: 'Azzerare tutti i contrassegni?', resetDone: 'Contrassegni azzerati',
+          startRange: (m) => `Il numero iniziale deve essere tra 1 e ${m}`,
+          cantClose: 'Se il browser impedisce la chiusura, chiudi la scheda manualmente',
+          edTitle: 'Editor CSV', edSub: 'Carica un CSV di esempio scaricato o parti da un foglio vuoto e crea il tuo mazzo come in un foglio di calcolo. Tutto viene salvato solo su questo dispositivo.',
+          edLoad: 'Caricamento', edLoadFile: 'Carica', edLoadCur: 'Importa il mazzo attuale', edNew: 'Nuovo foglio (svuota)',
+          edName: 'Nome del mazzo', edNamePh: 'Il mio mazzo', edSave: 'Salvataggio', edSaveCsv: 'Salva', edSaveMy: 'Salva nei Miei Voca Deck', edApplyNow: 'Inizia subito a memorizzare',
+          edRows: 'Righe', edValid: 'Valide', edErrs: 'Errori', edErrMsg: 'Ci sono celle vuote: impossibile salvare. Riempi le celle rosse o elimina quelle righe.',
+          edColA: 'Lato A (parola)', edColB: 'Lato B (significato)', edAddRow: 'Aggiungi riga', edAdd10: 'Aggiungi 10 righe', edDelRow: 'Elimina riga',
+          edHint: 'Trascina o Shift+clic per selezionare un intervallo; clic sul numero di riga seleziona l’intera riga · Canc cancella, Ctrl+C/V copia e incolla (compatibile con Excel) · clic destro per aggiungere/eliminare righe · le righe vuote su entrambi i lati vengono ignorate al salvataggio',
+          edOverwrite: 'Il contenuto attuale del foglio verrà sovrascritto. Continuare?', edDelRowsConfirm: 'Eliminare le righe selezionate?', edLoadedFile: (n) => `Caricate ${n} righe nel foglio`, edLoadedCur: (n) => `Importate ${n} righe dal mazzo aperto`,
+          myTitle: 'I miei Voca Deck', mySub: 'I mazzi salvati restano solo in questo browser (localStorage). Per un altro dispositivo, scarica il CSV e caricalo lì.',
+          myEmpty: 'Nessun mazzo salvato. Usa «Salva nei Miei Voca Deck» nell’editor CSV qui sopra.',
+          myThName: 'Nome', myThCount: 'Parole', myThDate: 'Salvato', myThAct: 'Azioni', myApplyBtn: 'Applica', myEditBtn: 'Modifica', myDelTitle: 'Elimina',
+          myConfirmDel: (name) => `Eliminare «${name}»?`, myConfirmOverwrite: (name) => `«${name}» esiste già. Sovrascrivere?`, mySavedMsg: (name, n) => `«${name}» salvato nei Miei Voca Deck (${n} parole)`,
+          myFull: 'Lo spazio è pieno: elimina prima i mazzi inutilizzati.', myUsage: (kb) => `Spazio usato: circa ${kb} KB / 5 MB (limite localStorage del browser)`,
+        },
+        pt: {
+          appName: 'Memorização flash', langLabel: 'Idioma', tutorialLink: 'Tutorial',
+          metaDesc: 'Memorizador de vocabulário gratuito: palavras e significados alternam em letras grandes. Abra um CSV: reprodução automática a cada 3 s, marcas, ordem aleatória e TTS. Sem instalação.',
+          open: 'Abrir baralho', next: 'Próximo', mem: 'Memorizada', tts: 'TTS', voiceOnly: 'Só voz',
+          alwaysTop: 'Sempre no topo', alwaysTopHint: 'Não suportado em navegadores web', hidePanel: 'Ocultar painel', quit: 'Sair',
+          gStatus: 'Estado', total: 'Total :', current: 'Atual :', toLearn: 'A aprender :', learned: 'Memorizadas :',
+          gMode: 'Manual/Auto', manual: 'Manual', auto: 'Auto',
+          gOrder: 'Ordem', fwd: 'Para a frente', rev: 'Para trás', rnd: 'Aleatória', startNo: 'Nº inicial :', apply: 'Aplicar',
+          gRange: 'Âmbito', unmem: 'Omitir memorizadas', memOnly: 'Só memorizadas', all: 'Todas', delay: 'Intervalo (s) :',
+          font: 'Fonte', bg: 'Cor de fundo', resetMem: 'Repor marcas', adv: 'Avançado', advTitle: 'Definições avançadas',
+          volAll: 'Volume geral', volA: 'Volume lado A', volB: 'Volume lado B', rateALbl: 'Velocidade de leitura lado A', rateBLbl: 'Velocidade de leitura lado B', readLbl: 'Leitura em voz alta', readBoth: 'Ambos', voiceAuto: 'Automática (predefinida)', voiceSel: 'Voz de leitura (idioma / voz)',
+          repeatLbl: 'Repetições', infLbl: 'Infinito', repeatNote: 'Quando o intervalo definido termina, a leitura para automaticamente',
+          playSec: 'Reprodução', delayALbl: 'Intervalo lado A (s)', delayBLbl: 'Intervalo lado B (s)', delayBackHint: '0 = igual ao intervalo definido no painel de controlo', wakeLbl: 'Manter o ecrã ligado durante a reprodução automática',
+          backupSec: 'Cópia do progresso (JSON)', backupNote: 'Inclui as marcas de memorizadas e o progresso. Use ao mudar de dispositivo.', exportBtn: 'Exportar', importBtn: 'Importar', importDone: (n) => `Restaurado: ${n} itens`, importFail: 'Não foi possível ler o ficheiro de cópia',
+          fsSec: 'Ecrã', fsBtn: 'Alternar ecrã inteiro', fsUnsupported: 'Este navegador não suporta ecrã inteiro',
+          resetSec: 'Repor', resetAllBtn: 'Repor todas as definições', resetAllConfirm: 'Repor todas as definições para os valores predefinidos?', resetAllNote: 'O baralho, as marcas e o idioma são mantidos',
+          fontTitle: 'Definições de fonte', fontFamily: 'Fonte', fontSize: 'Tamanho (px)', bold: 'Negrito', fontColor: 'Cor do texto', close: 'Fechar',
+          bgTitle: 'Cor de fundo', bgHint: 'Recomenda-se azul-escuro ou preto para um texto nítido.',
+          fonts: { gothic: 'Sans grossa', round: 'Sans arredondada', serif: 'Serifada', mono: 'Monoespaçada' },
+          emptyTop: 'Abra um baralho CSV para começar', emptyBot: '(Abrir baralho → ficheiro CSV: palavra,significado)', ariaNext: 'Próximo (clique ou barra de espaço)',
+          noEligible: 'Nenhum item no âmbito atual',
+          sampleLoaded: (n) => `Baralho de exemplo carregado: ${n} itens`,
+          noRows: 'Nenhuma linha legível — confirme que o CSV usa o formato "palavra,significado"',
+          opened: (n) => `Baralho aberto: ${n} itens`,
+          samples: 'Baralhos de exemplo', samplesSub: 'Baralhos prontos a usar: aplica já ou descarrega o CSV, edita-o e abre-o de novo.', backToTop: 'Voltar ao baralho',
+          thTitle: 'Baralho', thCount: 'Palavras', thAct: 'Aplicar / Descarregar', basicDeck: 'Vocabulário básico', interDeck: 'Vocabulário intermédio', advDeck: 'Vocabulário avançado', bizDeck: 'Vocabulário de negócios',
+          enElem: 'Inglês da primária', enMiddle: 'Inglês do ensino básico', enHigh: 'Inglês do secundário', enCollege: 'Inglês académico',
+          soon: 'Em breve', applyBtn: 'Aplicar', dlTip: 'Descarregar CSV — edita e abre de novo', appliedMark: 'Aplicado', lvlNote: 'Os nomes dos exames indicam níveis aproximados de dificuldade (não são listas oficiais)',
+          confirmReplace: 'Substituir o baralho atual? As marcas serão repostas.',
+          sampleDone: (name, n) => `${name} aplicado — ${n} palavras`, sampleFailNet: 'Não foi possível carregar o exemplo — verifica a ligação',
+          emptySamples: '↓ Ou escolhe um baralho de exemplo abaixo para começar já',
+          confirmReset: 'Repor todas as marcas de memorizada?', resetDone: 'Marcas repostas',
+          startRange: (m) => `O número inicial deve estar entre 1 e ${m}`,
+          cantClose: 'Se o navegador impedir o fecho, feche o separador manualmente',
+          edTitle: 'Editor CSV', edSub: 'Carrega um CSV de exemplo descarregado ou começa numa folha em branco e cria o teu baralho como numa folha de cálculo. Tudo é guardado apenas neste dispositivo.',
+          edLoad: 'Abrir', edLoadFile: 'Carregar', edLoadCur: 'Importar o baralho atual', edNew: 'Nova folha (limpar)',
+          edName: 'Nome do baralho', edNamePh: 'O meu baralho', edSave: 'Gravar', edSaveCsv: 'Guardar', edSaveMy: 'Guardar nos Meus Voca Decks', edApplyNow: 'Começar a memorizar já',
+          edRows: 'Linhas', edValid: 'Válidas', edErrs: 'Erros', edErrMsg: 'Há células vazias e não é possível guardar. Preenche as células vermelhas ou apaga essas linhas.',
+          edColA: 'Lado A (palavra)', edColB: 'Lado B (significado)', edAddRow: 'Adicionar linha', edAdd10: 'Adicionar 10 linhas', edDelRow: 'Apagar linha',
+          edHint: 'Arrasta ou Shift+clique para selecionar um intervalo; clique no número da linha seleciona a linha inteira · Delete apaga, Ctrl+C/V copia e cola (compatível com Excel) · clique direito para adicionar/apagar linhas · linhas vazias dos dois lados são ignoradas ao guardar',
+          edOverwrite: 'O conteúdo atual da folha será substituído. Continuar?', edDelRowsConfirm: 'Apagar as linhas selecionadas?', edLoadedFile: (n) => `${n} linhas carregadas na folha`, edLoadedCur: (n) => `${n} linhas importadas do baralho aberto`,
+          myTitle: 'Os meus Voca Decks', mySub: 'Os baralhos guardados ficam apenas neste navegador (localStorage). Para outro dispositivo, transfere o CSV e carrega-o lá.',
+          myEmpty: 'Ainda não há baralhos guardados. Usa «Guardar nos Meus Voca Decks» no editor CSV acima.',
+          myThName: 'Nome', myThCount: 'Palavras', myThDate: 'Guardado', myThAct: 'Ações', myApplyBtn: 'Aplicar', myEditBtn: 'Editar', myDelTitle: 'Apagar',
+          myConfirmDel: (name) => `Apagar «${name}»?`, myConfirmOverwrite: (name) => `«${name}» já existe. Substituir?`, mySavedMsg: (name, n) => `«${name}» guardado nos Meus Voca Decks (${n} palavras)`,
+          myFull: 'O armazenamento está cheio — apaga primeiro baralhos que não uses.', myUsage: (kb) => `Espaço usado: cerca de ${kb} KB / 5 MB (limite do localStorage do navegador)`,
+        },
+        ru: {
+          appName: 'Флеш-запоминание', langLabel: 'Язык', tutorialLink: 'Обучение',
+          metaDesc: 'Бесплатный тренажёр слов: слова и значения поочерёдно показываются крупным шрифтом. Откройте CSV — автоповтор каждые 3 с, отметки, случайный порядок и озвучка. Без установки.',
+          open: 'Открыть набор', next: 'Далее', mem: 'Выучено', tts: 'TTS', voiceOnly: 'Только звук',
+          alwaysTop: 'Поверх окон', alwaysTopHint: 'Недоступно в веб-браузере', hidePanel: 'Скрыть панель', quit: 'Выход',
+          gStatus: 'Статус', total: 'Всего :', current: 'Текущий :', toLearn: 'Учить :', learned: 'Выучено :',
+          gMode: 'Ручной/Авто', manual: 'Ручной', auto: 'Авто',
+          gOrder: 'Порядок', fwd: 'Вперёд', rev: 'Назад', rnd: 'Случайно', startNo: 'Начать с :', apply: 'Применить',
+          gRange: 'Диапазон', unmem: 'Пропускать выученные', memOnly: 'Только выученные', all: 'Все', delay: 'Интервал (с) :',
+          font: 'Шрифт', bg: 'Цвет фона', resetMem: 'Сбросить отметки', adv: 'Дополнительно', advTitle: 'Дополнительные настройки',
+          volAll: 'Общая громкость', volA: 'Громкость стороны A', volB: 'Громкость стороны B', rateALbl: 'Скорость чтения стороны A', rateBLbl: 'Скорость чтения стороны B', readLbl: 'Озвучивать', readBoth: 'Обе', voiceAuto: 'Авто (по умолчанию)', voiceSel: 'Голос озвучивания (язык / голос)',
+          repeatLbl: 'Повторы', infLbl: 'Бесконечно', repeatNote: 'По истечении заданного интервала озвучивание автоматически прекращается',
+          playSec: 'Воспроизведение', delayALbl: 'Интервал стороны A (с)', delayBLbl: 'Интервал стороны B (с)', delayBackHint: '0 = как интервал заданный на панели управления', wakeLbl: 'Не гасить экран при автовоспроизведении',
+          backupSec: 'Резервная копия прогресса (JSON)', backupNote: 'Включает отметки о выученном и прогресс. Используйте при смене устройства.', exportBtn: 'Экспорт', importBtn: 'Импорт', importDone: (n) => `Восстановлено: ${n}`, importFail: 'Не удалось прочитать файл резервной копии',
+          fsSec: 'Экран', fsBtn: 'Полноэкранный режим', fsUnsupported: 'Этот браузер не поддерживает полноэкранный режим',
+          resetSec: 'Сброс', resetAllBtn: 'Сбросить все настройки', resetAllConfirm: 'Вернуть все настройки к значениям по умолчанию?', resetAllNote: 'Колода, отметки и язык сохраняются',
+          fontTitle: 'Настройки шрифта', fontFamily: 'Шрифт', fontSize: 'Размер (px)', bold: 'Жирный', fontColor: 'Цвет текста', close: 'Закрыть',
+          bgTitle: 'Цвет фона', bgHint: 'Рекомендуется тёмно-синий или чёрный фон для чёткости текста.',
+          fonts: { gothic: 'Жирный гротеск', round: 'Округлый гротеск', serif: 'С засечками', mono: 'Моноширинный' },
+          emptyTop: 'Откройте CSV-набор, чтобы начать', emptyBot: '(Открыть набор → CSV-файл: слово,значение)', ariaNext: 'Далее (клик или пробел)',
+          noEligible: 'Нет элементов в текущем диапазоне',
+          sampleLoaded: (n) => `Загружен пример набора: ${n} элементов`,
+          noRows: 'Нет читаемых строк — проверьте, что CSV в формате «слово,значение»',
+          opened: (n) => `Набор открыт: ${n} элементов`,
+          samples: 'Примеры наборов', samplesSub: 'Готовые наборы: применяйте мгновенно или скачайте CSV, отредактируйте и откройте снова.', backToTop: 'К набору',
+          thTitle: 'Набор', thCount: 'Слов', thAct: 'Применить / Скачать', basicDeck: 'Базовая лексика', interDeck: 'Средний уровень', advDeck: 'Продвинутая лексика', bizDeck: 'Деловая лексика',
+          enElem: 'Английский: начальная школа', enMiddle: 'Английский: средняя школа', enHigh: 'Английский: старшая школа', enCollege: 'Академический английский',
+          soon: 'Скоро', applyBtn: 'Применить', dlTip: 'Скачать CSV — отредактируйте и откройте снова', appliedMark: 'Применён', lvlNote: 'Названия экзаменов указывают примерный уровень сложности (не официальные списки слов)',
+          confirmReplace: 'Заменить текущий набор? Отметки «выучено» будут сброшены.',
+          sampleDone: (name, n) => `${name} применён — ${n} слов`, sampleFailNet: 'Не удалось загрузить пример — проверьте соединение',
+          emptySamples: '↓ Или выберите готовый набор ниже и начните сразу',
+          confirmReset: 'Сбросить все отметки «выучено»?', resetDone: 'Отметки сброшены',
+          startRange: (m) => `Начальный номер должен быть от 1 до ${m}`,
+          cantClose: 'Если браузер не даёт закрыть окно, закройте вкладку вручную',
+          edTitle: 'Редактор CSV', edSub: 'Загрузите скачанный пример CSV или начните с пустого листа и создайте свой набор, как в электронной таблице. Всё сохраняется только на этом устройстве.',
+          edLoad: 'Загрузка', edLoadFile: 'Загрузить', edLoadCur: 'Импортировать текущий набор', edNew: 'Новый лист (очистить)',
+          edName: 'Название набора', edNamePh: 'Мой набор', edSave: 'Сохранение', edSaveCsv: 'Сохранить', edSaveMy: 'Сохранить в «Мои Voca Deck»', edApplyNow: 'Сразу начать заучивание',
+          edRows: 'Строк', edValid: 'Годных', edErrs: 'Ошибок', edErrMsg: 'Есть пустые ячейки — сохранить нельзя. Заполните красные ячейки или удалите эти строки.',
+          edColA: 'Сторона A (слово)', edColB: 'Сторона B (значение)', edAddRow: 'Добавить строку', edAdd10: 'Добавить 10 строк', edDelRow: 'Удалить строку',
+          edHint: 'Перетаскивание или Shift+клик — выделение диапазона, клик по номеру строки — вся строка · Delete очищает, Ctrl+C/V — копирование и вставка (совместимо с Excel) · правый клик — добавить/удалить строки · строки, пустые с обеих сторон, при сохранении игнорируются',
+          edOverwrite: 'Текущее содержимое листа будет перезаписано. Продолжить?', edDelRowsConfirm: 'Удалить выбранные строки?', edLoadedFile: (n) => `В лист загружено строк: ${n}`, edLoadedCur: (n) => `Из открытого набора импортировано строк: ${n}`,
+          myTitle: 'Мои Voca Deck', mySub: 'Сохранённые наборы хранятся только в этом браузере (localStorage). Для другого устройства скачайте CSV и загрузите его там.',
+          myEmpty: 'Сохранённых наборов пока нет. Нажмите «Сохранить в „Мои Voca Deck“» в редакторе CSV выше.',
+          myThName: 'Название', myThCount: 'Слов', myThDate: 'Сохранён', myThAct: 'Действия', myApplyBtn: 'Применить', myEditBtn: 'Изменить', myDelTitle: 'Удалить',
+          myConfirmDel: (name) => `Удалить «${name}»?`, myConfirmOverwrite: (name) => `«${name}» уже существует. Перезаписать?`, mySavedMsg: (name, n) => `«${name}» сохранён в «Мои Voca Deck» (${n} слов)`,
+          myFull: 'Хранилище заполнено — сначала удалите ненужные наборы.', myUsage: (kb) => `Занято: около ${kb} КБ / 5 МБ (лимит localStorage браузера)`,
+        },
+        nl: {
+          appName: 'Flits-stampen', langLabel: 'Taal', tutorialLink: 'Tutorial',
+          metaDesc: 'Gratis woordjestrainer: woorden en betekenissen wisselen elkaar af in grote letters. Open een CSV: elke 3 s automatisch verder, markeringen, willekeurige volgorde en TTS. Geen installatie.',
+          open: 'Deck openen', next: 'Volgende', mem: 'Gememoriseerd', tts: 'TTS', voiceOnly: 'Alleen geluid',
+          alwaysTop: 'Altijd op voorgrond', alwaysTopHint: 'Niet ondersteund in webbrowsers', hidePanel: 'Paneel verbergen', quit: 'Afsluiten',
+          gStatus: 'Status', total: 'Totaal :', current: 'Huidig :', toLearn: 'Te leren :', learned: 'Geleerd :',
+          gMode: 'Handmatig/Auto', manual: 'Handmatig', auto: 'Auto',
+          gOrder: 'Volgorde', fwd: 'Vooruit', rev: 'Achteruit', rnd: 'Willekeurig', startNo: 'Startnr. :', apply: 'Toepassen',
+          gRange: 'Bereik', unmem: 'Geleerde overslaan', memOnly: 'Alleen geleerde', all: 'Alle', delay: 'Interval (s) :',
+          font: 'Lettertype', bg: 'Achtergrondkleur', resetMem: 'Markeringen wissen', adv: 'Geavanceerd', advTitle: 'Geavanceerde instellingen',
+          volAll: 'Totaalvolume', volA: 'Volume kant A', volB: 'Volume kant B', rateALbl: 'Voorleessnelheid kant A', rateBLbl: 'Voorleessnelheid kant B', readLbl: 'Voorlezen', readBoth: 'Beide', voiceAuto: 'Automatisch (standaard)', voiceSel: 'Voorleesstem (taal / stem)',
+          repeatLbl: 'Herhalingen', infLbl: 'Oneindig', repeatNote: 'Na het verstrijken van het ingestelde interval stopt het voorlezen automatisch',
+          playSec: 'Afspelen', delayALbl: 'Interval kant A (s)', delayBLbl: 'Interval kant B (s)', delayBackHint: '0 = gelijk aan het interval ingesteld in het bedieningspaneel', wakeLbl: 'Scherm aan houden tijdens automatisch afspelen',
+          backupSec: 'Voortgangsback-up (JSON)', backupNote: 'Bevat markeringen en voortgang. Gebruik bij overstap naar een ander apparaat.', exportBtn: 'Exporteren', importBtn: 'Importeren', importDone: (n) => `Hersteld: ${n} items`, importFail: 'Back-upbestand kan niet worden gelezen',
+          fsSec: 'Scherm', fsBtn: 'Volledig scherm wisselen', fsUnsupported: 'Deze browser ondersteunt geen volledig scherm',
+          resetSec: 'Resetten', resetAllBtn: 'Alle instellingen resetten', resetAllConfirm: 'Alle instellingen terugzetten naar standaard?', resetAllNote: 'Deck, markeringen en taal blijven behouden',
+          fontTitle: 'Lettertype-instellingen', fontFamily: 'Lettertype', fontSize: 'Grootte (px)', bold: 'Vet', fontColor: 'Tekstkleur', close: 'Sluiten',
+          bgTitle: 'Achtergrondkleur', bgHint: 'Donker marineblauw of zwart wordt aanbevolen voor scherpe tekst.',
+          fonts: { gothic: 'Vette sans', round: 'Ronde sans', serif: 'Serif', mono: 'Monospace' },
+          emptyTop: 'Open een CSV-deck om te beginnen', emptyBot: '(Deck openen → CSV-bestand: woord,betekenis)', ariaNext: 'Volgende (klik of spatiebalk)',
+          noEligible: 'Geen items binnen het huidige bereik',
+          sampleLoaded: (n) => `Voorbeelddeck geladen: ${n} items`,
+          noRows: 'Geen leesbare rijen — controleer of de CSV het formaat "woord,betekenis" heeft',
+          opened: (n) => `Deck geopend: ${n} items`,
+          samples: 'Voorbeelddecks', samplesSub: 'Kant-en-klare decks: direct toepassen of download de CSV, bewerk hem en open opnieuw.', backToTop: 'Terug naar het deck',
+          thTitle: 'Deck', thCount: 'Woorden', thAct: 'Toepassen / Downloaden', basicDeck: 'Basiswoordenschat', interDeck: 'Woordenschat middenniveau', advDeck: 'Gevorderde woordenschat', bizDeck: 'Zakelijke woordenschat',
+          enElem: 'Engels basisschool', enMiddle: 'Engels onderbouw', enHigh: 'Engels bovenbouw', enCollege: 'Academisch Engels',
+          soon: 'Binnenkort', applyBtn: 'Toepassen', dlTip: 'CSV downloaden — bewerken en opnieuw openen', appliedMark: 'Actief', lvlNote: 'Examennamen geven een geschatte moeilijkheidsgraad aan (geen officiële woordenlijsten)',
+          confirmReplace: 'Huidig deck vervangen? Markeringen worden gereset.',
+          sampleDone: (name, n) => `${name} toegepast — ${n} woorden`, sampleFailNet: 'Voorbeeld kon niet worden geladen — controleer de verbinding',
+          emptySamples: '↓ Of kies hieronder een voorbeelddeck om meteen te beginnen',
+          confirmReset: 'Alle markeringen wissen?', resetDone: 'Markeringen gewist',
+          startRange: (m) => `Het startnummer moet tussen 1 en ${m} liggen`,
+          cantClose: 'Als de browser het sluiten blokkeert, sluit het tabblad dan handmatig',
+          edTitle: 'CSV-editor', edSub: 'Laad een gedownload voorbeeld-CSV of begin met een leeg blad en maak je eigen deck zoals in een spreadsheet. Alles wordt alleen op dit apparaat opgeslagen.',
+          edLoad: 'Openen', edLoadFile: 'Laden', edLoadCur: 'Huidig deck importeren', edNew: 'Nieuw blad (leegmaken)',
+          edName: 'Decknaam', edNamePh: 'Mijn deck', edSave: 'Bewaren', edSaveCsv: 'Opslaan', edSaveMy: 'Opslaan in Mijn Voca Decks', edApplyNow: 'Meteen gaan stampen',
+          edRows: 'Rijen', edValid: 'Geldig', edErrs: 'Fouten', edErrMsg: 'Er zijn lege cellen — opslaan kan niet. Vul de rode cellen in of verwijder die rijen.',
+          edColA: 'Kant A (woord)', edColB: 'Kant B (betekenis)', edAddRow: 'Rij toevoegen', edAdd10: '10 rijen toevoegen', edDelRow: 'Rij verwijderen',
+          edHint: 'Sleep of Shift+klik om een bereik te selecteren; klik op het rijnummer voor de hele rij · Delete wist, Ctrl+C/V kopieert & plakt (Excel-compatibel) · rechtsklik om rijen toe te voegen/te verwijderen · rijen die aan beide kanten leeg zijn worden bij het opslaan genegeerd',
+          edOverwrite: 'De huidige inhoud van het blad wordt overschreven. Doorgaan?', edDelRowsConfirm: 'Geselecteerde rijen verwijderen?', edLoadedFile: (n) => `${n} rijen in het blad geladen`, edLoadedCur: (n) => `${n} rijen uit het geopende deck geïmporteerd`,
+          myTitle: 'Mijn Voca Decks', mySub: 'Opgeslagen decks blijven alleen in deze browser (localStorage). Voor een ander apparaat: download de CSV en laad die daar.',
+          myEmpty: 'Nog geen opgeslagen decks. Gebruik “Opslaan in Mijn Voca Decks” in de CSV-editor hierboven.',
+          myThName: 'Naam', myThCount: 'Woorden', myThDate: 'Opgeslagen', myThAct: 'Acties', myApplyBtn: 'Toepassen', myEditBtn: 'Bewerken', myDelTitle: 'Verwijderen',
+          myConfirmDel: (name) => `“${name}” verwijderen?`, myConfirmOverwrite: (name) => `“${name}” bestaat al. Overschrijven?`, mySavedMsg: (name, n) => `“${name}” opgeslagen in Mijn Voca Decks (${n} woorden)`,
+          myFull: 'De opslag is vol — verwijder eerst ongebruikte decks.', myUsage: (kb) => `Gebruikte ruimte: ca. ${kb} KB / 5 MB (localStorage-limiet van de browser)`,
+        },
+      }
+      const getT = (lang) => T[lang] || T[DEFAULT_LANG]
+      /* 브라우저 언어 자동 감지(저장값 없을 때 초기값). 매칭 실패 시 영어 폴백. */
+      const detectLang = () => {
+        try {
+          const supported = LANGS.map((l) => l.code)
+          const cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]
+          for (const raw of cands) {
+            const lc = String(raw || '').toLowerCase(), base = lc.split('-')[0]
+            if (base === 'zh') {
+              if (/hant|tw|hk|mo/.test(lc) && supported.includes('zh-Hant')) return 'zh-Hant'
+              if (supported.includes('zh')) return 'zh'
+            }
+            if (supported.includes(base)) return base
+          }
+        } catch {}
+        return DEFAULT_LANG
+      }
+
+      const DEFAULT_CFG = {
+        auto: false,            // 수동/자동
+        delay: 3,               // 지연시간(초)
+        dir: 'ab',              // A→B / B→A
+        order: 'fwd',           // 순방향/역방향/무작위
+        range: 'unmem',         // 외운 항목 제외/외운 항목만/모두
+        voiceOnly: false,       // tts 는 의도적으로 저장 안 함 — 항상 꺼진 상태로 시작 (브라우저가 상호작용 전 발화를 차단하므로)
+        /* ---- 고급 설정 ---- */
+        ttsVol: 100, ttsVolA: 100, ttsVolB: 100,  // 전체·A면·B면 볼륨(%) — 실제 볼륨 = 전체 × 면
+        ttsRateA: 1, ttsRateB: 1, // A면·B면 읽기 속도 0.5~2 (Web Speech rate 는 피치 보존 타임스트레치)
+        ttsRead: 'both',        // 읽기 대상: 'a' | 'b' | 'both'
+        ttsVoices: {},          // 로케일 → voiceURI (빈 값 = 브라우저 자동)
+        ttsRepeat: 1, ttsInf: false, // 반복 횟수 / 무한 반복
+        delayA: 0, delayB: 0,   // A면·B면 지연시간 조절(초) — 0 = 제어판 지연시간과 동일
+        wakeLock: true,         // 자동재생 중 화면 꺼짐 방지 (기본 켜짐)
+        hidePanel: false,
+        fontSize: 88, fontColor: '#ffff00', fontFamily: 'gothic', fontBold: true,
+        bg: '#000040',
+      }
+      const FONT_FAMILIES = {
+        gothic: { css: "'Apple SD Gothic Neo', 'Malgun Gothic', 'Arial Black', sans-serif" },
+        round: { css: "'AppleGothic', 'Dotum', sans-serif" },
+        serif: { css: "'Apple Myungjo', 'Batang', serif" },
+        mono: { css: "'Menlo', 'Consolas', monospace" },
+      }
+      const BG_PRESETS = ['#000040', '#000000', '#000066', '#0a1a0a', '#1a0a0a']
+      const FG_PRESETS = ['#ffff00', '#ffffff', '#66ff66', '#66ccff', '#ffb000']
+
+      /* TTS: 読み가 괄호（）안에 있으면 그것만 읽음. 로케일은 덱 메타(deckLang)를 따름 — 기본 A=일본어·B=한국어 */
+      const DEFAULT_DECK_LANG = { a: 'ja-JP', b: 'ko-KR' }
+      /* opts: { vol(0~1), rate(0.5~2), voiceURI, repeat(횟수), inf(무한) }
+         무한 반복은 onend 재큐잉 — speakSeq 로 이전 루프를 무효화(다음 카드/TTS 해제 시 중단) */
+      let speakSeq = 0
+      const speak = (text, isA, deckLang, opts) => {
+        try {
+          if (!window.speechSynthesis) return
+          const seq = ++speakSeq
+          const o = opts || {}
+          window.speechSynthesis.cancel()
+          const m = String(text).match(/[（(]([^）)]+)[）)]/)
+          const say = isA && m ? m[1] : String(text).replace(/[（(][^）)]*[）)]/g, ' ')
+          const dl = deckLang || DEFAULT_DECK_LANG
+          const make = () => {
+            const u = new SpeechSynthesisUtterance(say)
+            u.lang = isA ? dl.a : dl.b
+            u.rate = Math.max(0.5, Math.min(2, o.rate || 1))
+            u.volume = typeof o.vol === 'number' ? Math.max(0, Math.min(1, o.vol)) : 1
+            if (o.voiceURI) {
+              const v = window.speechSynthesis.getVoices().find((x) => x.voiceURI === o.voiceURI)
+              if (v) u.voice = v
+            }
+            return u
+          }
+          if (o.inf) {
+            const loop = () => {
+              if (seq !== speakSeq) return
+              const u = make()
+              u.onend = () => { if (seq === speakSeq) setTimeout(loop, 250) }
+              window.speechSynthesis.speak(u)
+            }
+            loop()
+          } else {
+            for (let i = 0; i < Math.max(1, Math.min(20, Math.floor(o.repeat) || 1)); i++) window.speechSynthesis.speak(make())
+          }
+        } catch {}
+      }
+      const stopSpeak = () => { speakSeq++; try { window.speechSynthesis && window.speechSynthesis.cancel() } catch {} }
+
+      /* =========================================================
+       *  샘플 암기장 (게시판) — 덱 1개 = 13언어 매트릭스 CSV 1개
+       *  A면 = 타깃 언어 컬럼, B면(뜻) = 현재 UI 언어 컬럼 (없으면 en)
+       * ========================================================= */
+      const LOCALE = { en: 'en-US', ja: 'ja-JP', ko: 'ko-KR', zh: 'zh-CN', 'zh-Hant': 'zh-TW', th: 'th-TH', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', it: 'it-IT', pt: 'pt-PT', ru: 'ru-RU', nl: 'nl-NL' }
+      /* 탭 순서(수요 순). 현재 UI 언어와 같은 타깃은 탭에서 숨김 */
+      const SAMPLE_TARGETS = ['en', 'ja', 'zh', 'zh-Hant', 'ko', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl', 'th']
+      /* 티어 = CEFR급 공용 매트릭스 파일. 같은 급의 파일 1개가 13개 타깃의 동급 덱을 전부 커버
+         (예: tier-a1 = 초등영어·JLPT N5·HSK 1–2·DELF A1·TOPIK 1 …). 파일이 랜딩되면 여기에 등록 → 전 타깃 동시 활성 */
+      const TIERS = {
+        a1: { file: 'samples/tier-a1.csv', count: 586 },
+        a2: { file: 'samples/tier-a2.csv', count: 534 },
+        b1: { file: 'samples/tier-b1.csv', count: 523 },
+        b2: { file: 'samples/tier-b2.csv', count: 503 },
+        adv: { file: 'samples/tier-adv.csv', count: 404 },
+        academic: { file: 'samples/tier-academic.csv', count: 392 },
+        business: { file: 'samples/tier-business.csv', count: 500 },
+      }
+      /* 덱 소스 해석: tier 참조 또는 개별 file. 둘 다 없거나 티어 미랜딩이면 "준비 중" */
+      const deckSrc = (d) => (d.file ? d : d.tier && TIERS[d.tier] ? TIERS[d.tier] : null)
+      /* name: (t) => 표시명 — 시험명(JLPT·HSK…)은 만국 공통이라 그대로 (난이도 근사 라벨, t.lvlNote로 고지) */
+      const SAMPLE_DECKS = {
+        en: [
+          { id: 'en-elem', tier: 'a1', name: (t) => t.enElem },
+          { id: 'en-middle', tier: 'a2', name: (t) => t.enMiddle },
+          { id: 'en-high', tier: 'b1', name: (t) => t.enHigh },
+          { id: 'en-toefl', tier: 'adv', name: () => 'TOEFL' },
+          { id: 'en-college', tier: 'academic', name: (t) => t.enCollege },
+          { id: 'en-toeic', tier: 'business', name: () => 'TOEIC' },
+        ],
+        ja: [
+          { id: 'ja-n5', tier: 'a1', name: () => 'JLPT N5' },
+          { id: 'ja-n4', tier: 'a2', name: () => 'JLPT N4' },
+          { id: 'ja-n3', tier: 'b1', name: () => 'JLPT N3' },
+          { id: 'ja-n2', tier: 'b2', name: () => 'JLPT N2' },
+          { id: 'ja-n1', tier: 'adv', name: () => 'JLPT N1' },
+          { id: 'ja-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        zh: [
+          { id: 'zh-hsk12', tier: 'a1', name: () => 'HSK 1–2' },
+          { id: 'zh-hsk34', tier: 'a2', name: () => 'HSK 3–4' },
+          { id: 'zh-hsk5', tier: 'b1', name: () => 'HSK 5' },
+          { id: 'zh-hsk6', tier: 'b2', name: () => 'HSK 6' },
+          { id: 'zh-adv', tier: 'adv', name: (t) => t.advDeck },
+          { id: 'zh-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        'zh-Hant': [
+          { id: 'zht-tocfl-a1', tier: 'a1', name: () => 'TOCFL A1' },
+          { id: 'zht-tocfl-a2', tier: 'a2', name: () => 'TOCFL A2' },
+          { id: 'zht-tocfl-b1', tier: 'b1', name: () => 'TOCFL B1' },
+          { id: 'zht-tocfl-b2', tier: 'b2', name: () => 'TOCFL B2' },
+          { id: 'zht-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        ko: [
+          { id: 'ko-topik1', tier: 'a1', name: () => 'TOPIK 1' },
+          { id: 'ko-topik2', tier: 'a2', name: () => 'TOPIK 2' },
+          { id: 'ko-topik34', tier: 'b1', name: () => 'TOPIK 3–4' },
+          { id: 'ko-topik56', tier: 'b2', name: () => 'TOPIK 5–6' },
+          { id: 'ko-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        es: [
+          { id: 'es-a1', tier: 'a1', name: () => 'DELE A1' },
+          { id: 'es-a2', tier: 'a2', name: () => 'DELE A2' },
+          { id: 'es-b1', tier: 'b1', name: () => 'DELE B1' },
+          { id: 'es-b2', tier: 'b2', name: () => 'DELE B2' },
+          { id: 'es-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        fr: [
+          { id: 'fr-a1', tier: 'a1', name: () => 'DELF A1' },
+          { id: 'fr-a2', tier: 'a2', name: () => 'DELF A2' },
+          { id: 'fr-b1', tier: 'b1', name: () => 'DELF B1' },
+          { id: 'fr-b2', tier: 'b2', name: () => 'DELF B2' },
+          { id: 'fr-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        de: [
+          { id: 'de-a1', tier: 'a1', name: () => 'Goethe A1' },
+          { id: 'de-a2', tier: 'a2', name: () => 'Goethe A2' },
+          { id: 'de-b1', tier: 'b1', name: () => 'Goethe B1' },
+          { id: 'de-b2', tier: 'b2', name: () => 'Goethe B2' },
+          { id: 'de-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        it: [
+          { id: 'it-a1', tier: 'a1', name: () => 'CILS A1' },
+          { id: 'it-a2', tier: 'a2', name: () => 'CILS A2' },
+          { id: 'it-b1', tier: 'b1', name: () => 'CILS B1' },
+          { id: 'it-b2', tier: 'b2', name: () => 'CILS B2' },
+          { id: 'it-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        pt: [
+          { id: 'pt-a1', tier: 'a1', name: () => 'CAPLE A1' },
+          { id: 'pt-a2', tier: 'a2', name: () => 'CAPLE A2' },
+          { id: 'pt-b1', tier: 'b1', name: () => 'CAPLE B1' },
+          { id: 'pt-b2', tier: 'b2', name: () => 'CAPLE B2' },
+          { id: 'pt-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        ru: [
+          { id: 'ru-a1', tier: 'a1', name: () => 'TORFL A1' },
+          { id: 'ru-a2', tier: 'a2', name: () => 'TORFL A2' },
+          { id: 'ru-b1', tier: 'b1', name: () => 'TORFL B1' },
+          { id: 'ru-b2', tier: 'b2', name: () => 'TORFL B2' },
+          { id: 'ru-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        nl: [
+          { id: 'nl-basic', tier: 'a1', name: (t) => t.basicDeck },
+          { id: 'nl-a2', tier: 'a2', name: () => 'NT2 A2' },
+          { id: 'nl-b1', tier: 'b1', name: () => 'NT2 B1' },
+          { id: 'nl-b2', tier: 'b2', name: () => 'NT2 B2' },
+          { id: 'nl-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+        th: [
+          { id: 'th-basic', tier: 'a1', name: (t) => t.basicDeck },
+          { id: 'th-inter', tier: 'b1', name: (t) => t.interDeck },
+          { id: 'th-adv', tier: 'b2', name: (t) => t.advDeck },
+          { id: 'th-biz', tier: 'business', name: (t) => t.bizDeck },
+        ],
+      }
+      /* 매트릭스 CSV → {a,b} 행 배열 (target/ui 컬럼 선택, ui 없으면 en 폴백) */
+      const parseMatrixCSV = (text, target, ui) => {
+        const lines = String(text).replace(/^\uFEFF/, '').split(/\r?\n/).filter((l) => l.trim())
+        if (lines.length < 2) return []
+        const header = lines[0].split(',').map((s) => s.trim())
+        const ai = header.indexOf(target)
+        let bi = header.indexOf(ui)
+        if (bi < 0 || bi === ai) bi = header.indexOf('en')
+        if (ai < 0 || bi < 0 || bi === ai) return []
+        const out = []
+        for (let i = 1; i < lines.length; i++) {
+          const cells = lines[i].split(',')
+          const a = (cells[ai] || '').trim(), b = (cells[bi] || '').trim()
+          if (a && b) out.push({ a, b, mem: false })
+        }
+        return out
+      }
+
+      /* =========================================================
+       *  제어판 부속 컴포넌트
+       * ========================================================= */
+      function LedRadio({ name, checked, onChange, label }) {
+        return (
+          <label className="led-radio">
+            <input type="radio" name={name} checked={checked} onChange={onChange} />
+            <span className="led" aria-hidden="true" />
+            <span className={'lbl' + (checked ? ' on' : '')}>{label}</span>
+          </label>
+        )
+      }
+      function Group({ title, children, style }) {
+        return (
+          <fieldset className="group" style={style}>
+            <span className="group-title">{title}</span>
+            {children}
+          </fieldset>
+        )
+      }
+
+      function AdvModal({ cfg, setCfg, onClose, t, uiLang, deckLang, setDeckLang, onExport, onImportClick, onFullscreen }) {
+        /* 보이스 목록 — 비동기 로드(voiceschanged) 대응 */
+        const [voices, setVoices] = useState(() => (window.speechSynthesis ? window.speechSynthesis.getVoices() : []))
+        useEffect(() => {
+          if (!window.speechSynthesis) return
+          const load = () => setVoices(window.speechSynthesis.getVoices())
+          window.speechSynthesis.addEventListener('voiceschanged', load)
+          load()
+          return () => window.speechSynthesis.removeEventListener('voiceschanged', load)
+        }, [])
+        const setK = (k) => (e) => setCfg((c) => ({ ...c, [k]: Number(e.target.value) }))
+        const volRow = (label, k) => (
+          <div className="vol-row">
+            <span className="vol-lbl">{label}</span>
+            <input type="range" min="0" max="100" step="5" value={cfg[k]} onChange={setK(k)} />
+            <span className="vol-val">{cfg[k]}%</span>
+          </div>
+        )
+        /* 로케일 표시명: 현재 UI 언어로 (예: ko UI → '일본어', en UI → 'Japanese') */
+        const locName = (loc) => {
+          const tag = loc === 'zh-TW' ? 'zh-Hant' : loc === 'zh-CN' ? 'zh-Hans' : String(loc).split('-')[0]
+          try {
+            const dn = new Intl.DisplayNames([uiLang], { type: 'language' })
+            return dn.of(tag) || loc
+          } catch { return loc }
+        }
+        /* 언어(13개 로케일) + 그 언어의 보이스 선택 — 언어 변경은 덱 TTS 로케일(deckLang)에 반영 */
+        const voiceRow = (label, key) => {
+          const loc = deckLang[key]
+          const base = String(loc).split('-')[0].toLowerCase()
+          const list = voices.filter((v) => String(v.lang).replace('_', '-').toLowerCase().split('-')[0] === base)
+          const cur = (cfg.ttsVoices || {})[loc] || ''
+          return (
+            <div className="vol-row">
+              <span className="vol-lbl" style={{ minWidth: 16, flex: '0 0 auto' }}>{label}</span>
+              <select style={{ width: 110, flexShrink: 0 }} value={loc}
+                onChange={(e) => setDeckLang({ ...deckLang, [key]: e.target.value })}>
+                {Object.values(LOCALE).map((l) => <option key={l} value={l}>{locName(l)}</option>)}
+              </select>
+              <select style={{ flex: 1, minWidth: 0 }} value={cur}
+                onChange={(e) => setCfg((c) => ({ ...c, ttsVoices: { ...(c.ttsVoices || {}), [loc]: e.target.value } }))}>
+                <option value="">{t.voiceAuto}</option>
+                {list.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name}</option>)}
+              </select>
+            </div>
+          )
+        }
+        return (
+          <div className="modal-overlay" onClick={onClose}>
+            <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+              <h4>{t.advTitle}</h4>
+
+              <div className="adv-cols">
+                <div>
+                  <div className="adv-sec">🔊 TTS</div>
+                  {volRow(t.volAll, 'ttsVol')}
+                  {volRow(t.volA, 'ttsVolA')}
+                  {volRow(t.volB, 'ttsVolB')}
+                  <div className="vol-row">
+                    <span className="vol-lbl">{t.rateALbl}</span>
+                    <input type="range" min="0.5" max="2" step="0.05" value={cfg.ttsRateA} onChange={setK('ttsRateA')} />
+                    <span className="vol-val">×{Number(cfg.ttsRateA).toFixed(2)}</span>
+                  </div>
+                  <div className="vol-row">
+                    <span className="vol-lbl">{t.rateBLbl}</span>
+                    <input type="range" min="0.5" max="2" step="0.05" value={cfg.ttsRateB} onChange={setK('ttsRateB')} />
+                    <span className="vol-val">×{Number(cfg.ttsRateB).toFixed(2)}</span>
+                  </div>
+                  <div className="vol-row">
+                    <span className="vol-lbl">{t.readLbl}</span>
+                    <span className="read-radios">
+                      {[['a', 'A'], ['b', 'B'], ['both', t.readBoth]].map(([v, lbl]) => (
+                        <label key={v} className="tb-check">
+                          <input type="radio" name="ttsRead" checked={cfg.ttsRead === v}
+                            onChange={() => setCfg((c) => ({ ...c, ttsRead: v }))} /> {lbl}
+                        </label>
+                      ))}
+                    </span>
+                  </div>
+                  <div className="adv-sub">{t.voiceSel}</div>
+                  {voiceRow('A', 'a')}
+                  {voiceRow('B', 'b')}
+                  <div className="vol-row">
+                    <span className="vol-lbl">{t.repeatLbl}</span>
+                    <input type="number" min="1" max="20" className="num-input" disabled={cfg.ttsInf} value={cfg.ttsRepeat}
+                      onChange={(e) => setCfg((c) => ({ ...c, ttsRepeat: Math.max(1, Math.min(20, Math.floor(Number(e.target.value)) || 1)) }))} />
+                    <label className="tb-check">
+                      <input type="checkbox" checked={cfg.ttsInf} onChange={(e) => setCfg((c) => ({ ...c, ttsInf: e.target.checked }))} /> {t.infLbl}
+                    </label>
+                  </div>
+                  <p className="adv-note">※ {t.repeatNote}</p>
+                </div>
+
+                <div>
+                  <div className="adv-sec">⏱ {t.playSec}</div>
+                  <div className="vol-row">
+                    <span className="vol-lbl">{t.delayALbl}</span>
+                    <input type="number" min="0" max="60" step="0.5" className="num-input" value={cfg.delayA}
+                      onChange={(e) => setCfg((c) => ({ ...c, delayA: Math.max(0, Math.min(60, Number(e.target.value) || 0)) }))} />
+                  </div>
+                  <div className="vol-row">
+                    <span className="vol-lbl">{t.delayBLbl}</span>
+                    <input type="number" min="0" max="60" step="0.5" className="num-input" value={cfg.delayB}
+                      onChange={(e) => setCfg((c) => ({ ...c, delayB: Math.max(0, Math.min(60, Number(e.target.value) || 0)) }))} />
+                  </div>
+                  <p className="adv-note">{t.delayBackHint}</p>
+
+                  <div className="adv-sec">💾 {t.backupSec}</div>
+                  <div className="vol-row">
+                    <button className="mini-btn" onClick={onExport}>{t.exportBtn}</button>
+                    <button className="mini-btn" onClick={onImportClick}>{t.importBtn}</button>
+                  </div>
+                  <p className="adv-note">※ {t.backupNote}</p>
+
+                  <div className="adv-sec">🖥 {t.fsSec}</div>
+                  <div className="vol-row">
+                    <button className="mini-btn" onClick={onFullscreen}>{t.fsBtn}</button>
+                  </div>
+                  <label className="tb-check" style={{ marginTop: 4 }}>
+                    <input type="checkbox" checked={cfg.wakeLock} onChange={(e) => setCfg((c) => ({ ...c, wakeLock: e.target.checked }))} /> {t.wakeLbl}
+                  </label>
+
+                  <div className="adv-sec">♻ {t.resetSec}</div>
+                  <div className="vol-row">
+                    <button className="mini-btn" onClick={() => { if (window.confirm(t.resetAllConfirm)) setCfg({ ...DEFAULT_CFG }) }}>{t.resetAllBtn}</button>
+                  </div>
+                  <p className="adv-note">※ {t.resetAllNote}</p>
+                </div>
+              </div>
+
+              <div className="pop-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
+                <button className="mini-btn" onClick={onClose}>{t.close}</button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      function FontPopover({ cfg, setCfg, onClose, t }) {
+        return (
+          <div className="popover" onClick={(e) => e.stopPropagation()}>
+            <h4>{t.fontTitle}</h4>
+            <div className="pop-row">
+              <span>{t.fontFamily}</span>
+              <select value={cfg.fontFamily} onChange={(e) => setCfg((c) => ({ ...c, fontFamily: e.target.value }))}>
+                {Object.keys(FONT_FAMILIES).map((k) => <option key={k} value={k}>{t.fonts[k]}</option>)}
+              </select>
+            </div>
+            <div className="pop-row">
+              <span>{t.fontSize}</span>
+              <input type="number" min="20" max="200" style={{ width: 64 }} value={cfg.fontSize}
+                onChange={(e) => setCfg((c) => ({ ...c, fontSize: Math.max(20, Math.min(200, Number(e.target.value) || 88)) }))} />
+            </div>
+            <div className="pop-row">
+              <span>{t.bold}</span>
+              <input type="checkbox" checked={cfg.fontBold} onChange={(e) => setCfg((c) => ({ ...c, fontBold: e.target.checked }))} />
+            </div>
+            <div className="pop-row">
+              <span>{t.fontColor}</span>
+              <span className="swatches">
+                {FG_PRESETS.map((col) => (
+                  <button key={col} className={'swatch' + (cfg.fontColor === col ? ' sel' : '')} style={{ background: col }}
+                    onClick={() => setCfg((c) => ({ ...c, fontColor: col }))} aria-label={col} />
+                ))}
+                <input type="color" value={cfg.fontColor} style={{ width: 28, height: 22, padding: 0, border: 'none' }}
+                  onChange={(e) => setCfg((c) => ({ ...c, fontColor: e.target.value }))} />
+              </span>
+            </div>
+            <div className="pop-row" style={{ justifyContent: 'flex-end' }}>
+              <button className="mini-btn" onClick={onClose}>{t.close}</button>
+            </div>
+          </div>
+        )
+      }
+
+      function BgPopover({ cfg, setCfg, onClose, t }) {
+        return (
+          <div className="popover" onClick={(e) => e.stopPropagation()}>
+            <h4>{t.bgTitle}</h4>
+            <div className="pop-row">
+              <span className="swatches">
+                {BG_PRESETS.map((col) => (
+                  <button key={col} className={'swatch' + (cfg.bg === col ? ' sel' : '')} style={{ background: col }}
+                    onClick={() => setCfg((c) => ({ ...c, bg: col }))} aria-label={col} />
+                ))}
+                <input type="color" value={cfg.bg} style={{ width: 28, height: 22, padding: 0, border: 'none' }}
+                  onChange={(e) => setCfg((c) => ({ ...c, bg: e.target.value }))} />
+              </span>
+            </div>
+            <p style={{ margin: '6px 0 8px', fontSize: 11, color: '#444' }}>{t.bgHint}</p>
+            <div className="pop-row" style={{ justifyContent: 'flex-end' }}>
+              <button className="mini-btn" onClick={onClose}>{t.close}</button>
+            </div>
+          </div>
+        )
+      }
+
+      /* 🌐 언어 선택 드롭다운 (제어판/미니바 공용) */
+      function LangSelect({ lang, onChange, t }) {
+        return (
+          <label className="lang-select" title={t.langLabel}>
+            <span className="globe" aria-hidden="true">🌐</span>
+            <select value={lang} onChange={(e) => onChange(e.target.value)} aria-label={t.langLabel}>
+              {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+            </select>
+          </label>
+        )
+      }
+
+      /* =========================================================
+       *  샘플 암기장 게시판 (앱 화면 아래) — 현재 UI 언어 탭은 숨김
+       * ========================================================= */
+      function SamplesBoard({ uiLang, t, appliedId, onApply, onDownload }) {
+        const targets = SAMPLE_TARGETS.filter((c) => c !== uiLang)
+        const [tab, setTab] = useState(targets[0])
+        const cur = targets.includes(tab) ? tab : targets[0] // UI 언어 변경으로 현재 탭이 숨겨진 경우 보정
+        const decks = SAMPLE_DECKS[cur] || []
+        /* 탭 = "학습할 외국어" → 현재 UI 언어로 표기 (en UI면 Korean, ko UI면 일본어).
+           Intl.DisplayNames 내장 번역 사용, 미지원 브라우저는 원어 표기 폴백 */
+        const tabLabel = (code) => {
+          const native = (LANGS.find((l) => l.code === code) || {}).label || code
+          try {
+            const bcp = code === 'zh' ? 'zh-Hans' : code
+            const s = new Intl.DisplayNames([uiLang], { type: 'language' }).of(bcp)
+            if (s && s !== bcp) return s.charAt(0).toUpperCase() + s.slice(1)
+          } catch {}
+          return native
+        }
+        return (
+          <section className="samples" id="samples" aria-label={t.samples}>
+            <div className="samples-panel">
+              <h2 className="samples-title">📚 {t.samples}</h2>
+              <p className="samples-sub">{t.samplesSub}</p>
+              <div className="tabs" role="tablist">
+                {targets.map((c) => (
+                  <button key={c} role="tab" aria-selected={c === cur} className={'tab' + (c === cur ? ' on' : '')} onClick={() => setTab(c)}>{tabLabel(c)}</button>
+                ))}
+              </div>
+              <table className="board">
+                <thead>
+                  <tr><th className="no">#</th><th>{t.thTitle}</th><th className="cnt">{t.thCount}</th><th className="act">{t.thAct}</th></tr>
+                </thead>
+                <tbody>
+                  {decks.map((d, i) => { const src = deckSrc(d); return (
+                    <tr key={d.id} className={appliedId === d.id ? 'row-applied' : ''}>
+                      <td className="no">{i + 1}</td>
+                      <td className="title">{d.name(t)}</td>
+                      <td className="cnt">{src ? src.count : '—'}</td>
+                      <td className="act">
+                        {!src ? (
+                          <span className="soon-mark">{t.soon}</span>
+                        ) : appliedId === d.id ? (
+                          <span className="act-btns">
+                            <span className="applied"><span className="led-dot" /> {t.appliedMark}</span>
+                            <button className="apply-btn dl" title={t.dlTip} onClick={() => onDownload(d, cur)}>⬇ CSV</button>
+                          </span>
+                        ) : (
+                          <span className="act-btns">
+                            <button className="apply-btn" onClick={() => onApply(d, cur)}><span className="tri">▶</span> {t.applyBtn}</button>
+                            <button className="apply-btn dl" title={t.dlTip} onClick={() => onDownload(d, cur)}>⬇ CSV</button>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ) })}
+                </tbody>
+              </table>
+              <div className="board-foot">ⓘ {t.confirmReplace} · {t.dlTip}<br />ⓘ {t.lvlNote}</div>
+            </div>
+          </section>
+        )
+      }
+
+      /* =========================================================
+       *  CSV 편집기 (샘플 게시판 아래) — 2열 시트 + 빈칸 검증 + 로드/저장
+       * ========================================================= */
+      /* [단어,뜻] 쌍 배열 → CSV 다운로드 (편집기·마이 보카덱 공용) */
+      const downloadCsvPairs = (pairs, filename) => {
+        const esc = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v)
+        const csv = '\uFEFF' + pairs.map((r) => esc(r[0]) + ',' + esc(r[1])).join('\r\n')
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+        const a = document.createElement('a')
+        a.href = url
+        a.download = (filename.replace(/[\\/:*?"<>|]/g, '') || 'my-deck') + '.csv'
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+      function CsvEditor({ t, deck, onApplyRows, onSaveMy, seed, showToast }) {
+        const BLANK = () => [['', ''], ['', ''], ['', ''], ['', ''], ['', '']]
+        const [rows, setRows] = useState(BLANK)                 // 시트 미러 (검증·버튼 활성화용)
+        const [name, setName] = useState('')
+        const fileRef = useRef(null)
+        const sheetRef = useRef(null)                           // jspreadsheet 컨테이너
+        const instRef = useRef(null)                            // jspreadsheet 인스턴스
+        const dirtyRef = useRef(false)
+        const rafRef = useRef(0)
+        const tRef = useRef(t)
+        tRef.current = t
+
+        const norm = (v) => (v == null ? '' : String(v))
+        const getData = () => (instRef.current ? instRef.current.getData().map((r) => [norm(r[0]), norm(r[1])]) : [])
+
+        /* 반쪽만 채운 행의 빈 칸에 빨간 표시 (jspreadsheet TD에 클래스 토글) */
+        const markErrors = () => {
+          const root = sheetRef.current
+          if (!root || !instRef.current) return
+          root.querySelectorAll('td.ed-cell-err').forEach((td) => td.classList.remove('ed-cell-err'))
+          getData().forEach((r, y) => {
+            const a = r[0].trim(), b = r[1].trim()
+            if ((a || b) && (!a || !b)) {
+              const td = root.querySelector('td[data-x="' + (a ? 1 : 0) + '"][data-y="' + y + '"]')
+              if (td) td.classList.add('ed-cell-err')
+            }
+          })
+        }
+        /* 시트 → React 미러 동기화. 셀 단위 이벤트가 몰릴 수 있어 rAF로 1회 배칭 */
+        const sync = () => {
+          cancelAnimationFrame(rafRef.current)
+          rafRef.current = requestAnimationFrame(() => {
+            const d = getData()
+            setRows(d.length ? d : [['', '']])
+            markErrors()
+          })
+        }
+        const setSheet = (pairs) => {
+          instRef.current.setData(pairs.length ? pairs.map((r) => [r[0], r[1]]) : [['', '']])
+          sync()
+        }
+
+        /* 엑셀식 시트 생성 (마운트 1회) — 범위 선택·행 선택·Delete·Ctrl+C/V/Z 는 jspreadsheet 네이티브 */
+        useEffect(() => {
+          const colW = () => Math.max(120, Math.floor(((sheetRef.current.parentNode.clientWidth || 600) - 64) / 2))
+          const inst = jspreadsheet(sheetRef.current, {
+            data: BLANK(),
+            columns: [
+              { type: 'text', title: tRef.current.edColA, width: colW(), align: 'left', wordWrap: true },
+              { type: 'text', title: tRef.current.edColB, width: colW(), align: 'left', wordWrap: true },
+            ],
+            minDimensions: [2, 1],
+            tableOverflow: true, tableHeight: '420px',
+            columnSorting: false, parseFormulas: false,
+            /* 열은 2열 고정 — 열 추가/삭제/이름변경/드래그 전부 차단 */
+            allowInsertColumn: false, allowManualInsertColumn: false, allowDeleteColumn: false, allowRenameColumn: false, columnDrag: false,
+            /* 우클릭 메뉴 — 행 추가/삭제만 (기존 i18n 키 재사용, 열 메뉴 없음) */
+            contextMenu: (obj, x, y) => {
+              if (y == null) return []
+              const T = tRef.current
+              const sel = obj.selectedCell
+              const from = sel ? Math.min(+sel[1], +sel[3]) : +y
+              const cnt = sel ? Math.abs(+sel[3] - +sel[1]) + 1 : 1
+              return [
+                { title: T.edAddRow, onclick: () => obj.insertRow(1, from, 1) },
+                { title: T.edDelRow, onclick: () => {
+                  if (cnt >= obj.getData().length) obj.setData([['', '']])
+                  else obj.deleteRow(from, cnt)
+                } },
+              ]
+            },
+            text: { areYouSureToDeleteTheSelectedRows: tRef.current.edDelRowsConfirm },
+            onchange: sync, onpaste: sync, oninsertrow: sync, ondeleterow: sync, onundo: sync, onredo: sync,
+          })
+          instRef.current = inst
+          const onResize = () => { const w = colW(); inst.setWidth(0, w); inst.setWidth(1, w) }
+          window.addEventListener('resize', onResize)
+          return () => {
+            window.removeEventListener('resize', onResize)
+            try { jspreadsheet.destroy(sheetRef.current) } catch (e) {}
+          }
+        }, [])
+
+        /* 언어 변경 → 열 제목·확인창 문구 갱신 */
+        useEffect(() => {
+          const inst = instRef.current
+          if (!inst) return
+          inst.setHeader(0, t.edColA)
+          inst.setHeader(1, t.edColB)
+          if (inst.options && inst.options.text) inst.options.text.areYouSureToDeleteTheSelectedRows = t.edDelRowsConfirm
+        }, [t])
+
+        /* 마이 보카덱 "✎ 편집기로" → 시트에 로드 (미저장 내용이 있으면 확인) */
+        useEffect(() => {
+          if (!seed) return
+          if (dirtyRef.current && !window.confirm(t.edOverwrite)) return
+          setSheet(seed.rows)
+          setName(seed.name)
+          const el = document.getElementById('editor')
+          if (el) el.scrollIntoView({ behavior: 'smooth' })
+        }, [seed]) // eslint 무관: t는 언어 변경 시 갱신되는 안내문일 뿐
+
+        const errCnt = rows.reduce((n, r) => n + ((r[0].trim() || r[1].trim()) && (!r[0].trim() || !r[1].trim()) ? 1 : 0), 0)
+        const validRows = rows.filter((r) => r[0].trim() && r[1].trim())
+        const dirty = rows.some((r) => r[0].trim() || r[1].trim())
+        const canSave = errCnt === 0 && validRows.length > 0
+        dirtyRef.current = dirty
+
+        const confirmOverwrite = () => !dirty || window.confirm(t.edOverwrite)
+        const loadFile = (e) => {
+          const f = e.target.files && e.target.files[0]
+          e.target.value = ''
+          if (!f) return
+          const reader = new FileReader()
+          reader.onload = () => {
+            const parsed = parseCSV(reader.result)
+            if (!parsed.length) { showToast(t.noRows); return }
+            if (!confirmOverwrite()) return
+            setSheet(parsed.map((r) => [r.a, r.b]))
+            setName(f.name.replace(/\.csv$/i, ''))
+            showToast(t.edLoadedFile(parsed.length))
+          }
+          reader.readAsText(f, 'utf-8')
+        }
+        const loadCurrent = () => {
+          if (!deck.length) { showToast(t.noRows); return }
+          if (!confirmOverwrite()) return
+          setSheet(deck.map((c) => [c.a, c.b]))
+          showToast(t.edLoadedCur(deck.length))
+        }
+        const newSheet = () => {
+          if (!confirmOverwrite()) return
+          setSheet(BLANK()); setName('')
+        }
+        const addRows = (n) => { const inst = instRef.current; if (inst) inst.insertRow(n) }
+        const delLastRow = () => {
+          const inst = instRef.current
+          if (!inst) return
+          const len = inst.getData().length
+          if (len > 1) inst.deleteRow(len - 1, 1)
+          else inst.setData([['', '']])
+          sync()
+        }
+        const trimmed = () => validRows.map((r) => [r[0].trim(), r[1].trim()])
+        const saveCsv = () => { if (canSave) downloadCsvPairs(trimmed(), name.trim()) }
+        const saveMy = () => { if (canSave) onSaveMy(name.trim() || t.edNamePh, trimmed()) }
+        const applyNow = () => { if (canSave) onApplyRows(trimmed()) }
+
+        return (
+          <section className="samples" id="editor" aria-label={t.edTitle}>
+            <div className="samples-panel">
+              <h2 className="samples-title">📝 {t.edTitle}</h2>
+              <p className="samples-sub">{t.edSub}</p>
+              <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={loadFile} />
+              <div className="editor-grid">
+                <div className="ed-ctrl">
+                  <div className="ed-label">{t.edLoad}</div>
+                  <button className="apply-btn ed-block" onClick={() => fileRef.current && fileRef.current.click()}><span className="ed-ic">📂</span>{t.edLoadFile}</button>
+                  <button className="apply-btn dl ed-block" onClick={loadCurrent}><span className="ed-ic">⬇</span>{t.edLoadCur}</button>
+                  <button className="apply-btn dl ed-block" onClick={newSheet}><span className="ed-ic">🗒</span>{t.edNew}</button>
+                  <hr className="ed-sep" />
+                  <div className="ed-label">{t.edName}</div>
+                  <input className="ed-name" value={name} placeholder={t.edNamePh} onChange={(e) => setName(e.target.value)} />
+                  <div className="ed-label">{t.edSave}</div>
+                  <button className="apply-btn ed-block" disabled={!canSave} onClick={saveCsv}><span className="ed-ic">💾</span>{t.edSaveCsv}</button>
+                  <button className="apply-btn ed-block" disabled={!canSave} onClick={saveMy}><span className="ed-ic">⭐</span>{t.edSaveMy}</button>
+                  <button className="apply-btn dl ed-block" disabled={!canSave} onClick={applyNow}><span className="ed-ic tri">▶</span>{t.edApplyNow}</button>
+                  <p className="ed-stat">{t.edRows} <b>{rows.length}</b> · {t.edValid} <b className="ok">{validRows.length}</b> · {t.edErrs} <b className={errCnt ? 'bad' : 'ok'}>{errCnt}</b></p>
+                  {errCnt > 0 && <p className="ed-err">⚠ {t.edErrMsg}</p>}
+                </div>
+                <div>
+                  <div className="ed-sheet-wrap">
+                    <div className="ed-sheet" ref={sheetRef} />
+                  </div>
+                  <div className="ed-foot">
+                    <button className="apply-btn dl" onClick={() => addRows(1)}>＋ {t.edAddRow}</button>
+                    <button className="apply-btn dl" onClick={() => addRows(10)}>＋ {t.edAdd10}</button>
+                    <button className="apply-btn dl" onClick={delLastRow}>－ {t.edDelRow}</button>
+                    <span className="ed-hint">{t.edHint}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      /* =========================================================
+       *  마이 보카덱 (CSV 편집기 아래) — localStorage 보관·적용·관리
+       * ========================================================= */
+      function MyDecks({ t, decks, onApply, onEdit, onDownload, onDelete }) {
+        const usageKb = Math.ceil(JSON.stringify(decks).length / 1024)
+        return (
+          <section className="samples" id="mydecks" aria-label={t.myTitle}>
+            <div className="samples-panel">
+              <h2 className="samples-title">⭐ {t.myTitle}</h2>
+              <p className="samples-sub">{t.mySub}</p>
+              {decks.length === 0 ? (
+                <p className="my-empty">{t.myEmpty}</p>
+              ) : (
+                <table className="board">
+                  <thead>
+                    <tr><th className="no">#</th><th>{t.myThName}</th><th className="cnt">{t.myThCount}</th><th className="cnt">{t.myThDate}</th><th className="act my-act">{t.myThAct}</th></tr>
+                  </thead>
+                  <tbody>
+                    {decks.map((d, i) => (
+                      <tr key={d.id}>
+                        <td className="no">{i + 1}</td>
+                        <td className="title">{d.name}</td>
+                        <td className="cnt">{d.rows.length}</td>
+                        <td className="cnt">{d.savedAt}</td>
+                        <td className="act my-act">
+                          <span className="act-btns">
+                            <button className="apply-btn" onClick={() => onApply(d)}><span className="tri">▶</span> {t.myApplyBtn}</button>
+                            <button className="apply-btn dl" onClick={() => onEdit(d)}>✎ {t.myEditBtn}</button>
+                            <button className="apply-btn dl" onClick={() => onDownload(d)}>⬇ CSV</button>
+                            <button className="apply-btn dl" title={t.myDelTitle} onClick={() => onDelete(d)}>🗑</button>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              <p className="ed-stat">{t.myUsage(usageKb)}</p>
+            </div>
+          </section>
+        )
+      }
+
+      /* =========================================================
+       *  앱 본체
+       * ========================================================= */
+      function App() {
+        // ⚠ 모든 훅은 조건 분기/early-return 앞에서 호출 (하드 규칙)
+        const [deck, setDeck] = useLocalStorage('voca:deck', [])
+        const [cfg, setCfg] = useLocalStorage('voca:cfg', DEFAULT_CFG)
+        const [lang, setLang] = useLocalStorage('voca:lang', detectLang())
+        const [deckLang, setDeckLang] = useLocalStorage('voca:deckLang', DEFAULT_DECK_LANG) // TTS 로케일 (샘플 적용 시 갱신)
+        const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
+        const [myDecks, setMyDecks] = useLocalStorage('voca:mydecks', [])                   // 마이 보카덱 [{id,name,rows,savedAt}]
+        const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 보카덱 → 편집기 로드 요청
+        const [showJump, setShowJump] = useState(false)                                     // "⬆ 암기장으로" 고정 버튼 표시 여부
+        const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
+        const [pos, setPos] = useState(0)
+        const [phase, setPhase] = useState('a')       // 'a' = 앞면만 / 'ab' = 앞+뒷면
+        const [startNo, setStartNo] = useState('1')
+        const [pop, setPop] = useState(null)          // 'font' | 'bg' | null
+        const [toast, setToast] = useState(null)
+        const fileRef = useRef(null)
+        const wheelLock = useRef(0)
+        const sampleTried = useRef(false)
+        const touchRef = useRef(null)
+        const swipedRef = useRef(false)
+
+        const cfgAll = { ...DEFAULT_CFG, ...cfg }
+        const { auto, delay, dir, order, range, voiceOnly, hidePanel } = cfgAll
+        const [tts, setTts] = useState(false) // 세션 한정 — 새로고침/재방문 시 항상 해제, 켜는 클릭이 곧 TTS 잠금 해제 제스처
+        const t = getT(lang)
+
+        /* URL ?lang= 이 저장값보다 우선 (hreflang 진입 대응) */
+        useEffect(() => {
+          const q = new URLSearchParams(window.location.search).get('lang')
+          if (q && LANGS.some((l) => l.code === q)) setLang(q)
+        }, [])
+
+        /* 현재 언어를 URL(?lang=)에 반영 → 공유 링크가 그 언어로 열리게 (엣지 함수가 ?lang 사용) */
+        useEffect(() => {
+          try {
+            const u = new URL(window.location.href)
+            if (u.searchParams.get('lang') !== lang) { u.searchParams.set('lang', lang); window.history.replaceState(null, '', u) }
+          } catch {}
+        }, [lang])
+
+        /* 언어 변경 시 <html lang> / <title> / meta description / 하단 SEO 본문 현지화 */
+        useEffect(() => {
+          document.documentElement.lang = lang
+          document.title = DOC_TITLE[lang] || DOC_TITLE[DEFAULT_LANG]
+          const m = document.querySelector('meta[name="description"]')
+          if (m) m.setAttribute('content', t.metaDesc)
+          if (window.renderSEO) window.renderSEO(lang)
+        }, [lang, t])
+
+        const total = deck.length
+        const memCnt = deck.reduce((s, c) => s + (c.mem ? 1 : 0), 0)
+        const card = deck[pos] || null
+
+        const showToast = useCallback((msg) => {
+          setToast(msg)
+          window.clearTimeout(showToast._t)
+          showToast._t = window.setTimeout(() => setToast(null), 2200)
+        }, [])
+
+        /* 표시 범위에 맞는 인덱스인지 */
+        const eligible = useCallback((i) => {
+          const c = deck[i]
+          if (!c) return false
+          if (range === 'unmem') return !c.mem
+          if (range === 'mem') return c.mem
+          return true
+        }, [deck, range])
+
+        /* 다음/이전 인덱스 (순서·표시 범위 반영, 한 바퀴 순환) */
+        const findNext = useCallback((from, back) => {
+          if (!total) return -1
+          if (order === 'rnd') {
+            const pool = []
+            for (let i = 0; i < total; i++) if (i !== from && eligible(i)) pool.push(i)
+            if (!pool.length) return eligible(from) ? from : -1
+            return pool[Math.floor(Math.random() * pool.length)]
+          }
+          const dirStep = (order === 'rev') !== !!back ? -1 : 1
+          for (let k = 1; k <= total; k++) {
+            const i = (from + dirStep * k + total * k) % total
+            if (eligible(i)) return i
+          }
+          return -1
+        }, [total, order, eligible])
+
+        /* 한 단계 진행: 단어 → 뜻 → 다음 단어 ... */
+        const step = useCallback(() => {
+          if (!total) return
+          if (phase === 'a') { setPhase('ab'); return }
+          const n = findNext(pos, false)
+          if (n < 0) { showToast(t.noEligible); return }
+          setPos(n); setPhase('a')
+        }, [total, phase, pos, findNext, showToast, t])
+
+        const stepBack = useCallback(() => {
+          if (!total) return
+          if (phase === 'ab') { setPhase('a'); return }
+          const p = findNext(pos, true)
+          if (p < 0) return
+          setPos(p); setPhase('ab')
+        }, [total, phase, pos, findNext])
+
+        /* 자동 모드 타이머 — 면별 지연 조절(delayA/delayB), 0이면 제어판 지연시간 사용
+           phase 'a' = 첫 면(dir 에 따라 A 또는 B) 표시 중 */
+        useEffect(() => {
+          if (!auto || !total) return
+          const firstIsA = dir === 'ab'
+          const isA = phase === 'a' ? firstIsA : !firstIsA
+          const ovr = isA ? cfgAll.delayA : cfgAll.delayB
+          const h = setTimeout(() => step(), Math.max(0.5, ovr > 0 ? ovr : delay) * 1000)
+          return () => clearTimeout(h)
+        }, [auto, delay, cfgAll.delayA, cfgAll.delayB, dir, total, step, phase, pos])
+
+        /* 자동재생 중 화면 꺼짐 방지 (Wake Lock) — 탭 복귀 시 재획득 */
+        useEffect(() => {
+          if (!auto || !cfgAll.wakeLock || !navigator.wakeLock) return
+          let lock = null, dead = false
+          const acquire = () => navigator.wakeLock.request('screen')
+            .then((l) => { if (dead) l.release().catch(() => {}); else lock = l }).catch(() => {})
+          acquire()
+          const onVis = () => { if (document.visibilityState === 'visible') acquire() }
+          document.addEventListener('visibilitychange', onVis)
+          return () => { dead = true; document.removeEventListener('visibilitychange', onVis); lock && lock.release().catch(() => {}) }
+        }, [auto, cfgAll.wakeLock])
+
+        /* 키보드: 스페이스바 = 다음 단계 */
+        useEffect(() => {
+          const onKey = (e) => {
+            if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return
+            if (e.code === 'Space') { e.preventDefault(); step() }
+            else if (e.key === 'ArrowRight') step()
+            else if (e.key === 'ArrowLeft') stepBack()
+          }
+          window.addEventListener('keydown', onKey)
+          return () => window.removeEventListener('keydown', onKey)
+        }, [step, stepBack])
+
+        /* TTS: 앞면 표시 시 A(단어), 뒷면 표시 시 B(뜻) 읽기 — 로케일은 덱 메타 */
+        useEffect(() => {
+          if (!tts || !card) return
+          const firstIsA = dir === 'ab'
+          const isA = phase === 'a' ? firstIsA : !firstIsA
+          if (cfgAll.ttsRead === 'a' && !isA) return
+          if (cfgAll.ttsRead === 'b' && isA) return
+          const text = phase === 'a' ? (firstIsA ? card.a : card.b) : (firstIsA ? card.b : card.a)
+          speak(text, isA, deckLang, {
+            vol: (cfgAll.ttsVol / 100) * ((isA ? cfgAll.ttsVolA : cfgAll.ttsVolB) / 100),
+            rate: isA ? cfgAll.ttsRateA : cfgAll.ttsRateB,
+            voiceURI: (cfgAll.ttsVoices || {})[isA ? deckLang.a : deckLang.b] || '',
+            repeat: cfgAll.ttsRepeat, inf: cfgAll.ttsInf,
+          })
+        }, [tts, phase, pos]) // eslint 무관: card/dir 변화는 pos/phase에 수반
+
+        /* TTS 해제 시 재생 중이던 음성(무한 반복 포함) 즉시 중단 */
+        useEffect(() => { if (!tts) stopSpeak() }, [tts])
+
+        /* 첫 방문(암기장 없음) 시 샘플 암기장 자동 로드 */
+        useEffect(() => {
+          if (deck.length || sampleTried.current) return
+          sampleTried.current = true
+          fetch('sample.csv').then((r) => (r.ok ? r.text() : Promise.reject())).then((text) => {
+            const rows = parseCSV(text)
+            if (rows.length) { setDeck(rows); setPos(0); setPhase('a'); showToast(t.sampleLoaded(rows.length)) }
+          }).catch(() => {})
+        }, [deck.length, setDeck, showToast, t])
+
+        /* 팝오버 바깥 클릭 시 닫기 */
+        useEffect(() => {
+          if (!pop) return
+          const close = () => setPop(null)
+          window.addEventListener('click', close)
+          return () => window.removeEventListener('click', close)
+        }, [pop])
+
+        /* 현재 위치가 덱 범위를 벗어나면 보정 */
+        useEffect(() => {
+          if (total && pos >= total) { setPos(0); setPhase('a') }
+        }, [total, pos])
+
+        /* 앱 화면(100dvh)을 절반 이상 지나 스크롤하면 "⬆ 암기장으로" 고정 버튼 표시 — 페이지 끝까지 유지 */
+        useEffect(() => {
+          const onScroll = () => setShowJump(window.scrollY > window.innerHeight * 0.5)
+          onScroll()
+          window.addEventListener('scroll', onScroll, { passive: true })
+          return () => window.removeEventListener('scroll', onScroll)
+        }, [])
+
+        /* ---- 파일 열기 ---- */
+        const openFile = (e) => {
+          const f = e.target.files && e.target.files[0]
+          e.target.value = ''
+          if (!f) return
+          const reader = new FileReader()
+          reader.onload = () => {
+            const rows = parseCSV(reader.result)
+            if (!rows.length) { showToast(t.noRows); return }
+            setDeck(rows); setPos(0); setPhase('a')
+            setSampleId(null); setDeckLang(DEFAULT_DECK_LANG) // 내 CSV → 샘플 표시 해제 + 기존 TTS 기본값 유지
+            showToast(t.opened(rows.length))
+          }
+          reader.readAsText(f, 'utf-8')
+        }
+
+        /* ---- 샘플 암기장: 적용 / 다운로드 ---- */
+        const fetchMatrix = (file) => {
+          if (matrixCache.current[file]) return Promise.resolve(matrixCache.current[file])
+          return fetch(file).then((r) => (r.ok ? r.text() : Promise.reject())).then((text) => {
+            matrixCache.current[file] = text
+            return text
+          })
+        }
+        const applySample = (d, target) => {
+          const src = deckSrc(d)
+          if (!src) return
+          fetchMatrix(src.file).then((text) => {
+            const rows = parseMatrixCSV(text, target, lang)
+            if (!rows.length) { showToast(t.sampleFailNet); return }
+            if (deck.length && !window.confirm(t.confirmReplace)) return
+            setDeck(rows); setPos(0); setPhase('a')
+            setSampleId(d.id)
+            setDeckLang({ a: LOCALE[target] || 'en-US', b: LOCALE[lang] || 'en-US' })
+            showToast(t.sampleDone(d.name(t), rows.length))
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }).catch(() => showToast(t.sampleFailNet))
+        }
+        /* ---- CSV 편집기에서 만든 내용을 덱으로 적용 ---- */
+        const applyEditorRows = (pairs) => {
+          const rows = pairs.map((p) => ({ a: p[0], b: p[1], mem: false }))
+          if (!rows.length) { showToast(t.noRows); return }
+          if (deck.length && !window.confirm(t.confirmReplace)) return
+          setDeck(rows); setPos(0); setPhase('a')
+          setSampleId(null); setDeckLang(DEFAULT_DECK_LANG)
+          showToast(t.opened(rows.length))
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+
+        /* ---- 마이 보카덱 (localStorage 보관) ---- */
+        const saveMyDeck = (name, pairs) => {
+          const exists = myDecks.find((d) => d.name === name)
+          if (exists && !window.confirm(t.myConfirmOverwrite(name))) return
+          const entry = {
+            id: exists ? exists.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            name, rows: pairs, savedAt: new Date().toISOString().slice(0, 10),
+          }
+          const next = exists ? myDecks.map((d) => (d.id === exists.id ? entry : d)) : [entry, ...myDecks]
+          if (JSON.stringify(next).length > 4.5 * 1024 * 1024) { // localStorage 5MB 한도 방어
+            showToast(t.myFull)
+            return
+          }
+          setMyDecks(next)
+          showToast(t.mySavedMsg(name, pairs.length))
+        }
+        const deleteMyDeck = (d) => {
+          if (!window.confirm(t.myConfirmDel(d.name))) return
+          setMyDecks((prev) => prev.filter((x) => x.id !== d.id))
+        }
+        const editMyDeck = (d) => setEditorSeed({ name: d.name, rows: d.rows, nonce: Date.now() })
+
+        const downloadSample = (d, target) => {
+          const src = deckSrc(d)
+          if (!src) return
+          fetchMatrix(src.file).then((text) => {
+            const rows = parseMatrixCSV(text, target, lang)
+            if (!rows.length) { showToast(t.sampleFailNet); return }
+            const csv = '\uFEFF' + rows.map((r) => r.a + ',' + r.b).join('\r\n')
+            const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+            const a = document.createElement('a')
+            a.href = url
+            a.download = d.id + '.' + lang + '.csv'
+            a.click()
+            URL.revokeObjectURL(url)
+          }).catch(() => showToast(t.sampleFailNet))
+        }
+
+        /* ---- 암기 표시 ---- */
+        const toggleMem = (checked) => {
+          if (!card) return
+          setDeck((prev) => prev.map((c, i) => (i === pos ? { ...c, mem: checked } : c)))
+        }
+        const resetMem = () => {
+          if (!total) return
+          if (confirm(t.confirmReset)) {
+            setDeck((prev) => prev.map((c) => ({ ...c, mem: false })))
+            showToast(t.resetDone)
+          }
+        }
+
+        /* ---- 백업/복원 (암기 표시 + TTS 로케일 포함 JSON) ---- */
+        const importRef = useRef(null)
+        const exportBackup = () => {
+          if (!total) { showToast(t.noRows); return }
+          const data = { app: 'voca-deck', ver: 1, exported: new Date().toISOString(), deckLang, deck }
+          const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }))
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'voca-backup-' + new Date().toISOString().slice(0, 10) + '.json'
+          a.click()
+          URL.revokeObjectURL(url)
+        }
+        const importBackup = (e) => {
+          const f = e.target.files && e.target.files[0]
+          e.target.value = ''
+          if (!f) return
+          const reader = new FileReader()
+          reader.onload = () => {
+            try {
+              const d = JSON.parse(reader.result)
+              const rows = (Array.isArray(d.deck) ? d.deck : [])
+                .filter((c) => c && typeof c.a === 'string' && typeof c.b === 'string')
+                .map((c) => ({ a: c.a, b: c.b, mem: !!c.mem }))
+              if (!rows.length) throw new Error('empty')
+              if (deck.length && !window.confirm(t.confirmReplace)) return
+              setDeck(rows); setPos(0); setPhase('a'); setSampleId(null)
+              if (d.deckLang && d.deckLang.a && d.deckLang.b) setDeckLang({ a: String(d.deckLang.a), b: String(d.deckLang.b) })
+              showToast(t.importDone(rows.length))
+            } catch { showToast(t.importFail) }
+          }
+          reader.readAsText(f, 'utf-8')
+        }
+
+        /* ---- 전체화면 (iPhone Safari 는 미지원 → 안내) ---- */
+        const toggleFs = () => {
+          const doc = document, el = doc.documentElement
+          if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+            const exit = doc.exitFullscreen || doc.webkitExitFullscreen
+            exit && exit.call(doc)
+            return
+          }
+          const req = el.requestFullscreen || el.webkitRequestFullscreen
+          if (!req) { showToast(t.fsUnsupported); return }
+          try {
+            const p = req.call(el)
+            if (p && p.catch) p.catch(() => showToast(t.fsUnsupported))
+          } catch { showToast(t.fsUnsupported) }
+        }
+
+        /* ---- 시작번호 적용 ---- */
+        const applyStart = () => {
+          const n = Math.floor(Number(startNo))
+          if (!total || !n || n < 1 || n > total) { showToast(t.startRange(total)); return }
+          setPos(n - 1); setPhase('a')
+        }
+
+        /* ---- 종료 ---- */
+        const quit = () => {
+          window.close()
+          setTimeout(() => showToast(t.cantClose), 100)
+        }
+
+        /* ---- 표시 텍스트 ---- */
+        const firstIsA = dir === 'ab'
+        const topText = card ? (firstIsA ? card.a : card.b) : ''
+        const botText = card ? (firstIsA ? card.b : card.a) : ''
+        const fontCss = (FONT_FAMILIES[cfgAll.fontFamily] || FONT_FAMILIES.gothic).css
+        const textStyle = {
+          fontFamily: fontCss,
+          fontWeight: cfgAll.fontBold ? 800 : 400,
+          color: cfgAll.fontColor,
+          fontSize: `min(${cfgAll.fontSize}px, 13vw)`,
+        }
+        const emptyMsg = total === 0
+        const displayTop = emptyMsg ? t.emptyTop : (voiceOnly && tts ? '' : topText)
+        const displayBot = emptyMsg ? t.emptyBot : (phase === 'ab' ? (voiceOnly && tts ? '' : botText) : '')
+
+        const setCfgK = (patch) => setCfg((c) => ({ ...DEFAULT_CFG, ...c, ...patch }))
+
+        const onWheel = (e) => {
+          const now = Date.now()
+          if (now - wheelLock.current < 250) return
+          wheelLock.current = now
+          if (e.deltaY > 0) step(); else stepBack()
+        }
+
+        /* 모바일: 좌스와이프 = 다음, 우스와이프 = 이전 (탭 = 다음은 onClick이 처리) */
+        const onTouchStart = (e) => {
+          swipedRef.current = false
+          const t0 = e.touches && e.touches[0]
+          touchRef.current = t0 ? { x: t0.clientX, y: t0.clientY } : null
+        }
+        const onTouchEnd = (e) => {
+          const s = touchRef.current
+          touchRef.current = null
+          const t1 = e.changedTouches && e.changedTouches[0]
+          if (!s || !t1) return
+          const dx = t1.clientX - s.x, dy = t1.clientY - s.y
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            swipedRef.current = true // 스와이프 뒤에 따라오는 click 무시
+            if (dx < 0) step(); else stepBack()
+          }
+        }
+        const onDisplayClick = () => {
+          if (swipedRef.current) { swipedRef.current = false; return }
+          step()
+        }
+
+        const jumpSamples = (e) => {
+          e.stopPropagation()
+          const el = document.getElementById('samples')
+          if (el) el.scrollIntoView({ behavior: 'smooth' })
+        }
+
+        /* ---- 미니바 (제어판 숨김) ---- */
+        const miniBar = (
+          <div className="minibar">
+            <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> {t.open}</button>
+            <button className="tb-btn next" onClick={step}><span className="ic">→</span> {t.next}</button>
+            <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> {t.mem}</label>
+            <label className="tb-check"><input type="checkbox" checked={tts} onChange={(e) => { setTts(e.target.checked); if (!e.target.checked) setCfgK({ voiceOnly: false }) }} /> {t.tts}</label>
+            <span className="tb-spacer" />
+            <label className="tb-check"><input type="checkbox" checked={hidePanel} onChange={(e) => setCfgK({ hidePanel: e.target.checked })} /> {t.hidePanel}</label>
+            <button className="tb-btn quit" onClick={quit}><span className="ic">X</span> {t.quit}</button>
+          </div>
+        )
+
+        /* ---- 전체 제어판 ---- */
+        const fullPanel = (
+          <div className="cpanel">
+            <div className="toolbar">
+              <button className="tb-btn open" onClick={() => fileRef.current && fileRef.current.click()}><span className="ic">📂</span> {t.open}</button>
+              <button className="tb-btn" onClick={jumpSamples}><span className="ic">📚</span> {t.samples}</button>
+              <button className="tb-btn next" onClick={step}><span className="ic">→</span> {t.next}</button>
+              <label className="tb-check"><input type="checkbox" checked={!!(card && card.mem)} disabled={!card} onChange={(e) => toggleMem(e.target.checked)} /> {t.mem}</label>
+              <div className="tb-col">
+                <label className="tb-check"><input type="checkbox" checked={tts} onChange={(e) => { setTts(e.target.checked); if (!e.target.checked) setCfgK({ voiceOnly: false }) }} /> {t.tts}</label>
+                <label className={'tb-check' + (tts ? '' : ' disabled')}><input type="checkbox" disabled={!tts} checked={voiceOnly} onChange={(e) => setCfgK({ voiceOnly: e.target.checked })} /> {t.voiceOnly}</label>
+              </div>
+              <div className="tb-col">
+                <label className="tb-check disabled" title={t.alwaysTopHint}><input type="checkbox" disabled /> {t.alwaysTop}</label>
+                <label className="tb-check"><input type="checkbox" checked={hidePanel} onChange={(e) => setCfgK({ hidePanel: e.target.checked })} /> {t.hidePanel}</label>
+              </div>
+              <span className="tb-spacer" />
+              <button className="tb-btn quit" onClick={quit}><span className="ic">X</span> {t.quit}</button>
+            </div>
+
+            <div className="groups">
+              <Group title={t.gStatus} style={{ flex: '0 0 auto' }}>
+                <div className="stat-rows">
+                  <span>{t.total}</span><span className="v">{total}</span>
+                  <span>{t.current}</span><span className="v">{total ? pos + 1 : 0}</span>
+                  <span>{t.toLearn}</span><span className="v">{total - memCnt}</span>
+                  <span>{t.learned}</span><span className="v">{memCnt}</span>
+                </div>
+              </Group>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Group title={t.gMode}>
+                  <div className="radio-row">
+                    <LedRadio name="auto" checked={!auto} onChange={() => setCfgK({ auto: false })} label={t.manual} />
+                    <LedRadio name="auto" checked={auto} onChange={() => setCfgK({ auto: true })} label={t.auto} />
+                  </div>
+                </Group>
+                <Group title="A ↔ B">
+                  <div className="radio-row">
+                    <LedRadio name="dir" checked={dir === 'ab'} onChange={() => { setCfgK({ dir: 'ab' }); setPhase('a') }} label="A → B" />
+                    <LedRadio name="dir" checked={dir === 'ba'} onChange={() => { setCfgK({ dir: 'ba' }); setPhase('a') }} label="B → A" />
+                  </div>
+                </Group>
+              </div>
+
+              <Group title={t.gOrder}>
+                <div className="radio-col">
+                  <LedRadio name="order" checked={order === 'fwd'} onChange={() => setCfgK({ order: 'fwd' })} label={t.fwd} />
+                  <LedRadio name="order" checked={order === 'rev'} onChange={() => setCfgK({ order: 'rev' })} label={t.rev} />
+                  <LedRadio name="order" checked={order === 'rnd'} onChange={() => setCfgK({ order: 'rnd' })} label={t.rnd} />
+                </div>
+                <div className="inline-field">
+                  <span>{t.startNo}</span>
+                  <input className="num-input" type="number" min="1" max={total || 1} value={startNo} onChange={(e) => setStartNo(e.target.value)} />
+                  <button className="mini-btn" onClick={applyStart}>{t.apply}</button>
+                </div>
+              </Group>
+
+              <Group title={t.gRange}>
+                <div className="radio-col">
+                  <LedRadio name="range" checked={range === 'unmem'} onChange={() => setCfgK({ range: 'unmem' })} label={t.unmem} />
+                  <LedRadio name="range" checked={range === 'mem'} onChange={() => setCfgK({ range: 'mem' })} label={t.memOnly} />
+                  <LedRadio name="range" checked={range === 'all'} onChange={() => setCfgK({ range: 'all' })} label={t.all} />
+                </div>
+                <div className="inline-field spin-field">
+                  <span>{t.delay}</span>
+                  <input className="num-input" type="number" min="1" max="60" step="1" value={delay}
+                    onChange={(e) => setCfgK({ delay: Math.max(1, Math.min(60, Number(e.target.value) || 3)) })} />
+                </div>
+              </Group>
+
+              <div className="side-btns pop-wrap" onClick={(e) => e.stopPropagation()}>
+                <button className="link-btn" onClick={() => setPop(pop === 'font' ? null : 'font')}>{t.font}</button>
+                <button className="link-btn" onClick={() => setPop(pop === 'bg' ? null : 'bg')}>{t.bg}</button>
+                <button className="link-btn" onClick={resetMem}>{t.resetMem}</button>
+                <button className="link-btn" onClick={() => setPop(pop === 'adv' ? null : 'adv')}>{t.adv}</button>
+                {pop === 'font' && <FontPopover cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} t={t} />}
+                {pop === 'bg' && <BgPopover cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} t={t} />}
+                {pop === 'adv' && <AdvModal cfg={cfgAll} setCfg={setCfg} onClose={() => setPop(null)} t={t} uiLang={lang}
+                  deckLang={deckLang} setDeckLang={setDeckLang}
+                  onExport={exportBackup} onImportClick={() => importRef.current && importRef.current.click()} onFullscreen={toggleFs} />}
+              </div>
+            </div>
+          </div>
+        )
+
+        return (
+          <React.Fragment>
+          <div className="stage" style={{ background: cfgAll.bg }}>
+            <header className="app-header">
+              <a className="brand" href="https://broodev.com/" title="broodev">
+                <img src="/favicon.svg" alt="" aria-hidden="true" />
+                <span className="logo">broodev</span>
+              </a>
+              <span className="app-name">VOCA DECK<span className="dot">·</span><span className="full">{t.appName}</span></span>
+              <span className="tb-spacer" />
+              <a className="tut-link" href={'https://voca-tutorial.broodev.com/?lang=' + lang}>📖 {t.tutorialLink}</a>
+              <LangSelect lang={lang} onChange={setLang} t={t} />
+            </header>
+            <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={openFile} />
+            <input ref={importRef} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={importBackup} />
+            <div className="display" style={{ background: cfgAll.bg }} onClick={onDisplayClick} onWheel={onWheel}
+              onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+              role="button" tabIndex={0} aria-label={t.ariaNext}>
+              <div className="pane top"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(44px, 7vw)', color: '#8888aa' } : textStyle}>{displayTop}</span></div>
+              <div className="pane"><span className="pane-text" style={emptyMsg ? { ...textStyle, fontSize: 'min(24px, 5vw)', color: '#666688' } : textStyle}>{displayBot}</span></div>
+              {emptyMsg && <button className="samples-jump" onClick={jumpSamples}>{t.emptySamples}</button>}
+            </div>
+            {hidePanel ? miniBar : fullPanel}
+            {toast && <div className="toast">{toast}</div>}
+          </div>
+          <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample} />
+          <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast} />
+          <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
+            onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
+          {showJump && <button className="top-jump" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>⬆ {t.backToTop}</button>}
+          </React.Fragment>
+        )
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+    </script>
+  </body>
+</html>
