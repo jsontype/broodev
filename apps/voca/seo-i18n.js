@@ -27,7 +27,7 @@
         { q: '깜빡이 암기란 무엇인가요?', a: '어휘와 의미를 화면에 연속적으로 제시해 단기간에 이미지 연상으로 어휘를 암기하게 하는 방식입니다. 단어가 먼저 크게 표시되고, 이어서 뜻이 표시되는 것을 반복하면서 어휘와 의미 사이의 연결고리를 두껍게 만듭니다.' },
         { q: '암기장 파일은 어떤 형식인가요?', a: "CSV 파일입니다. 한 줄에 '단어,뜻' 형식으로 2열을 쉼표로 구분해 적으며 행 수 제한은 없습니다. 앞뒤 공백은 자동으로 제거(trim)되고 빈 행은 무시됩니다. 엑셀·Numbers·메모장 어디서든 만들 수 있습니다." },
         { q: '자동 재생 간격을 바꿀 수 있나요?', a: '네. 제어판의 지연시간(초)에서 간격을 조절할 수 있으며 기본값은 3초입니다. 수동 모드에서는 스페이스바나 다음 버튼으로 한 단계씩 진행합니다.' },
-        { q: 'VOCA DECK은 무료인가요? 데이터는 어디에 저장되나요?', a: '완전 무료이며 설치와 회원가입이 필요 없습니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다.' }
+        { q: 'VOCA DECK은 무료인가요? 데이터는 어디에 저장되나요?', a: '기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 샘플 암기장·CSV 편집기·마이 보카덱·광고 제거 등 고급 기능은 프리미엄으로 제공됩니다. 암기장과 암기 표시는 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다.' }
       ]
     },
     en: {
@@ -54,7 +54,7 @@
         { q: 'What is flashing memorization?', a: 'It is a method that presents words and meanings in rapid succession so you memorize vocabulary through visual association in a short time. The word appears large first, then its meaning, and the repetition strengthens the link between them.' },
         { q: 'What format is the deck file?', a: "A CSV file. Each line is 'word,meaning' — two columns separated by a comma, with no row limit. Whitespace is trimmed automatically and empty lines are ignored. You can create it in Excel, Numbers or any text editor." },
         { q: 'Can I change the auto-play interval?', a: 'Yes. Adjust the delay (seconds) in the control panel; the default is 3 seconds. In manual mode, advance one step at a time with the spacebar or the Next button.' },
-        { q: 'Is VOCA DECK free? Where is my data stored?', a: 'Completely free, with no install or sign-up. Your open deck and memorized marks are stored only in your browser’s localStorage and are never sent to a server.' }
+        { q: 'Is VOCA DECK free? Where is my data stored?', a: 'The core features are free: open your own CSV deck and memorize with no install or sign-up. Advanced features such as sample decks, the CSV editor, My Voca Decks and ad removal are offered as premium. Your deck and memorized marks are stored only in your browser’s localStorage and are never sent to a server.' }
       ]
     },
     ja: {
@@ -81,7 +81,7 @@
         { q: '点滅式暗記とは？', a: '単語と意味を画面に連続提示し、短期間でイメージ連想により語彙を暗記させる方式です。まず単語が大きく表示され、続いて意味が表示されるのを繰り返し、語彙と意味の結び付きを強化します。' },
         { q: '単語帳ファイルの形式は？', a: 'CSVファイルです。1行に「単語,意味」の2列をカンマ区切りで書き、行数制限はありません。前後の空白は自動除去され、空行は無視されます。Excel・Numbers・メモ帳のどれでも作成できます。' },
         { q: '自動再生の間隔は変えられますか？', a: 'はい。コントロールパネルの間隔（秒）で調整でき、既定値は3秒です。手動モードではスペースキーか「次へ」ボタンで1段階ずつ進みます。' },
-        { q: 'VOCA DECKは無料？データはどこに保存されますか？', a: '完全無料で、インストールも会員登録も不要です。開いた単語帳と暗記マークは使用中のブラウザのlocalStorageにのみ保存され、サーバーには送信されません。' }
+        { q: 'VOCA DECKは無料？データはどこに保存されますか？', a: '基本機能は無料です。自作のCSV単語帳を開いて暗記する中核機能はインストール・会員登録なしで無料で使えます。サンプル単語帳・CSVエディタ・マイVOCAデッキ・広告非表示などの高度な機能はプレミアムとして提供されます。単語帳と暗記マークはブラウザのlocalStorageにのみ保存され、サーバーには送信されません。' }
       ]
     },
     zh: {
@@ -108,7 +108,7 @@
         { q: '什么是闪示记忆？', a: '一种将单词与释义连续呈现在屏幕上、让你在短时间内通过图像联想记忆词汇的方法。单词先以大字显示，随后显示释义，如此反复，强化单词与释义之间的联结。' },
         { q: '单词本文件是什么格式？', a: 'CSV文件。每行以"单词,释义"两列用逗号分隔，行数不限。首尾空白自动去除，空行忽略。Excel、Numbers、记事本都能制作。' },
         { q: '可以更改自动播放间隔吗？', a: '可以。在控制面板的间隔(秒)中调整，默认为3秒。手动模式下用空格键或"下一个"按钮逐步推进。' },
-        { q: 'VOCA DECK免费吗？数据保存在哪里？', a: '完全免费，无需安装和注册。打开的单词本与已记标记只保存在你浏览器的localStorage中，不会发送到服务器。' }
+        { q: 'VOCA DECK免费吗？数据保存在哪里？', a: '基础功能免费：打开自制CSV单词本进行背诵，无需安装和注册。示例单词本、CSV编辑器、我的Voca Deck、去广告等高级功能以高级版（Premium）提供。单词本与已记标记只保存在你浏览器的localStorage中，不会发送到服务器。' }
       ]
     },
     'zh-Hant': {
@@ -135,7 +135,7 @@
         { q: '什麼是閃示記憶？', a: '一種將單字與釋義連續呈現在螢幕上、讓你在短時間內透過圖像聯想記憶詞彙的方法。單字先以大字顯示，隨後顯示釋義，如此反覆，強化單字與釋義之間的連結。' },
         { q: '單字本檔案是什麼格式？', a: 'CSV檔案。每行以「單字,釋義」兩欄用逗號分隔，行數不限。前後空白自動去除，空行忽略。Excel、Numbers、記事本都能製作。' },
         { q: '可以更改自動播放間隔嗎？', a: '可以。在控制面板的間隔(秒)中調整，預設為3秒。手動模式下用空白鍵或「下一個」按鈕逐步推進。' },
-        { q: 'VOCA DECK免費嗎？資料儲存在哪裡？', a: '完全免費，免安裝、免註冊。開啟的單字本與已記標記只儲存在你瀏覽器的localStorage中，不會傳送到伺服器。' }
+        { q: 'VOCA DECK免費嗎？資料儲存在哪裡？', a: '基本功能免費：開啟自製CSV單字本進行背誦，免安裝、免註冊。範例單字本、CSV編輯器、我的Voca Deck、移除廣告等進階功能以進階版（Premium）提供。單字本與已記標記只儲存在你瀏覽器的localStorage中，不會傳送到伺服器。' }
       ]
     },
     th: {
@@ -162,7 +162,7 @@
         { q: 'การท่องแบบแฟลชคืออะไร?', a: 'คือวิธีแสดงคำและความหมายต่อเนื่องบนหน้าจอ ให้จดจำคำศัพท์ผ่านการเชื่อมโยงภาพในเวลาสั้นๆ คำจะแสดงตัวใหญ่ก่อน ตามด้วยความหมาย ทำซ้ำเพื่อเสริมความเชื่อมโยงระหว่างคำกับความหมาย' },
         { q: 'ไฟล์ชุดคำศัพท์เป็นรูปแบบใด?', a: "ไฟล์ CSV หนึ่งบรรทัดคือ 'คำ,ความหมาย' สองคอลัมน์คั่นด้วยจุลภาค ไม่จำกัดจำนวนแถว ช่องว่างถูกตัดอัตโนมัติและข้ามบรรทัดว่าง สร้างได้ทั้งใน Excel, Numbers หรือโปรแกรมแก้ไขข้อความใดก็ได้" },
         { q: 'เปลี่ยนช่วงเวลาเล่นอัตโนมัติได้ไหม?', a: 'ได้ ปรับหน่วงเวลา (วินาที) ในแผงควบคุม ค่าเริ่มต้นคือ 3 วินาที ในโหมดมือใช้สเปซบาร์หรือปุ่มถัดไปเลื่อนทีละขั้น' },
-        { q: 'VOCA DECK ฟรีไหม? ข้อมูลเก็บที่ไหน?', a: 'ฟรีทั้งหมด ไม่ต้องติดตั้งหรือสมัครสมาชิก ชุดคำศัพท์และเครื่องหมายจำถูกเก็บใน localStorage ของเบราว์เซอร์ของคุณเท่านั้น ไม่ถูกส่งไปยังเซิร์ฟเวอร์' }
+        { q: 'VOCA DECK ฟรีไหม? ข้อมูลเก็บที่ไหน?', a: 'ฟีเจอร์พื้นฐานใช้ฟรี: เปิดชุดคำศัพท์ CSV ของคุณเองเพื่อท่องจำได้โดยไม่ต้องติดตั้งหรือสมัครสมาชิก ส่วนฟีเจอร์ขั้นสูง เช่น ชุดคำศัพท์ตัวอย่าง ตัวแก้ไข CSV, Voca Deck ของฉัน และการปิดโฆษณา มีให้ในแบบพรีเมียม ชุดคำศัพท์และเครื่องหมายจำถูกเก็บใน localStorage ของเบราว์เซอร์ของคุณเท่านั้น ไม่ถูกส่งไปยังเซิร์ฟเวอร์' }
       ]
     },
     es: {
@@ -189,7 +189,7 @@
         { q: '¿Qué es la memorización por destellos?', a: 'Es un método que presenta palabras y significados en sucesión rápida para memorizar vocabulario por asociación visual en poco tiempo. La palabra aparece primero en grande, luego el significado, y la repetición refuerza el vínculo entre ambos.' },
         { q: '¿Qué formato tiene el archivo del mazo?', a: "Un archivo CSV. Cada línea es 'palabra,significado': dos columnas separadas por coma, sin límite de filas. Los espacios se recortan automáticamente y las líneas vacías se ignoran. Puedes crearlo en Excel, Numbers o cualquier editor de texto." },
         { q: '¿Puedo cambiar el intervalo de reproducción automática?', a: 'Sí. Ajusta el intervalo (segundos) en el panel de control; el valor por defecto es 3 segundos. En modo manual, avanza paso a paso con la barra espaciadora o el botón Siguiente.' },
-        { q: '¿VOCA DECK es gratis? ¿Dónde se guardan mis datos?', a: 'Totalmente gratis, sin instalación ni registro. El mazo abierto y las marcas se guardan solo en el localStorage de tu navegador y nunca se envían a un servidor.' }
+        { q: '¿VOCA DECK es gratis? ¿Dónde se guardan mis datos?', a: 'Las funciones básicas son gratuitas: abre tu propio mazo CSV y memoriza sin instalación ni registro. Las funciones avanzadas como los mazos de ejemplo, el editor CSV, Mis Voca Decks y la eliminación de anuncios se ofrecen como premium. El mazo y las marcas se guardan solo en el localStorage de tu navegador y nunca se envían a un servidor.' }
       ]
     },
     fr: {
@@ -216,7 +216,7 @@
         { q: 'Qu’est-ce que la mémorisation par flashs ?', a: 'C’est une méthode qui présente mots et sens en succession rapide pour mémoriser le vocabulaire par association visuelle en peu de temps. Le mot s’affiche d’abord en grand, puis son sens, et la répétition renforce le lien entre les deux.' },
         { q: 'Quel est le format du fichier ?', a: "Un fichier CSV. Chaque ligne suit le format « mot,sens » : deux colonnes séparées par une virgule, sans limite de lignes. Les espaces sont supprimés automatiquement et les lignes vides ignorées. Créez-le dans Excel, Numbers ou tout éditeur de texte." },
         { q: 'Peut-on changer l’intervalle de lecture automatique ?', a: 'Oui. Réglez l’intervalle (secondes) dans le panneau de contrôle ; la valeur par défaut est 3 secondes. En mode manuel, avancez pas à pas avec la barre d’espace ou le bouton Suivant.' },
-        { q: 'VOCA DECK est-il gratuit ? Où sont stockées mes données ?', a: 'Entièrement gratuit, sans installation ni inscription. Le paquet ouvert et les marques sont stockés uniquement dans le localStorage de votre navigateur et ne sont jamais envoyés à un serveur.' }
+        { q: 'VOCA DECK est-il gratuit ? Où sont stockées mes données ?', a: 'Les fonctions de base sont gratuites : ouvrez votre propre paquet CSV et mémorisez sans installation ni inscription. Les fonctions avancées comme les paquets d’exemple, l’éditeur CSV, Mes Voca Decks et la suppression des publicités sont proposées en premium. Le paquet et les marques sont stockés uniquement dans le localStorage de votre navigateur et ne sont jamais envoyés à un serveur.' }
       ]
     },
     de: {
@@ -243,7 +243,7 @@
         { q: 'Was ist Blitz-Memorieren?', a: 'Eine Methode, bei der Wörter und Bedeutungen in schneller Folge gezeigt werden, sodass man Vokabeln in kurzer Zeit über visuelle Assoziation einprägt. Erst erscheint das Wort groß, dann die Bedeutung — die Wiederholung stärkt die Verbindung zwischen beiden.' },
         { q: 'Welches Format hat die Deck-Datei?', a: 'Eine CSV-Datei. Jede Zeile ist "Wort,Bedeutung" — zwei Spalten, durch Komma getrennt, ohne Zeilenlimit. Leerzeichen werden automatisch entfernt, Leerzeilen ignoriert. Erstellbar in Excel, Numbers oder jedem Texteditor.' },
         { q: 'Kann ich das Autoplay-Intervall ändern?', a: 'Ja. Stelle das Intervall (Sekunden) im Bedienfeld ein; Standard sind 3 Sekunden. Im manuellen Modus geht es mit Leertaste oder Weiter-Button Schritt für Schritt voran.' },
-        { q: 'Ist VOCA DECK kostenlos? Wo werden meine Daten gespeichert?', a: 'Völlig kostenlos, ohne Installation und Registrierung. Dein geöffnetes Deck und die Markierungen liegen nur im localStorage deines Browsers und werden nie an einen Server gesendet.' }
+        { q: 'Ist VOCA DECK kostenlos? Wo werden meine Daten gespeichert?', a: 'Die Grundfunktionen sind kostenlos: eigenes CSV-Deck öffnen und lernen, ohne Installation und Registrierung. Erweiterte Funktionen wie Beispiel-Decks, der CSV-Editor, Meine Voca Decks und Werbefreiheit werden als Premium angeboten. Dein Deck und die Markierungen liegen nur im localStorage deines Browsers und werden nie an einen Server gesendet.' }
       ]
     },
     it: {
@@ -270,7 +270,7 @@
         { q: 'Che cos’è la memorizzazione a lampi?', a: 'È un metodo che presenta parole e significati in rapida successione per memorizzare il lessico tramite associazione visiva in poco tempo. Prima appare la parola in grande, poi il significato, e la ripetizione rafforza il legame tra i due.' },
         { q: 'Che formato ha il file del mazzo?', a: "Un file CSV. Ogni riga è 'parola,significato': due colonne separate da virgola, senza limite di righe. Gli spazi vengono rimossi automaticamente e le righe vuote ignorate. Puoi crearlo con Excel, Numbers o qualsiasi editor di testo." },
         { q: 'Posso cambiare l’intervallo di riproduzione automatica?', a: 'Sì. Regola l’intervallo (secondi) nel pannello di controllo; il valore predefinito è 3 secondi. In modalità manuale avanzi un passo alla volta con la barra spaziatrice o il pulsante Avanti.' },
-        { q: 'VOCA DECK è gratuito? Dove sono salvati i miei dati?', a: 'Completamente gratuito, senza installazione né registrazione. Il mazzo aperto e i contrassegni sono salvati solo nel localStorage del tuo browser e non vengono mai inviati a un server.' }
+        { q: 'VOCA DECK è gratuito? Dove sono salvati i miei dati?', a: 'Le funzioni di base sono gratuite: apri il tuo mazzo CSV e memorizza senza installazione né registrazione. Le funzioni avanzate come i mazzi di esempio, l’editor CSV, I miei Voca Deck e la rimozione della pubblicità sono offerte come premium. Il mazzo e i contrassegni sono salvati solo nel localStorage del tuo browser e non vengono mai inviati a un server.' }
       ]
     },
     pt: {
@@ -297,7 +297,7 @@
         { q: 'O que é a memorização flash?', a: 'É um método que apresenta palavras e significados em sucessão rápida para memorizar vocabulário por associação visual em pouco tempo. A palavra aparece primeiro em grande, depois o significado, e a repetição reforça a ligação entre ambos.' },
         { q: 'Qual é o formato do ficheiro?', a: "Um ficheiro CSV. Cada linha é 'palavra,significado': duas colunas separadas por vírgula, sem limite de linhas. Os espaços são removidos automaticamente e as linhas vazias ignoradas. Podes criá-lo no Excel, Numbers ou em qualquer editor de texto." },
         { q: 'Posso mudar o intervalo de reprodução automática?', a: 'Sim. Ajusta o intervalo (segundos) no painel de controlo; o valor por defeito é 3 segundos. No modo manual, avanças passo a passo com a barra de espaço ou o botão Próximo.' },
-        { q: 'O VOCA DECK é gratuito? Onde ficam os meus dados?', a: 'Totalmente gratuito, sem instalação nem registo. O baralho aberto e as marcas ficam apenas no localStorage do teu navegador e nunca são enviados para um servidor.' }
+        { q: 'O VOCA DECK é gratuito? Onde ficam os meus dados?', a: 'As funções básicas são gratuitas: abre o teu próprio baralho CSV e memoriza sem instalação nem registo. As funções avançadas como os baralhos de exemplo, o editor CSV, Os meus Voca Decks e a remoção de anúncios são oferecidas como premium. O baralho e as marcas ficam apenas no localStorage do teu navegador e nunca são enviados para um servidor.' }
       ]
     },
     ru: {
@@ -324,7 +324,7 @@
         { q: 'Что такое запоминание «вспышками»?', a: 'Это метод, при котором слова и значения быстро сменяют друг друга на экране, и лексика запоминается через зрительные ассоциации за короткое время. Сначала крупно показывается слово, затем значение — повторение укрепляет связь между ними.' },
         { q: 'Какой формат у файла набора?', a: 'CSV-файл. Каждая строка — «слово,значение»: две колонки через запятую, без ограничения по числу строк. Пробелы убираются автоматически, пустые строки игнорируются. Создать можно в Excel, Numbers или любом текстовом редакторе.' },
         { q: 'Можно ли изменить интервал автопоказа?', a: 'Да. Настройте интервал (секунды) на панели управления; по умолчанию 3 секунды. В ручном режиме листайте по шагу пробелом или кнопкой «Далее».' },
-        { q: 'VOCA DECK бесплатен? Где хранятся мои данные?', a: 'Полностью бесплатен, без установки и регистрации. Открытый набор и отметки хранятся только в localStorage вашего браузера и никогда не отправляются на сервер.' }
+        { q: 'VOCA DECK бесплатен? Где хранятся мои данные?', a: 'Базовые функции бесплатны: открывайте свой CSV-набор и заучивайте без установки и регистрации. Расширенные функции — примерные наборы, редактор CSV, «Мои Voca Deck» и отключение рекламы — предоставляются в премиум-версии. Набор и отметки хранятся только в localStorage вашего браузера и никогда не отправляются на сервер.' }
       ]
     },
     nl: {
@@ -351,7 +351,7 @@
         { q: 'Wat is flits-memorisatie?', a: 'Een methode waarbij woorden en betekenissen elkaar snel opvolgen op het scherm, zodat je woordenschat in korte tijd via visuele associatie onthoudt. Eerst verschijnt het woord groot, daarna de betekenis — de herhaling versterkt de koppeling tussen beide.' },
         { q: 'Welk formaat heeft het deck-bestand?', a: 'Een CSV-bestand. Elke regel is "woord,betekenis": twee kolommen gescheiden door een komma, zonder regellimiet. Spaties worden automatisch verwijderd en lege regels genegeerd. Te maken in Excel, Numbers of elke teksteditor.' },
         { q: 'Kan ik het afspeelinterval wijzigen?', a: 'Ja. Stel het interval (seconden) in op het bedieningspaneel; de standaard is 3 seconden. In handmatige modus ga je stap voor stap verder met de spatiebalk of de knop Volgende.' },
-        { q: 'Is VOCA DECK gratis? Waar worden mijn gegevens opgeslagen?', a: 'Volledig gratis, zonder installatie of registratie. Je geopende deck en markeringen staan alleen in de localStorage van je browser en worden nooit naar een server gestuurd.' }
+        { q: 'Is VOCA DECK gratis? Waar worden mijn gegevens opgeslagen?', a: 'De basisfuncties zijn gratis: open je eigen CSV-deck en stamp zonder installatie of registratie. Geavanceerde functies zoals voorbeelddecks, de CSV-editor, Mijn Voca Decks en het verwijderen van advertenties worden als premium aangeboden. Je deck en markeringen staan alleen in de localStorage van je browser en worden nooit naar een server gestuurd.' }
       ]
     }
   };
