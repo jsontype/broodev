@@ -158,8 +158,6 @@
       @media (max-width: 560px) {
         .app-header .app-name .full { display: none; }
         .app-header .brand .logo { display: none; } /* 모바일: 아이콘만 남기고 'broodev' 문구 숨김 */
-        .prm-chip-lbl { display: none; } /* 모바일: 아이콘+잔여일만 표시 */
-        .prm-chip-sm { display: inline; }
       }
 
       /* ===== 상단 표시 영역 (남색 + 노란 대형 글자) ===== */
@@ -336,25 +334,6 @@
       /* 아이콘(이모지)마다 폭이 달라 라벨 시작점이 어긋나는 것 방지 — 아이콘 칸 고정폭 */
       .ed-block .ed-ic { flex: 0 0 22px; text-align: center; margin-right: 6px; }
       .apply-btn:disabled { color: #888; cursor: not-allowed; }
-
-      /* ===== 프리미엄 (게이팅·모달) ===== */
-      .prm-chip { flex-shrink: 0; background: #241d04; color: #ffe14d; border: 1px solid rgba(255,225,77,.45); font-family: var(--ui-font); font-size: 11px; font-weight: 800; padding: 3px 8px; cursor: pointer; white-space: nowrap; }
-      .prm-chip:hover { border-color: #ffe14d; }
-      .prm-chip-sm { display: none; } /* 체험 잔여일 축약형 — 모바일 전용 */
-      .prm-badge { margin-left: 10px; font-size: 10.5px; font-weight: 800; color: #5c4700; background: #ffe14d; border: 1px solid #b08c00; padding: 1px 7px; cursor: pointer; vertical-align: 2px; font-family: var(--ui-font); }
-      .prm-cover { text-align: center; padding: 36px 16px; border: 2px dashed var(--panel-dark); background: #cac6be; }
-      .prm-cover-ic { font-size: 40px; line-height: 1; }
-      .prm-cover p { margin: 12px 0 16px; font-weight: 800; font-size: 13px; }
-      .prm-modal .prm-desc { margin: 2px 0 8px; font-weight: 700; }
-      .prm-benefits { list-style: none; margin: 0 0 10px; padding: 8px 10px; background: #cac6be; border: 1px solid; border-color: var(--panel-dark) var(--panel-light) var(--panel-light) var(--panel-dark); }
-      .prm-benefits li { padding: 3px 0; font-weight: 700; }
-      .prm-price { font-size: 22px; font-weight: 900; margin: 4px 0 8px; }
-      .prm-price-sub { font-size: 11px; font-weight: 400; color: #333; margin-left: 6px; }
-      .prm-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-      .prm-buy { background: #ffe14d; }
-      .prm-active { font-weight: 800; color: #0a7a0a; }
-      .prm-keyrow { display: flex; gap: 6px; align-items: center; }
-      .prm-keyrow input { flex: 1; min-width: 0; }
       .ed-name { width: 100%; font-family: var(--ui-font); font-size: 13px; padding: 6px 8px; border: 2px inset #9a9a9a; background: #fff; margin-bottom: 10px; }
       .ed-stat { font-size: 12px; color: #333; margin: 8px 0 0; }
       .ed-stat b.ok { color: #0a7a0a; }
@@ -552,13 +531,6 @@
        *  다국어(i18n) — 13개국어. UI 문자열 + 문서 타이틀/메타 설명.
        *  hreflang(?lang=)과 짝 맞춤. 하단 SEO 본문은 seo-i18n.js가 담당.
        * ========================================================= */
-      const PREMIUM = {
-        launch: false, // ***!
-        price: '¥6,990',
-        checkoutUrl: '',
-        trialDays: 3,
-      }
-
       const LANGS = [
         { code: 'en', label: 'English' },
         { code: 'ja', label: '日本語' },
@@ -637,14 +609,6 @@
           myThName: 'Name', myThCount: 'Words', myThDate: 'Saved', myThAct: 'Actions', myApplyBtn: 'Apply', myEditBtn: 'Edit', myDelTitle: 'Delete',
           myConfirmDel: (name) => `Delete "${name}"?`, myConfirmOverwrite: (name) => `"${name}" already exists. Overwrite?`, mySavedMsg: (name, n) => `Saved "${name}" to My Voca Decks (${n} words)`,
           myFull: 'Storage is full — delete unused decks first.', myUsage: (kb) => `Storage used: about ${kb} KB / 5 MB (browser localStorage limit)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Unlock every advanced feature with a single one-time purchase.',
-          prmPriceNote: 'lifetime · one-time payment · not a subscription', prmDevices: 'Usable on up to 5 devices', prmNoAds: 'Ad-free',
-          prmTrialBtn: (d) => `Start ${d}-day free trial`, prmTrialLeft: (d) => `Trial — ${d} days left`, prmTrialUsed: 'Your free trial has ended',
-          prmTrialStarted: (d) => `Free trial started — all premium features for ${d} days`, prmBuyBtn: 'Buy now',
-          prmKeySec: 'License key', prmKeyPh: 'Paste your license key', prmKeyBtn: 'Activate',
-          prmKeyErr: 'Could not verify the key — check the input and try again later.',
-          prmActive: 'Premium is active on this browser', prmActivated: 'Premium activated',
-          prmLockMsg: 'This is a premium feature', prmUnlockBtn: 'See premium',
         },
         ja: {
           appName: '点滅式単語帳', langLabel: '言語', tutorialLink: 'チュートリアル',
@@ -692,14 +656,6 @@
           myThName: '名前', myThCount: '単語数', myThDate: '保存日', myThAct: '操作', myApplyBtn: '適用', myEditBtn: '編集', myDelTitle: '削除',
           myConfirmDel: (name) => `「${name}」を削除しますか？`, myConfirmOverwrite: (name) => `「${name}」は既に存在します。上書きしますか？`, mySavedMsg: (name, n) => `マイVOCAデッキに「${name}」を保存しました（${n}語）`,
           myFull: '保存容量がいっぱいです。使わない単語帳を削除してください。', myUsage: (kb) => `使用容量: 約${kb} KB / 5 MB（ブラウザlocalStorageの上限）`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: '1回の購入で高度な機能をすべて解放。',
-          prmPriceNote: '買い切り・1回払い・サブスクではありません', prmDevices: '最大5台の端末で利用可能', prmNoAds: '広告非表示',
-          prmTrialBtn: (d) => `${d}日間の無料体験を開始`, prmTrialLeft: (d) => `体験中 — 残り${d}日`, prmTrialUsed: '無料体験は終了しました',
-          prmTrialStarted: (d) => `無料体験を開始 — ${d}日間すべてのプレミアム機能が使えます`, prmBuyBtn: '購入する',
-          prmKeySec: 'ライセンスキー', prmKeyPh: 'ライセンスキーを入力', prmKeyBtn: '有効化',
-          prmKeyErr: 'キーを確認できません — 入力を確認し、しばらくしてから再試行してください。',
-          prmActive: 'このブラウザでプレミアムが有効です', prmActivated: 'プレミアムを有効化しました',
-          prmLockMsg: 'プレミアム機能です', prmUnlockBtn: '詳しく見る',
         },
         ko: {
           appName: '깜빡이', langLabel: '언어', tutorialLink: '튜토리얼',
@@ -747,14 +703,6 @@
           myThName: '이름', myThCount: '단어 수', myThDate: '저장일', myThAct: '동작', myApplyBtn: '적용', myEditBtn: '편집', myDelTitle: '삭제',
           myConfirmDel: (name) => `「${name}」을(를) 삭제할까요?`, myConfirmOverwrite: (name) => `「${name}」이(가) 이미 있습니다. 덮어쓸까요?`, mySavedMsg: (name, n) => `마이 보카덱에 「${name}」 저장 완료 (${n}단어)`,
           myFull: '저장 공간이 가득 찼습니다. 안 쓰는 단어장을 삭제해 주세요.', myUsage: (kb) => `저장 공간: 약 ${kb} KB / 5 MB (브라우저 localStorage 한도)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: '한 번 결제로 모든 고급 기능을 해금하세요.',
-          prmPriceNote: '평생 이용권 · 1회 결제 · 구독 아님', prmDevices: '최대 5대 기기에서 사용 가능', prmNoAds: '광고 제거',
-          prmTrialBtn: (d) => `${d}일 무료 체험 시작`, prmTrialLeft: (d) => `체험 중 — ${d}일 남음`, prmTrialUsed: '무료 체험이 끝났습니다',
-          prmTrialStarted: (d) => `무료 체험 시작 — ${d}일간 모든 프리미엄 기능을 쓸 수 있어요`, prmBuyBtn: '구매하기',
-          prmKeySec: '라이선스 키', prmKeyPh: '라이선스 키 입력', prmKeyBtn: '활성화',
-          prmKeyErr: '키를 확인할 수 없습니다 — 입력을 확인하고 잠시 후 다시 시도해 주세요.',
-          prmActive: '이 브라우저에서 프리미엄 이용 중', prmActivated: '프리미엄 활성화 완료',
-          prmLockMsg: '프리미엄 기능입니다', prmUnlockBtn: '자세히 보기',
         },
         zh: {
           appName: '闪示单词', langLabel: '语言', tutorialLink: '教程',
@@ -802,14 +750,6 @@
           myThName: '名称', myThCount: '单词数', myThDate: '保存日期', myThAct: '操作', myApplyBtn: '应用', myEditBtn: '编辑', myDelTitle: '删除',
           myConfirmDel: (name) => `删除「${name}」吗？`, myConfirmOverwrite: (name) => `「${name}」已存在。要覆盖吗？`, mySavedMsg: (name, n) => `已将「${name}」保存到我的Voca Deck（${n}个单词）`,
           myFull: '存储空间已满，请先删除不用的单词本。', myUsage: (kb) => `已用空间: 约${kb} KB / 5 MB（浏览器localStorage上限）`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: '一次付费，解锁全部高级功能。',
-          prmPriceNote: '终身使用 · 一次性付款 · 非订阅', prmDevices: '最多可在5台设备上使用', prmNoAds: '去除广告',
-          prmTrialBtn: (d) => `开始${d}天免费试用`, prmTrialLeft: (d) => `试用中 — 剩余${d}天`, prmTrialUsed: '免费试用已结束',
-          prmTrialStarted: (d) => `免费试用已开始 — ${d}天内可使用全部高级功能`, prmBuyBtn: '立即购买',
-          prmKeySec: '许可证密钥', prmKeyPh: '输入许可证密钥', prmKeyBtn: '激活',
-          prmKeyErr: '无法验证密钥 — 请检查输入并稍后重试。',
-          prmActive: '此浏览器已启用高级版', prmActivated: '高级版已激活',
-          prmLockMsg: '这是高级版功能', prmUnlockBtn: '了解详情',
         },
         'zh-Hant': {
           appName: '閃示單字', langLabel: '語言', tutorialLink: '教學',
@@ -857,14 +797,6 @@
           myThName: '名稱', myThCount: '單字數', myThDate: '儲存日期', myThAct: '操作', myApplyBtn: '套用', myEditBtn: '編輯', myDelTitle: '刪除',
           myConfirmDel: (name) => `要刪除「${name}」嗎？`, myConfirmOverwrite: (name) => `「${name}」已存在。要覆寫嗎？`, mySavedMsg: (name, n) => `已將「${name}」儲存到我的Voca Deck（${n}個單字）`,
           myFull: '儲存空間已滿，請先刪除不用的單字本。', myUsage: (kb) => `已用空間: 約${kb} KB / 5 MB（瀏覽器localStorage上限）`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: '一次付費，解鎖全部進階功能。',
-          prmPriceNote: '終身使用 · 一次性付款 · 非訂閱', prmDevices: '最多可在5台裝置上使用', prmNoAds: '移除廣告',
-          prmTrialBtn: (d) => `開始${d}天免費試用`, prmTrialLeft: (d) => `試用中 — 剩餘${d}天`, prmTrialUsed: '免費試用已結束',
-          prmTrialStarted: (d) => `免費試用已開始 — ${d}天內可使用全部進階功能`, prmBuyBtn: '立即購買',
-          prmKeySec: '授權金鑰', prmKeyPh: '輸入授權金鑰', prmKeyBtn: '啟用',
-          prmKeyErr: '無法驗證金鑰 — 請檢查輸入並稍後再試。',
-          prmActive: '此瀏覽器已啟用進階版', prmActivated: '進階版已啟用',
-          prmLockMsg: '這是進階版功能', prmUnlockBtn: '瞭解詳情',
         },
         th: {
           appName: 'ท่องศัพท์แบบแฟลช', langLabel: 'ภาษา', tutorialLink: 'บทช่วยสอน',
@@ -912,14 +844,6 @@
           myThName: 'ชื่อ', myThCount: 'จำนวนคำ', myThDate: 'วันที่บันทึก', myThAct: 'การทำงาน', myApplyBtn: 'ใช้', myEditBtn: 'แก้ไข', myDelTitle: 'ลบ',
           myConfirmDel: (name) => `ลบ "${name}" หรือไม่?`, myConfirmOverwrite: (name) => `มี "${name}" อยู่แล้ว เขียนทับหรือไม่?`, mySavedMsg: (name, n) => `บันทึก "${name}" ลง Voca Deck ของฉันแล้ว (${n} คำ)`,
           myFull: 'พื้นที่จัดเก็บเต็ม กรุณาลบชุดที่ไม่ใช้ก่อน', myUsage: (kb) => `ใช้พื้นที่ไปประมาณ ${kb} KB / 5 MB (ขีดจำกัด localStorage ของเบราว์เซอร์)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'จ่ายครั้งเดียว ปลดล็อกฟีเจอร์ขั้นสูงทั้งหมด',
-          prmPriceNote: 'ใช้ได้ตลอดชีพ · จ่ายครั้งเดียว · ไม่ใช่การสมัครสมาชิก', prmDevices: 'ใช้ได้สูงสุด 5 อุปกรณ์', prmNoAds: 'ไม่มีโฆษณา',
-          prmTrialBtn: (d) => `เริ่มทดลองใช้ฟรี ${d} วัน`, prmTrialLeft: (d) => `กำลังทดลองใช้ — เหลืออีก ${d} วัน`, prmTrialUsed: 'ช่วงทดลองใช้ฟรีสิ้นสุดแล้ว',
-          prmTrialStarted: (d) => `เริ่มทดลองใช้ฟรีแล้ว — ใช้ฟีเจอร์พรีเมียมทั้งหมดได้ ${d} วัน`, prmBuyBtn: 'ซื้อเลย',
-          prmKeySec: 'ไลเซนส์คีย์', prmKeyPh: 'กรอกไลเซนส์คีย์', prmKeyBtn: 'เปิดใช้งาน',
-          prmKeyErr: 'ตรวจสอบคีย์ไม่ได้ — โปรดตรวจสอบและลองใหม่ภายหลัง',
-          prmActive: 'เบราว์เซอร์นี้ใช้พรีเมียมอยู่', prmActivated: 'เปิดใช้งานพรีเมียมแล้ว',
-          prmLockMsg: 'นี่คือฟีเจอร์พรีเมียม', prmUnlockBtn: 'ดูรายละเอียด',
         },
         es: {
           appName: 'Memorización flash', langLabel: 'Idioma', tutorialLink: 'Tutorial',
@@ -967,14 +891,6 @@
           myThName: 'Nombre', myThCount: 'Palabras', myThDate: 'Guardado', myThAct: 'Acciones', myApplyBtn: 'Aplicar', myEditBtn: 'Editar', myDelTitle: 'Eliminar',
           myConfirmDel: (name) => `¿Eliminar «${name}»?`, myConfirmOverwrite: (name) => `«${name}» ya existe. ¿Sobrescribir?`, mySavedMsg: (name, n) => `«${name}» guardado en Mis Voca Decks (${n} palabras)`,
           myFull: 'El almacenamiento está lleno; elimina mazos que no uses.', myUsage: (kb) => `Espacio usado: unos ${kb} KB / 5 MB (límite de localStorage del navegador)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Desbloquea todas las funciones avanzadas con un solo pago.',
-          prmPriceNote: 'licencia de por vida · pago único · sin suscripción', prmDevices: 'Utilizable en hasta 5 dispositivos', prmNoAds: 'Sin publicidad',
-          prmTrialBtn: (d) => `Iniciar prueba gratis de ${d} días`, prmTrialLeft: (d) => `Prueba — quedan ${d} días`, prmTrialUsed: 'Tu prueba gratuita ha terminado',
-          prmTrialStarted: (d) => `Prueba gratis iniciada — todas las funciones premium durante ${d} días`, prmBuyBtn: 'Comprar',
-          prmKeySec: 'Clave de licencia', prmKeyPh: 'Introduce tu clave de licencia', prmKeyBtn: 'Activar',
-          prmKeyErr: 'No se pudo verificar la clave — revisa la entrada e inténtalo más tarde.',
-          prmActive: 'Premium activo en este navegador', prmActivated: 'Premium activado',
-          prmLockMsg: 'Esta es una función premium', prmUnlockBtn: 'Ver premium',
         },
         fr: {
           appName: 'Mémorisation flash', langLabel: 'Langue', tutorialLink: 'Tutoriel',
@@ -1022,14 +938,6 @@
           myThName: 'Nom', myThCount: 'Mots', myThDate: 'Enregistré le', myThAct: 'Actions', myApplyBtn: 'Appliquer', myEditBtn: 'Éditer', myDelTitle: 'Supprimer',
           myConfirmDel: (name) => `Supprimer « ${name} » ?`, myConfirmOverwrite: (name) => `« ${name} » existe déjà. Écraser ?`, mySavedMsg: (name, n) => `« ${name} » enregistré dans Mes Voca Decks (${n} mots)`,
           myFull: 'Le stockage est plein : supprimez d’abord les paquets inutilisés.', myUsage: (kb) => `Espace utilisé : env. ${kb} Ko / 5 Mo (limite localStorage du navigateur)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Débloquez toutes les fonctions avancées en un seul paiement.',
-          prmPriceNote: 'licence à vie · paiement unique · sans abonnement', prmDevices: 'Utilisable sur 5 appareils maximum', prmNoAds: 'Sans publicité',
-          prmTrialBtn: (d) => `Commencer l’essai gratuit de ${d} jours`, prmTrialLeft: (d) => `Essai — ${d} jours restants`, prmTrialUsed: 'Votre essai gratuit est terminé',
-          prmTrialStarted: (d) => `Essai gratuit démarré — toutes les fonctions premium pendant ${d} jours`, prmBuyBtn: 'Acheter',
-          prmKeySec: 'Clé de licence', prmKeyPh: 'Saisissez votre clé de licence', prmKeyBtn: 'Activer',
-          prmKeyErr: 'Impossible de vérifier la clé — vérifiez la saisie et réessayez plus tard.',
-          prmActive: 'Premium actif sur ce navigateur', prmActivated: 'Premium activé',
-          prmLockMsg: 'Ceci est une fonction premium', prmUnlockBtn: 'Voir premium',
         },
         de: {
           appName: 'Blitz-Vokabeltrainer', langLabel: 'Sprache', tutorialLink: 'Tutorial',
@@ -1077,14 +985,6 @@
           myThName: 'Name', myThCount: 'Wörter', myThDate: 'Gespeichert', myThAct: 'Aktionen', myApplyBtn: 'Anwenden', myEditBtn: 'Bearbeiten', myDelTitle: 'Löschen',
           myConfirmDel: (name) => `„${name}“ löschen?`, myConfirmOverwrite: (name) => `„${name}“ existiert bereits. Überschreiben?`, mySavedMsg: (name, n) => `„${name}“ in Meine Voca Decks gespeichert (${n} Wörter)`,
           myFull: 'Der Speicher ist voll — lösche zunächst ungenutzte Decks.', myUsage: (kb) => `Belegter Speicher: ca. ${kb} KB / 5 MB (localStorage-Limit des Browsers)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Schalte alle erweiterten Funktionen mit einer einmaligen Zahlung frei.',
-          prmPriceNote: 'lebenslange Lizenz · Einmalzahlung · kein Abo', prmDevices: 'Auf bis zu 5 Geräten nutzbar', prmNoAds: 'Werbefrei',
-          prmTrialBtn: (d) => `${d}-tägige Gratis-Testphase starten`, prmTrialLeft: (d) => `Testphase — noch ${d} Tage`, prmTrialUsed: 'Deine Gratis-Testphase ist beendet',
-          prmTrialStarted: (d) => `Gratis-Testphase gestartet — alle Premium-Funktionen für ${d} Tage`, prmBuyBtn: 'Jetzt kaufen',
-          prmKeySec: 'Lizenzschlüssel', prmKeyPh: 'Lizenzschlüssel eingeben', prmKeyBtn: 'Aktivieren',
-          prmKeyErr: 'Schlüssel konnte nicht geprüft werden — Eingabe prüfen und später erneut versuchen.',
-          prmActive: 'Premium ist in diesem Browser aktiv', prmActivated: 'Premium aktiviert',
-          prmLockMsg: 'Dies ist eine Premium-Funktion', prmUnlockBtn: 'Premium ansehen',
         },
         it: {
           appName: 'Memorizzazione flash', langLabel: 'Lingua', tutorialLink: 'Tutorial',
@@ -1132,14 +1032,6 @@
           myThName: 'Nome', myThCount: 'Parole', myThDate: 'Salvato', myThAct: 'Azioni', myApplyBtn: 'Applica', myEditBtn: 'Modifica', myDelTitle: 'Elimina',
           myConfirmDel: (name) => `Eliminare «${name}»?`, myConfirmOverwrite: (name) => `«${name}» esiste già. Sovrascrivere?`, mySavedMsg: (name, n) => `«${name}» salvato nei Miei Voca Deck (${n} parole)`,
           myFull: 'Lo spazio è pieno: elimina prima i mazzi inutilizzati.', myUsage: (kb) => `Spazio usato: circa ${kb} KB / 5 MB (limite localStorage del browser)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Sblocca tutte le funzioni avanzate con un solo pagamento.',
-          prmPriceNote: 'licenza a vita · pagamento unico · nessun abbonamento', prmDevices: 'Utilizzabile su un massimo di 5 dispositivi', prmNoAds: 'Senza pubblicità',
-          prmTrialBtn: (d) => `Inizia la prova gratuita di ${d} giorni`, prmTrialLeft: (d) => `Prova — ${d} giorni rimasti`, prmTrialUsed: 'La tua prova gratuita è terminata',
-          prmTrialStarted: (d) => `Prova gratuita avviata — tutte le funzioni premium per ${d} giorni`, prmBuyBtn: 'Acquista',
-          prmKeySec: 'Chiave di licenza', prmKeyPh: 'Inserisci la chiave di licenza', prmKeyBtn: 'Attiva',
-          prmKeyErr: 'Impossibile verificare la chiave — controlla l’inserimento e riprova più tardi.',
-          prmActive: 'Premium attivo su questo browser', prmActivated: 'Premium attivato',
-          prmLockMsg: 'Questa è una funzione premium', prmUnlockBtn: 'Scopri premium',
         },
         pt: {
           appName: 'Memorização flash', langLabel: 'Idioma', tutorialLink: 'Tutorial',
@@ -1187,14 +1079,6 @@
           myThName: 'Nome', myThCount: 'Palavras', myThDate: 'Guardado', myThAct: 'Ações', myApplyBtn: 'Aplicar', myEditBtn: 'Editar', myDelTitle: 'Apagar',
           myConfirmDel: (name) => `Apagar «${name}»?`, myConfirmOverwrite: (name) => `«${name}» já existe. Substituir?`, mySavedMsg: (name, n) => `«${name}» guardado nos Meus Voca Decks (${n} palavras)`,
           myFull: 'O armazenamento está cheio — apaga primeiro baralhos que não uses.', myUsage: (kb) => `Espaço usado: cerca de ${kb} KB / 5 MB (limite do localStorage do navegador)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Desbloqueia todas as funções avançadas com um único pagamento.',
-          prmPriceNote: 'licença vitalícia · pagamento único · sem subscrição', prmDevices: 'Utilizável em até 5 dispositivos', prmNoAds: 'Sem anúncios',
-          prmTrialBtn: (d) => `Iniciar teste grátis de ${d} dias`, prmTrialLeft: (d) => `Teste — faltam ${d} dias`, prmTrialUsed: 'O teu teste grátis terminou',
-          prmTrialStarted: (d) => `Teste grátis iniciado — todas as funções premium durante ${d} dias`, prmBuyBtn: 'Comprar',
-          prmKeySec: 'Chave de licença', prmKeyPh: 'Introduz a tua chave de licença', prmKeyBtn: 'Ativar',
-          prmKeyErr: 'Não foi possível verificar a chave — confirma a entrada e tenta mais tarde.',
-          prmActive: 'Premium ativo neste navegador', prmActivated: 'Premium ativado',
-          prmLockMsg: 'Esta é uma função premium', prmUnlockBtn: 'Ver premium',
         },
         ru: {
           appName: 'Флеш-запоминание', langLabel: 'Язык', tutorialLink: 'Обучение',
@@ -1242,14 +1126,6 @@
           myThName: 'Название', myThCount: 'Слов', myThDate: 'Сохранён', myThAct: 'Действия', myApplyBtn: 'Применить', myEditBtn: 'Изменить', myDelTitle: 'Удалить',
           myConfirmDel: (name) => `Удалить «${name}»?`, myConfirmOverwrite: (name) => `«${name}» уже существует. Перезаписать?`, mySavedMsg: (name, n) => `«${name}» сохранён в «Мои Voca Deck» (${n} слов)`,
           myFull: 'Хранилище заполнено — сначала удалите ненужные наборы.', myUsage: (kb) => `Занято: около ${kb} КБ / 5 МБ (лимит localStorage браузера)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Разблокируйте все расширенные функции одним платежом.',
-          prmPriceNote: 'бессрочная лицензия · разовый платёж · не подписка', prmDevices: 'Можно использовать на 5 устройствах', prmNoAds: 'Без рекламы',
-          prmTrialBtn: (d) => `Начать бесплатный период на ${d} дня`, prmTrialLeft: (d) => `Пробный период — осталось ${d} дн.`, prmTrialUsed: 'Бесплатный период завершён',
-          prmTrialStarted: (d) => `Бесплатный период начался — все премиум-функции на ${d} дня`, prmBuyBtn: 'Купить',
-          prmKeySec: 'Лицензионный ключ', prmKeyPh: 'Введите лицензионный ключ', prmKeyBtn: 'Активировать',
-          prmKeyErr: 'Не удалось проверить ключ — проверьте ввод и повторите позже.',
-          prmActive: 'Премиум активен в этом браузере', prmActivated: 'Премиум активирован',
-          prmLockMsg: 'Это премиум-функция', prmUnlockBtn: 'Подробнее',
         },
         nl: {
           appName: 'Flits-stampen', langLabel: 'Taal', tutorialLink: 'Tutorial',
@@ -1297,14 +1173,6 @@
           myThName: 'Naam', myThCount: 'Woorden', myThDate: 'Opgeslagen', myThAct: 'Acties', myApplyBtn: 'Toepassen', myEditBtn: 'Bewerken', myDelTitle: 'Verwijderen',
           myConfirmDel: (name) => `“${name}” verwijderen?`, myConfirmOverwrite: (name) => `“${name}” bestaat al. Overschrijven?`, mySavedMsg: (name, n) => `“${name}” opgeslagen in Mijn Voca Decks (${n} woorden)`,
           myFull: 'De opslag is vol — verwijder eerst ongebruikte decks.', myUsage: (kb) => `Gebruikte ruimte: ca. ${kb} KB / 5 MB (localStorage-limiet van de browser)`,
-          prmTitle: 'VOCA DECK Premium', prmDesc: 'Ontgrendel alle geavanceerde functies met één eenmalige betaling.',
-          prmPriceNote: 'levenslange licentie · eenmalige betaling · geen abonnement', prmDevices: 'Bruikbaar op maximaal 5 apparaten', prmNoAds: 'Zonder advertenties',
-          prmTrialBtn: (d) => `Start gratis proefperiode van ${d} dagen`, prmTrialLeft: (d) => `Proefperiode — nog ${d} dagen`, prmTrialUsed: 'Je gratis proefperiode is afgelopen',
-          prmTrialStarted: (d) => `Gratis proefperiode gestart — alle premiumfuncties gedurende ${d} dagen`, prmBuyBtn: 'Kopen',
-          prmKeySec: 'Licentiesleutel', prmKeyPh: 'Voer je licentiesleutel in', prmKeyBtn: 'Activeren',
-          prmKeyErr: 'Sleutel kon niet worden geverifieerd — controleer de invoer en probeer het later opnieuw.',
-          prmActive: 'Premium is actief in deze browser', prmActivated: 'Premium geactiveerd',
-          prmLockMsg: 'Dit is een premiumfunctie', prmUnlockBtn: 'Bekijk premium',
         },
       }
       const getT = (lang) => T[lang] || T[DEFAULT_LANG]
@@ -1760,10 +1628,7 @@
       /* =========================================================
        *  샘플 암기장 게시판 (앱 화면 아래) — 현재 UI 언어 탭은 숨김
        * ========================================================= */
-      function SamplesBoard({ uiLang, t, appliedId, onApply, onDownload, locked, onLocked }) {
-        /* 잠금 시 목록은 그대로 보여주되(뭘 얻는지 보이게) 적용/다운로드만 프리미엄 모달로 유도 */
-        const gApply = locked ? onLocked : onApply
-        const gDownload = locked ? onLocked : onDownload
+      function SamplesBoard({ uiLang, t, appliedId, onApply, onDownload }) {
         const targets = SAMPLE_TARGETS.filter((c) => c !== uiLang)
         const [tab, setTab] = useState(targets[0])
         const cur = targets.includes(tab) ? tab : targets[0] // UI 언어 변경으로 현재 탭이 숨겨진 경우 보정
@@ -1782,7 +1647,7 @@
         return (
           <section className="samples" id="samples" aria-label={t.samples}>
             <div className="samples-panel">
-              <h2 className="samples-title">📚 {t.samples}{locked && <button className="prm-badge" onClick={onLocked}>PREMIUM</button>}</h2>
+              <h2 className="samples-title">📚 {t.samples}</h2>
               <p className="samples-sub">{t.samplesSub}</p>
               <div className="tabs" role="tablist">
                 {targets.map((c) => (
@@ -1805,12 +1670,12 @@
                         ) : appliedId === d.id ? (
                           <span className="act-btns">
                             <span className="applied"><span className="led-dot" /> {t.appliedMark}</span>
-                            <button className="apply-btn dl" title={t.dlTip} onClick={() => gDownload(d, cur)}>⬇ CSV</button>
+                            <button className="apply-btn dl" title={t.dlTip} onClick={() => onDownload(d, cur)}>⬇ CSV</button>
                           </span>
                         ) : (
                           <span className="act-btns">
-                            <button className="apply-btn" onClick={() => gApply(d, cur)}>{locked ? '🔒' : <span className="tri">▶</span>} {t.applyBtn}</button>
-                            <button className="apply-btn dl" title={t.dlTip} onClick={() => gDownload(d, cur)}>{locked ? '🔒' : '⬇'} CSV</button>
+                            <button className="apply-btn" onClick={() => onApply(d, cur)}><span className="tri">▶</span> {t.applyBtn}</button>
+                            <button className="apply-btn dl" title={t.dlTip} onClick={() => onDownload(d, cur)}>⬇ CSV</button>
                           </span>
                         )}
                       </td>
@@ -2069,79 +1934,6 @@
       }
 
       /* =========================================================
-       *  프리미엄 — 모달 + 잠금 섹션
-       * ========================================================= */
-      function PremiumModal({ t, onClose, isPremium, trialActive, trialLeft, trialUsed, onStartTrial, onBuy, onActivate }) {
-        const [key, setKey] = useState('')
-        const [busy, setBusy] = useState(false)
-        const [err, setErr] = useState(false)
-        const doActivate = () => {
-          const k = key.trim()
-          if (!k || busy) return
-          setBusy(true); setErr(false)
-          onActivate(k).then(() => setBusy(false)).catch(() => { setBusy(false); setErr(true) })
-        }
-        return (
-          <div className="modal-overlay" onClick={onClose}>
-            <div className="modal prm-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-              <h4>★ {t.prmTitle}</h4>
-              {isPremium ? (
-                <p className="prm-active">✓ {t.prmActive}</p>
-              ) : (
-                <React.Fragment>
-                  <p className="prm-desc">{t.prmDesc}</p>
-                  <ul className="prm-benefits">
-                    <li>📚 {t.samples}</li>
-                    <li>📝 {t.edTitle}</li>
-                    <li>⭐ {t.myTitle}</li>
-                    <li>🚫 {t.prmNoAds}</li>
-                  </ul>
-                  <div className="prm-price">{PREMIUM.price}<span className="prm-price-sub">{t.prmPriceNote}</span></div>
-                  <p className="adv-note">※ {t.prmDevices}</p>
-                  <div className="prm-actions">
-                    {trialActive ? (
-                      <span className="prm-active">⏱ {t.prmTrialLeft(trialLeft)}</span>
-                    ) : trialUsed ? (
-                      <span className="adv-note" style={{ alignSelf: 'center' }}>{t.prmTrialUsed}</span>
-                    ) : (
-                      <button className="apply-btn" onClick={onStartTrial}>⏱ {t.prmTrialBtn(PREMIUM.trialDays)}</button>
-                    )}
-                    <button className="apply-btn prm-buy" onClick={onBuy}>★ {t.prmBuyBtn}</button>
-                  </div>
-                  <div className="adv-sec">🔑 {t.prmKeySec}</div>
-                  <div className="prm-keyrow">
-                    <input className="ed-name" value={key} placeholder={t.prmKeyPh} disabled={busy}
-                      onChange={(e) => setKey(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') doActivate() }} />
-                    <button className="mini-btn" disabled={busy || !key.trim()} onClick={doActivate}>{t.prmKeyBtn}</button>
-                  </div>
-                  {err && <p className="ed-err">⚠ {t.prmKeyErr}</p>}
-                </React.Fragment>
-              )}
-              <div className="pop-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-                <button className="mini-btn" onClick={onClose}>{t.close}</button>
-              </div>
-            </div>
-          </div>
-        )
-      }
-
-      /* 잠금 상태의 편집기/마이 보카덱 자리 표시 — 클릭 시 프리미엄 모달 */
-      function LockedSection({ icon, title, sectionId, t, onOpen }) {
-        return (
-          <section className="samples" id={sectionId} aria-label={title}>
-            <div className="samples-panel">
-              <h2 className="samples-title">{icon} {title}<button className="prm-badge" onClick={onOpen}>PREMIUM</button></h2>
-              <div className="prm-cover">
-                <div className="prm-cover-ic">🔒</div>
-                <p>{t.prmLockMsg}</p>
-                <button className="apply-btn prm-buy" onClick={onOpen}>★ {t.prmUnlockBtn}</button>
-              </div>
-            </div>
-          </section>
-        )
-      }
-
-      /* =========================================================
        *  앱 본체
        * ========================================================= */
       function App() {
@@ -2152,9 +1944,6 @@
         const [deckLang, setDeckLang] = useLocalStorage('voca:deckLang', DEFAULT_DECK_LANG) // TTS 로케일 (샘플 적용 시 갱신)
         const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
         const [myDecks, setMyDecks] = useLocalStorage('voca:mydecks', [])                   // 마이 보카덱 [{id,name,rows,savedAt}]
-        const [prm, setPrm] = useLocalStorage('voca:premium', null)
-        const [trial, setTrial] = useLocalStorage('voca:trial', null)
-        const [showPrm, setShowPrm] = useState(false)
         const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 보카덱 → 편집기 로드 요청
         const [showJump, setShowJump] = useState(false)                                     // "⬆ 암기장으로" 고정 버튼 표시 여부
         const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
@@ -2173,44 +1962,6 @@
         const { auto, delay, dir, order, range, voiceOnly, hidePanel } = cfgAll
         const [tts, setTts] = useState(false) // 세션 한정 — 새로고침/재방문 시 항상 해제, 켜는 클릭이 곧 TTS 잠금 해제 제스처
         const t = getT(lang)
-
-        /* ---- 프리미엄 상태 ---- */
-        const gateOn = (() => {
-          try {
-            if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
-              const d = localStorage.getItem('voca:premiumDev')
-              if (d === '1') return true
-              if (d === '0') return false
-            }
-          } catch {}
-          return PREMIUM.launch
-        })()
-        const isPremium = !!(prm && prm.token)
-        const trialLeft = trial ? Math.ceil((trial.start + PREMIUM.trialDays * 864e5 - Date.now()) / 864e5) : 0
-        const trialActive = !!trial && trialLeft > 0
-        const unlocked = !gateOn || isPremium || trialActive
-        const openPremium = () => setShowPrm(true)
-        const startTrial = () => {
-          if (trial) return
-          setTrial({ start: Date.now() })
-          setShowPrm(false)
-          showToast(t.prmTrialStarted(PREMIUM.trialDays))
-        }
-        const buyPremium = () => {
-          if (PREMIUM.checkoutUrl) window.open(PREMIUM.checkoutUrl, '_blank', 'noopener')
-          else showToast(t.soon)
-        }
-        /* 라이선스 키 활성화 */
-        const activateKey = (key) =>
-          fetch('/api/license/activate', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key }),
-          }).then((r) => (r.ok ? r.json() : Promise.reject())).then((d) => {
-            if (!d || !d.token) return Promise.reject()
-            setPrm({ keyMask: key.slice(0, 4) + '…', token: d.token, activatedAt: Date.now() })
-            setShowPrm(false)
-            showToast(t.prmActivated)
-          })
 
         /* URL ?lang= 이 저장값보다 우선 (hreflang 진입 대응) */
         useEffect(() => {
@@ -2696,13 +2447,6 @@
               </a>
               <span className="app-name">VOCA DECK<span className="dot">·</span><span className="full">{t.appName}</span></span>
               <span className="tb-spacer" />
-              {gateOn && (
-                <button className="prm-chip" onClick={openPremium} title={t.prmTitle}>
-                  {trialActive ? '⏱' : isPremium ? '★' : '☆'}
-                  <span className="prm-chip-lbl"> {trialActive ? t.prmTrialLeft(trialLeft) : 'PREMIUM'}</span>
-                  {trialActive && <span className="prm-chip-sm"> {trialLeft}</span>}
-                </button>
-              )}
               <a className="tut-link" href={'https://voca-tutorial.broodev.com/?lang=' + lang}>📖 {t.tutorialLink}</a>
               <LangSelect lang={lang} onChange={setLang} t={t} />
             </header>
@@ -2718,24 +2462,10 @@
             {hidePanel ? miniBar : fullPanel}
             {toast && <div className="toast">{toast}</div>}
           </div>
-          <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample}
-            locked={!unlocked} onLocked={openPremium} />
-          {unlocked ? (
-            <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast} />
-          ) : (
-            <LockedSection icon="📝" title={t.edTitle} sectionId="editor" t={t} onOpen={openPremium} />
-          )}
-          {unlocked ? (
-            <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
-              onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
-          ) : (
-            <LockedSection icon="⭐" title={t.myTitle} sectionId="mydecks" t={t} onOpen={openPremium} />
-          )}
-          {showPrm && (
-            <PremiumModal t={t} onClose={() => setShowPrm(false)} isPremium={isPremium}
-              trialActive={trialActive} trialLeft={trialLeft} trialUsed={!!trial && !trialActive}
-              onStartTrial={startTrial} onBuy={buyPremium} onActivate={activateKey} />
-          )}
+          <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample} />
+          <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast} />
+          <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
+            onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
           {showJump && <button className="top-jump" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>⬆ {t.backToTop}</button>}
           </React.Fragment>
         )
