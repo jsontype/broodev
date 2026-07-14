@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>간격 반복 알고리즘 비교 — 라이트너 · SM-2 · FSRS, 그리고 우리가 알고리즘을 안 쓴 이유 | VOCA DECK</title>
+    <meta name="description" content="라이트너 상자(1972)·SM-2(1987, EF 2.5)·FSRS(안정성 S)의 복습일 계산식을 실제 숫자로 비교합니다. 같은 단어 하나를 30일간 추적한 시뮬레이션, FSRS의 목표 유지율-간격 환산표, 그리고 VOCA DECK이 개인화 대신 균등 순환을 택한 대가를 코드 수준에서 공개합니다." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://voca.broodev.com/spaced-repetition.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="간격 반복 알고리즘 비교 — 라이트너 · SM-2 · FSRS, 그리고 우리가 알고리즘을 안 쓴 이유" />
+    <meta property="og:description" content="복습일을 계산하는 세 가지 방식을 실제 수식으로 해부하고, 우리 앱이 그 계보에 들어가지 않기로 한 이유를 정직하게 씁니다." />
+    <meta property="og:url" content="https://voca.broodev.com/spaced-repetition.html" />
+    <meta property="og:site_name" content="VOCA DECK" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="/content.css" />
+    <!-- Google AdSense (Auto ads) — 이 페이지는 원본 해설 콘텐츠다. 광고 게재 화면 = 콘텐츠 화면.
+         (이전에는 광고가 대시보드에만 있고 정작 콘텐츠 페이지엔 없어서, AdSense 가 심사하는
+          "광고가 게재되는 화면"의 콘텐츠가 얇았다.) -->
+    <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 암기장</a>
+          <a href="/method.html">암기법 원리</a>
+          <a href="/study-guide.html">학습 전략</a>
+          <a href="/csv-guide.html">CSV 만들기</a>
+        </nav>
+
+        <h1>간격 반복 알고리즘 비교</h1>
+        <p class="muted">라이트너 · SM-2 · FSRS, 그리고 우리가 알고리즘을 안 쓴 이유 · 최종 수정: 2026-07-14 · 작성: Y-Systems</p>
+
+        <p class="lead">
+          이 글은 <strong>우리 앱이 지는 항목부터 보여주고 시작합니다.</strong>
+          아래 표에서 VOCA DECK 열에는 “✗”가 여럿 있습니다. 지우지 않았습니다.
+          <strong>간격 반복(spaced repetition)의 핵심은 “복습일을 누가 어떻게 계산하는가”</strong>인데,
+          우리는 그 계산을 <strong>하지 않기로 선택</strong>했기 때문입니다.
+          이 글은 그 계산을 실제로 하는 세 알고리즘을 <strong>수식과 숫자 수준에서 해부</strong>하고,
+          우리가 무엇을 얻으려고 무엇을 포기했는지를 <strong>코드에서 그대로 꺼내 보여줍니다.</strong>
+        </p>
+
+        <h2 id="spec">먼저 스펙시트 — 표의 각 칸이 이 글의 목차입니다</h2>
+        <p>
+          설명을 읽기 전에 <strong>결론표부터</strong> 봅니다. 각 행이 아래에서 하나씩 해부됩니다.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th><a href="#leitner" style="color:#22dd22">라이트너 상자</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki 변형</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(깜빡이)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>스케줄 단위</strong></td>
+                <td>일 (상자별)</td>
+                <td>일</td>
+                <td>분 + 일</td>
+                <td>일 (소수점)</td>
+                <td><strong>초</strong></td>
+              </tr>
+              <tr>
+                <td><strong>카드가 기억하는 상태</strong></td>
+                <td>상자 번호 1개<br />(1~5)</td>
+                <td>EF · 반복횟수 · 간격<br />(실수 3개)</td>
+                <td>ease · 간격 · 실패횟수</td>
+                <td>난이도 D · 안정성 S<br />(잠재변수)</td>
+                <td><strong>불리언 1개</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>정답 품질 등급</strong></td>
+                <td>○/✗ 2단계</td>
+                <td>q = 0~5 (6단계)</td>
+                <td>4단계 (Again~Easy)</td>
+                <td>4단계</td>
+                <td><strong>✗ 없음</strong></td>
+              </tr>
+              <tr>
+                <td><strong>복습 기록 저장</strong></td>
+                <td>물리 상자</td>
+                <td>카드별 상태</td>
+                <td>전체 리뷰 로그</td>
+                <td>로그 필수(학습용)</td>
+                <td><strong>✗ 저장 안 함</strong></td>
+              </tr>
+              <tr>
+                <td><strong>개인 데이터로 학습</strong></td>
+                <td>✗</td>
+                <td>✗ (상수 수작업)</td>
+                <td>✗</td>
+                <td><strong>○ (파라미터 최적화)</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>카드별 개인화</strong></td>
+                <td>△ (5단계로 뭉갬)</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗ (전부 동일)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>전수 커버리지 보장</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>(순방향만 ○,<br />무작위는 ✗)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>계정 · 설치 · 동기화</strong></td>
+                <td>종이 상자</td>
+                <td>필요</td>
+                <td>필요</td>
+                <td>필요</td>
+                <td><strong>◎ 전부 불필요</strong></td>
+              </tr>
+              <tr>
+                <td><strong>밀린 복습 폭탄</strong></td>
+                <td>있음</td>
+                <td>있음</td>
+                <td><strong>있음(이탈 1위 원인)</strong></td>
+                <td>있음</td>
+                <td><strong>◎ 없음</strong></td>
+              </tr>
+              <tr>
+                <td><strong>성숙 카드 장기 유지</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗ (사각지대)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>세션 내 노출 밀도</strong></td>
+                <td>낮음</td>
+                <td>낮음</td>
+                <td>낮음</td>
+                <td>낮음</td>
+                <td><strong>◎ 6초/카드</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>표를 한 문장으로 읽으면</strong> — 앞의 네 열은 <strong>“며칠 뒤에 볼까”</strong>를 푸는 도구이고,
+          맨 오른쪽 열은 <strong>“지금 이 6초 동안 무엇을 볼까”</strong>를 푸는 도구입니다.
+          <strong>같은 문제를 푸는 경쟁자가 아닙니다.</strong> 이 글의 결론이 여기 이미 들어 있습니다.
+        </div>
+
+        <h2 id="leitner">1972 — 라이트너: “상자를 옮기면 그게 알고리즘이다”</h2>
+
+        <h3>그 시대가 풀려던 문제</h3>
+        <p>
+          컴퓨터가 없었습니다. 독일의 저널리스트 <strong>제바스티안 라이트너(Sebastian Leitner)</strong>가
+          1972년 책에서 제안한 것은 <strong>계산이 필요 없는 간격 반복</strong>이었습니다.
+          연필도, 날짜 계산도 필요 없습니다. <strong>카드를 물리적으로 옮기는 행위 자체가 상태 저장</strong>입니다.
+        </p>
+
+        <h3>어떻게 풀었나</h3>
+        <ul>
+          <li>칸막이가 있는 상자를 <strong>5칸</strong>으로 나눕니다.</li>
+          <li>새 카드는 전부 <strong>1번 칸</strong>에서 시작합니다.</li>
+          <li>맞히면 <strong>다음 칸으로 한 칸 전진</strong>합니다.</li>
+          <li>틀리면 <strong>몇 번 칸에 있었든 무조건 1번 칸으로 추락</strong>합니다.</li>
+          <li>칸마다 복습 주기가 다릅니다. 흔히 쓰이는 배치는 다음과 같습니다.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>칸</th><th>복습 주기</th><th>이 칸에 있다는 뜻</th><th>틀렸을 때</th></tr></thead>
+            <tbody>
+              <tr><td>1번</td><td><strong>매일</strong></td><td>아직 모름 / 방금 틀림</td><td>1번 유지</td></tr>
+              <tr><td>2번</td><td>2일마다</td><td>한 번 맞힘</td><td><strong>→ 1번 추락</strong></td></tr>
+              <tr><td>3번</td><td>4일마다</td><td>두 번 연속 맞힘</td><td><strong>→ 1번 추락</strong></td></tr>
+              <tr><td>4번</td><td>8일마다</td><td>세 번 연속</td><td><strong>→ 1번 추락</strong></td></tr>
+              <tr><td>5번</td><td>16일마다</td><td>거의 외움</td><td><strong>→ 1번 추락</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          엄밀히 말하면 <strong>라이트너의 원안은 날짜가 아니라 “칸이 꽉 차면 비운다”는 용량 기반</strong>이었습니다.
+          위의 1·2·4·8·16일은 후대에 정착한 <strong>달력 버전</strong>입니다.
+          이 차이를 뭉뚱그리는 글이 많아 밝혀 둡니다.
+        </p>
+
+        <h3>무엇이 깨졌나</h3>
+        <p>
+          라이트너의 치명적 약점은 <strong>“추락이 너무 잔인하다”</strong>는 것입니다.
+          5번 칸에서 <strong>딱 한 번 삐끗한 카드</strong>가 “아직 한 번도 못 맞힌 새 카드”와
+          <strong>완전히 같은 취급</strong>을 받고 1번 칸으로 떨어집니다.
+          실제로 그 카드는 거의 외운 상태인데, 상자는 그걸 표현할 방법이 없습니다.
+          <strong>상태가 정수 하나뿐이라 “거의 외웠지만 오늘 헷갈렸다”를 저장할 자리가 없습니다.</strong>
+        </p>
+        <p>
+          그리고 <strong>모든 카드가 같은 사다리를 탑니다.</strong>
+          쉬운 단어도 5칸을 다 밟아야 하고, 죽어도 안 외워지는 단어도 똑같이 5칸입니다.
+          <strong>카드마다 다른 속도로 오르는 사다리</strong>가 필요했습니다. 그게 15년 뒤에 나옵니다.
+        </p>
+
+        <h2 id="sm2">1987 — SM-2: 정수를 실수로 바꾼 15년</h2>
+
+        <h3>그 시대가 풀려던 문제</h3>
+        <p>
+          폴란드의 <strong>피오트르 보이니악(Piotr Woźniak)</strong>이 SuperMemo를 만들며 발표한
+          <strong>SM-2</strong>는 라이트너의 “칸 번호(정수)”를 <strong>“난이도 계수(실수)”</strong>로 바꿉니다.
+          핵심 발명은 <strong>EF(Easiness Factor, 난이도 계수)</strong> 하나입니다.
+        </p>
+
+        <h3>어떻게 풀었나 — 실제 수식</h3>
+        <p>SM-2는 복습할 때마다 스스로 <strong>q = 0~5</strong>의 여섯 단계로 채점하게 합니다(5 = 완벽, 0 = 백지). 그리고 EF를 이렇게 갱신합니다.</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+EF 초기값 = 2.5   ·   EF 하한 = 1.3 (그 아래로는 안 내려감)</code></pre>
+        <p>이 식이 실제로 뱉는 값은 다음과 같습니다. <strong>손으로 계산해서 채워 넣은 표입니다.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q (자가 채점)</th><th>의미</th><th>EF 변화량</th><th>EF 2.5에서 시작하면</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>완벽하게 떠올림</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>맞혔지만 잠시 머뭇</td><td><strong>±0.00</strong></td><td>2.50 (그대로)</td></tr>
+              <tr><td><strong>3</strong></td><td>간신히 맞힘</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>틀렸지만 답 보니 알겠음</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>틀림, 답 봐도 낯설음</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>완전 백지</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>q=4가 정확히 0이라는 게 이 식의 설계 의도</strong>입니다.
+          “무난히 맞힘”은 난이도 평가를 <strong>바꾸지 않는 중립점</strong>이고,
+          그보다 잘하면 올려주고 못하면 내립니다. 상수 0.1 · 0.08 · 0.02는
+          <strong>이론에서 유도된 게 아니라 보이니악이 손으로 튜닝한 값</strong>입니다. 이 점은 뒤에서 중요해집니다.
+        </p>
+        <p>그리고 다음 간격을 이렇게 정합니다.</p>
+        <pre><code>I(1) = 1일
+I(2) = 6일
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+q &lt; 3 이면 → 반복 횟수 n 을 1로 리셋 (간격이 1일로 돌아감)</code></pre>
+        <p>
+          <strong>EF는 곱셈 배수입니다.</strong> 그래서 EF 2.5짜리 쉬운 카드와 EF 1.3짜리 지옥 카드는
+          <strong>기하급수적으로 벌어집니다.</strong> 같은 횟수를 복습해도 도달하는 간격이 완전히 다릅니다.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>복습 회차</th><th>EF 2.5 (쉬운 카드)</th><th>EF 1.9 (보통)</th><th>EF 1.3 (지옥 카드)</th></tr></thead>
+            <tbody>
+              <tr><td>1회차</td><td>1일</td><td>1일</td><td>1일</td></tr>
+              <tr><td>2회차</td><td>6일</td><td>6일</td><td>6일</td></tr>
+              <tr><td>3회차</td><td>15일</td><td>11일</td><td>8일</td></tr>
+              <tr><td>4회차</td><td>38일</td><td>22일</td><td>10일</td></tr>
+              <tr><td>5회차</td><td>94일</td><td>41일</td><td>13일</td></tr>
+              <tr><td>6회차</td><td><strong>235일</strong></td><td>78일</td><td>17일</td></tr>
+              <tr><td>7회차</td><td><strong>587일 (1.6년)</strong></td><td>148일</td><td><strong>22일</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          7회차에서 <strong>587일 대 22일 — 27배 차이</strong>입니다.
+          이게 SM-2가 라이트너를 이기는 지점입니다. 쉬운 카드는 <strong>1년 반씩 안 보이게 치워버리고</strong>,
+          그 시간을 전부 어려운 카드에 씁니다.
+        </p>
+
+        <h3>무엇이 깨졌나</h3>
+        <p><strong>① 자가 채점 6단계가 사람에게 너무 어렵습니다.</strong>
+          q=3과 q=4의 차이가 뭔지 매 카드마다 판단해야 합니다. 실제로는 대부분의 사용자가
+          <strong>두세 개 등급만 반복해서 누릅니다.</strong> 6단계 설계가 사실상 3단계로 붕괴합니다.</p>
+        <p><strong>② 실패 시 처리가 모호합니다.</strong> 원문은 “q&lt;3이면 <em>EF를 바꾸지 않고</em> 처음부터 반복하라”고 하는데,
+          같은 문서의 의사코드는 <strong>모든 q에 대해 EF를 갱신</strong>합니다. 구현마다 해석이 갈립니다.
+          <strong>30년 넘게 쓰인 알고리즘의 핵심 분기점이 문서상 애매하다</strong>는 사실은 그대로 적어 두는 편이 정직합니다.
+          (이 글의 시뮬레이션은 <strong>“EF도 갱신한다”</strong> 쪽을 택했습니다.)</p>
+        <p><strong>③ 상수가 근거 없이 고정돼 있습니다.</strong> 왜 I(2)가 6일입니까? 왜 하필 0.08입니까?
+          <strong>1987년의 한 사람이 자기 데이터로 손튜닝한 숫자</strong>가 전 세계 모든 학습자에게 그대로 적용됩니다.
+          이것이 FSRS가 등장한 이유입니다.</p>
+
+        <h2 id="anki">Anki의 변형 — 그리고 “이지 헬(ease hell)”</h2>
+        <p>
+          Anki는 SM-2를 그대로 쓰지 않습니다. <strong>등급을 4단계로 줄이고</strong>(Again / Hard / Good / Easy),
+          EF를 <strong>ease</strong>라 부르며 조정 폭을 다시 손봤습니다. 기본 프리셋 기준 실제 동작은 이렇습니다.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>버튼</th><th>ease 변화</th><th>다음 간격</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong> (실패)</td><td><strong>−0.20</strong></td><td>이전 간격 <strong>× 0%</strong> → 최소 1일<br />(+ 재학습 10분)</td><td>간격이 <strong>바닥으로 초기화</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>이전 간격 × <strong>1.2</strong></td><td>ease와 무관한 고정 배수</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>이전 간격 × <strong>ease</strong></td><td>중립점 (SM-2의 q=4)</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>이전 간격 × ease × <strong>1.3</strong></td><td>이지 보너스</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          그 밖의 기본값: 학습 단계 <code>1m 10m</code> · 졸업 간격 <strong>1일</strong> · 이지 간격 <strong>4일</strong> ·
+          시작 ease <strong>2.50</strong> · <strong>ease 하한 1.30</strong> · 리치(leech) 임계 <strong>실패 8회</strong>.
+          Anki는 버전과 프리셋에 따라 기본값이 달라질 수 있으니 <strong>덱 옵션에서 직접 확인하세요.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>“이지 헬”이란</strong> — Again(−0.20)과 Hard(−0.15)를 반복해서 누른 카드는
+          ease가 <strong>하한 1.30에 눌어붙습니다.</strong> 그러면 다음 간격이 <strong>× 1.3</strong>씩밖에 안 자라서
+          1일 → 2일 → 3일 → 4일… 로 <strong>기어갑니다.</strong> 게다가 Again은 간격을 다시 1일로 떨어뜨립니다.
+          결과적으로 <strong>몇 장의 카드가 매일 복습 큐를 영원히 점거</strong>합니다.<br />
+          <strong>ease를 올려주는 경로는 Easy(+0.15) 하나뿐인데, 지옥 카드에 Easy를 누를 일은 없습니다.</strong>
+          <strong>내려가는 문은 넷인데 올라오는 문이 하나</strong>인 구조 — 이것이 SM-2 계열의 구조적 결함이고,
+          Anki 사용자가 “리치 카드 8장이 내 인생을 망친다”고 말하는 이유입니다.
+        </div>
+        <p>
+          처방은 대부분 <strong>알고리즘 밖</strong>에 있습니다. 카드를 지우거나, 쪼개거나, 문장을 붙이거나(“카드가 나쁜 것이지
+          내가 멍청한 게 아니다”), 아니면 <strong>ease를 수동으로 리셋</strong>합니다.
+          <strong>알고리즘이 못 고치는 걸 사람이 손으로 고치고 있다</strong>는 뜻이고, 이 자각이 다음 세대를 낳았습니다.
+        </p>
+
+        <h2 id="fsrs">FSRS — “S가 대체 뭔가”를 정확히 답할 수 있는 유일한 알고리즘</h2>
+        <p>
+          <strong>FSRS(Free Spaced Repetition Scheduler)</strong>는 손튜닝 상수를 버리고
+          <strong>당신의 실제 복습 로그에 파라미터를 피팅</strong>합니다. 기반은 <strong>DSR 모델</strong>입니다.
+        </p>
+        <ul>
+          <li><strong>D (Difficulty, 난이도)</strong> — 이 카드가 본질적으로 얼마나 어려운가</li>
+          <li><strong>S (Stability, 안정성)</strong> — 기억이 얼마나 오래 버티는가</li>
+          <li><strong>R (Retrievability, 인출 가능성)</strong> — <strong>지금 이 순간</strong> 떠올릴 확률</li>
+        </ul>
+        <p>망각곡선을 이렇게 정의합니다(FSRS-4.5 / 5 기준, <strong>DECAY = −0.5</strong>, <strong>FACTOR = 19/81</strong>).</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>여기서 아무도 잘 짚지 않는 사실 하나</h3>
+        <p><strong>S에 t = S를 대입해 봅시다.</strong> 즉 “안정성이 S인 카드를 정확히 S일 뒤에 보면?”</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← 정확히 90%</code></pre>
+        <p>
+          <strong>우연이 아닙니다. FACTOR = 19/81과 DECAY = −0.5는 바로 이 값이 나오도록 역산된 상수입니다.</strong>
+          그래서 <strong>S의 정체는 이렇게 한 문장으로 정의됩니다.</strong>
+        </p>
+        <div class="note">
+          <strong>S(안정성) = “기억할 확률이 90%까지 떨어지는 데 걸리는 날짜(일)”</strong><br />
+          S = 30이면 “30일 뒤에 이 카드를 다시 만나면 열에 아홉은 맞힌다”는 뜻입니다.
+          <strong>추상적인 내부 변수가 아니라, 날짜 단위로 읽히는 물리량입니다.</strong>
+          SM-2의 EF는 이런 해석이 불가능합니다. “EF 2.5”가 무슨 뜻이냐고 물으면 “곱하는 수”라는 답밖에 없습니다.
+        </div>
+
+        <h3>목표 유지율을 바꾸면 복습량이 어떻게 변하는가 — 환산표</h3>
+        <p>
+          FSRS는 <strong>목표 유지율(desired retention)</strong>을 직접 정하게 합니다(기본 <strong>0.90</strong>).
+          위 식을 t에 대해 풀면 간격은 이렇게 나옵니다.
+        </p>
+        <pre><code>간격 t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>이 식에 숫자를 넣어 계산한 결과입니다. <strong>이 표가 이 글에서 가장 실용적인 부분일 수 있습니다.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>목표 유지율 R</th><th>간격 (S 대비 배수)</th><th>S=30일 카드면</th><th>복습 부담</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14일</td><td><strong>약 2.2배 폭증</strong></td></tr>
+              <tr><td><strong>0.90</strong> (기본)</td><td><strong>× 1.00</strong></td><td>30일</td><td>기준</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49일</td><td>약 40% 감소</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72일</td><td><strong>약 58% 감소</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133일</td><td>약 77% 감소</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          읽는 법: <strong>유지율을 0.90에서 0.95로 “겨우 5%p” 올리면 간격이 절반 이하로 줄어</strong>
+          <strong>복습량이 두 배가 됩니다.</strong> 반대로 0.80으로 낮추면 <strong>복습량이 절반 아래로 떨어지는데
+          정답률은 10%p만 손해</strong>입니다. 곡선이 이렇게 가파르기 때문에
+          <strong>“유지율은 높을수록 좋다”는 직관이 여기서 무너집니다.</strong>
+          시험이 코앞이 아니라면 0.85~0.90 구간이 대체로 합리적입니다.
+        </p>
+        <p class="muted">
+          정확성 고지: 위 유도는 <strong>DECAY가 −0.5로 고정된 FSRS-4.5 / 5</strong> 기준입니다.
+          <strong>FSRS-6부터는 DECAY 자체가 학습되는 파라미터</strong>여서 “S = 90% 간격”이라는 등식이
+          정확히 성립하지 않을 수 있습니다. 파라미터 개수도 버전에 따라 <strong>17 → 19 → 21개</strong>로 늘었습니다.
+          <strong>버전을 확인하지 않고 이 숫자를 그대로 인용하지 마세요.</strong>
+        </p>
+
+        <h3>FSRS가 못 하는 것</h3>
+        <p>
+          FSRS는 <strong>당신의 로그가 있어야 당신 것이 됩니다.</strong>
+          리뷰가 <strong>수백~1,000건 남짓 쌓이기 전까지는 기본 파라미터</strong>로 도는데,
+          그건 결국 <strong>“남의 평균”</strong>입니다. 즉 <strong>시작한 첫 달의 FSRS는 개인화된 게 아닙니다.</strong>
+          그리고 로그를 남긴다는 건 <strong>모든 복습 기록이 어딘가에 저장된다</strong>는 뜻이기도 합니다.
+        </p>
+
+        <h2 id="sim">같은 단어 하나를 30일 추적하면 — 시뮬레이션</h2>
+        <p>
+          추상적인 수식을 실물로 바꿔 봅니다. 단어 <code>ubiquitous</code> 한 장을, 다음 시나리오로 세 시스템에 넣습니다.
+        </p>
+        <div class="note">
+          <strong>시나리오</strong> — 1일차에 새로 배움 → <strong>첫 복습에서 실패</strong>(SM-2 q=2 / Anki Again)
+          → 그 이후로는 계속 무난히 맞힘(q=4 / Good).
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>날짜</th><th>라이트너 (1·2·4·8·16일)</th><th>SM-2 (EF 2.5 시작)</th><th>Anki (ease 2.50 시작)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>1일차</strong></td><td>학습 · 1번 칸</td><td>학습 · I=1일</td><td>학습(1분→10분) · 졸업 1일</td></tr>
+              <tr><td><strong>2일차</strong></td><td><strong>실패</strong> · 1번 칸 유지</td><td><strong>실패 q=2</strong> · EF 2.50→<strong>2.18</strong> · 리셋</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · 간격 1일</td></tr>
+              <tr><td><strong>3일차</strong></td><td>성공 → <strong>2번 칸</strong></td><td>성공 · I=1일</td><td>Good · 1 × 2.30 = <strong>2일</strong></td></tr>
+              <tr><td><strong>4일차</strong></td><td>—</td><td>성공 · I=<strong>6일</strong></td><td>—</td></tr>
+              <tr><td><strong>5일차</strong></td><td>성공 → <strong>3번 칸</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5일</strong></td></tr>
+              <tr><td><strong>9일차</strong></td><td>성공 → <strong>4번 칸</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>10일차</strong></td><td>—</td><td>성공 · 6 × 2.18 = <strong>13일</strong></td><td>Good · 5 × 2.30 = <strong>12일</strong></td></tr>
+              <tr><td><strong>17일차</strong></td><td>성공 → <strong>5번 칸</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>22일차</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28일</strong></td></tr>
+              <tr><td><strong>23일차</strong></td><td>—</td><td>성공 · 13 × 2.18 = <strong>28일</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>30일간<br />총 복습</strong></td>
+                <td><strong>6회</strong></td><td><strong>6회</strong></td><td><strong>6회</strong></td>
+              </tr>
+              <tr>
+                <td><strong>다음 복습일</strong></td>
+                <td>33일차</td>
+                <td><strong>51일차</strong></td>
+                <td><strong>50일차</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>여기서 진짜로 봐야 할 숫자는 “6회”가 아니라 “33 대 51”입니다.</strong>
+          세 시스템 모두 30일 동안 <strong>똑같이 6번</strong> 복습시켰습니다. 노동량은 같습니다.
+          그런데 <strong>라이트너는 33일차에 또 부르고, SM-2는 51일차에 부릅니다.</strong>
+          같은 6회를 쓰고도 SM-2가 <strong>18일치 더 멀리 밀어냈습니다.</strong>
+          이 격차는 회차가 갈수록 <strong>곱셈으로 벌어집니다.</strong> 1년 뒤면 라이트너는 16일마다 계속 묻고 있고,
+          SM-2는 이미 1년짜리 간격에 도달해 있습니다.
+        </p>
+        <p>
+          <strong>그리고 이 표에는 VOCA DECK 열이 없습니다.</strong> 넣을 수가 없기 때문입니다.
+          우리 앱에는 <strong>“일차”라는 개념 자체가 없습니다.</strong> 왜 그런지가 다음 장입니다.
+        </p>
+
+        <h2 id="voca">VOCA DECK 해부 — 우리 코드가 실제로 하는 일</h2>
+        <p>
+          이제 우리 차례입니다. <strong>포장 없이 코드에 있는 그대로</strong> 씁니다.
+        </p>
+
+        <h3>카드가 저장하는 것: 전부입니다</h3>
+        <pre><code>{ a: "ubiquitous", b: "어디에나 있는", mem: false }</code></pre>
+        <p>
+          <strong>이게 카드 한 장의 전부입니다.</strong> 앞면, 뒷면, 그리고 <strong>불리언 하나.</strong>
+          <strong>복습한 시각도, 몇 번 틀렸는지도, 얼마나 헷갈렸는지도 저장하지 않습니다.</strong>
+        </p>
+        <p>
+          그래서 <strong>우리는 SM-2를 붙이고 싶어도 붙일 수가 없습니다.</strong>
+          SM-2에는 최소한 <code>EF · 반복횟수 · 마지막 복습일</code>이 필요하고,
+          FSRS는 <strong>전체 리뷰 로그</strong>가 있어야 파라미터를 피팅합니다.
+          우리는 <strong>계정도, 서버도, 리뷰 로그도 없습니다.</strong>
+          덱과 암기 표시는 <strong>브라우저 <code>localStorage</code>에만</strong> 남고 서버로 전송되지 않습니다.
+          <strong>이건 못 만든 게 아니라 이렇게 만든 겁니다. 그 대가가 개인화 포기입니다.</strong>
+        </p>
+
+        <h3>스케줄러의 정체: 모듈로 연산 한 줄</h3>
+        <p>
+          우리가 “다음 카드”를 정하는 방식은 <strong>순환(cyclic) 인덱스</strong>입니다.
+          <code>order</code> 설정에 따라 세 가지로 갈립니다.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>설정</th><th>동작</th><th>재회 간격</th><th>커버리지</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> 순방향 (기본)</td><td>인덱스 +1씩 순환</td><td><strong>정확히 N장마다</strong> (균등)</td><td><strong>100% 보장</strong></td></tr>
+              <tr><td><code>rev</code> 역방향</td><td>인덱스 −1씩 순환</td><td><strong>정확히 N장마다</strong> (균등)</td><td><strong>100% 보장</strong></td></tr>
+              <tr><td><code>rnd</code> 무작위</td><td><strong>매 스텝 독립 균등 추출</strong><br />(현재 카드만 제외)</td><td>기댓값 N−1장,<br /><strong>분산 큼</strong></td><td><strong>보장 없음 ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>무작위 모드는 셔플이 아닙니다 — 이건 저희도 명확히 밝혀야 하는 부분입니다.</strong><br />
+          카드를 섞어서 한 바퀴 도는 방식(비복원 추출)이 아니라, <strong>매번 남은 카드 중에서 새로 뽑는 방식</strong>입니다.
+          그래서 <strong>같은 카드가 연달아 세 번 나올 수도, 한 바퀴 내내 한 번도 안 나올 수도 있습니다.</strong>
+        </div>
+
+        <h3>그 대가를 숫자로 계산해 봤습니다</h3>
+        <p>
+          100장짜리 덱(N=100)을 무작위 모드로 <strong>99스텝</strong>(= 순방향 한 바퀴 분량) 돌린다고 합시다.
+          특정 카드가 한 스텝에서 뽑힐 확률은 <strong>1/(N−1) = 1/99</strong> 입니다.
+          그러면 그 카드가 <strong>99스텝 동안 한 번도 안 나올 확률</strong>은:
+        </p>
+        <pre><code>P(0회 등장) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>등장 횟수 분포는 거의 포아송(λ=1)을 따릅니다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>한 바퀴 분량(99스텝) 동안 등장 횟수</th><th>확률</th><th>의미</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0회</strong></td><td><strong>약 37%</strong></td><td><strong>덱의 3분의 1이 통째로 안 나옴</strong></td></tr>
+              <tr><td>1회</td><td>약 37%</td><td>의도한 대로</td></tr>
+              <tr><td>2회</td><td>약 18%</td><td>낭비</td></tr>
+              <tr><td>3회 이상</td><td>약 8%</td><td>같은 카드만 계속</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>즉 무작위 모드로 한 바퀴 분량을 돌리면, 덱의 약 37%는 그날 얼굴도 못 봅니다.</strong>
+          두 바퀴 분량(198스텝)을 돌려도 <strong>약 13%</strong>가 여전히 안 나오고,
+          <strong>세 바퀴 분량을 돌려야</strong> 미노출이 <strong>5% 아래</strong>로 내려갑니다.
+        </p>
+        <div class="note">
+          <strong>그래서 이렇게 쓰세요 (코드에서 나온 처방입니다)</strong>
+          <ul>
+            <li><strong>첫 회독 · 시험 전날 전수 점검</strong> → <strong>순방향</strong>. 커버리지 100%가 필요한 순간입니다. 무작위로 돌리면 3분의 1을 빼먹습니다.</li>
+            <li><strong>3회독 이후, 순서 단서를 깨야 할 때</strong> → <strong>역방향</strong>을 먼저 쓰세요.
+              <strong>순서 단서는 깨면서 커버리지는 100% 유지</strong>합니다. 대부분의 사람이 이 옵션을 그냥 지나칩니다.</li>
+            <li><strong>진짜 무작위 인출 훈련</strong> → <strong>무작위</strong>. 단, <strong>덱을 세 바퀴 분량 돌릴 각오</strong>를 하고 쓰세요.</li>
+          </ul>
+        </div>
+
+        <h3>시간 단위: 우리 스케줄러의 눈금은 “초”입니다</h3>
+        <p>
+          기본 지연시간은 <strong>3초</strong>(제어판에서 1~60초). 한 장은 <strong>앞면 · 뒷면 두 페이즈</strong>를 거치므로
+          <strong>기본 6초/카드</strong>입니다. 그리고 타이머에는 <strong>0.5초의 하한</strong>이 걸려 있습니다
+          (아무리 짧게 설정해도 그 아래로는 안 내려갑니다).
+        </p>
+        <p>여기서 <strong>덱 크기의 물리적 상한</strong>이 곧바로 나옵니다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>덱 크기 N</th><th>1바퀴 소요 시간<br />(기본 6초/카드)</th><th>같은 카드 재회 간격</th><th>판정</th></tr></thead>
+            <tbody>
+              <tr><td>30장</td><td><strong>3분</strong></td><td>3분</td><td>◎ 세션 내 반복이 촘촘함</td></tr>
+              <tr><td>100장</td><td><strong>10분</strong></td><td>10분</td><td>○ 실용적인 상한선</td></tr>
+              <tr><td>300장</td><td><strong>30분</strong></td><td>30분</td><td>△ 한 바퀴가 이미 부담</td></tr>
+              <tr><td>500장</td><td><strong>50분</strong></td><td>50분</td><td>✗ 세션 내 반복 효과 소멸</td></tr>
+              <tr><td>2,000장</td><td><strong>3시간 20분</strong></td><td>3시간 20분</td><td><strong>✗ 사실상 불가능</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>깜빡이의 정직한 한계선: 덱은 300장 이하로 쪼개세요.</strong>
+          2,000장짜리 덱을 하나 만들면 <strong>한 바퀴에 3시간 20분</strong>이 걸립니다.
+          그건 이미 “빠른 반복 노출”이 아닙니다. 그냥 <strong>느린 목록 읽기</strong>입니다.
+          <strong>2,000장을 관리해야 한다면 그건 Anki의 일이고, 이 앱의 일이 아닙니다.</strong>
+        </div>
+
+        <h3>지연시간은 “인출 창”의 길이입니다 — 비대칭으로 쓰세요</h3>
+        <p>
+          지연시간을 그냥 “속도 조절”로 생각하면 절반만 쓰는 겁니다.
+          <strong>앞면이 떠 있는 그 몇 초가, 당신이 답을 떠올리려 애쓸 수 있는 유일한 시간</strong>입니다.
+          그래서 앞면과 뒷면의 지연시간을 <strong>따로</strong> 설정할 수 있게 만들어 뒀습니다(고급 설정, 0~60초).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>상황</th><th>앞면 지연</th><th>뒷면 지연</th><th>카드당</th><th>의도</th></tr></thead>
+            <tbody>
+              <tr><td><strong>첫 회독</strong> (모르는 단어투성이)</td><td>2초</td><td>4초</td><td>6초</td><td>떠올릴 게 없으니 <strong>뜻을 오래 본다</strong></td></tr>
+              <tr><td><strong>2~3회독</strong> (인출 훈련)</td><td><strong>5초</strong></td><td>1.5초</td><td>6.5초</td><td><strong>떠올릴 시간을 벌고</strong>, 확인은 순식간에</td></tr>
+              <tr><td><strong>시험 직전 속도전</strong></td><td>1.5초</td><td>1.5초</td><td>3초</td><td>전수 스캔 — 100장을 <strong>5분</strong>에</td></tr>
+              <tr><td><strong>TTS 청각 학습</strong></td><td>3초</td><td>3초</td><td>6초</td><td>음성이 끝날 시간 확보</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>2~3회독의 “앞면 5초 / 뒷면 1.5초”가 이 앱에서 인출 연습에 가장 가까운 설정</strong>입니다.
+          <strong>회독이 진행될수록 앞면을 늘리고 뒷면을 줄이세요.</strong>
+          거꾸로 하는 사람이 대부분인데, 그러면 끝까지 <strong>수동적으로 보기만</strong> 하게 됩니다.
+        </p>
+
+        <h2 id="mem">“암기 표시”의 정체 — 상자가 2개뿐인 라이트너</h2>
+        <p>
+          우리의 유일한 개인화 장치는 <strong>암기 표시</strong> 하나입니다.
+          이걸 알고리즘의 언어로 번역하면 정확히 이렇습니다.
+        </p>
+        <div class="note">
+          <strong>암기 표시 = 상자가 2개인 라이트너 상자.</strong> 그런데 <strong>사다리가 아니라 문입니다.</strong><br />
+          상자 1 = <code>mem: false</code> (계속 순환) · 상자 2 = <code>mem: true</code> (순환에서 제외)<br />
+          그리고 <strong>표시 범위</strong> 설정이 이 상자를 고릅니다 —
+          <strong>외운 항목 제외</strong>(기본) / <strong>외운 항목만</strong> / <strong>모두</strong>.
+        </div>
+
+        <h3>이것만으로 얻는 것 (생각보다 큽니다)</h3>
+        <p>
+          개인화 알고리즘이 하는 일의 <strong>가장 큰 몫은 사실 “아는 카드를 안 보여주는 것”</strong>입니다.
+          SM-2가 EF 2.5짜리 카드를 587일 뒤로 밀어내는 것도, 결국은 <strong>지금 안 보여주려는 것</strong>입니다.
+          암기 표시는 그 효과의 <strong>가장 무식하지만 가장 큰 덩어리</strong>를 가져옵니다.
+        </p>
+        <p>
+          숫자로 봅시다. 100장 덱에서 <strong>40장을 암기 표시</strong>하면 순환 대상은 60장이 됩니다.
+          1바퀴가 <strong>10분 → 6분</strong>으로 줄고, <strong>모르는 카드의 재회 간격이 10분 → 6분</strong>으로 짧아집니다.
+          <strong>같은 20분을 써도 어려운 카드를 만나는 횟수가 1.67배</strong>가 됩니다.
+          <strong>공짜로 얻는 1.67배입니다.</strong> 체크박스 하나로.
+        </p>
+
+        <h3>진짜 SM-2 대비 부족한 것 (여기가 중요합니다)</h3>
+        <p><strong>① 단계가 없습니다 — 0 아니면 1입니다.</strong>
+          SM-2는 “EF 2.5(아주 쉬움)”와 “EF 1.6(좀 어려움)”과 “EF 1.3(지옥)”을 구별하고
+          <strong>각각 다른 빈도</strong>로 보여줍니다. 우리는 <strong>“본다 / 안 본다”</strong> 둘뿐입니다.
+          <strong>안 외운 60장 안에서는 모두가 완전히 평등합니다.</strong>
+          어제 처음 본 단어와 40번을 봐도 안 외워지는 단어가 <strong>정확히 같은 빈도</strong>로 나옵니다.
+          <strong>이게 우리가 SM-2에 지는 가장 명확한 지점입니다.</strong></p>
+
+        <p><strong>② 시간이 없습니다 — 그래서 “언제 다시 볼지”를 계산할 수 없습니다.</strong>
+          <code>mem</code>은 불리언입니다. <strong>언제 표시했는지 저장하지 않습니다.</strong>
+          그래서 “이 카드를 표시한 지 40일이 지났으니 슬슬 다시 확인해야 한다”는 판단을
+          <strong>앱이 원리적으로 할 수 없습니다.</strong> 타임스탬프가 없으니까요.</p>
+
+        <p><strong>③ 그래서 생기는 사각지대 — 표시된 카드는 조용히 썩습니다.</strong></p>
+        <div class="note warn">
+          <strong>이 글에서 가장 중요한 경고입니다.</strong><br />
+          암기 표시는 <strong>일방통행 문</strong>입니다. 카드가 상자 2로 나가면
+          <strong>스스로 돌아오는 길이 없습니다.</strong>
+          SM-2는 587일짜리 카드도 <strong>언젠가는 반드시 다시 부릅니다</strong> — 망각을 잡아내려고요.
+          우리는 <strong>영원히 안 부릅니다.</strong><br />
+          <strong>즉 “외웠다고 표시한 카드가 사실은 잊혔는데, 당신은 그걸 모르는 상태”가 계속 쌓입니다.</strong>
+          그리고 시험장에서 알게 됩니다.
+        </div>
+
+        <h3>그 사각지대를 손으로 메우는 절차</h3>
+        <p>
+          알고리즘이 안 해주니 <strong>사람이 해야 합니다.</strong> 다행히 어렵지 않고, 앱에 이미 기능이 있습니다.
+          <strong>표시 범위를 “외운 항목만”으로 바꾸는 것</strong>이 정확히 이 용도로 존재합니다.
+        </p>
+        <ol>
+          <li><strong>주 1회, 요일을 정하세요.</strong> (예: 일요일)</li>
+          <li>표시 범위를 <strong>“외운 항목만”</strong>으로 바꿉니다. → 암기 표시한 카드들만 순환합니다.</li>
+          <li><strong>순서는 무작위</strong>, <strong>앞면 지연을 4~5초</strong>로 길게. — 진짜 인출을 시험하는 겁니다.</li>
+          <li><strong>못 떠올린 카드가 나오면 그 자리에서 암기 표시를 해제</strong>합니다. → 상자 1로 강등. <strong>돌아오는 문을 손으로 열어주는 겁니다.</strong></li>
+          <li>다시 “외운 항목 제외”로 돌려놓고 평소대로 돌립니다.</li>
+        </ol>
+        <p>
+          <strong>이 5단계가 SM-2의 “성숙 카드 복습”을 수동으로 흉내 내는 전부입니다.</strong>
+          자동이 아니라서 열등하지만, <strong>안 하는 것보다는 압도적으로 낫습니다.</strong>
+          <strong>이걸 안 하면 암기 표시는 “아는 척하는 카드를 숨기는 기능”이 됩니다.</strong>
+        </p>
+
+        <h2 id="which">그래서 뭘 써야 하나 — 정직한 처방전</h2>
+        <p>
+          <strong>“우리 앱을 쓰세요”가 정답인 경우는 절반도 안 됩니다.</strong> 있는 그대로 씁니다.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>당신의 상황</th><th>권장</th><th>이유 (숫자로)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>어휘 2,000~10,000개를<br />6개월~수년간 유지</strong><br />(수능·토익·GRE 장기전)</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">(우리 앱 아님)</span></td>
+                <td>깜빡이는 2,000장 한 바퀴에 <strong>3시간 20분</strong>. 물리적으로 불가능합니다.
+                  게다가 성숙 카드를 다시 불러주지 않아 <strong>장기 유지에 실패</strong>합니다.</td>
+              </tr>
+              <tr>
+                <td><strong>D-14 시험 · 벼락치기</strong><br />단어 200~300개</td>
+                <td><strong>깜빡이</strong></td>
+                <td>SM-2의 간격은 <strong>1일 → 6일 → 15일</strong>입니다.
+                  <strong>14일 안에는 겨우 3회</strong>밖에 못 돌립니다. 일 단위 스케줄러는
+                  <strong>남은 기간이 짧으면 무용지물</strong>입니다. 하루 3바퀴 회독이 이깁니다.</td>
+              </tr>
+              <tr>
+                <td><strong>매일 못 여는 사람</strong><br />(3일씩 빠짐)</td>
+                <td><strong>깜빡이</strong></td>
+                <td>Anki에서 3일 빠지면 <strong>밀린 카드 수백 장</strong>이 쌓입니다.
+                  이게 <strong>SRS 이탈의 1위 원인</strong>입니다. 깜빡이엔 <strong>밀린 카드라는 개념이 없습니다.</strong>
+                  아무 때나 열어서 아무 때나 닫으면 됩니다.</td>
+              </tr>
+              <tr>
+                <td><strong>덱 30~300장,<br />CSV 파일 하나</strong></td>
+                <td><strong>깜빡이</strong></td>
+                <td>Anki 설치 + 노트 타입 + 덱 옵션 + 동기화 계정을 세팅하는 <strong>마찰이 이득보다 큽니다.</strong>
+                  CSV를 열면 <strong>3초 뒤에 학습이 시작</strong>됩니다.</td>
+              </tr>
+              <tr>
+                <td><strong>설거지 · 출퇴근 중<br />귀로만 학습</strong></td>
+                <td><strong>깜빡이 (TTS 음성만)</strong></td>
+                <td>Anki는 <strong>화면을 보고 버튼을 눌러야</strong> 다음으로 갑니다.
+                  깜빡이는 <strong>자동 재생 + 음성만</strong> 모드로 <strong>손도 눈도 안 씁니다.</strong></td>
+              </tr>
+              <tr>
+                <td><strong>리뷰 기록을 남기기 싫음<br />계정 만들기 싫음</strong></td>
+                <td><strong>깜빡이</strong></td>
+                <td>덱과 암기 표시는 <strong>브라우저 localStorage에만</strong> 저장되고
+                  <strong>서버로 전송되지 않습니다.</strong> 대신 <strong>기기 간 동기화도 없습니다.</strong> (같은 이유입니다.)</td>
+              </tr>
+              <tr>
+                <td><strong>계속 안 외워지는<br />지옥 단어 30개</strong></td>
+                <td><strong>깜빡이</strong></td>
+                <td>Anki에서 이 카드들은 <strong>이지 헬에 빠져 ease 1.30에 눌어붙습니다.</strong>
+                  차라리 <strong>따로 CSV로 뽑아 30장 덱(1바퀴 3분)</strong>을 만들어 하루 다섯 바퀴 도세요.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">가장 정확한 답: 둘은 층위가 다릅니다</h2>
+        <p>
+          여기까지 왔으면 이제 이 문장이 이해될 겁니다.
+        </p>
+        <div class="note">
+          <strong>Anki는 “오늘 어떤 카드를 볼지”를 정합니다. (일 단위)</strong><br />
+          <strong>깜빡이는 “그 카드를 지금 어떻게 노출할지”를 정합니다. (초 단위)</strong><br />
+          <strong>둘은 같은 문제를 두고 싸우는 게 아니라, 위아래로 쌓입니다.</strong>
+        </div>
+        <p>병행하는 사람들이 실제로 쓰는 조합은 이렇습니다.</p>
+        <ol>
+          <li><strong>장기 스케줄은 Anki에 맡깁니다.</strong> 5,000단어 덱의 “오늘 볼 120장”은 FSRS가 뽑아 줍니다.</li>
+          <li><strong>Anki에서 계속 틀리는 카드(리치·ease 1.3 근처)를 CSV로 뽑습니다.</strong>
+            보통 <strong>30~80장</strong> 나옵니다.</li>
+          <li><strong>그 CSV를 깜빡이에 넣고 하루 두세 바퀴 돌립니다.</strong>
+            80장이면 <strong>1바퀴 8분</strong>. 앞면 5초 / 뒷면 1.5초로 인출 연습.</li>
+          <li><strong>깜빡이에서 확실해진 카드는 암기 표시로 빼고</strong>, Anki에서는 그 카드의 ease를 리셋합니다.</li>
+        </ol>
+        <p>
+          <strong>Anki가 못 하는 걸 깜빡이가 하고, 깜빡이가 못 하는 걸 Anki가 합니다.</strong>
+          Anki는 <strong>세션 내 고밀도 노출</strong>을 못 만들고(하루에 같은 카드를 20번 보여주지 않습니다),
+          깜빡이는 <strong>6개월 뒤의 복습일</strong>을 계산하지 못합니다.
+          <strong>파일 하나(CSV)로 두 도구가 이어집니다.</strong>
+          만드는 법은 <a href="/csv-guide.html">CSV 단어장 만들기</a>에 있습니다.
+        </p>
+
+        <h2 id="qa">짧은 Q&amp;A</h2>
+
+        <h3>Q. FSRS가 SM-2보다 항상 낫습니까?</h3>
+        <p>
+          <strong>리뷰 로그가 충분히 쌓인 뒤에는 대체로 그렇습니다.</strong> 하지만 <strong>시작한 첫 달에는 아닙니다.</strong>
+          FSRS는 <strong>당신의 로그로 파라미터를 피팅</strong>해야 당신 것이 되는데, 그전까지는 <strong>남의 평균</strong>으로 돕니다.
+          그리고 FSRS는 <strong>당신이 버튼을 정직하게 누른다는 가정</strong> 위에 서 있습니다.
+          <strong>대충 Good만 누르면, 정교한 알고리즘이 정교하게 틀립니다.</strong>
+          <strong>쓰레기를 넣으면 쓰레기가 나옵니다 — 이건 알고리즘이 고쳐줄 수 없습니다.</strong>
+        </p>
+
+        <h3>Q. 목표 유지율은 몇으로 두는 게 맞습니까?</h3>
+        <p>
+          위의 <a href="#fsrs">환산표</a>를 다시 보세요. <strong>0.90 → 0.95는 복습량을 2배로 만듭니다.</strong>
+          정답률 5%p를 사려고 <strong>시간을 두 배</strong> 내는 겁니다. 대부분의 경우 손해입니다.
+          <strong>시험이 멀면 0.85~0.90, 시험이 코앞이면 0.90~0.95</strong> 정도가 합리적인 출발점입니다.
+          <strong>단, 이건 “정답”이 아니라 “출발점”입니다.</strong>
+        </p>
+
+        <h3>Q. 깜빡이 지연시간은 몇 초가 맞습니까?</h3>
+        <p>
+          <strong>“맞는 값”은 회독마다 다릅니다.</strong> 기본 3초는 <strong>첫 회독용 무난한 값</strong>일 뿐입니다.
+          <strong>회독이 쌓일수록 앞면을 늘리고(떠올릴 시간) 뒷면을 줄이세요(확인만).</strong>
+          앞면 5초 / 뒷면 1.5초가 <strong>인출 연습에 가장 가까운 설정</strong>입니다.
+          자세한 배치는 <a href="#voca">위의 표</a>에 있습니다.
+        </p>
+
+        <h3>Q. 무작위 모드가 순방향보다 항상 낫지 않나요? 순서 단서를 깨니까요.</h3>
+        <p>
+          <strong>아니요, 그게 이 글에서 계산한 함정입니다.</strong> 무작위는 <strong>커버리지를 보장하지 않습니다</strong>
+          (한 바퀴 분량에 <strong>약 37% 미노출</strong>). 순서 단서를 깨면서 커버리지도 지키고 싶으면
+          <strong>역방향</strong>을 쓰세요. <strong>대부분의 사용자가 이 옵션의 존재 이유를 모릅니다.</strong>
+        </p>
+
+        <h3>Q. 암기 표시를 다 해서 덱이 비었습니다. 끝난 건가요?</h3>
+        <p>
+          <strong>아니요. 그때부터가 시작입니다.</strong> 표시 범위를 <strong>“외운 항목만”</strong>으로 바꿔서
+          <strong>주 1회 점검</strong>하세요. 못 떠올린 카드는 <strong>표시를 해제</strong>해서 되돌리세요.
+          <strong>이 절차를 안 하면 암기 표시는 망각을 숨기는 기능이 됩니다.</strong> 절차는 <a href="#mem">위</a>에 적었습니다.
+        </p>
+
+        <h3>Q. 그럼 언젠가 VOCA DECK에도 SM-2를 넣을 겁니까?</h3>
+        <p>
+          <strong>넣으려면 리뷰 로그를 저장해야 하고, 그러려면 저장소가 커지고, 기기 간 동기화를 원하게 되고,
+          그러면 계정이 필요해집니다.</strong> 그 순간 <strong>이 앱의 유일한 장점인 “마찰 0”이 사라집니다.</strong>
+          <strong>그건 Anki를 못 만든 버전으로 다시 만드는 일입니다.</strong>
+          <strong>우리는 Anki가 되려는 게 아닙니다.</strong> 지금으로서는 넣을 계획이 없고,
+          <strong>넣지 않는 이유를 이 글 전체에 걸쳐 적어 두었습니다.</strong>
+        </p>
+
+        <h2 id="closing">마지막으로 — 알고리즘은 당신이 앱을 여는 것까지는 못 합니다</h2>
+        <p>
+          FSRS는 <strong>세계 최고의 스케줄러</strong>입니다. 그리고 <strong>당신이 3일간 앱을 안 열면 아무것도 아닙니다.</strong>
+          완벽한 간격으로 <strong>“오늘 복습할 카드 340장”</strong>을 띄워 놓고 기다릴 뿐이고,
+          그 숫자를 본 사람은 <strong>앱을 닫습니다.</strong>
+        </p>
+        <p>
+          간격 반복 알고리즘의 50년 역사는 <strong>“복습을 최소화하는 경쟁”</strong>이었습니다.
+          라이트너는 5칸으로, SM-2는 EF 곱셈으로, FSRS는 당신의 로그로.
+          <strong>모두가 같은 목표를 향했습니다 — 필요 없는 복습을 지우는 것.</strong>
+        </p>
+        <p>
+          <strong>그런데 실제로 사람들이 실패하는 지점은 거기가 아닙니다.</strong>
+          <strong>사람들은 “복습이 너무 많아서” 그만두는 게 아니라, “오늘 안 열어서” 그만둡니다.</strong>
+          우리가 개인화를 통째로 포기하고 <strong>마찰을 0으로 만드는 데 전부를 건 이유</strong>가 이것입니다.
+          <strong>그게 옳은 선택인지는 확신하지 않습니다.</strong>
+          <strong>다만 그게 우리가 한 선택이고, 그 대가를 이 글에서 하나도 숨기지 않았습니다.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>고지</strong><br />
+          이 글은 <strong>학습 방법에 관한 정보 제공</strong>이며, <strong>교육·의학적 자문이 아닙니다.</strong>
+          학습 효과에는 <strong>개인차가 크며</strong>, 여기 적힌 어떤 방법도 <strong>특정한 성적이나 결과를 보장하지 않습니다.</strong><br />
+          <strong>타사 도구(Anki · SuperMemo · FSRS)의 기본값과 수식은 버전에 따라 달라집니다.</strong>
+          이 글의 숫자는 <strong>널리 알려진 기본 프리셋 기준</strong>이며,
+          <strong>반드시 본인이 사용하는 버전의 설정 화면과 공식 문서에서 직접 확인하세요.</strong>
+          FSRS 관련 수식은 <strong>DECAY = −0.5로 고정된 FSRS-4.5 / 5 기준</strong>으로,
+          <strong>FSRS-6 이상에서는 성립하지 않을 수 있습니다.</strong><br />
+          VOCA DECK에 관한 수치는 <strong>이 글 작성 시점의 실제 구현 기준</strong>이며 업데이트로 변경될 수 있습니다.
+        </div>
+
+        <h2>이어서 읽기</h2>
+        <div class="related">
+          <a href="/method.html"><b>깜빡이 암기법의 원리</b><span>망각곡선·간격효과·이중부호화 — 왜 반복 노출이 통하는가</span></a>
+          <a href="/study-guide.html"><b>단어 암기 학습 전략</b><span>하루 몇 개, 복습은 언제, 4주 계획</span></a>
+          <a href="/csv-guide.html"><b>CSV 단어장 만들기</b><span>Anki에서 뽑은 지옥 카드를 깜빡이로 넘기는 법</span></a>
+          <a href="/"><b>암기장 열기</b><span>지연시간·순서·표시 범위를 직접 만져보기</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy.html">개인정보처리방침</a> · <a href="/terms.html">이용약관</a></footer>
+      </div>
+    </main>
+  </body>
+</html>

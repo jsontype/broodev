@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSI가 틀린 순간들 — 상대강도지수 실패 부검 | broodev</title>
+    <meta name="description" content="RSI가 크게 틀렸던 국면을 해부합니다. 강세장에서 70 위 장기 체류, 약세장에서 30 아래 체류, 다이버전스의 진짜 신호와 가짜 신호, Wilder 평활과 단순평균 RSI가 만드는 59점짜리 유령 신호. 그리고 우리 모델이 RSI에 단기 28% · 장기 18%를 주는 실제 이유와, 지금도 틀리는 지점 6곳." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://broodev.com/rsi-guide.html" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="RSI가 틀린 순간들 — 상대강도지수 실패 부검" />
+    <meta property="og:description" content="‘과매수니까 매도’가 왜 파산 공식인가. RSI가 크게 틀린 국면 4건을 해부하고, 우리 모델의 RSI 매핑 함수와 그 결함까지 공개합니다." />
+    <meta property="og:url" content="https://broodev.com/rsi-guide.html" />
+    <meta property="og:site_name" content="broodev" />
+    <link rel="stylesheet" href="/content.css" />
+    <style>
+      /* 이 페이지 전용 — 부검 보고서 레이아웃 (다른 콘텐츠 페이지에는 없는 클래스) */
+      .caseidx { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 24px 0 34px; }
+      .caseidx a { display: block; border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: 0 6px 6px 0; background: var(--panel); padding: 11px 13px; text-decoration: none; transition: .15s; }
+      .caseidx a:hover { border-color: var(--neon); border-left-color: var(--neon); transform: translateY(-1px); }
+      .caseidx em { display: block; color: #5f776e; font-size: 11px; font-style: normal; letter-spacing: .08em; }
+      .caseidx b { display: block; color: var(--neon); font-size: 13px; margin: 3px 0 3px; }
+      .caseidx span { display: block; color: var(--dim); font-size: 12px; line-height: 1.6; }
+      .tag { display: inline-block; border: 1px solid var(--line); border-radius: 3px; padding: 1px 7px; font-size: 11px; color: var(--warn); letter-spacing: .06em; vertical-align: middle; margin-left: 6px; }
+      .verdict { border: 1px solid var(--line); border-top: 3px solid var(--neon); background: var(--panel); border-radius: 0 0 6px 6px; padding: 12px 14px; margin: 16px 0 6px; }
+      .verdict b { color: var(--neon); font-size: 12px; letter-spacing: .08em; display: block; margin-bottom: 4px; }
+      .verdict p { margin: 0; }
+      .confess { counter-reset: cf; list-style: none; padding-left: 0; }
+      .confess > li { position: relative; padding: 10px 0 10px 44px; border-bottom: 1px dashed var(--line); }
+      .confess > li:last-child { border-bottom: 0; }
+      .confess > li::before { counter-increment: cf; content: "0" counter(cf); position: absolute; left: 0; top: 10px; color: var(--warn); font-size: 12px; letter-spacing: .05em; }
+    </style>
+    <!-- Google AdSense (Auto ads) — 이 페이지는 원본 해설 콘텐츠다. 광고 게재 화면 = 콘텐츠 화면.
+         (이전에는 광고가 대시보드에만 있고 정작 콘텐츠 페이지엔 없어서, AdSense 가 심사하는
+          "광고가 게재되는 화면"의 콘텐츠가 얇았다.) -->
+    <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <main class="wrap">
+      <nav class="nav">
+        <a href="/">← 대시보드</a>
+        <a href="/indicators.html">지표 해설</a>
+        <a href="/methodology.html">점수 방법론</a>
+        <a href="/guide-fear-greed.html">공포지수 활용법</a>
+        <a href="/glossary.html">용어집</a>
+      </nav>
+
+      <h1>RSI가 틀린 순간들</h1>
+      <p class="muted">부검 보고서 · 최종 수정: 2026-07-14 · 작성: Y-Systems · 대상: RSI(14, Wilder) 및 broodev 매수 타이밍 점수 v2의 RSI 매핑</p>
+
+      <p class="lead">
+        이 글은 RSI 사용법 안내서가 아닙니다. <strong>RSI가 크게 틀렸던 기록</strong>입니다.<br />
+        “RSI 70 넘으면 과매수라 매도, 30 아래면 과매도라 매수” — 이 한 줄은 인터넷에 수만 번 복사돼 있고,
+        <strong>암호화폐 시장에서 이 한 줄대로 매매한 사람은 상승장의 대부분을 놓치고 하락장에서 계속 물렸습니다.</strong>
+        왜 그런지를 국면별로 뜯어보고, 마지막에 <strong>우리 모델이 RSI를 어떻게 다루는지, 그리고 여전히 어디서 틀리는지</strong>를 내부 수치까지 열어 보이겠습니다.
+      </p>
+
+      <div class="note">
+        <strong>이 글이 다루지 않는 것</strong> — RSI의 정의와 기본 계산식은 <a href="/indicators.html#rsi">지표 해설</a>에 한 문단으로 정리돼 있고,
+        6개 지표 전체의 가중치 체계는 <a href="/methodology.html">점수 방법론</a>에 있습니다.
+        여기서는 <strong>실패</strong>만 다룹니다. RSI를 처음 보신다면 위 두 글을 먼저 읽고 오세요.
+      </div>
+
+      <div class="caseidx">
+        <a href="#case01"><em>CASE 01</em><b>70 위에서 내려오지 않는 시장</b><span>“과매수 = 매도”가 왜 파산 공식인가</span></a>
+        <a href="#case02"><em>CASE 02</em><b>30 아래에서 올라오지 않는 시장</b><span>과매도인 채로 반토막 나는 구조</span></a>
+        <a href="#case03"><em>CASE 03</em><b>다이버전스의 두 얼굴</b><span>왜 우리는 승률을 제시하지 않는가</span></a>
+        <a href="#case04"><em>CASE 04</em><b>계산식이 만든 유령 신호</b><span>Wilder vs 단순평균 — 59점의 착시</span></a>
+      </div>
+
+      <h2 id="case01">CASE 01 — 70 위에서 내려오지 않는 시장 <span class="tag">치명적</span></h2>
+      <p>
+        RSI의 가장 비싼 실패는 <strong>하락장이 아니라 상승장에서</strong> 일어납니다. 손실이 아니라 <strong>기회비용</strong>의 형태로 오기 때문에 많은 사람이 이걸 실패로 세지도 않습니다.
+      </p>
+      <p>
+        2020년 4분기를 떠올려 보세요. 비트코인은 1만 달러 부근에서 출발해 2021년 1분기에 5만 달러대까지 갔습니다.
+        이 구간에서 <strong>일봉 RSI는 몇 주 단위로 70 위에 붙어 있었습니다.</strong> 교과서를 따른 사람은 RSI가 70을 넘은 첫날 팔았습니다.
+        그리고 가격이 그 자리에서 <strong>세 배, 네 배</strong> 오르는 걸 지켜봤습니다.
+        2017년 11~12월도 똑같았습니다. RSI가 70을 넘긴 뒤 비트코인은 6천 달러대에서 2만 달러 근처까지 갔습니다.
+      </p>
+      <p>
+        더 나쁜 건 그 다음입니다. RSI 70에서 판 사람은 대개 <strong>다시 사지 못합니다.</strong>
+        RSI가 다시 30 아래로 내려오기를 기다리는데, 강한 상승 추세에서는 <strong>RSI가 40 아래로도 잘 안 내려옵니다.</strong>
+        상승 추세의 눌림목은 RSI 30이 아니라 RSI 45~50에서 끝나기 때문입니다.
+        결국 훨씬 높은 가격에 추격 매수하거나, 사이클 전체를 관망으로 보냅니다.
+      </p>
+
+      <h3>왜 이런 일이 구조적으로 벌어지는가</h3>
+      <p>
+        RSI는 “비싸다”를 재는 지표가 <strong>아닙니다.</strong> RSI가 재는 건 <strong>최근 14일 동안 14일 기간으로 나눈 평균 상승폭이 내린 날의 평균 하락폭보다 얼마나 큰가</strong>입니다.
+        즉 <strong>가격 수준이 아니라 상승의 “일관성”</strong>입니다.
+      </p>
+      <p>
+        그런데 강한 상승 추세의 정의가 바로 <em>“오르는 날이 많고, 내리는 날은 적게 내린다”</em>입니다.
+        <strong>즉 RSI 70+는 상승 추세의 증상이지 이상 징후가 아닙니다.</strong> 열이 나는 게 감염의 증상인 것처럼요.
+        해열제를 먹인다고 감염이 낫지 않듯, RSI 70에서 판다고 상승이 끝나지 않습니다.
+      </p>
+      <p>
+        수학적으로 확인해 봅시다. 14일 중 <strong>10일 상승(평균 +2%), 4일 하락(평균 −1%)</strong>인 아주 평범한 강세 구간을 넣어보면,
+        평균 상승폭 = 10×2/14 = 1.43, 평균 하락폭 = 4×1/14 = 0.29, RS = 5.0 → <strong>RSI ≈ 83</strong>입니다.
+        상승률로 따지면 2주간 16% 정도, 암호화폐 기준으로는 <strong>격렬하지도 않은 흐름</strong>입니다.
+        그런데 RSI는 이미 “극단적 과매수”를 찍습니다. <strong>RSI 83은 이상 현상이 아니라 정상 강세장의 산술적 결과입니다.</strong>
+      </p>
+
+      <div class="verdict">
+        <b>■ 부검 소견</b>
+        <p>
+          “과매수 = 매도”는 <strong>횡보장에서만</strong> 성립하는 규칙을 <strong>추세장에 잘못 적용</strong>한 것입니다.
+          RSI 70 돌파는 <strong>매도 신호가 아니라 추세 확인 신호에 가깝습니다.</strong>
+          그래서 우리 모델의 <strong>단기(모멘텀) 탭은 RSI를 뒤집지 않고 순방향으로 씁니다</strong> — RSI가 높을수록 <em>점수가 올라갑니다.</em>
+          자세한 함수는 아래 <a href="#verdict">평결</a> 절에서 코드 그대로 공개합니다.
+        </p>
+      </div>
+
+      <h2 id="case02">CASE 02 — 30 아래에서 올라오지 않는 시장 <span class="tag">치명적</span></h2>
+      <p>
+        CASE 01의 거울상입니다. 그리고 이쪽은 기회비용이 아니라 <strong>실제 원금</strong>이 사라집니다.
+      </p>
+      <p>
+        2018년 내내 비트코인은 2만 달러 근처에서 3천 달러대까지 내려갔습니다. 이 하락 과정에서 RSI는
+        <strong>몇 번이고 30 아래로 내려갔고, 그때마다 “역사적 과매도”라는 글이 쏟아졌습니다.</strong>
+        그 신호를 믿고 산 사람은 다음 하락 구간에서 다시 RSI 30을 봤습니다.
+        2022년도 판박이였습니다. 5월 루나 붕괴, 6월 추가 급락, 11월 FTX 파산 — 매 국면마다 RSI는 과매도를 찍었고,
+        <strong>매번 “더 낮은 과매도”가 뒤에 있었습니다.</strong>
+      </p>
+      <p>
+        핵심은 이것입니다. <strong>RSI는 하한이 30이 아닙니다. 0입니다.</strong>
+        RSI 28에서 산 사람은 RSI 22를 볼 수 있고, RSI 22에서 산 사람은 RSI 14를 볼 수 있습니다.
+        그리고 RSI가 30에서 20으로 가는 동안 <strong>가격은 30~40% 더 빠집니다.</strong>
+      </p>
+
+      <h3>“과매도”라는 단어가 만드는 착시</h3>
+      <p>
+        <strong>oversold(과매도)</strong>라는 번역어 자체가 함정입니다. 이 단어는 <em>“팔릴 만큼 팔렸다”</em>는 완료의 뉘앙스를 줍니다.
+        하지만 RSI 25가 실제로 말하는 건 <strong>“최근 14일 동안 내린 날이 압도적으로 많았다”</strong>는 <em>과거형 서술</em>일 뿐입니다.
+        미래에 대해서는 <strong>단 한마디도 하지 않습니다.</strong>
+      </p>
+      <p>
+        오히려 반대로 읽는 게 통계적으로 더 안전합니다. <strong>RSI 25는 “강한 하락 추세가 진행 중”이라는 확인 신호</strong>입니다.
+        하락 추세에서 매수하는 건 “싼 걸 산다”가 아니라 <strong>“내려가는 에스컬레이터에서 위로 걷는다”</strong>에 가깝습니다.
+      </p>
+      <div class="note warn">
+        <strong>RSI 극단이 맞았던 드문 경우도 있습니다 — 그리고 그게 함정입니다.</strong>
+        2020년 3월 12일 코로나 급락(하루 −37%)에서 일봉 RSI는 10대까지 붕괴했고, 가격은 며칠 만에 반등했습니다.
+        이런 사례는 기억에 강하게 남습니다. <strong>맞은 사례는 뉴스가 되고 틀린 사례는 조용히 사라지기 때문입니다(생존 편향).</strong>
+        2018년과 2022년에 RSI 30 아래에서 매수해 물린 수많은 사람들의 기록은 어디에도 남지 않았습니다.
+        <strong>RSI의 승률을 기억으로 추정하지 마세요. 기억은 이미 편향돼 있습니다.</strong>
+      </div>
+      <p>
+        차이를 만드는 건 <strong>RSI 값이 아니라 하락의 성격</strong>입니다.
+        2020년 3월은 <strong>유동성 충격</strong>이었습니다 — 며칠 안에 끝나는 종류의 사건입니다.
+        2018년과 2022년은 <strong>사이클 되돌림</strong>이었습니다 — 1년 넘게 이어지는 종류의 사건입니다.
+        <strong>RSI는 이 둘을 구분하지 못합니다.</strong> 둘 다 똑같이 “RSI 20”이라고 출력합니다.
+        구분하려면 RSI 바깥의 정보 — 밸류에이션(마이어 배수), 사이클 낙폭, 추세 필터 — 가 필요합니다.
+        이것이 <strong>지표를 합성하는 유일한 이유</strong>입니다.
+      </p>
+
+      <div class="verdict">
+        <b>■ 부검 소견</b>
+        <p>
+          RSI 30은 <strong>매수 신호가 아니라 “관심 구간 진입” 신호</strong>입니다. 그것도 다른 지표의 동의가 있을 때만요.
+          우리 모델의 장기(역발상) 탭이 RSI를 뒤집어 쓰면서도 <strong>가중치를 28%가 아닌 18%로 낮춘 이유</strong>가 여기 있습니다.
+          역발상 관점에서 RSI는 <strong>보조 증거</strong>일 뿐, 주 증거는 마이어 배수와 365일 낙폭입니다.
+        </p>
+      </div>
+
+      <h2 id="case03">CASE 03 — 다이버전스의 두 얼굴 <span class="tag">판단 보류</span></h2>
+      <p>
+        RSI의 실패가 널리 알려지자 등장한 처방이 <strong>다이버전스(divergence)</strong>입니다.
+        <em>가격은 신저점을 찍었는데 RSI는 직전 저점보다 높다</em> → 강세 다이버전스 → 반등 임박.
+        반대면 약세 다이버전스. 이건 <strong>RSI의 실패를 RSI로 고치려는 시도</strong>입니다. 그래서 절반만 작동합니다.
+      </p>
+
+      <h3>다이버전스가 실제로 말하는 것 (대부분의 글이 안 짚는 부분)</h3>
+      <p>
+        강세 다이버전스의 수학적 의미를 정확히 옮기면 이렇습니다.
+      </p>
+      <pre><code>가격: 저점A ＞ 저점B   (더 낮은 저점)
+RSI : 저점A ＜ 저점B   (더 높은 RSI)
+
+→ 번역: "가격은 더 떨어졌다. 그런데 덜 격렬하게 떨어졌다."</code></pre>
+      <p>
+        이게 전부입니다. <strong>“바닥이다”라는 진술이 아닙니다.</strong> “하락 속도가 느려졌다”는 진술입니다.
+        그리고 하락 속도는 <strong>바닥에서만 느려지는 게 아닙니다.</strong>
+        급락 뒤에 <strong>질질 끄는 완만한 하락</strong>으로 성격이 바뀌기만 해도 다이버전스는 자동으로 발생합니다.
+        2022년 5~6월의 강세 다이버전스가 그랬습니다. 하락 속도는 확실히 느려졌고, 그 뒤에 <strong>추가로 40% 가까이 더 빠졌습니다.</strong>
+      </p>
+      <p>
+        약세 다이버전스도 마찬가지입니다. 2021년 4월 6만 4천 달러 고점 직전의 약세 다이버전스는 <strong>맞았습니다</strong> — 한 달 뒤 반토막이 났으니까요.
+        그런데 <strong>2020년 4분기 랠리 내내 약세 다이버전스는 반복적으로 출현했고 반복적으로 무효화됐습니다.</strong>
+        같은 패턴, 정반대 결과. <strong>사후에는 둘을 구분할 수 있지만, 사전에는 구분할 방법이 없습니다.</strong>
+      </p>
+
+      <h3>왜 우리는 “다이버전스 승률 ○○%”를 제시하지 않는가</h3>
+      <p>
+        인터넷의 RSI 글들은 “RSI 다이버전스 승률 70%” 같은 숫자를 자주 답니다. <strong>우리는 이 숫자를 제시하지 않을 겁니다.</strong> 이유는 정직하게 말해서 <strong>계산할 수가 없기 때문</strong>입니다.
+      </p>
+      <ul>
+        <li><strong>“저점”의 정의가 자의적입니다.</strong> 두 저점 사이 최소 간격을 5일로 잡느냐 20일로 잡느냐에 따라 다이버전스 개수가 몇 배씩 달라집니다.</li>
+        <li><strong>“성공”의 정의가 자의적입니다.</strong> 며칠 안에 몇 % 오르면 성공인가요? 3일 안에 2%면 성공, 아니면 실패? 기준을 조금만 바꾸면 승률이 40%대에서 70%대로 움직입니다.</li>
+        <li><strong>파라미터를 고르는 사람이 결과를 고릅니다.</strong> 승률 70%가 나오는 조합을 찾을 때까지 조합을 바꾸면, <strong>누구나 승률 70%를 만들 수 있습니다.</strong> 그건 발견이 아니라 <strong>과최적화(overfitting)</strong>입니다.</li>
+      </ul>
+      <p>
+        그래서 <strong>우리 모델의 코드에는 다이버전스 로직이 아예 없습니다.</strong>
+        RSI 시계열은 계산하지만(<code>rsiWilder(closes, 14)</code>), 점수 함수에 들어가는 건 <strong>마지막 값 하나뿐</strong>입니다.
+        나머지 시계열은 화면의 스파크라인 차트에만 쓰입니다. <strong>점수에는 1%도 기여하지 않습니다.</strong>
+      </p>
+      <div class="note">
+        재현 가능하지 않은 규칙은 점수에 넣지 않는다 — 이게 우리 원칙입니다.
+        <strong>다이버전스는 “차트를 보는 사람의 재량”이지 “함수”가 아닙니다.</strong>
+        재량이 들어가는 순간 점수는 <em>매번 다른 값</em>이 되고, 그러면 점수를 공개하는 의미가 사라집니다.
+        <strong>다이버전스가 쓸모없다는 뜻이 아닙니다. 우리가 그걸 정직한 숫자로 못 만들겠다는 뜻입니다.</strong>
+      </div>
+
+      <div class="verdict">
+        <b>■ 부검 소견</b>
+        <p>
+          다이버전스를 굳이 쓰겠다면 최소한 <strong>추세 필터와 동행할 때만</strong> 쓰세요.
+          강세 다이버전스 + 50일선이 200일선 위(골든 상태) + MACD 히스토그램 상향 전환 — 이 세 개가 겹칠 때와,
+          <strong>데드크로스 한복판의 다이버전스</strong>는 전혀 다른 사건입니다. 후자는 2022년에 수없이 나타났고 대부분 실패했습니다.
+        </p>
+      </div>
+
+      <h2 id="case04">CASE 04 — 계산식이 만든 유령 신호 <span class="tag">기술적</span></h2>
+      <p>
+        지금까지는 <strong>RSI를 잘못 읽어서</strong> 생긴 실패였습니다. 이번 건은 다릅니다.
+        <strong>RSI를 어떻게 계산했느냐만으로 신호가 통째로 뒤바뀌는</strong> 경우입니다. 그리고 이건 대부분의 투자자가 존재조차 모릅니다.
+      </p>
+      <p>
+        RSI에는 사실상 두 가지 계열이 있습니다.
+      </p>
+      <ul>
+        <li><strong>Wilder RSI</strong> — 창시자 J. Welles Wilder의 원본. 평균을 <code>(직전평균 × 13 + 오늘값) ÷ 14</code>로 갱신합니다. 지수평활이라 <strong>과거가 영원히 조금씩 남습니다.</strong></li>
+        <li><strong>Cutler RSI (단순평균 RSI)</strong> — 최근 14일을 <strong>그냥 산술평균</strong>합니다. 15일 전 데이터는 <strong>창밖으로 완전히 떨어져 나갑니다.</strong></li>
+      </ul>
+      <p>
+        많은 차트 도구가 “RSI”라고만 표기하고 어느 쪽인지 밝히지 않습니다. 그런데 이 차이가 만드는 결과는 <strong>사소하지 않습니다.</strong>
+      </p>
+
+      <h3>워크스루: 하루 만에 RSI가 37에서 96으로 뛰는 방법</h3>
+      <p>구성한 예시입니다. 가격 일간 변화가 다음과 같다고 합시다(단위는 임의).</p>
+      <pre><code>1일차 : −20    ← 급락 (예: 하루 −25% 폭락)
+2~15일차 : 매일 +1    (단, 8일차만 −0.5)
+
+즉 폭락 하루 뒤로는, 15일차까지 아무것도 달라진 게 없다.
+매일 조용히 같은 폭으로 회복 중일 뿐이다.</code></pre>
+      <p>이제 <strong>14일차</strong>와 <strong>15일차</strong>의 RSI를 두 방식으로 계산합니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>시점</th><th>Wilder RSI</th><th>Cutler(단순평균) RSI</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>14일차</td><td>36.9</td><td>36.9 <span class="muted">(동일 — 첫 값은 둘 다 단순평균 시드)</span></td></tr>
+            <tr><td><strong>15일차</strong></td><td><strong>39.0</strong> <span class="muted">(+2.1)</span></td><td><strong>96.3</strong> <span class="muted">(+59.4)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>15일차에 가격이 한 일은 “+1” 하나뿐입니다.</strong> 14일차와 똑같은 행동입니다.
+        그런데 단순평균 RSI는 <strong>36.9에서 96.3으로, 하루 만에 59점 넘게 튀어 올랐습니다.</strong>
+      </p>
+      <p>
+        이유는 간단합니다. 15일차가 되는 순간 <strong>1일차의 −20 폭락이 14일 창밖으로 떨어져 나갔기</strong> 때문입니다.
+        평균 하락폭 계산에서 폭락이 통째로 사라지자 분모가 무너졌고, RSI가 천장으로 솟았습니다.
+        이걸 <strong>드롭오프 효과(drop-off effect)</strong>라고 부릅니다.
+        <strong>시장이 한 일은 아무것도 없습니다. 달력이 한 일입니다.</strong>
+      </p>
+
+      <h3>이 유령이 우리 점수를 얼마나 흔드는가</h3>
+      <p>실제로 우리 모델의 RSI 변환 함수에 두 값을 넣어보면 이렇습니다. (함수 전문은 아래 평결 절에 있습니다.)</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>15일차 RSI</th><th>단기 점수 기여<br /><span class="muted">(RSI 부분점수 × 28%)</span></th><th>장기 점수 기여<br /><span class="muted">(RSI 부분점수 × 18%)</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wilder <strong>39.0</strong></td><td><code>9.1점</code></td><td><code>12.4점</code></td></tr>
+            <tr><td>Cutler <strong>96.3</strong></td><td><code>28.0점</code> <span class="muted">(최대치)</span></td><td><code>0.0점</code> <span class="muted">(최소치)</span></td></tr>
+            <tr><td><strong>차이</strong></td><td><strong>+18.9점</strong></td><td><strong>−12.4점</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        단순평균 RSI를 썼다면 <strong>단기 종합 점수가 19점 가까이 부풀고, 동시에 장기 종합 점수는 12점 넘게 깎였을 겁니다.</strong>
+        100점 만점 점수에서 19점이면 <strong>NEUTRAL(50점)이 ACCUMULATE/BUY(69점)로 밴드를 통째로 건너뜁니다.</strong>
+        <strong>가격은 아무것도 하지 않았는데 매수 신호가 켜지는 것</strong>입니다.
+      </p>
+      <p>
+        그래서 우리는 <strong>Wilder 방식만 씁니다.</strong> Wilder에서는 폭락의 영향이 창밖으로 “떨어지는” 게 아니라 <strong>서서히 옅어집니다.</strong>
+        충격이 하루 지날 때마다 <code>13/14 ≈ 0.9286</code>배로 줄어듭니다. 계산해 보면:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>폭락 이후 경과</th><th>Wilder 평균에 남아 있는 충격의 비율</th></tr></thead>
+          <tbody>
+            <tr><td>9.4일 <span class="muted">(반감기)</span></td><td>50%</td></tr>
+            <tr><td>14일</td><td>35.4% <span class="muted">← 단순평균이라면 이 시점에 0%로 급락</span></td></tr>
+            <tr><td>30일</td><td>10.8%</td></tr>
+            <tr><td>60일</td><td>1.2%</td></tr>
+            <tr><td>90일</td><td>0.1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Wilder RSI의 충격 반감기는 약 9.4일입니다.</strong> 이게 왜 중요하냐면,
+        <strong>대형 폭락은 한 달이 지나도 RSI에 10% 정도의 흔적을 남긴다</strong>는 뜻이기 때문입니다.
+        이게 결함처럼 보일 수 있지만, 오히려 <strong>시장의 실제 기억 구조와 더 닮아 있습니다.</strong>
+        큰 폭락 뒤 한 달은 여전히 “폭락의 그림자” 안이고, 우리는 그 흔적이 점수에 남아 있기를 원합니다.
+      </p>
+
+      <div class="verdict">
+        <b>■ 부검 소견</b>
+        <p>
+          쓰고 있는 차트 도구의 RSI가 <strong>Wilder인지 단순평균인지 반드시 확인하세요.</strong>
+          같은 코인, 같은 14일, 같은 날에 <strong>RSI 39와 RSI 96</strong>이 동시에 존재할 수 있습니다.
+          그리고 그중 하나는 <strong>순전히 달력이 만든 유령</strong>입니다.
+        </p>
+      </div>
+
+      <h2 id="verdict">평결 — 왜 우리는 RSI에 단기 28% · 장기 18%를 주는가</h2>
+      <p>
+        위 네 건의 부검 결과가 곧 우리 모델의 설계 근거입니다. 코드를 그대로 옮깁니다.
+      </p>
+      <pre><code>// 단기(모멘텀) — RSI가 높을수록 점수가 올라간다 (순방향)
+momRsi = clamp(50 + (RSI − 50) × 1.6, 0, 100)
+
+// 장기(역발상) — RSI가 낮을수록 점수가 올라간다 (역방향)
+conRsi = clamp(50 + (50 − RSI) × 1.7, 0, 100)</code></pre>
+      <p>
+        <strong>부호가 반대입니다.</strong> 같은 RSI 값이 두 탭에서 정반대 점수를 냅니다. 표로 보면 명확합니다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>RSI</th><th>단기 부분점수<br /><span class="muted">momRsi</span></th><th>단기 기여<br /><span class="muted">×28%</span></th><th>장기 부분점수<br /><span class="muted">conRsi</span></th><th>장기 기여<br /><span class="muted">×18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>15</code></td><td>0.0</td><td>0.00</td><td>100.0</td><td>18.00</td></tr>
+            <tr><td><code>25</code></td><td>10.0</td><td>2.80</td><td>92.5</td><td>16.65</td></tr>
+            <tr><td><code>30</code></td><td>18.0</td><td>5.04</td><td>84.0</td><td>15.12</td></tr>
+            <tr><td><code>50</code></td><td>50.0</td><td>14.00</td><td>50.0</td><td>9.00</td></tr>
+            <tr><td><code>70</code></td><td>82.0</td><td>22.96</td><td>16.0</td><td>2.88</td></tr>
+            <tr><td><code>80</code></td><td>98.0</td><td>27.44</td><td>0.0</td><td>0.00</td></tr>
+            <tr><td><code>90</code></td><td>100.0</td><td>28.00</td><td>0.0</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>CASE 01의 처방이 <code>momRsi</code>입니다.</strong> 단기 탭에서 RSI 80은 “팔아라”가 아니라 <strong>27.4점짜리 매수 근거</strong>입니다.
+        “과매수니까 매도”라는 파산 공식을 <strong>코드 레벨에서 차단</strong>한 겁니다.
+        <strong>CASE 02의 처방이 <code>conRsi</code>입니다.</strong> 장기 탭에서는 RSI 25가 16.7점의 매수 근거가 됩니다.
+        다만 <strong>단독으로는 부족하니 가중치를 18%로 눌렀습니다.</strong>
+      </p>
+
+      <h3>“28% vs 18%”의 진짜 의미 — 방향의 문제이지 품질의 문제가 아니다</h3>
+      <p>
+        많은 사람이 이 숫자를 <em>“단기에서 RSI가 더 정확하다”</em>로 읽습니다. <strong>틀린 독해입니다.</strong> 정확한 독해는 이렇습니다.
+      </p>
+      <ul>
+        <li>
+          <strong>단기(1~3개월)에서는 RSI를 순방향으로 쓸 수 있고, 그 용법이 잘 듣습니다.</strong>
+          비트코인은 짧은 구간에서 모멘텀 자산처럼 움직이고, RSI는 <strong>모멘텀의 가장 직접적인 측정치</strong>입니다.
+          쓸 수 있는 방향이 있으니 크게(28%) 씁니다.
+        </li>
+        <li>
+          <strong>장기(1년+)에서는 RSI의 창(14일)이 너무 짧습니다.</strong>
+          4년짜리 사이클을 <strong>14일짜리 자로 재려는</strong> 셈입니다. 도구가 대상에 맞지 않습니다.
+          그래서 사이클 판단의 주 증거는 <strong>마이어 배수(200일선 기준, 18%)</strong>와 <strong>365일 낙폭(14%)</strong>이 맡고,
+          RSI는 <strong>항복(capitulation)의 대리 지표</strong> 역할로 18%만 받습니다. 0%로 두지 않은 건 극단 구간(20 이하)에서는 여전히 유효하기 때문입니다.
+        </li>
+      </ul>
+
+      <h3>가중치 표가 감추는 것 — RSI의 실제 지배력은 28%보다 크다</h3>
+      <p>
+        여기서 <strong>우리 스스로도 뒤늦게 깨달은</strong> 사실 하나를 공개합니다.
+        <strong>가중치 %만 보면 각 지표의 영향력을 과소·과대평가하게 됩니다.</strong>
+        중요한 건 <strong>가중치 × 그 지표가 실제로 오가는 폭</strong>이기 때문입니다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단기 탭</th><th>명목 가중치</th><th>현실적 부분점수 범위</th><th>종합점수 실질 변동폭</th></tr></thead>
+          <tbody>
+            <tr><td><strong>RSI</strong></td><td>28%</td><td>RSI 15~90 → <code>0 ~ 100</code> <span class="muted">(전 구간 사용)</span></td><td><strong>28.0점</strong></td></tr>
+            <tr><td><strong>마이어 배수</strong></td><td>4%</td><td>배수 0.5~2.5 → <code>37.5 ~ 87.5</code> <span class="muted">(절반만 사용)</span></td><td><strong>2.0점</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        가중치만 보면 RSI는 마이어의 <strong>7배</strong>(28÷4)입니다. 그런데 <strong>실제 변동폭까지 감안하면 14배</strong>입니다.
+        <code>momRsi</code>의 기울기 1.6이 RSI를 <strong>0~100 전 구간으로 증폭</strong>시키는 반면,
+        <code>momMayer</code>의 기울기 25는 현실적 배수 범위(0.5~2.5)에서 <strong>부분점수의 절반밖에 못 씁니다.</strong>
+      </p>
+      <div class="note warn">
+        <strong>이건 좋은 소식이 아닙니다.</strong> 단기 종합 점수는 우리가 의도한 것보다 <strong>RSI에 더 심하게 의존</strong>합니다.
+        그리고 RSI는 CASE 01·02에서 봤듯 <strong>추세장에서 구조적으로 틀리는</strong> 바로 그 지표입니다.
+        <strong>즉 우리 단기 모델은 가장 취약한 지표에 가장 크게 노출돼 있습니다.</strong> 다음 절에서 이 문제를 계속 파고들겠습니다.
+      </div>
+
+      <h2 id="confession">자백 — 우리 모델이 지금도 RSI 때문에 틀리는 곳</h2>
+      <p>
+        지표를 파는 글은 지표를 칭찬합니다. 우리는 반대로 하겠습니다.
+        <strong>아래는 우리 코드에 실제로 존재하는 결함입니다.</strong> 고칠 수 있는 것도, 못 고치는 것도 있습니다.
+      </p>
+      <ol class="confess">
+        <li>
+          <strong>포화 구간 — RSI 82와 RSI 95를 구분하지 못합니다.</strong><br />
+          <code>momRsi</code>는 <strong>RSI 81.25 이상에서 전부 100점</strong>입니다. <code>conRsi</code>는 <strong>RSI 20.59 이하에서 전부 100점</strong>입니다.
+          즉 장기 모델은 <strong>2020년 3월 코로나 급락(RSI 10대)과 평범한 조정(RSI 20)을 같은 값으로 봅니다.</strong>
+          가장 중요한 극단 구간에서 <strong>해상도가 0</strong>이라는 뜻입니다. 이건 클램핑의 대가이고, 우리는 아직 더 나은 해법을 못 찾았습니다.
+        </li>
+        <li>
+          <strong>블로우오프 톱 가드가 마이어 배수에 의존합니다 — 그리고 그게 없으면 안 걸립니다.</strong><br />
+          단기 탭에는 사이클 꼭지 매수를 막는 안전장치가 있습니다: <code>if (mayer &gt; 2.0) 점수 × (1 − (mayer − 2.0) × 0.55)</code>.
+          이게 왜 필요하냐면, <strong>가드가 없으면 우리 단기 모델은 버블 꼭지에서 STRONG BUY를 찍기 때문입니다.</strong> 손으로 계산해 보면:
+          <pre><code>가정 — 사이클 꼭지: RSI 88 · 공포탐욕 94 · 마이어 2.5 · 낙폭 −2% · 골든 상태
+
+RSI    부분점수 100 (포화) × 28% = 28.0   ← 가장 큰 블록
+F&amp;G    부분점수 100 (포화) × 28% = 28.0
+낙폭    부분점수  97.4     × 18% = 17.5
+MACD   부분점수  90       × 14% = 12.6
+크로스  부분점수  65       ×  8% =  5.2
+마이어  부분점수  87.5     ×  4% =  3.5
+─────────────────────────────────────
+원점수 = 94.8  →  STRONG BUY (버블 꼭지에서!)
+
+블로우오프 가드 적용:
+  마이어 2.5 → × 0.725  →  68.8
+  F&amp;G 94 ≥ 90 → − 8     →  60.8  →  NEUTRAL</code></pre>
+          가드가 <strong>34점을 깎아냈습니다.</strong> 그런데 코드를 보면 조건이 <code>mayer != null &amp;&amp; mayer &gt; 2.0</code>입니다.
+          <strong>200일 데이터가 없는 신규 상장 자산은 마이어 배수가 <code>null</code>이라 이 가드가 아예 작동하지 않습니다.</strong>
+          그런 자산이 파라볼릭 랠리를 하면, <strong>우리 단기 점수는 꼭지에서 STRONG BUY를 낼 수 있습니다.</strong>
+          그리고 그 점수의 가장 큰 블록은 <strong>RSI 28점</strong>입니다. 이건 알려진 결함이고, 대시보드의 <strong>커버리지 표시(<code>coverage 5/6</code>)</strong>가 유일한 경고 장치입니다.
+        </li>
+        <li>
+          <strong>두 탭이 정반대를 가리킬 때, 우리는 어느 쪽이 맞는지 모릅니다.</strong><br />
+          RSI 14, 공포탐욕 6, 마이어 0.52, 낙폭 −74%인 항복 국면을 넣으면 이렇게 나옵니다.
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>단기(모멘텀)</th><th>장기(역발상)</th></tr></thead>
+              <tbody>
+                <tr><td>RSI 부분점수</td><td>0.0</td><td>100.0</td></tr>
+                <tr><td>RSI 기여</td><td><code>0.0점</code></td><td><code>18.0점</code></td></tr>
+                <tr><td><strong>종합 점수</strong></td><td><strong>11.7 → AVOID</strong></td><td><strong>83.5 → STRONG BUY</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <strong>같은 순간, 같은 데이터, 71.8점 차이.</strong> 버그가 아니라 설계입니다 — 시간 지평이 다르니까요.
+          하지만 정직하게 말하면, <strong>이 모델은 “당신에게 지금 어느 탭이 맞는지”를 알려주지 못합니다.</strong>
+          그건 당신의 보유 기간과 위험 감내 수준의 문제이고, <strong>우리 점수가 대신 결정해 줄 수 없습니다.</strong>
+        </li>
+        <li>
+          <strong>기간 14일은 그냥 관습입니다.</strong><br />
+          Wilder가 1978년에 <strong>주식·상품 시장</strong>을 보고 고른 숫자입니다. 24시간 거래되는 암호화폐를 위해 검증된 값이 아닙니다.
+          코인마다, 변동성 국면마다 최적 창은 다를 게 거의 확실합니다. 그럼에도 우리는 <strong>14로 고정</strong>했습니다.
+          코인별로 다르게 튜닝하면 성능이 좋아 보이겠지만, 그건 <strong>과최적화</strong>일 뿐이고 미래에는 무너집니다.
+          <strong>“차선인 걸 알면서도 고정한 값”</strong>이라고 부르는 게 정확합니다.
+        </li>
+        <li>
+          <strong>소수점은 의미가 없습니다.</strong><br />
+          RSI는 <strong>어느 거래소의, 몇 시 기준 종가</strong>를 쓰느냐에 따라 달라집니다. UTC 자정과 KST 자정은 다른 값을 냅니다.
+          소스가 다르면 같은 날 RSI가 <strong>2~3 정도 차이 나는 건 흔합니다.</strong>
+          그러면 <code>momRsi</code>의 기울기 1.6을 타고 종합 점수에 <strong>0.9점 정도의 오차</strong>가 자동으로 실립니다.
+          <strong>우리 점수의 소수점 첫째 자리는 소음입니다.</strong> 68.4와 68.9를 구분하지 마세요.
+        </li>
+        <li>
+          <strong>RSI는 새 정보를 만들지 않습니다.</strong><br />
+          이 글의 가장 중요한 문장일지도 모릅니다. RSI는 <strong>가격에서 파생된 값</strong>입니다.
+          가격이 이미 알려준 것을 <strong>다시 배열해서 보여줄 뿐</strong>, 시장에 없던 정보를 추가하지 않습니다.
+          <strong>RSI는 후행 지표이고, 후행 지표는 미래를 알지 못합니다.</strong> 이건 고칠 수 있는 결함이 아니라 <strong>지표의 본질</strong>입니다.
+        </li>
+      </ol>
+
+      <h2 id="rules">그래서 RSI를 버려야 하는가 — 아니오, 이렇게 쓰세요</h2>
+      <p>
+        네 건의 부검과 여섯 건의 자백을 거쳤지만, 결론은 “RSI는 쓰레기”가 아닙니다.
+        <strong>“RSI는 단독 신호가 아니다”</strong>입니다. 실무 규칙으로 압축하면 이렇습니다.
+      </p>
+      <ol>
+        <li>
+          <strong>RSI를 읽기 전에 추세부터 읽으세요.</strong> 50일선이 200일선 위인지 아래인지를 먼저 확인하십시오.
+          <strong>추세 상태를 모르면 RSI 값은 해석할 수 없습니다.</strong>
+        </li>
+        <li>
+          <strong>상승 추세에서 RSI의 하한선은 30이 아니라 40~50입니다.</strong> 이 구간의 RSI 45는 “과매도”가 아니라 <strong>눌림목</strong>입니다.
+          거꾸로 <strong>하락 추세에서 RSI의 상한선은 70이 아니라 50~60입니다.</strong> 하락장에서 RSI 60은 “과매수”가 아니라 <strong>반등의 끝</strong>일 수 있습니다.
+          <strong>30/70이라는 숫자는 횡보장 전용입니다.</strong>
+        </li>
+        <li>
+          <strong>RSI 30~70 사이는 거의 아무 말도 하지 않습니다.</strong> 이 구간의 RSI 변동으로 매매 결정을 내리지 마세요.
+          RSI가 단독으로 의미를 갖는 건 <strong>극단(20 이하 / 85 이상)</strong>뿐이고, 거기서도 다른 지표의 동의가 필요합니다.
+        </li>
+        <li>
+          <strong>도구의 RSI가 Wilder인지 확인하세요.</strong> CASE 04에서 봤듯, 단순평균 RSI는 <strong>달력이 만든 유령 신호</strong>를 냅니다.
+        </li>
+        <li>
+          <strong>대시보드의 두 탭이 반대로 나와도 놀라지 마세요.</strong> 그건 <strong>“단기와 장기가 반대 방향을 가리키는 국면”</strong>이라는 유용한 정보입니다.
+          보통 <strong>바닥(장기 매수 / 단기 회피)</strong>이나 <strong>꼭지(단기 매수 / 장기 회피)</strong>에서 나타납니다.
+        </li>
+        <li>
+          <strong>커버리지를 확인하세요.</strong> <code>coverage 5/6 (82% weight)</code>처럼 표시되면 지표 하나가 빠졌다는 뜻이고,
+          빠진 게 마이어 배수라면 <strong>블로우오프 가드가 꺼져 있다</strong>는 뜻입니다(자백 02번).
+        </li>
+      </ol>
+
+      <div class="note">
+        <strong>이 글의 한 줄 요약</strong><br />
+        RSI는 <strong>“얼마나 비싼가”가 아니라 “최근 얼마나 일관되게 올랐는가”</strong>를 잽니다.
+        그 둘을 혼동하는 순간 — 즉 <strong>“과매수 = 비쌈 = 매도”</strong>로 번역하는 순간 — RSI는 손실 기계가 됩니다.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ 투자 유의</strong><br />
+        본 문서는 <strong>교육·참고 목적</strong>이며 <strong>투자 자문이나 매수·매도 권유가 아닙니다.</strong>
+        본문의 역사적 서술과 RSI 수치는 일봉 종가 기준의 <strong>대략적인 값</strong>이며, 데이터 소스·거래소·기준 시간대에 따라 달라집니다.
+        “가정” 표시가 붙은 계산은 <strong>실제 시장 데이터가 아니라 모델 동작을 보여주기 위해 구성한 예시</strong>입니다.
+        암호화폐는 <strong>원금 전액 손실</strong>이 가능한 고위험 자산이며, 과거의 패턴은 미래를 보장하지 않습니다.
+        모든 투자 판단과 그 결과에 대한 책임은 전적으로 이용자 본인에게 있습니다. 반드시 스스로 조사하세요(DYOR).
+      </div>
+
+      <h2>이어서 읽기</h2>
+      <div class="related">
+        <a href="/methodology.html"><b>점수 방법론</b><span>6개 지표를 어떤 가중치로 합성하는가 — 수치 전체 공개</span></a>
+        <a href="/indicators.html"><b>6개 지표 해설</b><span>RSI 외 5개 지표는 각각 언제 배신하는가</span></a>
+        <a href="/guide-fear-greed.html"><b>공포지수 실전 활용법</b><span>공포 구간 분할 매수 절차와 흔한 실수</span></a>
+        <a href="/glossary.html"><b>용어집</b><span>Wilder 평활·다이버전스·커버리지…</span></a>
+        <a href="/"><b>대시보드로</b><span>지금 RSI와 두 탭 점수 확인하기</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy.html">개인정보처리방침</a> · <a href="/terms.html">이용약관</a></footer>
+    </main>
+  </body>
+</html>
