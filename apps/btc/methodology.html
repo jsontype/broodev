@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>매수 타이밍 점수는 어떻게 계산되는가 — 6개 지표 합성 방법론 | broodev</title>
+    <meta name="description" content="broodev 매수 타이밍 점수(0~100)의 설계 문서. 6개 지표를 0~100 부분점수로 정규화하는 함수, 단기(모멘텀)·장기(역발상) 두 가중치 세트, 결측 지표 재정규화, 5단계 판정 밴드와 이 모델의 한계를 공개합니다." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://broodev.com/methodology.html" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="매수 타이밍 점수는 어떻게 계산되는가 — 6개 지표 합성 방법론" />
+    <meta property="og:description" content="6개 지표를 0~100으로 정규화해 합성하는 방식, 단기·장기 두 가중치 세트, 결측 재정규화, 판정 밴드와 한계를 공개한 설계 문서." />
+    <meta property="og:url" content="https://broodev.com/methodology.html" />
+    <link rel="stylesheet" href="/content.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <nav class="nav">
+        <a href="/">← 대시보드</a>
+        <a href="/indicators.html">지표 해설</a>
+        <a href="/glossary.html">용어집</a>
+        <a href="/guide-fear-greed.html">공포지수 활용법</a>
+      </nav>
+
+      <h1>매수 타이밍 점수는 어떻게 계산되는가</h1>
+      <p class="muted">최종 수정: 2026-07-14 · 작성: Y-Systems · 대상: broodev 매수 타이밍 점수 v2</p>
+
+      <p class="lead">
+        broodev 대시보드가 보여주는 <strong>0~100 매수 타이밍 점수</strong>는 블랙박스가 아닙니다.
+        6개의 공개 지표를 각각 0~100 부분점수로 바꾼 뒤 가중 평균한 값입니다.
+        이 문서는 <strong>어떤 함수로 정규화하고, 어떤 가중치를 쓰고, 왜 그렇게 정했는지</strong>를 그대로 공개합니다.
+        수치를 신뢰할지 판단하려면 계산식을 볼 수 있어야 한다고 보기 때문입니다.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">목차</div>
+        <ol>
+          <li><a href="#design">설계 원칙 — 왜 지표 하나로는 안 되는가</a></li>
+          <li><a href="#normalize">1단계: 6개 지표를 0~100으로 정규화</a></li>
+          <li><a href="#weights">2단계: 두 개의 가중치 세트 (단기·장기)</a></li>
+          <li><a href="#missing">3단계: 결측 지표와 가중치 재정규화</a></li>
+          <li><a href="#bands">4단계: 5단계 판정 밴드</a></li>
+          <li><a href="#limits">이 모델의 한계 (반드시 읽을 것)</a></li>
+        </ol>
+      </div>
+
+      <h2 id="design">설계 원칙 — 왜 지표 하나로는 안 되는가</h2>
+      <p>
+        “공포지수가 바닥이니 지금 사라”는 말은 절반만 맞습니다. 공포는 <strong>바닥에서도 나오지만 폭락 한복판에서도 나옵니다.</strong>
+        공포지수만 보고 들어가면 이른바 <strong>‘떨어지는 칼날 잡기’</strong>가 됩니다.
+      </p>
+      <p>
+        그래서 이 모델은 성격이 다른 지표를 섞습니다. 크게 세 부류입니다.
+      </p>
+      <ul>
+        <li><strong>역발상(mean-reversion)</strong> — 공포·탐욕 지수, 마이어 배수, 365일 낙폭. “남들이 팔 때가 기회”라는 축.</li>
+        <li><strong>모멘텀(trend-following)</strong> — MACD, 골든·데드 크로스. “추세는 이어진다”는 축.</li>
+        <li><strong>과열/침체 판별</strong> — RSI. 양쪽 모두에서 쓰이는 완충재.</li>
+      </ul>
+      <p>
+        이 두 축은 <strong>서로 반대 방향을 가리킬 때가 많습니다.</strong> 그게 핵심입니다.
+        역발상 지표만 보면 하락장에서 계속 “사라” 신호가 나오고, 모멘텀 지표만 보면 고점에서 “사라” 신호가 나옵니다.
+        섞어야 <em>“공포스러운데 추세는 이미 돌아섰다”</em> 같은 국면을 구분할 수 있습니다.
+      </p>
+
+      <h2 id="normalize">1단계: 6개 지표를 0~100으로 정규화</h2>
+      <p>단위가 제각각인 지표(RSI는 0~100, 마이어 배수는 0.5~3, 낙폭은 %)를 합치려면 먼저 공통 척도로 바꿔야 합니다. <strong>100에 가까울수록 매수 우호</strong>가 되도록 변환합니다.</p>
+
+      <h3>공포·탐욕 지수 (F&amp;G) — 현재값 + 추세 + 극단 보너스</h3>
+      <p>단순히 <code>100 - 공포지수</code>로 뒤집지 않습니다. 하루치 값은 노이즈가 크기 때문에 <strong>최근 7일·30일 평균을 함께</strong> 봅니다.</p>
+      <pre><code>점수 = 0.5 × (100 − 현재값)
+     + 0.3 × (100 − 최근 7일 평균)
+     + 0.2 × (100 − 최근 30일 평균)
+
+// 극단 구간 가중
+현재값 ≤ 25 (극단적 공포) → 점수 += (25 − 현재값) × 0.4
+현재값 ≥ 75 (극단적 탐욕) → 점수 −= (현재값 − 75) × 0.4
+
+최종 0~100으로 클램프</code></pre>
+      <p>
+        의도는 두 가지입니다. 첫째, <strong>“어제 하루 공포”와 “한 달째 공포”를 구분</strong>합니다 — 후자가 훨씬 강한 신호입니다.
+        둘째, 25 이하·75 이상의 <strong>극단 구간에서만 추가 가중</strong>을 줍니다. 중간 구간(40~60)의 미세한 변동은 의미가 거의 없기 때문입니다.
+      </p>
+
+      <h3>마이어 배수 (Mayer Multiple) — 구간별 비선형 변환</h3>
+      <p>마이어 배수는 <code>현재가 ÷ 200일 이동평균</code>입니다. 1보다 작으면 장기 추세선 아래, 즉 상대적 저평가입니다. 선형이 아니라 <strong>구간별로</strong> 변환합니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>마이어 배수</th><th>부분점수</th><th>해석</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100</td><td>200일선 대비 20% 이상 할인 — 역사적 저평가 구간</td></tr>
+            <tr><td><code>0.8 ~ 1.4</code></td><td>100 → 50</td><td>정상~약간 고평가</td></tr>
+            <tr><td><code>1.4 ~ 2.4</code></td><td>50 → 10</td><td>과열 진입</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>극단적 과열 (역사적 고점권)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>0.8과 2.4</strong>라는 경계는 임의로 정한 게 아닙니다. 마이어 배수를 고안한 트레이스 마이어(Trace Mayer)가
+        제시한 관찰 — <em>배수 2.4 이상에서 매수하면 장기 성과가 급격히 나빠진다</em> — 에서 가져온 값입니다.
+        아래쪽 0.8은 200일선 대비 20% 할인 지점으로, 과거 사이클에서 바닥권과 자주 겹쳤습니다.
+      </p>
+
+      <h3>RSI(14, Wilder)</h3>
+      <p>표준 Wilder 방식 14일 RSI입니다. <strong>30 미만 = 과매도(매수 우호), 70 초과 = 과매수(경계)</strong>로 매핑합니다. 다만 단기 모드와 장기 모드에서 <strong>해석 방향이 다릅니다</strong>(아래 참조).</p>
+
+      <h3>MACD(12·26·9) 히스토그램</h3>
+      <p>
+        MACD 히스토그램의 <strong>절대값이 아니라 방향 전환</strong>을 봅니다. 즉 “히스토그램이 음수인데 직전 봉보다 커졌다”(바닥에서 상향 전환)가 가장 강한 매수 모멘텀 신호입니다.
+        가격 규모로 나눠 정규화하므로 코인 가격대가 달라도 비교 가능합니다.
+      </p>
+
+      <h3>365일 고점 대비 낙폭 (Drawdown)</h3>
+      <p>최근 1년 최고가에서 얼마나 떨어졌는지입니다. <strong>−30%부터 관심, −50% 이상이면 강한 매수 우호</strong>로 봅니다. 깊은 낙폭일수록 분할 매수 구간으로 취급합니다.</p>
+
+      <h3>골든·데드 크로스 (50/200 이동평균)</h3>
+      <p>50일선이 200일선 위에 있으면(골든크로스 상태) 추세가 우호적, 아래면(데드크로스) 비우호적입니다. <strong>추세 필터</strong> 역할이라 가중치는 상대적으로 작습니다.</p>
+
+      <h2 id="weights">2단계: 두 개의 가중치 세트 (단기·장기)</h2>
+      <p>
+        여기가 이 모델의 핵심이자, 대부분의 “공포지수 사이트”와 갈리는 지점입니다.
+        <strong>같은 지표라도 투자 기간이 다르면 반대로 해석해야 합니다.</strong>
+      </p>
+      <p>
+        암호화폐는 <strong>짧은 구간에서는 모멘텀(추세추종) 성격</strong>, <strong>긴 사이클에서는 평균회귀(역발상) 성격</strong>을 보입니다.
+        1~3개월 관점에서는 오르는 게 더 오르고, 1년 이상 관점에서는 극단적 공포·저평가가 결국 되돌려집니다.
+        그래서 <strong>두 개의 탭(단기·장기)에 각각 다른 가중치</strong>를 씁니다.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>지표</th><th>단기 (모멘텀·1~3개월)</th><th>장기 (역발상·1년+)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td><strong>28%</strong></td><td>18%</td></tr>
+            <tr><td>공포·탐욕 지수</td><td><strong>28%</strong></td><td>18%</td></tr>
+            <tr><td>365일 낙폭</td><td>18%</td><td>14%</td></tr>
+            <tr><td>MACD</td><td>14%</td><td>18%</td></tr>
+            <tr><td>골든·데드 크로스</td><td>8%</td><td>14%</td></tr>
+            <tr><td>마이어 배수</td><td><strong>4%</strong></td><td><strong>18%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>가장 눈에 띄는 차이는 <strong>마이어 배수(4% → 18%)</strong>입니다. 이유는 명확합니다.</p>
+      <ul>
+        <li><strong>단기에선 밸류에이션이 거의 무의미합니다.</strong> 200일선 대비 비싸다고 해서 다음 달에 떨어진다는 보장이 없습니다. 오히려 비싼 상태로 더 오릅니다. 그래서 4%로 최소화했습니다.</li>
+        <li><strong>장기에선 밸류에이션이 가장 강력합니다.</strong> 사이클 단위로 보면 200일선에서 크게 벗어난 가격은 결국 회귀합니다. 그래서 18%로 최상위권에 놓았습니다.</li>
+      </ul>
+      <p>
+        반대로 <strong>골든·데드 크로스는 장기에서 더 무겁습니다(8% → 14%)</strong>. 50/200 크로스는 느린 신호라 단기 매매에는 늦지만,
+        사이클 국면을 가르는 데는 유효하기 때문입니다.
+      </p>
+
+      <div class="note">
+        <strong>단기 탭에서 RSI·공포지수의 해석이 뒤집힙니다.</strong>
+        장기(역발상) 모드에서는 “공포 = 매수”지만, 단기(모멘텀) 모드에서는 추세가 살아있고 심리가 개선되는 쪽에 높은 점수를 줍니다.
+        같은 공포지수 20이라도 <em>장기 탭에서는 고득점, 단기 탭에서는 저득점</em>이 나올 수 있습니다. 버그가 아니라 설계입니다.
+      </div>
+
+      <p class="muted">
+        이 가중치는 자체 백테스트(2017년 이후 BTC 일봉)에서 단기 구간은 모멘텀 방향이, 장기 구간은 역발상 방향이
+        선행 수익률과 더 잘 정렬된다는 결과를 근거로 정했습니다. 다만 표본이 한정된 단일 자산 백테스트이며,
+        <strong>과거의 정렬이 미래를 보장하지 않습니다.</strong>
+      </p>
+
+      <h2 id="missing">3단계: 결측 지표와 가중치 재정규화</h2>
+      <p>
+        데이터 소스(CoinGecko·Binance·Alternative.me)가 항상 응답하는 건 아닙니다. 일부 지역에서 Binance API가 차단되기도 하고,
+        신규 상장 코인은 200일 데이터가 아예 없어 마이어 배수를 계산할 수 없습니다.
+      </p>
+      <p>
+        이때 <strong>결측 지표를 0점으로 처리하면 안 됩니다.</strong> 0점은 “매우 나쁨”이라는 뜻이지 “모름”이 아니기 때문입니다.
+        그러면 데이터가 없다는 이유만으로 점수가 폭락합니다.
+      </p>
+      <p>
+        그래서 결측 지표는 <strong>계산에서 제외하고, 남은 지표들의 가중치를 합이 100%가 되도록 재정규화</strong>합니다.
+        예를 들어 마이어 배수(장기 18%)가 없으면, 나머지 5개 지표의 가중치를 <code>82%</code>로 나눠 다시 스케일합니다.
+      </p>
+      <p>
+        대신 <strong>대시보드와 터미널에 커버리지를 표시</strong>합니다 (<code>coverage: 5/6 indicators (82% weight)</code>).
+        커버리지가 낮은 점수는 그만큼 신뢰도가 낮다는 뜻이니 반드시 확인하세요.
+      </p>
+
+      <h2 id="bands">4단계: 5단계 판정 밴드</h2>
+      <p>합성된 0~100 점수를 다섯 구간으로 나눠 해석을 붙입니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>점수</th><th>판정</th><th>의미</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td>과매도 + 공포 + 저평가가 동시에 겹친 다중 합류 구간</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong></td><td>매수 우호. 분할 적립에 유리</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td>뚜렷한 우위 없음. 관망</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong></td><td>탐욕·고평가 초입. 추격 매수 자제</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong></td><td>과열·고점 근접. 신규 매수 경계</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        경계는 <strong>연속적인 점수를 억지로 자른 것</strong>입니다. 79점과 81점은 실질적으로 같습니다.
+        밴드는 대략적인 국면 구분으로만 쓰고, <strong>점수의 추이(올라가는 중인가, 내려가는 중인가)</strong>를 함께 보세요.
+      </p>
+
+      <h2 id="limits">이 모델의 한계 (반드시 읽을 것)</h2>
+      <p>솔직하게 적습니다. 이 점수가 <strong>못 하는 일</strong>이 무엇인지 아는 게 더 중요합니다.</p>
+      <ul>
+        <li>
+          <strong>가격을 예측하지 않습니다.</strong> 이 점수는 “현재 시장이 과매도·공포 쪽인가, 과열·탐욕 쪽인가”를 요약할 뿐입니다.
+          점수 90이 “오른다”는 뜻이 아니라 “역사적으로 이런 국면이었다”는 뜻입니다.
+        </li>
+        <li>
+          <strong>기술적 지표는 강추세장에서 오래 틀립니다.</strong> RSI는 강한 하락장에서 몇 주씩 30 아래에 머물 수 있습니다.
+          “과매도니까 반등”이 아니라 “과매도인 채로 더 빠짐”이 흔합니다.
+        </li>
+        <li>
+          <strong>펀더멘털·뉴스·규제를 전혀 모릅니다.</strong> 거래소 파산, 규제 발표, 해킹 같은 사건은 이 6개 지표에 즉시 반영되지 않습니다.
+          차트가 예쁜데 회사가 무너지는 중일 수 있습니다.
+        </li>
+        <li>
+          <strong>공포·탐욕 지수는 시장 전체 지표입니다.</strong> Alternative.me의 F&amp;G는 사실상 BTC 중심의 시장 심리이며,
+          개별 알트코인의 고유 상황을 반영하지 않습니다. 알트코인 화면에서 이 지표의 해석력은 BTC보다 떨어집니다.
+        </li>
+        <li>
+          <strong>알트코인은 데이터가 얕습니다.</strong> 상장 기간이 짧으면 200일선·365일 고점이 부정확하거나 아예 없습니다. 커버리지 표시를 꼭 확인하세요.
+        </li>
+        <li>
+          <strong>가중치는 저자의 판단입니다.</strong> 백테스트로 방향은 확인했지만, 28%와 24% 중 무엇이 옳은지는 데이터가 딱 잘라 말해주지 않습니다.
+        </li>
+      </ul>
+
+      <div class="note warn">
+        <strong>⚠ 투자 유의</strong><br />
+        이 점수는 공개 지표를 합성한 <strong>참고 신호이며 투자 자문이 아닙니다.</strong>
+        암호화폐는 원금 전액 손실이 가능한 고위험 자산입니다. 모든 투자 판단과 그 결과에 대한 책임은 전적으로 이용자 본인에게 있습니다. 반드시 스스로 조사하세요(DYOR).
+      </div>
+
+      <h2>이어서 읽기</h2>
+      <div class="related">
+        <a href="/indicators.html"><b>6개 지표 심층 해설</b><span>RSI·MACD·마이어 배수·낙폭·크로스가 각각 무엇을 말하는가</span></a>
+        <a href="/guide-fear-greed.html"><b>공포지수 실전 활용법</b><span>공포 구간에서 분할 매수하는 방법과 흔한 실수</span></a>
+        <a href="/glossary.html"><b>용어집</b><span>이 사이트에 나오는 지표 용어 정리</span></a>
+        <a href="/"><b>대시보드로</b><span>지금 점수 확인하기 (15종 코인)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy.html">개인정보처리방침</a> · <a href="/terms.html">이용약관</a></footer>
+    </main>
+  </body>
+</html>
