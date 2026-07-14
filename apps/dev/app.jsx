@@ -10,20 +10,20 @@ const COMPANY = { operator: 'Y-Systems', ceo: 'jsontype', email: 'jsontyper@gmai
 /* ---- 앱 카탈로그 (이름/링크 고정 · 설명/카테고리는 i18n 번들에서 조회) ---- */
 const APPS = [
   { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: 'crypto', status: 'live', tags: ['비트코인', '공포지수', '실시간'] },
-  { slug: 'eth',  name: 'ETH_SIGNAL',  url: 'https://broodev.com/?coin=eth',  category: 'crypto', status: 'live', tags: ['이더리움', '공포지수'] },
-  { slug: 'xrp',  name: 'XRP_SIGNAL',  url: 'https://broodev.com/?coin=xrp',  category: 'crypto', status: 'live', tags: ['리플', 'XRP'] },
-  { slug: 'doge', name: 'DOGE_SIGNAL', url: 'https://broodev.com/?coin=doge', category: 'crypto', status: 'live', tags: ['도지코인', '밈코인'] },
-  { slug: 'bch',  name: 'BCH_SIGNAL',  url: 'https://broodev.com/?coin=bch',  category: 'crypto', status: 'live', tags: ['비트코인캐시', 'BCH'] },
-  { slug: 'link', name: 'LINK_SIGNAL', url: 'https://broodev.com/?coin=link', category: 'crypto', status: 'live', tags: ['체인링크', 'LINK'] },
-  { slug: 'xlm',  name: 'XLM_SIGNAL',  url: 'https://broodev.com/?coin=xlm',  category: 'crypto', status: 'live', tags: ['스텔라', 'XLM'] },
-  { slug: 'ltc',  name: 'LTC_SIGNAL',  url: 'https://broodev.com/?coin=ltc',  category: 'crypto', status: 'live', tags: ['라이트코인', 'LTC'] },
-  { slug: 'avax', name: 'AVAX_SIGNAL', url: 'https://broodev.com/?coin=avax', category: 'crypto', status: 'live', tags: ['아발란체', 'AVAX'] },
-  { slug: 'shib', name: 'SHIB_SIGNAL', url: 'https://broodev.com/?coin=shib', category: 'crypto', status: 'live', tags: ['시바이누', '밈코인'] },
-  { slug: 'dot',  name: 'DOT_SIGNAL',  url: 'https://broodev.com/?coin=dot',  category: 'crypto', status: 'live', tags: ['폴카닷', 'DOT'] },
-  { slug: 'pepe', name: 'PEPE_SIGNAL', url: 'https://broodev.com/?coin=pepe', category: 'crypto', status: 'live', tags: ['페페', '밈코인'] },
-  { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://broodev.com/?coin=grt',  category: 'crypto', status: 'live', tags: ['더그래프', 'GRT'] },
-  { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://broodev.com/?coin=sand', category: 'crypto', status: 'live', tags: ['샌드박스', 'SAND'] },
-  { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://broodev.com/?coin=mana', category: 'crypto', status: 'live', tags: ['디센트럴랜드', 'MANA'] },
+  { slug: 'eth',  name: 'ETH_SIGNAL',  url: 'https://eth.broodev.com',  category: 'crypto', status: 'live', tags: ['이더리움', '공포지수'] },
+  { slug: 'xrp',  name: 'XRP_SIGNAL',  url: 'https://xrp.broodev.com',  category: 'crypto', status: 'live', tags: ['리플', 'XRP'] },
+  { slug: 'doge', name: 'DOGE_SIGNAL', url: 'https://doge.broodev.com', category: 'crypto', status: 'live', tags: ['도지코인', '밈코인'] },
+  { slug: 'bch',  name: 'BCH_SIGNAL',  url: 'https://bch.broodev.com',  category: 'crypto', status: 'live', tags: ['비트코인캐시', 'BCH'] },
+  { slug: 'link', name: 'LINK_SIGNAL', url: 'https://link.broodev.com', category: 'crypto', status: 'live', tags: ['체인링크', 'LINK'] },
+  { slug: 'xlm',  name: 'XLM_SIGNAL',  url: 'https://xlm.broodev.com',  category: 'crypto', status: 'live', tags: ['스텔라', 'XLM'] },
+  { slug: 'ltc',  name: 'LTC_SIGNAL',  url: 'https://ltc.broodev.com',  category: 'crypto', status: 'live', tags: ['라이트코인', 'LTC'] },
+  { slug: 'avax', name: 'AVAX_SIGNAL', url: 'https://avax.broodev.com', category: 'crypto', status: 'live', tags: ['아발란체', 'AVAX'] },
+  { slug: 'shib', name: 'SHIB_SIGNAL', url: 'https://shib.broodev.com', category: 'crypto', status: 'live', tags: ['시바이누', '밈코인'] },
+  { slug: 'dot',  name: 'DOT_SIGNAL',  url: 'https://dot.broodev.com',  category: 'crypto', status: 'live', tags: ['폴카닷', 'DOT'] },
+  { slug: 'pepe', name: 'PEPE_SIGNAL', url: 'https://pepe.broodev.com', category: 'crypto', status: 'live', tags: ['페페', '밈코인'] },
+  { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://grt.broodev.com',  category: 'crypto', status: 'live', tags: ['더그래프', 'GRT'] },
+  { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://sand.broodev.com', category: 'crypto', status: 'live', tags: ['샌드박스', 'SAND'] },
+  { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://mana.broodev.com', category: 'crypto', status: 'live', tags: ['디센트럴랜드', 'MANA'] },
   { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: 'learn',  status: 'live', tags: ['단어암기', '깜빡이', 'CSV'] },
   { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: 'learn', status: 'live', tags: ['튜토리얼', '사용법', '깜빡이'] },
 ];
@@ -327,7 +327,7 @@ function App() {
             <span className="topbar-title">{current ? current.label : 'broodev'}</span>
             <div className="topbar-right">
               <LangSelect lang={lang} setLang={setLang} />
-              <a className="chip" href="https://broodev.com" target="_blank" rel="noopener">btc ↗</a>
+              <a className="chip" href="https://btc.broodev.com" target="_blank" rel="noopener">btc ↗</a>
               <Clock />
             </div>
           </header>
