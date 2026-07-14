@@ -290,14 +290,39 @@
       <h2>그래서 우리는 이 숫자를 그대로 쓰지 않는다</h2>
       <p>
         위의 해부가 우리 모델의 설계로 곧장 이어집니다. 우리는 오늘의 공포지수 값을 <strong>그대로 쓰지 않습니다.</strong>
-        <code>100 − 현재값</code>으로 단순히 뒤집지도 않습니다. 실제 변환식은 이렇습니다.
+        <code>100 − 현재값</code>으로 단순히 뒤집지도 않습니다.
       </p>
-      <pre><code>부분점수 = 0.5 × (100 − 현재값)
-         + 0.3 × (100 − 최근 7일 평균)
-         + 0.2 × (100 − 최근 30일 평균)
 
-현재값 ≤ 25 → 부분점수 += (25 − 현재값) × 0.4
-현재값 ≥ 75 → 부분점수 −= (현재값 − 75) × 0.4</code></pre>
+      <div class="note warn">
+        <strong>먼저 짚어야 할 것 — 변환식은 하나가 아니라 둘입니다.</strong><br />
+        <strong>장기(역발상) 탭</strong>과 <strong>단기(모멘텀) 탭</strong>이 <strong>서로 다른 함수</strong>를 쓰고, <strong>부호가 정반대</strong>입니다.
+        아래 절에서 자세히 다루는 <strong>혼합·극단 보너스 구조는 장기 탭 전용</strong>입니다.
+        (이 문서의 이전 판은 장기 함수만 싣고 단기 함수를 누락했습니다. 2026-07-14 교정)
+      </div>
+
+      <p><strong>장기(역발상) 변환</strong> — 공포일수록 고득점. 하루치 노이즈를 죽이려고 <strong>7일·30일 평균을 섞습니다.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − 현재값)
+       + 0.3 × (100 − 최근 7일 평균)
+       + 0.2 × (100 − 최근 30일 평균)
+
+현재값 ≤ 25 → += (25 − 현재값) × 0.4
+현재값 ≥ 75 → −= (현재값 − 75) × 0.4</code></pre>
+
+      <p><strong>단기(모멘텀) 변환</strong> — <strong>탐욕일수록 고득점.</strong> 평균을 섞지 않고 <strong>현재값만</strong> 씁니다.</p>
+      <pre><code>momFng = clamp(50 + (현재값 − 50) × 1.2,  0,  100)
+
+  공포 20 → 14    (단기에는 저득점)
+  중립 50 → 50
+  탐욕 85 → 92    (단기에는 고득점)</code></pre>
+      <p>
+        <strong>왜 단기에서는 탐욕이 가점인가?</strong> 1~3개월 창에서 심리가 개선되는 국면은
+        대개 <strong>추세가 살아있는 국면</strong>입니다. 추세추종 관점에서 그건 매수 우호 신호입니다.
+        반대로 극단적 공포는 <strong>하락이 진행 중</strong>이라는 뜻이고, 단기적으로는 위험합니다.
+        <strong>같은 지수 20이 장기 탭에서는 고득점(≈86), 단기 탭에서는 저득점(≈14)</strong>이 됩니다.
+      </p>
+      <p class="muted">
+        <strong>아래의 모든 계산·시나리오는 장기(역발상) 탭 기준입니다.</strong> 단기 탭에서는 부호가 뒤집힌다는 점을 기억하세요.
+      </p>
 
       <h3>왜 하루치를 절반으로 깎았는가</h3>
       <p>
@@ -327,29 +352,37 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>시나리오</th><th>현재</th><th>7일 평균</th><th>30일 평균</th><th>우리 부분점수</th><th>밴드 영향</th></tr>
+            <tr><th>시나리오</th><th>현재</th><th>7일 평균</th><th>30일 평균</th><th>F&amp;G 부분점수<br /><span class="muted">(종합점수 아님)</span></th><th>장기 총점 기여<br /><span class="muted">× 18%</span></th></tr>
           </thead>
           <tbody>
             <tr>
               <td><strong>A. 급락 첫날</strong><br /><span class="muted">멀쩡하다 어제 폭락</span></td>
               <td>20</td><td>45</td><td>60</td>
               <td><strong>66.5</strong></td>
-              <td>ACCUMULATE 하단</td>
+              <td>12.0점</td>
             </tr>
             <tr>
               <td><strong>B. 지속되는 공포</strong><br /><span class="muted">한 주 내내 공포</span></td>
               <td>20</td><td>22</td><td>28</td>
               <td><strong>79.8</strong></td>
-              <td>ACCUMULATE 상단</td>
+              <td>14.4점</td>
             </tr>
             <tr>
               <td><strong>C. 장기 침체 바닥</strong><br /><span class="muted">한 달째 바닥</span></td>
               <td>20</td><td>25</td><td>20</td>
               <td><strong>80.5</strong></td>
-              <td><strong>STRONG BUY 진입</strong></td>
+              <td><strong>14.5점</strong></td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="note warn">
+        <strong>혼동 주의 — 부분점수는 종합점수가 아닙니다.</strong><br />
+        위 표의 <strong>80.5</strong>는 <strong>F&amp;G 지표 하나의 부분점수</strong>이지 “STRONG BUY”를 뜻하지 않습니다.
+        이 값은 장기 탭에서 <code>80.5 × 18% = 14.5점</code>만큼 <strong>종합 점수에 기여</strong>할 뿐입니다.
+        STRONG BUY(80점 이상) 판정은 <strong>6개 지표를 전부 합성한 종합 점수</strong>에만 붙는 라벨입니다.
+        (이 문서의 이전 판은 부분점수에 종합 밴드 이름을 붙였습니다. 2026-07-14 교정)
       </div>
 
       <p>계산 과정을 그대로 펼치면 이렇습니다.</p>
@@ -388,17 +421,23 @@
       </div>
 
       <h3>반대 방향도 대칭입니다</h3>
-      <pre><code>[D] 과열 국면 — 현재 85, 7일 80, 30일 72
+      <pre><code>[D] 과열 국면 — 현재 85, 7일 80, 30일 72   (장기 탭 기준)
 0.5×(100−85) + 0.3×(100−80) + 0.2×(100−72)
 = 7.5 + 6.0 + 5.6 = 19.1
 극단 페널티: −(85−75)×0.4 = −4.0
-→ 15.1   (OVERHEATED 구간)</code></pre>
+→ F&amp;G 부분점수 15.1   →   장기 총점 기여 15.1 × 18% = 2.7점</code></pre>
       <p>
-        탐욕이 <strong>깊고 또 오래 지속될수록</strong> 점수가 더 깎입니다.
+        탐욕이 <strong>깊고 또 오래 지속될수록</strong> 부분점수가 더 깎입니다.
         하루짜리 탐욕 스파이크(현재 85, 7일 55, 30일 50)라면 같은 계산으로
-        <code>7.5 + 13.5 + 10 − 4 = 27.0</code>이 되어 CAUTION 구간에 머뭅니다.
+        <code>7.5 + 13.5 + 10 − 4 = 27.0</code>이 됩니다.
         <strong>같은 85인데 15.1과 27.0</strong> — 다시 한 번, 지속성이 값을 가릅니다.
       </p>
+      <div class="note">
+        <strong>⚠ 단기 탭에서는 이 계산이 통째로 뒤집힙니다.</strong>
+        같은 상황(F&amp;G 85)을 단기 탭에 넣으면 <code>momFng(85) = 50 + 35×1.2 = 92</code> — <strong>거의 만점</strong>입니다.
+        장기 탭이 “과열이니 위험”이라고 말할 때, 단기 탭은 “추세가 살아있다”고 말합니다.
+        <strong>둘 다 맞습니다. 시간 지평이 다를 뿐입니다.</strong>
+      </div>
 
       <h2>왜 하필 25와 75에서만 추가 가중을 주는가</h2>
       <p>

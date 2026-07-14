@@ -165,10 +165,13 @@
         같은 숫자가 시간 지평에 따라 정반대의 결론을 냅니다.
       </p>
       <div class="note warn">
-        <strong>그래서 4%입니다.</strong> broodev 단기 탭은 <strong>1~3개월</strong> 관점입니다.
+        <strong>그래서 단기 가중치가 4%입니다.</strong> broodev 단기 탭은 <strong>1~3개월</strong> 관점입니다.
         위 표의 어느 행을 잡아도, 마이어 배수의 “비싸다”는 경고는 <strong>향후 1~3개월의 방향을 맞히지 못했습니다.</strong>
-        지연이 <em>몇 달~1년</em> 단위인 신호를 <em>1~3개월</em> 창에 넣으면 그건 신호가 아니라 <strong>노이즈</strong>입니다.
-        그렇다고 0%로 완전히 빼지 않은 이유는 다음 절에서 계산으로 보여드립니다.
+        지연이 <em>몇 달~1년</em> 단위인 신호를 <em>1~3개월</em> 창에 넣으면 그건 신호가 아니라 <strong>노이즈</strong>입니다.<br /><br />
+        ⚠️ <strong>중요:</strong> 단기 탭에서 이 지표는 “비싸다 = 경고”로 작동하지 <strong>않습니다.</strong>
+        정반대로 <strong>“비싸다 = 강한 추세 = 가점”</strong>으로 작동합니다.
+        그럼 버블 꼭지는 누가 막느냐 — <strong>가중치가 아니라 별도의 블로우오프 톱 가드</strong>가 막습니다.
+        <a href="#weights">다음 절</a>에서 두 함수와 가드를 전부 코드째 공개합니다.
       </div>
 
       <h2 id="bottoms">2018 · 2020 — 세 번의 바닥이 거의 같은 자리에 찍혔다</h2>
@@ -256,56 +259,108 @@
       </div>
 
       <h2 id="weights">그래서 왜 4%와 18%인가 — 숫자로 보는 대답</h2>
+
+      <div class="note warn">
+        <strong>정정 안내 (2026-07-14)</strong> — 이 절의 이전 판은 <strong>장기용 변환 함수를 단기 열에도 잘못 적용</strong>해
+        마이어 배수의 단기 기여를 <strong>부호가 반대로</strong> 설명했습니다.
+        또한 단기의 과열 방어를 실제로 담당하는 <strong>블로우오프 톱 가드</strong>의 존재를 누락했습니다.
+        아래는 코드를 기준으로 전면 교정한 내용입니다.
+      </div>
+
       <p>
-        이제 앞의 역사가 가중치로 번역됩니다. broodev는 마이어 배수에 <strong>단기 4%, 장기 18%</strong>를 줍니다.
-        말로 설명하면 추상적이니, <strong>실제 점수 기여도를 계산</strong>해 보겠습니다.
+        여기서 반드시 알아야 할 사실이 하나 있습니다. <strong>마이어 배수의 정규화 함수는 하나가 아니라 두 개입니다.</strong>
+        단기 탭과 장기 탭이 <strong>서로 다른 함수</strong>를 쓰고, <strong>부호가 정반대</strong>입니다.
       </p>
+
+      <pre><code>// 장기(역발상) — 쌀수록 고득점
+conMayer(m):
+  m ≤ 0.8 → 100
+  m ≤ 1.4 → 50 + ((1.4 − m) / 0.6) × 50
+  m ≤ 2.4 → 10 + ((2.4 − m) / 1.0) × 40
+  m &gt; 2.4 → 10 − (m − 2.4) × 25
+
+// 단기(모멘텀) — 비쌀수록 고득점
+momMayer(m) = clamp(50 + (m − 1) × 25,  0,  100)</code></pre>
+
       <p>
-        마이어 배수가 <strong>최악(2.6 → 부분점수 약 6점)</strong>일 때와 <strong>최선(0.75 → 부분점수 100점)</strong>일 때,
-        합성 점수가 얼마나 움직이는지 봅니다.
+        <strong>단기에서 “비쌀수록 가점”이라니, 미친 소리처럼 들립니다.</strong> 하지만 1~3개월 창에서
+        200일선 위로 크게 벌어진 상태는 <strong>“고평가”가 아니라 “강한 상승 추세”</strong>입니다.
+        2017년이 정확히 그것을 증명했습니다 — 배수 2.4를 넘긴 뒤에도 가격은 몇 달을 더 올랐습니다.
+        단기 탭은 그 추세를 부정하지 않습니다.
       </p>
+
+      <p>실제 기여도를 계산해 봅니다.</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th></th><th>단기 (가중치 4%)</th><th>장기 (가중치 18%)</th></tr></thead>
+          <thead><tr><th>마이어 배수</th><th>단기 부분점수<br /><span class="muted">momMayer</span></th><th>단기 기여<br /><span class="muted">×4%</span></th><th>장기 부분점수<br /><span class="muted">conMayer</span></th><th>장기 기여<br /><span class="muted">×18%</span></th></tr></thead>
           <tbody>
-            <tr><td>배수 2.6 (부분점수 6)</td><td><code>0.04 × 6 = 0.24점</code></td><td><code>0.18 × 6 = 1.08점</code></td></tr>
-            <tr><td>배수 0.75 (부분점수 100)</td><td><code>0.04 × 100 = 4.0점</code></td><td><code>0.18 × 100 = 18.0점</code></td></tr>
-            <tr><td><strong>최대 진폭</strong></td><td><strong>약 3.8점</strong></td><td><strong>약 16.9점</strong></td></tr>
+            <tr><td><code>0.75</code> (저평가)</td><td>43.75</td><td>1.75점</td><td>100</td><td><strong>18.0점</strong></td></tr>
+            <tr><td><code>1.0</code> (200일선)</td><td>50</td><td>2.0점</td><td>83.3</td><td>15.0점</td></tr>
+            <tr><td><code>1.6</code></td><td>65</td><td>2.6점</td><td>42.0</td><td>7.6점</td></tr>
+            <tr><td><code>2.6</code> (과열)</td><td>90</td><td><strong>3.6점</strong></td><td>5.0</td><td>0.9점</td></tr>
+            <tr><td><strong>진폭 (0.5~2.5)</strong></td><td>37.5 ~ 87.5</td><td><strong>약 2.0점</strong></td><td>100 ~ 7.5</td><td><strong>약 16.7점</strong></td></tr>
           </tbody>
         </table>
       </div>
+
       <p>
-        읽는 법은 이렇습니다.
-      </p>
-      <p>
-        <strong>단기 탭에서는, 마이어 배수가 역사적 최고 과열에서 역사적 최저 저평가로 바뀌어도 총점이 4점도 안 움직입니다.</strong>
-        총점 61점이 65점이 되는 정도 — <strong>밴드 하나를 겨우 넘길까 말까</strong>입니다.
-        2017년의 기록을 생각하면 이게 맞습니다. 1~3개월 창에서 “200일선 대비 비싸다”는 사실은 <strong>결과를 거의 예측하지 못했습니다.</strong>
-      </p>
-      <p>
-        <strong>장기 탭에서는, 같은 변화가 총점을 17점 가까이 움직입니다.</strong>
-        이건 <code>NEUTRAL(55점)</code>을 <code>CAUTION(38점)</code>으로 <strong>밴드 한 칸 반을 통째로 밀어내는 크기</strong>입니다.
-        RSI·MACD·공포탐욕과 <strong>동률 최상위(18%)</strong>인 게 과하지 않은 이유는, 2018·2020·2022의 바닥이 전부 같은 배수 구간에 찍혔기 때문입니다.
-        사이클 단위에서 이만큼 재현된 지표가 많지 않습니다.
+        <strong>단기 탭에서 마이어의 총 진폭은 2점 남짓입니다.</strong> 그리고 방향은 <em>저평가 → 감점</em>입니다.
+        <strong>장기 탭에서는 17점 가까이 움직이고, 방향은 반대</strong>입니다 — <code>NEUTRAL(55점)</code>을
+        <code>CAUTION(38점)</code>으로 밴드 한 칸 반을 통째로 밀어내는 크기입니다.
+        RSI·MACD·공포탐욕과 <strong>동률 최상위(18%)</strong>인 게 과하지 않은 이유는, 2018·2020·2022의 바닥이
+        전부 같은 배수 구간에 찍혔기 때문입니다. 사이클 단위에서 이만큼 재현된 지표가 많지 않습니다.
       </p>
 
       <h3>그런데 왜 단기에서 0%가 아니라 4%인가</h3>
       <p>
-        여기가 자주 오해받는 부분입니다. “단기에서 무의미하면 그냥 빼면 되지 않나?”
+        단기에서 마이어는 <strong>추세 지표의 중복</strong>입니다. “200일선 위로 벌어졌다”는 정보는
+        이미 RSI(28%)·낙폭(18%)·MACD(14%)가 대부분 담고 있습니다. 여기에 마이어까지 크게 실으면
+        <strong>같은 신호를 네 번 세는 셈</strong>입니다. 그래서 4%로 눌렀습니다.
       </p>
       <p>
-        <strong>빼지 않은 이유는 꼬리(tail) 때문입니다.</strong> 배수가 2.4를 넘는 극단 구간은 흔치 않지만, 그 구간에서는
-        <strong>단기 하락의 깊이가 다릅니다.</strong> 평상시 조정이 −20%라면 그 구간의 조정은 −40%가 됩니다.
-        방향을 맞히지는 못해도, <strong>“지금 넘어지면 크게 다친다”</strong>는 정보는 남아 있습니다.
+        <strong>0%가 아닌 이유는, 이 셋이 못 보는 각도가 하나 있기 때문입니다.</strong>
+        RSI·MACD는 <em>최근 며칠</em>의 속도를 보고, 낙폭은 <em>고점 대비</em>를 봅니다.
+        마이어만이 <strong>“200일 평균이라는 장기 기준선에서 얼마나 벌어졌는가”</strong>를 봅니다.
+        추세의 <strong>절대적 신장(伸張) 정도</strong> — 이건 다른 셋이 대체하지 못합니다. 4%는 그 몫입니다.
+      </p>
+
+      <h3>그럼 과열은 누가 막는가 — 블로우오프 톱 가드</h3>
+      <p>
+        여기서 당연한 반문이 나옵니다. <strong>“단기에서 비쌀수록 가점이면, 버블 꼭지에서 점수가 계속 올라가는 것 아닌가?”</strong>
+        맞습니다. momMayer만 있으면 그렇게 됩니다.
       </p>
       <p>
-        4%는 그 정보를 <strong>딱 그만큼만</strong> 반영합니다. 배수가 극단 과열이면 단기 총점에서 약 <strong>3~4점</strong>을 깎습니다.
-        방향을 뒤집기엔 턱없이 작고, <strong>ACCUMULATE(65점) 경계에 걸친 점수를 NEUTRAL로 밀어내기엔 충분한</strong> 크기입니다.
-        이게 4%의 정확한 역할입니다. 핸들이 아니라 <strong>브레이크의 미세 조정</strong>입니다.
+        그래서 <strong>가중치가 아니라 별도의 장치</strong>가 그 일을 합니다.
+        합성이 끝난 <strong>단기 총점 자체에 감쇠</strong>를 겁니다.
       </p>
+      <pre><code>if (마이어 &gt; 2.0):
+    단기_총점 ×= clamp(1 − (마이어 − 2.0) × 0.55,  0.25,  1)</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>마이어 배수</th><th>배율</th><th>단기 총점 70점이었다면</th></tr></thead>
+          <tbody>
+            <tr><td><code>2.0</code></td><td>×1.00</td><td>70.0 (감쇠 없음)</td></tr>
+            <tr><td><code>2.5</code></td><td>×0.725</td><td>50.8 <span class="muted">(−19.2점)</span></td></tr>
+            <tr><td><code>3.0</code></td><td>×0.45</td><td>31.5 <span class="muted">(−38.5점)</span></td></tr>
+            <tr><td><code>3.4 이상</code></td><td>×0.25 <span class="muted">(하한)</span></td><td>17.5 <span class="muted">(−52.5점)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>이게 진짜 브레이크입니다.</strong> 가중치 4%가 만드는 2점짜리 진폭과는 차원이 다릅니다.
+        배수 2.5에서 단기 총점의 <strong>27.5%가 통째로 날아갑니다.</strong>
+        <code>ACCUMULATE(70점)</code>이 <code>NEUTRAL(50.8점)</code>으로 내려앉습니다.
+      </p>
+      <div class="note">
+        정리하면 마이어 배수는 단기 탭에서 <strong>두 개의 역할</strong>을 합니다.<br />
+        <strong>① 가중치 4%</strong> — 추세 신장 정도를 <em>소폭</em> 반영 (비쌀수록 가점, 진폭 2점)<br />
+        <strong>② 블로우오프 가드</strong> — 배수 2.0 초과 시 <em>총점 자체를 감쇠</em> (최대 75% 삭감)<br />
+        <strong>“4%니까 단기에서 마이어를 무시한다”는 오해입니다.</strong> 가중치가 작은 게 아니라,
+        <strong>과열 방어의 역할을 가중치에서 가드로 옮긴 것</strong>입니다.
+      </div>
       <p class="muted">
-        정직하게 덧붙이면, 4%와 6% 중 무엇이 옳은지 우리 백테스트는 딱 잘라 말해 주지 못했습니다.
-        확실한 건 “두 자릿수는 명백히 나빴다”와 “0%보다는 있는 게 나았다” 두 가지뿐입니다. 4%는 그 사이의 판단입니다.
+        정직하게 덧붙이면, 감쇠 계수 0.55와 하한 0.25가 최적인지 우리 백테스트는 딱 잘라 말해 주지 못했습니다.
+        확실한 건 “가드가 없으면 2017·2021 꼭지에서 단기 점수가 위험하게 높았다”는 것뿐입니다. 나머지는 판단입니다.
       </p>
 
       <h2 id="curve">변환 함수 해부 — 0.8 · 1.4 · 2.4에서 자른 이유</h2>

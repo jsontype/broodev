@@ -3,20 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
 
-    <!-- 구독자만 광고 없는 버전(member/)으로 보냄. 비구독자·크롤러는 이 광고 버전 페이지에 그대로 머무름 → SEO 유지.
-         ***! TODO: 실제 구독 검증은 결제+인증 백엔드(서버 발급 토큰/쿠키)로. 지금은 임시 클라이언트 플래그(우회 가능, 보안 아님). -->
-    <script>
-      (function () {
-        try {
-          var qs = new URLSearchParams(location.search);
-          if (qs.get('member') === '1') localStorage.setItem('btc:member', '1');
-          if (qs.get('member') === '0') localStorage.removeItem('btc:member');
-          if (localStorage.getItem('btc:member') === '1') location.replace('member/' + location.hash);
-        } catch (e) {}
-      })();
-    </script>
+    <!-- ===== member/ 조건부 리디렉션 제거됨 (2026-07-15) =====
+         이전 코드는 localStorage 플래그(?member=1 로 누구나 설정 가능)를 보고
+         광고 없는 member/ 페이지로 location.replace() 했다. 문제가 셋이었다.
+           1) 조건부 JS 리디렉션 — Google 스팸 정책의 클로킹/부적절한 리디렉션에 인접
+           2) 결제·인증 백엔드가 없는 **미완성 기능** (코드 주석이 "우회 가능, 보안 아님"이라 자백)
+              → AdSense 는 "아직 미완성 상태인 화면"을 금지한다
+           3) member/ 는 루트와 88% 동일하고 <title>까지 같은 복제본
+         실제 구독 결제·서버측 검증이 붙기 전까지 이 경로를 비활성화한다.
+         member/ 는 robots.txt Disallow + noindex 로 차단해 두었다. -->
 
     <!-- ===== SEO ===== -->
     <title>비트코인 공포·탐욕 지수 · 매수 타이밍 실시간 | BTC_SIGNAL</title>
@@ -39,7 +35,26 @@
          · 이 스크립트만으로 Auto ads가 자동 게재됨(AdSense 대시보드에서 Auto ads ON + 사이트 승인 필요)
          · 광고 없는 버전은 메인(../standalone.html, ../index.html) — 향후 유료 회원에게 제공 예정
          ============================================================ -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+    <!-- ⚠ 광고는 ?coin= 이 없는 기본 화면(비트코인)에서만 로드한다.
+         이유: ?coin=eth 등은 비트코인 해설 본문의 단어만 치환해 보여주는 화면이라
+         코인별 고유 게시자 콘텐츠가 없다. 그런 화면에 광고를 붙이면 AdSense
+         "복제된 콘텐츠가 있는 화면 / 게시자 콘텐츠가 없는 화면" 위반이다.
+         (코인별 고유 해설을 작성해 붙이기 전까지 비-BTC 화면은 광고 없이 도구로만 제공) -->
+    <script>
+      (function () {
+        var coin;
+        try { coin = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { coin = 'btc'; }
+        if (coin !== 'btc') return; // 비-BTC → 광고 로더·계정 메타 주입 안 함
+        var m = document.createElement('meta');
+        m.name = 'google-adsense-account'; m.content = 'ca-pub-5511225478572825';
+        document.head.appendChild(m);
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825';
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      })();
+    </script>
 
     <link rel="canonical" href="https://broodev.com/" />
     <!-- 언어별 대체 URL (?lang= 을 앱이 인식) — 루트(broodev.com)가 심사·표준 URL -->
@@ -240,22 +255,7 @@
       .coverage { margin-top: 10px; font-size: 10px; letter-spacing: 1px; color: var(--dim); }
 
       /* AdSense 버전: 매수 타이밍 점수 "계산 시작" 게이트 (정책 안전 — 광고 클릭/시청 강요 없음) */
-      .score-gate { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 6px 2px 2px; width: 100%; }
-      .gate-lock { font-size: 30px; filter: drop-shadow(0 0 10px rgba(0,255,156,.5)); }
-      .gate-title { font-size: 16px; font-weight: 800; color: var(--neon); text-shadow: 0 0 10px rgba(0,255,156,.4); line-height: 1.3; }
-      .gate-sub { font-size: 11.5px; color: var(--dim); line-height: 1.5; max-width: 250px; }
-      .gate-btn { margin-top: 4px; font-family: var(--font); font-size: 13px; font-weight: 700; letter-spacing: .2px; color: #04110c; background: var(--neon); border: none; border-radius: 6px; padding: 12px 16px; cursor: pointer; box-shadow: 0 0 24px -6px var(--neon); transition: transform .12s, box-shadow .2s; line-height: 1.35; }
-      .gate-btn:hover { transform: translateY(-1px); box-shadow: 0 0 30px -4px var(--neon); }
       .gate-btn:active { transform: translateY(0); }
-      .gate-note { font-size: 10px; color: var(--dim); max-width: 250px; }
-      .gate-calc { width: 100%; max-width: 100%; overflow: hidden; min-height: 124px; text-align: left; background: rgba(4,8,9,.6); border: 1px solid var(--line); border-radius: 5px; padding: 10px 12px; font-size: 11.5px; line-height: 1.7; }
-      .gate-line { color: var(--text); white-space: pre-wrap; word-break: break-word; }
-      .gate-cursor { color: var(--neon); animation: blink 1s steps(2) infinite; }
-      .gate-progress { width: 100%; height: 6px; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
-      .gate-bar { height: 100%; background: var(--neon); box-shadow: 0 0 10px var(--neon); transition: width .5s cubic-bezier(.2,.8,.2,1); }
-      .gate-adwrap { width: 100%; max-width: 100%; overflow: hidden; }
-      .gate-adlabel { display: block; font-size: 9px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; margin-bottom: 3px; text-align: left; }
-      .gate-ad { display: block; width: 100%; max-width: 100%; overflow: hidden; min-height: 90px; }
       /* 좌우 거터 광고 레일 — 데스크톱 전용, 거터가 충분히 넓을 때만 표시(콘텐츠와 안 겹침) */
       .ad-rail { display: none; }
       .rail-ad { display: block; width: 100%; max-width: 100%; min-height: 600px; }
@@ -1310,10 +1310,21 @@
       const bandFor = (score) => BANDS.find((b) => score >= b.min) || BANDS[BANDS.length - 1]
       const fngLabel = (v, t) => { const f = (t && t.fng) || T.ko.fng; return v == null ? '—' : v <= 25 ? f.extremeFear : v <= 45 ? f.fear : v < 55 ? f.neutral : v < 75 ? f.greed : f.extremeGreed }
 
+      /* ⚠ FNG(공포·탐욕 지수)는 코인별 지수가 존재하지 않는다.
+       * Alternative.me 가 발표하는 것은 BTC 중심의 **암호화폐 시장 전체** 심리 지수 하나뿐이다.
+       * 따라서 ?coin=pepe 화면에서도 이 값은 PEPE 의 지수가 아니라 시장 전체 지수다.
+       * 예전에는 이를 그냥 "페페 공포·탐욕 지수"처럼 보이게 두었는데, 이는 사용자를 오도한다.
+       * 비-BTC 화면에서는 라벨에 "시장 전체" 를 명시한다. */
       const INDICATOR_META = [
         { key: 'RSI', short: 'RSI·14', name: 'Relative Strength Index (Wilder)', desc: '과매도(<30) = 매수 / 과매수(>70) = 경계' },
         { key: 'MACD', short: 'MACD', name: 'MACD 12·26·9 히스토그램', desc: '음→양 / 바닥 상향전환 = 매수 모멘텀' },
-        { key: 'FNG', short: 'F&G', name: '공포·탐욕 지수 (역발상)', desc: '극공포 = 매수 기회 / 극탐욕 = 과열' },
+        {
+          key: 'FNG', short: 'F&G',
+          name: COIN.slug === 'btc' ? '공포·탐욕 지수 (역발상)' : '공포·탐욕 지수 — 시장 전체 (역발상)',
+          desc: COIN.slug === 'btc'
+            ? '극공포 = 매수 기회 / 극탐욕 = 과열'
+            : `⚠ ${COIN.ko} 전용 지수가 아닙니다. Alternative.me 의 암호화폐 시장 전체(BTC 중심) 심리 지수입니다.`,
+        },
         { key: 'Mayer', short: 'MAYER', name: 'Mayer Multiple (가격 / 200일선)', desc: '<0.8 강한 매수 / >2.4 과열' },
         { key: 'DD', short: 'DD·365', name: '365일 고점 대비 낙폭', desc: '-30% 관심 / -50% 강한 매수' },
         { key: 'GC_DC', short: '50/200', name: '골든·데드 크로스 추세', desc: '골든크로스 = 추세 매수 우호' },
@@ -1863,31 +1874,8 @@
       const THEMES = { green: '#00ff9c', cyan: '#00e5ff', amber: '#ffb000', red: '#ff3b5c' }
       // ===== AdSense 버전: 점수 "계산 시작" 게이트 (정책 안전) =====
       // 광고를 클릭/시청해야 보이게 막지 않음. 버튼 → 계산 연출(대기) 동안 광고가 자연 노출될 뿐.
-      const GATE_I18N = {
-        ko: {
-          locked: '🔒 점수 잠김',
-          title: '매수 타이밍 점수가 잠겨 있어요',
-          sub: '아래 버튼을 누르면 6개 지표를 실시간 합성해 점수를 계산합니다.',
-          cta: '비트코인 매수 타이밍 점수 계산 시작',
-          note: '계산은 몇 초 걸립니다. 그동안 아래 광고가 노출됩니다.',
-          recalc: '재산출',
-          staleNotice: '데이터가 오래됐어요. 최신 데이터로 다시 산출하세요.',
-          adlabel: '광고',
-          lines: ['[init] 데이터 파이프라인 연결…', '[fetch] 시세·거래량 수집…', '[calc] RSI(14) 산출…', '[calc] MACD(12·26·9) 계산…', '[calc] 공포·탐욕 지수 합성…', '[calc] Mayer·낙폭·골든크로스 가중…', '[done] 매수 타이밍 점수 산출 완료 ✓'],
-        },
-        en: {
-          locked: '🔒 Score locked',
-          title: 'Your buy-timing score is locked',
-          sub: 'Tap the button to synthesize 6 live indicators into a score.',
-          cta: 'Start calculating the Bitcoin buy-timing score',
-          note: 'This takes a few seconds. An ad is shown below while you wait.',
-          recalc: 'Recalculate',
-          staleNotice: 'Data is stale. Recalculate with the latest data.',
-          adlabel: 'Ad',
-          lines: ['[init] connecting data pipeline…', '[fetch] price & volume…', '[calc] RSI(14)…', '[calc] MACD(12·26·9)…', '[calc] Fear & Greed synthesis…', '[calc] Mayer · drawdown · cross weighting…', '[done] buy-timing score ready ✓'],
-        },
-      }
-      const getGate = (lang) => GATE_I18N[lang] || GATE_I18N.en
+      /* GATE_I18N 제거됨 (2026-07-15) — 가짜 계산 게이트와 함께 삭제.
+       * 13개 언어 전부에 "그동안 아래 광고가 노출됩니다" 류 문구가 있었다. */
 
       // ===== 단기(모멘텀)/장기(역발상) 탭 i18n =====
       //  장기 밴드/지표 문구 = 기존 t.bands / t.ind (역발상, 13개 언어 완비).
@@ -2142,15 +2130,6 @@
       const basisFor = (lang, word) => word ? (BASIS_FMT[lang] || BASIS_FMT.en).replace('{x}', word) : ''
 
       // 계산 대기 중 노출되는 디스플레이 광고. Auto ads(head)와 별개의 수동 단위.
-      function GateAd() {
-        useEffect(() => { try { (window.adsbygoogle = window.adsbygoogle || []).push({}) } catch (e) {} }, [])
-        // ***! TODO: AdSense에서 '디스플레이' 광고 단위를 만들고 data-ad-slot 값을 채우세요.
-        //   슬롯이 비어 있어도 정책 위반 아님(빈 영역). Auto ads가 페이지 다른 곳에 광고를 노출합니다.
-        return (
-          <ins className="adsbygoogle gate-ad" data-ad-client="ca-pub-5511225478572825"
-            data-ad-slot="" data-ad-format="auto" data-full-width-responsive="true" />
-        )
-      }
 
       // 좌우 거터 세로 광고. 타이머 자동 새로고침은 하지 않음(AdSense 정책: 노출수 부풀리기 금지).
       function RailAd({ slot = '' }) {
@@ -2175,31 +2154,22 @@
         const now = useClock()
         const t = getT(lang)
         const locale = localeOf(lang)
-        const gate = getGate(lang)
+
         const xm = getMode(lang)
         const [mode, setMode] = useLocalStorage('btc:mode2', 'long') // 'short'=모멘텀(단기), 'long'=역발상(장기·기본). 키 변경=기존 저장값 무시하고 장기로 리셋
-        const [scoreRevealed, setScoreRevealed] = useState(false)
-        const [calc, setCalc] = useState(null) // null=대기, 0..N=계산 진행 단계
-        const [recalc, setRecalc] = useState(false) // STALE로 재가림되어 재산출이 필요한 상태
-        const startCalc = () => {
-          if (calc != null) return
-          const n = gate.lines.length
-          const total = 6000 + Math.floor(Math.random() * 3000) // 로딩
-          // 각 항목에 가중치를 줘 총 시간 불균등 분배
-          const w = []
-          for (let k = 0; k < n; k++) w.push(0.4 + Math.random())
-          const sum = w.reduce((a, b) => a + b, 0)
-          const durs = w.map((x) => Math.round((x / sum) * total))
-          setCalc(0)
-          let i = 0
-          const step = () => {
-            i += 1
-            setCalc(i)
-            if (i >= n) { setTimeout(() => { setScoreRevealed(true); setRecalc(false) }, 300 + Math.floor(Math.random() * 400)); return }
-            setTimeout(step, durs[i])
-          }
-          setTimeout(step, durs[0])
-        }
+        /* ===== 점수 게이트 제거됨 (2026-07-15) =====
+         * 이전 코드는 데이터를 이미 다 받아놓은 상태에서 6~9초짜리 가짜 "계산 중" 연출을
+         * 돌리고, 그 대기 시간 동안 광고를 노출했다. UI 문구가 "그동안 아래 광고가
+         * 노출됩니다"라고 명시했고, 데이터가 STALE이 되면 점수를 다시 잠가 게이트를
+         * 반복 통과시켰다.
+         *
+         * 이는 광고 노출을 인위적으로 만들어내는 장치이며, AdSense 정책
+         * ("게시자 콘텐츠보다 광고가 더 많은 화면", 기만적 광고 배치)에 정면으로 걸린다.
+         * 실제 계산은 밀리초 단위로 끝나므로 지연시킬 이유가 전혀 없다.
+         *
+         * 이제 데이터가 도착하는 즉시 점수를 렌더한다. 인위적 지연 0초.
+         */
+        const scoreRevealed = true
 
         useEffect(() => { document.documentElement.style.setProperty('--neon', accent) }, [accent])
 
@@ -2291,12 +2261,8 @@
         const r = 90, circ = 2 * Math.PI * r, dash = ((score || 0) / 100) * circ
         const chgUp = (price?.change24hPct ?? 0) >= 0
         const priceStale = price?.fetchedAt && Date.now() - price.fetchedAt > 5 * 60000
-        // STALE(데이터 5분 초과)로 "전환"되면 점수를 다시 가리고 재산출 요구 (공개 직후 깜빡임 방지: 전환 시에만)
-        const prevStaleRef = useRef(false)
-        useEffect(() => {
-          if (priceStale && !prevStaleRef.current && scoreRevealed) { setScoreRevealed(false); setCalc(null); setRecalc(true) }
-          prevStaleRef.current = priceStale
-        }, [priceStale, scoreRevealed])
+        // STALE이면 상태 배지로만 알린다. 예전엔 여기서 점수를 다시 잠가 게이트를
+        // 재통과시켰는데(= 광고 반복 노출), 게이트와 함께 제거했다.
 
         const ctx = { analysisRef, price, klines, fng, api }
 
@@ -2306,8 +2272,8 @@
           <div className={`app status-${sysColor}`}>
             <MatrixRain enabled={matrixOn} accent={accent} />
             <div className="scanlines" /><div className="vignette" />
-            {scoreRevealed && <aside className="ad-rail left"><span className="ad-rail-label">{gate.adlabel}</span><RailAd /></aside>}
-            {scoreRevealed && <aside className="ad-rail right"><span className="ad-rail-label">{gate.adlabel}</span><RailAd /></aside>}
+            {COIN.slug === 'btc' && <aside className="ad-rail left"><span className="ad-rail-label">AD</span><RailAd /></aside>}
+            {COIN.slug === 'btc' && <aside className="ad-rail right"><span className="ad-rail-label">AD</span><RailAd /></aside>}
             <div className="shell">
               <header className="topbar">
                 <div className="brand">
@@ -2342,7 +2308,7 @@
                     <input type="checkbox" checked={tipsOn} onChange={(e) => setTipsOn(e.target.checked)} />
                     <span>{t.tips} {tipsOn ? 'ON' : 'OFF'}</span>
                   </label>
-                  <div className={`sys-status status-${scoreRevealed ? sysColor : 'ok'}`}><span className="pulse" />{scoreRevealed ? (band ? bandLabel(band) : t.loading) : gate.locked}</div>
+                  <div className={`sys-status status-${sysColor}`}><span className="pulse" />{band ? bandLabel(band) : t.loading}</div>
                   <div className="clock"><span className="clock-time">{now.toLocaleTimeString(locale, { hour12: false })}</span><span className="clock-time-sm">{`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`}</span><span className="clock-date">{now.toLocaleDateString(locale)}</span></div>
                 </div>
               </header>
@@ -2353,7 +2319,7 @@
               </div>
 
               <section className="hero">
-                <div className={`panel gauge-panel status-${scoreRevealed ? sysColor : 'ok'}`} style={{ '--accent': scoreRevealed ? gaugeColor : 'var(--neon)' }}>
+                <div className={`panel gauge-panel status-${scoreRevealed ? sysColor : 'ok'}`} style={{ '--accent': gaugeColor }}>
                   <span className="corner tl" /><span className="corner tr" /><span className="corner bl" /><span className="corner br" />
                   <div className="panel-label">// <Term k="score">{t.buyTimingScore}</Term></div>
                   <div className="mode-tabs" role="tablist" aria-label={xm.tabTitle}>
@@ -2361,43 +2327,20 @@
                     <button role="tab" aria-selected={mode === 'long'} className={`mode-tab ${mode === 'long' ? 'on' : ''}`} onClick={() => setMode('long')} title={xm.longHint}><span className="tab-main">{splitModeLabel(xm.long)[0]}</span></button>
                   </div>
                   <div className="mode-hint">{mode === 'long' ? xm.longHint : xm.shortHint} <span className="mode-basis">{basisFor(lang, splitModeLabel(mode === 'long' ? xm.long : xm.short)[1])}</span></div>
-                  {scoreRevealed ? (
-                    <>
-                      <div className="gauge-big">
-                        <svg viewBox="0 0 210 210">
-                          <circle cx="105" cy="105" r={r} className="gauge-track" />
-                          <circle cx="105" cy="105" r={r} className="gauge-fill" stroke={gaugeColor} strokeDasharray={`${dash} ${circ}`} transform="rotate(-90 105 105)" />
-                        </svg>
-                        <div className="gauge-center">
-                          <span className="gauge-score" style={{ color: gaugeColor }}>{score == null ? '--' : score.toFixed(0)}</span>
-                          <span className="gauge-of">/ 100</span>
-                        </div>
-                      </div>
-                      <div className="verdict" style={{ color: gaugeColor }}>{bandLabel(band)}</div>
-                      <div className="verdict-advice">{bandAdvice(band)}</div>
-                      <div className="coverage">{A ? <><Term k="coverage">{t.indicatorsOnline(A.online)}</Term> · {mode === 'long' ? xm.higherLong : xm.higherShort}</> : ''}</div>
-                    </>
-                  ) : (
-                    <div className="score-gate">
-                      {calc == null ? (
-                        <>
-                          <div className="gate-lock">{recalc ? '⟳' : '🔒'}</div>
-                          <div className="gate-title">{recalc ? (t.stale + ' · ' + gate.recalc) : gate.title}</div>
-                          <div className="gate-sub">{recalc ? gate.staleNotice : gate.sub}</div>
-                          <button className="gate-btn" onClick={recalc ? (() => { refresh(); startCalc() }) : startCalc}>▶ {recalc ? gate.recalc : gate.cta}</button>
-                          <div className="gate-note">{gate.note}</div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="gate-calc">
-                            {gate.lines.slice(0, calc).map((l, i) => <div key={i} className="gate-line">{l}</div>)}
-                            {calc < gate.lines.length && <div className="gate-line"><span className="gate-cursor">▌</span></div>}
-                          </div>
-                          <div className="gate-progress"><div className="gate-bar" style={{ width: `${Math.round((calc / gate.lines.length) * 100)}%` }} /></div>
-                        </>
-                      )}
+                  {/* 점수는 데이터 도착 즉시 렌더한다. 인위적 지연/잠금 없음. */}
+                  <div className="gauge-big">
+                    <svg viewBox="0 0 210 210">
+                      <circle cx="105" cy="105" r={r} className="gauge-track" />
+                      <circle cx="105" cy="105" r={r} className="gauge-fill" stroke={gaugeColor} strokeDasharray={`${dash} ${circ}`} transform="rotate(-90 105 105)" />
+                    </svg>
+                    <div className="gauge-center">
+                      <span className="gauge-score" style={{ color: gaugeColor }}>{score == null ? '--' : score.toFixed(0)}</span>
+                      <span className="gauge-of">/ 100</span>
                     </div>
-                  )}
+                  </div>
+                  <div className="verdict" style={{ color: gaugeColor }}>{bandLabel(band)}</div>
+                  <div className="verdict-advice">{bandAdvice(band)}</div>
+                  <div className="coverage">{A ? <><Term k="coverage">{t.indicatorsOnline(A.online)}</Term> · {mode === 'long' ? xm.higherLong : xm.higherShort}</> : ''}</div>
                 </div>
 
                 <div className="panel market" style={{ '--accent': accent }}>
