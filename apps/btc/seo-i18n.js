@@ -289,7 +289,14 @@
       '<h2>' + esc(d.fngH) + '</h2><ul>' + li(d.fng) + '</ul>' +
       '<h2>' + esc(d.bandsH) + '</h2><ul>' + li(d.bands) + '</ul>' +
       '<h2>' + esc(d.faqH) + '</h2><dl>' + qa(d.faq) + '</dl>' +
-      '<p class="seo-disclaimer">' + esc(d.disclaimer) + '</p>';
+      '<p class="seo-disclaimer">' + esc(d.disclaimer) + '</p>' +
+      '<h2>Deep dives / 심층 해설</h2><ul class="seo-guides">' +
+        '<li><a href="/methodology">Scoring methodology · 점수 방법론</a></li>' +
+        '<li><a href="/indicators">6 indicators · 지표 해설</a></li>' +
+        '<li><a href="/rsi-guide">RSI</a> · <a href="/macd-guide">MACD</a> · <a href="/mayer-multiple">Mayer Multiple</a></li>' +
+        '<li><a href="/fear-greed-index">Fear &amp; Greed Index</a> · <a href="/golden-cross">Golden Cross</a> · <a href="/drawdown-dca">Drawdown &amp; DCA</a></li>' +
+        '<li><a href="/guide-fear-greed">Practical guide</a> · <a href="/glossary">Glossary</a> · <a href="/about">About / Editorial policy</a></li>' +
+        '</ul>';
   }
 
   window.SEO_I18N = SEO;
