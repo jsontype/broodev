@@ -370,6 +370,10 @@
       }
 
       /* 용어 설명 토글 */
+      /* 코인 선택기 — 서브도메인 복제 대신 한 앱에서 코인을 전환한다 */
+      .coin-switch { display: flex; align-items: center; margin-right: 8px; border: 1px solid var(--neon); border-radius: 4px; padding: 5px 8px 5px 10px; background: var(--panel); cursor: pointer; }
+      .coin-switch select { appearance: none; -webkit-appearance: none; background: transparent; border: none; color: var(--neon); font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: .5px; cursor: pointer; padding: 0 14px 0 0; outline: none; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: right 4px center, right 0 center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .coin-switch select option { background: var(--bg-soft); color: var(--text); }
       .lang-select { display: flex; align-items: center; gap: 6px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px 5px 10px; background: var(--panel); cursor: pointer; transition: .15s; }
       .lang-select:hover { color: var(--text); border-color: var(--neon); }
       .lang-select .lang-globe { font-size: 13px; line-height: 1; filter: grayscale(.2); }
@@ -515,23 +519,26 @@
       .foot-desc{margin:8px auto 0;max-width:680px;opacity:.85}
     </style>
     <footer class="site-foot" aria-label="사이트 정보">
-      <div class="foot-fam-label">코인 매수 타이밍 시그널 · 자매 앱</div>
-      <nav class="foot-fam" aria-label="자매 코인 시그널 앱">
+      <!-- 코인 전환은 이제 한 앱 안에서(?coin=) 처리한다. 예전엔 코인마다 서브도메인
+           복제본을 링크했으나, 91% 동일한 페이지 15개가 색인되며 AdSense
+           "가치 없는/복제된 콘텐츠" 판정을 받아 루트 하나로 통합했다. -->
+      <div class="foot-fam-label">코인 매수 타이밍 시그널 · 코인 선택</div>
+      <nav class="foot-fam" aria-label="코인 선택">
         <span class="cur" data-coin="btc" aria-current="page">비트코인</span>
-        <a data-coin="eth" href="https://eth.broodev.com/">이더리움</a>
-        <a data-coin="xrp" href="https://xrp.broodev.com/">리플</a>
-        <a data-coin="doge" href="https://doge.broodev.com/">도지코인</a>
-        <a data-coin="bch" href="https://bch.broodev.com/">비트코인캐시</a>
-        <a data-coin="link" href="https://link.broodev.com/">체인링크</a>
-        <a data-coin="xlm" href="https://xlm.broodev.com/">스텔라루멘</a>
-        <a data-coin="ltc" href="https://ltc.broodev.com/">라이트코인</a>
-        <a data-coin="avax" href="https://avax.broodev.com/">아발란체</a>
-        <a data-coin="shib" href="https://shib.broodev.com/">시바이누</a>
-        <a data-coin="dot" href="https://dot.broodev.com/">폴카닷</a>
-        <a data-coin="pepe" href="https://pepe.broodev.com/">페페</a>
-        <a data-coin="grt" href="https://grt.broodev.com/">더그래프</a>
-        <a data-coin="sand" href="https://sand.broodev.com/">샌드박스</a>
-        <a data-coin="mana" href="https://mana.broodev.com/">디센트럴랜드</a>
+        <a data-coin="eth" href="/?coin=eth">이더리움</a>
+        <a data-coin="xrp" href="/?coin=xrp">리플</a>
+        <a data-coin="doge" href="/?coin=doge">도지코인</a>
+        <a data-coin="bch" href="/?coin=bch">비트코인캐시</a>
+        <a data-coin="link" href="/?coin=link">체인링크</a>
+        <a data-coin="xlm" href="/?coin=xlm">스텔라루멘</a>
+        <a data-coin="ltc" href="/?coin=ltc">라이트코인</a>
+        <a data-coin="avax" href="/?coin=avax">아발란체</a>
+        <a data-coin="shib" href="/?coin=shib">시바이누</a>
+        <a data-coin="dot" href="/?coin=dot">폴카닷</a>
+        <a data-coin="pepe" href="/?coin=pepe">페페</a>
+        <a data-coin="grt" href="/?coin=grt">더그래프</a>
+        <a data-coin="sand" href="/?coin=sand">샌드박스</a>
+        <a data-coin="mana" href="/?coin=mana">디센트럴랜드</a>
         <a class="dev" data-coin="dev" href="https://dev.broodev.com/">◈ dev</a>
       </nav>
       <nav class="foot-links">
@@ -542,6 +549,62 @@
     </footer>
 
     <script src="seo-i18n.js"></script>
+    <!-- ?coin= 선택 시 정적 본문/제목을 해당 코인으로 현지화.
+         (기본 btc = 색인되는 정규 페이지이므로 원문 그대로 둔다. 다른 코인은
+          canonical 이 루트라 색인되지 않으며, 이 스왑은 사용자 화면용이다.) -->
+    <script>
+      (function () {
+        var COIN_NAMES = {
+          eth: ['이더리움', 'ETH'], xrp: ['리플', 'XRP'], doge: ['도지코인', 'DOGE'],
+          bch: ['비트코인캐시', 'BCH'], link: ['체인링크', 'LINK'], xlm: ['스텔라루멘', 'XLM'],
+          ltc: ['라이트코인', 'LTC'], avax: ['아발란체', 'AVAX'], shib: ['시바이누', 'SHIB'],
+          dot: ['폴카닷', 'DOT'], pepe: ['페페', 'PEPE'], grt: ['더그래프', 'GRT'],
+          sand: ['샌드박스', 'SAND'], mana: ['디센트럴랜드', 'MANA'],
+        };
+        var slug, c;
+        try { slug = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { return; }
+        c = COIN_NAMES[slug];
+        if (!c) return; // btc(기본) 또는 미지원 → 원문 유지
+        var ko = c[0], tk = c[1];
+        function swap() {
+          var sec = document.querySelector('section.seo');
+          if (!sec) return;
+          // 텍스트 노드만 치환 (태그/속성은 건드리지 않음)
+          var w = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT, null);
+          var n;
+          while ((n = w.nextNode())) {
+            if (n.nodeValue.indexOf('비트코인') < 0 && n.nodeValue.indexOf('BTC') < 0) continue;
+            n.nodeValue = n.nodeValue.replace(/비트코인/g, ko).replace(/BTC_SIGNAL/g, tk + '_SIGNAL').replace(/\bBTC\b/g, tk);
+          }
+        }
+        document.title = document.title.replace(/비트코인/g, ko).replace(/BTC_SIGNAL/g, tk + '_SIGNAL');
+        swap();
+        // 푸터 코인 목록의 현재 표시(.cur)를 선택된 코인으로 옮긴다.
+        try {
+          var fam = document.querySelector('.foot-fam');
+          if (fam) {
+            var oldCur = fam.querySelector('.cur');
+            if (oldCur) {
+              var a = document.createElement('a');
+              a.setAttribute('data-coin', 'btc'); a.href = '/'; a.textContent = '비트코인';
+              oldCur.replaceWith(a);
+            }
+            var next = fam.querySelector('a[data-coin="' + slug + '"]');
+            if (next) {
+              var s = document.createElement('span');
+              s.className = 'cur'; s.setAttribute('data-coin', slug);
+              s.setAttribute('aria-current', 'page'); s.textContent = ko;
+              next.replaceWith(s);
+            }
+          }
+        } catch (e) {}
+        // 언어 전환 시 renderSEO 가 본문을 다시 그리므로, 그 뒤에도 재적용한다.
+        var orig = window.renderSEO;
+        if (typeof orig === 'function') {
+          window.renderSEO = function (lang) { orig(lang); swap(); };
+        }
+      })();
+    </script>
     <script src="foot-i18n.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -1284,13 +1347,44 @@
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
       /* =========================================================
+       *  코인 레지스트리 — 한 앱이 ?coin= 으로 전 코인을 서빙한다.
+       *  (예전엔 코인마다 서브도메인 앱을 복제했으나, 91% 동일한 페이지가
+       *   15개 색인되면서 AdSense "가치 없는/복제된 콘텐츠"에 걸렸다.
+       *   이제 루트 1개로 통합하고 코인 서브도메인은 여기로 흡수한다.)
+       * ========================================================= */
+      const COINS = [
+        { slug: 'btc',  ticker: 'BTC',  sym: '₿', cg: 'bitcoin',      bn: 'BTCUSDT',  ko: '비트코인' },
+        { slug: 'eth',  ticker: 'ETH',  sym: 'Ξ', cg: 'ethereum',     bn: 'ETHUSDT',  ko: '이더리움' },
+        { slug: 'xrp',  ticker: 'XRP',  sym: '✕', cg: 'ripple',       bn: 'XRPUSDT',  ko: '리플' },
+        { slug: 'doge', ticker: 'DOGE', sym: 'Ð', cg: 'dogecoin',     bn: 'DOGEUSDT', ko: '도지코인' },
+        { slug: 'bch',  ticker: 'BCH',  sym: '₿', cg: 'bitcoin-cash', bn: 'BCHUSDT',  ko: '비트코인캐시' },
+        { slug: 'link', ticker: 'LINK', sym: '⬡', cg: 'chainlink',    bn: 'LINKUSDT', ko: '체인링크' },
+        { slug: 'xlm',  ticker: 'XLM',  sym: '✦', cg: 'stellar',      bn: 'XLMUSDT',  ko: '스텔라루멘' },
+        { slug: 'ltc',  ticker: 'LTC',  sym: 'Ł', cg: 'litecoin',     bn: 'LTCUSDT',  ko: '라이트코인' },
+        { slug: 'avax', ticker: 'AVAX', sym: '▲', cg: 'avalanche-2',  bn: 'AVAXUSDT', ko: '아발란체' },
+        { slug: 'shib', ticker: 'SHIB', sym: '🐕', cg: 'shiba-inu',   bn: 'SHIBUSDT', ko: '시바이누' },
+        { slug: 'dot',  ticker: 'DOT',  sym: '●', cg: 'polkadot',     bn: 'DOTUSDT',  ko: '폴카닷' },
+        { slug: 'pepe', ticker: 'PEPE', sym: '🐸', cg: 'pepe',        bn: 'PEPEUSDT', ko: '페페' },
+        { slug: 'grt',  ticker: 'GRT',  sym: '◈', cg: 'the-graph',    bn: 'GRTUSDT',  ko: '더그래프' },
+        { slug: 'sand', ticker: 'SAND', sym: '◆', cg: 'the-sandbox',  bn: 'SANDUSDT', ko: '샌드박스' },
+        { slug: 'mana', ticker: 'MANA', sym: '◇', cg: 'decentraland', bn: 'MANAUSDT', ko: '디센트럴랜드' },
+      ]
+      const COIN = (() => {
+        let s = 'btc'
+        try { s = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase() } catch {}
+        return COINS.find((c) => c.slug === s) || COINS[0]
+      })()
+      /* 코인별 캐시 키 — 코인 전환 시 서로의 가격/히스토리를 섞지 않는다. */
+      const CK = (k) => COIN.slug + ':' + k
+
+      /* =========================================================
        *  데이터 페치 (CoinGecko / Binance / Alternative.me, CORS OK)
        * ========================================================= */
       const URLS = {
-        cgPrice: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true',
-        bnTicker: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT',
-        bnKlines: 'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000',
-        cgChart: 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily',
+        cgPrice: `https://api.coingecko.com/api/v3/simple/price?ids=${COIN.cg}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
+        bnTicker: `https://api.binance.com/api/v3/ticker/24hr?symbol=${COIN.bn}`,
+        bnKlines: `https://api.binance.com/api/v3/klines?symbol=${COIN.bn}&interval=1d&limit=1000`,
+        cgChart: `https://api.coingecko.com/api/v3/coins/${COIN.cg}/market_chart?vs_currency=usd&days=365&interval=daily`,
         fng: 'https://api.alternative.me/fng/?limit=90',
       }
       async function fetchJSON(url, timeout = 9000) {
@@ -1316,16 +1410,16 @@
       async function loadPrice() {
         try {
           const j = await withRetry(() => fetchJSON(URLS.cgPrice, 8000))
-          const b = j.bitcoin
+          const b = j[COIN.cg]
           const data = { price: b.usd, change24hPct: b.usd_24h_change, marketCap: b.usd_market_cap, vol24h: b.usd_24h_vol, source: 'coingecko' }
-          saveCache('btc:price', data); return { ...data, status: 'live', fetchedAt: Date.now() }
+          saveCache(CK('price'), data); return { ...data, status: 'live', fetchedAt: Date.now() }
         } catch {
           try {
             const t = await fetchJSON(URLS.bnTicker, 8000)
             const data = { price: +t.lastPrice, change24hPct: +t.priceChangePercent, marketCap: null, vol24h: +t.quoteVolume, source: 'binance' }
-            saveCache('btc:price', data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
+            saveCache(CK('price'), data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
           } catch {
-            const c = loadCache('btc:price'); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
+            const c = loadCache(CK('price')); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
             return { status: 'error', fetchedAt: null }
           }
         }
@@ -1335,7 +1429,7 @@
           const rows = await withRetry(() => fetchJSON(URLS.bnKlines, 11000))
           const candles = rows.map((r) => ({ t: r[0], open: +r[1], high: +r[2], low: +r[3], close: +r[4], volume: +r[5] })).filter((c) => Number.isFinite(c.close))
           const data = { closes: candles.map((c) => c.close), volumes: candles.map((c) => c.volume), times: candles.map((c) => c.t), source: 'binance' }
-          saveCache('btc:klines', data); return { ...data, status: 'live', fetchedAt: Date.now() }
+          saveCache(CK('klines'), data); return { ...data, status: 'live', fetchedAt: Date.now() }
         } catch {
           try {
             const j = await fetchJSON(URLS.cgChart, 11000)
@@ -1344,9 +1438,9 @@
             // closes/times/volumes 를 한 번 필터링한 포인트 리스트에서 함께 파생 → 항상 평행
             const pts = prices.map((p, i) => ({ t: p[0], close: p[1], volume: vols[i] ? vols[i][1] : null })).filter((c) => Number.isFinite(c.close))
             const data = { closes: pts.map((c) => c.close), volumes: pts.map((c) => c.volume), times: pts.map((c) => c.t), source: 'coingecko' }
-            saveCache('btc:klines', data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
+            saveCache(CK('klines'), data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
           } catch {
-            const c = loadCache('btc:klines'); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
+            const c = loadCache(CK('klines')); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
             return { status: 'error', fetchedAt: null }
           }
         }
@@ -1993,7 +2087,7 @@
         const [matrixOn, setMatrixOn] = useLocalStorage('btc:matrix', true)
         const [tipsOn, setTipsOn] = useLocalStorage('btc:tips', true)
         const [lang, setLang] = useLocalStorage('btc:lang', detectLang())
-        const [scoreHist, setScoreHist] = useLocalStorage('btc:scoreHist', [])
+        const [scoreHist, setScoreHist] = useLocalStorage(CK('scoreHist'), [])
         const now = useClock()
         const t = getT(lang)
         const locale = localeOf(lang)
@@ -2058,8 +2152,8 @@
 
         // 부팅: 캐시 하이드레이션(즉시) → 라이브 페치 → 폴링
         useEffect(() => {
-          const pc = loadCache('btc:price'); if (pc) setPrice({ ...pc.data, status: 'cached', fetchedAt: pc.fetchedAt })
-          const kc = loadCache('btc:klines'); if (kc) setKlines({ ...kc.data, status: 'cached', fetchedAt: kc.fetchedAt })
+          const pc = loadCache(CK('price')); if (pc) setPrice({ ...pc.data, status: 'cached', fetchedAt: pc.fetchedAt })
+          const kc = loadCache(CK('klines')); if (kc) setKlines({ ...kc.data, status: 'cached', fetchedAt: kc.fetchedAt })
           const fc = loadCache('btc:fng'); if (fc) setFng({ ...fc.data, status: 'cached', fetchedAt: fc.fetchedAt })
           refresh()
           let n = 0
@@ -2133,12 +2227,26 @@
             <div className="shell">
               <header className="topbar">
                 <div className="brand">
-                  <span className="logo">₿▰▱</span>
+                  <span className="logo">{COIN.sym}▰▱</span>
                   <div>
-                    <h1 className="title">BTC_SIGNAL <span className="dim">// {t.tagline}</span></h1>
+                    <h1 className="title">{COIN.ticker}_SIGNAL <span className="dim">// {t.tagline}</span></h1>
                     <p className="subtitle">{t.subtitle}</p>
                   </div>
                 </div>
+                <nav className="coin-switch" aria-label="코인 선택">
+                  <select
+                    value={COIN.slug}
+                    onChange={(e) => {
+                      const u = new URL(window.location.href)
+                      if (e.target.value === 'btc') u.searchParams.delete('coin')
+                      else u.searchParams.set('coin', e.target.value)
+                      window.location.assign(u)
+                    }}
+                    aria-label="코인 선택"
+                  >
+                    {COINS.map((c) => <option key={c.slug} value={c.slug}>{c.ticker} · {c.ko}</option>)}
+                  </select>
+                </nav>
                 <div className="topbar-right">
                   <label className="lang-select" title={t.langLabel}>
                     <span className="lang-globe" aria-hidden="true">🌐</span>
