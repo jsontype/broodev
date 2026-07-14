@@ -8,6 +8,32 @@
 
 ---
 
+## 0-A. ⚠️ 2026-07-15 전수 감사 — 이전 판의 주장 중 상당수가 틀렸다
+
+7개 렌즈 병렬 감사에서 **79건**이 나왔다(CRITICAL 16 · HIGH 27). 이 문서의 이전 판이
+**"광고 게재 화면은 btc·voca 2개뿐"** 이라고 단언했는데 **거짓이었다.**
+로더 스크립트(`googlesyndication`)만 grep 했고, **렌더링되는 `<ins class="adsbygoogle">` 태그와
+`ads.txt` 를 확인하지 않았다.**
+
+### 이번에 잡아낸 것 중 가장 심각했던 것들
+
+| 문제 | 실체 |
+| --- | --- |
+| **가짜 계산 게이트** | 데이터를 이미 다 받아놓고 **6~9초 가짜 "계산 중" 연출**(`total = 6000 + rand(3000)`)을 돌렸다. UI 문구가 13개 언어 전부에서 **"그동안 아래 광고가 노출됩니다"** 라고 명시. 코드 주석이 스스로 **"연출"** 이라 불렀다. STALE 되면 점수를 다시 잠가 **게이트 반복 통과**(= 광고 반복 노출). → **광고 노출을 인위적으로 만드는 장치.** 전면 삭제 |
+| **광고 화면 ≠ 콘텐츠 화면** | 원본 콘텐츠 12편을 썼는데 **그 페이지엔 광고가 없었다.** AdSense 가 심사하는 "광고가 게재되는 화면"은 여전히 대시보드 하나뿐이었다. → **콘텐츠 페이지 18장에 AdSense 추가.** 이제 광고 화면 = 콘텐츠 화면 |
+| **빈 광고 슬롯** | `data-ad-slot=""` 로 600px "AD" 라벨 빈 박스 2개를 렌더 + `***! TODO` 주석과 `여기에_광고단위_슬롯ID` 플레이스홀더가 view-source 에 그대로 노출 → **미완성 화면.** RailAd·플레이스홀더 전부 삭제 |
+| **클론 "광고 제거"가 미완** | 로더만 지웠고 `<ins data-ad-client="ca-pub-…">` 는 여전히 렌더됐다. **`ads.txt` 19개**가 pub ID 를 선언 중이었다 → 클론 콘텐츠 **전부 삭제** + 301, `ads.txt` 는 btc·voca 만 |
+| **`renderSEO()` 가 내부링크를 지움** | 언어 전환 시 `section.seo` 를 통째로 덮어써서 **새로 추가한 콘텐츠 링크가 사라졌다** → `build()` 에 링크 블록 추가 |
+| **`dev` 가 코인 클론을 다시 링크** | 통합 sed 가 `app.jsx` 를 놓쳐 dev 포털이 14개 클론을 전부 링크 중이었다 → 루트 `?coin=` 로 교체 |
+| **soft-404** | 존재하지 않는 URL 전부가 **HTTP 200 + 광고 붙은 홈페이지**를 반환 → `404.html` + `_redirects` 로 진짜 404 |
+| **크롤 차단 함정** | `admin` 의 `robots.txt Disallow: /` 가 크롤을 막아 **noindex 가 영영 적용되지 않음**(색인에서 안 빠짐) → `Allow: /` 로 수정. 코인 클론도 같은 이유로 `Allow`(301 을 크롤러가 봐야 통합됨) |
+| **내부 문서 공개 서빙** | `broodev.com/README.md` 로 내부 TODO·**프리미엄 우회 치트**가 공개되고 있었다 → 배포 디렉터리에서 삭제 |
+
+> **교훈: `index.html` 만, 로더 스크립트만 grep 하지 마라.**
+> **모든 `*.html`** 에서 **렌더링되는 광고 마크업(`<ins>`, `data-ad-client`)과 `ads.txt`** 까지 봐야 한다.
+
+---
+
 ## 0. 탈락 이력과 진짜 원인
 
 | 시점 | 사유 | 우리가 처음에 내린 진단 | **실제 원인** |
@@ -314,6 +340,45 @@ Google 이 구체적 탈락 사유를 주지 않으므로 **이것이 유일하�
 
 > **`noindex` 해제는 콘텐츠를 채운 다음에나 꺼낼 수 있는 카드다.**
 > 지금 상태로 해제하면 재발한다.
+
+---
+
+## 9-C. 🔴 레포에서 못 고치는 것 — 반드시 Cloudflare 에서 처리할 것
+
+아래는 **코드로 해결이 안 되고 Cloudflare 콘솔에서 처리해야 하는 잔여 위험**이다.
+배포만 하고 이걸 안 하면 **여전히 탈락 사유가 남는다.**
+
+### ① `btc.broodev.com` — 통합에서 누락된 15번째 클론 🔴
+`apps/btc` 한 디렉터리가 **`broodev.com` 과 `btc.broodev.com` 두 호스트에 동시 배포**된다
+(`broodev-web` + `broodev-btc` 두 Pages 프로젝트). 즉 심사 대상 루트의 **완전 복제본**이
+광고를 달고 살아 있다. `_redirects` 로는 못 고친다 — 같은 파일이 양쪽에 배포되므로
+`_redirects` 를 넣으면 루트까지 리다이렉트된다.
+
+**조치 (택 1)**
+- **(권장) `broodev-btc` Pages 프로젝트를 삭제**하고 `btc.broodev.com` DNS 레코드를 제거한다.
+- 또는 Cloudflare → `broodev.com` 존 → **Rules → Redirect Rules**:
+  `Hostname equals btc.broodev.com` → `https://broodev.com/` **301**
+
+### ② `*.pages.dev` 프리뷰 도메인 🔴
+Pages 프로젝트마다 `broodev-web.pages.dev` 같은 **크롤 가능한 사이트 복제본**이 하나씩 더 있다.
+**조치:** 각 Pages 프로젝트 → Settings → **Preview deployments 접근 제한**, 또는
+Cloudflare Access 로 `*.pages.dev` 를 잠근다.
+
+### ③ 코인 서브도메인 301 확인
+레포에 `apps/<coin>/_redirects` (`/* https://broodev.com/?coin=<coin> 301`) 를 넣었다.
+`robots.txt` 는 **`Allow: /`** 로 두었다 — **크롤이 막히면 Google 이 301 을 못 보고 색인에서 안 빠진다.**
+**배포 후 반드시 확인:** `curl -I https://eth.broodev.com/` → `301` + `Location: https://broodev.com/?coin=eth`
+
+### ④ 배포 watch path
+`apps/web` 은 레포에서 사라졌는데 `broodev-web` 프로젝트의 **Root directory 가 아직 `apps/web`** 이면
+빌드가 실패하거나 옛 버전이 계속 서빙된다.
+**조치:** `broodev-web` → Settings → **Root directory = `apps/btc`** 확인.
+
+### ⑤ (보안) `voca.broodev.com` 공개 이미지 업로드 API
+`apps/voca/functions/api/shot.js` 는 문의 폼 스크린샷용인데 **Origin/Referer 헤더 검사만** 한다.
+헤더는 위조 가능하므로 **누구나 광고 게재 도메인에 임의 이미지를 호스팅**할 수 있다
+(2MB 제한 · 이미지 타입 검사 · 90일 TTL 은 있음).
+**조치:** Cloudflare **Turnstile** 또는 Rate Limiting 을 붙이거나, 문의 폼에서 업로드를 제거한다.
 
 ---
 
