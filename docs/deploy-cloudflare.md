@@ -38,30 +38,6 @@
 
 > 회사 포털(`apps/web`)은 심사 통과 후 `broodev.com/about` 서브경로나 별도 서브도메인으로 재배치 예정. 지금은 루트를 btc로 두는 것이 우선.
 
-## 1-C. (AdSense 대응 2차) 코인 복제본 14개 통합 ⭐⭐ — **가장 중요**
-
-§1-B(루트=btc)를 적용했는데도 **또 “가치가 별로 없는 콘텐츠”로 탈락**했다. 원인은 루트가 아니라 **property 전체**였다.
-
-**무엇이 문제였나**
-- 코인 앱 15종이 **전부 2277줄, 서로 91% 동일**(코인 이름만 치환)
-- 15개 전부 `index, follow` + **AdSense 게재** + 서로를 링크
-- → AdSense **“복제된 콘텐츠가 있는 화면”** + **“가치가 별로 없는 콘텐츠”** 직격
-
-**레포에 이미 반영된 조치 (코드)**
-- 루트 `apps/btc` 에 **코인 선택기** 추가 → `broodev.com/?coin=eth` 로 15종 전부 서빙
-- 코인 서브도메인 14개(`apps/{eth,xrp,...}`): `noindex` + canonical→루트 + **AdSense 스크립트 제거** + `sitemap.xml` 삭제 + 상호링크 제거
-  - `robots.txt` 의 `Allow: /` 는 **그대로 둔다** — 크롤이 막히면 `noindex` 를 읽지 못해 색인이 안 빠진다.
-  - ⚠️ **`noindex` 만으로는 AdSense가 해결되지 않는다.** `noindex` 는 *검색 색인* 지시일 뿐이고, AdSense 정책은 **광고가 게재되는 화면**에 적용된다. 그래서 **광고 스크립트 제거(= 광고 재고에서 제외)** 가 핵심이다.
-
-**Cloudflare에서 마무리 (권장)**
-코인 서브도메인을 루트로 **301 리다이렉트**해 완전히 통합한다. (복제본이 아예 사라져 가장 깨끗함)
-1. Cloudflare → `broodev.com` 존 → **Rules → Redirect Rules → Create rule**
-2. 조건: `Hostname` **equals** `eth.broodev.com` → 대상: `https://broodev.com/?coin=eth` (**301 Permanent**)
-3. 14종(`eth xrp doge bch link xlm ltc avax shib dot pepe grt sand mana`) 각각 추가. (무료 플랜 룰 수 제한에 걸리면 **Bulk Redirects** 사용)
-4. 301 을 걸면 해당 Pages 프로젝트는 사실상 비활성 — 원하면 프로젝트/서브도메인 자체를 삭제해도 된다.
-
-> 301 을 아직 안 걸어도, 현재 코드 상태(광고 제거 + noindex + canonical)만으로 **광고 게재·색인되는 코인 페이지는 루트 1개뿐**이다.
-
 ## 2. admin (admin.broodev.com) — 정적
 1. 위와 동일하게 새 Pages 프로젝트 `broodev-admin`, Root directory `apps/admin`, 빌드 없음, output `.`.
 2. Custom domains → `admin.broodev.com` 추가.
