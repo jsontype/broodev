@@ -6,7 +6,7 @@
     <title>문의 &amp; 버그 신고 | broodev</title>
     <meta name="description" content="broodev 앱 문의 및 버그 신고 — 서비스 이용 중 발견한 버그나 개선 제안을 운영자에게 직접 보낼 수 있습니다." />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://voca.broodev.com/contact.html" />
+    <link rel="canonical" href="https://voca.broodev.com/contact" />
     <meta name="theme-color" content="#05080a" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <style>
@@ -63,7 +63,7 @@
   <body>
     <main class="wrap">
       <nav class="nav">
-        <a id="n-back" href="/">← 홈</a><a id="n-privacy" href="/privacy.html">개인정보처리방침</a><a id="n-terms" href="/terms.html">이용약관</a>
+        <a id="n-back" href="/">← 홈</a><a id="n-privacy" href="/privacy">개인정보처리방침</a><a id="n-terms" href="/terms">이용약관</a>
         <span class="sp"></span>
         <select class="lang-pick" id="n-lang" aria-label="Language"></select>
       </nav>
@@ -92,6 +92,7 @@
         <button type="button" class="shot-btn" id="f-shot-btn">🖼 스크린샷 첨부</button>
         <input id="f-shot-file" type="file" accept="image/*" multiple style="display:none" />
         <div class="shots" id="f-shots"></div>
+        <div id="f-turnstile" style="margin:10px 0"></div>
 
         <button type="submit" id="f-send">보내기</button>
         <p class="status" id="f-status"></p>
@@ -107,6 +108,10 @@
       var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
       var EMAILJS_SERVICE_ID = 'broodev_service';
       var EMAILJS_TEMPLATE_ID = 'broodev_template';
+      /* Cloudflare Turnstile 사이트 키 — 넣으면 스크린샷 업로드에 봇 방지 검증이 붙는다.
+         서버 쪽 검증은 Pages 프로젝트 환경변수 TURNSTILE_SECRET(Secret)이 담당.
+         (대시보드 → Turnstile → Add widget, hostname: broodev.com, mode: Managed) */
+      var TURNSTILE_SITE_KEY = '';
       var FALLBACK_MAIL = 'jsontyper@gmail.com';
 
       /* ── 출발 앱 (?app=) — 돌아가기 링크 + 메일 제목 태그 ───── */
@@ -441,7 +446,10 @@
             if (!blob) return;
             statusEl.className = 'status';
             statusEl.textContent = t.uploading;
-            fetch('/api/shot', { method: 'POST', headers: { 'content-type': 'image/jpeg' }, body: blob })
+            var headers = { 'content-type': 'image/jpeg' };
+            var tok = tsToken();
+            if (tok) headers['x-turnstile-token'] = tok;
+            fetch('/api/shot', { method: 'POST', headers: headers, body: blob })
               .then(function (r) {
                 return r.json().catch(function () { return {}; }).then(function (j) {
                   if (!r.ok) throw new Error((j && j.error) || ('HTTP ' + r.status));
@@ -449,12 +457,14 @@
                 });
               })
               .then(function (j) {
+                tsReset();
                 if (shots.length >= MAX_SHOTS) return;
                 shots.push({ url: j.url, thumb: thumb });
                 renderShots();
                 statusEl.textContent = '';
               })
               .catch(function (err) {
+                tsReset();
                 statusEl.className = 'status err';
                 statusEl.textContent = t.uploadFail + (err && err.message ? ' [' + err.message + ']' : '');
               });
@@ -468,6 +478,25 @@
         Array.prototype.slice.call(files).forEach(function (f) {
           if (f && /^image\//.test(f.type)) uploadShot(f);
         });
+      }
+
+      /* ── Turnstile — 사이트 키가 설정된 경우에만 로드/렌더 ──
+         토큰은 1회용이라 업로드 응답마다 reset 으로 새 토큰을 받는다. */
+      var tsWidget = null;
+      if (TURNSTILE_SITE_KEY) {
+        window.__tsReady = function () {
+          try { tsWidget = turnstile.render('#f-turnstile', { sitekey: TURNSTILE_SITE_KEY, size: 'flexible' }); } catch (e) {}
+        };
+        var tsScript = document.createElement('script');
+        tsScript.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__tsReady';
+        tsScript.async = true;
+        document.head.appendChild(tsScript);
+      }
+      function tsToken() {
+        try { return tsWidget != null ? (turnstile.getResponse(tsWidget) || '') : ''; } catch (e) { return ''; }
+      }
+      function tsReset() {
+        try { if (tsWidget != null) turnstile.reset(tsWidget); } catch (e) {}
       }
 
       shotBtn.addEventListener('click', function () { shotFile.click(); });

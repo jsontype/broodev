@@ -3,20 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
 
-    <!-- 구독자만 광고 없는 버전(member/)으로 보냄. 비구독자·크롤러는 이 광고 버전 페이지에 그대로 머무름 → SEO 유지.
-         ***! TODO: 실제 구독 검증은 결제+인증 백엔드(서버 발급 토큰/쿠키)로. 지금은 임시 클라이언트 플래그(우회 가능, 보안 아님). -->
-    <script>
-      (function () {
-        try {
-          var qs = new URLSearchParams(location.search);
-          if (qs.get('member') === '1') localStorage.setItem('btc:member', '1');
-          if (qs.get('member') === '0') localStorage.removeItem('btc:member');
-          if (localStorage.getItem('btc:member') === '1') location.replace('member/' + location.hash);
-        } catch (e) {}
-      })();
-    </script>
+    <!-- ===== member/ 조건부 리디렉션 제거됨 (2026-07-15) =====
+         이전 코드는 localStorage 플래그(?member=1 로 누구나 설정 가능)를 보고
+         광고 없는 member/ 페이지로 location.replace() 했다. 문제가 셋이었다.
+           1) 조건부 JS 리디렉션 — Google 스팸 정책의 클로킹/부적절한 리디렉션에 인접
+           2) 결제·인증 백엔드가 없는 **미완성 기능** (코드 주석이 "우회 가능, 보안 아님"이라 자백)
+              → AdSense 는 "아직 미완성 상태인 화면"을 금지한다
+           3) member/ 는 루트와 88% 동일하고 <title>까지 같은 복제본
+         실제 구독 결제·서버측 검증이 붙기 전까지 이 경로를 비활성화한다.
+         member/ 는 robots.txt Disallow + noindex 로 차단해 두었다. -->
 
     <!-- ===== SEO ===== -->
     <title>비트코인 공포·탐욕 지수 · 매수 타이밍 실시간 | BTC_SIGNAL</title>
@@ -24,7 +20,6 @@
       name="description"
       content="비트코인 공포·탐욕 지수(Fear & Greed)와 RSI·MACD·마이어 배수 등 6개 지표를 실시간 합성해 '지금이 매수 타이밍인가'를 0~100 점수로 보여주는 무료 대시보드. 설치 불필요."
     />
-    <meta name="keywords" content="비트코인 공포지수, 비트코인 공포탐욕지수, 공포탐욕지수 실시간, 비트코인 매수 타이밍, 비트코인 지금 사도 되나, bitcoin fear and greed index, BTC" />
     <meta name="author" content="BTC_SIGNAL" />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#05080a" />
@@ -40,7 +35,26 @@
          · 이 스크립트만으로 Auto ads가 자동 게재됨(AdSense 대시보드에서 Auto ads ON + 사이트 승인 필요)
          · 광고 없는 버전은 메인(../standalone.html, ../index.html) — 향후 유료 회원에게 제공 예정
          ============================================================ -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+    <!-- ⚠ 광고는 ?coin= 이 없는 기본 화면(비트코인)에서만 로드한다.
+         이유: ?coin=eth 등은 비트코인 해설 본문의 단어만 치환해 보여주는 화면이라
+         코인별 고유 게시자 콘텐츠가 없다. 그런 화면에 광고를 붙이면 AdSense
+         "복제된 콘텐츠가 있는 화면 / 게시자 콘텐츠가 없는 화면" 위반이다.
+         (코인별 고유 해설을 작성해 붙이기 전까지 비-BTC 화면은 광고 없이 도구로만 제공) -->
+    <script>
+      (function () {
+        var coin;
+        try { coin = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { coin = 'btc'; }
+        if (coin !== 'btc') return; // 비-BTC → 광고 로더·계정 메타 주입 안 함
+        var m = document.createElement('meta');
+        m.name = 'google-adsense-account'; m.content = 'ca-pub-5511225478572825';
+        document.head.appendChild(m);
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825';
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      })();
+    </script>
 
     <link rel="canonical" href="https://broodev.com/" />
     <!-- 언어별 대체 URL (?lang= 을 앱이 인식) — 루트(broodev.com)가 심사·표준 URL -->
@@ -240,34 +254,6 @@
       .verdict-advice { margin-top: 8px; font-size: 11.5px; line-height: 1.5; color: var(--text); opacity: .85; max-width: 260px; }
       .coverage { margin-top: 10px; font-size: 10px; letter-spacing: 1px; color: var(--dim); }
 
-      /* AdSense 버전: 매수 타이밍 점수 "계산 시작" 게이트 (정책 안전 — 광고 클릭/시청 강요 없음) */
-      .score-gate { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 6px 2px 2px; width: 100%; }
-      .gate-lock { font-size: 30px; filter: drop-shadow(0 0 10px rgba(0,255,156,.5)); }
-      .gate-title { font-size: 16px; font-weight: 800; color: var(--neon); text-shadow: 0 0 10px rgba(0,255,156,.4); line-height: 1.3; }
-      .gate-sub { font-size: 11.5px; color: var(--dim); line-height: 1.5; max-width: 250px; }
-      .gate-btn { margin-top: 4px; font-family: var(--font); font-size: 13px; font-weight: 700; letter-spacing: .2px; color: #04110c; background: var(--neon); border: none; border-radius: 6px; padding: 12px 16px; cursor: pointer; box-shadow: 0 0 24px -6px var(--neon); transition: transform .12s, box-shadow .2s; line-height: 1.35; }
-      .gate-btn:hover { transform: translateY(-1px); box-shadow: 0 0 30px -4px var(--neon); }
-      .gate-btn:active { transform: translateY(0); }
-      .gate-note { font-size: 10px; color: var(--dim); max-width: 250px; }
-      .gate-calc { width: 100%; max-width: 100%; overflow: hidden; min-height: 124px; text-align: left; background: rgba(4,8,9,.6); border: 1px solid var(--line); border-radius: 5px; padding: 10px 12px; font-size: 11.5px; line-height: 1.7; }
-      .gate-line { color: var(--text); white-space: pre-wrap; word-break: break-word; }
-      .gate-cursor { color: var(--neon); animation: blink 1s steps(2) infinite; }
-      .gate-progress { width: 100%; height: 6px; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
-      .gate-bar { height: 100%; background: var(--neon); box-shadow: 0 0 10px var(--neon); transition: width .5s cubic-bezier(.2,.8,.2,1); }
-      .gate-adwrap { width: 100%; max-width: 100%; overflow: hidden; }
-      .gate-adlabel { display: block; font-size: 9px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; margin-bottom: 3px; text-align: left; }
-      .gate-ad { display: block; width: 100%; max-width: 100%; overflow: hidden; min-height: 90px; }
-      /* 좌우 거터 광고 레일 — 데스크톱 전용, 거터가 충분히 넓을 때만 표시(콘텐츠와 안 겹침) */
-      .ad-rail { display: none; }
-      .rail-ad { display: block; width: 100%; max-width: 100%; min-height: 600px; }
-      .ad-rail-label { font-size: 9px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; margin-bottom: 4px; text-align: center; }
-      @media (min-width: 1560px) {
-        .ad-rail { display: block; position: fixed; top: 50%; transform: translateY(-50%); width: 160px; z-index: 3; }
-        .ad-rail.left { left: 14px; }
-        .ad-rail.right { right: 14px; }
-      }
-      @media (min-width: 1840px) { .ad-rail { width: 300px; } }
-
       .market { display: flex; flex-direction: column; gap: 14px; }
       .market-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
       .price-big { font-size: 38px; font-weight: 800; line-height: 1; color: var(--text); text-shadow: 0 0 14px rgba(0,255,156,.25); }
@@ -370,6 +356,11 @@
       }
 
       /* 용어 설명 토글 */
+      /* 코인 선택기 — 서브도메인 복제 대신 한 앱에서 코인을 전환한다 */
+      .coin-switch { display: flex; align-items: center; margin-right: 8px; border: 1px solid var(--neon); border-radius: 4px; padding: 5px 8px 5px 10px; background: var(--panel); cursor: pointer; }
+      .coin-switch select { appearance: none; -webkit-appearance: none; background: transparent; border: none; color: var(--neon); font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: .5px; cursor: pointer; padding: 0 14px 0 0; outline: none; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: right 4px center, right 0 center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .coin-switch select option { background: var(--bg-soft); color: var(--text); }
+      .topbar .lang-select { display: none !important; }
       .lang-select { display: flex; align-items: center; gap: 6px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px 5px 10px; background: var(--panel); cursor: pointer; transition: .15s; }
       .lang-select:hover { color: var(--text); border-color: var(--neon); }
       .lang-select .lang-globe { font-size: 13px; line-height: 1; filter: grayscale(.2); }
@@ -404,29 +395,111 @@
       .seo dl { margin: 8px 0; }
       .seo dt { color: var(--text); font-weight: 700; margin-top: 12px; }
       .seo dd { margin: 3px 0 0; }
+      /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 언어 선택 · 모바일 햄버거) ===== */
+      .site-nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: rgba(4,8,10,.92); border-bottom: 1px solid var(--line); }
+      .site-nav-brand { color: var(--neon); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none; text-shadow: 0 0 10px rgba(0,255,156,.4); white-space: nowrap; }
+      .site-nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid var(--line); color: var(--neon); font-size: 18px; line-height: 1; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
+      .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+      .site-nav-links a { color: var(--dim); font-size: 12.5px; text-decoration: none; padding: 3px 0; border-bottom: 1px solid transparent; transition: .15s; white-space: nowrap; }
+      .site-nav-links a:hover { color: var(--neon); border-bottom-color: var(--neon); }
+      .site-nav-links a[aria-current="page"] { color: var(--neon); border-bottom-color: var(--neon); }
+      .site-nav-lang { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: var(--dim); }
+      .site-nav-lang .globe { font-size: 13px; line-height: 1; }
+      .site-nav-lang select { appearance: none; -webkit-appearance: none; background: rgba(4,8,10,.92); color: var(--neon); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px 22px 4px 8px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--neon) 50%), linear-gradient(135deg, var(--neon) 50%, transparent 50%); background-position: right 9px center, right 4px center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; max-width: 150px; }
+      .site-nav-lang select option { background: #0d1526; color: #e8eef8; }
+      @media (max-width: 720px) {
+        .site-nav { gap: 10px; padding: 8px 12px; }
+        .site-nav-toggle { display: block; order: 2; }
+        .site-nav-lang { order: 3; margin-left: 0; }
+        .site-nav-links { order: 4; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; display: none; }
+        .site-nav.nav-open .site-nav-links { display: flex; }
+        .site-nav-links a { padding: 8px 0; font-size: 14px; width: 100%; }
+      }
       .seo-disclaimer { margin-top: 24px; color: var(--warn); font-size: 12px; }
+      .seo-guides { margin: 10px 0 0; padding-left: 18px; }
+      .seo-guides li { margin: 10px 0; }
+      .seo-guides a { color: var(--neon); }
       @media (max-width: 560px) { .seo { padding: 22px 14px 48px; } }
     </style>
   </head>
   <body>
+    <!-- ===== 사이트 탐색 메뉴 =====
+         AdSense "우수한 사용자 환경" 요건: "쉽게 찾고 사용할 수 있는 탐색 메뉴(메뉴 바)를 갖추고,
+         주제별·카테고리별로 콘텐츠를 구성하라." #root 바깥이라 React 렌더/언어 전환에도 항상 살아있고,
+         JS 없는 크롤러도 읽는다. -->
+    <nav class="site-nav" aria-label="broodev">
+      <a class="site-nav-brand" href="/">₿ broodev</a>
+      <button class="site-nav-toggle" type="button" aria-label="menu" aria-expanded="false">≡</button>
+      <div class="site-nav-links">
+        <a href="/" data-nk="0" aria-current="page">대시보드</a>
+        <a href="/methodology" data-nk="1">점수 방법론</a>
+        <a href="/indicators" data-nk="2">지표 해설</a>
+        <a href="/guide-fear-greed" data-nk="3">공포지수 활용법</a>
+        <a href="/glossary" data-nk="4">용어집</a>
+        <a href="/about" data-nk="5">운영자 소개</a>
+      </div>
+      <label class="site-nav-lang">
+        <span class="globe" aria-hidden="true">🌐</span>
+        <select aria-label="Language / 언어"></select>
+      </label>
+    </nav>
+    <script>
+      (function () {
+        var KEY = "btc:lang";
+        var LANGS = [["en","English"],["ja","日本語"],["ko","한국어"],["zh","简体中文"],["zh-Hant","繁體中文"],["th","ไทย"],["es","Español"],["fr","Français"],["de","Deutsch"],["it","Italiano"],["pt","Português"],["ru","Русский"],["nl","Nederlands"]];
+        var CODES = LANGS.map(function (l) { return l[0]; });
+        var NAV = {"ko":["대시보드","점수 방법론","지표 해설","공포지수 활용법","용어집","운영자 소개"],"en":["Dashboard","Methodology","Indicators","Fear & Greed Guide","Glossary","About"],"ja":["ダッシュボード","スコア方法","指標解説","恐怖指数ガイド","用語集","運営者情報"],"zh":["仪表板","评分方法","指标解读","恐惧指数指南","术语表","关于"],"zh-Hant":["儀表板","評分方法","指標解讀","恐懼指數指南","術語表","關於"],"th":["แดชบอร์ด","วิธีคำนวณคะแนน","อธิบายตัวชี้วัด","คู่มือดัชนีความกลัว","อภิธานศัพท์","เกี่ยวกับ"],"es":["Panel","Metodología","Indicadores","Guía de miedo y codicia","Glosario","Acerca de"],"fr":["Tableau de bord","Méthodologie","Indicateurs","Guide peur & avidité","Glossaire","À propos"],"de":["Übersicht","Methodik","Indikatoren","Angst-Gier-Leitfaden","Glossar","Über uns"],"it":["Dashboard","Metodologia","Indicatori","Guida paura e avidità","Glossario","Chi siamo"],"pt":["Painel","Metodologia","Indicadores","Guia de medo e ganância","Glossário","Sobre"],"ru":["Панель","Методология","Индикаторы","Гид по индексу страха","Глоссарий","О нас"],"nl":["Dashboard","Methodologie","Indicatoren","Angst & hebzucht-gids","Woordenlijst","Over ons"]};
+        function detect() {
+          try {
+            var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+            for (var i = 0; i < cands.length; i++) {
+              var lc = String(cands[i] || '').toLowerCase(), base = lc.split('-')[0];
+              if (base === 'zh') { if (/hant|tw|hk|mo/.test(lc)) return 'zh-Hant'; return 'zh'; }
+              if (NAV[base]) return base;
+            }
+          } catch (e) {}
+          return 'en';
+        }
+        function stored() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return CODES.indexOf(v) >= 0 ? v : null; } catch (e) { return null; } }
+        function fromUrl() { try { var q = new URLSearchParams(location.search).get('lang'); return CODES.indexOf(q) >= 0 ? q : null; } catch (e) { return null; } }
+        function cur() { return fromUrl() || stored() || detect() || 'en'; }
+        var nav = document.currentScript.previousElementSibling;
+        var links = nav.querySelectorAll('.site-nav-links a');
+        var sel = nav.querySelector('.site-nav-lang select');
+        var toggle = nav.querySelector('.site-nav-toggle');
+        LANGS.forEach(function (l) { var o = document.createElement('option'); o.value = l[0]; o.textContent = l[1]; sel.appendChild(o); });
+        function apply(code) {
+          var labels = NAV[code] || NAV.en;
+          for (var i = 0; i < links.length; i++) { var k = +links[i].getAttribute('data-nk'); if (labels[k]) links[i].textContent = labels[k]; }
+          if (sel.value !== code) sel.value = code;
+          try { document.documentElement.lang = code; } catch (e) {}
+        }
+        apply(cur());
+        sel.addEventListener('change', function () {
+          var code = sel.value;
+          try { localStorage.setItem(KEY, JSON.stringify(code)); } catch (e) {}
+          try { var u = new URL(location.href); u.searchParams.set('lang', code); location.assign(u.toString()); } catch (e) { location.reload(); }
+        });
+        try {
+          new MutationObserver(function () {
+            var l = document.documentElement.lang;
+            if (CODES.indexOf(l) >= 0 && l !== sel.value) apply(l);
+          }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+        } catch (e) {}
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('nav-open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        links.forEach(function (a) { a.addEventListener('click', function () { nav.classList.remove('nav-open'); toggle.setAttribute('aria-expanded', 'false'); }); });
+      })();
+    </script>
+
     <div id="root"></div>
 
     <!-- ===== 정적 SEO 콘텐츠 (JS 없이도 검색엔진/소셜 크롤러가 읽는 본문) ===== -->
     <section class="seo" aria-label="비트코인 공포·탐욕 지수 안내">
       <h1>비트코인 공포·탐욕 지수 &amp; 매수 타이밍 점수</h1>
 
-      <!-- (선택) 수동 광고 단위. 기본 Auto ads는 위 헤드 스크립트로 이미 동작.
-           특정 위치에 광고를 고정하려면 AdSense에서 만든 광고 단위의 data-ad-slot 값을 채우고 주석을 푸세요.
-           (광고는 #root 바깥인 이 본문 영역에 두어야 React 렌더에 안 지워집니다) -->
-      <!--
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-5511225478572825"
-           data-ad-slot="여기에_광고단위_슬롯ID"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      -->
 
       <p>
         <strong>비트코인 공포지수(공포·탐욕 지수, Fear &amp; Greed Index)</strong>를 포함한 6개 실시간 지표를 합성해
@@ -498,6 +571,61 @@
       </dl>
 
       <p class="seo-disclaimer">⚠ 본 점수는 공개 지표를 합성한 참고 신호이며 투자 자문이 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.</p>
+
+      <!-- 원본 해설 콘텐츠로 연결 (정적 HTML = 크롤러가 JS 없이 읽는 내부 링크) -->
+      <h2>더 깊이 읽기 — 원본 해설</h2>
+      <p>이 점수가 어떻게 만들어지는지, 각 지표를 어떻게 읽어야 하는지 직접 쓴 해설을 공개합니다.</p>
+      <ul class="seo-guides">
+        <li>
+          <a href="/methodology"><strong>매수 타이밍 점수는 어떻게 계산되는가</strong></a>
+          — 6개 지표의 정규화 함수, 단기·장기 두 가중치 세트(수치 공개), 결측 지표 재정규화, 판정 밴드, 그리고 이 모델의 한계.
+        </li>
+        <li>
+          <a href="/indicators"><strong>6개 지표 심층 해설</strong></a>
+          — RSI·MACD·마이어 배수·낙폭·골든크로스가 각각 무엇을 재는지, 그리고 <em>언제 배신하는지</em>.
+        </li>
+        <li>
+          <a href="/guide-fear-greed"><strong>공포·탐욕 지수 실전 활용법</strong></a>
+          — 공포 구간에서 분할 매수(DCA)하는 절차, 반드시 함께 볼 확인 지표, 초보가 반복하는 5가지 실수.
+        </li>
+        <li>
+          <a href="/glossary"><strong>암호화폐 지표 용어집</strong></a>
+          — 공포지수·과매도·마이어 배수·골든크로스·DCA 등 용어를 초보자 눈높이로 정리.
+        </li>
+        <li>
+          <a href="/about"><strong>운영자 소개 · 편집 원칙</strong></a>
+          — 누가 만들었는지, 계산식을 전부 공개하는 이유, 수익 모델과 <em>이해 상충 고지</em>(거래소 제휴 링크 없음).
+        </li>
+      </ul>
+
+      <h2>지표별 심층 아티클</h2>
+      <p>지표 하나씩을 깊게 파고든 글입니다. 요약이 아니라 <strong>그 지표만으로 한 편을 채운 해설</strong>입니다.</p>
+      <ul class="seo-guides">
+        <li>
+          <a href="/rsi-guide"><strong>RSI가 틀린 순간들 — 과매도 매수 전략의 함정</strong></a>
+          — 강세장에서 RSI가 70 위에 몇 주씩 머무는 이유, 다이버전스의 진짜 신호와 가짜 신호.
+        </li>
+        <li>
+          <a href="/macd-guide"><strong>MACD 계산 워크스루 — 숫자로 따라가기</strong></a>
+          — EMA12·EMA26·시그널선·히스토그램을 단계별 표로 직접 계산. 횡보장 휩소를 숫자로 확인.
+        </li>
+        <li>
+          <a href="/mayer-multiple"><strong>마이어 배수 — 사이클로 읽는 밸류에이션</strong></a>
+          — 2.4라는 숫자의 근거, 사이클마다 이 지표가 무엇을 말했는지, 단기 4% vs 장기 18%의 이유.
+        </li>
+        <li>
+          <a href="/fear-greed-index"><strong>공포·탐욕 지수 해부 — 무엇으로 만들어지는가</strong></a>
+          — 변동성·소셜·도미넌스·트렌드 성분별 편향. 왜 알트코인에서 해석력이 떨어지는가.
+        </li>
+        <li>
+          <a href="/golden-cross"><strong>골든크로스에 대한 흔한 오해</strong></a>
+          — "골든크로스 = 지금 사라"가 왜 틀렸는가. 타이밍 도구가 아니라 국면 확인 도구인 이유.
+        </li>
+        <li>
+          <a href="/drawdown-dca"><strong>낙폭과 분할매수의 수학</strong></a>
+          — −50%는 +100%가 있어야 본전. 손실 회복의 비대칭성과 탄약 소진 문제를 시뮬레이션으로.
+        </li>
+      </ul>
     </section>
 
     <!-- ===== 공통 자매 푸터 (코인 시그널 상호링크 + 게시자 정보 + 정책) =====
@@ -515,33 +643,95 @@
       .foot-desc{margin:8px auto 0;max-width:680px;opacity:.85}
     </style>
     <footer class="site-foot" aria-label="사이트 정보">
-      <div class="foot-fam-label">코인 매수 타이밍 시그널 · 자매 앱</div>
-      <nav class="foot-fam" aria-label="자매 코인 시그널 앱">
+      <!-- 코인 전환은 이제 한 앱 안에서(?coin=) 처리한다. 예전엔 코인마다 서브도메인
+           복제본을 링크했으나, 91% 동일한 페이지 15개가 색인되며 AdSense
+           "가치 없는/복제된 콘텐츠" 판정을 받아 루트 하나로 통합했다. -->
+      <div class="foot-fam-label">코인 매수 타이밍 시그널 · 코인 선택</div>
+      <nav class="foot-fam" aria-label="코인 선택">
         <span class="cur" data-coin="btc" aria-current="page">비트코인</span>
-        <a data-coin="eth" href="https://eth.broodev.com/">이더리움</a>
-        <a data-coin="xrp" href="https://xrp.broodev.com/">리플</a>
-        <a data-coin="doge" href="https://doge.broodev.com/">도지코인</a>
-        <a data-coin="bch" href="https://bch.broodev.com/">비트코인캐시</a>
-        <a data-coin="link" href="https://link.broodev.com/">체인링크</a>
-        <a data-coin="xlm" href="https://xlm.broodev.com/">스텔라루멘</a>
-        <a data-coin="ltc" href="https://ltc.broodev.com/">라이트코인</a>
-        <a data-coin="avax" href="https://avax.broodev.com/">아발란체</a>
-        <a data-coin="shib" href="https://shib.broodev.com/">시바이누</a>
-        <a data-coin="dot" href="https://dot.broodev.com/">폴카닷</a>
-        <a data-coin="pepe" href="https://pepe.broodev.com/">페페</a>
-        <a data-coin="grt" href="https://grt.broodev.com/">더그래프</a>
-        <a data-coin="sand" href="https://sand.broodev.com/">샌드박스</a>
-        <a data-coin="mana" href="https://mana.broodev.com/">디센트럴랜드</a>
+        <a data-coin="eth" href="/?coin=eth">이더리움</a>
+        <a data-coin="xrp" href="/?coin=xrp">리플</a>
+        <a data-coin="doge" href="/?coin=doge">도지코인</a>
+        <a data-coin="bch" href="/?coin=bch">비트코인캐시</a>
+        <a data-coin="link" href="/?coin=link">체인링크</a>
+        <a data-coin="xlm" href="/?coin=xlm">스텔라루멘</a>
+        <a data-coin="ltc" href="/?coin=ltc">라이트코인</a>
+        <a data-coin="avax" href="/?coin=avax">아발란체</a>
+        <a data-coin="shib" href="/?coin=shib">시바이누</a>
+        <a data-coin="dot" href="/?coin=dot">폴카닷</a>
+        <a data-coin="pepe" href="/?coin=pepe">페페</a>
+        <a data-coin="grt" href="/?coin=grt">더그래프</a>
+        <a data-coin="sand" href="/?coin=sand">샌드박스</a>
+        <a data-coin="mana" href="/?coin=mana">디센트럴랜드</a>
         <a class="dev" data-coin="dev" href="https://dev.broodev.com/">◈ dev</a>
       </nav>
       <nav class="foot-links">
-        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact.html?app=btc">📮 문의 &amp; 버그 신고</a>
+        <a href="/methodology">점수 방법론</a><span class="sep"> · </span><a href="/indicators">지표 해설</a><span class="sep"> · </span><a href="/guide-fear-greed">공포지수 활용법</a><span class="sep"> · </span><a href="/glossary">용어집</a>
+      </nav>
+      <nav class="foot-links">
+        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy">개인정보처리방침</a><span class="sep"> · </span><a href="/terms">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact?app=btc">📮 문의 &amp; 버그 신고</a>
       </nav>
       <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. 이 페이지의 비트코인 공포·탐욕 지수와 매수 타이밍 점수는 공개 지표를 합성한 참고 정보이며 투자 자문이 아닙니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
     </footer>
 
     <script src="seo-i18n.js"></script>
+    <!-- ?coin= 선택 시 정적 본문/제목을 해당 코인으로 현지화.
+         (기본 btc = 색인되는 정규 페이지이므로 원문 그대로 둔다. 다른 코인은
+          canonical 이 루트라 색인되지 않으며, 이 스왑은 사용자 화면용이다.) -->
+    <script>
+      (function () {
+        var COIN_NAMES = {
+          eth: ['이더리움', 'ETH'], xrp: ['리플', 'XRP'], doge: ['도지코인', 'DOGE'],
+          bch: ['비트코인캐시', 'BCH'], link: ['체인링크', 'LINK'], xlm: ['스텔라루멘', 'XLM'],
+          ltc: ['라이트코인', 'LTC'], avax: ['아발란체', 'AVAX'], shib: ['시바이누', 'SHIB'],
+          dot: ['폴카닷', 'DOT'], pepe: ['페페', 'PEPE'], grt: ['더그래프', 'GRT'],
+          sand: ['샌드박스', 'SAND'], mana: ['디센트럴랜드', 'MANA'],
+        };
+        var slug, c;
+        try { slug = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { return; }
+        c = COIN_NAMES[slug];
+        if (!c) return; // btc(기본) 또는 미지원 → 원문 유지
+        var ko = c[0], tk = c[1];
+        function swap() {
+          var sec = document.querySelector('section.seo');
+          if (!sec) return;
+          // 텍스트 노드만 치환 (태그/속성은 건드리지 않음)
+          var w = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT, null);
+          var n;
+          while ((n = w.nextNode())) {
+            if (n.nodeValue.indexOf('비트코인') < 0 && n.nodeValue.indexOf('BTC') < 0) continue;
+            n.nodeValue = n.nodeValue.replace(/비트코인/g, ko).replace(/BTC_SIGNAL/g, tk + '_SIGNAL').replace(/\bBTC\b/g, tk);
+          }
+        }
+        document.title = document.title.replace(/비트코인/g, ko).replace(/BTC_SIGNAL/g, tk + '_SIGNAL');
+        swap();
+        // 푸터 코인 목록의 현재 표시(.cur)를 선택된 코인으로 옮긴다.
+        try {
+          var fam = document.querySelector('.foot-fam');
+          if (fam) {
+            var oldCur = fam.querySelector('.cur');
+            if (oldCur) {
+              var a = document.createElement('a');
+              a.setAttribute('data-coin', 'btc'); a.href = '/'; a.textContent = '비트코인';
+              oldCur.replaceWith(a);
+            }
+            var next = fam.querySelector('a[data-coin="' + slug + '"]');
+            if (next) {
+              var s = document.createElement('span');
+              s.className = 'cur'; s.setAttribute('data-coin', slug);
+              s.setAttribute('aria-current', 'page'); s.textContent = ko;
+              next.replaceWith(s);
+            }
+          }
+        } catch (e) {}
+        // 언어 전환 시 renderSEO 가 본문을 다시 그리므로, 그 뒤에도 재적용한다.
+        var orig = window.renderSEO;
+        if (typeof orig === 'function') {
+          window.renderSEO = function (lang) { orig(lang); swap(); };
+        }
+      })();
+    </script>
     <script src="foot-i18n.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -1163,10 +1353,52 @@
       const bandFor = (score) => BANDS.find((b) => score >= b.min) || BANDS[BANDS.length - 1]
       const fngLabel = (v, t) => { const f = (t && t.fng) || T.ko.fng; return v == null ? '—' : v <= 25 ? f.extremeFear : v <= 45 ? f.fear : v < 55 ? f.neutral : v < 75 ? f.greed : f.extremeGreed }
 
+      /* =========================================================
+       *  코인 레지스트리 — 한 앱이 ?coin= 으로 전 코인을 서빙한다.
+       *  (예전엔 코인마다 서브도메인 앱을 복제했으나, 91% 동일한 페이지가
+       *   15개 색인되면서 AdSense "가치 없는/복제된 콘텐츠"에 걸렸다.
+       *   이제 루트 1개로 통합하고 코인 서브도메인은 여기로 흡수한다.)
+       * ========================================================= */
+      const COINS = [
+        { slug: 'btc',  ticker: 'BTC',  sym: '₿', cg: 'bitcoin',      bn: 'BTCUSDT',  ko: '비트코인' },
+        { slug: 'eth',  ticker: 'ETH',  sym: 'Ξ', cg: 'ethereum',     bn: 'ETHUSDT',  ko: '이더리움' },
+        { slug: 'xrp',  ticker: 'XRP',  sym: '✕', cg: 'ripple',       bn: 'XRPUSDT',  ko: '리플' },
+        { slug: 'doge', ticker: 'DOGE', sym: 'Ð', cg: 'dogecoin',     bn: 'DOGEUSDT', ko: '도지코인' },
+        { slug: 'bch',  ticker: 'BCH',  sym: '₿', cg: 'bitcoin-cash', bn: 'BCHUSDT',  ko: '비트코인캐시' },
+        { slug: 'link', ticker: 'LINK', sym: '⬡', cg: 'chainlink',    bn: 'LINKUSDT', ko: '체인링크' },
+        { slug: 'xlm',  ticker: 'XLM',  sym: '✦', cg: 'stellar',      bn: 'XLMUSDT',  ko: '스텔라루멘' },
+        { slug: 'ltc',  ticker: 'LTC',  sym: 'Ł', cg: 'litecoin',     bn: 'LTCUSDT',  ko: '라이트코인' },
+        { slug: 'avax', ticker: 'AVAX', sym: '▲', cg: 'avalanche-2',  bn: 'AVAXUSDT', ko: '아발란체' },
+        { slug: 'shib', ticker: 'SHIB', sym: '🐕', cg: 'shiba-inu',   bn: 'SHIBUSDT', ko: '시바이누' },
+        { slug: 'dot',  ticker: 'DOT',  sym: '●', cg: 'polkadot',     bn: 'DOTUSDT',  ko: '폴카닷' },
+        { slug: 'pepe', ticker: 'PEPE', sym: '🐸', cg: 'pepe',        bn: 'PEPEUSDT', ko: '페페' },
+        { slug: 'grt',  ticker: 'GRT',  sym: '◈', cg: 'the-graph',    bn: 'GRTUSDT',  ko: '더그래프' },
+        { slug: 'sand', ticker: 'SAND', sym: '◆', cg: 'the-sandbox',  bn: 'SANDUSDT', ko: '샌드박스' },
+        { slug: 'mana', ticker: 'MANA', sym: '◇', cg: 'decentraland', bn: 'MANAUSDT', ko: '디센트럴랜드' },
+      ]
+      const COIN = (() => {
+        let s = 'btc'
+        try { s = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase() } catch {}
+        return COINS.find((c) => c.slug === s) || COINS[0]
+      })()
+      /* 코인별 캐시 키 — 코인 전환 시 서로의 가격/히스토리를 섞지 않는다. */
+      const CK = (k) => COIN.slug + ':' + k
+
+      /* ⚠ FNG(공포·탐욕 지수)는 코인별 지수가 존재하지 않는다.
+       * Alternative.me 가 발표하는 것은 BTC 중심의 **암호화폐 시장 전체** 심리 지수 하나뿐이다.
+       * 따라서 ?coin=pepe 화면에서도 이 값은 PEPE 의 지수가 아니라 시장 전체 지수다.
+       * 예전에는 이를 그냥 "페페 공포·탐욕 지수"처럼 보이게 두었는데, 이는 사용자를 오도한다.
+       * 비-BTC 화면에서는 라벨에 "시장 전체" 를 명시한다. */
       const INDICATOR_META = [
         { key: 'RSI', short: 'RSI·14', name: 'Relative Strength Index (Wilder)', desc: '과매도(<30) = 매수 / 과매수(>70) = 경계' },
         { key: 'MACD', short: 'MACD', name: 'MACD 12·26·9 히스토그램', desc: '음→양 / 바닥 상향전환 = 매수 모멘텀' },
-        { key: 'FNG', short: 'F&G', name: '공포·탐욕 지수 (역발상)', desc: '극공포 = 매수 기회 / 극탐욕 = 과열' },
+        {
+          key: 'FNG', short: 'F&G',
+          name: COIN.slug === 'btc' ? '공포·탐욕 지수 (역발상)' : '공포·탐욕 지수 — 시장 전체 (역발상)',
+          desc: COIN.slug === 'btc'
+            ? '극공포 = 매수 기회 / 극탐욕 = 과열'
+            : `⚠ ${COIN.ko} 전용 지수가 아닙니다. Alternative.me 의 암호화폐 시장 전체(BTC 중심) 심리 지수입니다.`,
+        },
         { key: 'Mayer', short: 'MAYER', name: 'Mayer Multiple (가격 / 200일선)', desc: '<0.8 강한 매수 / >2.4 과열' },
         { key: 'DD', short: 'DD·365', name: '365일 고점 대비 낙폭', desc: '-30% 관심 / -50% 강한 매수' },
         { key: 'GC_DC', short: '50/200', name: '골든·데드 크로스 추세', desc: '골든크로스 = 추세 매수 우호' },
@@ -1283,14 +1515,15 @@
       const ago = (ts) => { if (!ts) return '—'; const s = Math.floor((Date.now() - ts) / 1000); if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s / 60) + 'm'; if (s < 86400) return Math.floor(s / 3600) + 'h'; return Math.floor(s / 86400) + 'd' }
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
+
       /* =========================================================
        *  데이터 페치 (CoinGecko / Binance / Alternative.me, CORS OK)
        * ========================================================= */
       const URLS = {
-        cgPrice: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true',
-        bnTicker: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT',
-        bnKlines: 'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000',
-        cgChart: 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily',
+        cgPrice: `https://api.coingecko.com/api/v3/simple/price?ids=${COIN.cg}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
+        bnTicker: `https://api.binance.com/api/v3/ticker/24hr?symbol=${COIN.bn}`,
+        bnKlines: `https://api.binance.com/api/v3/klines?symbol=${COIN.bn}&interval=1d&limit=1000`,
+        cgChart: `https://api.coingecko.com/api/v3/coins/${COIN.cg}/market_chart?vs_currency=usd&days=365&interval=daily`,
         fng: 'https://api.alternative.me/fng/?limit=90',
       }
       async function fetchJSON(url, timeout = 9000) {
@@ -1316,16 +1549,16 @@
       async function loadPrice() {
         try {
           const j = await withRetry(() => fetchJSON(URLS.cgPrice, 8000))
-          const b = j.bitcoin
+          const b = j[COIN.cg]
           const data = { price: b.usd, change24hPct: b.usd_24h_change, marketCap: b.usd_market_cap, vol24h: b.usd_24h_vol, source: 'coingecko' }
-          saveCache('btc:price', data); return { ...data, status: 'live', fetchedAt: Date.now() }
+          saveCache(CK('price'), data); return { ...data, status: 'live', fetchedAt: Date.now() }
         } catch {
           try {
             const t = await fetchJSON(URLS.bnTicker, 8000)
             const data = { price: +t.lastPrice, change24hPct: +t.priceChangePercent, marketCap: null, vol24h: +t.quoteVolume, source: 'binance' }
-            saveCache('btc:price', data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
+            saveCache(CK('price'), data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
           } catch {
-            const c = loadCache('btc:price'); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
+            const c = loadCache(CK('price')); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
             return { status: 'error', fetchedAt: null }
           }
         }
@@ -1335,7 +1568,7 @@
           const rows = await withRetry(() => fetchJSON(URLS.bnKlines, 11000))
           const candles = rows.map((r) => ({ t: r[0], open: +r[1], high: +r[2], low: +r[3], close: +r[4], volume: +r[5] })).filter((c) => Number.isFinite(c.close))
           const data = { closes: candles.map((c) => c.close), volumes: candles.map((c) => c.volume), times: candles.map((c) => c.t), source: 'binance' }
-          saveCache('btc:klines', data); return { ...data, status: 'live', fetchedAt: Date.now() }
+          saveCache(CK('klines'), data); return { ...data, status: 'live', fetchedAt: Date.now() }
         } catch {
           try {
             const j = await fetchJSON(URLS.cgChart, 11000)
@@ -1344,9 +1577,9 @@
             // closes/times/volumes 를 한 번 필터링한 포인트 리스트에서 함께 파생 → 항상 평행
             const pts = prices.map((p, i) => ({ t: p[0], close: p[1], volume: vols[i] ? vols[i][1] : null })).filter((c) => Number.isFinite(c.close))
             const data = { closes: pts.map((c) => c.close), volumes: pts.map((c) => c.volume), times: pts.map((c) => c.t), source: 'coingecko' }
-            saveCache('btc:klines', data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
+            saveCache(CK('klines'), data); return { ...data, status: 'fallback', fetchedAt: Date.now() }
           } catch {
-            const c = loadCache('btc:klines'); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
+            const c = loadCache(CK('klines')); if (c) return { ...c.data, status: 'cached', fetchedAt: c.fetchedAt }
             return { status: 'error', fetchedAt: null }
           }
         }
@@ -1683,34 +1916,6 @@
        *  App
        * ========================================================= */
       const THEMES = { green: '#00ff9c', cyan: '#00e5ff', amber: '#ffb000', red: '#ff3b5c' }
-      // ===== AdSense 버전: 점수 "계산 시작" 게이트 (정책 안전) =====
-      // 광고를 클릭/시청해야 보이게 막지 않음. 버튼 → 계산 연출(대기) 동안 광고가 자연 노출될 뿐.
-      const GATE_I18N = {
-        ko: {
-          locked: '🔒 점수 잠김',
-          title: '매수 타이밍 점수가 잠겨 있어요',
-          sub: '아래 버튼을 누르면 6개 지표를 실시간 합성해 점수를 계산합니다.',
-          cta: '비트코인 매수 타이밍 점수 계산 시작',
-          note: '계산은 몇 초 걸립니다. 그동안 아래 광고가 노출됩니다.',
-          recalc: '재산출',
-          staleNotice: '데이터가 오래됐어요. 최신 데이터로 다시 산출하세요.',
-          adlabel: '광고',
-          lines: ['[init] 데이터 파이프라인 연결…', '[fetch] 시세·거래량 수집…', '[calc] RSI(14) 산출…', '[calc] MACD(12·26·9) 계산…', '[calc] 공포·탐욕 지수 합성…', '[calc] Mayer·낙폭·골든크로스 가중…', '[done] 매수 타이밍 점수 산출 완료 ✓'],
-        },
-        en: {
-          locked: '🔒 Score locked',
-          title: 'Your buy-timing score is locked',
-          sub: 'Tap the button to synthesize 6 live indicators into a score.',
-          cta: 'Start calculating the Bitcoin buy-timing score',
-          note: 'This takes a few seconds. An ad is shown below while you wait.',
-          recalc: 'Recalculate',
-          staleNotice: 'Data is stale. Recalculate with the latest data.',
-          adlabel: 'Ad',
-          lines: ['[init] connecting data pipeline…', '[fetch] price & volume…', '[calc] RSI(14)…', '[calc] MACD(12·26·9)…', '[calc] Fear & Greed synthesis…', '[calc] Mayer · drawdown · cross weighting…', '[done] buy-timing score ready ✓'],
-        },
-      }
-      const getGate = (lang) => GATE_I18N[lang] || GATE_I18N.en
-
       // ===== 단기(모멘텀)/장기(역발상) 탭 i18n =====
       //  장기 밴드/지표 문구 = 기존 t.bands / t.ind (역발상, 13개 언어 완비).
       //  여기엔 탭 라벨 + 단기(모멘텀) 전용 밴드 라벨/조언 + 단기 지표 설명만 둔다.
@@ -1964,26 +2169,8 @@
       const basisFor = (lang, word) => word ? (BASIS_FMT[lang] || BASIS_FMT.en).replace('{x}', word) : ''
 
       // 계산 대기 중 노출되는 디스플레이 광고. Auto ads(head)와 별개의 수동 단위.
-      function GateAd() {
-        useEffect(() => { try { (window.adsbygoogle = window.adsbygoogle || []).push({}) } catch (e) {} }, [])
-        // ***! TODO: AdSense에서 '디스플레이' 광고 단위를 만들고 data-ad-slot 값을 채우세요.
-        //   슬롯이 비어 있어도 정책 위반 아님(빈 영역). Auto ads가 페이지 다른 곳에 광고를 노출합니다.
-        return (
-          <ins className="adsbygoogle gate-ad" data-ad-client="ca-pub-5511225478572825"
-            data-ad-slot="" data-ad-format="auto" data-full-width-responsive="true" />
-        )
-      }
 
       // 좌우 거터 세로 광고. 타이머 자동 새로고침은 하지 않음(AdSense 정책: 노출수 부풀리기 금지).
-      function RailAd({ slot = '' }) {
-        useEffect(() => { try { (window.adsbygoogle = window.adsbygoogle || []).push({}) } catch (e) {} }, [])
-        // ***! TODO: AdSense에서 '디스플레이'(세로/스카이스크래퍼) 광고 단위를 만들고 data-ad-slot 값을 채우세요.
-        //   슬롯이 비어 있으면 빈 영역으로 남습니다(정책 위반 아님).
-        return (
-          <ins className="adsbygoogle rail-ad" data-ad-client="ca-pub-5511225478572825"
-            data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="false" />
-        )
-      }
 
       function App() {
         const [price, setPrice] = useState(null)
@@ -1993,35 +2180,15 @@
         const [matrixOn, setMatrixOn] = useLocalStorage('btc:matrix', true)
         const [tipsOn, setTipsOn] = useLocalStorage('btc:tips', true)
         const [lang, setLang] = useLocalStorage('btc:lang', detectLang())
-        const [scoreHist, setScoreHist] = useLocalStorage('btc:scoreHist', [])
+        const [scoreHist, setScoreHist] = useLocalStorage(CK('scoreHist'), [])
         const now = useClock()
         const t = getT(lang)
         const locale = localeOf(lang)
-        const gate = getGate(lang)
+
         const xm = getMode(lang)
         const [mode, setMode] = useLocalStorage('btc:mode2', 'long') // 'short'=모멘텀(단기), 'long'=역발상(장기·기본). 키 변경=기존 저장값 무시하고 장기로 리셋
-        const [scoreRevealed, setScoreRevealed] = useState(false)
-        const [calc, setCalc] = useState(null) // null=대기, 0..N=계산 진행 단계
-        const [recalc, setRecalc] = useState(false) // STALE로 재가림되어 재산출이 필요한 상태
-        const startCalc = () => {
-          if (calc != null) return
-          const n = gate.lines.length
-          const total = 6000 + Math.floor(Math.random() * 3000) // 로딩
-          // 각 항목에 가중치를 줘 총 시간 불균등 분배
-          const w = []
-          for (let k = 0; k < n; k++) w.push(0.4 + Math.random())
-          const sum = w.reduce((a, b) => a + b, 0)
-          const durs = w.map((x) => Math.round((x / sum) * total))
-          setCalc(0)
-          let i = 0
-          const step = () => {
-            i += 1
-            setCalc(i)
-            if (i >= n) { setTimeout(() => { setScoreRevealed(true); setRecalc(false) }, 300 + Math.floor(Math.random() * 400)); return }
-            setTimeout(step, durs[i])
-          }
-          setTimeout(step, durs[0])
-        }
+        // 점수 게이트 제거됨(2026-07-15) — 데이터 도착 즉시 점수 렌더, 인위적 지연 없음
+        const scoreRevealed = true
 
         useEffect(() => { document.documentElement.style.setProperty('--neon', accent) }, [accent])
 
@@ -2058,8 +2225,8 @@
 
         // 부팅: 캐시 하이드레이션(즉시) → 라이브 페치 → 폴링
         useEffect(() => {
-          const pc = loadCache('btc:price'); if (pc) setPrice({ ...pc.data, status: 'cached', fetchedAt: pc.fetchedAt })
-          const kc = loadCache('btc:klines'); if (kc) setKlines({ ...kc.data, status: 'cached', fetchedAt: kc.fetchedAt })
+          const pc = loadCache(CK('price')); if (pc) setPrice({ ...pc.data, status: 'cached', fetchedAt: pc.fetchedAt })
+          const kc = loadCache(CK('klines')); if (kc) setKlines({ ...kc.data, status: 'cached', fetchedAt: kc.fetchedAt })
           const fc = loadCache('btc:fng'); if (fc) setFng({ ...fc.data, status: 'cached', fetchedAt: fc.fetchedAt })
           refresh()
           let n = 0
@@ -2113,12 +2280,8 @@
         const r = 90, circ = 2 * Math.PI * r, dash = ((score || 0) / 100) * circ
         const chgUp = (price?.change24hPct ?? 0) >= 0
         const priceStale = price?.fetchedAt && Date.now() - price.fetchedAt > 5 * 60000
-        // STALE(데이터 5분 초과)로 "전환"되면 점수를 다시 가리고 재산출 요구 (공개 직후 깜빡임 방지: 전환 시에만)
-        const prevStaleRef = useRef(false)
-        useEffect(() => {
-          if (priceStale && !prevStaleRef.current && scoreRevealed) { setScoreRevealed(false); setCalc(null); setRecalc(true) }
-          prevStaleRef.current = priceStale
-        }, [priceStale, scoreRevealed])
+        // STALE이면 상태 배지로만 알린다. 예전엔 여기서 점수를 다시 잠가 게이트를
+        // 재통과시켰는데(= 광고 반복 노출), 게이트와 함께 제거했다.
 
         const ctx = { analysisRef, price, klines, fng, api }
 
@@ -2128,17 +2291,29 @@
           <div className={`app status-${sysColor}`}>
             <MatrixRain enabled={matrixOn} accent={accent} />
             <div className="scanlines" /><div className="vignette" />
-            {scoreRevealed && <aside className="ad-rail left"><span className="ad-rail-label">{gate.adlabel}</span><RailAd /></aside>}
-            {scoreRevealed && <aside className="ad-rail right"><span className="ad-rail-label">{gate.adlabel}</span><RailAd /></aside>}
-            <div className="shell">
+                                    <div className="shell">
               <header className="topbar">
                 <div className="brand">
-                  <span className="logo">₿▰▱</span>
+                  <span className="logo">{COIN.sym}▰▱</span>
                   <div>
-                    <h1 className="title">BTC_SIGNAL <span className="dim">// {t.tagline}</span></h1>
+                    <h1 className="title">{COIN.ticker}_SIGNAL <span className="dim">// {t.tagline}</span></h1>
                     <p className="subtitle">{t.subtitle}</p>
                   </div>
                 </div>
+                <nav className="coin-switch" aria-label="코인 선택">
+                  <select
+                    value={COIN.slug}
+                    onChange={(e) => {
+                      const u = new URL(window.location.href)
+                      if (e.target.value === 'btc') u.searchParams.delete('coin')
+                      else u.searchParams.set('coin', e.target.value)
+                      window.location.assign(u)
+                    }}
+                    aria-label="코인 선택"
+                  >
+                    {COINS.map((c) => <option key={c.slug} value={c.slug}>{c.ticker} · {c.ko}</option>)}
+                  </select>
+                </nav>
                 <div className="topbar-right">
                   <label className="lang-select" title={t.langLabel}>
                     <span className="lang-globe" aria-hidden="true">🌐</span>
@@ -2150,7 +2325,7 @@
                     <input type="checkbox" checked={tipsOn} onChange={(e) => setTipsOn(e.target.checked)} />
                     <span>{t.tips} {tipsOn ? 'ON' : 'OFF'}</span>
                   </label>
-                  <div className={`sys-status status-${scoreRevealed ? sysColor : 'ok'}`}><span className="pulse" />{scoreRevealed ? (band ? bandLabel(band) : t.loading) : gate.locked}</div>
+                  <div className={`sys-status status-${sysColor}`}><span className="pulse" />{band ? bandLabel(band) : t.loading}</div>
                   <div className="clock"><span className="clock-time">{now.toLocaleTimeString(locale, { hour12: false })}</span><span className="clock-time-sm">{`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`}</span><span className="clock-date">{now.toLocaleDateString(locale)}</span></div>
                 </div>
               </header>
@@ -2161,7 +2336,7 @@
               </div>
 
               <section className="hero">
-                <div className={`panel gauge-panel status-${scoreRevealed ? sysColor : 'ok'}`} style={{ '--accent': scoreRevealed ? gaugeColor : 'var(--neon)' }}>
+                <div className={`panel gauge-panel status-${scoreRevealed ? sysColor : 'ok'}`} style={{ '--accent': gaugeColor }}>
                   <span className="corner tl" /><span className="corner tr" /><span className="corner bl" /><span className="corner br" />
                   <div className="panel-label">// <Term k="score">{t.buyTimingScore}</Term></div>
                   <div className="mode-tabs" role="tablist" aria-label={xm.tabTitle}>
@@ -2169,43 +2344,20 @@
                     <button role="tab" aria-selected={mode === 'long'} className={`mode-tab ${mode === 'long' ? 'on' : ''}`} onClick={() => setMode('long')} title={xm.longHint}><span className="tab-main">{splitModeLabel(xm.long)[0]}</span></button>
                   </div>
                   <div className="mode-hint">{mode === 'long' ? xm.longHint : xm.shortHint} <span className="mode-basis">{basisFor(lang, splitModeLabel(mode === 'long' ? xm.long : xm.short)[1])}</span></div>
-                  {scoreRevealed ? (
-                    <>
-                      <div className="gauge-big">
-                        <svg viewBox="0 0 210 210">
-                          <circle cx="105" cy="105" r={r} className="gauge-track" />
-                          <circle cx="105" cy="105" r={r} className="gauge-fill" stroke={gaugeColor} strokeDasharray={`${dash} ${circ}`} transform="rotate(-90 105 105)" />
-                        </svg>
-                        <div className="gauge-center">
-                          <span className="gauge-score" style={{ color: gaugeColor }}>{score == null ? '--' : score.toFixed(0)}</span>
-                          <span className="gauge-of">/ 100</span>
-                        </div>
-                      </div>
-                      <div className="verdict" style={{ color: gaugeColor }}>{bandLabel(band)}</div>
-                      <div className="verdict-advice">{bandAdvice(band)}</div>
-                      <div className="coverage">{A ? <><Term k="coverage">{t.indicatorsOnline(A.online)}</Term> · {mode === 'long' ? xm.higherLong : xm.higherShort}</> : ''}</div>
-                    </>
-                  ) : (
-                    <div className="score-gate">
-                      {calc == null ? (
-                        <>
-                          <div className="gate-lock">{recalc ? '⟳' : '🔒'}</div>
-                          <div className="gate-title">{recalc ? (t.stale + ' · ' + gate.recalc) : gate.title}</div>
-                          <div className="gate-sub">{recalc ? gate.staleNotice : gate.sub}</div>
-                          <button className="gate-btn" onClick={recalc ? (() => { refresh(); startCalc() }) : startCalc}>▶ {recalc ? gate.recalc : gate.cta}</button>
-                          <div className="gate-note">{gate.note}</div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="gate-calc">
-                            {gate.lines.slice(0, calc).map((l, i) => <div key={i} className="gate-line">{l}</div>)}
-                            {calc < gate.lines.length && <div className="gate-line"><span className="gate-cursor">▌</span></div>}
-                          </div>
-                          <div className="gate-progress"><div className="gate-bar" style={{ width: `${Math.round((calc / gate.lines.length) * 100)}%` }} /></div>
-                        </>
-                      )}
+                  {/* 점수는 데이터 도착 즉시 렌더한다. 인위적 지연/잠금 없음. */}
+                  <div className="gauge-big">
+                    <svg viewBox="0 0 210 210">
+                      <circle cx="105" cy="105" r={r} className="gauge-track" />
+                      <circle cx="105" cy="105" r={r} className="gauge-fill" stroke={gaugeColor} strokeDasharray={`${dash} ${circ}`} transform="rotate(-90 105 105)" />
+                    </svg>
+                    <div className="gauge-center">
+                      <span className="gauge-score" style={{ color: gaugeColor }}>{score == null ? '--' : score.toFixed(0)}</span>
+                      <span className="gauge-of">/ 100</span>
                     </div>
-                  )}
+                  </div>
+                  <div className="verdict" style={{ color: gaugeColor }}>{bandLabel(band)}</div>
+                  <div className="verdict-advice">{bandAdvice(band)}</div>
+                  <div className="coverage">{A ? <><Term k="coverage">{t.indicatorsOnline(A.online)}</Term> · {mode === 'long' ? xm.higherLong : xm.higherShort}</> : ''}</div>
                 </div>
 
                 <div className="panel market" style={{ '--accent': accent }}>

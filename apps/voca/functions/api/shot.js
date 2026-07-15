@@ -16,6 +16,23 @@ export async function onRequestPost({ request, env }) {
   const ref = request.headers.get('origin') || request.headers.get('referer') || '';
   if (!/broodev\.com|localhost|127\.0\.0\.1/.test(ref)) return json({ error: 'forbidden' }, 403);
 
+  // Turnstile 검증 — 헤더는 위조 가능하므로 이것이 실질 방어선.
+  // Pages 프로젝트에 TURNSTILE_SECRET 환경변수(Secret)가 설정된 경우에만 강제되고,
+  // 미설정이면 기존 동작(Origin 검사만) 유지 — 위젯 준비 전 배포로 폼이 깨지지 않게.
+  if (env.TURNSTILE_SECRET) {
+    const token = request.headers.get('x-turnstile-token') || '';
+    if (!token) return json({ error: 'turnstile-required' }, 403);
+    const form = new FormData();
+    form.append('secret', env.TURNSTILE_SECRET);
+    form.append('response', token);
+    const ip = request.headers.get('cf-connecting-ip');
+    if (ip) form.append('remoteip', ip);
+    const v = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form })
+      .then((r) => r.json())
+      .catch(() => null);
+    if (!v || !v.success) return json({ error: 'turnstile-failed' }, 403);
+  }
+
   const ct = request.headers.get('content-type') || '';
   if (!/^image\/(png|jpeg|webp|gif)$/.test(ct)) return json({ error: 'unsupported-type' }, 415);
 
