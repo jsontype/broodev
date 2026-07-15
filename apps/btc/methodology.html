@@ -123,15 +123,31 @@
       <h3>블로우오프 톱 가드 — 단기 점수의 안전장치</h3>
       <p>
         위 momMayer만 있으면 <strong>버블 꼭지에서 단기 점수가 계속 올라가는</strong> 문제가 생깁니다.
-        그래서 <strong>합성이 끝난 뒤 단기 총점에 별도의 감쇠</strong>를 겁니다.
+        그래서 <strong>합성이 끝난 뒤 단기 총점에 별도의 감쇠</strong>를 겁니다. 가드는 두 항입니다 —
+        <strong>① 마이어 배수 &gt; 2.0 이면 곱셈 감쇠</strong>, <strong>② 공포·탐욕 지수 ≥ 90(극단적 탐욕)이면 점수 차감</strong>.
+        두 조건이 동시에 걸리면 둘 다 적용되고, 최종 점수는 0~100으로 클램프됩니다.
       </p>
-      <pre><code>if (마이어 &gt; 2.0):
+      <pre><code>// ① 마이어 배수 감쇠 (곱셈)
+if (마이어 &gt; 2.0):
     단기_총점 × = clamp(1 − (마이어 − 2.0) × 0.55,  0.25,  1)
 
   마이어 2.0 → ×1.00 (감쇠 없음)
   마이어 2.5 → ×0.725  (총점 27.5% 삭감)
   마이어 3.0 → ×0.45
-  마이어 3.4 이상 → ×0.25 (하한)</code></pre>
+  마이어 3.4 이상 → ×0.25 (하한)
+
+// ② 공포·탐욕 극단 차감 (뺄셈)
+if (F&amp;G ≥ 90):
+    단기_총점 − = (F&amp;G − 90) × 2.0
+
+  F&amp;G 90 → −0점
+  F&amp;G 95 → −10점
+  F&amp;G 100 → −20점</code></pre>
+      <p>
+        ②가 필요한 이유: momFng 자체는 탐욕을 가점하므로(단기 = 추세 동행), F&amp;G가 90을 넘는
+        <strong>역사적 극단</strong>에서도 단기 점수가 계속 높게 유지됩니다. 그 구간은 통계적으로
+        사이클 꼭지 부근일 확률이 높아, 부분점수가 아니라 <strong>총점에서 직접 차감</strong>합니다.
+      </p>
       <div class="note warn">
         <strong>정정 안내 (2026-07-14)</strong> — 이 문서의 이전 판은 장기(역발상) 정규화 함수만 싣고
         <strong>단기(모멘텀) 함수와 블로우오프 톱 가드를 누락</strong>했습니다. 그 결과 마이어 배수의 단기 기여를
@@ -264,25 +280,29 @@ momRsi(r) = clamp(50 + (r − 50) × 1.6, 0, 100)   // 단기: 강세(높은 RSI
       <h2 id="bands">4단계: 5단계 판정 밴드</h2>
       <p>
         합성된 0~100 점수를 다섯 구간으로 나눠 해석을 붙입니다.
-        <strong>구간 경계는 같지만, 최하단 밴드의 이름은 탭에 따라 다릅니다</strong> — 의미가 다르기 때문입니다.
+        <strong>구간 경계는 두 탭이 같지만, 밴드 이름은 세 구간(65~80, 25~45, 0~25)에서 서로 다릅니다</strong> — 같은 점수라도 탭에 따라 의미가 다르기 때문입니다.
       </p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>점수</th><th>장기(역발상) 판정</th><th>단기(모멘텀) 판정</th><th>의미</th></tr></thead>
           <tbody>
             <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td><strong>STRONG BUY</strong></td><td>다중 신호 합류</td></tr>
-            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong></td><td><strong>ACCUMULATE</strong></td><td>매수 우호. 분할 적립에 유리</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong><br /><span class="muted">분할 적립 우호</span></td><td><strong>BUY</strong><br /><span class="muted">상승 추세 우위</span></td><td>매수 우호 구간</td></tr>
             <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td><strong>NEUTRAL</strong></td><td>뚜렷한 우위 없음. 관망</td></tr>
-            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong></td><td><strong>CAUTION</strong></td><td>추격 매수 자제</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong><br /><span class="muted">탐욕·고평가 초입</span></td><td><strong>WEAK</strong><br /><span class="muted">하락 모멘텀 우위</span></td><td>신규·추격 매수 자제</td></tr>
             <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong><br /><span class="muted">과열·고점 근접</span></td><td><strong>AVOID</strong><br /><span class="muted">강한 하락 추세</span></td><td>신규 매수 자제</td></tr>
           </tbody>
         </table>
       </div>
       <div class="note">
-        <strong>왜 최하단 밴드만 이름이 다른가?</strong> 낮은 점수의 <em>원인</em>이 정반대이기 때문입니다.<br />
+        <strong>왜 이름이 다른가?</strong> 같은 점수라도 낮은 점수의 <em>원인</em>이 탭마다 다르기 때문입니다.
+        장기 탭은 “역발상” 관점이라 낮은 점수 = <em>시장이 너무 뜨겁다</em>는 뜻이고,
+        단기 탭은 “추세 동행” 관점이라 낮은 점수 = <em>하락 추세가 진행 중</em>이라는 뜻입니다.<br />
         <strong>장기 탭에서 0~25점</strong> = 공포지수가 탐욕이고 마이어가 높다 → <strong>과열(OVERHEATED)</strong>. 고점 근접 경계.<br />
         <strong>단기 탭에서 0~25점</strong> = RSI가 바닥이고 추세가 무너졌다 → <strong>하락 추세(AVOID)</strong>. 반전 전 매수 자제.<br />
-        같은 “낮은 점수”지만 하나는 <em>너무 뜨겁다</em>, 다른 하나는 <em>너무 차갑다</em>는 뜻입니다.
+        마찬가지로 65~80은 장기 ACCUMULATE(분할 적립) vs 단기 BUY(추세 추종 매수),
+        25~45는 장기 CAUTION(과열 초입 경계) vs 단기 WEAK(하락 모멘텀 우위)로 읽는 관점이 갈립니다.
+        이름이 같은 구간은 80~100(STRONG BUY)과 45~65(NEUTRAL) 둘뿐입니다.
       </div>
       <p>
         경계는 <strong>연속적인 점수를 억지로 자른 것</strong>입니다. 79점과 81점은 실질적으로 같습니다.
