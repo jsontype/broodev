@@ -213,6 +213,7 @@
       .minibar .tb-btn { padding: 2px 7px; font-size: 11px; }
 
       /* 언어 선택 (🌐) */
+      .app-header .lang-select { display: none !important; }
       .lang-select { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; }
       .lang-select .globe { font-size: 13px; line-height: 1; }
       .lang-select select { font-size: 12px; border: 2px inset #9a9a9a; background: #fff; padding: 1px 2px; max-width: 110px; }
@@ -403,14 +404,26 @@
       .seo ul, .seo ol { margin: 8px 0; padding-left: 18px; }
       .seo-guides li { margin: 10px 0; }
       .seo-guides a { color: #7fd7ff; }
-      /* 사이트 탐색 메뉴 (AdSense 사용자 환경 요건) */
-      .site-nav { position: relative; z-index: 3; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 9px 18px; background: #000040; border-bottom: 2px solid #22dd22; }
-      .site-nav-brand { color: #22dd22; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-decoration: none; }
-      .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; }
-      .site-nav-links a { color: #b8c4d8; font-size: 12.5px; text-decoration: none; padding: 2px 0; border-bottom: 1px solid transparent; }
+      /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 언어 선택 · 모바일 햄버거) ===== */
+      .site-nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: #000040; border-bottom: 1px solid #22dd22; }
+      .site-nav-brand { color: #22dd22; font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none;  white-space: nowrap; }
+      .site-nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid #22dd22; color: #22dd22; font-size: 18px; line-height: 1; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
+      .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+      .site-nav-links a { color: #b8c4d8; font-size: 12.5px; text-decoration: none; padding: 3px 0; border-bottom: 1px solid transparent; transition: .15s; white-space: nowrap; }
       .site-nav-links a:hover { color: #22dd22; border-bottom-color: #22dd22; }
       .site-nav-links a[aria-current="page"] { color: #22dd22; border-bottom-color: #22dd22; }
-      @media (max-width: 560px) { .site-nav { gap: 10px; padding: 7px 11px; } .site-nav-links { gap: 11px; } .site-nav-links a { font-size: 11.5px; } }
+      .site-nav-lang { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: #b8c4d8; }
+      .site-nav-lang .globe { font-size: 13px; line-height: 1; }
+      .site-nav-lang select { appearance: none; -webkit-appearance: none; background: #000040; color: #22dd22; border: 1px solid #22dd22; border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px 22px 4px 8px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, #22dd22 50%), linear-gradient(135deg, #22dd22 50%, transparent 50%); background-position: right 9px center, right 4px center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; max-width: 150px; }
+      .site-nav-lang select option { background: #0d1526; color: #e8eef8; }
+      @media (max-width: 720px) {
+        .site-nav { gap: 10px; padding: 8px 12px; }
+        .site-nav-toggle { display: block; order: 2; }
+        .site-nav-lang { order: 3; margin-left: 0; }
+        .site-nav-links { order: 4; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; display: none; }
+        .site-nav.nav-open .site-nav-links { display: flex; }
+        .site-nav-links a { padding: 8px 0; font-size: 14px; width: 100%; }
+      }
       .seo li { margin: 3px 0; }
       .seo dl { margin: 8px 0; }
       .seo dt { color: #e8eef8; font-weight: 700; margin-top: 12px; }
@@ -429,17 +442,72 @@
     <!-- ===== 사이트 탐색 메뉴 =====
          AdSense "우수한 사용자 환경" 요건: 탐색 메뉴(메뉴 바)로 콘텐츠를 주제별 구성.
          #root 바깥이라 React 렌더에도 살아있고, JS 없는 크롤러도 읽는다. -->
-    <nav class="site-nav" aria-label="사이트 메뉴">
+    <nav class="site-nav" aria-label="VOCA DECK">
       <a class="site-nav-brand" href="/">▎VOCA DECK</a>
+      <button class="site-nav-toggle" type="button" aria-label="menu" aria-expanded="false">≡</button>
       <div class="site-nav-links">
-        <a href="/" aria-current="page">암기장</a>
-        <a href="/method">암기법 원리</a>
-        <a href="/csv-guide">CSV 만들기</a>
-        <a href="/study-guide">학습 전략</a>
-        <a href="/spaced-repetition">간격 반복</a>
-        <a href="/about">소개</a>
+        <a href="/" data-nk="0" aria-current="page">암기장</a>
+        <a href="/method" data-nk="1">암기법 원리</a>
+        <a href="/csv-guide" data-nk="2">CSV 만들기</a>
+        <a href="/study-guide" data-nk="3">학습 전략</a>
+        <a href="/spaced-repetition" data-nk="4">간격 반복</a>
+        <a href="/about" data-nk="5">소개</a>
       </div>
+      <label class="site-nav-lang">
+        <span class="globe" aria-hidden="true">🌐</span>
+        <select aria-label="Language / 언어"></select>
+      </label>
     </nav>
+    <script>
+      (function () {
+        var KEY = "voca:lang";
+        var LANGS = [["en","English"],["ja","日本語"],["ko","한국어"],["zh","简体中文"],["zh-Hant","繁體中文"],["th","ไทย"],["es","Español"],["fr","Français"],["de","Deutsch"],["it","Italiano"],["pt","Português"],["ru","Русский"],["nl","Nederlands"]];
+        var CODES = LANGS.map(function (l) { return l[0]; });
+        var NAV = {"ko":["암기장","암기법 원리","CSV 만들기","학습 전략","간격 반복","소개"],"en":["Deck","How It Works","Make CSV","Study Guide","Spaced Repetition","About"],"ja":["暗記帳","暗記の原理","CSV作成","学習法","間隔反復","紹介"],"zh":["记忆卡","记忆原理","制作CSV","学习策略","间隔重复","关于"],"zh-Hant":["記憶卡","記憶原理","製作CSV","學習策略","間隔重複","關於"],"th":["ชุดคำ","หลักการจำ","สร้าง CSV","กลยุทธ์เรียน","การทบทวนแบบเว้นช่วง","เกี่ยวกับ"],"es":["Mazo","Cómo funciona","Crear CSV","Guía de estudio","Repetición espaciada","Acerca de"],"fr":["Paquet","Principe","Créer un CSV","Guide d’étude","Répétition espacée","À propos"],"de":["Deck","Prinzip","CSV erstellen","Lernleitfaden","Verteiltes Lernen","Über uns"],"it":["Mazzo","Come funziona","Crea CSV","Guida allo studio","Ripetizione dilazionata","Chi siamo"],"pt":["Baralho","Como funciona","Criar CSV","Guia de estudo","Repetição espaçada","Sobre"],"ru":["Колода","Как это работает","Создать CSV","Руководство","Интервальное повторение","О нас"],"nl":["Deck","Hoe het werkt","CSV maken","Studiegids","Gespreide herhaling","Over ons"]};
+        function detect() {
+          try {
+            var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+            for (var i = 0; i < cands.length; i++) {
+              var lc = String(cands[i] || '').toLowerCase(), base = lc.split('-')[0];
+              if (base === 'zh') { if (/hant|tw|hk|mo/.test(lc)) return 'zh-Hant'; return 'zh'; }
+              if (NAV[base]) return base;
+            }
+          } catch (e) {}
+          return 'en';
+        }
+        function stored() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return CODES.indexOf(v) >= 0 ? v : null; } catch (e) { return null; } }
+        function fromUrl() { try { var q = new URLSearchParams(location.search).get('lang'); return CODES.indexOf(q) >= 0 ? q : null; } catch (e) { return null; } }
+        function cur() { return fromUrl() || stored() || detect() || 'en'; }
+        var nav = document.currentScript.previousElementSibling;
+        var links = nav.querySelectorAll('.site-nav-links a');
+        var sel = nav.querySelector('.site-nav-lang select');
+        var toggle = nav.querySelector('.site-nav-toggle');
+        LANGS.forEach(function (l) { var o = document.createElement('option'); o.value = l[0]; o.textContent = l[1]; sel.appendChild(o); });
+        function apply(code) {
+          var labels = NAV[code] || NAV.en;
+          for (var i = 0; i < links.length; i++) { var k = +links[i].getAttribute('data-nk'); if (labels[k]) links[i].textContent = labels[k]; }
+          if (sel.value !== code) sel.value = code;
+          try { document.documentElement.lang = code; } catch (e) {}
+        }
+        apply(cur());
+        sel.addEventListener('change', function () {
+          var code = sel.value;
+          try { localStorage.setItem(KEY, JSON.stringify(code)); } catch (e) {}
+          try { var u = new URL(location.href); u.searchParams.set('lang', code); location.assign(u.toString()); } catch (e) { location.reload(); }
+        });
+        try {
+          new MutationObserver(function () {
+            var l = document.documentElement.lang;
+            if (CODES.indexOf(l) >= 0 && l !== sel.value) apply(l);
+          }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+        } catch (e) {}
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('nav-open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        links.forEach(function (a) { a.addEventListener('click', function () { nav.classList.remove('nav-open'); toggle.setAttribute('aria-expanded', 'false'); }); });
+      })();
+    </script>
 
     <div id="root"></div>
 

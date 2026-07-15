@@ -365,6 +365,7 @@
       .coin-switch { display: flex; align-items: center; margin-right: 8px; border: 1px solid var(--neon); border-radius: 4px; padding: 5px 8px 5px 10px; background: var(--panel); cursor: pointer; }
       .coin-switch select { appearance: none; -webkit-appearance: none; background: transparent; border: none; color: var(--neon); font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: .5px; cursor: pointer; padding: 0 14px 0 0; outline: none; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: right 4px center, right 0 center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
       .coin-switch select option { background: var(--bg-soft); color: var(--text); }
+      .topbar .lang-select { display: none !important; }
       .lang-select { display: flex; align-items: center; gap: 6px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px 5px 10px; background: var(--panel); cursor: pointer; transition: .15s; }
       .lang-select:hover { color: var(--text); border-color: var(--neon); }
       .lang-select .lang-globe { font-size: 13px; line-height: 1; filter: grayscale(.2); }
@@ -399,14 +400,26 @@
       .seo dl { margin: 8px 0; }
       .seo dt { color: var(--text); font-weight: 700; margin-top: 12px; }
       .seo dd { margin: 3px 0 0; }
-      /* 사이트 탐색 메뉴 (AdSense 사용자 환경 요건) */
-      .site-nav { position: relative; z-index: 3; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 10px 20px; background: rgba(4,8,10,.92); border-bottom: 1px solid var(--line); }
-      .site-nav-brand { color: var(--neon); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none; text-shadow: 0 0 10px rgba(0,255,156,.4); }
-      .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; }
-      .site-nav-links a { color: var(--dim); font-size: 12.5px; text-decoration: none; padding: 3px 0; border-bottom: 1px solid transparent; transition: .15s; }
+      /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 언어 선택 · 모바일 햄버거) ===== */
+      .site-nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: rgba(4,8,10,.92); border-bottom: 1px solid var(--line); }
+      .site-nav-brand { color: var(--neon); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none; text-shadow: 0 0 10px rgba(0,255,156,.4); white-space: nowrap; }
+      .site-nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid var(--line); color: var(--neon); font-size: 18px; line-height: 1; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
+      .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+      .site-nav-links a { color: var(--dim); font-size: 12.5px; text-decoration: none; padding: 3px 0; border-bottom: 1px solid transparent; transition: .15s; white-space: nowrap; }
       .site-nav-links a:hover { color: var(--neon); border-bottom-color: var(--neon); }
       .site-nav-links a[aria-current="page"] { color: var(--neon); border-bottom-color: var(--neon); }
-      @media (max-width: 560px) { .site-nav { gap: 10px; padding: 8px 12px; } .site-nav-links { gap: 11px; } .site-nav-links a { font-size: 11.5px; } }
+      .site-nav-lang { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: var(--dim); }
+      .site-nav-lang .globe { font-size: 13px; line-height: 1; }
+      .site-nav-lang select { appearance: none; -webkit-appearance: none; background: rgba(4,8,10,.92); color: var(--neon); border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12px; padding: 4px 22px 4px 8px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--neon) 50%), linear-gradient(135deg, var(--neon) 50%, transparent 50%); background-position: right 9px center, right 4px center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; max-width: 150px; }
+      .site-nav-lang select option { background: #0d1526; color: #e8eef8; }
+      @media (max-width: 720px) {
+        .site-nav { gap: 10px; padding: 8px 12px; }
+        .site-nav-toggle { display: block; order: 2; }
+        .site-nav-lang { order: 3; margin-left: 0; }
+        .site-nav-links { order: 4; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; display: none; }
+        .site-nav.nav-open .site-nav-links { display: flex; }
+        .site-nav-links a { padding: 8px 0; font-size: 14px; width: 100%; }
+      }
       .seo-disclaimer { margin-top: 24px; color: var(--warn); font-size: 12px; }
       .seo-guides { margin: 10px 0 0; padding-left: 18px; }
       .seo-guides li { margin: 10px 0; }
@@ -419,17 +432,72 @@
          AdSense "우수한 사용자 환경" 요건: "쉽게 찾고 사용할 수 있는 탐색 메뉴(메뉴 바)를 갖추고,
          주제별·카테고리별로 콘텐츠를 구성하라." #root 바깥이라 React 렌더/언어 전환에도 항상 살아있고,
          JS 없는 크롤러도 읽는다. -->
-    <nav class="site-nav" aria-label="사이트 메뉴">
+    <nav class="site-nav" aria-label="broodev">
       <a class="site-nav-brand" href="/">₿ broodev</a>
+      <button class="site-nav-toggle" type="button" aria-label="menu" aria-expanded="false">≡</button>
       <div class="site-nav-links">
-        <a href="/" aria-current="page">대시보드</a>
-        <a href="/methodology">점수 방법론</a>
-        <a href="/indicators">지표 해설</a>
-        <a href="/guide-fear-greed">공포지수 활용법</a>
-        <a href="/glossary">용어집</a>
-        <a href="/about">운영자 소개</a>
+        <a href="/" data-nk="0" aria-current="page">대시보드</a>
+        <a href="/methodology" data-nk="1">점수 방법론</a>
+        <a href="/indicators" data-nk="2">지표 해설</a>
+        <a href="/guide-fear-greed" data-nk="3">공포지수 활용법</a>
+        <a href="/glossary" data-nk="4">용어집</a>
+        <a href="/about" data-nk="5">운영자 소개</a>
       </div>
+      <label class="site-nav-lang">
+        <span class="globe" aria-hidden="true">🌐</span>
+        <select aria-label="Language / 언어"></select>
+      </label>
     </nav>
+    <script>
+      (function () {
+        var KEY = "btc:lang";
+        var LANGS = [["en","English"],["ja","日本語"],["ko","한국어"],["zh","简体中文"],["zh-Hant","繁體中文"],["th","ไทย"],["es","Español"],["fr","Français"],["de","Deutsch"],["it","Italiano"],["pt","Português"],["ru","Русский"],["nl","Nederlands"]];
+        var CODES = LANGS.map(function (l) { return l[0]; });
+        var NAV = {"ko":["대시보드","점수 방법론","지표 해설","공포지수 활용법","용어집","운영자 소개"],"en":["Dashboard","Methodology","Indicators","Fear & Greed Guide","Glossary","About"],"ja":["ダッシュボード","スコア方法","指標解説","恐怖指数ガイド","用語集","運営者情報"],"zh":["仪表板","评分方法","指标解读","恐惧指数指南","术语表","关于"],"zh-Hant":["儀表板","評分方法","指標解讀","恐懼指數指南","術語表","關於"],"th":["แดชบอร์ด","วิธีคำนวณคะแนน","อธิบายตัวชี้วัด","คู่มือดัชนีความกลัว","อภิธานศัพท์","เกี่ยวกับ"],"es":["Panel","Metodología","Indicadores","Guía de miedo y codicia","Glosario","Acerca de"],"fr":["Tableau de bord","Méthodologie","Indicateurs","Guide peur & avidité","Glossaire","À propos"],"de":["Übersicht","Methodik","Indikatoren","Angst-Gier-Leitfaden","Glossar","Über uns"],"it":["Dashboard","Metodologia","Indicatori","Guida paura e avidità","Glossario","Chi siamo"],"pt":["Painel","Metodologia","Indicadores","Guia de medo e ganância","Glossário","Sobre"],"ru":["Панель","Методология","Индикаторы","Гид по индексу страха","Глоссарий","О нас"],"nl":["Dashboard","Methodologie","Indicatoren","Angst & hebzucht-gids","Woordenlijst","Over ons"]};
+        function detect() {
+          try {
+            var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+            for (var i = 0; i < cands.length; i++) {
+              var lc = String(cands[i] || '').toLowerCase(), base = lc.split('-')[0];
+              if (base === 'zh') { if (/hant|tw|hk|mo/.test(lc)) return 'zh-Hant'; return 'zh'; }
+              if (NAV[base]) return base;
+            }
+          } catch (e) {}
+          return 'en';
+        }
+        function stored() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return CODES.indexOf(v) >= 0 ? v : null; } catch (e) { return null; } }
+        function fromUrl() { try { var q = new URLSearchParams(location.search).get('lang'); return CODES.indexOf(q) >= 0 ? q : null; } catch (e) { return null; } }
+        function cur() { return fromUrl() || stored() || detect() || 'en'; }
+        var nav = document.currentScript.previousElementSibling;
+        var links = nav.querySelectorAll('.site-nav-links a');
+        var sel = nav.querySelector('.site-nav-lang select');
+        var toggle = nav.querySelector('.site-nav-toggle');
+        LANGS.forEach(function (l) { var o = document.createElement('option'); o.value = l[0]; o.textContent = l[1]; sel.appendChild(o); });
+        function apply(code) {
+          var labels = NAV[code] || NAV.en;
+          for (var i = 0; i < links.length; i++) { var k = +links[i].getAttribute('data-nk'); if (labels[k]) links[i].textContent = labels[k]; }
+          if (sel.value !== code) sel.value = code;
+          try { document.documentElement.lang = code; } catch (e) {}
+        }
+        apply(cur());
+        sel.addEventListener('change', function () {
+          var code = sel.value;
+          try { localStorage.setItem(KEY, JSON.stringify(code)); } catch (e) {}
+          try { var u = new URL(location.href); u.searchParams.set('lang', code); location.assign(u.toString()); } catch (e) { location.reload(); }
+        });
+        try {
+          new MutationObserver(function () {
+            var l = document.documentElement.lang;
+            if (CODES.indexOf(l) >= 0 && l !== sel.value) apply(l);
+          }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+        } catch (e) {}
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('nav-open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        links.forEach(function (a) { a.addEventListener('click', function () { nav.classList.remove('nav-open'); toggle.setAttribute('aria-expanded', 'false'); }); });
+      })();
+    </script>
 
     <div id="root"></div>
 
