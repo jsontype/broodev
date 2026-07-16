@@ -4,8 +4,8 @@
 
 | Pages 프로젝트 | Root directory | 빌드 | 도메인 |
 | --- | --- | --- | --- |
-| `broodev-web`   | `apps/web`   | 없음(정적)        | broodev.com (+ www) |
-| `broodev-btc`   | `apps/btc`   | 없음(정적)        | btc.broodev.com |
+| `broodev-web`   | **`apps/btc`** (§1-B 로 변경됨) | 없음(정적) | broodev.com (+ www) |
+| ~~`broodev-btc`~~ | ~~`apps/btc`~~ | — | ~~btc.broodev.com~~ **2026-07-16 프로젝트·DNS 삭제** — 루트와 중복 광고 클론이어서 (AdSense §9-C-①) |
 | `broodev-admin` | `apps/admin` | 없음(정적)        | admin.broodev.com |
 
 ---
@@ -53,14 +53,15 @@
   - `robots.txt` 의 `Allow: /` 는 **그대로 둔다** — 크롤이 막히면 `noindex` 를 읽지 못해 색인이 안 빠진다.
   - ⚠️ **`noindex` 만으로는 AdSense가 해결되지 않는다.** `noindex` 는 *검색 색인* 지시일 뿐이고, AdSense 정책은 **광고가 게재되는 화면**에 적용된다. 그래서 **광고 스크립트 제거(= 광고 재고에서 제외)** 가 핵심이다.
 
-**Cloudflare에서 마무리 (권장)**
-코인 서브도메인을 루트로 **301 리다이렉트**해 완전히 통합한다. (복제본이 아예 사라져 가장 깨끗함)
-1. Cloudflare → `broodev.com` 존 → **Rules → Redirect Rules → Create rule**
-2. 조건: `Hostname` **equals** `eth.broodev.com` → 대상: `https://broodev.com/?coin=eth` (**301 Permanent**)
-3. 14종(`eth xrp doge bch link xlm ltc avax shib dot pepe grt sand mana`) 각각 추가. (무료 플랜 룰 수 제한에 걸리면 **Bulk Redirects** 사용)
-4. 301 을 걸면 해당 Pages 프로젝트는 사실상 비활성 — 원하면 프로젝트/서브도메인 자체를 삭제해도 된다.
+**✅ 마무리 완료 (2026-07-16)** — 존 Redirect Rule 대신 **레포의 `apps/<coin>/_redirects`**
+(`/* https://broodev.com/?coin=<coin> 301`) 로 처리했고 **라이브 301 작동 확인**
+(`curl -I https://eth.broodev.com/` → `301` + `Location: https://broodev.com/?coin=eth`).
+`btc.broodev.com` 은 프로젝트·DNS 자체를 삭제해 호스트 소멸.
 
-> 301 을 아직 안 걸어도, 현재 코드 상태(광고 제거 + noindex + canonical)만으로 **광고 게재·색인되는 코인 페이지는 루트 1개뿐**이다.
+> ⚠️ **배포 후 유령 캐시 주의** — 옛 배포가 장기 캐시(`s-maxage`) 응답을 남기면
+> **Purge Everything·Custom Purge·재배포로도 안 지워지는 경우가 있다** (실제로 `broodev.com/adsense/` 가 그랬다).
+> 그때는 존 **Redirect Rule** 로 해당 경로를 앞단에서 301 처리하라 — 룰은 캐시 조회보다 먼저 실행돼 무조건 이긴다.
+> 상세: [`adsense-compliance.md`](adsense-compliance.md) §0-B "유령 캐시 사건".
 
 ## 2. admin (admin.broodev.com) — 정적
 1. 위와 동일하게 새 Pages 프로젝트 `broodev-admin`, Root directory `apps/admin`, 빌드 없음, output `.`.
@@ -71,7 +72,11 @@
    - 발급된 ID를 `apps/admin/app.jsx` 의 `GOOGLE_CLIENT_ID` 에 입력 후 커밋.
    - ⚠ admin 은 `noindex` 이고 클라이언트측 로그인은 임시 보호임. 실제 데이터 수집/보안은 백엔드(서버리스 + DB + 서버측 토큰 검증) 필요.
 
-## 3. btc (btc.broodev.com) — 정적
+## 3. ~~btc (btc.broodev.com)~~ — 🗑 2026-07-16 폐기됨
+
+> **이 절은 기록용이다.** `broodev-btc` 프로젝트와 `btc` DNS 레코드는 삭제됐다.
+> 루트(`broodev.com` = `broodev-web`, Root directory `apps/btc`)가 유일한 btc 앱 배포다.
+> 같은 디렉터리를 두 호스트에 배포하면 AdSense 가 보는 **광고 달린 완전 복제본**이 생긴다 — 재발 금지.
 btc 의 `apps/btc/index.html` 은 자체완결 단일 파일(CDN React + 인라인)이라 **web/admin과 동일하게 빌드가 없다.**
 
 - 프로젝트 `broodev-btc`, **Root directory: `apps/btc`**
@@ -92,13 +97,18 @@ btc 가 CF Pages(btc.broodev.com)에서 정상 확인되어 GitHub Pages는 은�
 - ✅ `apps/btc/CNAME` 삭제됨
 - (남은 수동 작업) GitHub 저장소 **Settings → Pages** 에서 비활성화 + 기존 `btc → jsontype.github.io` DNS 레코드가 남아있으면 삭제.
 
-## 5. 배포 후 체크리스트
-- [ ] https://broodev.com — 회사 포털(회사소개/유용한 앱들) 정상
-- [ ] https://btc.broodev.com — btc 앱 정상 + `/ads.txt` 200
+## 5. 배포 후 체크리스트 (2026-07-16 현행)
+- [ ] https://broodev.com — **코인 시그널 대시보드** 정상 렌더(백지 아님) + 탐색 메뉴
+- [ ] `node scripts/verify-runtime.js` — 5경로 "실행 OK" (index.html 을 건드린 배포라면 필수)
+- [ ] https://eth.broodev.com — 301 → `broodev.com/?coin=eth` (코인 서브도메인 전체 동일)
+- [ ] https://btc.broodev.com — **호스트 미해석이어야 정상** (부활 금지)
+- [ ] broodev.com/ads.txt · /sitemap.xml — 200
+- [ ] broodev.com/adsense/ — 301 (존 Redirect Rule)
+- [ ] `*.pages.dev` — `X-Robots-Tag: noindex` / 커스텀 도메인엔 없음
 - [ ] https://admin.broodev.com — 로그인 게이트 표시(허용 계정만 진입)
-- [ ] broodev.com/ads.txt 200 (AdSense 루트 게재)
-- [ ] AdSense 대시보드에 각 사이트 추가 + 승인 요청
-- [ ] (선택) Search Console / Naver 등록 + sitemap 제출
+- [ ] (선택) Search Console 색인 추이 확인 + sitemap 제출
+
+전체 라이브 검증 세트: [`adsense-compliance.md`](adsense-compliance.md) 부록 A.
 
 ## 메모: 모노레포 자동 빌드 최적화
 CF Pages 프로젝트별 **Build watch paths** 를 각 앱 폴더로 좁히면, 해당 앱이 바뀔 때만 재배포된다(예: `broodev-btc` 는 `apps/btc/*` 변경 시에만).

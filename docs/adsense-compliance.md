@@ -4,7 +4,65 @@
 > 관련 Google 정책 전문을 항목별로 대조하고 **무엇을 어떻게 고쳤는지**를 증거와 함께 기록한다.
 > 재심사 전 체크리스트이자, 앞으로 새 앱을 만들 때 지켜야 할 규칙이다.
 >
-> 최종 갱신: 2026-07-14 · 대상: `broodev.com`(루트=코인 시그널), `voca.broodev.com`
+> 최종 갱신: 2026-07-16 · 대상: `broodev.com`(루트=코인 시그널), `voca.broodev.com`
+> **상태: 2026-07-16 모든 조치 완료·라이브 검증 후 재심사(검토) 요청 제출.** 경과는 §0-B.
+
+---
+
+## 0-B. 2026-07-16 마무리 — 리버트 복구 · 라이브 검증 · 검토 요청 제출
+
+### 경과
+1. 대응 PR(#13) 머지 직후 **사이트 전체 백지** 발생 → 사용자가 즉시 리버트(#14)
+2. 원인: `apps/btc/index.html` 에서 `const COIN` 을 **선언보다 위에서 참조**한 TDZ(`ReferenceError`) — React 렌더가 통째로 죽음
+3. 수정본 재적용 + 이 문서의 잔여 항목 처리 → PR #15 머지 (2026-07-16)
+4. Cloudflare 잔여 작업(§9-C) 완료 → **라이브 전수 검증** → AdSense 검토 요청 제출
+
+> ⚠️ **TDZ 교훈 — "babel 컴파일 OK"는 아무것도 보장하지 않는다.**
+> TDZ 는 컴파일이 아니라 **런타임** 에러다. `index.html` 을 고치면 반드시
+> `node scripts/verify-runtime.js` (앱을 스텁 환경에서 **실제 실행**) 를 돌려라. 부록 A 참조.
+
+### PR #15 에서 추가로 고친 것 (2026-07-15~16)
+
+| 항목 | 내용 |
+| --- | --- |
+| 게이트 자백 주석 | view-source 로 읽히는 "6~9초 광고 노출 연출" 상세 서술을 한 줄 요약으로 축약. 고아 `.gate-btn` CSS 삭제 |
+| methodology 밴드 표 | 코드(`labelMom`)와 불일치 정정: 단기 65~80=**BUY**, 25~45=**WEAK**, 0~25=**AVOID**. "최하단 밴드만 다르다"는 거짓 서술 수정 |
+| 블로우오프 톱 가드 | 코드에만 있던 둘째 항 **F&G≥90 → `(F&G−90)×2.0`점 차감** 을 문서화. UI에 없는 "가드 표시" 서술은 쓰지 않음(코드 확인 결과 렌더 안 됨) |
+| 콘텐츠 라벨 | `drawdown-dca.html` 0~25 를 탭별 병기(장기 OVERHEATED/단기 AVOID), `guide-fear-greed.html` 표에 "장기 탭 기준" 명시 |
+| voca 404 | btc 복사본(암호화폐 링크)이던 것을 voca 페이지로 교체 |
+| voca about | 365단어 → **본문 2,450자+**. localStorage·백업 JSON·TTS·문의 스크린샷 KV 90일 예외·미출시 프리미엄 선제 고지 — 전부 코드에서 확인한 사실만 |
+| clean URL 잔여 | 프래그먼트·쿼리 붙은 내부 `.html` 링크 17건 치환(308 홉 제거), 앵커 실존 검증 |
+| 헤더 내비 | 13개 언어 i18n + 언어 선택기 헤더 이동 + 모바일 햄버거 |
+| `*.pages.dev` | `functions/_middleware.js` 가 pages.dev 호스트에 `X-Robots-Tag: noindex, nofollow` 부착 (§9-C-②를 **코드로** 해결) |
+| 업로드 API | `shot.js` Turnstile 검증(옵트인 — `TURNSTILE_SECRET` 설정 시 활성화, 미설정 시 기존 동작) |
+
+### Cloudflare 잔여 작업 처리 결과 (§9-C 대응)
+
+| §9-C | 결과 |
+| --- | --- |
+| ① `btc.broodev.com` 클론 | ✅ **`broodev-btc` 프로젝트 + DNS 삭제** — 호스트 자체가 소멸(curl 미해석 확인) |
+| ② `*.pages.dev` | ✅ 미들웨어 noindex 로 해결 — 라이브에서 헤더 확인, 커스텀 도메인엔 헤더 없음 확인 |
+| ③ 코인 서브도메인 301 | ✅ 라이브 확인 — `eth/xrp/doge/shib` 전부 `301 → broodev.com/?coin=<coin>` |
+| ④ Root directory | ✅ `broodev-web` = `apps/btc` 확인 |
+| ⑤ 업로드 API | ✅ 코드 구현(옵트인). **AdSense 심사와 무관한 보안 항목**이라 활성화는 보류 — 절차는 §9-C-⑤ |
+
+### 🔴 /adsense/ 유령 캐시 사건 — 반드시 기억할 것
+
+옛 배포가 `Cache-Control: public, s-maxage=604800`(7일) 로 캐시해 둔 `broodev.com/adsense/` 응답(광고 코드 포함)이
+**Purge Everything → Custom Purge(URL) → Pages 재배포를 전부 무시하고** 계속 서빙됐다
+(`Cf-Cache-Status: DYNAMIC` 인데 `Age` 는 증가하는, 퍼지가 안 닿는 캐시 층).
+
+**해결: 존 Redirect Rule** — `starts_with(http.request.uri.path, "/adsense")` → `https://broodev.com/` 301.
+**Redirect Rule 은 캐시 조회보다 먼저 실행**되므로 어떤 캐시 층에 뭐가 남아 있든 이긴다. 즉시 반영 확인.
+
+> 교훈 ①: 광고 달린 페이지를 지웠으면 **라이브에서 슬래시 유무 양쪽 다** 확인하라
+> (`/adsense` 404 ≠ `/adsense/` 404 — 캐시 키가 다르다).
+> 교훈 ②: 퍼지로 안 죽는 캐시는 싸우지 말고 **Redirect Rule 로 앞단에서 차단**하라.
+> 교훈 ③: 새 배포는 `max-age=0, must-revalidate` 라 재발 없음 — 캐시 규칙을 새로 만들 때 HTML 장기 캐시 금지.
+
+### 검토 요청 제출 판단 기록
+"색인에서 옛 클론이 빠질 때까지 1~2주 대기"도 검토했으나, **클론 URL 접근 시 이미 301 이 보이는 것 자체가 수정 증거**이고
+라이브 상태에 잔여 위반이 없음을 전수 확인했으므로 **즉시 제출**했다. (§8의 대기 권고는 "라이브가 아직 옛 상태일 때" 기준)
 
 ---
 
@@ -127,10 +185,9 @@ Google 이 권고한 **"하나로 통합"** 을 그대로 실행했다.
 > `noindex` 는 **검색 색인** 지시일 뿐이고, AdSense 정책은 **광고가 게재되는 화면**에 적용된다.
 > **광고 재고에서 빼는 것(스크립트 제거)** 이 실질적 조치다. 둘 다 했다.
 
-### 🔴 아직 남은 것 — 배포 시 반드시
-Google 스팸 정책은 **"쿠키 커터"** 접근을 명시적으로 금지한다. 클론이 **존재하는 한** 위험이 남는다.
-→ **Cloudflare 에서 `<coin>.broodev.com` → `broodev.com/?coin=<coin>` 301 리다이렉트** 로 완전 소멸시킬 것.
-(절차: [`deploy-cloudflare.md`](deploy-cloudflare.md) §1-C)
+### ✅ 완료 (2026-07-16 라이브 확인)
+`<coin>.broodev.com` → `broodev.com/?coin=<coin>` **301 라이브 작동 확인** (`apps/<coin>/_redirects`).
+`btc.broodev.com` 은 프로젝트·DNS 삭제로 **호스트 자체 소멸**. 상세는 §0-B.
 
 ---
 
@@ -183,10 +240,10 @@ Googlebot 과 **일반 신규 방문자는 동일한 페이지**를 본다 → �
 - 이 기능은 **미완성**이다 (코드 주석: `***! TODO: 실제 구독 검증은 결제+인증 백엔드로. 지금은 임시 클라이언트 플래그(우회 가능, 보안 아님)`).
 - AdSense 는 **"아직 미완성 상태인 화면"** 도 금지한다.
 
-**권고 (택1):**
-1. **결제/구독을 실제로 출시하기 전까지 `member/` 리디렉션을 비활성화**한다. (가장 안전)
-2. 유지한다면 **페이월 구조화 데이터**(`isAccessibleForFree: false` + `hasPart`/`cssSelector`)를 추가하고,
-   `voca` 의 `isAccessibleForFree` 도 프리미엄 출시 시 **반드시 함께 갱신**한다.
+**✅ 권고 1안 실행 완료** — `member/` 자동 리디렉션(`btc:member` 플래그) 제거됨.
+`member/` 는 `noindex` + 광고 없음 상태로 남아 있고, 결제/구독을 실제로 출시할 때
+페이월 구조화 데이터(`isAccessibleForFree: false` + `hasPart`/`cssSelector`)와 함께 재도입한다.
+`voca` 의 `isAccessibleForFree: true` 는 `PREMIUM.launch = false` 인 현재 사실과 일치 — 프리미엄 출시 시 **반드시 함께 갱신**.
 
 ### 이미지 클로킹 · 모바일 리디렉션
 - ✅ **이미지 클로킹 없음** — 사용자와 검색결과에 동일 이미지. `functions/_middleware.js` 는 `?lang=` 에 따라 OG 메타를 바꾸지만, **같은 URL 이면 누구에게나 같은 응답**이라 클로킹이 아니다.
@@ -221,7 +278,7 @@ Googlebot 과 **일반 신규 방문자는 동일한 페이지**를 본다 → �
 | **`sitemap.xml`** | ✅ | 루트 7 URL (noindex 페이지 미등재) |
 | **YMYL(금융) 면책** | ✅ | 전 코인 페이지·전 콘텐츠 글에 "투자 자문 아님 / 원금 전액 손실 가능 / DYOR" 고지 |
 | **지원 언어** | ✅ | 한국어(주) — 지원 언어 |
-| **미완성/공사중 화면** | ⚠️ | `member/` 페이월이 미완성 (§4 권고 참조) |
+| **미완성/공사중 화면** | ✅ | `member/` 자동 리디렉션 제거됨(§4). noindex + 광고 없음 |
 
 ---
 
@@ -235,36 +292,40 @@ Googlebot 과 **일반 신규 방문자는 동일한 페이지**를 본다 → �
 | `voca.broodev.com` (단어암기장) | 6 | **31,672자** | ✅ | ✅ |
 
 **광고가 없는 곳** (정책 적용 대상 아님):
-코인 서브도메인 14개 · `dev` · `voca-tutorial` · `voca-backup` · `admin` · `btc/member/` · `btc/adsense/`
+코인 서브도메인 14개(전부 301→루트) · `dev`(noindex) · `voca-tutorial` · `voca-backup`(noindex·미배포) · `admin`(noindex) · `btc/member/`(noindex)
+
+**소멸한 곳** (2026-07-16): `btc.broodev.com`(프로젝트·DNS 삭제) · `broodev.com/adsense/`(디렉터리 삭제 + 존 Redirect Rule 301) · `*.pages.dev`(noindex 헤더)
 
 ---
 
 ## 8. 재심사 전 체크리스트
 
-### 🔴 배포 전 필수
-- [ ] PR 머지 → Cloudflare 재배포
-- [ ] **코인 서브도메인 14개 → `broodev.com/?coin=<coin>` 301 리다이렉트** ([`deploy-cloudflare.md`](deploy-cloudflare.md) §1-C)
-      — 쿠키 커터 도어웨이를 **존재 자체에서** 없애는 유일한 방법
-- [ ] `member/` 페이월 리디렉션 처리 결정 (§4 권고)
+### 🔴 배포 전 필수 — ✅ 전부 완료 (2026-07-16)
+- [x] PR #15 머지 → Cloudflare 재배포
+- [x] **코인 서브도메인 14개 → `broodev.com/?coin=<coin>` 301** — 라이브 확인 (eth/xrp/doge/shib 표본)
+- [x] `member/` 페이월 리디렉션 제거 (§4 권고 1안)
 
-### 🟡 배포 직후 검증 (라이브에서)
-- [ ] `broodev.com/` — 탐색 메뉴 표시, 대시보드 정상 렌더
-- [ ] `broodev.com/adsense/` — **광고 없이** 뜨는지 (또는 제거)
-- [ ] `broodev.com/methodology.html` · `/indicators.html` · `/guide-fear-greed.html` · `/glossary.html` — 200
-- [ ] `eth.broodev.com` — **광고 안 뜨는지** (또는 301 로 루트 이동)
-- [ ] `broodev.com/ads.txt` · `/sitemap.xml` — 200
-- [ ] 모바일에서 탐색 메뉴 정상 동작
+### 🟡 배포 직후 검증 (라이브에서) — ✅ 전부 통과 (2026-07-16)
+- [x] `broodev.com/` — 탐색 메뉴 표시, 대시보드 정상 렌더 (백지 아님)
+- [x] `broodev.com/adsense/` — **존 Redirect Rule 로 301** (슬래시 유무 양쪽 다 — §0-B 유령 캐시 사건 참조)
+- [x] `broodev.com/methodology` · `/indicators` · `/guide-fear-greed` · `/glossary` — 200 (clean URL)
+- [x] `eth.broodev.com` — 301 로 루트 이동
+- [x] `broodev.com/ads.txt` · `/sitemap.xml` — 200
+- [x] `*.pages.dev` — `X-Robots-Tag: noindex, nofollow` / 커스텀 도메인엔 없음
+- [x] 존재하지 않는 경로 — 진짜 404 (soft-404 아님)
+- [x] 모바일에서 탐색 메뉴(햄버거) 정상 동작
 
 ### 🟢 재심사 요청 전 (가장 자주 실수하는 곳)
-- [ ] **배포 후 2주~1개월 대기.** 배포 직후 재심사를 누르면 Google 은 **옛날 상태**를 본다.
-      아무것도 안 고치고 재신청하면 **자동으로 같은 사유로 또 떨어진다.**
-- [ ] **Search Console 색인 페이지 수 확인** ← **가장 중요한 지표**
+- [x] **라이브가 수정된 상태인지 먼저 확인.** 라이브가 옛 상태(예: 리버트된 master)면 Google 은 옛날 것을 본다.
+      2026-07-16 은 라이브 전수 검증 후 즉시 제출 — 클론 URL 이 301 을 반환하는 것 자체가 수정 증거이므로
+      색인 정리 대기는 생략했다 (§0-B 판단 기록).
+- [ ] **Search Console 색인 페이지 수 확인** ← **가장 중요한 지표** (심사 대기 중에도 계속 모니터링)
       - **한 자릿수면 그 자체가 탈락 사유다.** 목표: 두 자릿수 이상
-      - 클론 페이지가 색인에서 **빠지고 있는가**?
+      - 클론 페이지(`eth.broodev.com` 등)가 색인에서 **빠지고 있는가**? — `site:eth.broodev.com` 으로 추적
       - 새 콘텐츠(방법론·지표 심층 6편 등)가 **색인됐는가**?
 - [ ] **URL 검사 도구**로 Googlebot 이 보는 것 = 사용자가 보는 것 확인 (클로킹 자가진단)
 - [ ] **수동 조치 보고서** 확인 (스팸 정책 위반 시 여기 표시됨)
-- [ ] 그 다음에 **재심사 요청**
+- [x] **재심사 요청 제출** (2026-07-16) — 결과 대기 중. 탈락 시 §9 "다음 수" 실행
 
 > Google 은 구체적 탈락 사유를 주지 않는다. **Search Console 이 유일하게 얻을 수 있는 실제 데이터다.**
 > 여기를 안 보고 재신청하는 것은 눈 감고 다시 던지는 것과 같다.
@@ -274,14 +335,17 @@ Googlebot 과 **일반 신규 방문자는 동일한 페이지**를 본다 → �
 ## 9. 또 탈락하면 — 다음 수
 
 Google 은 구체적 사유를 주지 않는다. 그러니 **변수를 줄여 신호를 명확히** 해야 한다.
+(2·3번은 2026-07-16 에 이미 실행 완료 — 다음 탈락 시 남은 카드는 1·4·5·6 이다.)
 
 1. **광고 게재 사이트를 1개로 줄인다.** 현재 2개(`broodev.com`, `voca`)라 어느 쪽이 문제인지 알 수 없다.
    콘텐츠가 더 많은 `broodev.com` 만 남기고 voca 광고를 빼면 신호가 명확해진다.
-2. **클론을 301 로 완전 소멸**시킨다 (아직 안 했다면).
-3. **`member/` 미완성 페이월을 제거**한다.
+2. ~~클론을 301 로 완전 소멸시킨다~~ ✅ 완료 (§0-B)
+3. ~~`member/` 미완성 페이월을 제거한다~~ ✅ 완료 (§4)
 4. **콘텐츠를 더 쌓는다.** 65,000자는 통과선 근처지 안전선이 아니다.
    Google 이 요구하는 **"정기적 업데이트"** — 주간 시장 논평 등 — 를 실제로 축적한다.
 5. Search Console 의 **수동 조치 보고서**를 확인한다 (스팸 정책 위반 시 여기에 표시된다).
+6. **색인 정리를 기다린다.** 이번엔 즉시 제출했으므로, 탈락하면 `site:eth.broodev.com` 등
+   옛 클론이 색인에서 완전히 빠진 것을 확인한 뒤(통상 2~4주) 재신청한다.
 
 ---
 
@@ -343,42 +407,46 @@ Google 이 구체적 탈락 사유를 주지 않으므로 **이것이 유일하�
 
 ---
 
-## 9-C. 🔴 레포에서 못 고치는 것 — 반드시 Cloudflare 에서 처리할 것
+## 9-C. 레포에서 못 고치는 것 — Cloudflare 처리 목록 (✅ 2026-07-16 전부 처리 완료)
 
-아래는 **코드로 해결이 안 되고 Cloudflare 콘솔에서 처리해야 하는 잔여 위험**이다.
-배포만 하고 이걸 안 하면 **여전히 탈락 사유가 남는다.**
+아래는 **코드로 해결이 안 되고 Cloudflare 콘솔에서 처리해야 하는 잔여 위험**이었다.
+처리 결과 요약은 §0-B, 각 항목 상세는 아래.
 
-### ① `btc.broodev.com` — 통합에서 누락된 15번째 클론 🔴
+### ① `btc.broodev.com` — 통합에서 누락된 15번째 클론 → ✅ 소멸
 `apps/btc` 한 디렉터리가 **`broodev.com` 과 `btc.broodev.com` 두 호스트에 동시 배포**된다
 (`broodev-web` + `broodev-btc` 두 Pages 프로젝트). 즉 심사 대상 루트의 **완전 복제본**이
 광고를 달고 살아 있다. `_redirects` 로는 못 고친다 — 같은 파일이 양쪽에 배포되므로
 `_redirects` 를 넣으면 루트까지 리다이렉트된다.
 
-**조치 (택 1)**
-- **(권장) `broodev-btc` Pages 프로젝트를 삭제**하고 `btc.broodev.com` DNS 레코드를 제거한다.
-- 또는 Cloudflare → `broodev.com` 존 → **Rules → Redirect Rules**:
-  `Hostname equals btc.broodev.com` → `https://broodev.com/` **301**
+**✅ 처리 (2026-07-16):** `broodev-btc` Pages 프로젝트 삭제(Custom domains 에서 도메인 제거 → 프로젝트 삭제) + DNS 레코드 제거.
+`curl https://btc.broodev.com/` 이 **호스트 미해석**으로 실패하는 것 확인 — 클론 소멸.
+(SEO 를 더 챙기려면 삭제 대신 301 Redirect Rule 도 유효했으나, 심사 관점의 핵심인 "클론 소멸"은 삭제로 충족)
 
-### ② `*.pages.dev` 프리뷰 도메인 🔴
+### ② `*.pages.dev` 프리뷰 도메인 → ✅ 코드로 해결
 Pages 프로젝트마다 `broodev-web.pages.dev` 같은 **크롤 가능한 사이트 복제본**이 하나씩 더 있다.
-**조치:** 각 Pages 프로젝트 → Settings → **Preview deployments 접근 제한**, 또는
-Cloudflare Access 로 `*.pages.dev` 를 잠근다.
+**✅ 처리:** btc·voca 의 `functions/_middleware.js` 가 호스트가 `.pages.dev` 로 끝나면
+`X-Robots-Tag: noindex, nofollow` 를 부착한다 (커밋 `24139e7`). 배포만으로 전 프로젝트 적용,
+대시보드 작업 불필요. 코인 프로젝트들의 pages.dev 는 `_redirects` 301 이 커버(경로 기반이라 호스트 무관).
+라이브 검증: pages.dev 에 헤더 있음 / 커스텀 도메인엔 없음.
+(원하면 Pages → Settings → Access policy 로 프리뷰 URL 자체를 잠글 수도 있으나 필수 아님)
 
-### ③ 코인 서브도메인 301 확인
+### ③ 코인 서브도메인 301 확인 → ✅ 라이브 확인
 레포에 `apps/<coin>/_redirects` (`/* https://broodev.com/?coin=<coin> 301`) 를 넣었다.
 `robots.txt` 는 **`Allow: /`** 로 두었다 — **크롤이 막히면 Google 이 301 을 못 보고 색인에서 안 빠진다.**
-**배포 후 반드시 확인:** `curl -I https://eth.broodev.com/` → `301` + `Location: https://broodev.com/?coin=eth`
+**✅ 확인 (2026-07-16):** `eth/xrp/doge/shib` 표본 전부 `301` + `Location: https://broodev.com/?coin=<coin>`.
 
-### ④ 배포 watch path
-`apps/web` 은 레포에서 사라졌는데 `broodev-web` 프로젝트의 **Root directory 가 아직 `apps/web`** 이면
-빌드가 실패하거나 옛 버전이 계속 서빙된다.
-**조치:** `broodev-web` → Settings → **Root directory = `apps/btc`** 확인.
+### ④ 배포 watch path → ✅ 확인
+`broodev-web` → Settings → **Root directory = `apps/btc`** 확인 완료.
 
-### ⑤ (보안) `voca.broodev.com` 공개 이미지 업로드 API
-`apps/voca/functions/api/shot.js` 는 문의 폼 스크린샷용인데 **Origin/Referer 헤더 검사만** 한다.
-헤더는 위조 가능하므로 **누구나 광고 게재 도메인에 임의 이미지를 호스팅**할 수 있다
+### ⑤ (보안) `voca.broodev.com` 공개 이미지 업로드 API → ✅ 코드 구현 (활성화는 선택)
+`apps/voca/functions/api/shot.js` 는 문의 폼 스크린샷용인데 **Origin/Referer 헤더 검사만** 했다.
+헤더는 위조 가능하므로 누구나 광고 게재 도메인에 임의 이미지를 호스팅할 수 있었다
 (2MB 제한 · 이미지 타입 검사 · 90일 TTL 은 있음).
-**조치:** Cloudflare **Turnstile** 또는 Rate Limiting 을 붙이거나, 문의 폼에서 업로드를 제거한다.
+**✅ 처리:** Turnstile 검증 코드 구현됨 — 시크릿 미설정이면 기존 동작 유지(폼 안 깨짐), 설정하면 강제(fail-closed).
+**활성화 절차** (AdSense 와 무관한 보안 항목이라 필요해질 때):
+1. 대시보드 → **Turnstile → Add widget** (hostname `broodev.com`, mode Managed) → Site Key / Secret Key 발급
+2. `apps/voca/contact.html` 의 `TURNSTILE_SITE_KEY` 에 Site Key 기입 (공개키라 커밋 안전)
+3. voca Pages 프로젝트 → Settings → Variables and secrets → `TURNSTILE_SECRET`(Secret 타입) = Secret Key
 
 ---
 
@@ -418,12 +486,25 @@ done
 # 낡은 canonical 잔존 확인 (0건이어야 함)
 grep -rl 'canonical" href="https://btc\.broodev\.com' apps
 
-# 인브라우저 JSX 가 실제로 컴파일되는가 (실패 시 사이트가 백지가 된다)
-npm i @babel/standalone
-node -e "const B=require('@babel/standalone'),fs=require('fs');
-const h=fs.readFileSync('apps/btc/index.html','utf8');
-B.transform(h.match(/<script type=\"text\/babel\"[^>]*>([\s\S]*?)<\/script>/)[1],{presets:['react']});
-console.log('JSX 컴파일 OK')"
+# ⚠️ 사이트 백지 방지 — "컴파일 OK"가 아니라 "실행 OK"를 확인해야 한다 (§0-B TDZ 사건)
+# btc 기본/?coin=eth/pepe/BOGUS + voca 5경로를 스텁 환경에서 실제 실행
+npm i --no-save @babel/standalone   # 최초 1회
+node scripts/verify-runtime.js      # 5개 전부 "실행 OK" 여야 함
+
+# Pages Functions 검증 — pages.dev noindex 미들웨어 + shot.js Turnstile (22케이스)
+node scripts/verify-functions.mjs   # "전부 통과" 여야 함
+```
+
+### 라이브 검증 (배포 후 — 2026-07-16 전수 통과한 세트)
+
+```bash
+curl -sI https://broodev.com/                    # 200 + 대시보드
+curl -sI https://broodev.com/adsense/            # 301 (존 Redirect Rule — 슬래시 있는 쪽도 반드시!)
+curl -sI https://broodev.com/no-such-page        # 404 (soft-404 아님)
+curl -sI https://eth.broodev.com/                # 301 → broodev.com/?coin=eth
+curl -sI https://btc.broodev.com/                # 호스트 미해석 (프로젝트·DNS 삭제됨)
+curl -sI https://broodev-web.pages.dev/ | grep -i x-robots-tag   # noindex, nofollow
+curl -sI https://broodev.com/ | grep -i x-robots-tag             # (아무것도 없어야 함)
 ```
 
 ## 부록 B. 관련 문서
