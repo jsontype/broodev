@@ -141,7 +141,8 @@
       * { box-sizing: border-box; }
       html, body { height: 100%; margin: 0; }
       body { background: #222; font-family: var(--ui-font); overflow-x: hidden; overscroll-behavior-y: none; }
-      #root { min-height: 100vh; }
+      /* 헤더(site-nav) 높이는 JS 가 --site-nav-h 로 실측 주입. 100dvh 에서 빼야 하단이 안 잘린다 */
+      #root { min-height: calc(100vh - var(--site-nav-h, 38px)); min-height: calc(100dvh - var(--site-nav-h, 38px)); }
 
       /* ===== 최상단 슬림 헤더 (broodev 로고 + 앱 이름 + 🌐 언어) ===== */
       .app-header { flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; background: #05080a; border-bottom: 1px solid #16203a; }
@@ -163,7 +164,7 @@
       }
 
       /* ===== 상단 표시 영역 (남색 + 노란 대형 글자) ===== */
-      .stage { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+      .stage { display: flex; flex-direction: column; height: calc(100vh - var(--site-nav-h, 38px)); height: calc(100dvh - var(--site-nav-h, 38px)); }
       .display { flex: 1; display: flex; flex-direction: column; min-height: 0; cursor: pointer; user-select: none; -webkit-user-select: none; border: 2px inset #9a9a9a; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
       .pane { flex: 1; min-height: 0; display: flex; align-items: center; padding: 2vh 3vw; overflow: hidden; }
       .pane.top { border-bottom: 3px solid #e8e8e8; }
@@ -507,6 +508,12 @@
           toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
         links.forEach(function (a) { a.addEventListener('click', function () { nav.classList.remove('nav-open'); toggle.setAttribute('aria-expanded', 'false'); }); });
+        /* 헤더 실측 높이 → --site-nav-h. .stage=calc(100dvh−헤더)라 하단 제어판이 안 잘린다.
+           햄버거 개폐·언어 변경으로 헤더 높이가 변해도 ResizeObserver 가 따라간다 */
+        function navH() { try { document.documentElement.style.setProperty('--site-nav-h', nav.offsetHeight + 'px'); } catch (e) {} }
+        navH();
+        window.addEventListener('resize', navH);
+        try { new ResizeObserver(navH).observe(nav); } catch (e) {}
       })();
     </script>
 
