@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Africa Daily Utility — power, money, gov status &amp; USSD codes in one panel</title>
     <meta name="description" content="One lightweight panel for daily life in Nigeria, Kenya, Ghana and South Africa: load shedding links, live exchange rates and remittance cost calculator, JAMB/WAEC/SASSA/NIN status portals, verified USSD codes." />
-    <!-- 신규 앱 — 콘텐츠 보강 전까지 noindex (adsense-compliance.md 규칙 4·5), 광고 없음 -->
-    <meta name="robots" content="noindex, follow" />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://africa.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Africa Daily Utility — power · money · status · USSD" />
+    <meta name="twitter:description" content="Load shedding, live FX &amp; remittance cost, JAMB/WAEC/SASSA portals, verified USSD codes and a hacker terminal — one fast page." />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Africa Daily Utility — power · money · status · USSD" />
     <meta property="og:description" content="Load shedding, live FX &amp; remittance cost, JAMB/WAEC/SASSA/NIN portals, verified USSD codes — one fast page." />
@@ -60,7 +63,23 @@
       footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
       footer a { color: var(--gold-dim); }
       .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
-      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 10.5px; } }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 9.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #0a0702; border: 1px solid #4a3a22; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(255,182,72,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #ffd89a; text-shadow: 0 0 6px rgba(255,182,72,.3); }
+      #t-out .t-dim { color: #8a6d3f; text-shadow: none; }
+      #t-out .t-hi { color: #fff3dd; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--green); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--gold); white-space: nowrap; text-shadow: 0 0 6px rgba(255,182,72,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #fff3dd; font-family: var(--font); font-size: 13px; caret-color: var(--gold); }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--gold); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo a { color: var(--gold); }
+      .seo ul { padding-left: 18px; }
     </style>
   </head>
   <body>
@@ -76,15 +95,75 @@
         <div class="tab" data-tab="money"><b>💱 MONEY</b><span>FX · remit</span></div>
         <div class="tab" data-tab="status"><b>🗂 STATUS</b><span>Gov · exams</span></div>
         <div class="tab" data-tab="ussd"><b>📟 USSD</b><span>Codes</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span>Terminal</span></div>
       </nav>
 
       <main id="view"></main>
 
       <footer>
         FX data: open.er-api.com (mid-market, updated daily) · For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings live only in your browser (localStorage).<br />
         © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a>
       </footer>
     </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Africa Daily Utility">
+      <h2>What is Africa Daily Utility?</h2>
+      <p>
+        A free, data-light utility panel for daily life in <strong>Nigeria, Kenya, Ghana and South Africa</strong>.
+        It puts four things on one fast page: <strong>power outage information</strong> (South African load-shedding stages explained,
+        with EskomSePush, Eskom, KPLC and ECG official links), <strong>money tools</strong> — live mid-market exchange rates for NGN, KES,
+        GHS and ZAR, a currency converter and a <strong>remittance true-cost checker</strong> that reveals the hidden exchange-rate margin
+        on top of the fee (Sub-Saharan remittances average ~8%, the world’s most expensive corridor),
+        <strong>official status portals</strong> — JAMB results, WAEC result checkers, NIN services, Nigerian passports, SASSA SRD grant
+        status, matric results, KNEC and eCitizen — and <strong>verified USSD codes</strong>, including Nigeria’s NCC-harmonised codes
+        (*310# balance, *312# data, *996# NIN-SIM) and bank codes (*737#, *901#, *919#, *966#, *894#).
+        No app install, no account — it works on cheap data and old Android phones.
+      </p>
+      <h2>Notable African tech companies</h2>
+      <p>A curated cross-section of the continent’s tech economy (not a ranking — see the FT’s annual “Africa’s Fastest Growing Companies” list for formal rankings):</p>
+      <ul>
+        <li><a href="https://flutterwave.com/" rel="noopener">Flutterwave</a> and <a href="https://paystack.com/" rel="noopener">Paystack</a> — Nigerian payments infrastructure powering pan-African commerce</li>
+        <li><a href="https://moniepoint.com/" rel="noopener">Moniepoint</a> — agent banking for millions of Nigerian businesses</li>
+        <li><a href="https://www.interswitchgroup.com/" rel="noopener">Interswitch</a> — payment-switching pioneer behind the Verve card</li>
+        <li><a href="https://www.m-kopa.com/" rel="noopener">M-KOPA</a> — pay-as-you-go smartphones and solar across East Africa</li>
+        <li><a href="https://www.wave.com/" rel="noopener">Wave</a> — low-fee mobile money in Senegal and Côte d’Ivoire</li>
+        <li><a href="https://chippercash.com/" rel="noopener">Chipper Cash</a> — cross-border transfers</li>
+        <li><a href="https://www.andela.com/" rel="noopener">Andela</a> — African engineering talent for global teams</li>
+        <li><a href="https://www.yoco.com/" rel="noopener">Yoco</a> — card payments for South African small business</li>
+        <li><a href="https://www.mtn.com/" rel="noopener">MTN Group</a> — telecom and MoMo across 19 markets</li>
+      </ul>
+      <h2>Give back — high-impact charities working in Africa</h2>
+      <p>How to donate: use each organisation’s <strong>official donation page</strong> (card or PayPal; some accept M-Pesa locally). Never give through unofficial collectors:</p>
+      <ul>
+        <li><a href="https://www.givedirectly.org/" rel="noopener">GiveDirectly</a> — unconditional cash straight to the poorest households</li>
+        <li><a href="https://www.againstmalaria.com/" rel="noopener">Against Malaria Foundation</a> — insecticide-treated nets, consistently top-rated for impact per dollar</li>
+        <li><a href="https://oneacrefund.org/" rel="noopener">One Acre Fund</a> — seeds, training and financing for smallholder farmers</li>
+        <li><a href="https://www.wateraid.org/" rel="noopener">WaterAid</a> — clean water and sanitation</li>
+        <li><a href="https://www.msf.org/" rel="noopener">Doctors Without Borders (MSF)</a> — emergency medical care</li>
+        <li><a href="https://www.marysmeals.org/" rel="noopener">Mary’s Meals</a> — school meals that keep children in class</li>
+        <li><a href="https://www.hki.org/" rel="noopener">Helen Keller Intl</a> — nutrition and sight programs</li>
+      </ul>
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab for a terminal with 32 commands — <code>help</code>,
+        <code>convert 100 usd ngn</code>, <code>remit 200 5 1340</code>, <code>code balance</code>, <code>startups</code>,
+        <code>donate givedirectly</code> and more. All figures are for information only; official sources are always authoritative.
+      </p>
+    </section>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Africa Daily Utility",
+        "url": "https://africa.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Load shedding links, live exchange rates, remittance true-cost checker, JAMB/WAEC/SASSA/NIN status portals, verified USSD codes, hacker-style terminal"
+      }
+    </script>
 
     <script>
       'use strict';
@@ -309,12 +388,112 @@
           '<div class="note">Codes verified 2026-07 but can change — if a code fails, confirm with your provider. NEVER share your PIN; providers never ask for it by SMS or call.</div></div>';
       }
 
+      /* ================= 해커 터미널 ================= */
+      /* 스타트업·기부 데이터 — 2026-07 도메인 라이브 검증분만. 순위 아님(임의 서열 배제), 저명 기업 알파벳순 아님·부문 안배 */
+      var AF_BIZ = [
+        ['Flutterwave', 'https://flutterwave.com/', 'NG · pan-African payments infrastructure'],
+        ['Paystack', 'https://paystack.com/', 'NG · online payments (acquired by Stripe)'],
+        ['Moniepoint', 'https://moniepoint.com/', 'NG · agent banking & business payments'],
+        ['Interswitch', 'https://www.interswitchgroup.com/', 'NG · payment switching pioneer (Verve)'],
+        ['M-KOPA', 'https://www.m-kopa.com/', 'KE · pay-as-you-go smartphones & solar'],
+        ['Wave', 'https://www.wave.com/', 'SN/CI · low-fee mobile money'],
+        ['Chipper Cash', 'https://chippercash.com/', 'Pan-African · cross-border transfers'],
+        ['Andela', 'https://www.andela.com/', 'Pan-African · global engineering talent'],
+        ['Yoco', 'https://www.yoco.com/', 'ZA · card payments for small business'],
+        ['MTN Group', 'https://www.mtn.com/', 'ZA · telecom + MoMo across 19 markets'],
+      ];
+      var AF_GIVE = [
+        ['GiveDirectly', 'https://www.givedirectly.org/', 'Direct cash transfers to the poorest households (KE/RW/MW+)'],
+        ['Against Malaria Foundation', 'https://www.againstmalaria.com/', 'Insecticide-treated bed nets — top-rated effectiveness'],
+        ['One Acre Fund', 'https://oneacrefund.org/', 'Smallholder farmers: seeds, training, financing'],
+        ['WaterAid', 'https://www.wateraid.org/', 'Clean water, decent toilets, hygiene'],
+        ['Doctors Without Borders (MSF)', 'https://www.msf.org/', 'Emergency medical care in crises'],
+        ['Mary’s Meals', 'https://www.marysmeals.org/', 'School meals (Malawi, Zambia, Kenya+)'],
+        ['Helen Keller Intl', 'https://www.hki.org/', 'Vitamin A, nutrition and sight programs'],
+      ];
+      var T_CITY = { ng: 'lagos', ke: 'nairobi', gh: 'accra', za: 'joburg' };
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tOrgs(list) { return list.map(function (b, i) { return '  ' + (i + 1) + '. <span class="t-hi">' + esc(b[0]) + '</span> — ' + esc(b[2]) + '\n     ' + tLink(b[1]); }).join('\n'); }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ AFRICA DAILY UTILITY // street_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (mid-market FX) ............ [OK]</span>',
+        '<span class="t-dim">  grid: NG · KE · GH · ZA ............................ [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for 32 commands · <span class="t-hi">country ke</span> to switch</span>',
+      ];
+      function tFx() { return loadFx(); }
+      function tStat(k2) { var c = CTY[cty].status; return c.length ? tLinks(c) : '<span class="t-dim">none for this country</span>'; }
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'what this terminal is', f: function () { return 'Daily-utility terminal for NG/KE/GH/ZA — FX, remittance math, power, gov portals, USSD codes.\nStatic page, no accounts; nothing you type leaves the browser.'; } },
+        countries: { d: 'list supported countries', f: function () { return CTY_ORDER.map(function (k) { return '  ' + (k === cty ? '<span class="t-hi">▸ ' : '<span class="t-dim">  ') + k + '</span> ' + CTY[k].flag + ' ' + CTY[k].name + ' (' + CTY[k].cur + ')'; }).join('\n'); } },
+        country: { d: 'country <ng|ke|gh|za> — switch', f: function (a) { var q = (a[0] || '').toLowerCase(); if (!CTY[q]) return 'usage: country ng | ke | gh | za'; cty = q; store.set('af:cty', cty); return 'switched → <span class="t-hi">' + CTY[q].flag + ' ' + CTY[q].name + '</span>'; } },
+        fx: { d: 'today’s mid-market rates', f: function () { return tFx().then(function (fx) { var c = CTY[cty]; return FX_SHOW.map(function (b) { var v = convert(1, b, c.cur, fx.rates); return '  1 ' + b + ' = <span class="t-hi">' + (v == null ? '—' : Math.round(v).toLocaleString('en')) + ' ' + c.cur + '</span>'; }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, not street rate</span>'; }); } },
+        rate: { d: 'rate <CUR> — 1 USD in any currency', f: function (a) { var q = (a[0] || '').toUpperCase(); if (!q) return 'usage: rate KES'; return tFx().then(function (fx) { return fx.rates[q] == null ? '<span class="t-crit">unknown currency</span>' : '1 USD = <span class="t-hi">' + fx.rates[q].toLocaleString('en') + ' ' + q + '</span>'; }); } },
+        convert: { d: 'convert <amt> <from> <to>', f: function (a) { var amt = +a[0], f2 = (a[1] || '').toUpperCase(), t2 = (a[2] || '').toUpperCase(); if (!(amt > 0) || !f2 || !t2) return 'usage: convert 100 USD NGN'; return tFx().then(function (fx) { var v = convert(amt, f2, t2, fx.rates); return v == null ? '<span class="t-crit">unknown currency</span>' : amt.toLocaleString('en') + ' ' + f2 + ' = <span class="t-hi">' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + t2 + '</span>'; }); } },
+        remit: { d: 'remit <sendUSD> <feeUSD> <rate> — true cost', f: function (a) { var s = +a[0], fe = +a[1], rt = +a[2]; if (!(s > 0) || !(rt > 0) || isNaN(fe)) return 'usage: remit 200 5 1340'; return tFx().then(function (fx) { var mid = fx.rates[CTY[cty].cur]; var r = remitCost(s, fe, rt, mid); if (!r) return '<span class="t-crit">bad inputs</span>'; var cl = r.costPct > 8 ? 't-crit' : r.costPct > 4 ? 't-warn' : 't-ok'; return 'recipient gets <span class="t-hi">' + Math.round(r.received).toLocaleString('en') + ' ' + CTY[cty].cur + '</span> · true cost <span class="' + cl + '">' + r.costPct.toFixed(1) + '%</span> vs mid-market\n<span class="t-dim">Sub-Saharan average ≈ 8% (World Bank) — below 4% is a good deal</span>'; }); } },
+        power: { d: 'power outage info & links', f: function () { var c = CTY[cty]; return esc(c.power.body) + '\n' + tLinks(c.power.links); } },
+        status: { d: 'gov/exam status portals (current country)', f: function () { return tStat(); } },
+        jamb: { d: 'NG — JAMB result & CAPS link', f: function () { return '  ' + tLink('https://efacility.jamb.gov.ng/', 'JAMB eFacility') + ' <span class="t-dim">— UTME results, admission status</span>'; } },
+        waec: { d: 'WAEC result checkers (NG/GH)', f: function () { return '  ' + tLink('https://www.waecdirect.org/', 'WAEC Nigeria') + '\n  ' + tLink('https://www.waecgh.org/', 'WAEC Ghana'); } },
+        nin: { d: 'NG — NIN services & *346#', f: function () { return '  ' + tLink('https://nimc.gov.ng/', 'NIMC') + '\n  quick check: dial <span class="t-hi">*346#</span> · NIN–SIM link: <span class="t-hi">*996#</span>'; } },
+        sassa: { d: 'ZA — SRD grant status', f: function () { return '  ' + tLink('https://srd.sassa.gov.za/', 'SASSA SRD R370') + ' <span class="t-dim">— payment status check</span>'; } },
+        matric: { d: 'ZA — matric (NSC) results', f: function () { return '  ' + tLink('https://www.education.gov.za/', 'Dept. of Basic Education'); } },
+        knec: { d: 'KE — national exams', f: function () { return '  ' + tLink('https://www.knec.ac.ke/', 'KNEC'); } },
+        ecitizen: { d: 'KE — eCitizen portal', f: function () { return '  ' + tLink('https://www.ecitizen.go.ke/', 'eCitizen') + ' <span class="t-dim">— IDs, passports, land, business</span>'; } },
+        ussd: { d: 'USSD codes (current country)', f: function () { var c = CTY[cty]; return c.ussd.map(function (u) { return '  <span class="t-hi">' + esc(u[0]).padEnd(10) + '</span> ' + esc(u[1]); }).join('\n') + '\n<span class="t-warn">never share your PIN — no provider asks for it</span>'; } },
+        banks: { d: 'NG bank USSD codes', f: function () { return CTY.ng.ussd.filter(function (u) { return /Bank|GTBank|UBA|Zenith|FirstBank/.test(u[1]); }).map(function (u) { return '  <span class="t-hi">' + esc(u[0]).padEnd(8) + '</span> ' + esc(u[1]); }).join('\n'); } },
+        code: { d: 'code <word> — search USSD codes', f: function (a) { var q = (a.join(' ') || '').toLowerCase(); if (!q) return 'usage: code balance'; var hits = []; CTY_ORDER.forEach(function (k) { CTY[k].ussd.forEach(function (u) { if ((u[0] + ' ' + u[1]).toLowerCase().indexOf(q) >= 0) hits.push('  ' + CTY[k].flag + ' <span class="t-hi">' + esc(u[0]) + '</span> ' + esc(u[1])); }); }); return hits.length ? hits.join('\n') : '<span class="t-dim">no match</span>'; } },
+        startups: { d: 'notable African tech companies', f: function () { return tOrgs(AF_BIZ) + '\n<span class="t-dim">a curated cross-section, not a ranking — see FT “Africa’s Fastest Growing Companies” for formal rankings</span>'; } },
+        giving: { d: 'high-impact charities in Africa', f: function () { return tOrgs(AF_GIVE) + '\n<span class="t-dim">donate only on each org’s official site (card/PayPal; some accept M-Pesa)</span>'; } },
+        donate: { d: 'donate <name> — how to give', f: function (a) { var q = (a.join(' ') || '').toLowerCase(); var m = AF_GIVE.find(function (g) { return g[0].toLowerCase().indexOf(q) >= 0; }); if (!q || !m) return 'usage: donate givedirectly | malaria | acre | wateraid | msf | meals | keller'; return '<span class="t-hi">' + esc(m[0]) + '</span>\n  ' + esc(m[2]) + '\n  official donation page: ' + tLink(m[1]) + '\n<span class="t-dim">give only through the official site — beware of copycat collectors</span>'; } },
+        safety: { d: 'scam-safety basics', f: function () { return '  1. Providers NEVER ask for your PIN by call/SMS\n  2. Status checks are free on official portals — anyone charging is a scam\n  3. Dial USSD codes yourself; don’t follow codes sent by strangers\n  4. Verify charity domains before giving'; } },
+        sources: { d: 'data sources', f: function () { return '  FX: open.er-api.com (mid-market, daily)\n  power/status: official portals only\n  USSD: NCC consumer portal + provider docs (verified 2026-07)'; } },
+        whoami: { d: 'who are you', f: function () { return 'user@' + T_CITY[cty] + ' // ' + CTY[cty].flag + ' ' + CTY[cty].name + ' — stay sharp, verify everything'; } },
+        version: { d: 'app version', f: function () { return 'africa-utility terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'power'; store.set('af:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@' + esc(T_CITY[cty]) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@' + esc(T_CITY[cty]) + ':~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
       /* ================= 마운트 ================= */
       function render() {
         Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
           el.classList.toggle('on', el.dataset.tab === tab);
         });
         var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
         if (tab === 'power') { view.innerHTML = cardPower(); return; }
         if (tab === 'status') { view.innerHTML = cardStatus(); return; }
         if (tab === 'ussd') { view.innerHTML = cardUssd(); return; }

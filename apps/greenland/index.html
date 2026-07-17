@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nunatta Paasissutissai — Grønland dagligt infopanel | vejr · hav · transport · fangst</title>
     <meta name="description" content="Dagligt infopanel for Grønland: vejrudsigt pr. by, bølger og tidevand, nordlys (Kp), flyvejr-risiko rute for rute, isefterretninger, fangstlog og grønlandske sprogværktøjer. Gratis, ingen installation." />
-    <!-- 신규 앱 — 콘텐츠 보강 전까지 noindex (adsense-compliance.md 규칙 4·5), 광고 없음 -->
-    <meta name="robots" content="noindex, follow" />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://greenland.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Nunatta Paasissutissai — Greenland daily info panel" />
+    <meta name="twitter:description" content="Weather, tides, aurora, flight-weather risk, hunting info and a hacker-style terminal — town by town, free." />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Nunatta Paasissutissai — Grønland dagligt infopanel" />
     <meta property="og:description" content="Vejr · hav · tidevand · flyvejr · fangstlog — alt i ét panel, by for by." />
@@ -78,7 +81,23 @@
       footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
       footer a { color: var(--ice-dim); }
       .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
-      @media (max-width: 480px) { .big { font-size: 25px; } .tab { font-size: 11.5px; } .kv { min-width: 84px; } }
+      @media (max-width: 480px) { .big { font-size: 25px; } .tab { font-size: 10px; } .kv { min-width: 84px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #020a08; border: 1px solid #114433; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,255,156,.04); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #79ffc9; text-shadow: 0 0 6px rgba(0,255,156,.35); }
+      #t-out .t-dim { color: #3e8f6f; text-shadow: none; }
+      #t-out .t-hi { color: #d2fff0; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: #4ce0a0; white-space: nowrap; text-shadow: 0 0 6px rgba(0,255,156,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #d2fff0; font-family: var(--font); font-size: 13px; caret-color: #4ce0a0; }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--ice); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo a { color: var(--ice); }
+      .seo ul { padding-left: 18px; }
     </style>
   </head>
   <body>
@@ -98,15 +117,73 @@
         <div class="tab" data-tab="trans"><b>ANGALLANNEQ</b><span id="tab2-sub">Fly · skib</span></div>
         <div class="tab" data-tab="hunt"><b>PINIARNEQ</b><span id="tab3-sub">Fangst</span></div>
         <div class="tab" data-tab="oqa"><b>OQAATSIT</b><span id="tab4-sub">Sprog</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span id="tab5-sub">Terminal</span></div>
       </nav>
 
       <main id="view"></main>
 
       <footer>
         <span id="f-src"></span><br />
+        Privacy: no accounts, no server storage — settings and the catch log live only in your browser (localStorage).<br />
         © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a>
       </footer>
     </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About this Greenland info panel">
+      <h2>What is Nunatta Paasissutissai?</h2>
+      <p>
+        A free, lightweight daily-information panel for Greenland — built for residents and visitors alike.
+        It combines, town by town for 15 settlements (Nuuk, Sisimiut, Ilulissat, Qaqortoq, Aasiaat, Tasiilaq, Uummannaq,
+        Upernavik, Qaanaaq, Kangerlussuaq and more): hourly <strong>weather and wind gusts</strong>, <strong>wave height and tide times</strong>,
+        <strong>sunrise, sunset, polar night and midnight-sun countdowns</strong>, an <strong>aurora (northern lights) outlook</strong> that combines
+        NOAA’s Kp forecast with local cloud cover and darkness, and a <strong>flight-weather risk estimate per route</strong> based on gusts,
+        visibility and snowfall at both ends. Sea-ice judgement is deliberately left to the official DMI Ice Service charts.
+        Everything loads from public APIs (Open-Meteo, NOAA SWPC) with no account and no app install — it works on slow connections.
+      </p>
+      <h2>Hunting &amp; catch reporting (Piniarneq)</h2>
+      <p>
+        Quotas, seasons and licences in Greenland are set by Naalakkersuisut and change over time; catches must be reported.
+        This panel links to the official channels — <a href="https://www.sullissivik.gl/" rel="noopener">Sullissivik</a> for licences and
+        catch reporting and <a href="https://www.naalakkersuisut.gl/" rel="noopener">Naalakkersuisut</a> for current regulations —
+        and offers a private, on-device catch log you can export as CSV when you file your official report.
+      </p>
+      <h2>Key companies of Greenland</h2>
+      <ul>
+        <li><a href="https://www.royalgreenland.com/" rel="noopener">Royal Greenland</a> — state-owned seafood group, the country’s largest company</li>
+        <li><a href="https://www.airgreenland.com/" rel="noopener">Air Greenland</a> — national airline (fixed-wing and helicopter network)</li>
+        <li><a href="https://www.royalarcticline.com/" rel="noopener">Royal Arctic Line</a> — the sea-freight lifeline for all supply shipping</li>
+        <li><a href="https://www.tusass.gl/" rel="noopener">Tusass</a> — telecom and postal services nationwide</li>
+        <li><a href="https://www.nukissiorfiit.gl/" rel="noopener">Nukissiorfiit</a> — national energy and water utility</li>
+        <li><a href="https://www.visitgreenland.com/" rel="noopener">Visit Greenland</a> — tourism board for the fast-growing visitor economy</li>
+      </ul>
+      <h2>Give back — charities working for Greenland</h2>
+      <p>All donations should go through each organisation’s official website (card or MobilePay where offered) — never via third parties:</p>
+      <ul>
+        <li><a href="https://fgb.dk/" rel="noopener">Foreningen Grønlandske Børn</a> — support for Greenlandic children and youth</li>
+        <li><a href="https://www.rodekors.dk/" rel="noopener">Røde Kors / Kalaallit Røde Korsiat</a> — Red Cross work including Greenland</li>
+        <li><a href="https://www.maryfonden.dk/" rel="noopener">Mary Fonden</a> — wellbeing and anti-bullying projects incl. Greenland</li>
+        <li><a href="https://www.arcticwwf.org/" rel="noopener">WWF Arctic Programme</a> — Arctic nature and polar-species conservation</li>
+      </ul>
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab for a terminal with 33 commands — <code>help</code>, <code>aurora</code>,
+        <code>route nuuk ilulissat</code>, <code>tide</code>, <code>night</code>, <code>giving</code> and more.
+        All figures are for information only; official sources are always authoritative.
+      </p>
+    </section>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Nunatta Paasissutissai — Greenland daily info panel",
+        "url": "https://greenland.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Town-by-town weather, waves and tides, aurora outlook, polar night countdown, route flight-weather risk, hunting info, hacker-style terminal"
+      }
+    </script>
 
     <script>
       'use strict';
@@ -522,6 +599,104 @@
         ctx.stroke();
       }
 
+      /* ================= 해커 터미널 ================= */
+      /* 기업·기부 데이터 — 2026-07 실존(도메인 라이브) 검증분만 수록 */
+      var GL_BIZ = [
+        ['Royal Greenland', 'https://www.royalgreenland.com/', 'State-owned seafood group — Greenland’s biggest company'],
+        ['Air Greenland', 'https://www.airgreenland.com/', 'National airline — planes & helicopters'],
+        ['Royal Arctic Line', 'https://www.royalarcticline.com/', 'Sea freight lifeline — all supply shipping'],
+        ['Tusass', 'https://www.tusass.gl/', 'Telecom & post for all of Greenland'],
+        ['Nukissiorfiit', 'https://www.nukissiorfiit.gl/', 'National energy & water utility (hydro-powered)'],
+        ['Visit Greenland', 'https://www.visitgreenland.com/', 'National tourism board — the growth sector'],
+      ];
+      var GL_GIVE = [
+        ['Foreningen Grønlandske Børn', 'https://fgb.dk/', 'Greenlandic children & youth — donate via fgb.dk'],
+        ['Røde Kors (Kalaallit Røde Korsiat)', 'https://www.rodekors.dk/', 'Red Cross work incl. Greenland — donate via rodekors.dk'],
+        ['Mary Fonden', 'https://www.maryfonden.dk/', 'Anti-bullying & wellbeing projects incl. Greenland'],
+        ['WWF Arctic Programme', 'https://www.arcticwwf.org/', 'Arctic nature & polar species conservation'],
+      ];
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tEsc(s) { return esc(s); }
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + tEsc(label || u) + '</a>'; }
+      function tKm(v) { return v == null ? '—' : Math.round(v) + ' km/h'; }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ NUNATTA PAASISSUTISSAI // arctic_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open-meteo · marine · NOAA-SWPC ............ [OK]</span>',
+        '<span class="t-dim">  grid: 15 settlements · 72°N reachable ............... [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for 33 commands · <span class="t-hi">town &lt;name&gt;</span> to switch</span>',
+      ];
+      function tEntry() { return loadTown(town()); }
+      function tRisk(e) { var r = riskInput(e); return '<span class="t-' + (r.risk === 'HIGH' ? 'crit' : r.risk === 'MED' ? 'warn' : 'hi') + '">' + r.risk + '</span> · gust ' + tKm(r.gustMax) + ' · vis ' + (r.visMin == null ? '—' : (r.visMin / 1000).toFixed(1) + ' km') + ' · snow ' + r.snowSum.toFixed(1) + ' cm'; }
+      function tOrgs(list) { return list.map(function (b, i) { return '  ' + (i + 1) + '. <span class="t-hi">' + tEsc(b[0]) + '</span> — ' + tEsc(b[2]) + '\n     ' + tLink(b[1]); }).join('\n'); }
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'what this terminal is', f: function () { return 'Greenland daily-info terminal. Same live data as the tabs — weather, sea, sun, aurora, flights, hunting.\nBuilt as a single static page; your data never leaves the browser.'; } },
+        towns: { d: 'list all 15 settlements', f: function () { return TOWNS.map(function (t2) { return '  ' + (t2.id === townId ? '<span class="t-hi">▸ ' : '<span class="t-dim">  ') + t2.id.padEnd(17) + '</span> ' + t2.name + ' (' + t2.lat.toFixed(1) + '°N)'; }).join('\n'); } },
+        town: { d: 'town <name> — switch settlement', f: function (a) { var q = (a[0] || '').toLowerCase(); var m = TOWNS.find(function (t2) { return t2.id === q || t2.name.toLowerCase().indexOf(q) === 0; }); if (!m) return '<span class="t-crit">unknown town.</span> try: towns'; townId = m.id; store.set('gl:town', townId); return 'switched → <span class="t-hi">' + m.name + '</span>'; } },
+        now: { d: 'current conditions snapshot', f: function () { return tEntry().then(function (e) { var i0 = hourIdxNow(e.fc.hourly.time); var h = e.fc.hourly; return '<span class="t-hi">' + town().name + '</span> · ' + Math.round(h.temperature_2m[i0]) + '°C · wind ' + tKm(h.wind_speed_10m[i0]) + ' · gust ' + tKm(h.wind_gusts_10m[i0]) + ' · vis ' + (h.visibility[i0] == null ? '—' : (h.visibility[i0] / 1000).toFixed(1) + ' km'); }); } },
+        temp: { d: 'temperature now + 7d range', f: function () { return tEntry().then(function (e) { var i0 = hourIdxNow(e.fc.hourly.time); var d = e.fc.daily; return 'now ' + Math.round(e.fc.hourly.temperature_2m[i0]) + '°C · week ' + Math.round(Math.min.apply(null, d.temperature_2m_min)) + '…' + Math.round(Math.max.apply(null, d.temperature_2m_max)) + '°C'; }); } },
+        wind: { d: 'wind & gusts now', f: function () { return tEntry().then(function (e) { var i0 = hourIdxNow(e.fc.hourly.time); return 'wind ' + tKm(e.fc.hourly.wind_speed_10m[i0]) + ' · gusts ' + tKm(e.fc.hourly.wind_gusts_10m[i0]); }); } },
+        gust: { d: 'max gust next 24h', f: function () { return tEntry().then(function (e) { return 'max gust 24h: <span class="t-hi">' + tKm(Math.max.apply(null, next24(e.fc, 'wind_gusts_10m'))) + '</span>'; }); } },
+        vis: { d: 'visibility now / 24h min', f: function () { return tEntry().then(function (e) { var i0 = hourIdxNow(e.fc.hourly.time); var v = next24(e.fc, 'visibility'); return 'now ' + (e.fc.hourly.visibility[i0] / 1000).toFixed(1) + ' km · 24h min ' + (v.length ? (Math.min.apply(null, v) / 1000).toFixed(1) : '—') + ' km'; }); } },
+        snow: { d: 'snowfall next 24h', f: function () { return tEntry().then(function (e) { return 'snow next 24h: ' + next24(e.fc, 'snowfall').reduce(function (x, y) { return x + y; }, 0).toFixed(1) + ' cm'; }); } },
+        forecast: { d: '7-day forecast table', f: function () { return tEntry().then(function (e) { var d = e.fc.daily; return d.time.map(function (t2, i) { return '  ' + fmtD(t2).padEnd(6) + Math.round(d.temperature_2m_min[i]) + '…' + Math.round(d.temperature_2m_max[i]) + '°C · gust ' + Math.round(d.wind_gusts_10m_max[i]) + ' · snow ' + (d.snowfall_sum[i] || 0).toFixed(1) + 'cm'; }).join('\n'); }); } },
+        wave: { d: 'wave height now', f: function () { return tEntry().then(function (e) { if (!e.marine) return '<span class="t-dim">no marine point (inner fjord)</span>'; var m = e.marine.hourly; return 'wave height: ' + (m.wave_height[hourIdxNow(m.time)] || 0).toFixed(1) + ' m'; }); } },
+        tide: { d: 'next high/low tides', f: function () { return tEntry().then(function (e) { if (!e.marine) return '<span class="t-dim">no marine point (inner fjord)</span>'; var m = e.marine.hourly; return nextTides(m.time, m.sea_level_height_msl, hourIdxNow(m.time)).map(function (td) { return '  ' + (td.type === 'high' ? 'HIGH' : 'LOW ') + ' ' + fmtT(td.t) + ' (' + td.v.toFixed(1) + ' m)'; }).join('\n') || 'no extrema in window'; }); } },
+        sun: { d: 'sunrise / sunset / daylight', f: function () { return tEntry().then(function (e) { var d = e.fc.daily; var cd = sunChangeCountdown(town().lat, new Date()); if (cd && cd.state === 'night') return '<span class="t-warn">POLAR NIGHT</span> — sun returns in ' + cd.days + ' days'; if (cd && cd.state === 'mid') return '<span class="t-hi">MIDNIGHT SUN</span> — ends in ' + cd.days + ' days'; return 'sunrise ' + fmtT(d.sunrise[0]) + ' · sunset ' + fmtT(d.sunset[0]) + ' · daylight ' + (d.daylight_duration[0] / 3600).toFixed(1) + ' h'; }); } },
+        night: { d: 'polar night / midnight sun countdown', f: function () { var cd = sunChangeCountdown(town().lat, new Date()); if (!cd) return 'normal day/night cycle at ' + town().name + ' right now'; return cd.state === 'night' ? 'polar night — <span class="t-hi">' + cd.days + ' days</span> until sunrise' : 'midnight sun — <span class="t-hi">' + cd.days + ' days</span> until first sunset'; } },
+        kp: { d: 'geomagnetic Kp index (NOAA)', f: function () { return loadKp().then(function (rows) { if (!rows) return '<span class="t-crit">SWPC unreachable</span>'; var now = Date.now(), kn = null, km = 0; rows.forEach(function (r) { var ts = new Date(r.time_tag + 'Z').getTime(); if (ts <= now) kn = +r.kp; else if (ts < now + 864e5 && +r.kp > km) km = +r.kp; }); return 'Kp now ' + (kn == null ? '—' : kn.toFixed(1)) + ' · 24h max ' + km.toFixed(1); }); } },
+        aurora: { d: 'aurora verdict tonight', f: function () { return Promise.all([tEntry(), loadKp()]).then(function (r) { var cd = sunChangeCountdown(town().lat, new Date()); if (cd && cd.state === 'mid') return '<span class="t-warn">midnight sun — no dark sky, no aurora season</span>'; if (!r[1]) return '<span class="t-crit">SWPC unreachable</span>'; var now = Date.now(), km = 0; r[1].forEach(function (x) { var ts = new Date(x.time_tag + 'Z').getTime(); if (ts > now && ts < now + 864e5 && +x.kp > km) km = +x.kp; }); var cl = next24(r[0].fc, 'cloud_cover'); var ca = cl.length ? Math.round(cl.reduce(function (x, y) { return x + y; }, 0) / cl.length) : null; return (km >= 1.5 ? (ca != null && ca >= 60 ? '<span class="t-warn">active but cloudy (' + ca + '%)</span>' : '<span class="t-hi">GO — Kp ' + km.toFixed(1) + ', clouds ' + (ca == null ? '?' : ca + '%') + '</span>') : '<span class="t-dim">quiet (Kp ' + km.toFixed(1) + ')</span>'); }); } },
+        risk: { d: 'flight-weather risk here (24h)', f: function () { return tEntry().then(function (e) { return tRisk(e) + '\n<span class="t-dim">weather estimate only — not airline status</span>'; }); } },
+        route: { d: 'route <from> <to> — both-ends risk', f: function (a) { var f2 = TOWNS.find(function (t2) { return t2.id === (a[0] || '').toLowerCase(); }), t3 = TOWNS.find(function (t2) { return t2.id === (a[1] || '').toLowerCase(); }); if (!f2 || !t3) return 'usage: route nuuk ilulissat  (ids: towns)'; return Promise.all([loadTown(f2), loadTown(t3)]).then(function (r) { return f2.name + ': ' + tRisk(r[0]) + '\n' + t3.name + ': ' + tRisk(r[1]); }); } },
+        fly: { d: 'airline / traffic links', f: function () { return '  ' + tLink('https://www.airgreenland.com/', 'Air Greenland'); } },
+        ships: { d: 'ship & ferry links', f: function () { return '  ' + tLink('https://www.royalarcticline.com/', 'Royal Arctic Line (freight)') + '\n  ' + tLink('https://aul.gl/', 'Arctic Umiaq Line (passenger)') + '\n  ' + tLink('https://diskoline.gl/', 'Disko Line (local boats)'); } },
+        ice: { d: 'official sea-ice charts', f: function () { return '  ' + tLink('https://ocean.dmi.dk/arctic/icecharts.uk.php', 'DMI Ice Service charts') + '\n<span class="t-warn">always use official charts to judge ice travel</span>'; } },
+        hunt: { d: 'hunting rules & reporting links', f: function () { return '  ' + tLink('https://www.sullissivik.gl/', 'Sullissivik — licences & catch reporting') + '\n  ' + tLink('https://www.naalakkersuisut.gl/', 'Naalakkersuisut — quotas & seasons'); } },
+        log: { d: 'catch log — list entries', f: function () { var l = store.get('gl:catches', []); return l.length ? l.slice(0, 15).map(function (c2) { return '  ' + c2.date + ' ' + c2.sp + ' ×' + c2.n + (c2.place ? ' @' + tEsc(c2.place) : ''); }).join('\n') : '<span class="t-dim">log empty — logadd &lt;species&gt; &lt;n&gt;</span>'; } },
+        logadd: { d: 'logadd <species> <n> — add catch', f: function (a) { if (!a[0]) return 'usage: logadd torsk 3'; var l = store.get('gl:catches', []); l.unshift({ date: new Date().toISOString().slice(0, 10), sp: a[0], n: +a[1] || 1, place: '' }); store.set('gl:catches', l.slice(0, 500)); return 'logged: ' + tEsc(a[0]) + ' ×' + (+a[1] || 1); } },
+        logcsv: { d: 'export catch log as CSV text', f: function () { var l = store.get('gl:catches', []); return l.length ? 'date,species,count\n' + l.map(function (c2) { return c2.date + ',' + c2.sp + ',' + c2.n; }).join('\n') : '<span class="t-dim">log empty</span>'; } },
+        biz: { d: 'key Greenlandic companies', f: function () { return tOrgs(GL_BIZ); } },
+        giving: { d: 'charities working for Greenland', f: function () { return tOrgs(GL_GIVE) + '\n<span class="t-dim">donate directly on each org’s official site — never via third parties</span>'; } },
+        donate: { d: 'donate <name> — how to give', f: function (a) { var q = (a.join(' ') || '').toLowerCase(); var m = GL_GIVE.find(function (g) { return g[0].toLowerCase().indexOf(q) >= 0; }); if (!q || !m) return 'usage: donate børn | røde | mary | wwf'; return '<span class="t-hi">' + tEsc(m[0]) + '</span>\n  ' + tEsc(m[2]) + '\n  official donation page: ' + tLink(m[1]) + '\n<span class="t-dim">give only through the official site (card/MobilePay where offered)</span>'; } },
+        lang: { d: 'lang <da|en> — switch UI language', f: function (a) { if (a[0] !== 'da' && a[0] !== 'en') return 'usage: lang da | lang en'; lang = a[0]; store.set('gl:lang', lang); return 'UI language → ' + a[0] + ' (tabs re-render on switch)'; } },
+        sources: { d: 'data sources & freshness', f: function () { return '  weather/marine: open-meteo.com (hourly)\n  aurora: services.swpc.noaa.gov (3-day Kp)\n  ice/traffic/hunting: official links only'; } },
+        whoami: { d: 'who are you', f: function () { return 'guest@' + townId + ' // ' + town().lat.toFixed(2) + '°N — dress warm, check the ice, DYOR'; } },
+        version: { d: 'app version', f: function () { return 'nunatta-terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'sila'; store.set('gl:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">guest@' + tEsc(townId) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">guest@' + tEsc(townId) + ':~$</span> ' + tEsc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + tEsc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + tEsc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
       /* ================= 마운트/이벤트 ================= */
       function render() {
         var L = t();
@@ -533,6 +708,7 @@
           el.classList.toggle('on', el.dataset.tab === tab);
         });
         var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
         if (tab === 'oqa') { view.innerHTML = cardOqa(); return; }
         if (tab === 'hunt') {
           view.innerHTML = cardHunt();
