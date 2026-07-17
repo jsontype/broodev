@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nunatta Paasissutissai — Grønland dagligt infopanel | vejr · hav · transport · fangst</title>
+    <meta name="description" content="Dagligt infopanel for Grønland: vejrudsigt pr. by, bølger og tidevand, nordlys (Kp), flyvejr-risiko rute for rute, isefterretninger, fangstlog og grønlandske sprogværktøjer. Gratis, ingen installation." />
+    <!-- 신규 앱 — 콘텐츠 보강 전까지 noindex (adsense-compliance.md 규칙 4·5), 광고 없음 -->
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://greenland.broodev.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nunatta Paasissutissai — Grønland dagligt infopanel" />
+    <meta property="og:description" content="Vejr · hav · tidevand · flyvejr · fangstlog — alt i ét panel, by for by." />
+    <meta property="og:url" content="https://greenland.broodev.com/" />
+    <style>
+      :root {
+        --bg: #06101c; --bg-soft: #0a1a2c; --panel: #0d2136; --line: #1c3a55;
+        --ice: #7fd8ff; --ice-dim: #3e7ea6; --text: #d7ecf7; --dim: #8fb0c4;
+        --aurora: #4ce0a0; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--ice); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      select, button { font-family: inherit; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--ice); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--ice) 50%), linear-gradient(135deg, var(--ice) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 13px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 13px; color: var(--text); }
+      .tab.on { border-color: var(--ice); color: var(--ice); background: #0e2740; }
+      .tab.on b { color: var(--ice); }
+
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--ice); letter-spacing: .5px; }
+      .card h2 .kl { color: var(--aurora); }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 30px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--aurora); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+
+      .risk { display: flex; align-items: center; gap: 12px; }
+      .risk-dot { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font); font-weight: 700; font-size: 11px; border: 2px solid; flex: none; }
+      .risk-LOW  { color: var(--aurora); border-color: var(--aurora); background: rgba(76,224,160,.08); }
+      .risk-MED  { color: var(--warn); border-color: var(--warn); background: rgba(255,209,102,.08); }
+      .risk-HIGH { color: var(--crit); border-color: var(--crit); background: rgba(255,107,107,.10); }
+
+      table.days { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+      table.days th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+      table.days td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.06); white-space: nowrap; }
+      .scroll-x { overflow-x: auto; }
+
+      canvas.spark { width: 100%; height: 70px; display: block; }
+      .links a { display: block; color: var(--ice); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(127,216,255,.06); border-left: 3px solid var(--ice-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+
+      form.catch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.catch input, form.catch select { background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+      form.catch .full { grid-column: 1 / -1; }
+      .btn { background: var(--ice); color: #06202f; border: 0; border-radius: 6px; padding: 9px 14px; font-weight: 700; font-size: 14px; cursor: pointer; }
+      .btn.ghost { background: transparent; color: var(--ice); border: 1px solid var(--line); font-weight: 500; }
+      ul.log { list-style: none; margin: 12px 0 0; padding: 0; }
+      ul.log li { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.08); font-size: 13.5px; }
+      ul.log li .d { color: var(--dim); font-family: var(--font); font-size: 12px; min-width: 78px; }
+      ul.log li .x { margin-left: auto; background: none; border: 1px solid var(--line); color: var(--crit); border-radius: 4px; cursor: pointer; padding: 2px 8px; }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--ice-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 25px; } .tab { font-size: 11.5px; } .kv { min-width: 84px; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎NUNATTA PAASISSUTISSAI <small id="h-sub">· Grønland infopanel</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="town-sel" aria-label="By / Town"></select>
+        <select class="sel" id="lang-sel" aria-label="Sprog / Language">
+          <option value="da">Dansk</option>
+          <option value="en">English</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="sila"><b>SILA &amp; IMAQ</b><span id="tab1-sub">Vejr · hav</span></div>
+        <div class="tab" data-tab="trans"><b>ANGALLANNEQ</b><span id="tab2-sub">Fly · skib</span></div>
+        <div class="tab" data-tab="hunt"><b>PINIARNEQ</b><span id="tab3-sub">Fangst</span></div>
+        <div class="tab" data-tab="oqa"><b>OQAATSIT</b><span id="tab4-sub">Sprog</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        <span id="f-src"></span><br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a>
+      </footer>
+    </div>
+
+    <script>
+      'use strict';
+
+      /* ================= 데이터: 마을 (좌표 = 마을, m좌표 = 해양 API 용 앞바다 지점) ================= */
+      var TOWNS = [
+        { id: 'nuuk',           name: 'Nuuk',            lat: 64.175, lon: -51.739, mlat: 64.10, mlon: -51.95 },
+        { id: 'sisimiut',       name: 'Sisimiut',        lat: 66.939, lon: -53.672, mlat: 66.90, mlon: -53.95 },
+        { id: 'ilulissat',      name: 'Ilulissat',       lat: 69.217, lon: -51.100, mlat: 69.20, mlon: -51.40 },
+        { id: 'aasiaat',        name: 'Aasiaat',         lat: 68.710, lon: -52.869, mlat: 68.68, mlon: -53.10 },
+        { id: 'maniitsoq',      name: 'Maniitsoq',       lat: 65.416, lon: -52.900, mlat: 65.40, mlon: -53.15 },
+        { id: 'qaqortoq',       name: 'Qaqortoq',        lat: 60.718, lon: -46.036, mlat: 60.60, mlon: -46.20 },
+        { id: 'narsaq',         name: 'Narsaq',          lat: 60.912, lon: -46.050, mlat: 60.60, mlon: -46.30 },
+        { id: 'paamiut',        name: 'Paamiut',         lat: 61.994, lon: -49.667, mlat: 61.95, mlon: -49.90 },
+        { id: 'tasiilaq',       name: 'Tasiilaq',        lat: 65.614, lon: -37.637, mlat: 65.50, mlon: -37.50, piteraq: true },
+        { id: 'kulusuk',        name: 'Kulusuk',         lat: 65.573, lon: -37.153, mlat: 65.50, mlon: -37.00, piteraq: true },
+        { id: 'uummannaq',      name: 'Uummannaq',       lat: 70.675, lon: -52.126, mlat: 70.65, mlon: -52.40 },
+        { id: 'upernavik',      name: 'Upernavik',       lat: 72.787, lon: -56.147, mlat: 72.75, mlon: -56.40 },
+        { id: 'qaanaaq',        name: 'Qaanaaq',         lat: 77.466, lon: -69.228, mlat: 77.40, mlon: -69.60 },
+        { id: 'kangerlussuaq',  name: 'Kangerlussuaq',   lat: 67.010, lon: -50.689, mlat: null, mlon: null },
+        { id: 'ittoqqortoormiit', name: 'Ittoqqortoormiit', lat: 70.485, lon: -21.966, mlat: 70.40, mlon: -21.70 },
+      ];
+
+      /* ================= i18n (da 기본 · en) ================= */
+      var I = {
+        da: {
+          hSub: '· Grønland infopanel', tab1: 'Vejr · hav', tab2: 'Fly · skib', tab3: 'Fangst',
+          now: 'Lige nu', temp: 'Temp', wind: 'Vind', gust: 'Vindstød', vis: 'Sigtbarhed', snow24: 'Sne 24t',
+          days7: '7-døgns udsigt', day: 'Dag', waves: 'Bølger og tidevand', waveNow: 'Bølgehøjde nu',
+          tideNext: 'Næste høj-/lavvande', tideHigh: 'Højvande', tideLow: 'Lavvande', tide48: 'Vandstand (48 timer)',
+          noMarine: 'Ingen havdata for dette punkt (inderfjord). Vælg en kystby for bølger/tidevand.',
+          sun: 'Sol og dagslys', sunrise: 'Solopgang', sunset: 'Solnedgang', daylight: 'Dagslys',
+          polarNight: 'Polarnat — solen er under horisonten hele døgnet.', midnightSun: 'Midnatssol — solen går ikke ned.',
+          sunReturn: function (d) { return 'Solen vender tilbage om ' + d + ' dage.'; },
+          sunLeave: function (d) { return 'Midnatssolen slutter om ' + d + ' dage.'; },
+          ice: 'Havis', iceLink: 'DMI iskort (officielle isefterretninger)', iceNote: 'Iskort er officielle produkter fra DMI Istjenesten — brug altid dem, ikke denne app, til at vurdere sikker færdsel på isen.',
+          riskTitle: 'Flyvejr-risiko (næste 24 timer)', riskNote: 'Beregnet alene ud fra vejrudsigten (vindstød, sigtbarhed, sne). Det er IKKE flyselskabets driftsstatus — tjek altid officiel trafikinfo herunder.',
+          riskLow: 'Roligt vejr — lav sandsynlighed for vejrforsinkelser.', riskMed: 'Ustadigt vejr — forsinkelser er mulige.', riskHigh: 'Hårdt vejr — stor risiko for aflysninger.',
+          piteraq: '⚠ Piteraq-egn: kraftige faldvinde kan opstå pludseligt. Følg altid DMI-varsler.',
+          offLinks: 'Officiel trafikinfo', linkAG: 'Air Greenland — trafikinfo', linkAGd: 'Aktuel driftsstatus for fly og helikopter',
+          linkRAL: 'Royal Arctic Line — sejlplaner', linkRALd: 'Forsyningsskibe: ankomster og afgange',
+          linkAUL: 'Arctic Umiaq Line', linkAULd: 'Passagerskib langs vestkysten',
+          linkDL: 'Disko Line', linkDLd: 'Lokale både i Diskobugten og fjordene',
+          huntTitle: 'Fangst og jagt — regler', huntBody: 'Kvoter, jagttider og licenser fastsættes af Naalakkersuisut og ændres løbende. Fangster skal indberettes (Piniarneq). Brug altid de officielle kanaler:',
+          linkSull: 'Sullissivik — fangstindberetning og licenser', linkSulld: 'Selvbetjening: jagtbevis, indberetning af fangst',
+          linkNaal: 'Naalakkersuisut — Fiskeri og Fangst', linkNaald: 'Gældende bekendtgørelser, kvoter og jagttider',
+          logTitle: 'Min fangstlog (kun på denne enhed)', logNote: 'Loggen gemmes kun i din browser og sendes ingen steder hen. Den erstatter IKKE officiel indberetning — brug den som huskeliste, når du indberetter via Sullissivik.',
+          date: 'Dato', species: 'Art', count: 'Antal', place: 'Sted', add: 'Tilføj', exportCsv: 'Download CSV', empty: 'Ingen fangster registreret endnu.',
+          sp: { rensdyr: 'Rensdyr', moskusokse: 'Moskusokse', ringsael: 'Ringsæl', groenlandssael: 'Grønlandssæl', rype: 'Rype', snehare: 'Snehare', polarraev: 'Polarræv', torsk: 'Torsk', hellefisk: 'Hellefisk', ammassat: 'Ammassat', andet: 'Andet' },
+          aurora: 'Nordlys', kpNow: 'Kp nu', kpMax: 'Kp i nat (maks.)', cloudTonight: 'Skydække i nat',
+          auroraNoNight: 'Midnatssol — himlen bliver ikke mørk nok til nordlys i denne periode.',
+          auroraGood: 'God aktivitet og overvejende klart — kig ud, når det er mørkt!',
+          auroraCloudy: 'Aktivitet er der, men skydækket driller i nat.',
+          auroraQuiet: 'Rolig geomagnetisk aktivitet — nordlys er mindre sandsynligt i nat.',
+          auroraNote: 'Grønland ligger under nordlysovalet — selv lav Kp kan give nordlys, når himlen er mørk og klar. Kilde: NOAA SWPC.',
+          from: 'Fra', to: 'Til',
+          routeNote: 'Risikoen beregnes ud fra vejrudsigten i BEGGE ender af ruten (vindstød, sigtbarhed, sne). Historik over faktiske aflysninger indgår ikke — det er en vejr-vurdering, ikke flyselskabets driftsstatus. Tjek altid officiel trafikinfo herunder.',
+          tab4: 'Sprog', oqaTitle: 'Grønlandsk sprog — værktøjer',
+          oqaBody: 'Kalaallisut er et polysyntetisk sprog med få digitale ressourcer, og maskinoversættelse er stadig upålidelig. De bedste værktøjer:',
+          linkOqa: 'Oqaasileriffik — Grønlands Sprogsekretariat', linkOqad: 'Officielle ordbøger, stavekontrol og sprogværktøjer',
+          linkOrdbog: 'Ordbog.gl (grønlandsk ↔ dansk)', linkOrdbogd: 'Opslag i den grønlandsk-danske ordbog',
+          vocaCross: 'Træn gloser med VOCA DECK (gratis)', vocaCrossd: 'Byg din egen CSV-gloseliste — kalaallisut ↔ dansk — og træn den i browseren',
+          src: 'Vejr- og havdata: Open-Meteo · Nordlys: NOAA SWPC. Kun til orientering.', loading: 'Henter data …', fetchErr: 'Kunne ikke hente data — prøv igen senere.',
+        },
+        en: {
+          hSub: '· Greenland info panel', tab1: 'Weather · sea', tab2: 'Flights · ships', tab3: 'Hunting',
+          now: 'Right now', temp: 'Temp', wind: 'Wind', gust: 'Gusts', vis: 'Visibility', snow24: 'Snow 24h',
+          days7: '7-day forecast', day: 'Day', waves: 'Waves & tide', waveNow: 'Wave height now',
+          tideNext: 'Next high/low tide', tideHigh: 'High tide', tideLow: 'Low tide', tide48: 'Sea level (48 h)',
+          noMarine: 'No marine data for this point (inner fjord). Pick a coastal town for waves/tide.',
+          sun: 'Sun & daylight', sunrise: 'Sunrise', sunset: 'Sunset', daylight: 'Daylight',
+          polarNight: 'Polar night — the sun stays below the horizon all day.', midnightSun: 'Midnight sun — the sun does not set.',
+          sunReturn: function (d) { return 'The sun returns in ' + d + ' days.'; },
+          sunLeave: function (d) { return 'Midnight sun ends in ' + d + ' days.'; },
+          ice: 'Sea ice', iceLink: 'DMI ice charts (official ice service)', iceNote: 'Ice charts are official DMI Ice Service products — always use those, not this app, to judge safe travel on ice.',
+          riskTitle: 'Flight-weather risk (next 24 h)', riskNote: 'Computed from the weather forecast only (gusts, visibility, snow). It is NOT the airline’s operational status — always check official traffic info below.',
+          riskLow: 'Calm weather — weather delays unlikely.', riskMed: 'Unsettled weather — delays possible.', riskHigh: 'Severe weather — high risk of cancellations.',
+          piteraq: '⚠ Piteraq area: violent katabatic winds can start suddenly. Always follow DMI warnings.',
+          offLinks: 'Official traffic info', linkAG: 'Air Greenland — traffic info', linkAGd: 'Live operational status for planes & helicopters',
+          linkRAL: 'Royal Arctic Line — sailing plans', linkRALd: 'Supply ships: arrivals and departures',
+          linkAUL: 'Arctic Umiaq Line', linkAULd: 'Passenger ship along the west coast',
+          linkDL: 'Disko Line', linkDLd: 'Local boats in Disko Bay and the fjords',
+          huntTitle: 'Hunting & catch — rules', huntBody: 'Quotas, seasons and licences are set by Naalakkersuisut and change over time. Catches must be reported (Piniarneq). Always use the official channels:',
+          linkSull: 'Sullissivik — catch reporting & licences', linkSulld: 'Self-service: hunting licence, catch reporting',
+          linkNaal: 'Naalakkersuisut — Fisheries & Hunting', linkNaald: 'Current regulations, quotas and seasons',
+          logTitle: 'My catch log (this device only)', logNote: 'The log is stored only in your browser and sent nowhere. It does NOT replace official reporting — use it as a checklist when you report via Sullissivik.',
+          date: 'Date', species: 'Species', count: 'Count', place: 'Place', add: 'Add', exportCsv: 'Download CSV', empty: 'No catches recorded yet.',
+          sp: { rensdyr: 'Caribou', moskusokse: 'Muskox', ringsael: 'Ringed seal', groenlandssael: 'Harp seal', rype: 'Ptarmigan', snehare: 'Arctic hare', polarraev: 'Arctic fox', torsk: 'Cod', hellefisk: 'Greenland halibut', ammassat: 'Capelin', andet: 'Other' },
+          aurora: 'Northern lights', kpNow: 'Kp now', kpMax: 'Kp tonight (max)', cloudTonight: 'Cloud cover tonight',
+          auroraNoNight: 'Midnight sun — the sky never gets dark enough for aurora in this period.',
+          auroraGood: 'Good activity and mostly clear — look up once it is dark!',
+          auroraCloudy: 'Activity is there, but clouds may spoil the view tonight.',
+          auroraQuiet: 'Quiet geomagnetic activity — aurora is less likely tonight.',
+          auroraNote: 'Greenland sits under the auroral oval — even low Kp can produce aurora when the sky is dark and clear. Source: NOAA SWPC.',
+          from: 'From', to: 'To',
+          routeNote: 'Risk is computed from the weather forecast at BOTH ends of the route (gusts, visibility, snow). Historical cancellation data is not included — this is a weather estimate, not the airline’s operational status. Always check official traffic info below.',
+          tab4: 'Language', oqaTitle: 'Greenlandic language — tools',
+          oqaBody: 'Kalaallisut is a polysynthetic language with few digital resources, and machine translation is still unreliable. The best tools:',
+          linkOqa: 'Oqaasileriffik — The Language Secretariat of Greenland', linkOqad: 'Official dictionaries, spell-checker and language tools',
+          linkOrdbog: 'Ordbog.gl (Greenlandic ↔ Danish)', linkOrdbogd: 'Look-ups in the Greenlandic–Danish dictionary',
+          vocaCross: 'Practice vocabulary with VOCA DECK (free)', vocaCrossd: 'Build your own CSV word deck — Kalaallisut ↔ Danish/English — and drill it in the browser',
+          src: 'Weather & marine data: Open-Meteo · Aurora: NOAA SWPC. For information only.', loading: 'Loading data …', fetchErr: 'Could not load data — try again later.',
+        },
+      };
+
+      /* __PURE_START__ 순수 로직 (테스트 대상) */
+      /* 일장 계산(표준 일출 방정식) — 극야/백야 판정과 태양 복귀 카운트다운용 */
+      function dayLengthHours(lat, date) {
+        var N = Math.floor((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 0))) / 86400000);
+        var decl = -23.44 * Math.cos((2 * Math.PI / 365) * (N + 10));
+        var latR = (lat * Math.PI) / 180, dR = (decl * Math.PI) / 180;
+        var cosH = (Math.sin((-0.83 * Math.PI) / 180) - Math.sin(latR) * Math.sin(dR)) / (Math.cos(latR) * Math.cos(dR));
+        if (cosH > 1) return 0;      // 극야
+        if (cosH < -1) return 24;    // 백야
+        return (2 * (Math.acos(cosH) * 180) / Math.PI) / 15;
+      }
+      /* 현재 상태가 바뀌는 날까지 며칠 남았나 (극야→일출 / 백야→일몰). 상태 아니면 null */
+      function sunChangeCountdown(lat, from) {
+        var h0 = dayLengthHours(lat, from);
+        var state = h0 === 0 ? 'night' : h0 === 24 ? 'mid' : null;
+        if (!state) return null;
+        for (var d = 1; d <= 200; d++) {
+          var dd = new Date(from.getTime() + d * 86400000);
+          var h = dayLengthHours(lat, dd);
+          if (state === 'night' && h > 0) return { state: state, days: d };
+          if (state === 'mid' && h < 24) return { state: state, days: d };
+        }
+        return null;
+      }
+      /* 다음 24h 예보 → 운항 리스크 (임계값 km/h·m·cm) */
+      function flightRisk(gustMaxKmh, visMinM, snowSumCm) {
+        if (gustMaxKmh >= 70 || (visMinM != null && visMinM < 1000) || snowSumCm >= 10) return 'HIGH';
+        if (gustMaxKmh >= 45 || (visMinM != null && visMinM < 5000) || snowSumCm >= 3) return 'MED';
+        return 'LOW';
+      }
+      /* 시계열에서 다음 고조·저조 (국소 극값) */
+      function nextTides(times, levels, nowIdx) {
+        var out = [];
+        for (var i = Math.max(nowIdx, 1); i < levels.length - 1 && out.length < 4; i++) {
+          if (levels[i] == null || levels[i - 1] == null || levels[i + 1] == null) continue;
+          if (levels[i] >= levels[i - 1] && levels[i] > levels[i + 1]) out.push({ type: 'high', t: times[i], v: levels[i] });
+          else if (levels[i] <= levels[i - 1] && levels[i] < levels[i + 1]) out.push({ type: 'low', t: times[i], v: levels[i] });
+        }
+        return out;
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      /* 첫 방문: 브라우저 언어 자동감지 — 덴마크어권(da/kl/fo)=da, 그 외=en (관광객 대응) */
+      var lang = store.get('gl:lang', null);
+      if (!lang) { var bl = String((navigator.languages && navigator.languages[0]) || navigator.language || 'en').toLowerCase(); lang = /^(da|kl|fo)/.test(bl) ? 'da' : 'en'; }
+      if (!I[lang]) lang = 'da';
+      var townId = store.get('gl:town', 'nuuk');
+      var destId = store.get('gl:dest', null);
+      var tab = store.get('gl:tab', 'sila');
+      var cache = {}; // townId → { fc, marine, at }
+      var kpCache = null; // { rows, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var t = function () { return I[lang]; };
+      var town = function () { return TOWNS.find(function (x) { return x.id === townId; }) || TOWNS[0]; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* ================= 데이터 페치 (Open-Meteo, 키 불필요·CORS OK, 30분 캐시) ================= */
+      function fetchJSON(url) {
+        return fetch(url).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+      }
+      function loadTown(tw) {
+        var c = cache[tw.id];
+        if (c && Date.now() - c.at < 30 * 60 * 1000) return Promise.resolve(c);
+        var fcUrl = 'https://api.open-meteo.com/v1/forecast?latitude=' + tw.lat + '&longitude=' + tw.lon +
+          '&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,snowfall,visibility,cloud_cover' +
+          '&daily=sunrise,sunset,daylight_duration,temperature_2m_max,temperature_2m_min,wind_gusts_10m_max,snowfall_sum' +
+          '&timezone=auto&forecast_days=7';
+        var mUrl = tw.mlat == null ? null :
+          'https://marine-api.open-meteo.com/v1/marine?latitude=' + tw.mlat + '&longitude=' + tw.mlon +
+          '&hourly=wave_height,sea_level_height_msl&timezone=auto&forecast_days=3';
+        return Promise.all([
+          fetchJSON(fcUrl),
+          mUrl ? fetchJSON(mUrl).catch(function () { return null; }) : Promise.resolve(null),
+        ]).then(function (res) {
+          var entry = { fc: res[0], marine: res[1], at: Date.now() };
+          cache[tw.id] = entry;
+          return entry;
+        });
+      }
+
+      /* 오로라 Kp — NOAA SWPC 3일 예보 (CORS 개방, 30분 캐시) */
+      function loadKp() {
+        if (kpCache && Date.now() - kpCache.at < 30 * 60 * 1000) return Promise.resolve(kpCache.rows);
+        return fetchJSON('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json')
+          .then(function (rows) { kpCache = { rows: rows, at: Date.now() }; return rows; })
+          .catch(function () { return null; });
+      }
+
+      /* ================= 공통 헬퍼 ================= */
+      function hourIdxNow(times) {
+        var now = Date.now();
+        for (var i = 0; i < times.length; i++) if (new Date(times[i]).getTime() >= now) return Math.max(0, i - 1);
+        return times.length - 1;
+      }
+      function fmtT(iso) { var d = new Date(iso); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+      function fmtD(iso) { var d = new Date(iso); return (d.getMonth() + 1) + '/' + d.getDate(); }
+      function next24(fc, key) {
+        var i0 = hourIdxNow(fc.hourly.time);
+        return fc.hourly[key].slice(i0, i0 + 24).filter(function (v) { return v != null; });
+      }
+
+      /* ================= 탭 렌더 ================= */
+      function cardSila(entry) {
+        var fc = entry.fc, L = t();
+        var i0 = hourIdxNow(fc.hourly.time);
+        var cur = function (k) { return fc.hourly[k][i0]; };
+        var visKm = cur('visibility') == null ? '—' : (cur('visibility') / 1000).toFixed(1) + ' km';
+        var snow = next24(fc, 'snowfall').reduce(function (a, b) { return a + b; }, 0);
+        var html = '<div class="card"><h2>' + L.now + ' — ' + esc(town().name) + '</h2>' +
+          '<div class="big">' + Math.round(cur('temperature_2m')) + '°C</div>' +
+          '<div class="row" style="margin-top:8px">' +
+          '<div class="kv"><div class="k">' + L.wind + '</div><div class="v">' + Math.round(cur('wind_speed_10m')) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + L.gust + '</div><div class="v">' + Math.round(cur('wind_gusts_10m')) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + L.vis + '</div><div class="v">' + visKm + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.snow24 + '</div><div class="v">' + snow.toFixed(1) + ' cm</div></div>' +
+          '</div></div>';
+
+        /* 7일 */
+        var d = fc.daily;
+        html += '<div class="card"><h2>' + L.days7 + '</h2><div class="scroll-x"><table class="days"><tr><th>' + L.day + '</th><th>' + L.temp + '</th><th>' + L.gust + '</th><th>' + L.snow24 + '</th></tr>';
+        for (var i = 0; i < d.time.length; i++) {
+          html += '<tr><td>' + fmtD(d.time[i]) + '</td><td>' + Math.round(d.temperature_2m_min[i]) + '…' + Math.round(d.temperature_2m_max[i]) + '°C</td>' +
+            '<td>' + Math.round(d.wind_gusts_10m_max[i]) + ' km/h</td><td>' + (d.snowfall_sum[i] || 0).toFixed(1) + ' cm</td></tr>';
+        }
+        html += '</table></div></div>';
+
+        /* 바다 */
+        html += '<div class="card"><h2>' + L.waves + ' <span class="kl">· IMAQ</span></h2>';
+        if (entry.marine && entry.marine.hourly) {
+          var m = entry.marine.hourly, mi = hourIdxNow(m.time);
+          var wv = m.wave_height[mi];
+          html += '<div class="row"><div class="kv"><div class="k">' + L.waveNow + '</div><div class="v">' + (wv == null ? '—' : wv.toFixed(1) + ' m') + '</div></div>';
+          var tides = nextTides(m.time, m.sea_level_height_msl, mi);
+          for (var k = 0; k < Math.min(2, tides.length); k++) {
+            var td = tides[k];
+            html += '<div class="kv"><div class="k">' + (td.type === 'high' ? L.tideHigh : L.tideLow) + '</div><div class="v">' + fmtT(td.t) + ' <span class="muted">(' + td.v.toFixed(1) + ' m)</span></div></div>';
+          }
+          html += '</div><div class="muted" style="margin:10px 0 4px">' + L.tide48 + '</div><canvas class="spark" id="tide-cv" width="700" height="70"></canvas>';
+        } else {
+          html += '<div class="muted">' + L.noMarine + '</div>';
+        }
+        html += '</div>';
+
+        /* 태양 */
+        var sunHtml = '';
+        var dl = d.daylight_duration[0]; // 초
+        var cd = sunChangeCountdown(town().lat, new Date());
+        if (cd && cd.state === 'night') sunHtml = '<div class="note">' + L.polarNight + ' ' + L.sunReturn(cd.days) + '</div>';
+        else if (cd && cd.state === 'mid') sunHtml = '<div class="note">' + L.midnightSun + ' ' + L.sunLeave(cd.days) + '</div>';
+        html += '<div class="card"><h2>' + L.sun + ' <span class="kl">· SEQINEQ</span></h2>' + sunHtml +
+          '<div class="row">' +
+          '<div class="kv"><div class="k">' + L.sunrise + '</div><div class="v">' + (cd && cd.state === 'night' ? '—' : fmtT(d.sunrise[0])) + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.sunset + '</div><div class="v">' + (cd ? '—' : fmtT(d.sunset[0])) + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.daylight + '</div><div class="v">' + (dl / 3600).toFixed(1) + ' h</div></div>' +
+          '</div></div>';
+
+        /* 오로라 — Kp(NOAA) × 어둠(백야 여부) × 구름 */
+        html += '<div class="card" id="aurora-card"><h2>' + L.aurora + ' <span class="kl">· ARSARNERIT</span></h2><div class="loading">' + L.loading + '</div></div>';
+
+        /* 얼음 — 공식 링크만 (자체 판정 금지) */
+        html += '<div class="card"><h2>' + L.ice + ' <span class="kl">· SIKU</span></h2><div class="links">' +
+          '<a href="https://ocean.dmi.dk/arctic/icecharts.uk.php" target="_blank" rel="noopener">' + L.iceLink + '<span>ocean.dmi.dk</span></a>' +
+          '</div><div class="note">' + L.iceNote + '</div></div>';
+        return html;
+      }
+
+      /* 오로라 카드 채우기 — cardSila 마운트 후 비동기 */
+      function fillAurora(entry, rows) {
+        var el = $('aurora-card'); if (!el) return;
+        var L = t();
+        if (!rows) { el.innerHTML = '<h2>' + L.aurora + ' <span class="kl">· ARSARNERIT</span></h2><div class="muted">' + L.fetchErr + '</div>'; return; }
+        var now = Date.now();
+        var kpNow = null, kpMax = 0;
+        rows.forEach(function (r) {
+          var ts = new Date(r.time_tag + 'Z').getTime(), kp = +r.kp;
+          if (ts <= now) kpNow = kp;
+          if (ts > now && ts < now + 24 * 3600e3 && kp > kpMax) kpMax = kp;
+        });
+        var cd = sunChangeCountdown(town().lat, new Date());
+        var cloud = next24(entry.fc, 'cloud_cover');
+        var cloudAvg = cloud.length ? Math.round(cloud.reduce(function (a, b) { return a + b; }, 0) / cloud.length) : null;
+        var verdict, cls;
+        if (cd && cd.state === 'mid') { verdict = L.auroraNoNight; cls = 'muted'; }
+        else if (kpMax >= 1.5 && (cloudAvg == null || cloudAvg < 60)) { verdict = L.auroraGood; cls = 'ok'; }
+        else if (kpMax >= 1.5) { verdict = L.auroraCloudy; cls = 'warn'; }
+        else { verdict = L.auroraQuiet; cls = 'muted'; }
+        el.innerHTML = '<h2>' + L.aurora + ' <span class="kl">· ARSARNERIT</span></h2>' +
+          '<div class="' + cls + '" style="font-size:14.5px;margin-bottom:8px">' + verdict + '</div>' +
+          '<div class="row">' +
+          '<div class="kv"><div class="k">' + L.kpNow + '</div><div class="v">' + (kpNow == null ? '—' : kpNow.toFixed(1)) + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.kpMax + '</div><div class="v">' + kpMax.toFixed(1) + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.cloudTonight + '</div><div class="v">' + (cloudAvg == null ? '—' : cloudAvg + '%') + '</div></div>' +
+          '</div><div class="note">' + L.auroraNote + '</div>';
+      }
+
+      /* 한 지점의 24h 기상 요약 → 리스크 재료 */
+      function riskInput(entry) {
+        var fc = entry.fc;
+        var gustMax = Math.max.apply(null, next24(fc, 'wind_gusts_10m'));
+        var visArr = next24(fc, 'visibility');
+        var visMin = visArr.length ? Math.min.apply(null, visArr) : null;
+        var snowSum = next24(fc, 'snowfall').reduce(function (a, b) { return a + b; }, 0);
+        return { gustMax: gustMax, visMin: visMin, snowSum: snowSum, risk: flightRisk(gustMax, visMin, snowSum) };
+      }
+      var RISK_ORDER = { LOW: 0, MED: 1, HIGH: 2 };
+
+      function destTown() {
+        var d = TOWNS.find(function (x) { return x.id === destId; });
+        if (d && d.id !== townId) return d;
+        return townId === 'nuuk' ? TOWNS.find(function (x) { return x.id === 'ilulissat'; }) : TOWNS.find(function (x) { return x.id === 'nuuk'; });
+      }
+
+      function cardTrans(entryFrom, entryTo) {
+        var L = t();
+        var a = riskInput(entryFrom), b = riskInput(entryTo);
+        var risk = RISK_ORDER[a.risk] >= RISK_ORDER[b.risk] ? a.risk : b.risk;
+        var msg = risk === 'HIGH' ? L.riskHigh : risk === 'MED' ? L.riskMed : L.riskLow;
+        var leg = function (name, r) {
+          return '<div class="muted" style="margin-top:4px"><b style="color:var(--text)">' + esc(name) + '</b> · ' + L.gust + ' max ' + Math.round(r.gustMax) + ' km/h · ' + L.vis + ' min ' + (r.visMin == null ? '—' : (r.visMin / 1000).toFixed(1) + ' km') + ' · ' + L.snow24 + ' ' + r.snowSum.toFixed(1) + ' cm</div>';
+        };
+        var opts = TOWNS.filter(function (x) { return x.id !== townId; }).map(function (x) {
+          return '<option value="' + x.id + '"' + (x.id === destTown().id ? ' selected' : '') + '>' + esc(x.name) + '</option>';
+        }).join('');
+        var html = '<div class="card"><h2>' + L.riskTitle + '</h2>' +
+          '<div class="row" style="margin-bottom:10px;align-items:center">' +
+          '<span class="muted">' + L.from + '</span> <b>' + esc(town().name) + '</b>' +
+          '<span class="muted">→ ' + L.to + '</span> <select class="sel" id="dest-sel" aria-label="' + L.to + '">' + opts + '</select>' +
+          '</div>' +
+          '<div class="risk"><div class="risk-dot risk-' + risk + '">' + risk + '</div><div>' + msg +
+          leg(town().name, a) + leg(destTown().name, b) + '</div></div>' +
+          ((town().piteraq || destTown().piteraq) ? '<div class="note">' + L.piteraq + '</div>' : '') +
+          '<div class="note">' + L.routeNote + '</div></div>';
+
+        html += '<div class="card"><h2>' + L.offLinks + '</h2><div class="links">' +
+          '<a href="https://www.airgreenland.com/" target="_blank" rel="noopener">' + L.linkAG + '<span>' + L.linkAGd + '</span></a>' +
+          '<a href="https://www.royalarcticline.com/" target="_blank" rel="noopener">' + L.linkRAL + '<span>' + L.linkRALd + '</span></a>' +
+          '<a href="https://aul.gl/" target="_blank" rel="noopener">' + L.linkAUL + '<span>' + L.linkAULd + '</span></a>' +
+          '<a href="https://diskoline.gl/" target="_blank" rel="noopener">' + L.linkDL + '<span>' + L.linkDLd + '</span></a>' +
+          '</div></div>';
+        return html;
+      }
+
+      function cardOqa() {
+        var L = t();
+        return '<div class="card"><h2>' + L.oqaTitle + ' <span class="kl">· OQAATSIT</span></h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 10px">' + L.oqaBody + '</p><div class="links">' +
+          '<a href="https://oqaasileriffik.gl/" target="_blank" rel="noopener">' + L.linkOqa + '<span>' + L.linkOqad + '</span></a>' +
+          '<a href="https://ordbog.gl/" target="_blank" rel="noopener">' + L.linkOrdbog + '<span>' + L.linkOrdbogd + '</span></a>' +
+          '<a href="https://voca.broodev.com/" target="_blank" rel="noopener">' + L.vocaCross + '<span>' + L.vocaCrossd + '</span></a>' +
+          '</div></div>';
+      }
+
+      function cardHunt() {
+        var L = t();
+        var html = '<div class="card"><h2>' + L.huntTitle + '</h2><p style="font-size:13.5px;margin:4px 0 10px">' + L.huntBody + '</p><div class="links">' +
+          '<a href="https://www.sullissivik.gl/" target="_blank" rel="noopener">' + L.linkSull + '<span>' + L.linkSulld + '</span></a>' +
+          '<a href="https://www.naalakkersuisut.gl/" target="_blank" rel="noopener">' + L.linkNaal + '<span>' + L.linkNaald + '</span></a>' +
+          '</div></div>';
+
+        var opts = Object.keys(L.sp).map(function (k) { return '<option value="' + k + '">' + L.sp[k] + '</option>'; }).join('');
+        html += '<div class="card"><h2>' + L.logTitle + '</h2><div class="note">' + L.logNote + '</div>' +
+          '<form class="catch" id="catch-form">' +
+          '<input type="date" id="c-date" required value="' + new Date().toISOString().slice(0, 10) + '" />' +
+          '<select id="c-sp">' + opts + '</select>' +
+          '<input type="number" id="c-n" min="1" value="1" required aria-label="' + L.count + '" />' +
+          '<input type="text" id="c-place" placeholder="' + L.place + '" maxlength="60" />' +
+          '<button class="btn full" type="submit">+ ' + L.add + '</button>' +
+          '</form><ul class="log" id="catch-list"></ul>' +
+          '<button class="btn ghost" id="csv-btn" style="margin-top:10px">⭳ ' + L.exportCsv + '</button></div>';
+        return html;
+      }
+
+      function renderCatchList() {
+        var L = t();
+        var list = store.get('gl:catches', []);
+        var ul = $('catch-list');
+        if (!ul) return;
+        if (!list.length) { ul.innerHTML = '<li class="muted">' + L.empty + '</li>'; return; }
+        ul.innerHTML = list.map(function (c, i) {
+          return '<li><span class="d">' + esc(c.date) + '</span><span>' + esc(L.sp[c.sp] || c.sp) + ' × ' + esc(c.n) + (c.place ? ' <span class="muted">· ' + esc(c.place) + '</span>' : '') + '</span><button class="x" data-i="' + i + '">×</button></li>';
+        }).join('');
+        Array.prototype.forEach.call(ul.querySelectorAll('.x'), function (b) {
+          b.onclick = function () { var l = store.get('gl:catches', []); l.splice(+b.dataset.i, 1); store.set('gl:catches', l); renderCatchList(); };
+        });
+      }
+
+      function drawTide(entry) {
+        var cv = $('tide-cv');
+        if (!cv || !entry.marine) return;
+        var m = entry.marine.hourly, i0 = hourIdxNow(m.time);
+        var vals = m.sea_level_height_msl.slice(i0, i0 + 48).filter(function (v) { return v != null; });
+        if (vals.length < 4) return;
+        var ctx = cv.getContext('2d');
+        var W = cv.width, H = cv.height, min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+        var pad = (max - min) * 0.15 || 0.2; min -= pad; max += pad;
+        ctx.clearRect(0, 0, W, H);
+        ctx.strokeStyle = '#7fd8ff'; ctx.lineWidth = 2; ctx.beginPath();
+        vals.forEach(function (v, i) {
+          var x = (i / (vals.length - 1)) * W, y = H - ((v - min) / (max - min)) * H;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      /* ================= 마운트/이벤트 ================= */
+      function render() {
+        var L = t();
+        document.documentElement.lang = lang;
+        $('h-sub').textContent = L.hSub;
+        $('tab1-sub').textContent = L.tab1; $('tab2-sub').textContent = L.tab2; $('tab3-sub').textContent = L.tab3; $('tab4-sub').textContent = L.tab4;
+        $('f-src').textContent = L.src;
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'oqa') { view.innerHTML = cardOqa(); return; }
+        if (tab === 'hunt') {
+          view.innerHTML = cardHunt();
+          renderCatchList();
+          $('catch-form').onsubmit = function (e) {
+            e.preventDefault();
+            var l = store.get('gl:catches', []);
+            l.unshift({ date: $('c-date').value, sp: $('c-sp').value, n: +$('c-n').value || 1, place: $('c-place').value.trim() });
+            store.set('gl:catches', l.slice(0, 500));
+            renderCatchList();
+          };
+          $('csv-btn').onclick = function () {
+            var l = store.get('gl:catches', []);
+            var csv = 'date,species,count,place\n' + l.map(function (c) { return [c.date, c.sp, c.n, '"' + String(c.place || '').replace(/"/g, '""') + '"'].join(','); }).join('\n');
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = 'fangstlog-' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click();
+          };
+          return;
+        }
+        view.innerHTML = '<div class="loading">' + L.loading + '</div>';
+        if (tab === 'sila') {
+          loadTown(town()).then(function (entry) {
+            view.innerHTML = cardSila(entry);
+            drawTide(entry);
+            loadKp().then(function (rows) { fillAurora(entry, rows); });
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div></div>';
+          });
+        } else {
+          Promise.all([loadTown(town()), loadTown(destTown())]).then(function (r) {
+            view.innerHTML = cardTrans(r[0], r[1]);
+            var ds = $('dest-sel');
+            if (ds) ds.onchange = function () { destId = ds.value; store.set('gl:dest', destId); render(); };
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div></div>';
+          });
+        }
+      }
+
+      /* 초기화 */
+      (function init() {
+        var ts = $('town-sel');
+        TOWNS.forEach(function (tw) {
+          var o = document.createElement('option'); o.value = tw.id; o.textContent = tw.name; ts.appendChild(o);
+        });
+        ts.value = town().id;
+        ts.onchange = function () { townId = ts.value; store.set('gl:town', townId); render(); };
+        var ls = $('lang-sel');
+        ls.value = lang;
+        ls.onchange = function () { lang = ls.value; store.set('gl:lang', lang); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('gl:tab', tab); render(); };
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>
