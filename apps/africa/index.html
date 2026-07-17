@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Africa Daily Utility — power, money, gov status &amp; USSD codes in one panel</title>
+    <meta name="description" content="One lightweight panel for daily life in Nigeria, Kenya, Ghana and South Africa: load shedding links, live exchange rates and remittance cost calculator, JAMB/WAEC/SASSA/NIN status portals, verified USSD codes." />
+    <!-- 신규 앱 — 콘텐츠 보강 전까지 noindex (adsense-compliance.md 규칙 4·5), 광고 없음 -->
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://africa.broodev.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Africa Daily Utility — power · money · status · USSD" />
+    <meta property="og:description" content="Load shedding, live FX &amp; remittance cost, JAMB/WAEC/SASSA/NIN portals, verified USSD codes — one fast page." />
+    <meta property="og:url" content="https://africa.broodev.com/" />
+    <style>
+      :root {
+        --bg: #140f08; --bg-soft: #1e1710; --panel: #241b11; --line: #4a3a22;
+        --gold: #ffb648; --gold-dim: #a67c3b; --text: #f3e9da; --dim: #bda98c;
+        --green: #52d68a; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--gold); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--gold); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--gold); color: var(--gold); background: #2d2113; }
+      .tab.on b { color: var(--gold); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--gold); letter-spacing: .5px; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--green); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--gold); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(255,182,72,.07); border-left: 3px solid var(--gold-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      table.codes { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      table.codes th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.codes td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.codes td.c { font-family: var(--font); color: var(--green); font-weight: 700; white-space: nowrap; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--gold); }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--gold-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 10.5px; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎AFRICA DAILY UTILITY <small>· power · money · status · USSD</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="cty-sel" aria-label="Country"></select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="power"><b>⚡ POWER</b><span>Outages</span></div>
+        <div class="tab" data-tab="money"><b>💱 MONEY</b><span>FX · remit</span></div>
+        <div class="tab" data-tab="status"><b>🗂 STATUS</b><span>Gov · exams</span></div>
+        <div class="tab" data-tab="ussd"><b>📟 USSD</b><span>Codes</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        FX data: open.er-api.com (mid-market, updated daily) · For information only — always verify with official sources.<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a>
+      </footer>
+    </div>
+
+    <script>
+      'use strict';
+
+      /* ================= 국가 데이터 (링크·코드는 2026-07 실검증분만 수록) ================= */
+      var CTY = {
+        ng: {
+          name: 'Nigeria', cur: 'NGN', flag: '🇳🇬',
+          power: {
+            body: 'Nigeria’s national grid is fragile — outages are frequent and distribution companies (DisCos) publish their own schedules. Feeder-level schedules are best checked with your DisCo.',
+            links: [
+              ['https://www.tcn.org.ng/', 'TCN — Transmission Company of Nigeria', 'National grid operator: notices and updates'],
+            ],
+          },
+          status: [
+            ['https://efacility.jamb.gov.ng/', 'JAMB eFacility — UTME result & CAPS', 'Check UTME results, admission status (CAPS), print slips'],
+            ['https://www.waecdirect.org/', 'WAEC Direct — WASSCE results', 'Result checker (needs card serial + PIN)'],
+            ['https://nimc.gov.ng/', 'NIMC — National Identification Number (NIN)', 'NIN enrolment, retrieval and services · quick check: dial *346#'],
+            ['https://immigration.gov.ng/', 'Nigeria Immigration Service — passports', 'Passport application and processing info'],
+          ],
+          ussdNote: 'Since 2023 the NCC harmonised core telco codes — the SAME code works on MTN, Airtel, Glo and 9mobile.',
+          ussd: [
+            ['*310#', 'Check airtime balance (all networks)'],
+            ['*311#', 'Recharge credit (all networks)'],
+            ['*312#', 'Buy data plan (all networks)'],
+            ['*323#', 'Check data balance (all networks)'],
+            ['*303#', 'Borrow airtime/data (all networks)'],
+            ['*321#', 'Share airtime/data (all networks)'],
+            ['*996#', 'Verify NIN–SIM linkage (all networks)'],
+            ['*2442#', 'Do-Not-Disturb — stop spam SMS (all networks)'],
+            ['*737#', 'GTBank banking'],
+            ['*901#', 'Access Bank banking'],
+            ['*919#', 'UBA banking'],
+            ['*966#', 'Zenith Bank banking'],
+            ['*894#', 'FirstBank banking'],
+          ],
+        },
+        ke: {
+          name: 'Kenya', cur: 'KES', flag: '🇰🇪',
+          power: {
+            body: 'Kenya Power (KPLC) publishes planned interruption notices by region — check before your area’s maintenance day.',
+            links: [
+              ['https://kplc.co.ke/', 'Kenya Power (KPLC)', 'Planned power interruption notices and outage reporting'],
+            ],
+          },
+          status: [
+            ['https://www.knec.ac.ke/', 'KNEC — national exams (KCSE/KCPE)', 'Exam registration and results information'],
+            ['https://www.ecitizen.go.ke/', 'eCitizen — government services', 'IDs, passports, business, land and more in one portal'],
+          ],
+          ussdNote: 'Safaricom codes below are the daily essentials. Standard menus — never enter your PIN outside the official menu.',
+          ussd: [
+            ['*334#', 'M-PESA full menu — send, withdraw, Fuliza, M-Shwari'],
+            ['*144#', 'Safaricom balance / backup menu'],
+          ],
+        },
+        gh: {
+          name: 'Ghana', cur: 'GHS', flag: '🇬🇭',
+          power: {
+            body: 'ECG publishes planned outage ("dumsor") schedules and maintenance notices for southern Ghana.',
+            links: [
+              ['https://www.ecg.com.gh/', 'ECG — Electricity Company of Ghana', 'Planned outage schedules and notices'],
+            ],
+          },
+          status: [
+            ['https://www.waecgh.org/', 'WAEC Ghana — WASSCE/BECE results', 'Result checkers and exam notices'],
+          ],
+          ussdNote: 'MTN Ghana daily codes. Standard menus — never enter your PIN outside the official menu.',
+          ussd: [
+            ['*170#', 'MTN Mobile Money (MoMo)'],
+            ['*124#', 'MTN balance check'],
+            ['*134*PIN#', 'MTN airtime recharge'],
+          ],
+        },
+        za: {
+          name: 'South Africa', cur: 'ZAR', flag: '🇿🇦',
+          power: {
+            body: 'Load shedding runs in stages 1–8: each stage sheds ~1,000 MW more, and higher stages mean more frequent 2–4 h cuts for your area. Your exact slots depend on your municipal block — check them in the apps below.',
+            links: [
+              ['https://sepush.co.za/', 'EskomSePush', 'The de-facto load shedding schedule app (area-level slots)'],
+              ['https://www.eskom.co.za/', 'Eskom', 'Official national utility — stage announcements'],
+            ],
+          },
+          status: [
+            ['https://srd.sassa.gov.za/', 'SASSA SRD R370 — grant status', 'Check your Social Relief of Distress payment status'],
+            ['https://www.education.gov.za/', 'Matric (NSC) results', 'Department of Basic Education — results portals each January'],
+          ],
+          ussdNote: 'Master menus per network. Standard menus — never enter your PIN outside the official menu.',
+          ussd: [
+            ['*111#', 'Vodacom master menu'],
+            ['*141#', 'MTN balance / master menu'],
+            ['*147#', 'Cell C menu'],
+            ['*180#', 'Telkom Mobile menu'],
+          ],
+        },
+      };
+      var CTY_ORDER = ['ng', 'ke', 'gh', 'za'];
+      var FX_SHOW = ['USD', 'EUR', 'GBP', 'CNY'];
+
+      /* __PURE_START__ 순수 로직 */
+      /* 송금 실효 비용: 보낸 금액·수수료·제시 환율 vs 미드마켓 환율 → 수취액과 총 비용% */
+      function remitCost(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var midValue = sendAmt * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var cty = store.get('af:cty', 'ng'); if (!CTY[cty]) cty = 'ng';
+      var tab = store.get('af:tab', 'power');
+      var fxCache = null; // { rates, date, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var C = function () { return CTY[cty]; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 로컬 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('af:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('af:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* ================= 탭 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+
+      function cardPower() {
+        var c = C();
+        return '<div class="card"><h2>⚡ Power outages — ' + c.flag + ' ' + esc(c.name) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(c.power.body) + '</p>' +
+          linksHtml(c.power.links) +
+          '<div class="note">Schedules and stages change at short notice — the official sources above are always authoritative.</div></div>';
+      }
+
+      function cardMoney(fx) {
+        var c = C(), r = fx.rates;
+        var html = '<div class="card"><h2>💱 ' + c.cur + ' today <span class="muted">(mid-market)</span></h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(1, base, c.cur, r);
+          html += '<div class="kv"><div class="k">1 ' + base + '</div><div class="v">' + (v == null ? '—' : Math.round(v).toLocaleString('en') + ' ' + c.cur) + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">Updated: ' + esc(fx.date) + '</div>' +
+          '<div class="note">Mid-market reference rates only. Street/parallel and provider rates differ — this page does not publish parallel-market quotes.</div></div>';
+
+        /* 환전 계산기 */
+        var curList = [c.cur].concat(FX_SHOW.filter(function (x) { return x !== c.cur; }));
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>Converter</h2><form class="calc" id="cv-form">' +
+          '<div><label>Amount</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>From → To</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts(c.cur) + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 실효비용 계산기 */
+        html += '<div class="card"><h2>Remittance cost checker</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">Sub-Saharan remittance fees average ~8% (World Bank) — the true cost hides in the exchange rate. Enter what a provider quotes you:</p>' +
+          '<form class="calc" id="rm-form">' +
+          '<div><label>You send (USD)</label><input type="number" id="rm-amt" value="200" min="1" step="any" /></div>' +
+          '<div><label>Provider fee (USD)</label><input type="number" id="rm-fee" value="5" min="0" step="any" /></div>' +
+          '<div class="full"><label>Provider’s rate (1 USD → ' + c.cur + ')</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + Math.round((r[c.cur] || 0) * 0.97) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">Compared against today’s mid-market rate (1 USD = ' + Math.round(r[c.cur]).toLocaleString('en') + ' ' + c.cur + '). Lower total cost % = better deal.</div></div>';
+        return html;
+      }
+
+      function wireMoney(fx) {
+        var r = fx.rates, c = C();
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, r[c.cur]);
+          $('rm-out').innerHTML = res == null ? '—' :
+            'Recipient gets <b>' + Math.round(res.received).toLocaleString('en') + ' ' + c.cur + '</b> · total cost <b class="' + (res.costPct > 8 ? 'crit' : res.costPct > 4 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b> vs mid-market';
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate'].forEach(function (id) { $(id).oninput = updR; });
+        updR();
+      }
+
+      function cardStatus() {
+        var c = C();
+        return '<div class="card"><h2>🗂 Official status portals — ' + c.flag + ' ' + esc(c.name) + '</h2>' +
+          linksHtml(c.status) +
+          '<div class="note">These are the official portals — this page holds no personal data and performs no lookups itself. Beware of look-alike "checker" sites that ask for fees.</div></div>';
+      }
+
+      function cardUssd() {
+        var c = C();
+        var rows = c.ussd.map(function (u) { return '<tr><td class="c">' + esc(u[0]) + '</td><td>' + esc(u[1]) + '</td></tr>'; }).join('');
+        return '<div class="card"><h2>📟 USSD codes — ' + c.flag + ' ' + esc(c.name) + '</h2>' +
+          '<p class="muted" style="margin:2px 0 8px">' + esc(c.ussdNote) + '</p>' +
+          '<table class="codes"><tr><th>Code</th><th>What it does</th></tr>' + rows + '</table>' +
+          '<div class="note">Codes verified 2026-07 but can change — if a code fails, confirm with your provider. NEVER share your PIN; providers never ask for it by SMS or call.</div></div>';
+      }
+
+      /* ================= 마운트 ================= */
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'power') { view.innerHTML = cardPower(); return; }
+        if (tab === 'status') { view.innerHTML = cardStatus(); return; }
+        if (tab === 'ussd') { view.innerHTML = cardUssd(); return; }
+        view.innerHTML = '<div class="loading">Loading rates …</div>';
+        loadFx().then(function (fx) {
+          view.innerHTML = cardMoney(fx);
+          wireMoney(fx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">Could not load exchange rates — try again later.</div></div>';
+        });
+      }
+
+      (function init() {
+        var cs = $('cty-sel');
+        CTY_ORDER.forEach(function (k) {
+          var o = document.createElement('option'); o.value = k; o.textContent = CTY[k].flag + ' ' + CTY[k].name; cs.appendChild(o);
+        });
+        cs.value = cty;
+        cs.onchange = function () { cty = cs.value; store.set('af:cty', cty); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('af:tab', tab); render(); };
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>
