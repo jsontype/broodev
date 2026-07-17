@@ -26,6 +26,8 @@ const APPS = [
   { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://broodev.com/?coin=mana', category: 'crypto', status: 'live', tags: ['디센트럴랜드', 'MANA'] },
   { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: 'learn',  status: 'live', tags: ['단어암기', '깜빡이', 'CSV'] },
   { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: 'learn', status: 'live', tags: ['튜토리얼', '사용법', '깜빡이'] },
+  { slug: 'greenland', name: 'GREENLAND_INFO', url: 'https://greenland.broodev.com', category: 'info', status: 'soon', tags: ['그린란드', '날씨', '오로라'] },
+  { slug: 'africa', name: 'AFRICA_UTILITY', url: 'https://africa.broodev.com', category: 'info', status: 'soon', tags: ['아프리카', '환율', 'USSD'] },
 ];
 const ROADMAP = [];
 /* 앱 설명/카테고리 라벨 — 현재 UI 언어 번들에서 조회, 구버전 캐시 번들이면 ko로 폴백(코드·빈칸 노출 방지) */
@@ -35,6 +37,8 @@ const appDesc = (a, t, fmt) => {
   const ap = t.apps.sigTpl ? t.apps : KO_APPS;
   if (a.slug === 'voca') return ap.vocaDesc;
   if (a.slug === 'voca-tutorial') return ap.vocaTutDesc;
+  if (a.slug === 'greenland') return ap.greenlandDesc || KO_APPS.greenlandDesc;
+  if (a.slug === 'africa') return ap.africaDesc || KO_APPS.africaDesc;
   return fmt(ap.sigTpl, { name: (ap.coin || {})[a.slug] || a.name });
 };
 
