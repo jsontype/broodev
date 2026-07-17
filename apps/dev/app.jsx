@@ -9,21 +9,7 @@ const COMPANY = { operator: 'Y-Systems', ceo: 'jsontype', email: 'jsontyper@gmai
 
 /* ---- 앱 카탈로그 (이름/링크 고정 · 설명/카테고리는 i18n 번들에서 조회) ---- */
 const APPS = [
-  { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: 'crypto', status: 'live', tags: ['비트코인', '공포지수', '실시간'] },
-  { slug: 'eth',  name: 'ETH_SIGNAL',  url: 'https://broodev.com/?coin=eth',  category: 'crypto', status: 'live', tags: ['이더리움', '공포지수'] },
-  { slug: 'xrp',  name: 'XRP_SIGNAL',  url: 'https://broodev.com/?coin=xrp',  category: 'crypto', status: 'live', tags: ['리플', 'XRP'] },
-  { slug: 'doge', name: 'DOGE_SIGNAL', url: 'https://broodev.com/?coin=doge', category: 'crypto', status: 'live', tags: ['도지코인', '밈코인'] },
-  { slug: 'bch',  name: 'BCH_SIGNAL',  url: 'https://broodev.com/?coin=bch',  category: 'crypto', status: 'live', tags: ['비트코인캐시', 'BCH'] },
-  { slug: 'link', name: 'LINK_SIGNAL', url: 'https://broodev.com/?coin=link', category: 'crypto', status: 'live', tags: ['체인링크', 'LINK'] },
-  { slug: 'xlm',  name: 'XLM_SIGNAL',  url: 'https://broodev.com/?coin=xlm',  category: 'crypto', status: 'live', tags: ['스텔라', 'XLM'] },
-  { slug: 'ltc',  name: 'LTC_SIGNAL',  url: 'https://broodev.com/?coin=ltc',  category: 'crypto', status: 'live', tags: ['라이트코인', 'LTC'] },
-  { slug: 'avax', name: 'AVAX_SIGNAL', url: 'https://broodev.com/?coin=avax', category: 'crypto', status: 'live', tags: ['아발란체', 'AVAX'] },
-  { slug: 'shib', name: 'SHIB_SIGNAL', url: 'https://broodev.com/?coin=shib', category: 'crypto', status: 'live', tags: ['시바이누', '밈코인'] },
-  { slug: 'dot',  name: 'DOT_SIGNAL',  url: 'https://broodev.com/?coin=dot',  category: 'crypto', status: 'live', tags: ['폴카닷', 'DOT'] },
-  { slug: 'pepe', name: 'PEPE_SIGNAL', url: 'https://broodev.com/?coin=pepe', category: 'crypto', status: 'live', tags: ['페페', '밈코인'] },
-  { slug: 'grt',  name: 'GRT_SIGNAL',  url: 'https://broodev.com/?coin=grt',  category: 'crypto', status: 'live', tags: ['더그래프', 'GRT'] },
-  { slug: 'sand', name: 'SAND_SIGNAL', url: 'https://broodev.com/?coin=sand', category: 'crypto', status: 'live', tags: ['샌드박스', 'SAND'] },
-  { slug: 'mana', name: 'MANA_SIGNAL', url: 'https://broodev.com/?coin=mana', category: 'crypto', status: 'live', tags: ['디센트럴랜드', 'MANA'] },
+  { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: 'crypto', status: 'live', tags: ['비트코인', '코인 15종', '공포지수', '실시간'] },
   { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: 'learn',  status: 'live', tags: ['단어암기', '깜빡이', 'CSV'] },
   { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: 'learn', status: 'live', tags: ['튜토리얼', '사용법', '깜빡이'] },
   { slug: 'greenland', name: 'GREENLAND_INFO', url: 'https://greenland.broodev.com', category: 'info', status: 'soon', tags: ['그린란드', '날씨', '오로라'] },
@@ -35,6 +21,7 @@ const KO_APPS = I18N.getT('ko').apps;
 const catLabel = (c, t) => (t.apps.cat || KO_APPS.cat)[c] || c;
 const appDesc = (a, t, fmt) => {
   const ap = t.apps.sigTpl ? t.apps : KO_APPS;
+  if (a.slug === 'btc') return ap.sigAllDesc || KO_APPS.sigAllDesc;
   if (a.slug === 'voca') return ap.vocaDesc;
   if (a.slug === 'voca-tutorial') return ap.vocaTutDesc;
   if (a.slug === 'greenland') return ap.greenlandDesc || KO_APPS.greenlandDesc;
@@ -103,7 +90,7 @@ function AboutPage({ go, t }) {
           <tr className="clickable" onClick={() => window.open(APPS[0].url, '_blank', 'noopener')}>
             <td className="t-name">BTC_SIGNAL <span className="tag live">{t.st.live}</span></td>
             <td className="t-muted">{a.repDesc}</td>
-            <td style={{ textAlign: 'right' }} className="neon">btc.broodev.com ↗</td>
+            <td style={{ textAlign: 'right' }} className="neon">broodev.com ↗</td>
           </tr>
         </tbody></table>
       </div>
@@ -152,7 +139,7 @@ function AppsPage({ t, fmt }) {
   const open = (a) => { if (a.status === 'live' && a.url) window.open(a.url, '_blank', 'noopener'); };
   return (
     <>
-      <PageHead title={t.apps.title} desc={fmt(t.apps.descTpl, { a: APPS.length, b: ROADMAP.length })} />
+      <PageHead title={t.apps.title} desc={fmt(t.apps.descTpl, { a: ALL.filter(x => x.status === 'live').length, b: ALL.filter(x => x.status !== 'live').length })} />
       <div className="row" style={{ marginBottom: 10 }}>
         <input className="input" placeholder={t.apps.search} value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 220 }} />
       </div>
