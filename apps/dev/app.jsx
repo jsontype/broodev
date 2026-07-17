@@ -11,7 +11,6 @@ const COMPANY = { operator: 'Y-Systems', ceo: 'jsontype', email: 'jsontyper@gmai
 const APPS = [
   { slug: 'btc',  name: 'BTC_SIGNAL',  url: 'https://broodev.com',      category: 'crypto', status: 'live', tags: ['비트코인', '코인 15종', '공포지수', '실시간'] },
   { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: 'learn',  status: 'live', tags: ['단어암기', '깜빡이', 'CSV'] },
-  { slug: 'voca-tutorial', name: 'VOCA_TUTORIAL', url: 'https://voca-tutorial.broodev.com', category: 'learn', status: 'live', tags: ['튜토리얼', '사용법', '깜빡이'] },
   { slug: 'greenland', name: 'GREENLAND_INFO', url: 'https://greenland.broodev.com', category: 'info', status: 'soon', tags: ['그린란드', '날씨', '오로라'] },
   { slug: 'africa', name: 'AFRICA_UTILITY', url: 'https://africa.broodev.com', category: 'info', status: 'soon', tags: ['아프리카', '환율', 'USSD'] },
 ];
@@ -21,7 +20,7 @@ const KO_APPS = I18N.getT('ko').apps;
 const catLabel = (c, t) => (t.apps.cat || KO_APPS.cat)[c] || c;
 const appDesc = (a, t, fmt) => {
   const ap = t.apps.sigTpl ? t.apps : KO_APPS;
-  if (a.slug === 'btc') return ap.sigAllDesc || KO_APPS.sigAllDesc;
+  if (a.slug === 'btc') return ap.sigAllDesc || KO_APPS.sigAllDesc || fmt(ap.sigTpl, { name: (ap.coin || {}).btc || 'Bitcoin' });
   if (a.slug === 'voca') return ap.vocaDesc;
   if (a.slug === 'voca-tutorial') return ap.vocaTutDesc;
   if (a.slug === 'greenland') return ap.greenlandDesc || KO_APPS.greenlandDesc;
