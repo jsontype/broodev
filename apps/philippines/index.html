@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinas Panel — typhoon signals, USD/PHP, gov status &amp; brownout info in one page</title>
+    <meta name="description" content="One lightweight panel for daily life in the Philippines: PAGASA Wind Signal #1–#5 action guides, live USD/PHP rates and OFW remittance true-cost calculator, SSS/PhilHealth/Pag-IBIG/PSA/DFA/LTO status portals, Meralco brownout links and recent PH earthquakes." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://philippines.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Pinas Panel — bagyo · pera · status · brownout" />
+    <meta name="twitter:description" content="Wind Signal #1–#5 action guides, live USD/PHP &amp; remittance true cost, SSS/PhilHealth/Pag-IBIG portals, Meralco outage links, PH earthquakes and a hacker terminal — one fast page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pinas Panel — bagyo · pera · status · brownout" />
+    <meta property="og:description" content="Wind Signal #1–#5 action guides, live USD/PHP &amp; remittance true cost, SSS/PhilHealth/Pag-IBIG portals, Meralco outage links, PH earthquakes — one fast page." />
+    <meta property="og:url" content="https://philippines.broodev.com/" />
+    <style>
+      :root {
+        --bg: #0a1220; --bg-soft: #0f1a2e; --panel: #13203a; --line: #26375c;
+        --sun: #ffd54a; --sun-dim: #b0973f; --text: #e9eef8; --dim: #93a3c2;
+        --green: #52d68a; --warn: #ffd166; --crit: #ff6b6b; --blue: #6db9ff;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--sun); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--sun); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--sun) 50%), linear-gradient(135deg, var(--sun) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--sun); color: var(--sun); background: #1a2946; }
+      .tab.on b { color: var(--sun); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--sun); letter-spacing: .5px; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--green); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--sun); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(255,213,74,.07); border-left: 3px solid var(--sun-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      .sig { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; background: var(--bg-soft); }
+      .sig .sig-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+      .sig .sig-no { font-family: var(--font); font-weight: 800; font-size: 17px; }
+      .sig .sig-meta { color: var(--dim); font-size: 12px; }
+      .sig ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+      .sig ul li { margin: 2px 0; }
+      .s1 { color: var(--blue); } .s2 { color: var(--green); } .s3 { color: var(--warn); }
+      .s4 { color: #ffa64a; } .s5 { color: var(--crit); }
+      .qk { font-size: 13px; padding: 5px 0; border-bottom: 1px dashed rgba(255,255,255,.06); display: flex; gap: 10px; align-items: baseline; }
+      .qk .m { font-family: var(--font); font-weight: 800; min-width: 46px; }
+      .qk .p { flex: 1; }
+      .qk .d { color: var(--dim); font-size: 11.5px; white-space: nowrap; }
+      table.codes { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      table.codes th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.codes td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.codes td.c { font-family: var(--font); color: var(--green); font-weight: 700; white-space: nowrap; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--sun); }
+      .steps { margin: 4px 0 0; padding-left: 18px; font-size: 13px; color: var(--text); }
+      .steps li { margin: 2px 0; }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--sun-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 9.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #050a14; border: 1px solid var(--line); border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(255,213,74,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #ffe9a3; text-shadow: 0 0 6px rgba(255,213,74,.3); }
+      #t-out .t-dim { color: #7d7345; text-shadow: none; }
+      #t-out .t-hi { color: #fff8e0; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--green); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--sun); white-space: nowrap; text-shadow: 0 0 6px rgba(255,213,74,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #fff8e0; font-family: var(--font); font-size: 13px; caret-color: var(--sun); }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--sun); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo h3 { color: var(--text); font-size: 13.5px; margin: 14px 0 4px; }
+      .seo a { color: var(--sun); }
+      .seo ul, .seo ol { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo table th { text-align: left; color: var(--sun-dim); border-bottom: 1px solid var(--line); padding: 4px 6px; }
+      .seo table td { border-bottom: 1px dashed rgba(255,255,255,.08); padding: 4px 6px; vertical-align: top; }
+      .seo code { font-family: var(--font); color: var(--green); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎PINAS PANEL <small>· bagyo · pera · status · brownout</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="lang-sel" aria-label="Language">
+          <option value="en">English</option>
+          <option value="fil">Filipino</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="bagyo"><b>🌀 BAGYO</b><span data-i18n="tab.bagyo">Typhoon</span></div>
+        <div class="tab" data-tab="pera"><b>💱 PERA</b><span data-i18n="tab.pera">FX · remit</span></div>
+        <div class="tab" data-tab="status"><b>🗂 STATUS</b><span data-i18n="tab.status">Gov portals</span></div>
+        <div class="tab" data-tab="power"><b>⚡ POWER</b><span data-i18n="tab.power">Brownout</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span data-i18n="tab.term">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        <span data-i18n="ft.data">Data: open.er-api.com (mid-market FX, daily) · open-meteo.com (weather) · USGS (earthquakes) · For information only — always verify with official sources.</span><br />
+        <span data-i18n="ft.priv">Privacy: no accounts, no server storage — settings live only in your browser (localStorage).</span><br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/" rel="noopener">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Pinas Panel">
+      <h2>What is Pinas Panel?</h2>
+      <p>
+        Pinas Panel is a free, data-light utility page for daily life in the <strong>Philippines</strong>.
+        It puts four essentials on one fast page: <strong>typhoon readiness</strong> — plain-language action guides for
+        PAGASA Tropical Cyclone Wind Signals #1 to #5, live wind and rain numbers for Manila, Cebu, Davao and Tacloban,
+        and recent magnitude-4.5+ earthquakes near the archipelago from the USGS feed; <strong>money tools</strong> —
+        live mid-market USD/PHP and other major rates, a currency converter, and an OFW remittance true-cost calculator
+        that exposes the hidden exchange-rate margin on top of the transfer fee; <strong>government status portals</strong> —
+        SSS, PhilHealth, Pag-IBIG, PSA civil registry, DFA passport appointments, LTO licensing and the COMELEC precinct
+        finder, each with a short how-to; and <strong>power outage help</strong> — Meralco advisories, a brownout explainer
+        and an ERC complaint link. No app install, no account, and it loads fine on prepaid data.
+      </p>
+
+      <h2>PAGASA Wind Signal #1–#5: what to actually do</h2>
+      <p>
+        PAGASA raises Tropical Cyclone Wind Signals over specific provinces, and each number is a forecast of wind
+        strength <em>plus</em> a lead time — the higher the signal, the stronger the coming wind and the less time you
+        have. The mistake many households make is treating Signal #1 and #2 as "nothing days." They are your preparation
+        window: once Signal #3 winds arrive, hardware stores are shut, queues at ATMs are long, and going outside to fix
+        a roof is dangerous. Use the table below as a minimum action list, and always follow your barangay and LGU
+        evacuation orders — storm surge and landslides kill more people in the Philippines than wind does.
+      </p>
+      <table>
+        <tr><th>Signal</th><th>Winds (km/h)</th><th>Lead time</th><th>Do this now</th></tr>
+        <tr><td>#1</td><td>39–61</td><td>~36 h</td><td>Charge phones and power banks, secure loose items outside, review your go-bag, monitor PAGASA bulletins every 6 hours.</td></tr>
+        <tr><td>#2</td><td>62–88</td><td>~24 h</td><td>Stock 3 days of water and food, buy prepaid load, tie down light roofing, avoid small-boat sea travel, withdraw some cash.</td></tr>
+        <tr><td>#3</td><td>89–117</td><td>~18 h</td><td>Stay indoors, expect brownouts and water interruption, evacuate immediately if your LGU orders it or you live in a surge or landslide zone.</td></tr>
+        <tr><td>#4</td><td>118–184</td><td>~12 h</td><td>Evacuation should be complete. Shelter in the strongest room away from windows; assume power and signal will be out for days.</td></tr>
+        <tr><td>#5</td><td>≥185</td><td>~12 h</td><td>Catastrophic winds. Do not go outside — even during the calm "eye." Coastal areas face life-threatening storm surge.</td></tr>
+      </table>
+      <p>
+        One more habit worth building: when a signal is raised, note which <em>signal number</em> your province is under,
+        not just the storm's name. The same typhoon can put one province under Signal #4 and its neighbour under #1, and
+        your action list depends on your own number, not the headline.
+      </p>
+
+      <h2>Your 72-hour go-bag: the typhoon kit that actually gets used</h2>
+      <p>
+        A go-bag is only useful if it is packed <em>before</em> Signal #2. Build it around 72 hours of self-sufficiency
+        per person: at least three litres of drinking water per day, ready-to-eat food (canned goods with a manual opener,
+        biscuits), any maintenance medicines in a waterproof pouch, a flashlight with spare batteries, a power bank
+        charged to full, a whistle, and copies of key documents — PSA birth certificates, IDs, land titles, insurance —
+        sealed in a zip bag or saved as photos on your phone. Add cash in small bills, because GCash and card terminals
+        die with the signal towers. Families with infants or seniors should pack for their needs first; those items
+        disappear from sari-sari stores fastest. Refresh the food and batteries every six months — set a phone reminder
+        on New Year and on the start of habagat season.
+      </p>
+
+      <h2>OFW remittances: the fee is not the real cost</h2>
+      <p>
+        The Philippines receives tens of billions of US dollars in remittances every year, mostly through a handful of
+        corridors — the United States, Saudi Arabia, the UAE, Singapore, Japan and Hong Kong. Most senders compare
+        providers by the <strong>advertised fee</strong>, but the bigger cost usually hides in the
+        <strong>exchange rate</strong>. A provider that charges "zero fees" but converts your dollars at 2–3% below the
+        mid-market rate quietly takes more than one charging a flat $4.99 at a fair rate. On a $500 transfer, a 2.5%
+        FX margin is $12.50 — invisible on the receipt, very visible in the pesos your family receives. The calculator
+        in the PERA tab does the honest math: enter the amount, the fee and the rate you were quoted, and it compares
+        the result against today's mid-market rate to show your true total cost as a percentage. Below roughly 3–4%
+        total is a competitive deal for the US–PH corridor.
+      </p>
+
+      <h2>Globe, Smart, DITO, TNT — quick codes cheat sheet</h2>
+      <p>
+        USSD menus still matter in the Philippines because they work without data and on any phone. The table below
+        covers the everyday basics. <strong>Verify with your telco before relying on any code — codes change, and
+        promos are retired without notice.</strong> Never key in a PIN or share an OTP because of a text message;
+        telcos do not ask for them.
+      </p>
+      <table>
+        <tr><th>Telco</th><th>Main menu</th><th>Balance</th><th>Load / promo</th><th>Notes</th></tr>
+        <tr><td>Globe</td><td><code>*143#</code></td><td><code>*143#</code> → My Account</td><td><code>*143#</code> → promos, Share-A-Load in menu</td><td>GoSAKTO custom promos live in the same menu; the GlobeOne app mirrors it.</td></tr>
+        <tr><td>Smart</td><td><code>*123#</code></td><td><code>*123#</code> → Bal/Services</td><td><code>*123#</code> → promo categories</td><td>PasaLoad by SMS to <code>808</code>; the Smart app shows data balance in detail.</td></tr>
+        <tr><td>TNT</td><td><code>*123#</code></td><td><code>*123#</code> → Balance</td><td><code>*123#</code> → TNT promos</td><td>Runs on the Smart network — same menu tree, TNT-branded promos.</td></tr>
+        <tr><td>DITO</td><td>app-first</td><td>DITO app → Account</td><td>DITO app → Buy Load / Promos</td><td>DITO is app-centric; hotline <code>185</code> from a DITO SIM for support.</td></tr>
+      </table>
+      <p>
+        Treat this as a starting map, not gospel: each telco's official site and app are the authoritative source,
+        and regional promos often have their own registration keywords.
+      </p>
+
+      <h2>How to check your SSS contributions and status online</h2>
+      <p>
+        The Social Security System moved almost everything to the <strong>My.SSS</strong> portal, and checking your
+        posted contributions no longer requires a branch visit. First, register a My.SSS account at
+        <a href="https://www.sss.gov.ph/" rel="noopener">sss.gov.ph</a> — you will need your SSS number, a valid email,
+        and one detail from your records (such as an employer ID or a previously paid receipt) to prove identity.
+        Second, once the confirmation email arrives, log in and open <em>Inquiry → Contributions</em> to see every
+        posted month; gaps usually mean an employer remitted late or not at all, which you can dispute. Third, for
+        loans, go to <em>Inquiry → Loan Status</em> to track applications and balances. The mobile app mirrors the
+        portal. Checking is free — any site or "fixer" charging for an SSS status check is a scam.
+      </p>
+
+      <h2>How to check PhilHealth membership and contributions</h2>
+      <p>
+        PhilHealth's <strong>Member Portal</strong> lets you confirm that your premiums are actually posted — worth
+        doing before any planned hospitalisation. Step one: create an account through the official PhilHealth site at
+        <a href="https://www.philhealth.gov.ph/" rel="noopener">philhealth.gov.ph</a> (follow the Member Portal link);
+        you need your PhilHealth Identification Number (PIN) and the email registered to your record. Step two: after
+        activating via the emailed link, log in and open the contributions view to see posted premiums by period —
+        employer-remitted months should appear a month or two after payroll deduction. Step three: if months are
+        missing, gather your payslips and raise it with your HR or the nearest PhilHealth office. Keep your PIN
+        somewhere safe: hospitals ask for it at admission, and retrieving a forgotten PIN takes longer than the check
+        itself.
+      </p>
+
+      <h2>Brownout vs blackout — and why yours is "rotational"</h2>
+      <p>
+        Filipinos say <em>brownout</em> for almost any outage, but the terms differ. A true <strong>brownout</strong>
+        is a deliberate voltage reduction — lights dim, fans slow — used to shave demand without cutting anyone off.
+        A <strong>blackout</strong> is a total loss of supply, whether from a downed line, a tripped plant or a storm.
+        A <strong>rotational brownout</strong> (technically rotational load dropping) happens when the grid operator
+        orders distribution utilities to shed load because available generation cannot meet demand — typically on hot
+        dry-season afternoons when plants are on outage. Your feeder gets switched off for a scheduled window, then the
+        next feeder takes its turn. That is why advisories list feeders and time slots rather than whole cities.
+        During any outage: unplug sensitive appliances, keep the fridge closed, and report downed lines — never touch
+        them — to your utility's hotline.
+      </p>
+
+      <h2>Earthquakes in the Philippines: reading the feeds calmly</h2>
+      <p>
+        The Philippines sits on the Pacific Ring of Fire, so magnitude-4 to 5 earthquakes near the trench systems are
+        routine background activity, not a reason to panic. The BAGYO tab lists recent magnitude-4.5+ events near the
+        archipelago straight from the <strong>USGS</strong> public feed; for official local intensity reports and
+        tsunami advisories, <strong>PHIVOLCS</strong> is the authority. Two numbers matter when you read a quake entry:
+        magnitude (energy at the source) and depth — a shallow magnitude-5.5 under a city shakes far harder than a
+        deep magnitude-6.5 offshore. If you feel strong shaking: drop, cover and hold on; do not run outside during
+        the shaking; and if you are on the coast and the shaking is long or violent, move to high ground without
+        waiting for a formal tsunami warning.
+      </p>
+
+      <h2>Official portals worth bookmarking (PSA, DFA, Pag-IBIG, LTO, COMELEC)</h2>
+      <p>
+        A surprising amount of Philippine paperwork is now genuinely online — if you know the real site. Order PSA
+        birth, marriage and CENOMAR certificates for delivery via
+        <a href="https://psahelpline.ph/" rel="noopener">PSAHelpline.ph</a> or
+        <a href="https://www.psaserbilis.com.ph/" rel="noopener">PSA Serbilis</a>. Book passport appointments only at
+        <a href="https://www.passport.gov.ph/" rel="noopener">passport.gov.ph</a> — the DFA slots are free to book;
+        anyone selling slots is a fixer. Pag-IBIG savings, loans and MP2 live in
+        <a href="https://www.pagibigfund.gov.ph/" rel="noopener">Virtual Pag-IBIG</a>. Driver's licence renewals and
+        student permits run through the LTO's <a href="https://portal.lto.gov.ph/" rel="noopener">LTMS portal</a>.
+        Before an election, confirm your registration and precinct with the
+        <a href="https://voterverifier.comelec.gov.ph/" rel="noopener">COMELEC voter verifier</a>. All of these are
+        free or fixed-fee — treat any site asking for "processing fees" outside these domains as fraudulent.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>Is Pinas Panel free?</h3>
+      <p>Yes. It is a static page with no ads, no account, no paywall and no install. Your settings (language, chosen city, last tab) are stored only in your own browser via localStorage.</p>
+      <h3>Where does the typhoon and wind signal information come from?</h3>
+      <p>The Wind Signal explainers summarise PAGASA's public Tropical Cyclone Wind Signal system. Live wind and rain numbers come from the free Open-Meteo API, and earthquake entries come from the public USGS GeoJSON feed. For warnings that affect your safety, always defer to PAGASA, PHIVOLCS and your LGU.</p>
+      <h3>Are the exchange rates real-time?</h3>
+      <p>Rates come from open.er-api.com, which publishes mid-market reference rates updated about once a day. They are for comparison, not execution — banks and remittance providers apply their own rates and margins.</p>
+      <h3>Do the USSD codes work on all networks?</h3>
+      <p>Each code is telco-specific: *143# is Globe, *123# serves Smart and TNT, and DITO is primarily app-based. Codes change over time, so verify with your telco's official site or app before relying on one.</p>
+      <h3>Does this site store my personal data?</h3>
+      <p>No. There are no accounts and no server-side storage. The page never asks for your SSS, PhilHealth or any ID numbers — status checks happen on the official government portals it links to, not here.</p>
+      <h3>What is the difference between a brownout and a blackout?</h3>
+      <p>A brownout is a deliberate voltage reduction (lights dim but stay on); a blackout is a total loss of power. What most Filipinos call a rotational brownout is scheduled load dropping — feeders are switched off in turns when generation cannot meet demand.</p>
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab for a terminal — <code>help</code>,
+        <code>signal 3</code> (action guide for that signal), <code>quake</code> (latest PH earthquakes),
+        <code>convert 100 usd php</code>, <code>remit 500 4.99 55.2</code> and more. All figures are for
+        information only; official sources are always authoritative.
+      </p>
+    </section>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Pinas Panel",
+        "url": "https://philippines.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "inLanguage": ["en", "fil"],
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "PAGASA Wind Signal #1–#5 action guides, live wind/rain for PH cities, recent PH earthquakes (USGS), live USD/PHP rates and converter, OFW remittance true-cost calculator, SSS/PhilHealth/Pag-IBIG/PSA/DFA/LTO/COMELEC portal guide, Meralco brownout links, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Pinas Panel free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is a static page with no ads, no account, no paywall and no install. Your settings (language, chosen city, last tab) are stored only in your own browser via localStorage." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does the typhoon and wind signal information come from?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The Wind Signal explainers summarise PAGASA's public Tropical Cyclone Wind Signal system. Live wind and rain numbers come from the free Open-Meteo API, and earthquake entries come from the public USGS GeoJSON feed. For warnings that affect your safety, always defer to PAGASA, PHIVOLCS and your LGU." }
+          },
+          {
+            "@type": "Question",
+            "name": "Are the exchange rates real-time?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Rates come from open.er-api.com, which publishes mid-market reference rates updated about once a day. They are for comparison, not execution — banks and remittance providers apply their own rates and margins." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do the USSD codes work on all networks?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Each code is telco-specific: *143# is Globe, *123# serves Smart and TNT, and DITO is primarily app-based. Codes change over time, so verify with your telco's official site or app before relying on one." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this site store my personal data?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. There are no accounts and no server-side storage. The page never asks for your SSS, PhilHealth or any ID numbers — status checks happen on the official government portals it links to, not here." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the difference between a brownout and a blackout?",
+            "acceptedAnswer": { "@type": "Answer", "text": "A brownout is a deliberate voltage reduction (lights dim but stay on); a blackout is a total loss of power. What most Filipinos call a rotational brownout is scheduled load dropping — feeders are switched off in turns when generation cannot meet demand." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= i18n 번들 (EN 기본 / FIL) — 정적 SEO 본문은 영어 고정 ================= */
+      var T = {
+        en: {
+          'tab.bagyo': 'Typhoon',
+          'tab.pera': 'FX · remit',
+          'tab.status': 'Gov portals',
+          'tab.power': 'Brownout',
+          'tab.term': 'Terminal',
+          'ft.data': 'Data: open.er-api.com (mid-market FX, daily) · open-meteo.com (weather) · USGS (earthquakes) · For information only — always verify with official sources.',
+          'ft.priv': 'Privacy: no accounts, no server storage — settings live only in your browser (localStorage).',
+          'loading': 'Loading …',
+          'err.fx': 'Could not load exchange rates — try again later.',
+          'err.wx': 'Could not load weather — try again later.',
+          'err.qk': 'Could not load earthquake feed — try again later.',
+          'bg.h.signals': '🌀 Wind Signals #1–#5 — what each one means',
+          'bg.p.signals': 'PAGASA raises signals per province. Higher number = stronger wind, shorter lead time. Signals #1–#2 are your preparation window — do not waste them.',
+          'bg.winds': 'winds',
+          'bg.lead': 'lead time',
+          'bg.now': 'Do NOW:',
+          'bg.h.links': '🔗 Official typhoon & disaster links',
+          'bg.h.wx': '🌧 Wind & rain now',
+          'bg.city': 'City',
+          'bg.wx.wind': 'Wind',
+          'bg.wx.gust': 'Gusts',
+          'bg.wx.rain': 'Rain (today)',
+          'bg.wx.temp': 'Temp',
+          'bg.wx.3d': 'Next 3 days — max gusts / rain sum:',
+          'bg.h.qk': '🌋 Recent earthquakes near PH (M4.5+, past 7 days)',
+          'bg.qk.none': 'No M4.5+ earthquakes near the Philippines in the past 7 days.',
+          'bg.qk.depth': 'depth',
+          'bg.note': 'Signals, evacuation orders and tsunami advisories come only from PAGASA, PHIVOLCS, NDRRMC and your LGU — this page is a summary, not a warning service.',
+          'pe.h.rates': '💱 PHP today (mid-market)',
+          'pe.updated': 'Updated:',
+          'pe.note.rates': 'Mid-market reference rates only. Banks, padala centers and e-wallets apply their own rates and margins.',
+          'pe.h.conv': 'Converter',
+          'pe.amount': 'Amount',
+          'pe.fromto': 'From → To',
+          'pe.h.remit': 'OFW remittance true-cost calculator',
+          'pe.p.remit': 'The advertised fee is not the whole cost — the FX margin hides the rest. Enter what a provider quotes you:',
+          'pe.send': 'You send (USD)',
+          'pe.fee': 'Provider fee (USD)',
+          'pe.rate': 'Provider’s rate (1 USD → PHP)',
+          'pe.gets': 'Recipient gets',
+          'pe.cost': 'total cost',
+          'pe.vsmid': 'vs mid-market',
+          'pe.note.remit': 'Compared against today’s mid-market rate. Under ~4% total cost is competitive for the US–PH corridor.',
+          'st.h': '🗂 Official status portals — how to use each',
+          'st.note': 'These are the official portals — this page holds no personal data and performs no lookups itself. Status checks are free; anyone charging a “processing fee” for a check is a fixer or a scam.',
+          'pw.h': '⚡ Power outages & brownouts',
+          'pw.body': 'Most scheduled outages are feeder-level: advisories list feeders and time windows, not whole cities. Rotational brownouts happen when generation cannot meet demand — usually hot dry-season afternoons.',
+          'pw.h.tips': '💡 Outage survival tips',
+          'pw.tips.1': 'Unplug aircon, ref and electronics when the power dies — the return surge is what kills appliances.',
+          'pw.tips.2': 'Keep the ref closed: food stays safe ~4 hours in a closed fridge, ~48 hours in a full closed freezer.',
+          'pw.tips.3': 'Charge power banks whenever Signal #1 is raised or a red/orange heat advisory is out.',
+          'pw.tips.4': 'Report downed lines to your utility hotline (Meralco: 16211) — never touch or approach them.',
+          'pw.tips.5': 'If your bill shows charges during a long documented outage, you can dispute it with the utility, then escalate to ERC.',
+          'pw.note': 'Advisory schedules change at short notice — the utility’s official channels are always authoritative.',
+        },
+        fil: {
+          'tab.bagyo': 'Bagyo',
+          'tab.pera': 'Palitan · padala',
+          'tab.status': 'Gov portals',
+          'tab.power': 'Brownout',
+          'tab.term': 'Terminal',
+          'ft.data': 'Data: open.er-api.com (mid-market FX, araw-araw) · open-meteo.com (panahon) · USGS (lindol) · Pang-impormasyon lamang — laging i-verify sa opisyal na sources.',
+          'ft.priv': 'Privacy: walang account, walang server storage — sa browser mo lang nakatago ang settings (localStorage).',
+          'loading': 'Naglo-load …',
+          'err.fx': 'Hindi ma-load ang palitan ng pera — subukan muli mamaya.',
+          'err.wx': 'Hindi ma-load ang panahon — subukan muli mamaya.',
+          'err.qk': 'Hindi ma-load ang earthquake feed — subukan muli mamaya.',
+          'bg.h.signals': '🌀 Wind Signal #1–#5 — ano ang ibig sabihin ng bawat isa',
+          'bg.p.signals': 'Nagtataas ang PAGASA ng signal kada probinsya. Mas mataas na numero = mas malakas na hangin, mas maikling oras. Ang Signal #1–#2 ang panahon mo para maghanda — huwag sayangin.',
+          'bg.winds': 'hangin',
+          'bg.lead': 'oras bago dumating',
+          'bg.now': 'Gawin NGAYON:',
+          'bg.h.links': '🔗 Opisyal na links para sa bagyo at sakuna',
+          'bg.h.wx': '🌧 Hangin at ulan ngayon',
+          'bg.city': 'Lungsod',
+          'bg.wx.wind': 'Hangin',
+          'bg.wx.gust': 'Bugso',
+          'bg.wx.rain': 'Ulan (ngayon)',
+          'bg.wx.temp': 'Temp',
+          'bg.wx.3d': 'Susunod na 3 araw — max na bugso / kabuuang ulan:',
+          'bg.h.qk': '🌋 Mga kamakailang lindol malapit sa PH (M4.5+, nakaraang 7 araw)',
+          'bg.qk.none': 'Walang lindol na M4.5+ malapit sa Pilipinas sa nakaraang 7 araw.',
+          'bg.qk.depth': 'lalim',
+          'bg.note': 'Ang mga signal, utos ng paglikas at tsunami advisory ay galing lamang sa PAGASA, PHIVOLCS, NDRRMC at LGU mo — buod lang ang pahinang ito, hindi warning service.',
+          'pe.h.rates': '💱 PHP ngayon (mid-market)',
+          'pe.updated': 'Na-update:',
+          'pe.note.rates': 'Mid-market reference rates lamang. May sariling rate at margin ang mga bangko, padala center at e-wallet.',
+          'pe.h.conv': 'Palitan ng pera',
+          'pe.amount': 'Halaga',
+          'pe.fromto': 'Mula → Papunta',
+          'pe.h.remit': 'Kalkulador ng tunay na gastos sa padala (OFW)',
+          'pe.p.remit': 'Hindi lang ang bayad ang gastos — nagtatago ang iba sa FX margin. Ilagay ang quote ng provider mo:',
+          'pe.send': 'Ipinapadala mo (USD)',
+          'pe.fee': 'Bayad sa provider (USD)',
+          'pe.rate': 'Rate ng provider (1 USD → PHP)',
+          'pe.gets': 'Matatanggap',
+          'pe.cost': 'kabuuang gastos',
+          'pe.vsmid': 'kumpara sa mid-market',
+          'pe.note.remit': 'Ikinumpara sa mid-market rate ngayon. Kung wala pang ~4% ang kabuuang gastos, maganda na iyon para sa US–PH corridor.',
+          'st.h': '🗂 Mga opisyal na status portal — paano gamitin',
+          'st.note': 'Ito ang mga opisyal na portal — walang hawak na personal data ang pahinang ito at hindi ito nagle-lookup. Libre ang status check; scam o fixer ang naniningil ng “processing fee.”',
+          'pw.h': '⚡ Brownout at pagkawala ng kuryente',
+          'pw.body': 'Karamihan ng naka-iskedyul na outage ay kada feeder: feeder at oras ang nakalista sa advisory, hindi buong lungsod. Nangyayari ang rotational brownout kapag kulang ang supply sa demand — kadalasan tuwing mainit na hapon ng tag-init.',
+          'pw.h.tips': '💡 Mga tip kapag brownout',
+          'pw.tips.1': 'I-unplug ang aircon, ref at electronics kapag namatay ang kuryente — ang surge pagbalik ang sumisira sa appliances.',
+          'pw.tips.2': 'Huwag buksan ang ref: ligtas ang pagkain ~4 na oras sa saradong ref, ~48 oras sa punong saradong freezer.',
+          'pw.tips.3': 'I-charge ang power banks kapag may Signal #1 o may red/orange heat advisory.',
+          'pw.tips.4': 'I-report ang mga nalaglag na linya sa hotline ng utility (Meralco: 16211) — huwag hawakan o lapitan.',
+          'pw.tips.5': 'Kung may singil ang bill mo sa mahabang dokumentadong outage, puwede itong i-dispute sa utility, tapos i-elevate sa ERC.',
+          'pw.note': 'Biglang nagbabago ang mga advisory — laging authoritative ang opisyal na channels ng utility.',
+        },
+      };
+
+      /* ================= 데이터 — 링크는 2026-07 실검증 공식 도메인만 ================= */
+      /* PAGASA TCWS(2022 개정) 요약 — 풍속·리드타임 + 신호별 행동수칙 (en/fil) */
+      var SIGNALS = {
+        en: [
+          { no: 1, winds: '39–61 km/h', lead: '~36 h', threat: 'Minimal to minor damage', acts: [
+            'Charge phones and power banks; top up prepaid load.',
+            'Secure or bring in loose outdoor items (roof sheets, banners, plant pots).',
+            'Review your 72-hour go-bag: water, food, meds, flashlight, documents.',
+            'Monitor PAGASA bulletins every 6 hours — signals can escalate fast.',
+          ] },
+          { no: 2, winds: '62–88 km/h', lead: '~24 h', threat: 'Minor to moderate damage', acts: [
+            'Stock 3 days of drinking water and ready-to-eat food per person.',
+            'Withdraw cash — ATMs and e-wallets fail when power and signal drop.',
+            'Tie down light roofing; trim branches near power lines if still safe.',
+            'Avoid sea travel in small vessels; coastal fishers should secure boats.',
+          ] },
+          { no: 3, winds: '89–117 km/h', lead: '~18 h', threat: 'Moderate to significant damage', acts: [
+            'Stay indoors — flying debris is now dangerous outside.',
+            'If your LGU orders evacuation, or you are in a surge/landslide zone: GO NOW.',
+            'Expect brownouts and water interruption; fill containers and tubs.',
+            'Move valuables and documents above expected flood height.',
+          ] },
+          { no: 4, winds: '118–184 km/h', lead: '~12 h', threat: 'Significant to severe damage', acts: [
+            'Evacuation should already be COMPLETE — travel is now dangerous.',
+            'Shelter in the strongest interior room, away from windows.',
+            'Assume power, water and mobile signal will be out for days.',
+            'Do not go outside during the lull — the eye passes and winds return in reverse.',
+          ] },
+          { no: 5, winds: '≥185 km/h', lead: '~12 h', threat: 'Extensive to catastrophic damage', acts: [
+            'Catastrophic winds like Yolanda (2013) — treat every advisory as life-or-death.',
+            'Stay in the strongest available structure; single-storey light homes are unsafe.',
+            'Coastal zones: life-threatening storm surge — you must already be on high ground.',
+            'After passage, watch for downed lines, broken glass and contaminated water.',
+          ] },
+        ],
+        fil: [
+          { no: 1, winds: '39–61 km/h', lead: '~36 oras', threat: 'Maliit na pinsala', acts: [
+            'I-charge ang phone at power bank; magpa-load na.',
+            'Isilong o itali ang mga bagay sa labas (yero, banner, paso).',
+            'I-check ang 72-hour go-bag: tubig, pagkain, gamot, flashlight, dokumento.',
+            'Bantayan ang PAGASA bulletin kada 6 na oras — mabilis tumaas ang signal.',
+          ] },
+          { no: 2, winds: '62–88 km/h', lead: '~24 oras', threat: 'Katamtamang pinsala', acts: [
+            'Mag-ipon ng 3 araw na inuming tubig at pagkaing handa nang kainin kada tao.',
+            'Mag-withdraw ng cash — pumapalya ang ATM at e-wallet kapag walang kuryente at signal.',
+            'Itali ang magagaang bubong; putulin ang sanga malapit sa linya habang ligtas pa.',
+            'Iwasan ang biyahe-dagat sa maliliit na bangka; isalba ng mangingisda ang bangka.',
+          ] },
+          { no: 3, winds: '89–117 km/h', lead: '~18 oras', threat: 'Katamtaman hanggang malaking pinsala', acts: [
+            'Manatili sa loob ng bahay — delikado na ang lumilipad na debris.',
+            'Kapag nag-utos ang LGU na lumikas, o nasa surge/landslide zone ka: UMALIS NA.',
+            'Asahan ang brownout at pagkawala ng tubig; magpuno na ng mga lalagyan.',
+            'Iakyat ang mahahalagang gamit at dokumento sa taas ng inaasahang baha.',
+          ] },
+          { no: 4, winds: '118–184 km/h', lead: '~12 oras', threat: 'Malaki hanggang matinding pinsala', acts: [
+            'Dapat TAPOS na ang paglikas — delikado nang bumiyahe.',
+            'Sumilong sa pinakamatibay na silid sa loob, malayo sa bintana.',
+            'Asahang mawawala ang kuryente, tubig at signal nang ilang araw.',
+            'Huwag lumabas sa panandaliang kalma — daraan ang mata at babalik ang hangin.',
+          ] },
+          { no: 5, winds: '≥185 km/h', lead: '~12 oras', threat: 'Sakuna-lebel na pinsala', acts: [
+            'Hanging kasinlakas ng Yolanda (2013) — ituring na buhay o kamatayan ang bawat advisory.',
+            'Manatili sa pinakamatibay na istruktura; hindi ligtas ang magagaang bahay.',
+            'Baybayin: nakamamatay na storm surge — dapat nasa mataas na lugar ka na.',
+            'Pagkatapos, mag-ingat sa mga nalaglag na linya, basag na salamin at maruming tubig.',
+          ] },
+        ],
+      };
+
+      var BAGYO_LINKS = [
+        ['https://bagong.pagasa.dost.gov.ph/', 'PAGASA', 'Official tropical cyclone bulletins, wind signals, rainfall warnings'],
+        ['https://www.metoc.navy.mil/jtwc/jtwc.html', 'JTWC — Joint Typhoon Warning Center', 'US Navy typhoon tracks for the western Pacific (cross-check tool)'],
+        ['https://ndrrmc.gov.ph/', 'NDRRMC', 'National disaster situation reports and advisories'],
+        ['https://www.phivolcs.dost.gov.ph/', 'PHIVOLCS', 'Official PH earthquake intensity reports and tsunami advisories'],
+      ];
+
+      /* 도시 좌표 — open-meteo 조회용 */
+      var CITIES = {
+        manila: { name: 'Manila', lat: 14.5995, lon: 120.9842 },
+        cebu: { name: 'Cebu', lat: 10.3157, lon: 123.8854 },
+        davao: { name: 'Davao', lat: 7.1907, lon: 125.4553 },
+        tacloban: { name: 'Tacloban', lat: 11.2447, lon: 125.0048 },
+      };
+      var CITY_ORDER = ['manila', 'cebu', 'davao', 'tacloban'];
+
+      /* STATUS 포털 — 이름·URL 공용, 단계 설명은 en/fil */
+      var PORTALS = [
+        { url: 'https://www.sss.gov.ph/', name: 'SSS — My.SSS portal',
+          steps: { en: ['Register a My.SSS account with your SSS number and email.', 'Log in → Inquiry → Contributions to see posted months.', 'Loans: Inquiry → Loan Status for applications and balances.'],
+                   fil: ['Mag-register ng My.SSS account gamit ang SSS number at email mo.', 'Log in → Inquiry → Contributions para makita ang mga naipost na buwan.', 'Loans: Inquiry → Loan Status para sa application at balanse.'] } },
+        { url: 'https://www.philhealth.gov.ph/', name: 'PhilHealth — Member Portal',
+          steps: { en: ['Create a Member Portal account with your PhilHealth PIN and registered email.', 'Activate via the emailed link, then log in.', 'Open the contributions view to confirm premiums are posted.'],
+                   fil: ['Gumawa ng Member Portal account gamit ang PhilHealth PIN at rehistradong email.', 'I-activate gamit ang link sa email, saka mag-log in.', 'Buksan ang contributions view para kumpirmahing naipost ang premiums.'] } },
+        { url: 'https://www.pagibigfund.gov.ph/', name: 'Pag-IBIG — Virtual Pag-IBIG',
+          steps: { en: ['Open Virtual Pag-IBIG and create an account with your MID number.', 'Verify with a selfie + valid ID, then log in.', 'Check regular savings, MP2 and loan status from the dashboard.'],
+                   fil: ['Buksan ang Virtual Pag-IBIG at gumawa ng account gamit ang MID number.', 'Mag-verify gamit ang selfie + valid ID, saka mag-log in.', 'Tingnan ang regular savings, MP2 at loan status sa dashboard.'] } },
+        { url: 'https://psahelpline.ph/', name: 'PSA — birth certificate delivery (PSAHelpline)',
+          steps: { en: ['Choose the certificate (birth, marriage, CENOMAR) and fill in the details.', 'Pay online or via payment centers.', 'Courier delivers to your address in a few working days.'],
+                   fil: ['Piliin ang sertipiko (birth, marriage, CENOMAR) at punan ang detalye.', 'Magbayad online o sa payment centers.', 'Ihahatid ng courier sa address mo sa loob ng ilang working days.'] } },
+        { url: 'https://www.passport.gov.ph/', name: 'DFA — passport appointment',
+          steps: { en: ['Book a slot at passport.gov.ph — slots are FREE, never buy from fixers.', 'Pay the processing fee via the listed channels to confirm.', 'Bring the printed application packet and original IDs on the date.'],
+                   fil: ['Mag-book ng slot sa passport.gov.ph — LIBRE ang slot, huwag bumili sa fixer.', 'Bayaran ang processing fee sa mga nakalistang channel para makumpirma.', 'Dalhin ang naka-print na application packet at orihinal na ID sa takdang araw.'] } },
+        { url: 'https://portal.lto.gov.ph/', name: 'LTO — LTMS portal (license)',
+          steps: { en: ['Register on the LTMS portal with your license or TIN details.', 'Take required online courses/exams if renewing or applying.', 'Book a branch appointment and pay online where available.'],
+                   fil: ['Mag-register sa LTMS portal gamit ang detalye ng lisensya o TIN.', 'Kunin ang kinakailangang online courses/exams kung magre-renew o mag-a-apply.', 'Mag-book ng branch appointment at magbayad online kung available.'] } },
+        { url: 'https://voterverifier.comelec.gov.ph/', name: 'COMELEC — precinct finder',
+          steps: { en: ['Open the voter verifier and enter your name and birthdate.', 'Confirm your registration status and assigned precinct.', 'Do this well before election day — reactivation takes time.'],
+                   fil: ['Buksan ang voter verifier at ilagay ang pangalan at kaarawan mo.', 'Kumpirmahin ang registration status at nakatalagang presinto.', 'Gawin ito bago pa ang eleksyon — matagal ang reactivation.'] } },
+      ];
+
+      var POWER_LINKS = [
+        ['https://www.meralco.com.ph/', 'Meralco', 'Outage advisories, service updates · hotline 16211'],
+        ['https://www.ngcp.ph/', 'NGCP', 'Grid operator — alert levels (red/yellow) that trigger rotational brownouts'],
+        ['https://www.erc.gov.ph/', 'ERC — Energy Regulatory Commission', 'File consumer complaints against your electric utility'],
+        ['https://www.doe.gov.ph/', 'DOE — Department of Energy', 'Power situation reports and advisories'],
+      ];
+
+      /* PERA 탭에 보여줄 기준 통화 — OFW 주요 corridor */
+      var FX_SHOW = ['USD', 'EUR', 'SAR', 'AED', 'JPY', 'SGD', 'HKD'];
+
+      /* __PURE_START__ 순수 로직 */
+      /* 송금 실효 비용: 보낸 금액·수수료·제시 환율 vs 미드마켓 환율 → 수취액과 총 비용% */
+      function remitCost(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var midValue = sendAmt * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* PH 근방 bbox 필터 — USGS 전세계 피드에서 필리핀 주변만 */
+      function inPhBox(lon, lat) {
+        return lon >= 115 && lon <= 130 && lat >= 3 && lat <= 22;
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var lang = 'en';
+      try {
+        var qs = new URLSearchParams(location.search).get('lang');
+        lang = qs || store.get('ph:lang', 'en');
+      } catch (e) { lang = store.get('ph:lang', 'en'); }
+      if (lang !== 'en' && lang !== 'fil') lang = 'en';
+      var tab = store.get('ph:tab', 'bagyo');
+      var city = store.get('ph:city', 'manila'); if (!CITIES[city]) city = 'manila';
+      var fxCache = null;    // { rates, date, at }
+      var qkCache = null;    // { list, at }
+      var wxCache = {};      // city → { data, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var t = function (k) { return (T[lang] && T[lang][k]) || T.en[k] || k; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* ================= 데이터 로더 (캐시 + 폴백) ================= */
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 로컬 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('ph:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('ph:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* 지진 — USGS M4.5+ 주간 피드 → PH bbox 필터, 15분 캐시 */
+      function loadQuakes() {
+        if (qkCache && Date.now() - qkCache.at < 15 * 60 * 1000) return Promise.resolve(qkCache.list);
+        return fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            var list = (j.features || []).filter(function (f) {
+              var c = f.geometry && f.geometry.coordinates;
+              return c && inPhBox(c[0], c[1]);
+            }).map(function (f) {
+              return { mag: f.properties.mag, place: f.properties.place, time: f.properties.time, depth: f.geometry.coordinates[2], url: f.properties.url };
+            }).slice(0, 8);
+            qkCache = { list: list, at: Date.now() };
+            return list;
+          });
+      }
+
+      /* 날씨 — open-meteo (키 불필요), 도시별 15분 캐시 */
+      function loadWx(key) {
+        var c = wxCache[key];
+        if (c && Date.now() - c.at < 15 * 60 * 1000) return Promise.resolve(c.data);
+        var ct = CITIES[key];
+        var u = 'https://api.open-meteo.com/v1/forecast?latitude=' + ct.lat + '&longitude=' + ct.lon +
+          '&current=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m' +
+          '&daily=precipitation_sum,wind_gusts_10m_max&timezone=Asia%2FManila&forecast_days=3';
+        return fetch(u)
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (!j.current || !j.daily) throw new Error('bad payload');
+            wxCache[key] = { data: j, at: Date.now() };
+            return j;
+          });
+      }
+
+      /* ================= 탭 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+
+      function sigCards() {
+        return SIGNALS[lang].map(function (s) {
+          return '<div class="sig"><div class="sig-head">' +
+            '<span class="sig-no s' + s.no + '">SIGNAL #' + s.no + '</span>' +
+            '<span class="sig-meta">' + t('bg.winds') + ' ' + esc(s.winds) + ' · ' + t('bg.lead') + ' ' + esc(s.lead) + ' · ' + esc(s.threat) + '</span></div>' +
+            '<div class="muted" style="margin-top:4px">' + t('bg.now') + '</div>' +
+            '<ul>' + s.acts.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></div>';
+        }).join('');
+      }
+
+      function cardBagyo() {
+        var cityOpts = CITY_ORDER.map(function (k) {
+          return '<option value="' + k + '"' + (k === city ? ' selected' : '') + '>' + esc(CITIES[k].name) + '</option>';
+        }).join('');
+        return '<div class="card"><h2>' + t('bg.h.signals') + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + t('bg.p.signals') + '</p>' + sigCards() +
+          '<div class="note">' + t('bg.note') + '</div></div>' +
+          '<div class="card"><h2>' + t('bg.h.wx') + '</h2>' +
+          '<form class="calc" style="margin-top:4px"><div class="full"><label>' + t('bg.city') + '</label>' +
+          '<select id="wx-city" class="sel" style="width:100%">' + cityOpts + '</select></div></form>' +
+          '<div id="wx-out" class="loading">' + t('loading') + '</div></div>' +
+          '<div class="card"><h2>' + t('bg.h.qk') + '</h2><div id="qk-out" class="loading">' + t('loading') + '</div></div>' +
+          '<div class="card"><h2>' + t('bg.h.links') + '</h2>' + linksHtml(BAGYO_LINKS) + '</div>';
+      }
+
+      function wxHtml(j) {
+        var cur = j.current, d = j.daily;
+        var days = d.time.map(function (day, i) {
+          return '<div class="kv"><div class="k">' + esc(day.slice(5)) + '</div><div class="v">' +
+            Math.round(d.wind_gusts_10m_max[i]) + ' km/h · ' + d.precipitation_sum[i].toFixed(1) + ' mm</div></div>';
+        }).join('');
+        var gust = cur.wind_gusts_10m;
+        var gustCl = gust >= 89 ? 'crit' : gust >= 62 ? 'warn' : 'ok';
+        return '<div class="row" style="margin-top:6px">' +
+          '<div class="kv"><div class="k">' + t('bg.wx.wind') + '</div><div class="v">' + Math.round(cur.wind_speed_10m) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + t('bg.wx.gust') + '</div><div class="v ' + gustCl + '">' + Math.round(gust) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + t('bg.wx.rain') + '</div><div class="v">' + d.precipitation_sum[0].toFixed(1) + ' mm</div></div>' +
+          '<div class="kv"><div class="k">' + t('bg.wx.temp') + '</div><div class="v">' + Math.round(cur.temperature_2m) + '°C</div></div>' +
+          '</div><div class="muted" style="margin:8px 0 4px">' + t('bg.wx.3d') + '</div><div class="row">' + days + '</div>';
+      }
+
+      function fillWx() {
+        var el = $('wx-out');
+        if (!el) return;
+        el.className = 'loading'; el.textContent = t('loading');
+        loadWx(city).then(function (j) {
+          var el2 = $('wx-out'); if (!el2) return;
+          el2.className = ''; el2.innerHTML = wxHtml(j);
+        }).catch(function () {
+          var el2 = $('wx-out'); if (!el2) return;
+          el2.className = 'muted'; el2.textContent = t('err.wx');
+        });
+      }
+
+      function agoStr(ts) {
+        var h = Math.round((Date.now() - ts) / 3600000);
+        if (h < 1) return '<1h';
+        if (h < 48) return h + 'h';
+        return Math.round(h / 24) + 'd';
+      }
+
+      function fillQuakes() {
+        loadQuakes().then(function (list) {
+          var el = $('qk-out'); if (!el) return;
+          el.className = '';
+          if (!list.length) { el.className = 'muted'; el.textContent = t('bg.qk.none'); return; }
+          el.innerHTML = list.map(function (q) {
+            var cl = q.mag >= 6 ? 'crit' : q.mag >= 5 ? 'warn' : 'ok';
+            return '<div class="qk"><span class="m ' + cl + '">M' + q.mag.toFixed(1) + '</span>' +
+              '<span class="p"><a href="' + q.url + '" target="_blank" rel="noopener" style="color:inherit">' + esc(q.place || '—') + '</a>' +
+              ' <span class="muted">· ' + t('bg.qk.depth') + ' ' + Math.round(q.depth) + ' km</span></span>' +
+              '<span class="d">' + agoStr(q.time) + '</span></div>';
+          }).join('');
+        }).catch(function () {
+          var el = $('qk-out'); if (!el) return;
+          el.className = 'muted'; el.textContent = t('err.qk');
+        });
+      }
+
+      function wireBagyo() {
+        var cs = $('wx-city');
+        cs.onchange = function () { city = cs.value; store.set('ph:city', city); fillWx(); };
+        fillWx();
+        fillQuakes();
+      }
+
+      function cardPera(fx) {
+        var r = fx.rates;
+        var html = '<div class="card"><h2>' + t('pe.h.rates') + '</h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(1, base, 'PHP', r);
+          html += '<div class="kv"><div class="k">1 ' + base + '</div><div class="v">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ₱') + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">' + t('pe.updated') + ' ' + esc(fx.date) + '</div>' +
+          '<div class="note">' + t('pe.note.rates') + '</div></div>';
+
+        /* 환전 계산기 */
+        var curList = ['PHP'].concat(FX_SHOW);
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>' + t('pe.h.conv') + '</h2><form class="calc" id="cv-form">' +
+          '<div><label>' + t('pe.amount') + '</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>' + t('pe.fromto') + '</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts('PHP') + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 실효비용 계산기 */
+        var mid = r.PHP || 0;
+        html += '<div class="card"><h2>' + t('pe.h.remit') + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + t('pe.p.remit') + '</p>' +
+          '<form class="calc" id="rm-form">' +
+          '<div><label>' + t('pe.send') + '</label><input type="number" id="rm-amt" value="500" min="1" step="any" /></div>' +
+          '<div><label>' + t('pe.fee') + '</label><input type="number" id="rm-fee" value="4.99" min="0" step="any" /></div>' +
+          '<div class="full"><label>' + t('pe.rate') + '</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + (mid * 0.975).toFixed(2) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">' + t('pe.note.remit') + ' (1 USD = ' + mid.toFixed(2) + ' PHP)</div></div>';
+        return html;
+      }
+
+      function wirePera(fx) {
+        var r = fx.rates;
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, r.PHP);
+          $('rm-out').innerHTML = res == null ? '—' :
+            t('pe.gets') + ' <b>₱' + Math.round(res.received).toLocaleString('en') + '</b> · ' + t('pe.cost') +
+            ' <b class="' + (res.costPct > 6 ? 'crit' : res.costPct > 4 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b> ' + t('pe.vsmid');
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate'].forEach(function (id) { $(id).oninput = updR; });
+        updR();
+      }
+
+      function cardStatus() {
+        var items = PORTALS.map(function (p) {
+          return '<div class="sig"><a href="' + p.url + '" target="_blank" rel="noopener" style="color:var(--sun);text-decoration:none;font-weight:600">' + esc(p.name) + '</a>' +
+            '<ol class="steps">' + p.steps[lang].map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol></div>';
+        }).join('');
+        return '<div class="card"><h2>' + t('st.h') + '</h2>' + items +
+          '<div class="note">' + t('st.note') + '</div></div>';
+      }
+
+      function cardPower() {
+        var tips = ['pw.tips.1', 'pw.tips.2', 'pw.tips.3', 'pw.tips.4', 'pw.tips.5'].map(function (k) {
+          return '<li>' + t(k) + '</li>';
+        }).join('');
+        return '<div class="card"><h2>' + t('pw.h') + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + t('pw.body') + '</p>' +
+          linksHtml(POWER_LINKS) +
+          '<div class="note">' + t('pw.note') + '</div></div>' +
+          '<div class="card"><h2>' + t('pw.h.tips') + '</h2><ul class="steps" style="font-size:13.5px">' + tips + '</ul></div>';
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ PINAS PANEL // archipelago_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (mid-market FX) ............ [OK]</span>',
+        '<span class="t-dim">  feeds: open-meteo · USGS quakes (PH bbox) .......... [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for commands · <span class="t-hi">signal 3</span> · <span class="t-hi">quake</span></span>',
+      ];
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'what this terminal is', f: function () { return 'Daily-utility terminal for the Philippines — typhoon signals, FX, remittance math, gov portals, brownouts.\nStatic page, no accounts; nothing you type leaves the browser.'; } },
+        signal: { d: 'signal <1-5> — action guide for that wind signal', f: function (a) {
+          var n = parseInt(a[0], 10);
+          if (!(n >= 1 && n <= 5)) return 'usage: signal 1 | 2 | 3 | 4 | 5';
+          var s = SIGNALS.en[n - 1];
+          return '<span class="t-hi">SIGNAL #' + s.no + '</span> — winds ' + esc(s.winds) + ' · lead ' + esc(s.lead) + ' · ' + esc(s.threat) +
+            '\n' + s.acts.map(function (x, i) { return '  ' + (i + 1) + '. ' + esc(x); }).join('\n') +
+            '\n<span class="t-dim">summary of PAGASA TCWS — official bulletins are authoritative</span>';
+        } },
+        quake: { d: 'latest USGS PH earthquakes (M4.5+, 7 days)', f: function () {
+          return loadQuakes().then(function (list) {
+            if (!list.length) return '<span class="t-dim">no M4.5+ quakes near PH in the past 7 days</span>';
+            return list.map(function (q) {
+              var cl = q.mag >= 6 ? 't-crit' : q.mag >= 5 ? 't-warn' : 't-ok';
+              return '  <span class="' + cl + '">M' + q.mag.toFixed(1) + '</span> ' + esc(q.place || '—') + ' <span class="t-dim">· depth ' + Math.round(q.depth) + ' km · ' + agoStr(q.time) + ' ago</span>';
+            }).join('\n') + '\n<span class="t-dim">source: earthquake.usgs.gov · intensity reports: phivolcs.dost.gov.ph</span>';
+          });
+        } },
+        fx: { d: 'today’s mid-market PHP rates', f: function () { return loadFx().then(function (fx) { return FX_SHOW.map(function (b) { var v = convert(1, b, 'PHP', fx.rates); return '  1 ' + b + ' = <span class="t-hi">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 })) + ' PHP</span>'; }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, not padala rate</span>'; }); } },
+        rate: { d: 'rate <CUR> — 1 USD in any currency', f: function (a) { var q = (a[0] || '').toUpperCase(); if (!q) return 'usage: rate PHP'; return loadFx().then(function (fx) { return fx.rates[q] == null ? '<span class="t-crit">unknown currency</span>' : '1 USD = <span class="t-hi">' + fx.rates[q].toLocaleString('en') + ' ' + q + '</span>'; }); } },
+        convert: { d: 'convert <amt> <from> <to>', f: function (a) { var amt = +a[0], f2 = (a[1] || '').toUpperCase(), t2 = (a[2] || '').toUpperCase(); if (!(amt > 0) || !f2 || !t2) return 'usage: convert 100 USD PHP'; return loadFx().then(function (fx) { var v = convert(amt, f2, t2, fx.rates); return v == null ? '<span class="t-crit">unknown currency</span>' : amt.toLocaleString('en') + ' ' + f2 + ' = <span class="t-hi">' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + t2 + '</span>'; }); } },
+        remit: { d: 'remit <sendUSD> <feeUSD> <rate> — true cost', f: function (a) { var s = +a[0], fe = +a[1], rt = +a[2]; if (!(s > 0) || !(rt > 0) || isNaN(fe)) return 'usage: remit 500 4.99 55.2'; return loadFx().then(function (fx) { var r = remitCost(s, fe, rt, fx.rates.PHP); if (!r) return '<span class="t-crit">bad inputs</span>'; var cl = r.costPct > 6 ? 't-crit' : r.costPct > 4 ? 't-warn' : 't-ok'; return 'recipient gets <span class="t-hi">₱' + Math.round(r.received).toLocaleString('en') + '</span> · true cost <span class="' + cl + '">' + r.costPct.toFixed(1) + '%</span> vs mid-market\n<span class="t-dim">under ~4% total is a good deal on the US–PH corridor</span>'; }); } },
+        wx: { d: 'wx <manila|cebu|davao|tacloban> — wind & rain', f: function (a) { var k = (a[0] || city).toLowerCase(); if (!CITIES[k]) return 'usage: wx manila | cebu | davao | tacloban'; return loadWx(k).then(function (j) { var d = j.daily, cur = j.current; return '<span class="t-hi">' + esc(CITIES[k].name) + '</span> — wind ' + Math.round(cur.wind_speed_10m) + ' km/h · gusts ' + Math.round(cur.wind_gusts_10m) + ' km/h · rain today ' + d.precipitation_sum[0].toFixed(1) + ' mm · ' + Math.round(cur.temperature_2m) + '°C\n<span class="t-dim">3-day max gusts: ' + d.time.map(function (day, i) { return day.slice(5) + ' ' + Math.round(d.wind_gusts_10m_max[i]) + 'km/h'; }).join(' · ') + '</span>'; }); } },
+        links: { d: 'official typhoon / power / gov links', f: function () { return '<span class="t-hi">typhoon & disaster:</span>\n' + tLinks(BAGYO_LINKS) + '\n<span class="t-hi">power:</span>\n' + tLinks(POWER_LINKS) + '\n<span class="t-hi">gov portals:</span>\n' + PORTALS.map(function (p) { return '  ' + tLink(p.url, p.name); }).join('\n'); } },
+        status: { d: 'gov status portals with steps', f: function () { return PORTALS.map(function (p) { return '<span class="t-hi">' + esc(p.name) + '</span>\n' + p.steps.en.map(function (s, i) { return '  ' + (i + 1) + '. ' + esc(s); }).join('\n') + '\n  ' + tLink(p.url); }).join('\n'); } },
+        gobag: { d: '72-hour go-bag checklist', f: function () { return '  1. Water — 3 L/person/day × 3 days\n  2. Ready-to-eat food + manual can opener\n  3. Maintenance meds in waterproof pouch\n  4. Flashlight + batteries · charged power bank\n  5. Cash in small bills (e-wallets die with the towers)\n  6. Copies/photos of IDs, PSA certs, titles, insurance\n  7. Whistle · first-aid kit · phone with PAGASA bookmarked'; } },
+        safety: { d: 'scam-safety basics', f: function () { return '  1. Gov status checks are FREE — anyone charging is a fixer or scam\n  2. DFA passport slots are free to book; never buy slots\n  3. Telcos never ask for your PIN or OTP — by call, SMS or "agent"\n  4. Dial USSD codes yourself; ignore codes sent by strangers\n  5. Book only on official domains (.gov.ph where applicable)'; } },
+        sources: { d: 'data sources', f: function () { return '  FX: open.er-api.com (mid-market, daily)\n  weather: open-meteo.com (free API)\n  quakes: earthquake.usgs.gov M4.5+ weekly feed, PH bbox\n  signals: PAGASA TCWS public documentation (summarised)\n  portals: official gov domains only (verified 2026-07)'; } },
+        whoami: { d: 'who are you', f: function () { return 'user@' + city + ' // 🇵🇭 Philippines — laging handa, always verify'; } },
+        version: { d: 'app version', f: function () { return 'pinas-panel terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'bagyo'; store.set('ph:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@' + esc(city) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@' + esc(city) + ':~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      function applyLangStatic() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) {
+          el.textContent = t(el.getAttribute('data-i18n'));
+        });
+      }
+
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'bagyo') { view.innerHTML = cardBagyo(); wireBagyo(); return; }
+        if (tab === 'status') { view.innerHTML = cardStatus(); return; }
+        if (tab === 'power') { view.innerHTML = cardPower(); return; }
+        /* pera — FX 필요 */
+        view.innerHTML = '<div class="loading">' + t('loading') + '</div>';
+        loadFx().then(function (fx) {
+          if (tab !== 'pera') return;
+          view.innerHTML = cardPera(fx);
+          wirePera(fx);
+        }).catch(function () {
+          if (tab !== 'pera') return;
+          view.innerHTML = '<div class="card"><div class="muted">' + t('err.fx') + '</div></div>';
+        });
+      }
+
+      (function init() {
+        var ls = $('lang-sel');
+        ls.value = lang;
+        ls.onchange = function () { lang = ls.value; store.set('ph:lang', lang); applyLangStatic(); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('ph:tab', tab); render(); };
+        });
+        applyLangStatic();
+        render();
+      })();
+    </script>
+  </body>
+</html>

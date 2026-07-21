@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nunavut Panel — daily info for Arctic Canada | weather · wind chill · aurora · sealift · hunting · Inuktitut</title>
+    <meta name="description" content="Free daily info panel for 10 Nunavut communities: weather with computed wind chill, blizzard caution, aurora (Kp) outlook tuned for high latitude, sealift season explainer, harvest log, Inuktitut syllabics chart and phrases. No account, no install." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://nunavut.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Nunavut Panel — sila · travel · hunt · language" />
+    <meta name="twitter:description" content="Weather, wind chill, blizzard caution, aurora Kp, sealift explainer, harvest log and Inuktitut tools — community by community, free." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nunavut Panel — daily info for Arctic Canada" />
+    <meta property="og:description" content="Weather · wind chill · aurora · sealift · hunting · Inuktitut — one panel for 10 Nunavut communities." />
+    <meta property="og:url" content="https://nunavut.broodev.com/" />
+    <style>
+      :root {
+        --bg: #12100a; --bg-soft: #1a160c; --panel: #211b0e; --line: #453818;
+        --gold: #f0b429; --gold-dim: #a37c1c; --red: #d5442e; --text: #f2ead6; --dim: #b5a681;
+        --ok: #8fce6a; --warn: #ffd166; --crit: #ff6b5e;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--gold); letter-spacing: .5px; }
+      .brand .flag { color: var(--red); }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      select, button { font-family: inherit; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--gold); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--gold); color: var(--gold); background: #2b2210; }
+      .tab.on b { color: var(--gold); }
+
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--gold); letter-spacing: .5px; }
+      .card h2 .syl { color: var(--red); font-weight: 400; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 30px; font-weight: 800; line-height: 1.1; }
+      .big small { font-size: 15px; color: var(--dim); font-weight: 500; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--ok); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+
+      .risk { display: flex; align-items: center; gap: 12px; }
+      .risk-dot { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font); font-weight: 700; font-size: 11px; border: 2px solid; flex: none; }
+      .risk-LOW  { color: var(--ok); border-color: var(--ok); background: rgba(143,206,106,.08); }
+      .risk-MED  { color: var(--warn); border-color: var(--warn); background: rgba(255,209,102,.08); }
+      .risk-HIGH { color: var(--crit); border-color: var(--crit); background: rgba(255,107,94,.10); }
+
+      table.days { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+      table.days th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+      table.days td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.06); white-space: nowrap; }
+      .scroll-x { overflow-x: auto; }
+
+      .links a { display: block; color: var(--gold); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(240,180,41,.06); border-left: 3px solid var(--gold-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      .note.red { background: rgba(213,68,46,.07); border-left-color: var(--red); }
+
+      form.harv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.harv input, form.harv select { background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+      form.harv .full { grid-column: 1 / -1; }
+      .btn { background: var(--gold); color: #241a04; border: 0; border-radius: 6px; padding: 9px 14px; font-weight: 700; font-size: 14px; cursor: pointer; }
+      .btn.ghost { background: transparent; color: var(--gold); border: 1px solid var(--line); font-weight: 500; }
+      ul.log { list-style: none; margin: 12px 0 0; padding: 0; }
+      ul.log li { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.08); font-size: 13.5px; }
+      ul.log li .d { color: var(--dim); font-family: var(--font); font-size: 12px; min-width: 78px; }
+      ul.log li .x { margin-left: auto; background: none; border: 1px solid var(--line); color: var(--crit); border-radius: 4px; cursor: pointer; padding: 2px 8px; flex: none; }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--gold-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 25px; } .tab { font-size: 10px; } .tab b { font-size: 11px; } .kv { min-width: 84px; } }
+
+      /* ===== hacker terminal (amber phosphor) ===== */
+      .term { background: #0c0802; border: 1px solid #4a3510; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(255,176,0,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #ffc95e; text-shadow: 0 0 6px rgba(255,176,0,.35); }
+      #t-out .t-dim { color: #8f6f2e; text-shadow: none; }
+      #t-out .t-hi { color: #fff3d6; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); }
+      #t-out a { color: #ffd98a; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: #f0b429; white-space: nowrap; text-shadow: 0 0 6px rgba(255,176,0,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #fff3d6; font-family: var(--font); font-size: 13px; caret-color: #f0b429; }
+
+      /* ===== static SEO body ===== */
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--gold); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo a { color: var(--gold); }
+      .seo ul { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo th { color: var(--gold-dim); font-weight: 600; text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+      .seo td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); vertical-align: top; }
+      .seo strong { color: var(--text); }
+
+      table.syltab { width: 100%; border-collapse: collapse; font-size: 15px; text-align: center; }
+      table.syltab th { color: var(--dim); font-weight: 500; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.syltab td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.syltab td.rom { color: var(--dim); font-family: var(--font); font-size: 12.5px; }
+      table.phr { width: 100%; border-collapse: collapse; font-size: 13px; }
+      table.phr th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+      table.phr td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.phr td.rom { font-family: var(--font); color: var(--gold); font-size: 12.5px; }
+      table.phr td.syl { font-size: 15px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎<span class="flag">ᓄᓇᕗᑦ</span> NUNAVUT PANEL <small id="h-sub">· sila · travel · hunt · language</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="com-sel" aria-label="Community / Communauté"></select>
+        <select class="sel" id="lang-sel" aria-label="Language / Langue">
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="sila"><b>❄ SILA</b><span id="tab1-sub">ᓯᓚ · Weather</span></div>
+        <div class="tab" data-tab="travel"><b>✈ TRAVEL</b><span id="tab2-sub">ᐊᐅᓪᓚᕐᓂᖅ · Sealift</span></div>
+        <div class="tab" data-tab="hunt"><b>🦌 HUNT</b><span id="tab3-sub">ᐊᖑᓇᓱᖕᓂᖅ · Harvest</span></div>
+        <div class="tab" data-tab="lang"><b>ᐃᓄᒃᑎᑐᑦ</b><span id="tab4-sub">Language</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span id="tab5-sub">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        <span id="f-src"></span><br />
+        <span id="f-info"></span><br />
+        <span id="f-priv"></span><br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/" rel="noopener">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== static SEO body (crawlable without JS) ===== -->
+    <section class="seo" aria-label="About Nunavut Panel">
+      <h2>What is Nunavut Panel?</h2>
+      <p>
+        Nunavut Panel is a free, lightweight daily-information page for Canada's largest and northernmost territory.
+        For ten communities — Iqaluit, Rankin Inlet, Arviat, Baker Lake, Cambridge Bay, Kugluktuk, Igloolik, Pond Inlet,
+        Pangnirtung and Kinngait — it combines an hourly <strong>weather feed with computed wind chill</strong>, a
+        <strong>blizzard caution estimate</strong> based on forecast wind and visibility, an <strong>aurora outlook</strong>
+        built on NOAA's planetary Kp index and adjusted for extreme geomagnetic latitude, a plain-language
+        <strong>sealift explainer</strong>, a private on-device <strong>harvest log</strong>, and an
+        <strong>Inuktitut syllabics chart with twenty everyday phrases</strong>. Everything loads from public APIs
+        (Open-Meteo, NOAA SWPC) with no account, no app install and no tracking, and the page stays usable on the slow
+        or capped satellite connections common across the territory.
+      </p>
+
+      <h2>Sealift 101 — how Nunavut's annual resupply works</h2>
+      <p>
+        No road or rail reaches any Nunavut community, so almost everything heavy — vehicles, lumber, furniture,
+        appliances, dry food, fuel — arrives once a year by ship. This annual marine resupply is called
+        <strong>sealift</strong>. Cargo ships load in southern ports such as Montréal, Bécancour or Hay River, sail north
+        after break-up, and anchor off each community, where tugs and barges lighter the cargo ashore across the beach
+        because most communities have no deep-water dock. Residents and businesses book space months ahead, crate their
+        own orders to strict standards, and then wait: a sofa ordered in April may land on the beach in September.
+        Missing the boat means paying airfreight rates — often several dollars per kilogram — or waiting a full year
+        for the next sailing.
+      </p>
+
+      <h2>Sealift deadlines, sailing windows and carriers</h2>
+      <p>
+        The shipping season is short because sea ice controls everything. First sailings into Hudson Bay and the eastern
+        Arctic typically depart late June to July; the last ships for high-Arctic communities such as Pond Inlet sail in
+        September and the season closes in October. Booking and cargo-delivery deadlines fall in <strong>spring</strong>,
+        usually April to June depending on carrier, destination and sailing number. Typical structure:
+      </p>
+      <table>
+        <tr><th>Stage</th><th>Typical timing</th><th>Notes</th></tr>
+        <tr><td>Booking opens</td><td>January–February</td><td>Rate sheets published by carrier</td></tr>
+        <tr><td>Order &amp; cargo deadlines</td><td>April–June</td><td>Earlier for first sailing; per-community cut-offs</td></tr>
+        <tr><td>Sailing season</td><td>July–October</td><td>Ice permitting; high Arctic served mid-season</td></tr>
+        <tr><td>Beach delivery</td><td>On arrival</td><td>Barge to beach; consignee picks up promptly</td></tr>
+      </table>
+      <p>
+        The main eastern-Arctic carriers are <a href="https://www.neas.ca/" rel="noopener">NEAS</a> (Nunavut Eastern Arctic
+        Shipping) and <a href="https://www.nssi.ca/" rel="noopener">NSSI</a> (Nunavut Sealink &amp; Supply, Desgagnés group);
+        Kitikmeot communities are also served via Hay River on the Mackenzie system. Always confirm the current year's
+        schedule and deadlines on the carrier's own site.
+      </p>
+
+      <h2>Why a couch costs what it costs in Nunavut</h2>
+      <p>
+        Southern Canadians are often shocked by Arctic prices, but the arithmetic is straightforward. A couch bought in
+        Ottawa must be trucked to a port, professionally crated, booked onto one of a handful of annual sailings, carried
+        two thousand kilometres or more through ice-prone waters, transferred ship-to-barge-to-beach without a crane dock,
+        and stored against weather at both ends. Sealift is the <em>cheap</em> option — rates are quoted per cubic metre
+        or per tonne and are far below airfreight — yet still adds hundreds of dollars to bulky items. Perishables can't
+        wait for the boat at all: they fly, subsidized in part by the federal <strong>Nutrition North</strong> program for
+        eligible foods. That is why milk is flown, flour comes by ship once a year, and "Amazon Prime" in practice means
+        slow, weight-limited parcel post to most communities — with Iqaluit the frequent exception.
+      </p>
+
+      <h2>Hunting management: HTOs, quotas and tags</h2>
+      <p>
+        Harvesting in Nunavut is co-managed under the Nunavut Agreement. The <strong>Nunavut Wildlife Management
+        Board</strong> (NWMB) makes decisions on total allowable harvest; the Government of Nunavut's Department of
+        Environment administers regulations; and each community's <strong>Hunters and Trappers Organization (HTO)</strong>
+        allocates community quotas, issues tags for species under limitation — polar bear is the best-known example — and
+        sets local rules. Inuit harvesting rights are constitutionally protected, while non-beneficiaries need licences
+        and, for big game, often a licensed outfitter and guide. Some caribou herds are under strict total allowable
+        harvest or moratorium (Baffin Island caribou, for instance), while ringed seal and Arctic char remain staple,
+        largely unrestricted country foods for Inuit. The practical rule for anyone: <strong>talk to the local HTO first
+        — quotas and seasons change and the community office has the current answer.</strong>
+      </p>
+
+      <h2>Wind chill and blizzard safety in Nunavut</h2>
+      <p>
+        Nunavut cold is a wind problem as much as a temperature problem. Environment and Climate Change Canada's wind
+        chill index expresses how fast exposed skin loses heat; at typical winter values frostbite risk rises sharply.
+        A <strong>blizzard</strong> in Canadian warning criteria means winds of 40 km/h or more with visibility reduced
+        to 400 m or less by snow or blowing snow, sustained for hours — in the North the required duration is longer,
+        and ground blizzards can occur under clear skies. Common planning thresholds:
+      </p>
+      <table>
+        <tr><th>Wind chill</th><th>Risk</th><th>Guidance</th></tr>
+        <tr><td>−25 to −39</td><td>Frostbite possible on exposed skin in 10–30 min</td><td>Cover skin; plan short exposures</td></tr>
+        <tr><td>−40 to −47</td><td>Frostbite in 5–10 min</td><td>Limit outdoor time; travel with gear</td></tr>
+        <tr><td>−48 to −54</td><td>Frostbite in 2–5 min</td><td>Avoid travel; emergency plan essential</td></tr>
+        <tr><td>−55 and colder</td><td>Frostbite in under 2 min</td><td>Stay indoors</td></tr>
+      </table>
+      <p>
+        The panel computes wind chill from live forecast data and flags blizzard-like setups, but it is an estimate —
+        always follow official <a href="https://weather.gc.ca/" rel="noopener">Environment Canada warnings</a> and local advice.
+      </p>
+
+      <h2>Aurora at high latitude — why Kp matters less here</h2>
+      <p>
+        Aurora forecasts built for southern Canada obsess over the Kp index: the higher the global geomagnetic activity,
+        the farther south the auroral oval reaches. Nunavut flips that logic. Communities like Rankin Inlet, Arviat,
+        Baker Lake and Iqaluit sit <em>under</em> the auroral oval, so displays are common on any dark, clear night even
+        at Kp 0–2. Farther north it inverts again: Cambridge Bay, Kugluktuk and especially Pond Inlet lie at such high
+        geomagnetic latitude that during quiet conditions the oval is often <em>south</em> of the observer — look toward
+        the southern horizon — and a major storm can push the action away rather than toward you. The real limiting
+        factors in Nunavut are darkness (no aurora viewing under the midnight sun) and cloud, which is why this panel
+        pairs NOAA's live Kp with local cloud cover instead of treating Kp as the whole story.
+      </p>
+
+      <h2>The ten communities on this panel</h2>
+      <ul>
+        <li><strong>Iqaluit</strong> (ᐃᖃᓗᐃᑦ) — territorial capital on Frobisher Bay, Baffin Island; the air hub of the eastern Arctic.</li>
+        <li><strong>Rankin Inlet</strong> (ᑲᖏᖅᖠᓂᖅ) — Kivalliq regional centre on Hudson Bay with a strong mining economy.</li>
+        <li><strong>Arviat</strong> (ᐊᕐᕕᐊᑦ) — southernmost mainland community, famous for polar bears passing in fall.</li>
+        <li><strong>Baker Lake</strong> (ᖃᒪᓂᑦᑐᐊᖅ) — Nunavut's only inland community, near the geographic centre of Canada.</li>
+        <li><strong>Cambridge Bay</strong> (ᐃᖃᓗᒃᑑᑦᑎᐊᖅ) — Kitikmeot hub on Victoria Island and home of the CHARS research station.</li>
+        <li><strong>Kugluktuk</strong> (ᑰᒡᓗᒃᑐᒃ) — westernmost community, at the mouth of the Coppermine River.</li>
+        <li><strong>Igloolik</strong> (ᐃᒡᓗᓕᒃ) — ancient settlement site and centre of Inuit performing arts and film.</li>
+        <li><strong>Pond Inlet</strong> (ᒥᑦᑎᒪᑕᓕᒃ) — high-Arctic gateway to Sirmilik National Park, facing Bylot Island.</li>
+        <li><strong>Pangnirtung</strong> (ᐸᖕᓂᖅᑑᖅ) — fjord community by Auyuittuq National Park, renowned for weaving and prints.</li>
+        <li><strong>Kinngait</strong> (ᑭᙵᐃᑦ) — formerly Cape Dorset; arguably Canada's most celebrated printmaking community.</li>
+      </ul>
+
+      <h2>The Inuktitut writing system, explained</h2>
+      <p>
+        Inuktitut in most of Nunavut is written in <strong>qaniujaaqpait</strong> — syllabics adapted in the 19th century
+        from the Cree syllabary and later standardized. Each character encodes a consonant-plus-vowel syllable, and the
+        same shape rotates or flips to change its vowel: ᐱ <em>pi</em>, ᐳ <em>pu</em>, ᐸ <em>pa</em>. Long vowels take a
+        dot above (ᐲ <em>pii</em>), and small raised finals write a syllable-closing consonant, as in ᓄᓇᕗᑦ
+        <em>nu-na-vu-t</em>. Western communities such as Kugluktuk and Cambridge Bay traditionally use
+        <strong>Inuinnaqtun</strong>, written in Latin letters, and dialects differ noticeably from Kivalliq to North
+        Baffin. Inuktut (the umbrella term) is an official language of Nunavut alongside English and French. The panel's
+        language tab includes the core syllabics grid and twenty starter phrases — enough to read community signs and
+        greet people politely.
+      </p>
+
+      <h2>Flying in Nunavut — weather delays are normal</h2>
+      <p>
+        Every Nunavut community depends on scheduled air service, and <a href="https://www.canadiannorth.com/" rel="noopener">Canadian
+        North</a> operates the backbone network, with <a href="https://www.calmair.com/" rel="noopener">Calm Air</a> serving
+        the Kivalliq region. What surprises visitors is how routinely weather reshuffles schedules: blowing snow can drop
+        visibility below landing minima in minutes, and a mechanical delay in Iqaluit ripples down the line for days.
+        Experienced travellers build slack into connections, keep medications and a day's essentials in carry-on, and
+        treat the airline's own status page as the source of truth. This panel estimates weather-delay risk from forecast
+        gusts, visibility and snowfall at the selected community — a planning hint, never a substitute for the airline's
+        operational decisions.
+      </p>
+
+      <h2>Data sources, privacy and limitations</h2>
+      <p>
+        Weather, wind and cloud data come from <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a>; the
+        geomagnetic Kp index comes from <a href="https://www.swpc.noaa.gov/" rel="noopener">NOAA's Space Weather Prediction
+        Center</a>, with an automatic fallback between the real-time and 3-day-forecast feeds. Sealift, airline, hunting
+        and language resources are curated links to official organizations. The page sets no cookies and sends nothing to
+        any server of ours: your community choice, language and harvest log live only in your browser's localStorage.
+        Wind chill, blizzard caution and aurora verdicts are computed estimates for orientation only — for travel or
+        safety decisions always rely on Environment Canada warnings, your airline, your HTO and local knowledge.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      <p><strong>What is sealift in Nunavut?</strong><br />
+        Sealift is the once-a-year marine resupply of Nunavut communities. Cargo ships from southern ports deliver
+        vehicles, building materials, furniture and dry goods between roughly July and October, landing cargo by barge
+        because most communities lack a deep-water dock. Orders must usually be booked and delivered to the port in spring.</p>
+      <p><strong>When are sealift order deadlines?</strong><br />
+        Typically April to June, varying by carrier (NEAS, NSSI), destination and sailing number. First-sailing deadlines
+        come earliest. Check the carrier's published schedule for the current year — miss it and you wait for the next
+        sailing or pay airfreight.</p>
+      <p><strong>What Kp index do I need to see aurora in Nunavut?</strong><br />
+        Usually very little. Central Nunavut sits under the auroral oval, so Kp 0–2 with a dark, clear sky is often
+        enough. In the far north (Pond Inlet, Cambridge Bay) look toward the south during quiet conditions, and remember
+        there is no aurora viewing during the midnight-sun weeks.</p>
+      <p><strong>How is wind chill calculated?</strong><br />
+        This panel uses the Environment Canada / JAG-TI formula from air temperature and wind speed, valid for
+        temperatures at or below about 10 °C and wind of at least 5 km/h. At −30 °C with a 30 km/h wind the wind chill is
+        near −46 — frostbite territory within minutes.</p>
+      <p><strong>Can I hunt in Nunavut as a visitor?</strong><br />
+        Non-beneficiaries need territorial licences, and big game (polar bear, muskox, caribou where permitted) generally
+        requires tags allocated through a community HTO and a licensed outfitter. Rules change by species, zone and year —
+        contact the Government of Nunavut Department of Environment and the local HTO before planning anything.</p>
+      <p><strong>Is my harvest log uploaded anywhere?</strong><br />
+        No. The log is stored only in your browser's localStorage on your device. Clearing browser data deletes it, and
+        it never substitutes for any official reporting an HTO or the GN may require.</p>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Nunavut Panel — daily info for Arctic Canada",
+        "url": "https://nunavut.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "inLanguage": ["en", "fr"],
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Community weather with wind chill, blizzard caution, high-latitude aurora outlook (NOAA Kp), sealift season explainer, on-device harvest log, Inuktitut syllabics chart and phrases, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is sealift in Nunavut?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sealift is the once-a-year marine resupply of Nunavut communities. Cargo ships from southern ports deliver vehicles, building materials, furniture and dry goods between roughly July and October, landing cargo by barge because most communities lack a deep-water dock. Orders must usually be booked and delivered to the port in spring." }
+          },
+          {
+            "@type": "Question",
+            "name": "When are sealift order deadlines?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Typically April to June, varying by carrier (NEAS, NSSI), destination and sailing number. First-sailing deadlines come earliest. Check the carrier's published schedule for the current year — miss it and you wait for the next sailing or pay airfreight." }
+          },
+          {
+            "@type": "Question",
+            "name": "What Kp index do I need to see aurora in Nunavut?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Usually very little. Central Nunavut sits under the auroral oval, so Kp 0–2 with a dark, clear sky is often enough. In the far north (Pond Inlet, Cambridge Bay) look toward the south during quiet conditions, and remember there is no aurora viewing during the midnight-sun weeks." }
+          },
+          {
+            "@type": "Question",
+            "name": "How is wind chill calculated?",
+            "acceptedAnswer": { "@type": "Answer", "text": "This panel uses the Environment Canada / JAG-TI formula from air temperature and wind speed, valid for temperatures at or below about 10 °C and wind of at least 5 km/h. At −30 °C with a 30 km/h wind the wind chill is near −46 — frostbite territory within minutes." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I hunt in Nunavut as a visitor?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Non-beneficiaries need territorial licences, and big game generally requires tags allocated through a community Hunters and Trappers Organization and a licensed outfitter. Rules change by species, zone and year — contact the Government of Nunavut Department of Environment and the local HTO before planning anything." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my harvest log uploaded anywhere?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. The log is stored only in your browser's localStorage on your device. Clearing browser data deletes it, and it never substitutes for any official reporting an HTO or the Government of Nunavut may require." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= data: communities (m-coords = offshore point for marine API; null = inland) ================= */
+      var COMS = [
+        { id: 'iqaluit',      name: 'Iqaluit',       syl: 'ᐃᖃᓗᐃᑦ',      lat: 63.747, lon: -68.517,  mlat: 63.60, mlon: -68.30, aur: 'oval' },
+        { id: 'rankin',       name: 'Rankin Inlet',  syl: 'ᑲᖏᖅᖠᓂᖅ',    lat: 62.808, lon: -92.085,  mlat: 62.70, mlon: -91.80, aur: 'oval' },
+        { id: 'arviat',       name: 'Arviat',        syl: 'ᐊᕐᕕᐊᑦ',       lat: 61.108, lon: -94.058,  mlat: 61.05, mlon: -93.70, aur: 'oval' },
+        { id: 'bakerlake',    name: 'Baker Lake',    syl: 'ᖃᒪᓂᑦᑐᐊᖅ',   lat: 64.319, lon: -96.021,  mlat: null,  mlon: null,   aur: 'oval' },
+        { id: 'cambridgebay', name: 'Cambridge Bay', syl: 'ᐃᖃᓗᒃᑑᑦᑎᐊᖅ', lat: 69.117, lon: -105.060, mlat: 69.00, mlon: -104.80, aur: 'cap' },
+        { id: 'kugluktuk',    name: 'Kugluktuk',     syl: 'ᑰᒡᓗᒃᑐᒃ',     lat: 67.826, lon: -115.096, mlat: 67.90, mlon: -115.30, aur: 'cap' },
+        { id: 'igloolik',     name: 'Igloolik',      syl: 'ᐃᒡᓗᓕᒃ',       lat: 69.376, lon: -81.799,  mlat: 69.30, mlon: -81.50, aur: 'high' },
+        { id: 'pondinlet',    name: 'Pond Inlet',    syl: 'ᒥᑦᑎᒪᑕᓕᒃ',    lat: 72.699, lon: -77.959,  mlat: 72.75, mlon: -77.70, aur: 'cap' },
+        { id: 'pangnirtung',  name: 'Pangnirtung',   syl: 'ᐸᖕᓂᖅᑑᖅ',     lat: 66.147, lon: -65.700,  mlat: 66.10, mlon: -65.55, aur: 'high' },
+        { id: 'kinngait',     name: 'Kinngait',      syl: 'ᑭᙵᐃᑦ',        lat: 64.230, lon: -76.539,  mlat: 64.15, mlon: -76.40, aur: 'high' },
+      ];
+
+      /* Inuktitut syllabics grid: [romanized consonant, +i, +u, +a, final] */
+      var SYL = [
+        ['—',  'ᐃ', 'ᐅ', 'ᐊ', ''],
+        ['p',  'ᐱ', 'ᐳ', 'ᐸ', 'ᑉ'],
+        ['t',  'ᑎ', 'ᑐ', 'ᑕ', 'ᑦ'],
+        ['k',  'ᑭ', 'ᑯ', 'ᑲ', 'ᒃ'],
+        ['g',  'ᒋ', 'ᒍ', 'ᒐ', 'ᒡ'],
+        ['m',  'ᒥ', 'ᒧ', 'ᒪ', 'ᒻ'],
+        ['n',  'ᓂ', 'ᓄ', 'ᓇ', 'ᓐ'],
+        ['s',  'ᓯ', 'ᓱ', 'ᓴ', 'ᔅ'],
+        ['l',  'ᓕ', 'ᓗ', 'ᓚ', 'ᓪ'],
+        ['j',  'ᔨ', 'ᔪ', 'ᔭ', 'ᔾ'],
+        ['v',  'ᕕ', 'ᕗ', 'ᕙ', 'ᕝ'],
+        ['r',  'ᕆ', 'ᕈ', 'ᕋ', 'ᕐ'],
+        ['q',  'ᕿ', 'ᖁ', 'ᖃ', 'ᖅ'],
+        ['ng', 'ᖏ', 'ᖑ', 'ᖓ', 'ᖕ'],
+        ['ł',  'ᖠ', 'ᖢ', 'ᖤ', 'ᖦ'],
+      ];
+
+      /* 20 phrases: [english, french, romanized inuktitut, syllabics] */
+      var PHRASES = [
+        ['Hello (greeting)', 'Bonjour (salutation)', 'ai', 'ᐊᐃ'],
+        ['Welcome', 'Bienvenue', 'tunngasugit', 'ᑐᙵᓱᒋᑦ'],
+        ['Thank you', 'Merci', 'qujannamiik', 'ᖁᔭᓐᓇᒦᒃ'],
+        ['You are welcome', 'De rien', 'ilaali', 'ᐃᓛᓕ'],
+        ['Yes', 'Oui', 'ii', 'ᐄ'],
+        ['No', 'Non', 'aakka', 'ᐋᒃᑲ'],
+        ['How are you?', 'Comment ça va ?', 'qanuippit?', 'ᖃᓄᐃᑉᐱᑦ?'],
+        ['I am fine', 'Je vais bien', 'qanuinngittunga', 'ᖃᓄᐃᙱᑦᑐᖓ'],
+        ['What is your name?', 'Comment t’appelles-tu ?', 'kinauvit?', 'ᑭᓇᐅᕕᑦ?'],
+        ['Goodbye (to one leaving)', 'Au revoir (à qui part)', 'tavvauvutit', 'ᑕᕝᕙᐅᕗᑎᑦ'],
+        ['Weather', 'Le temps (météo)', 'sila', 'ᓯᓚ'],
+        ['It is cold!', 'Il fait froid !', 'ikkii!', 'ᐃᒃᑮ!'],
+        ['Snow (on the ground)', 'Neige (au sol)', 'aput', 'ᐊᐳᑦ'],
+        ['Water', 'Eau', 'imiq', 'ᐃᒥᖅ'],
+        ['Land', 'Terre / territoire', 'nuna', 'ᓄᓇ'],
+        ['Caribou', 'Caribou', 'tuktu', 'ᑐᒃᑐ'],
+        ['Polar bear', 'Ours polaire', 'nanuq', 'ᓇᓄᖅ'],
+        ['Ringed seal', 'Phoque annelé', 'natsiq', 'ᓇᑦᓯᖅ'],
+        ['Fish / Arctic char', 'Poisson / omble', 'iqaluk', 'ᐃᖃᓗᒃ'],
+        ['Person / Inuk', 'Personne / Inuk', 'inuk', 'ᐃᓄᒃ'],
+      ];
+
+      /* Species reference: [key, season/quota note key] rendered from i18n */
+      var SPECIES_KEYS = ['caribou', 'polarbear', 'muskox', 'char', 'seal', 'birds'];
+
+      /* ================= i18n (en primary · fr) ================= */
+      var I = {
+        en: {
+          hSub: '· sila · travel · hunt · language',
+          tab1: 'ᓯᓚ · Weather', tab2: 'ᐊᐅᓪᓚᕐᓂᖅ · Sealift', tab3: 'ᐊᖑᓇᓱᖕᓂᖅ · Harvest', tab4: 'Language', tab5: 'Terminal',
+          now: 'Right now', temp: 'Temp', wind: 'Wind', gust: 'Gusts', chill: 'Wind chill', vis: 'Visibility', snow24: 'Snow 24h', cloud: 'Cloud',
+          chillNA: 'n/a (mild or calm)',
+          days7: '7-day forecast', day: 'Day',
+          waveNow: 'Wave height now', sea: 'Sea state', noMarine: 'Inland community — no marine point.',
+          seaIceNote: 'Open-water wave data is only meaningful during the ice-free season (roughly July–October).',
+          blizzTitle: 'Blizzard caution (next 24 h)',
+          blizzRule: 'Canadian criteria rule of thumb: wind ≥ 40 km/h + visibility ≤ 400 m in snow or blowing snow, lasting hours. Ground blizzards can happen under clear skies — this estimate uses forecast gusts, visibility and snowfall only.',
+          blizzLow: 'No blizzard-like setup in the forecast window.',
+          blizzMed: 'Unsettled — blowing snow and reduced visibility possible.',
+          blizzHigh: 'Blizzard-like conditions possible — strong wind with very low visibility in the forecast.',
+          blizzOfficial: 'Always follow official Environment Canada warnings (weather.gc.ca).',
+          aurora: 'Aurora outlook', kpNow: 'Kp now', kpAt: 'measured', kpSrc1: 'NOAA SWPC real-time', kpSrc2: 'NOAA SWPC 3-day forecast',
+          auroraOval: 'This community sits under the auroral oval — even Kp 0–2 can put aurora overhead on a dark, clear night.',
+          auroraHigh: 'High geomagnetic latitude — quiet-time aurora is common; during storms the oval may slip south of you.',
+          auroraCap: 'Near/inside the polar cap — in quiet conditions look toward the SOUTHERN sky; strong storms can push the oval away from you.',
+          auroraDark: 'Aurora needs darkness — around midsummer the sky may never get dark enough at this latitude.',
+          auroraErr: 'Kp feed unreachable — try again later.',
+          travelAir: 'Airlines & flight status', linkCN: 'Canadian North', linkCNd: 'Backbone airline of Nunavut — schedules & advisories',
+          linkCA: 'Calm Air', linkCAd: 'Kivalliq region network (Rankin Inlet, Arviat, Baker Lake …)',
+          delayTitle: 'Weather-delay reality (next 24 h)',
+          delayNote: 'Computed from forecast gusts, visibility and snow at the selected community only. It is NOT the airline’s operational status — check the airline’s own advisories before heading to the airport.',
+          delayLow: 'Calm pattern — weather delays unlikely.', delayMed: 'Unsettled — build slack into connections.', delayHigh: 'Severe pattern — high risk of delays or cancellations.',
+          sealiftTitle: 'Sealift — the annual resupply',
+          sealiftBody: 'Everything heavy reaches Nunavut once a year by ship. Book in winter, deliver your crated cargo to the port by the spring deadline, and the barge lands it on the beach between July and October. Miss the boat and it is airfreight prices or a one-year wait.',
+          sealiftRows: [
+            ['Booking opens', 'January–February', 'carrier rate sheets published'],
+            ['Order & cargo deadlines', 'April–June', 'earlier for first sailing'],
+            ['Sailing season', 'July–October', 'ice permitting; high Arctic mid-season'],
+            ['Delivery', 'barge to beach', 'pick up promptly on arrival'],
+          ],
+          sealiftHead: ['Stage', 'Timing', 'Note'],
+          sealiftFood: 'Dry food comes by sealift; perishables fly (partly subsidized via Nutrition North). Parcel “Prime” shipping is slow, weight-limited post in most communities — Iqaluit is the frequent exception.',
+          sealiftLinks: 'Sealift carriers & programs', linkNEAS: 'NEAS — Nunavut Eastern Arctic Shipping', linkNEASd: 'Schedules, deadlines and booking for the eastern Arctic',
+          linkNSSI: 'NSSI — Nunavut Sealink & Supply', linkNSSId: 'Desgagnés-group sealift carrier — schedules and rates',
+          linkNN: 'Nutrition North Canada', linkNNd: 'Federal food-shipping subsidy — what is covered',
+          htoTitle: 'How harvesting is managed (HTO · NWMB · GN)',
+          htoBody: 'Wildlife in Nunavut is co-managed: the NWMB decides total allowable harvest, the GN Department of Environment regulates, and your community Hunters and Trappers Organization (HTO) allocates quotas and tags locally. Inuit harvesting rights are protected under the Nunavut Agreement; visitors need licences and usually an outfitter.',
+          linkNWMB: 'Nunavut Wildlife Management Board', linkNWMBd: 'Co-management decisions, public hearings, quotas',
+          linkGN: 'GN Department of Environment', linkGNd: 'Licences, seasons, wildlife regulations',
+          linkNTI: 'Nunavut Tunngavik Inc.', linkNTId: 'Inuit rights under the Nunavut Agreement',
+          spTitle: 'Species quick reference', spHead: ['Species', 'Season / quota notes'],
+          spRows: {
+            caribou: ['Caribou (tuktu)', 'Herd-specific: Qamanirjuaq/Beverly (Kivalliq), Bluenose-East (Kitikmeot), Baffin herds under strict TAH or moratorium — confirm herd rules with HTO'],
+            polarbear: ['Polar bear (nanuq)', 'TAH tags allocated per community through the HTO; sport hunts only via community allocation + licensed outfitter'],
+            muskox: ['Muskox (umingmak)', 'Zone-based TAH; tags via GN/HTO — strong in Kitikmeot'],
+            char: ['Arctic char (iqalukpik)', 'Staple country food; commercial fisheries in some waters — few limits for beneficiaries'],
+            seal: ['Ringed seal (natsiq)', 'No general quota for Inuit harvest; export of sealskin products has separate rules'],
+            birds: ['Migratory birds (geese, eiders)', 'Federal Migratory Birds Convention Act rules apply on top of territorial ones'],
+          },
+          spWarn: 'Quotas and seasons are set by HTOs / GN / NWMB and change — always confirm locally before harvesting.',
+          logTitle: 'My harvest log (this device only)',
+          logNote: 'Stored only in your browser — sent nowhere. It does NOT replace any reporting your HTO or the GN requires; use it as your own record.',
+          date: 'Date', species: 'Species', qty: 'Qty', notes: 'Notes (place, condition …)', add: 'Add', empty: 'No harvests recorded yet.', del: 'Delete',
+          sp: { tuktu: 'Caribou', umingmak: 'Muskox', nanuq: 'Polar bear', natsiq: 'Ringed seal', ugjuk: 'Bearded seal', iqaluk: 'Arctic char', aqiggiq: 'Ptarmigan', nirliq: 'Goose', aiviq: 'Walrus', other: 'Other' },
+          langTitle: 'Inuktitut syllabics (qaniujaaqpait)',
+          langBody: 'Each symbol is a consonant + vowel; the shape rotates to change the vowel. A dot above marks a long vowel (ᐱ pi → ᐲ pii); the small raised form closes a syllable (ᓄᓇᕗᑦ nu-na-vu-t).',
+          sylHead: ['cons.', '+i', '+u', '+a', 'final'],
+          phrTitle: '20 useful phrases', phrHead: ['English', 'Roman', 'Syllabics'],
+          dialectNote: 'Dialects vary across Nunavut — Kivalliq, North Baffin and South Baffin differ in sound and spelling, and western communities (Kugluktuk, Cambridge Bay) traditionally write Inuinnaqtun in Latin letters. Spellings here follow common eastern usage.',
+          langLinks: 'Learning resources', linkUqa: 'Inuktut Tusaalanga', linkUqad: 'Free lessons, dialect audio and grammar (Pirurvik)',
+          linkOLC: 'Office of the Languages Commissioner', linkOLCd: 'Language rights and Inuktut resources in Nunavut',
+          srcFooter: 'Weather: Open-Meteo · Aurora Kp: NOAA SWPC · Everything else: official links.',
+          infoFooter: 'For information only — always verify with official sources.',
+          privFooter: 'Privacy: no accounts, no server storage — settings and the harvest log live only in your browser (localStorage).',
+          loading: 'Loading data …', fetchErr: 'Could not load data — try again later.',
+        },
+        fr: {
+          hSub: '· sila · voyage · chasse · langue',
+          tab1: 'ᓯᓚ · Météo', tab2: 'ᐊᐅᓪᓚᕐᓂᖅ · Ravitaillement', tab3: 'ᐊᖑᓇᓱᖕᓂᖅ · Récolte', tab4: 'Langue', tab5: 'Terminal',
+          now: 'En ce moment', temp: 'Temp', wind: 'Vent', gust: 'Rafales', chill: 'Refroidissement éolien', vis: 'Visibilité', snow24: 'Neige 24 h', cloud: 'Nuages',
+          chillNA: 's. o. (doux ou calme)',
+          days7: 'Prévision 7 jours', day: 'Jour',
+          waveNow: 'Hauteur des vagues', sea: 'État de la mer', noMarine: 'Communauté intérieure — pas de point marin.',
+          seaIceNote: 'Les données de vagues n’ont de sens qu’en eau libre (environ juillet–octobre).',
+          blizzTitle: 'Vigilance blizzard (24 h à venir)',
+          blizzRule: 'Règle des critères canadiens : vent ≥ 40 km/h + visibilité ≤ 400 m dans la neige ou la poudrerie, pendant des heures. La poudrerie au sol peut survenir sous un ciel clair — cette estimation n’utilise que les rafales, la visibilité et la neige prévues.',
+          blizzLow: 'Aucune configuration de type blizzard dans la fenêtre de prévision.',
+          blizzMed: 'Conditions instables — poudrerie et visibilité réduite possibles.',
+          blizzHigh: 'Conditions de type blizzard possibles — vent fort et très faible visibilité prévus.',
+          blizzOfficial: 'Suivez toujours les avertissements officiels d’Environnement Canada (meteo.gc.ca).',
+          aurora: 'Aurores boréales', kpNow: 'Kp actuel', kpAt: 'mesuré', kpSrc1: 'NOAA SWPC temps réel', kpSrc2: 'NOAA SWPC prévision 3 jours',
+          auroraOval: 'Cette communauté est sous l’ovale auroral — même un Kp de 0 à 2 peut placer l’aurore au zénith par nuit claire et sombre.',
+          auroraHigh: 'Latitude géomagnétique élevée — aurores fréquentes par temps calme ; en tempête, l’ovale peut glisser au sud.',
+          auroraCap: 'Près de la calotte polaire — par temps calme, regardez vers le SUD ; une forte tempête peut éloigner l’ovale.',
+          auroraDark: 'Il faut l’obscurité — autour du solstice, le ciel peut ne jamais être assez sombre à cette latitude.',
+          auroraErr: 'Flux Kp inaccessible — réessayez plus tard.',
+          travelAir: 'Compagnies aériennes et état des vols', linkCN: 'Canadian North', linkCNd: 'Réseau principal du Nunavut — horaires et avis',
+          linkCA: 'Calm Air', linkCAd: 'Réseau du Kivalliq (Rankin Inlet, Arviat, Baker Lake …)',
+          delayTitle: 'Risque météo pour les vols (24 h)',
+          delayNote: 'Calculé uniquement à partir des rafales, de la visibilité et de la neige prévues à la communauté choisie. Ce n’est PAS l’état opérationnel de la compagnie — vérifiez ses avis avant d’aller à l’aéroport.',
+          delayLow: 'Temps calme — retards météo improbables.', delayMed: 'Instable — prévoyez de la marge.', delayHigh: 'Temps sévère — fort risque de retards ou d’annulations.',
+          sealiftTitle: 'Ravitaillement maritime (sealift)',
+          sealiftBody: 'Tout ce qui est lourd arrive au Nunavut une fois par an par bateau. Réservez en hiver, livrez la cargaison mise en caisse au port avant la date limite du printemps, et la barge la dépose sur la plage entre juillet et octobre. Rater le bateau, c’est payer le fret aérien ou attendre un an.',
+          sealiftRows: [
+            ['Ouverture des réservations', 'janvier–février', 'tarifs publiés par le transporteur'],
+            ['Dates limites commandes/cargaison', 'avril–juin', 'plus tôt pour le premier départ'],
+            ['Saison de navigation', 'juillet–octobre', 'selon les glaces ; Haut-Arctique en mi-saison'],
+            ['Livraison', 'barge → plage', 'récupérez rapidement à l’arrivée'],
+          ],
+          sealiftHead: ['Étape', 'Période', 'Note'],
+          sealiftFood: 'Les denrées sèches arrivent par sealift ; le périssable arrive par avion (subventionné en partie via Nutrition Nord). La livraison de colis « Prime » est en réalité une poste lente et limitée en poids dans la plupart des communautés — Iqaluit fait souvent exception.',
+          sealiftLinks: 'Transporteurs et programmes', linkNEAS: 'NEAS — Nunavut Eastern Arctic Shipping', linkNEASd: 'Horaires, dates limites et réservation pour l’Arctique de l’Est',
+          linkNSSI: 'NSSI — Nunavut Sealink & Supply', linkNSSId: 'Transporteur du groupe Desgagnés — horaires et tarifs',
+          linkNN: 'Nutrition Nord Canada', linkNNd: 'Subvention fédérale au transport d’aliments — produits admissibles',
+          htoTitle: 'Gestion de la récolte (HTO · NWMB · GN)',
+          htoBody: 'La faune du Nunavut est cogérée : le NWMB fixe la récolte totale autorisée, le ministère de l’Environnement du GN réglemente, et l’Organisation des chasseurs et trappeurs (HTO) de chaque communauté répartit quotas et étiquettes. Les droits de récolte des Inuits sont protégés par l’Accord du Nunavut ; les visiteurs ont besoin de permis et généralement d’un pourvoyeur.',
+          linkNWMB: 'Conseil de gestion des ressources fauniques du Nunavut', linkNWMBd: 'Décisions de cogestion, audiences, quotas',
+          linkGN: 'Ministère de l’Environnement (GN)', linkGNd: 'Permis, saisons, règlements sur la faune',
+          linkNTI: 'Nunavut Tunngavik Inc.', linkNTId: 'Droits des Inuits selon l’Accord du Nunavut',
+          spTitle: 'Référence rapide des espèces', spHead: ['Espèce', 'Saison / quotas'],
+          spRows: {
+            caribou: ['Caribou (tuktu)', 'Selon la harde : Qamanirjuaq/Beverly (Kivalliq), Bluenose-Est (Kitikmeot), hardes de Baffin sous récolte limitée ou moratoire — confirmez avec la HTO'],
+            polarbear: ['Ours polaire (nanuq)', 'Étiquettes attribuées par communauté via la HTO ; chasse sportive uniquement via l’allocation communautaire + pourvoyeur agréé'],
+            muskox: ['Bœuf musqué (umingmak)', 'Récolte limitée par zone ; étiquettes via GN/HTO — surtout au Kitikmeot'],
+            char: ['Omble chevalier (iqalukpik)', 'Aliment de base ; pêcheries commerciales dans certaines eaux — peu de limites pour les bénéficiaires'],
+            seal: ['Phoque annelé (natsiq)', 'Pas de quota général pour la récolte inuite ; l’exportation des produits en peau de phoque a ses propres règles'],
+            birds: ['Oiseaux migrateurs (oies, eiders)', 'La Loi fédérale sur la convention concernant les oiseaux migrateurs s’ajoute aux règles territoriales'],
+          },
+          spWarn: 'Quotas et saisons sont fixés par les HTO / GN / NWMB et changent — confirmez toujours localement avant la récolte.',
+          logTitle: 'Mon journal de récolte (cet appareil seulement)',
+          logNote: 'Stocké uniquement dans votre navigateur — envoyé nulle part. Il ne remplace AUCUN rapport exigé par votre HTO ou le GN ; c’est votre registre personnel.',
+          date: 'Date', species: 'Espèce', qty: 'Qté', notes: 'Notes (lieu, état …)', add: 'Ajouter', empty: 'Aucune récolte enregistrée.', del: 'Supprimer',
+          sp: { tuktu: 'Caribou', umingmak: 'Bœuf musqué', nanuq: 'Ours polaire', natsiq: 'Phoque annelé', ugjuk: 'Phoque barbu', iqaluk: 'Omble chevalier', aqiggiq: 'Lagopède', nirliq: 'Oie', aiviq: 'Morse', other: 'Autre' },
+          langTitle: 'Syllabaire inuktitut (qaniujaaqpait)',
+          langBody: 'Chaque symbole est une consonne + voyelle ; la forme pivote pour changer la voyelle. Un point au-dessus marque une voyelle longue (ᐱ pi → ᐲ pii) ; la petite forme surélevée ferme la syllabe (ᓄᓇᕗᑦ nu-na-vu-t).',
+          sylHead: ['cons.', '+i', '+u', '+a', 'finale'],
+          phrTitle: '20 phrases utiles', phrHead: ['Français', 'Romain', 'Syllabaire'],
+          dialectNote: 'Les dialectes varient au Nunavut — le Kivalliq, le nord et le sud de Baffin diffèrent, et les communautés de l’ouest (Kugluktuk, Cambridge Bay) écrivent traditionnellement l’inuinnaqtun en lettres latines. Les graphies suivent l’usage courant de l’Est.',
+          langLinks: 'Ressources d’apprentissage', linkUqa: 'Inuktut Tusaalanga', linkUqad: 'Leçons gratuites, audio par dialecte et grammaire (Pirurvik)',
+          linkOLC: 'Bureau du commissaire aux langues', linkOLCd: 'Droits linguistiques et ressources en inuktut au Nunavut',
+          srcFooter: 'Météo : Open-Meteo · Kp aurores : NOAA SWPC · Le reste : liens officiels.',
+          infoFooter: 'À titre informatif seulement — vérifiez toujours auprès des sources officielles.',
+          privFooter: 'Confidentialité : pas de compte, pas de stockage serveur — réglages et journal de récolte restent dans votre navigateur (localStorage).',
+          loading: 'Chargement …', fetchErr: 'Impossible de charger les données — réessayez plus tard.',
+        },
+      };
+
+      /* __PURE_START__ pure logic (testable) */
+      /* Environment Canada / JAG-TI wind chill: T in °C, v in km/h. Valid T<=10 and v>=4.8; else null. */
+      function windChill(tC, vKmh) {
+        if (tC == null || vKmh == null) return null;
+        if (tC > 10 || vKmh < 4.8) return null;
+        var v16 = Math.pow(vKmh, 0.16);
+        return 13.12 + 0.6215 * tC - 11.37 * v16 + 0.3965 * tC * v16;
+      }
+      /* blizzard-like caution from 24h forecast: gusts km/h, min visibility m, snowfall cm */
+      function blizzardLevel(gustMax, visMin, snowSum) {
+        if (gustMax >= 60 && visMin != null && visMin < 1000) return 'HIGH';
+        if (gustMax >= 40 && ((visMin != null && visMin < 3000) || snowSum >= 5)) return 'MED';
+        return 'LOW';
+      }
+      /* flight weather-delay risk, same thresholds family as sister apps */
+      function delayRisk(gustMax, visMin, snowSum) {
+        if (gustMax >= 70 || (visMin != null && visMin < 1000) || snowSum >= 10) return 'HIGH';
+        if (gustMax >= 45 || (visMin != null && visMin < 5000) || snowSum >= 3) return 'MED';
+        return 'LOW';
+      }
+      /* standard day-length equation — detects midnight-sun (24) / polar night (0) */
+      function dayLengthHours(lat, date) {
+        var N = Math.floor((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 0))) / 86400000);
+        var decl = -23.44 * Math.cos((2 * Math.PI / 365) * (N + 10));
+        var latR = (lat * Math.PI) / 180, dR = (decl * Math.PI) / 180;
+        var cosH = (Math.sin((-0.83 * Math.PI) / 180) - Math.sin(latR) * Math.sin(dR)) / (Math.cos(latR) * Math.cos(dR));
+        if (cosH > 1) return 0;
+        if (cosH < -1) return 24;
+        return (2 * (Math.acos(cosH) * 180) / Math.PI) / 15;
+      }
+      /* aurora verdict from Kp + community oval position + darkness */
+      function auroraVerdict(kp, aur, darkOk) {
+        if (!darkOk) return 'dark';
+        if (aur === 'cap') return kp >= 5 ? 'storm' : 'south';
+        if (kp >= 1) return 'go';
+        return 'quiet';
+      }
+      /* __PURE_END__ */
+
+      /* ================= state ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      /* first visit: browser language auto-detect — fr* = fr, else en */
+      var lang = store.get('nu:lang', null);
+      if (!lang) { var bl = String((navigator.languages && navigator.languages[0]) || navigator.language || 'en').toLowerCase(); lang = /^fr/.test(bl) ? 'fr' : 'en'; }
+      if (!I[lang]) lang = 'en';
+      var comId = store.get('nu:com', 'iqaluit');
+      var tab = store.get('nu:tab', 'sila');
+      var cache = {}; // comId → { fc, marine, at }
+      var kpCache = null; // { kp, time, src, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var t = function () { return I[lang]; };
+      var com = function () { return COMS.find(function (x) { return x.id === comId; }) || COMS[0]; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* ================= fetch (Open-Meteo, no key, CORS OK, 30-min cache) ================= */
+      function fetchJSON(url) {
+        return fetch(url).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+      }
+      function loadCom(c) {
+        var e = cache[c.id];
+        if (e && Date.now() - e.at < 30 * 60 * 1000) return Promise.resolve(e);
+        var fcUrl = 'https://api.open-meteo.com/v1/forecast?latitude=' + c.lat + '&longitude=' + c.lon +
+          '&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,snowfall,visibility,cloud_cover' +
+          '&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,snowfall_sum' +
+          '&timezone=auto&forecast_days=7';
+        var mUrl = c.mlat == null ? null :
+          'https://marine-api.open-meteo.com/v1/marine?latitude=' + c.mlat + '&longitude=' + c.mlon +
+          '&hourly=wave_height&timezone=auto&forecast_days=2';
+        return Promise.all([
+          fetchJSON(fcUrl),
+          mUrl ? fetchJSON(mUrl).catch(function () { return null; }) : Promise.resolve(null),
+        ]).then(function (res) {
+          var entry = { fc: res[0], marine: res[1], at: Date.now() };
+          cache[c.id] = entry;
+          return entry;
+        });
+      }
+
+      /* Kp — primary: NOAA SWPC 1-minute JSON; fallback: 3-day forecast product. 15-min cache. */
+      function loadKp() {
+        if (kpCache && Date.now() - kpCache.at < 15 * 60 * 1000) return Promise.resolve(kpCache);
+        return fetchJSON('https://services.swpc.noaa.gov/json/planetary_k_index_1m.json')
+          .then(function (rows) {
+            var last = rows[rows.length - 1];
+            var kp = last.estimated_kp != null ? +last.estimated_kp : +last.kp_index;
+            kpCache = { kp: kp, time: last.time_tag, src: '1m', at: Date.now() };
+            return kpCache;
+          })
+          .catch(function () {
+            return fetchJSON('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json')
+              .then(function (rows) {
+                var now = Date.now(), best = null;
+                for (var i = 1; i < rows.length; i++) {
+                  var ts = new Date(String(rows[i][0]).replace(' ', 'T') + 'Z').getTime();
+                  if (ts <= now) best = rows[i];
+                }
+                if (!best && rows.length > 1) best = rows[1];
+                if (!best) return null;
+                kpCache = { kp: +best[1], time: best[0], src: 'fc', at: Date.now() };
+                return kpCache;
+              })
+              .catch(function () { return null; });
+          });
+      }
+
+      /* ================= helpers ================= */
+      function hourIdxNow(times) {
+        var now = Date.now();
+        for (var i = 0; i < times.length; i++) if (new Date(times[i]).getTime() >= now) return Math.max(0, i - 1);
+        return times.length - 1;
+      }
+      function fmtD(iso) { var d = new Date(iso); return (d.getMonth() + 1) + '/' + d.getDate(); }
+      function next24(fc, key) {
+        var i0 = hourIdxNow(fc.hourly.time);
+        return fc.hourly[key].slice(i0, i0 + 24).filter(function (v) { return v != null; });
+      }
+      function riskInput(entry) {
+        var fc = entry.fc;
+        var gusts = next24(fc, 'wind_gusts_10m');
+        var gustMax = gusts.length ? Math.max.apply(null, gusts) : 0;
+        var visArr = next24(fc, 'visibility');
+        var visMin = visArr.length ? Math.min.apply(null, visArr) : null;
+        var snowSum = next24(fc, 'snowfall').reduce(function (a, b) { return a + b; }, 0);
+        return { gustMax: gustMax, visMin: visMin, snowSum: snowSum };
+      }
+      function chillClass(wc) { return wc == null ? '' : wc <= -48 ? 'crit' : wc <= -28 ? 'warn' : ''; }
+
+      /* ================= tab: SILA ================= */
+      function cardSila(entry) {
+        var fc = entry.fc, L = t();
+        var i0 = hourIdxNow(fc.hourly.time);
+        var cur = function (k) { return fc.hourly[k][i0]; };
+        var wc = windChill(cur('temperature_2m'), cur('wind_speed_10m'));
+        var visKm = cur('visibility') == null ? '—' : (cur('visibility') / 1000).toFixed(1) + ' km';
+        var snow = next24(fc, 'snowfall').reduce(function (a, b) { return a + b; }, 0);
+        var html = '<div class="card"><h2>' + L.now + ' — ' + esc(com().name) + ' <span class="syl">· ' + com().syl + '</span></h2>' +
+          '<div class="big">' + Math.round(cur('temperature_2m')) + '°C' +
+          (wc != null ? ' <small>' + L.chill + ' <span class="' + chillClass(wc) + '">' + Math.round(wc) + '°</span></small>' : '') + '</div>' +
+          '<div class="row" style="margin-top:8px">' +
+          '<div class="kv"><div class="k">' + L.wind + '</div><div class="v">' + Math.round(cur('wind_speed_10m')) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + L.gust + '</div><div class="v">' + Math.round(cur('wind_gusts_10m')) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + L.chill + '</div><div class="v ' + chillClass(wc) + '">' + (wc == null ? L.chillNA : Math.round(wc) + '°') + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.vis + '</div><div class="v">' + visKm + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.snow24 + '</div><div class="v">' + snow.toFixed(1) + ' cm</div></div>' +
+          '</div></div>';
+
+        /* 7-day table with computed wind chill per day (min temp × max wind) */
+        var d = fc.daily;
+        html += '<div class="card"><h2>' + L.days7 + '</h2><div class="scroll-x"><table class="days"><tr><th>' + L.day + '</th><th>' + L.temp + '</th><th>' + L.chill + '</th><th>' + L.gust + '</th><th>' + L.snow24 + '</th></tr>';
+        for (var i = 0; i < d.time.length; i++) {
+          var dwc = windChill(d.temperature_2m_min[i], d.wind_speed_10m_max[i]);
+          html += '<tr><td>' + fmtD(d.time[i]) + '</td><td>' + Math.round(d.temperature_2m_min[i]) + '…' + Math.round(d.temperature_2m_max[i]) + '°C</td>' +
+            '<td class="' + chillClass(dwc) + '">' + (dwc == null ? '—' : Math.round(dwc) + '°') + '</td>' +
+            '<td>' + Math.round(d.wind_gusts_10m_max[i]) + ' km/h</td><td>' + (d.snowfall_sum[i] || 0).toFixed(1) + ' cm</td></tr>';
+        }
+        html += '</table></div></div>';
+
+        /* blizzard caution */
+        var r = riskInput(entry);
+        var bl = blizzardLevel(r.gustMax, r.visMin, r.snowSum);
+        var blMsg = bl === 'HIGH' ? L.blizzHigh : bl === 'MED' ? L.blizzMed : L.blizzLow;
+        html += '<div class="card"><h2>' + L.blizzTitle + '</h2>' +
+          '<div class="risk"><div class="risk-dot risk-' + bl + '">' + bl + '</div><div>' + blMsg +
+          '<div class="muted" style="margin-top:4px">' + L.gust + ' max ' + Math.round(r.gustMax) + ' km/h · ' + L.vis + ' min ' + (r.visMin == null ? '—' : (r.visMin / 1000).toFixed(1) + ' km') + ' · ' + L.snow24 + ' ' + r.snowSum.toFixed(1) + ' cm</div></div></div>' +
+          '<div class="note">' + L.blizzRule + '</div><div class="note red">' + L.blizzOfficial + '</div></div>';
+
+        /* aurora — filled async */
+        html += '<div class="card" id="aurora-card"><h2>' + L.aurora + ' <span class="syl">· ᐊᖅᓴᕐᓃᑦ</span></h2><div class="loading">' + L.loading + '</div></div>';
+
+        /* sea state (marine, coastal only) */
+        html += '<div class="card"><h2>' + L.sea + ' <span class="syl">· ᑕᕆᐅᖅ</span></h2>';
+        if (entry.marine && entry.marine.hourly) {
+          var m = entry.marine.hourly, mi = hourIdxNow(m.time);
+          var wv = m.wave_height[mi];
+          html += '<div class="row"><div class="kv"><div class="k">' + L.waveNow + '</div><div class="v">' + (wv == null ? '—' : wv.toFixed(1) + ' m') + '</div></div></div>' +
+            '<div class="note">' + L.seaIceNote + '</div>';
+        } else {
+          html += '<div class="muted">' + L.noMarine + '</div>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      function fillAurora(kpData) {
+        var el = $('aurora-card'); if (!el) return;
+        var L = t(), c = com();
+        var head = '<h2>' + L.aurora + ' <span class="syl">· ᐊᖅᓴᕐᓃᑦ</span></h2>';
+        if (!kpData) { el.innerHTML = head + '<div class="muted">' + L.auroraErr + '</div>'; return; }
+        var darkOk = dayLengthHours(c.lat, new Date()) < 24;
+        var v = auroraVerdict(kpData.kp, c.aur, darkOk);
+        var latNote = c.aur === 'cap' ? L.auroraCap : c.aur === 'high' ? L.auroraHigh : L.auroraOval;
+        var cls = v === 'go' || v === 'storm' ? 'ok' : v === 'south' ? 'warn' : 'muted';
+        el.innerHTML = head +
+          '<div class="row" style="margin-bottom:8px">' +
+          '<div class="kv"><div class="k">' + L.kpNow + '</div><div class="v">' + kpData.kp.toFixed(2) + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.kpAt + '</div><div class="v" style="font-size:13px">' + esc(String(kpData.time).slice(0, 16).replace('T', ' ')) + ' UTC</div></div>' +
+          '</div>' +
+          (v === 'dark' ? '<div class="muted" style="font-size:13.5px">' + L.auroraDark + '</div>' : '') +
+          '<div class="note ' + cls + '">' + latNote + '</div>' +
+          '<div class="muted" style="margin-top:6px">' + (kpData.src === '1m' ? L.kpSrc1 : L.kpSrc2) + '</div>';
+      }
+
+      /* ================= tab: TRAVEL ================= */
+      function cardTravel(entry) {
+        var L = t();
+        var r = riskInput(entry);
+        var risk = delayRisk(r.gustMax, r.visMin, r.snowSum);
+        var msg = risk === 'HIGH' ? L.delayHigh : risk === 'MED' ? L.delayMed : L.delayLow;
+        var html = '<div class="card"><h2>' + L.delayTitle + ' — ' + esc(com().name) + '</h2>' +
+          '<div class="risk"><div class="risk-dot risk-' + risk + '">' + risk + '</div><div>' + msg +
+          '<div class="muted" style="margin-top:4px">' + L.gust + ' max ' + Math.round(r.gustMax) + ' km/h · ' + L.vis + ' min ' + (r.visMin == null ? '—' : (r.visMin / 1000).toFixed(1) + ' km') + ' · ' + L.snow24 + ' ' + r.snowSum.toFixed(1) + ' cm</div></div></div>' +
+          '<div class="note">' + L.delayNote + '</div></div>';
+
+        html += '<div class="card"><h2>' + L.travelAir + '</h2><div class="links">' +
+          '<a href="https://www.canadiannorth.com/" target="_blank" rel="noopener">' + L.linkCN + '<span>' + L.linkCNd + '</span></a>' +
+          '<a href="https://www.calmair.com/" target="_blank" rel="noopener">' + L.linkCA + '<span>' + L.linkCAd + '</span></a>' +
+          '</div></div>';
+
+        /* sealift — the killer explainer */
+        var rows = L.sealiftRows.map(function (row) {
+          return '<tr><td>' + esc(row[0]) + '</td><td>' + esc(row[1]) + '</td><td class="muted">' + esc(row[2]) + '</td></tr>';
+        }).join('');
+        html += '<div class="card"><h2>' + L.sealiftTitle + ' <span class="syl">· ᐅᒥᐊᕐᔪᐊᖅ</span></h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 10px">' + L.sealiftBody + '</p>' +
+          '<div class="scroll-x"><table class="days"><tr><th>' + L.sealiftHead[0] + '</th><th>' + L.sealiftHead[1] + '</th><th>' + L.sealiftHead[2] + '</th></tr>' + rows + '</table></div>' +
+          '<div class="note">' + L.sealiftFood + '</div></div>';
+
+        html += '<div class="card"><h2>' + L.sealiftLinks + '</h2><div class="links">' +
+          '<a href="https://www.neas.ca/" target="_blank" rel="noopener">' + L.linkNEAS + '<span>' + L.linkNEASd + '</span></a>' +
+          '<a href="https://www.nssi.ca/" target="_blank" rel="noopener">' + L.linkNSSI + '<span>' + L.linkNSSId + '</span></a>' +
+          '<a href="https://www.nutritionnorthcanada.gc.ca/" target="_blank" rel="noopener">' + L.linkNN + '<span>' + L.linkNNd + '</span></a>' +
+          '</div></div>';
+        return html;
+      }
+
+      /* ================= tab: HUNT ================= */
+      function cardHunt() {
+        var L = t();
+        var html = '<div class="card"><h2>' + L.htoTitle + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 10px">' + L.htoBody + '</p><div class="links">' +
+          '<a href="https://www.nwmb.com/" target="_blank" rel="noopener">' + L.linkNWMB + '<span>' + L.linkNWMBd + '</span></a>' +
+          '<a href="https://www.gov.nu.ca/environment" target="_blank" rel="noopener">' + L.linkGN + '<span>' + L.linkGNd + '</span></a>' +
+          '<a href="https://www.tunngavik.com/" target="_blank" rel="noopener">' + L.linkNTI + '<span>' + L.linkNTId + '</span></a>' +
+          '</div></div>';
+
+        var rows = SPECIES_KEYS.map(function (k) {
+          var row = L.spRows[k];
+          return '<tr><td style="white-space:normal"><b>' + esc(row[0]) + '</b></td><td style="white-space:normal" class="muted">' + esc(row[1]) + '</td></tr>';
+        }).join('');
+        html += '<div class="card"><h2>' + L.spTitle + '</h2>' +
+          '<div class="scroll-x"><table class="days"><tr><th>' + L.spHead[0] + '</th><th>' + L.spHead[1] + '</th></tr>' + rows + '</table></div>' +
+          '<div class="note red">' + L.spWarn + '</div></div>';
+
+        var opts = Object.keys(L.sp).map(function (k) { return '<option value="' + k + '">' + L.sp[k] + '</option>'; }).join('');
+        html += '<div class="card"><h2>' + L.logTitle + '</h2><div class="note">' + L.logNote + '</div>' +
+          '<form class="harv" id="harv-form">' +
+          '<input type="date" id="h-date" required value="' + new Date().toISOString().slice(0, 10) + '" />' +
+          '<select id="h-sp">' + opts + '</select>' +
+          '<input type="number" id="h-qty" min="1" value="1" required aria-label="' + L.qty + '" />' +
+          '<input type="text" id="h-notes" placeholder="' + L.notes + '" maxlength="80" />' +
+          '<button class="btn full" type="submit">+ ' + L.add + '</button>' +
+          '</form><ul class="log" id="harv-list"></ul></div>';
+        return html;
+      }
+
+      function renderHarvList() {
+        var L = t();
+        var list = store.get('nu:harvest', []);
+        var ul = $('harv-list');
+        if (!ul) return;
+        if (!list.length) { ul.innerHTML = '<li class="muted">' + L.empty + '</li>'; return; }
+        ul.innerHTML = list.map(function (h, i) {
+          return '<li><span class="d">' + esc(h.date) + '</span><span>' + esc(L.sp[h.sp] || h.sp) + ' × ' + esc(h.qty) +
+            (h.notes ? ' <span class="muted">· ' + esc(h.notes) + '</span>' : '') + '</span>' +
+            '<button class="x" data-i="' + i + '" aria-label="' + L.del + '">×</button></li>';
+        }).join('');
+        Array.prototype.forEach.call(ul.querySelectorAll('.x'), function (b) {
+          b.onclick = function () { var l = store.get('nu:harvest', []); l.splice(+b.dataset.i, 1); store.set('nu:harvest', l); renderHarvList(); };
+        });
+      }
+
+      /* ================= tab: LANG ================= */
+      function cardLang() {
+        var L = t();
+        var head = '<tr>' + L.sylHead.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr>';
+        var rows = SYL.map(function (r) {
+          return '<tr><td class="rom">' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + (r[4] || '·') + '</td></tr>';
+        }).join('');
+        var html = '<div class="card"><h2>' + L.langTitle + ' <span class="syl">· ᖃᓂᐅᔮᖅᐸᐃᑦ</span></h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 10px">' + L.langBody + '</p>' +
+          '<div class="scroll-x"><table class="syltab">' + head + rows + '</table></div></div>';
+
+        var pHead = '<tr><th>' + L.phrHead[0] + '</th><th>' + L.phrHead[1] + '</th><th>' + L.phrHead[2] + '</th></tr>';
+        var pRows = PHRASES.map(function (p) {
+          return '<tr><td>' + esc(lang === 'fr' ? p[1] : p[0]) + '</td><td class="rom">' + esc(p[2]) + '</td><td class="syl">' + p[3] + '</td></tr>';
+        }).join('');
+        html += '<div class="card"><h2>' + L.phrTitle + ' <span class="syl">· ᐅᖃᐅᓯᖅ</span></h2>' +
+          '<div class="scroll-x"><table class="phr">' + pHead + pRows + '</table></div>' +
+          '<div class="note">' + L.dialectNote + '</div></div>';
+
+        html += '<div class="card"><h2>' + L.langLinks + '</h2><div class="links">' +
+          '<a href="https://tusaalanga.ca/" target="_blank" rel="noopener">' + L.linkUqa + '<span>' + L.linkUqad + '</span></a>' +
+          '<a href="https://langcom.nu.ca/" target="_blank" rel="noopener">' + L.linkOLC + '<span>' + L.linkOLCd + '</span></a>' +
+          '</div></div>';
+        return html;
+      }
+
+      /* ================= tab: >_TERM ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ ᓄᓇᕗᑦ NUNAVUT PANEL // tundra_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open-meteo · NOAA-SWPC ..................... [OK]</span>',
+        '<span class="t-dim">  grid: 10 communities · 72°N reachable .............. [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for commands</span>',
+      ];
+      var T_LINKS = [
+        ['Canadian North', 'https://www.canadiannorth.com/', 'flights & advisories'],
+        ['Calm Air', 'https://www.calmair.com/', 'Kivalliq flights'],
+        ['NEAS sealift', 'https://www.neas.ca/', 'schedules & deadlines'],
+        ['NSSI sealift', 'https://www.nssi.ca/', 'schedules & rates'],
+        ['NWMB', 'https://www.nwmb.com/', 'wildlife co-management'],
+        ['GN Environment', 'https://www.gov.nu.ca/environment', 'licences & regulations'],
+        ['Environment Canada', 'https://weather.gc.ca/', 'official warnings'],
+        ['Inuktut Tusaalanga', 'https://tusaalanga.ca/', 'free Inuktut lessons'],
+      ];
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(9) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        links: { d: 'curated official links', f: function () { return T_LINKS.map(function (l, i) { return '  ' + (i + 1) + '. <span class="t-hi">' + esc(l[0]) + '</span> — <span class="t-dim">' + esc(l[2]) + '</span>\n     ' + tLink(l[1]); }).join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        kp: {
+          d: 'current Kp + aurora verdict here',
+          f: function () {
+            return loadKp().then(function (k) {
+              if (!k) return '<span class="t-crit">SWPC unreachable — both feeds failed</span>';
+              var c = com();
+              var darkOk = dayLengthHours(c.lat, new Date()) < 24;
+              var v = auroraVerdict(k.kp, c.aur, darkOk);
+              var verdict = v === 'dark' ? '<span class="t-warn">midnight-sun period — sky too bright for aurora</span>' :
+                v === 'south' ? '<span class="t-warn">polar-cap latitude — look SOUTH on a dark clear night</span>' :
+                v === 'storm' ? '<span class="t-hi">storm level — oval in motion, watch the whole sky</span>' :
+                v === 'go' ? '<span class="t-hi">GO — under the oval, any dark clear sky can deliver</span>' :
+                '<span class="t-dim">quiet — but at this latitude even quiet nights can glow</span>';
+              return 'Kp ' + k.kp.toFixed(2) + ' <span class="t-dim">(' + (k.src === '1m' ? 'real-time' : '3-day fc') + ' · ' + esc(String(k.time).slice(0, 16)) + 'Z)</span> @ ' + esc(c.name) + '\n' + verdict;
+            });
+          },
+        },
+        sealift: {
+          d: 'sealift season summary',
+          f: function () {
+            return [
+              '<span class="t-hi">SEALIFT // annual marine resupply</span>',
+              '  booking opens ..... Jan–Feb (carrier rate sheets)',
+              '  order deadlines ... <span class="t-warn">Apr–Jun</span> (earlier for first sailing)',
+              '  sailing season .... <span class="t-hi">Jul–Oct</span>, ice permitting',
+              '  delivery .......... ship → barge → beach (no deep-water dock)',
+              '  miss the boat ..... airfreight $/kg or wait a year',
+              '  carriers .......... ' + tLink('https://www.neas.ca/', 'NEAS') + ' · ' + tLink('https://www.nssi.ca/', 'NSSI'),
+              '<span class="t-dim">confirm current-year deadlines on the carrier sites</span>',
+            ].join('\n');
+          },
+        },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">guest@' + esc(comId) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">guest@' + esc(comId) + ':~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= mount / events ================= */
+      function render() {
+        var L = t();
+        document.documentElement.lang = lang;
+        $('h-sub').textContent = L.hSub;
+        $('tab1-sub').textContent = L.tab1; $('tab2-sub').textContent = L.tab2;
+        $('tab3-sub').textContent = L.tab3; $('tab4-sub').textContent = L.tab4; $('tab5-sub').textContent = L.tab5;
+        $('f-src').textContent = L.srcFooter;
+        $('f-info').textContent = L.infoFooter;
+        $('f-priv').textContent = L.privFooter;
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'lang') { view.innerHTML = cardLang(); return; }
+        if (tab === 'hunt') {
+          view.innerHTML = cardHunt();
+          renderHarvList();
+          $('harv-form').onsubmit = function (e) {
+            e.preventDefault();
+            var l = store.get('nu:harvest', []);
+            l.unshift({ date: $('h-date').value, sp: $('h-sp').value, qty: +$('h-qty').value || 1, notes: $('h-notes').value.trim() });
+            store.set('nu:harvest', l.slice(0, 500));
+            $('h-notes').value = '';
+            renderHarvList();
+          };
+          return;
+        }
+        view.innerHTML = '<div class="loading">' + L.loading + '</div>';
+        if (tab === 'sila') {
+          loadCom(com()).then(function (entry) {
+            view.innerHTML = cardSila(entry);
+            loadKp().then(function (k) { fillAurora(k); });
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div></div>';
+          });
+        } else { /* travel */
+          loadCom(com()).then(function (entry) {
+            view.innerHTML = cardTravel(entry);
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div></div>';
+          });
+        }
+      }
+
+      /* init */
+      (function init() {
+        var cs = $('com-sel');
+        COMS.forEach(function (c) {
+          var o = document.createElement('option'); o.value = c.id; o.textContent = c.name; cs.appendChild(o);
+        });
+        cs.value = com().id;
+        cs.onchange = function () { comId = cs.value; store.set('nu:com', comId); render(); };
+        var ls = $('lang-sel');
+        ls.value = lang;
+        ls.onchange = function () { lang = ls.value; store.set('nu:lang', lang); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('nu:tab', tab); render(); };
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>

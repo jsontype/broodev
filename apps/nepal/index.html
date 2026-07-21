@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nepal Panel — Bikram Sambat converter, NPR rates, mountain weather &amp; official status links</title>
+    <meta name="description" content="One fast page for daily life in Nepal: Bikram Sambat (BS) ↔ Gregorian (AD) date converter covering BS 2070–2100, live USD/NPR and remittance true-cost calculator, EPS-Korea links, Kathmandu/Pokhara/Lukla/Jomsom weather, recent earthquakes, SEE results and passport portals." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://nepal.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Nepal Panel — patro · paisa · mausam · results" />
+    <meta name="twitter:description" content="BS ↔ AD date converter (BS 2070–2100), live NPR rates &amp; remittance cost, EPS-Korea guide, Himalayan weather &amp; quakes, official status portals — one fast page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nepal Panel — patro · paisa · mausam · results" />
+    <meta property="og:description" content="Bikram Sambat converter, live NPR rates, remittance true-cost calculator, mountain weather, earthquake feed and official Nepali status portals — one fast page." />
+    <meta property="og:url" content="https://nepal.broodev.com/" />
+    <style>
+      :root {
+        --bg: #140608; --bg-soft: #1d0a0e; --panel: #231014; --line: #4a2028;
+        --red: #e8455f; --red-deep: #dc143c; --red-dim: #a03448;
+        --blue: #5b9bd5; --blue-dim: #3f6d96;
+        --text: #f4ede4; --dim: #c2a8a5;
+        --green: #52d68a; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--red); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .lang-btn { background: var(--panel); color: var(--blue); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 12px; cursor: pointer; font-family: var(--font); }
+      .lang-btn:hover { border-color: var(--blue); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--red); color: var(--red); background: #2e1218; }
+      .tab.on b { color: var(--red); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--red); letter-spacing: .5px; }
+      .card h2 .muted { font-family: var(--ui); }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 26px; font-weight: 800; line-height: 1.15; }
+      .big small { font-size: 14px; color: var(--dim); font-weight: 400; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 92px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--green); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .accent-b { color: var(--blue); }
+      .links a { display: block; color: var(--red); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(220,20,60,.08); border-left: 3px solid var(--red-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      .note-b { background: rgba(91,155,213,.08); border-left: 3px solid var(--blue-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      table.t th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.t td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.t td.c { font-family: var(--font); color: var(--blue); font-weight: 700; white-space: nowrap; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .seg { display: flex; gap: 6px; margin: 6px 0 4px; }
+      .seg button { flex: 1; background: var(--bg-soft); color: var(--dim); border: 1px solid var(--line); border-radius: 6px; padding: 7px 6px; cursor: pointer; font-size: 12.5px; font-family: var(--font); }
+      .seg button.on { border-color: var(--red); color: var(--red); background: #2e1218; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--red); }
+      .result .sub { color: var(--dim); font-size: 12px; margin-top: 3px; }
+      .wx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 8px; }
+      .wx-city { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+      .wx-city .nm { font-family: var(--font); font-size: 12.5px; color: var(--blue); }
+      .wx-city .tp { font-size: 21px; font-weight: 800; }
+      .wx-city .ds { font-size: 11.5px; color: var(--dim); }
+      .wk-row { display: flex; gap: 4px; overflow-x: auto; padding: 6px 0 2px; }
+      .wk-day { min-width: 76px; background: var(--bg-soft); border: 1px solid var(--line); border-radius: 7px; padding: 6px 7px; text-align: center; font-size: 11.5px; color: var(--dim); }
+      .wk-day b { display: block; color: var(--text); font-size: 12.5px; }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--red-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 21px; } .tab { font-size: 9.5px; } .tab b { font-size: 10.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #0b0304; border: 1px solid #4a2028; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(220,20,60,.06); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #ffb3c0; text-shadow: 0 0 6px rgba(232,69,95,.3); }
+      #t-out .t-dim { color: #8a5560; text-shadow: none; }
+      #t-out .t-hi { color: #ffe9ed; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--green); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--red); white-space: nowrap; text-shadow: 0 0 6px rgba(232,69,95,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #ffe9ed; font-family: var(--font); font-size: 13px; caret-color: var(--red); }
+
+      /* ===== 정적 SEO 본문 ===== */
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--red); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo h3 { color: var(--text); font-size: 13.5px; margin: 14px 0 4px; }
+      .seo a { color: var(--red); }
+      .seo ul { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+      .seo table th { color: var(--text); text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); font-weight: 600; }
+      .seo table td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); }
+      .seo strong { color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎NEPAL PANEL <small>· patro · paisa · mausam · results</small></span>
+        <span class="sp"></span>
+        <button class="lang-btn" id="lang-btn" aria-label="Switch label language">EN / नेपाली</button>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="patro"><b>📅 <span data-t="patro">PATRO</span></b><span data-t="patroSub">BS ↔ AD</span></div>
+        <div class="tab" data-tab="paisa"><b>💱 <span data-t="paisa">PAISA</span></b><span data-t="paisaSub">FX · remit</span></div>
+        <div class="tab" data-tab="mausam"><b>🏔 <span data-t="mausam">MAUSAM</span></b><span data-t="mausamSub">Weather · quakes</span></div>
+        <div class="tab" data-tab="status"><b>🗂 <span data-t="status">STATUS</span></b><span data-t="statusSub">Gov links</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span data-t="termSub">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        Data: open.er-api.com (mid-market FX, daily) · open-meteo.com (weather) · USGS (earthquakes) · BS calendar table cross-checked against published Nepali patro data.<br />
+        For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings live only in your browser (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Nepal Panel">
+      <h2>What is Nepal Panel?</h2>
+      <p>
+        Nepal Panel is a free, data-light utility page that bundles the four things people in and from Nepal check
+        most often. <strong>Patro</strong> converts dates between <strong>Bikram Sambat (BS)</strong> and the Gregorian
+        calendar (AD) entirely in your browser, covering BS 2070–2100, and shows today's Nepali date the moment the page
+        loads. <strong>Paisa</strong> shows live mid-market rates for USD, INR, AED, QAR, MYR and KRW against the
+        Nepalese rupee, explains the fixed Indian rupee peg, and includes a remittance true-cost calculator that exposes
+        the exchange-rate margin hidden behind "zero fee" offers. <strong>Mausam</strong> pulls current weather and a
+        7-day outlook for Kathmandu, Pokhara, Lukla and Jomsom plus recent magnitude 4+ earthquakes from the USGS feed.
+        <strong>Status</strong> collects the official portals for SEE results, passports, driving licences and PAN.
+        No app install, no account, no ads — it works on slow connections and old phones.
+      </p>
+
+      <h2>How the Bikram Sambat calendar works</h2>
+      <p>
+        Bikram Sambat is Nepal's official calendar, used on every government document, school schedule and newspaper
+        masthead. It runs roughly <strong>56.7 years ahead</strong> of the Gregorian calendar: April 2026 opened the year
+        BS 2083. The year begins in mid-April with the month of <strong>Baishakh</strong>, not in January. Unlike
+        Gregorian months, BS months vary between <strong>29 and 32 days</strong>, and the same month can have a different
+        length from one year to the next. There is no arithmetic formula for these lengths — they follow astronomical
+        tables published in Nepal's official almanac, the Rashtriya Panchang. That is why every reliable converter,
+        including this one, ships a precomputed days-per-month table rather than a calculation. Our table covers
+        BS 2070 through BS 2100 (roughly AD 2013–2044) and is cross-checked against known anchor dates such as
+        Baishakh 1, 2081 = 13 April 2024.
+      </p>
+
+      <h2>Nepal's holidays: fixed dates vs lunar dates</h2>
+      <p>
+        Nepali public holidays fall into two groups. A few are <strong>fixed on the BS calendar</strong> and land on the
+        same BS date every year: New Year (Baishakh 1), Republic Day (Jestha 15), Constitution Day (Ashoj 3),
+        Maghe Sankranti (Magh 1) and Democracy Day (Falgun 7). The biggest festivals, however, are
+        <strong>lunar</strong>: Dashain and Tihar in autumn, Holi and Maha Shivaratri in spring, Buddha Jayanti,
+        Janai Purnima, Teej, Indra Jatra, Chhath and the three Lhosars all shift each year with the lunar cycle,
+        sometimes by weeks. A date converter can tell you what BS day a Gregorian date falls on, but only the annual
+        official calendar — published by the Ministry of Home Affairs each Chaitra — fixes which days are public
+        holidays. Treat any festival date list, including ours, as indicative until that notice is out.
+      </p>
+
+      <h2>EPS-Korea: how Nepali workers get jobs in South Korea</h2>
+      <p>
+        The <strong>Employment Permit System (EPS)</strong> is a government-to-government labour scheme between South
+        Korea and 16 partner countries, and Nepal has been one of its largest senders since 2008. Under EPS, Korean
+        small and medium manufacturers, farms and fisheries hire foreign workers on an <strong>E-9 visa</strong> for up
+        to 4 years 10 months, extendable for re-entry under certain conditions. The crucial design feature: recruitment
+        runs <strong>only</strong> through Korea's HRD Korea (<a href="https://www.eps.go.kr/" rel="noopener">eps.go.kr</a> /
+        <a href="https://www.hrdkorea.or.kr/" rel="noopener">hrdkorea.or.kr</a>) and Nepal's EPS Korea Section under the
+        Department of Foreign Employment. No private agency, manpower company or "connection" can place an EPS worker —
+        anyone claiming otherwise is a fraud. Wages follow the Korean minimum wage, and workers get the same statutory
+        insurance coverage as locals.
+      </p>
+
+      <h2>The TOPIK-EPS exam: the single gate into the system</h2>
+      <p>
+        Entry into EPS starts with the <strong>EPS-TOPIK</strong>, a Korean language test of reading and listening
+        designed for workers, plus a skills test (physical fitness, basic interview, and job-relevant tasks) for higher
+        sectors. Announcements are published by the EPS Korea Section in Kathmandu, registration is done in person or
+        online during a short window, and the exam is computer-based (CBT) at approved centres. Passing puts you on a
+        <strong>roster</strong> from which Korean employers pick — passing does not guarantee a job, and roster validity
+        is limited (typically two years). Annual intake follows Korea's sector <strong>quotas</strong>, which change
+        every year with its labour policy. Preparation is realistic self-study: the question bank and standard textbook
+        are published free on the official EPS site, so paying an institute is optional, never required.
+      </p>
+
+      <h2>Legal costs vs broker scams — and sending money home from Korea</h2>
+      <p>
+        The legitimate cost of going to Korea through EPS is modest and published: exam fee (about USD 28), passport,
+        medical check, visa fee, insurance and airfare — altogether usually well under USD 1,500. Yet brokers routinely
+        charge Nepali candidates <strong>10 to 30 times</strong> that by selling "guaranteed selection", "roster
+        priority" or "direct employer contact". None of these things can be bought: employer selection from the roster
+        is done in Korea, and no Nepali intermediary can influence it. If someone asks for lakhs, you are funding a
+        scam, sometimes with borrowed money at painful interest. Once working, send earnings through licensed
+        remittance channels (banks and money-transfer operators publish KRW→NPR rates daily) rather than hundi;
+        the Korea–Nepal corridor is one of the cheaper ones, and formal transfers protect you if something goes wrong.
+      </p>
+
+      <h2>Remittances: roughly a quarter of Nepal's economy</h2>
+      <p>
+        Nepal is one of the most remittance-dependent countries on earth: inflows have hovered around
+        <strong>a quarter of GDP</strong> in recent years — among the highest ratios of any economy larger than a small
+        island state. Millions of Nepalis work in the Gulf states, Malaysia, Korea, India and beyond, and their
+        transfers finance household consumption, education and construction back home. This is why a few percentage
+        points of transfer cost matter enormously: on a corridor moving billions of dollars a year, the difference
+        between a 3% and a 6% true cost is real money that either reaches families in Nepal or stays with
+        intermediaries. The calculator on this page compares any provider quote — fee plus offered exchange rate —
+        against the live mid-market rate, so the full cost is visible before you send.
+      </p>
+
+      <h2>Corridor notes: Qatar, UAE, Malaysia and Korea</h2>
+      <p>
+        Costs and pitfalls differ by corridor. From <strong>Qatar and the UAE</strong>, competition among exchange
+        houses keeps headline fees low, but margins hide in the AED/QAR→NPR rate — always compare the offered rate
+        against mid-market, not just the fee line. <strong>Malaysia</strong> has historically been a higher-cost
+        corridor with more informal channels; licensed operators are safer and increasingly price-competitive.
+        <strong>Korea</strong> benefits from strong banking rails and dedicated remittance licences, making KRW→NPR
+        one of the better-priced routes. Two universal rules: first, a great exchange rate with a big fee can still
+        beat a "zero fee" transfer at a padded rate — only the total received in NPR matters. Second, avoid hundi
+        entirely: it is illegal, uninsured, and repeated crackdowns have left senders with no recourse when
+        collectors vanish.
+      </p>
+
+      <h2>Trekking weather and altitude basics</h2>
+      <p>
+        Nepal's trekking calendar is driven by the monsoon. <strong>October–November</strong> is the classic season:
+        washed air, stable skies, big views. <strong>March–May</strong> is second best — warmer, rhododendrons in
+        bloom, but hazier as the pre-monsoon builds. <strong>June–September</strong> brings the monsoon: leeches, mud
+        and hidden mountains everywhere except rain-shadow zones like Upper Mustang and Dolpo, which stay trekkable.
+        <strong>December–February</strong> is cold but crystal clear at lower elevations; high passes may close.
+        Above ~2,500 m, <strong>acute mountain sickness (AMS)</strong> is the real risk: headache plus nausea,
+        dizziness, poor sleep or loss of appetite after ascent means stop; worsening symptoms mean descend immediately.
+        The golden rules are to climb no more than ~500 m of sleeping altitude a day above 3,000 m, schedule rest
+        days, and never ascend with symptoms. Weather on this page comes live from Open-Meteo for four key stations,
+        including Lukla and Jomsom.
+      </p>
+
+      <h2>Trekking permits and fees (indicative)</h2>
+      <p>
+        Most trekkers need a combination of a conservation-area or national-park entry permit and, for some regions, a
+        restricted-area permit. Fees below are <strong>indicative for foreign nationals</strong> and change by
+        government notice — verify with <a href="https://ntb.gov.np/" rel="noopener">Nepal Tourism Board</a> or your
+        registered trekking agency before travelling:
+      </p>
+      <table>
+        <tr><th>Permit</th><th>Area</th><th>Indicative fee</th></tr>
+        <tr><td>TIMS card</td><td>Most trekking routes</td><td>NPR 2,000</td></tr>
+        <tr><td>ACAP entry</td><td>Annapurna Conservation Area</td><td>NPR 3,000</td></tr>
+        <tr><td>Sagarmatha NP entry</td><td>Everest region</td><td>NPR 3,000</td></tr>
+        <tr><td>Khumbu Rural Municipality fee</td><td>Everest region</td><td>NPR 2,000–3,000</td></tr>
+        <tr><td>Langtang NP entry</td><td>Langtang region</td><td>NPR 3,000</td></tr>
+        <tr><td>Manaslu restricted permit</td><td>Manaslu circuit</td><td>USD 75–100 / week (seasonal)</td></tr>
+        <tr><td>Upper Mustang restricted permit</td><td>Upper Mustang</td><td>USD 500 / 10 days</td></tr>
+      </table>
+      <p>
+        Restricted areas additionally require a licensed guide and, in most cases, a minimum group size arranged
+        through a registered agency. Keep permits accessible — checkpoints are frequent and fines apply.
+      </p>
+
+      <h2>Earthquake preparedness in Nepal</h2>
+      <p>
+        Nepal sits on the boundary where the Indian plate dives under the Eurasian plate — the collision that built
+        the Himalaya also makes the country one of the most seismically exposed on earth. The M7.8 Gorkha earthquake
+        of 25 April 2015 (Baishakh 12, 2072 BS) killed nearly 9,000 people, and scientists agree the western segment
+        of the fault still holds centuries of accumulated strain. Preparation is unglamorous but effective:
+        agree on a family meeting point, keep a grab bag (water, torch, whistle, copies of citizenship/passport,
+        cash, medicines), know the safe spots in each room — under sturdy tables, away from glass and heavy
+        cupboards — and practise <strong>drop, cover, hold on</strong>. After a big shake, expect aftershocks, use
+        SMS instead of calls, and check gas before relighting stoves. This page lists recent M4+ events from the
+        USGS public feed; official alerts come from the National Earthquake Monitoring Centre
+        (<a href="https://seismonepal.gov.np/" rel="noopener">seismonepal.gov.np</a>).
+      </p>
+
+      <h2>FAQ</h2>
+      <h3>What Bikram Sambat year is it now?</h3>
+      <p>
+        As of mid-2026 the running year is <strong>BS 2083</strong>, which began on 14 April 2026 (Baishakh 1).
+        BS years start in mid-April, so each Gregorian year overlaps two BS years.
+      </p>
+      <h3>Why is the Nepali calendar about 57 years ahead?</h3>
+      <p>
+        The Bikram Sambat era counts from 57 BC, traditionally linked to King Vikramaditya. Because the BS new year
+        falls in April, the offset is 56 years for January–April dates and 57 years from mid-April onward.
+      </p>
+      <h3>Is the Indian rupee really fixed at 1.60 NPR?</h3>
+      <p>
+        Yes. The Nepalese rupee has been pegged at <strong>NPR 1.60 per INR 1</strong> since 1993, maintained by Nepal
+        Rastra Bank. All other NPR rates float — they move with the USD/INR market rate.
+      </p>
+      <h3>How much does it cost to send money to Nepal?</h3>
+      <p>
+        Total cost = fee + exchange-rate margin. Well-priced corridors land around 2–4% all-in; anything above ~5–6%
+        is expensive. Compare the NPR amount received, not the advertised fee.
+      </p>
+      <h3>Can an agent get me selected faster for EPS Korea?</h3>
+      <p>
+        No. Employer selection from the EPS roster happens in Korea through HRD Korea's system. Nobody in Nepal can
+        buy, speed up or guarantee selection — offers to do so are scams.
+      </p>
+      <h3>Is this app free and does it store my data?</h3>
+      <p>
+        Completely free, no ads, no accounts. Preferences (language, last tab) live only in your browser's
+        localStorage; nothing you type is sent to any server of ours.
+      </p>
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab for a terminal — <code>help</code>, <code>fx</code>,
+        <code>bs 2026-07-21</code>, <code>quake</code>, <code>links</code> and more. All figures are for information
+        only; official sources are always authoritative.
+      </p>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Nepal Panel",
+        "url": "https://nepal.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Bikram Sambat ↔ Gregorian date converter (BS 2070–2100), live NPR exchange rates, remittance true-cost calculator, EPS-Korea links, Himalayan weather for Kathmandu/Pokhara/Lukla/Jomsom, USGS earthquake feed, official status portals, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What Bikram Sambat year is it now?",
+            "acceptedAnswer": { "@type": "Answer", "text": "As of mid-2026 the running year is BS 2083, which began on 14 April 2026 (Baishakh 1). BS years start in mid-April, so each Gregorian year overlaps two BS years." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why is the Nepali calendar about 57 years ahead?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The Bikram Sambat era counts from 57 BC, traditionally linked to King Vikramaditya. Because the BS new year falls in April, the offset is 56 years for January–April dates and 57 years from mid-April onward." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the Indian rupee really fixed at 1.60 NPR?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Nepalese rupee has been pegged at NPR 1.60 per INR 1 since 1993, maintained by Nepal Rastra Bank. All other NPR rates float with the USD/INR market rate." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does it cost to send money to Nepal?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Total cost = fee + exchange-rate margin. Well-priced corridors land around 2–4% all-in; anything above 5–6% is expensive. Compare the NPR amount received, not the advertised fee." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can an agent get me selected faster for EPS Korea?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Employer selection from the EPS roster happens in Korea through HRD Korea's system. Nobody in Nepal can buy, speed up or guarantee selection — offers to do so are scams." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Nepal Panel free and does it store my data?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Completely free, no ads, no accounts. Preferences live only in your browser's localStorage; nothing you type is sent to any server." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* =====================================================================
+         BS(비크람 삼바트) 달력 데이터 — BS 2070–2100, 월별 일수 [바이샤크..차이트라]
+         출처: Nepal Panchanga Nirnayak Samiti 계열 공개 달력 데이터를 교차 검증.
+         앵커: BS 2070-01-01 = AD 2013-04-14 (UTC 기준으로 계산).
+         SELF-CHECK #1: bsToAd(2081,1,1)  === 2024-04-13  (Nepali New Year 2081)
+         SELF-CHECK #2: bsToAd(2072,1,12) === 2015-04-25  (Gorkha earthquake day)
+         SELF-CHECK #3: bsToAd(2072,6,3)  === 2015-09-20  (Constitution Day 2072)
+         ===================================================================== */
+      var BS_MIN = 2070, BS_MAX = 2100;
+      var BS_EPOCH_UTC = Date.UTC(2013, 3, 14); // = BS 2070-01-01
+      var BS_DATA = {
+        2070: [31, 31, 31, 32, 31, 31, 29, 30, 30, 29, 30, 30],
+        2071: [31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30],
+        2072: [31, 32, 31, 32, 31, 30, 30, 29, 30, 29, 30, 30],
+        2073: [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31],
+        2074: [31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30],
+        2075: [31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30],
+        2076: [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30],
+        2077: [31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31],
+        2078: [31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30],
+        2079: [31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30],
+        2080: [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30],
+        2081: [31, 31, 32, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2082: [30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2083: [31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30],
+        2084: [31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30],
+        2085: [31, 32, 31, 32, 30, 31, 30, 30, 29, 30, 30, 30],
+        2086: [30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2087: [31, 31, 32, 31, 31, 31, 30, 30, 29, 30, 30, 30],
+        2088: [30, 31, 32, 32, 30, 31, 30, 30, 29, 30, 30, 30],
+        2089: [30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2090: [30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2091: [31, 31, 32, 31, 31, 31, 30, 30, 29, 30, 30, 30],
+        2092: [30, 31, 32, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2093: [30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2094: [31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30],
+        2095: [31, 31, 32, 31, 31, 31, 30, 29, 30, 30, 30, 30],
+        2096: [30, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30],
+        2097: [31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30],
+        2098: [31, 31, 32, 31, 31, 31, 29, 30, 29, 30, 30, 31],
+        2099: [31, 31, 32, 31, 31, 31, 30, 29, 29, 30, 30, 30],
+        2100: [31, 32, 31, 32, 30, 31, 30, 29, 30, 29, 30, 30]
+      };
+      var BS_MONTHS_EN = ['Baishakh', 'Jestha', 'Ashadh', 'Shrawan', 'Bhadra', 'Ashwin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra'];
+      var BS_MONTHS_NE = ['बैशाख', 'जेठ', 'असार', 'साउन', 'भदौ', 'असोज', 'कात्तिक', 'मंसिर', 'पुस', 'माघ', 'फागुन', 'चैत'];
+      var WEEKDAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      var WEEKDAYS_NE = ['आइतबार', 'सोमबार', 'मंगलबार', 'बुधबार', 'बिहीबार', 'शुक्रबार', 'शनिबार'];
+
+      /* __PURE_START__ 순수 변환 로직 (프레임워크·DOM 무관) */
+      var DAY_MS = 86400000;
+      function bsYearDays(y) {
+        var a = BS_DATA[y], s = 0, i;
+        for (i = 0; i < 12; i++) s += a[i];
+        return s;
+      }
+      /* BS → AD: UTC 자정 타임스탬프(ms) 반환, 범위 밖이면 null */
+      function bsToAd(y, m, d) {
+        if (!BS_DATA[y] || m < 1 || m > 12 || d < 1 || d > BS_DATA[y][m - 1]) return null;
+        var days = 0, yy, mm;
+        for (yy = BS_MIN; yy < y; yy++) days += bsYearDays(yy);
+        for (mm = 1; mm < m; mm++) days += BS_DATA[y][mm - 1];
+        days += d - 1;
+        return BS_EPOCH_UTC + days * DAY_MS;
+      }
+      /* AD(UTC 자정 ms) → BS {y,m,d}: 범위 밖이면 null */
+      function adToBs(utcMs) {
+        var diff = Math.round((utcMs - BS_EPOCH_UTC) / DAY_MS);
+        if (diff < 0) return null;
+        var y = BS_MIN;
+        while (y <= BS_MAX && diff >= bsYearDays(y)) { diff -= bsYearDays(y); y++; }
+        if (y > BS_MAX) return null;
+        var m = 1;
+        while (diff >= BS_DATA[y][m - 1]) { diff -= BS_DATA[y][m - 1]; m++; }
+        return { y: y, m: m, d: diff + 1 };
+      }
+      /* 송금 실효 비용: 수취액과 미드마켓 대비 총 비용% */
+      function remitCost(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var midValue = sendAmt * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* __PURE_END__ */
+
+      /* ================= i18n 라벨 번들 (UI 라벨만 — 본문 콘텐츠는 항상 영어) ================= */
+      var T = {
+        en: {
+          patro: 'PATRO', patroSub: 'BS ↔ AD', paisa: 'PAISA', paisaSub: 'FX · remit',
+          mausam: 'MAUSAM', mausamSub: 'Weather · quakes', status: 'STATUS', statusSub: 'Gov links', termSub: 'Terminal',
+          today: 'Today', convert: 'Convert', bs2ad: 'BS → AD', ad2bs: 'AD → BS',
+          year: 'Year', month: 'Month', day: 'Day', date: 'Date', amount: 'Amount',
+          youSend: 'You send', fee: 'Fee', provRate: 'Provider rate (→ NPR)',
+          holidays: 'Major holidays', fixed: 'fixed BS date', lunar: 'lunar — varies yearly',
+          nowWx: 'Now', outlook: '7-day outlook', quakes: 'Recent quakes M4+ (30 days)', season: 'Trekking seasons'
+        },
+        ne: {
+          patro: 'पात्रो', patroSub: 'बि.सं. ↔ ई.सं.', paisa: 'पैसा', paisaSub: 'विनिमय · रेमिट',
+          mausam: 'मौसम', mausamSub: 'मौसम · भूकम्प', status: 'स्थिति', statusSub: 'सरकारी लिंक', termSub: 'टर्मिनल',
+          today: 'आज', convert: 'रूपान्तरण', bs2ad: 'बि.सं. → ई.सं.', ad2bs: 'ई.सं. → बि.सं.',
+          year: 'वर्ष', month: 'महिना', day: 'गते', date: 'मिति', amount: 'रकम',
+          youSend: 'पठाउने रकम', fee: 'शुल्क', provRate: 'प्रदायकको दर (→ रु.)',
+          holidays: 'मुख्य बिदाहरू', fixed: 'निश्चित बि.सं. मिति', lunar: 'चान्द्र — हरेक वर्ष फरक',
+          nowWx: 'अहिले', outlook: '७ दिनको पूर्वानुमान', quakes: 'पछिल्ला भूकम्प M4+ (३० दिन)', season: 'पदयात्रा मौसम'
+        }
+      };
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+      };
+      var lang = store.get('np:lang', 'en'); if (lang !== 'en' && lang !== 'ne') lang = 'en';
+      var tab = store.get('np:tab', 'patro');
+      var fxCache = null;   // { rates, date, at }
+      var wxCache = null;   // { cities, at }
+      var qkCache = null;   // { list, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var L = function (k) { return (T[lang] && T[lang][k]) || T.en[k] || k; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+      var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+      var fmtAd = function (utcMs) {
+        var d = new Date(utcMs);
+        return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());
+      };
+      var bsMonthName = function (m) { return (lang === 'ne' ? BS_MONTHS_NE : BS_MONTHS_EN)[m - 1]; };
+      var weekdayName = function (utcMs) { return (lang === 'ne' ? WEEKDAYS_NE : WEEKDAYS_EN)[new Date(utcMs).getUTCDay()]; };
+
+      /* 네팔 표준시(UTC+5:45) 기준 오늘 자정 UTC ms */
+      function nepalTodayUtc() {
+        var now = new Date(Date.now() + 345 * 60000); // +5h45m
+        return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      }
+
+      /* ================= 무료 API 로더 (모두 폴백 포함) ================= */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('np:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('np:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      var WX_CITIES = [
+        { name: 'Kathmandu', ne: 'काठमाडौँ', lat: 27.7172, lon: 85.3240, alt: '1,400 m' },
+        { name: 'Pokhara', ne: 'पोखरा', lat: 28.2096, lon: 83.9856, alt: '820 m' },
+        { name: 'Lukla', ne: 'लुक्ला', lat: 27.6869, lon: 86.7314, alt: '2,860 m' },
+        { name: 'Jomsom', ne: 'जोमसोम', lat: 28.7803, lon: 83.7325, alt: '2,720 m' }
+      ];
+      function wxDesc(code) {
+        if (code === 0) return 'Clear';
+        if (code <= 2) return 'Partly cloudy';
+        if (code === 3) return 'Overcast';
+        if (code === 45 || code === 48) return 'Fog';
+        if (code >= 51 && code <= 57) return 'Drizzle';
+        if (code >= 61 && code <= 67) return 'Rain';
+        if (code >= 71 && code <= 77) return 'Snow';
+        if (code >= 80 && code <= 82) return 'Showers';
+        if (code === 85 || code === 86) return 'Snow showers';
+        if (code >= 95) return 'Thunderstorm';
+        return '—';
+      }
+      function wxIcon(code) {
+        if (code === 0) return '☀️';
+        if (code <= 2) return '⛅';
+        if (code === 3) return '☁️';
+        if (code === 45 || code === 48) return '🌫️';
+        if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return '🌧️';
+        if ((code >= 71 && code <= 77) || code === 85 || code === 86) return '🌨️';
+        if (code >= 95) return '⛈️';
+        return '·';
+      }
+      function loadWx() {
+        if (wxCache && Date.now() - wxCache.at < 30 * 60 * 1000) return Promise.resolve(wxCache);
+        var lats = WX_CITIES.map(function (c) { return c.lat; }).join(',');
+        var lons = WX_CITIES.map(function (c) { return c.lon; }).join(',');
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons +
+          '&current=temperature_2m,weather_code,wind_speed_10m' +
+          '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum' +
+          '&forecast_days=7&timezone=Asia%2FKathmandu';
+        return fetch(url)
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            var arr = Array.isArray(j) ? j : [j];
+            if (!arr[0] || !arr[0].current) throw new Error('bad payload');
+            wxCache = { cities: arr, at: Date.now() };
+            store.set('np:wx', { cities: arr, savedAt: Date.now() });
+            return wxCache;
+          })
+          .catch(function () {
+            var c = store.get('np:wx', null);
+            if (c && c.cities) { wxCache = { cities: c.cities, at: Date.now(), stale: true }; return wxCache; }
+            throw new Error('weather unavailable');
+          });
+      }
+
+      /* USGS — 네팔 대략 bbox: lat 26.3–30.5, lon 80.0–88.3, 최근 30일 M4+ */
+      function loadQuakes() {
+        if (qkCache && Date.now() - qkCache.at < 30 * 60 * 1000) return Promise.resolve(qkCache);
+        var start = new Date(Date.now() - 30 * DAY_MS).toISOString().slice(0, 10);
+        var url = 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=' + start +
+          '&minmagnitude=4&minlatitude=26.3&maxlatitude=30.5&minlongitude=80.0&maxlongitude=88.3&orderby=time';
+        return fetch(url)
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (!j.features) throw new Error('bad payload');
+            var list = j.features.slice(0, 12).map(function (f) {
+              return { mag: f.properties.mag, place: f.properties.place, time: f.properties.time, url: f.properties.url };
+            });
+            qkCache = { list: list, at: Date.now() };
+            store.set('np:qk', { list: list, savedAt: Date.now() });
+            return qkCache;
+          })
+          .catch(function () {
+            var c = store.get('np:qk', null);
+            if (c && c.list) { qkCache = { list: c.list, at: Date.now(), stale: true }; return qkCache; }
+            throw new Error('quake feed unavailable');
+          });
+      }
+
+      /* ================= PATRO 탭 ================= */
+      /* 고정 BS 공휴일 + 대표 음력(변동) 축제 */
+      var HOLIDAYS_FIXED = [
+        [1, 1, 'Nepali New Year (Nawa Barsha)'],
+        [2, 15, 'Republic Day (Ganatantra Diwas)'],
+        [6, 3, 'Constitution Day (Sambidhan Diwas)'],
+        [10, 1, 'Maghe Sankranti'],
+        [11, 7, 'Democracy Day (Prajatantra Diwas)']
+      ];
+      var HOLIDAYS_LUNAR = [
+        ['Maha Shivaratri', 'Feb–Mar (Falgun)'],
+        ['Holi (Fagu Purnima)', 'Feb–Mar (Falgun full moon)'],
+        ['Buddha Jayanti', 'Apr–May (Baishakh full moon)'],
+        ['Janai Purnima', 'Aug (Shrawan full moon)'],
+        ['Teej', 'Aug–Sep (Bhadra)'],
+        ['Indra Jatra', 'Sep (Kathmandu valley)'],
+        ['Dashain (Ghatasthapana → Vijaya Dashami)', 'Sep–Oct (Ashwin)'],
+        ['Tihar (Laxmi Puja → Bhai Tika)', 'Oct–Nov (Kartik)'],
+        ['Chhath Parva', 'Oct–Nov (Kartik)'],
+        ['Lhosar (Tamu · Sonam · Gyalpo)', 'Dec–Feb (varies by community)']
+      ];
+
+      function bsTodayHtml() {
+        var todayUtc = nepalTodayUtc();
+        var bs = adToBs(todayUtc);
+        var html = '<div class="card"><h2>📅 ' + esc(L('today')) + ' <span class="muted">(Nepal time, UTC+5:45)</span></h2>';
+        if (bs) {
+          html += '<div class="big">' + bs.d + ' ' + esc(bsMonthName(bs.m)) + ' ' + bs.y + ' <small>BS</small></div>' +
+            '<div class="muted" style="margin-top:2px">' + esc(weekdayName(todayUtc)) + ' · ' + fmtAd(todayUtc) + ' AD</div>';
+        } else {
+          html += '<div class="muted">Today is outside the supported BS 2070–2100 table.</div>';
+        }
+        return html + '</div>';
+      }
+
+      function bsMonthOpts(y, selM) {
+        var arr = BS_DATA[y] || BS_DATA[BS_MIN], out = '', i;
+        for (i = 1; i <= 12; i++) {
+          out += '<option value="' + i + '"' + (i === selM ? ' selected' : '') + '>' + i + ' — ' + esc(bsMonthName(i)) + ' (' + arr[i - 1] + 'd)</option>';
+        }
+        return out;
+      }
+
+      function cardPatro() {
+        var todayUtc = nepalTodayUtc();
+        var bs = adToBs(todayUtc) || { y: 2083, m: 1, d: 1 };
+        var yOpts = '', y;
+        for (y = BS_MIN; y <= BS_MAX; y++) yOpts += '<option value="' + y + '"' + (y === bs.y ? ' selected' : '') + '>' + y + '</option>';
+        var html = bsTodayHtml();
+
+        html += '<div class="card"><h2>🔁 ' + esc(L('convert')) + ' <span class="muted">BS 2070–2100 · AD 2013–2044</span></h2>' +
+          '<div class="seg"><button id="dir-bs" class="on">' + esc(L('bs2ad')) + '</button><button id="dir-ad">' + esc(L('ad2bs')) + '</button></div>' +
+          '<form class="calc" id="cv-bs-form" onsubmit="return false">' +
+          '<div><label>' + esc(L('year')) + ' (BS)</label><select id="bs-y">' + yOpts + '</select></div>' +
+          '<div><label>' + esc(L('month')) + '</label><select id="bs-m">' + bsMonthOpts(bs.y, bs.m) + '</select></div>' +
+          '<div class="full"><label>' + esc(L('day')) + '</label><input type="number" id="bs-d" min="1" max="32" value="' + bs.d + '" /></div>' +
+          '</form>' +
+          '<form class="calc" id="cv-ad-form" style="display:none" onsubmit="return false">' +
+          '<div class="full"><label>' + esc(L('date')) + ' (AD)</label><input type="date" id="ad-in" value="' + fmtAd(todayUtc) + '" min="2013-04-14" max="2044-04-12" /></div>' +
+          '</form>' +
+          '<div class="result" id="cv-date-out">—</div>' +
+          '<div class="note">BS month lengths follow the published Nepali patro table (29–32 days, no formula). Dates outside BS 2070–2100 are rejected rather than guessed.</div></div>';
+
+        html += '<div class="card"><h2>🎉 ' + esc(L('holidays')) + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + esc(L('fixed')) + ':</p><table class="t"><tr><th>BS date</th><th>Holiday</th></tr>' +
+          HOLIDAYS_FIXED.map(function (h) {
+            return '<tr><td class="c">' + esc(bsMonthName(h[0])) + ' ' + h[1] + '</td><td>' + esc(h[2]) + '</td></tr>';
+          }).join('') + '</table>' +
+          '<p class="muted" style="margin:10px 0 6px">' + esc(L('lunar')) + ':</p><table class="t"><tr><th>Festival</th><th>Usual window</th></tr>' +
+          HOLIDAYS_LUNAR.map(function (h) {
+            return '<tr><td>' + esc(h[0]) + '</td><td class="muted">' + esc(h[1]) + '</td></tr>';
+          }).join('') + '</table>' +
+          '<div class="note">Lunar festival dates shift every year — the official holiday list is gazetted annually by the Ministry of Home Affairs.</div></div>';
+        return html;
+      }
+
+      function wirePatro() {
+        var dir = 'bs';
+        var updDir = function () {
+          $('dir-bs').classList.toggle('on', dir === 'bs');
+          $('dir-ad').classList.toggle('on', dir === 'ad');
+          $('cv-bs-form').style.display = dir === 'bs' ? '' : 'none';
+          $('cv-ad-form').style.display = dir === 'ad' ? '' : 'none';
+          upd();
+        };
+        var upd = function () {
+          var out = $('cv-date-out');
+          if (dir === 'bs') {
+            var y = +$('bs-y').value, m = +$('bs-m').value, d = +$('bs-d').value;
+            var ms = bsToAd(y, m, d);
+            out.innerHTML = ms == null
+              ? '<span class="warn">Invalid BS date — check the day against the month length.</span>'
+              : d + ' ' + esc(bsMonthName(m)) + ' ' + y + ' BS = <b>' + fmtAd(ms) + ' AD</b><div class="sub">' + esc(weekdayName(ms)) + '</div>';
+          } else {
+            var v = $('ad-in').value;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { out.innerHTML = '—'; return; }
+            var p = v.split('-');
+            var bs = adToBs(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+            out.innerHTML = bs == null
+              ? '<span class="warn">Outside supported range (2013-04-14 … end of BS 2100).</span>'
+              : v + ' AD = <b>' + bs.d + ' ' + esc(bsMonthName(bs.m)) + ' ' + bs.y + ' BS</b><div class="sub">' + esc(weekdayName(Date.UTC(+p[0], +p[1] - 1, +p[2]))) + '</div>';
+          }
+        };
+        $('dir-bs').onclick = function () { dir = 'bs'; updDir(); };
+        $('dir-ad').onclick = function () { dir = 'ad'; updDir(); };
+        $('bs-y').onchange = function () { var m = +$('bs-m').value; $('bs-m').innerHTML = bsMonthOpts(+$('bs-y').value, m); upd(); };
+        ['bs-m', 'bs-d', 'ad-in'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+      }
+
+      /* ================= PAISA 탭 ================= */
+      var FX_ROW = [['INR', 1], ['AED', 1], ['QAR', 1], ['MYR', 1], ['KRW', 1000]];
+      var CV_CURS = ['NPR', 'USD', 'INR', 'AED', 'QAR', 'MYR', 'KRW'];
+      var RM_CURS = ['USD', 'KRW', 'AED', 'QAR', 'MYR'];
+      var INR_PEG = 1.60; // 1 INR = 1.60 NPR (1993년부터 고정)
+
+      function cardPaisa(fx) {
+        var r = fx.rates;
+        var usdNpr = r.NPR;
+        var html = '<div class="card"><h2>💱 NPR today <span class="muted">(mid-market)</span></h2>' +
+          '<div class="big">1 USD = ' + (usdNpr ? usdNpr.toFixed(2) : '—') + ' <small>NPR</small></div><div class="row" style="margin-top:8px">';
+        FX_ROW.forEach(function (p) {
+          var v = convert(p[1], p[0], 'NPR', r);
+          html += '<div class="kv"><div class="k">' + (p[1] === 1 ? '1 ' : p[1].toLocaleString('en') + ' ') + p[0] + '</div><div class="v">' + (v == null ? '—' : v.toFixed(2) + ' ₨') + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">Updated: ' + esc(fx.date) + '</div>' +
+          '<div class="note">Mid-market reference rates. Bank counters and remittance providers quote worse — that gap is their margin.</div></div>';
+
+        /* INR 페그 카드 */
+        var apiInr = convert(1, 'INR', 'NPR', r);
+        html += '<div class="card"><h2>🇮🇳 INR peg <span class="muted">fixed since 1993</span></h2>' +
+          '<div class="row"><div class="kv"><div class="k">OFFICIAL PEG</div><div class="v accent-b">1 INR = ' + INR_PEG.toFixed(2) + ' NPR</div></div>' +
+          '<div class="kv"><div class="k">API CROSS RATE</div><div class="v">' + (apiInr == null ? '—' : '1 INR ≈ ' + apiInr.toFixed(3) + ' NPR') + '</div></div></div>' +
+          '<div class="note-b">Nepal Rastra Bank holds the peg at NPR 1.60 per INR; the API cross rate should sit within a whisker of it. All other NPR rates float via USD/INR.</div></div>';
+
+        /* 환전 계산기 */
+        var opts = function (sel) { return CV_CURS.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>' + esc(L('convert')) + '</h2><form class="calc" onsubmit="return false">' +
+          '<div><label>' + esc(L('amount')) + '</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>From → To</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts('NPR') + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 실효비용 계산기 */
+        var rmOpts = RM_CURS.map(function (x) { return '<option>' + x + '</option>'; }).join('');
+        html += '<div class="card"><h2>📤 Remittance true cost</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">Fee is only half the story — the margin hides in the exchange rate. Enter any provider quote:</p>' +
+          '<form class="calc" onsubmit="return false">' +
+          '<div><label>' + esc(L('youSend')) + '</label><div style="display:flex;gap:6px"><input type="number" id="rm-amt" value="500" min="1" step="any" /><select id="rm-cur">' + rmOpts + '</select></div></div>' +
+          '<div><label>' + esc(L('fee')) + ' (same currency)</label><input type="number" id="rm-fee" value="5" min="0" step="any" /></div>' +
+          '<div class="full"><label>' + esc(L('provRate')) + '</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + (usdNpr ? (usdNpr * 0.97).toFixed(2) : '130') + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">Compared against today\u2019s mid-market cross rate. Under 4% total cost is good; above 6% is expensive. Only the NPR received matters.</div></div>';
+
+        /* EPS-Korea 카드 */
+        html += '<div class="card"><h2>🇰🇷 EPS-Korea quick card</h2>' +
+          '<div class="links">' +
+          '<a href="https://www.eps.go.kr/" target="_blank" rel="noopener">EPS official (eps.go.kr)<span>HRD Korea — Employment Permit System portal</span></a>' +
+          '<a href="https://www.hrdkorea.or.kr/" target="_blank" rel="noopener">HRD Korea (hrdkorea.or.kr)<span>Exam announcements, standard textbook, question bank</span></a>' +
+          '<a href="https://dofe.gov.np/" target="_blank" rel="noopener">Department of Foreign Employment (dofe.gov.np)<span>Nepal — labour approvals &amp; EPS Korea Section notices</span></a>' +
+          '</div>' +
+          '<div class="note">EPS recruitment is government-to-government ONLY. No agent can buy roster selection — anyone charging lakhs for "guaranteed Korea" is running a scam. Legitimate costs (exam ≈ USD 28, medical, passport, visa, airfare) are published and modest.</div></div>';
+        return html;
+      }
+
+      function wirePaisa(fx) {
+        var r = fx.rates;
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var cur = $('rm-cur').value;
+          var mid = convert(1, cur, 'NPR', r);
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, mid || 0);
+          $('rm-out').innerHTML = res == null ? '—' :
+            'Recipient gets <b>' + Math.round(res.received).toLocaleString('en') + ' NPR</b> · total cost <b class="' + (res.costPct > 6 ? 'crit' : res.costPct > 4 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b> vs mid-market' +
+            '<div class="sub">mid-market: 1 ' + cur + ' = ' + (mid ? mid.toFixed(3) : '—') + ' NPR</div>';
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate', 'rm-cur'].forEach(function (id) { $(id).oninput = updR; $(id).onchange = updR; });
+        updR();
+      }
+
+      /* ================= MAUSAM 탭 ================= */
+      function cardMausam(wx, qk) {
+        var html = '<div class="card"><h2>🏔 ' + esc(L('nowWx')) + ' <span class="muted">Asia/Kathmandu' + (wx.stale ? ' · cached' : '') + '</span></h2><div class="wx-grid">';
+        wx.cities.forEach(function (c, i) {
+          var city = WX_CITIES[i], cur = c.current;
+          html += '<div class="wx-city"><div class="nm">' + esc(lang === 'ne' ? city.ne : city.name) + ' <span class="muted">' + esc(city.alt) + '</span></div>' +
+            '<div class="tp">' + wxIcon(cur.weather_code) + ' ' + Math.round(cur.temperature_2m) + '°C</div>' +
+            '<div class="ds">' + esc(wxDesc(cur.weather_code)) + ' · wind ' + Math.round(cur.wind_speed_10m) + ' km/h</div></div>';
+        });
+        html += '</div></div>';
+
+        /* 7일 전망 — 카트만두 기준 + 도시 선택 */
+        html += '<div class="card"><h2>📆 ' + esc(L('outlook')) + '</h2>' +
+          '<div class="seg" id="wx-seg">' + WX_CITIES.map(function (c, i) {
+            return '<button data-i="' + i + '"' + (i === 0 ? ' class="on"' : '') + '>' + esc(c.name) + '</button>';
+          }).join('') + '</div><div id="wx-week"></div>' +
+          '<div class="note-b">Forecasts by open-meteo.com. Mountain weather turns fast — treat day 5+ as a trend, not a promise, and always check locally before flights to Lukla or Jomsom.</div></div>';
+
+        /* 지진 */
+        html += '<div class="card"><h2>🌋 ' + esc(L('quakes')) + (qk && qk.stale ? ' <span class="muted">cached</span>' : '') + '</h2>';
+        if (!qk) {
+          html += '<div class="muted">Quake feed unavailable right now.</div>';
+        } else if (!qk.list.length) {
+          html += '<div class="muted ok">No M4+ events recorded in the Nepal region in the last 30 days.</div>';
+        } else {
+          html += '<table class="t"><tr><th>Mag</th><th>Where</th><th>When (UTC)</th></tr>' +
+            qk.list.map(function (q) {
+              var cls = q.mag >= 6 ? 'crit' : q.mag >= 5 ? 'warn' : 'ok';
+              var t = new Date(q.time).toISOString().replace('T', ' ').slice(0, 16);
+              return '<tr><td class="c ' + cls + '">M' + q.mag.toFixed(1) + '</td><td><a href="' + q.url + '" target="_blank" rel="noopener" style="color:var(--blue)">' + esc(q.place || '—') + '</a></td><td class="muted">' + t + '</td></tr>';
+            }).join('') + '</table>';
+        }
+        html += '<div class="note">Source: USGS public GeoJSON feed (Nepal bounding box). Official national alerts: seismonepal.gov.np.</div></div>';
+
+        /* 트레킹 시즌 */
+        html += '<div class="card"><h2>🥾 ' + esc(L('season')) + '</h2><table class="t">' +
+          '<tr><th>Season</th><th>Months</th><th>Verdict</th></tr>' +
+          '<tr><td>Post-monsoon</td><td class="c">Oct–Nov</td><td><span class="ok">Best</span> — clearest skies, stable weather</td></tr>' +
+          '<tr><td>Spring</td><td class="c">Mar–May</td><td><span class="ok">Great</span> — warm, rhododendrons, some haze</td></tr>' +
+          '<tr><td>Winter</td><td class="c">Dec–Feb</td><td><span class="warn">Cold</span> — clear low routes, high passes may close</td></tr>' +
+          '<tr><td>Monsoon</td><td class="c">Jun–Sep</td><td><span class="crit">Avoid</span> — except rain-shadow Mustang &amp; Dolpo</td></tr>' +
+          '</table><div class="note">Above 3,000 m: gain ≤ ~500 m sleeping altitude/day, add rest days, and never ascend with AMS symptoms (headache + nausea/dizziness/poor sleep). Descend if symptoms worsen.</div></div>';
+        return html;
+      }
+
+      function wireMausam(wx) {
+        var showWeek = function (i) {
+          var c = wx.cities[i], d = c.daily, out = '<div class="wk-row">';
+          for (var k = 0; k < d.time.length; k++) {
+            out += '<div class="wk-day"><b>' + d.time[k].slice(5) + '</b>' + wxIcon(d.weather_code[k]) + ' ' +
+              Math.round(d.temperature_2m_max[k]) + '° / ' + Math.round(d.temperature_2m_min[k]) + '°' +
+              '<br />' + (d.precipitation_sum[k] > 0 ? d.precipitation_sum[k].toFixed(1) + ' mm' : '—') + '</div>';
+          }
+          $('wx-week').innerHTML = out + '</div>';
+        };
+        Array.prototype.forEach.call($('wx-seg').querySelectorAll('button'), function (b) {
+          b.onclick = function () {
+            Array.prototype.forEach.call($('wx-seg').querySelectorAll('button'), function (x) { x.classList.remove('on'); });
+            b.classList.add('on');
+            showWeek(+b.dataset.i);
+          };
+        });
+        showWeek(0);
+      }
+
+      /* ================= STATUS 탭 ================= */
+      var STATUS_ITEMS = [
+        {
+          h: '🎓 SEE / NEB results',
+          links: [
+            ['https://see.gov.np/', 'SEE — see.gov.np', 'Secondary Education Examination results & notices'],
+            ['https://www.neb.gov.np/', 'NEB — neb.gov.np', 'Class 11/12 (NEB) results and grade sheets']
+          ],
+          steps: ['Keep your symbol number from the admit card ready.', 'Check the result portal when NEB/SEE announces publication (also via NTC SMS/IVR).', 'Collect the original grade sheet from your school a few weeks later.']
+        },
+        {
+          h: '🛂 Passport (MRP → e-passport)',
+          links: [
+            ['https://nepalpassport.gov.np/', 'Department of Passports — nepalpassport.gov.np', 'Online pre-enrolment, appointment booking, status tracking']
+          ],
+          steps: ['Fill the online pre-enrolment form and book an appointment (DAO district office or DoP).', 'Attend with citizenship certificate + receipt; give biometrics and pay the fee.', 'Track status online; collect in person when it shows "Ready".']
+        },
+        {
+          h: '🚗 Driving licence (DoTM)',
+          links: [
+            ['https://www.dotm.gov.np/', 'Department of Transport Management — dotm.gov.np', 'Online form, written & trial exam info, smart licence status']
+          ],
+          steps: ['Apply online via the DoTM system and book a biometric appointment.', 'Pass the written exam, then the practical (trial) test for your category.', 'Check smart-card print status online; collect from your transport office.']
+        },
+        {
+          h: '🧾 PAN (Permanent Account Number)',
+          links: [
+            ['https://ird.gov.np/', 'Inland Revenue Department — ird.gov.np', 'Taxpayer portal: personal & business PAN registration']
+          ],
+          steps: ['Register on the IRD Taxpayer Portal (citizenship + photo needed).', 'Submit the application to your Inland Revenue Office (many accept fully online).', 'Download/print the PAN certificate from the portal once approved.']
+        },
+        {
+          h: '🆔 National ID & foreign employment',
+          links: [
+            ['https://donidcm.gov.np/', 'National ID Management — donidcm.gov.np', 'National Identity Card enrolment and status'],
+            ['https://dofe.gov.np/', 'Department of Foreign Employment — dofe.gov.np', 'Labour approvals, complaint filing, EPS Korea Section notices']
+          ],
+          steps: ['These portals are free — status checks never require payment.', 'Beware of look-alike sites and "agents" charging for free services.']
+        }
+      ];
+
+      function cardStatus() {
+        return STATUS_ITEMS.map(function (s) {
+          return '<div class="card"><h2>' + s.h + '</h2>' +
+            '<div class="links">' + s.links.map(function (l) {
+              return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+            }).join('') + '</div>' +
+            '<ol style="margin:8px 0 2px;padding-left:20px;font-size:13px;color:var(--dim)">' +
+            s.steps.map(function (st) { return '<li>' + esc(st) + '</li>'; }).join('') + '</ol></div>';
+        }).join('') +
+          '<div class="card"><div class="note">All of the above are official government portals. This page performs no lookups and holds no personal data — it only links out. Any site or person charging money just to "check status" is a scam.</div></div>';
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var ALL_LINKS = [];
+      STATUS_ITEMS.forEach(function (s) { s.links.forEach(function (l) { ALL_LINKS.push(l); }); });
+      ALL_LINKS.push(['https://www.eps.go.kr/', 'EPS Korea', 'Employment Permit System portal']);
+      ALL_LINKS.push(['https://ntb.gov.np/', 'Nepal Tourism Board', 'Trekking permits & tourism info']);
+      ALL_LINKS.push(['https://seismonepal.gov.np/', 'National Earthquake Monitoring Centre', 'Official Nepali seismic alerts']);
+
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ NEPAL PANEL // himal_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com · open-meteo · USGS ......... [OK]</span>',
+        '<span class="t-dim">  patro table: BS 2070–2100 .......................... [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for commands · <span class="t-hi">bs 2026-07-21</span> to convert a date</span>'
+      ];
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'what this terminal is', f: function () { return 'Daily-utility terminal for Nepal — BS patro math, NPR FX, quakes, official portals.\nStatic page, no accounts; nothing you type leaves the browser.'; } },
+        today: { d: 'today in Bikram Sambat', f: function () { var t = nepalTodayUtc(); var b = adToBs(t); return b ? 'today (NPT) = <span class="t-hi">' + b.d + ' ' + BS_MONTHS_EN[b.m - 1] + ' ' + b.y + ' BS</span> <span class="t-dim">(' + fmtAd(t) + ' AD, ' + WEEKDAYS_EN[new Date(t).getUTCDay()] + ')</span>' : '<span class="t-crit">outside table range</span>'; } },
+        bs: { d: 'bs <yyyy-mm-dd> — convert AD date to BS', f: function (a) { var v = a[0] || ''; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'usage: bs 2026-07-21'; var p = v.split('-'); var ms = Date.UTC(+p[0], +p[1] - 1, +p[2]); var b = adToBs(ms); return b ? v + ' AD = <span class="t-hi">' + b.d + ' ' + BS_MONTHS_EN[b.m - 1] + ' ' + b.y + ' BS</span> <span class="t-dim">(' + WEEKDAYS_EN[new Date(ms).getUTCDay()] + ')</span>' : '<span class="t-crit">outside supported range</span> <span class="t-dim">(2013-04-14 … end of BS 2100)</span>'; } },
+        ad: { d: 'ad <yyyy-mm-dd> — convert BS date to AD', f: function (a) { var v = a[0] || ''; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'usage: ad 2083-04-05'; var p = v.split('-'); var ms = bsToAd(+p[0], +p[1], +p[2]); return ms != null ? v + ' BS = <span class="t-hi">' + fmtAd(ms) + ' AD</span> <span class="t-dim">(' + WEEKDAYS_EN[new Date(ms).getUTCDay()] + ')</span>' : '<span class="t-crit">invalid or outside BS 2070–2100</span>'; } },
+        fx: { d: 'today\u2019s NPR mid-market rates', f: function () { return loadFx().then(function (fx) { var out = ['  1 USD = <span class="t-hi">' + fx.rates.NPR.toFixed(2) + ' NPR</span>']; FX_ROW.forEach(function (p) { var v = convert(p[1], p[0], 'NPR', fx.rates); out.push('  ' + (p[1] === 1 ? '1' : p[1].toLocaleString('en')) + ' ' + p[0] + ' = <span class="t-hi">' + (v == null ? '—' : v.toFixed(2) + ' NPR') + '</span>'); }); return out.join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, providers quote worse</span>'; }); } },
+        peg: { d: 'INR peg info', f: function () { return '1 INR = <span class="t-hi">1.60 NPR</span> — fixed since 1993, held by Nepal Rastra Bank.\n<span class="t-dim">every other NPR rate floats through the USD/INR market</span>'; } },
+        quake: { d: 'recent M4+ quakes (Nepal bbox, 30d)', f: function () { return loadQuakes().then(function (qk) { if (!qk.list.length) return '<span class="t-ok">no M4+ events in the Nepal region in the last 30 days</span>'; return qk.list.slice(0, 8).map(function (q) { var cls = q.mag >= 6 ? 't-crit' : q.mag >= 5 ? 't-warn' : 't-ok'; return '  <span class="' + cls + '">M' + q.mag.toFixed(1) + '</span> ' + esc(q.place || '—') + ' <span class="t-dim">' + new Date(q.time).toISOString().slice(0, 16).replace('T', ' ') + 'Z</span>'; }).join('\n') + '\n<span class="t-dim">source: USGS · official alerts: seismonepal.gov.np</span>'; }); } },
+        links: { d: 'official portals', f: function () { return ALL_LINKS.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); } },
+        eps: { d: 'EPS-Korea essentials', f: function () { return 'EPS = government-to-government only. No agent can buy selection.\n  ' + tLink('https://www.eps.go.kr/', 'eps.go.kr') + ' <span class="t-dim">— HRD Korea portal</span>\n  ' + tLink('https://dofe.gov.np/', 'dofe.gov.np') + ' <span class="t-dim">— Nepal DoFE / EPS Korea Section</span>\n<span class="t-warn">legit costs ≈ exam $28 + passport/medical/visa/airfare — lakhs to a broker = scam</span>'; } },
+        holidays: { d: 'fixed-BS holidays', f: function () { return HOLIDAYS_FIXED.map(function (h) { return '  <span class="t-hi">' + (BS_MONTHS_EN[h[0] - 1] + ' ' + h[1]).padEnd(14) + '</span> ' + esc(h[2]); }).join('\n') + '\n<span class="t-dim">Dashain, Tihar, Holi etc. are lunar — they shift every year</span>'; } },
+        sources: { d: 'data sources', f: function () { return '  FX: open.er-api.com (mid-market, daily)\n  weather: open-meteo.com (Asia/Kathmandu)\n  quakes: USGS fdsnws GeoJSON (Nepal bbox)\n  patro: published BS month-length tables, cross-checked anchors'; } },
+        whoami: { d: 'who are you', f: function () { return 'user@himal // 🇳🇵 Nepal Panel — stay sharp, verify everything'; } },
+        version: { d: 'app version', f: function () { return 'nepal-panel terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'patro'; store.set('np:tab', tab); render(); return ''; } }
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@himal:~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@himal:~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      function applyLang() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) {
+          el.textContent = L(el.getAttribute('data-t'));
+        });
+        $('lang-btn').textContent = lang === 'en' ? 'EN / नेपाली' : 'नेपाली / EN';
+      }
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'patro') { view.innerHTML = cardPatro(); wirePatro(); return; }
+        if (tab === 'status') { view.innerHTML = cardStatus(); return; }
+        if (tab === 'paisa') {
+          view.innerHTML = '<div class="loading">Loading rates …</div>';
+          loadFx().then(function (fx) {
+            if (tab !== 'paisa') return;
+            view.innerHTML = cardPaisa(fx);
+            wirePaisa(fx);
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">Could not load exchange rates — try again later.</div></div>';
+          });
+          return;
+        }
+        /* mausam */
+        view.innerHTML = '<div class="loading">Loading weather …</div>';
+        loadWx().then(function (wx) {
+          if (tab !== 'mausam') return;
+          return loadQuakes().then(function (qk) { return { wx: wx, qk: qk }; }, function () { return { wx: wx, qk: null }; });
+        }).then(function (o) {
+          if (!o || tab !== 'mausam') return;
+          view.innerHTML = cardMausam(o.wx, o.qk);
+          wireMausam(o.wx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">Could not load weather — try again later.</div></div>';
+        });
+      }
+
+      (function init() {
+        $('lang-btn').onclick = function () {
+          lang = lang === 'en' ? 'ne' : 'en';
+          store.set('np:lang', lang);
+          applyLang();
+          render();
+        };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('np:tab', tab); render(); };
+        });
+        applyLang();
+        render();
+      })();
+    </script>
+  </body>
+</html>

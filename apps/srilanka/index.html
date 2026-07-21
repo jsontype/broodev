@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lanka Panel — power cuts, trains, rupee &amp; exam results for Sri Lanka in one panel</title>
+    <meta name="description" content="One lightweight panel for daily life in Sri Lanka: CEB power-cut group lookup, railway line directory with booking links, live USD/LKR and remittance true-cost calculator, A/L and O/L results portals, and the clearest plain-English explanation of the Z-score university admission system." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://srilanka.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Lanka Panel — power · train · rupee · results" />
+    <meta name="twitter:description" content="CEB power-cut groups, railway lines &amp; booking, live LKR rates &amp; remittance cost, A/L Z-score explained, NIC &amp; passport links — one fast page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lanka Panel — power · train · rupee · results" />
+    <meta property="og:description" content="CEB power-cut groups, railway lines &amp; booking, live LKR rates &amp; remittance cost, A/L Z-score explained, NIC &amp; passport links — one fast page." />
+    <meta property="og:url" content="https://srilanka.broodev.com/" />
+    <style>
+      :root {
+        --bg: #1a0a0c; --bg-soft: #241014; --panel: #2a1317; --line: #55282e;
+        --gold: #f2c14e; --gold-dim: #a8853a; --text: #f5ead9; --dim: #c4a68f;
+        --green: #2e8b57; --green-hi: #58c98a; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--gold); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--gold); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 11.5px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12px; color: var(--text); }
+      .tab.on { border-color: var(--gold); color: var(--gold); background: #38191f; }
+      .tab.on b { color: var(--gold); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--gold); letter-spacing: .5px; }
+      .card h3 { margin: 12px 0 4px; font-size: 13px; color: var(--green-hi); }
+      .muted { color: var(--dim); font-size: 12px; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--green-hi); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--gold); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(242,193,78,.07); border-left: 3px solid var(--gold-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      .note.g { background: rgba(46,139,87,.1); border-left-color: var(--green); }
+      table.tb { width: 100%; border-collapse: collapse; font-size: 13px; }
+      table.tb th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.tb td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); vertical-align: top; }
+      table.tb td.c { font-family: var(--font); color: var(--green-hi); font-weight: 700; white-space: nowrap; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--gold); }
+      .ln { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; background: var(--bg-soft); }
+      .ln .nm { font-family: var(--font); color: var(--gold); font-size: 13.5px; font-weight: 700; }
+      .ln .st { font-size: 12.5px; color: var(--text); margin: 4px 0 2px; }
+      .ln .mt { font-size: 12px; color: var(--dim); }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--gold-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .tab { font-size: 9px; } .tab b { font-size: 10.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #0d0405; border: 1px solid #55282e; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(242,193,78,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #f7d98c; text-shadow: 0 0 6px rgba(242,193,78,.3); }
+      #t-out .t-dim { color: #96703f; text-shadow: none; }
+      #t-out .t-hi { color: #fdf2d8; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--green-hi); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--gold); white-space: nowrap; text-shadow: 0 0 6px rgba(242,193,78,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #fdf2d8; font-family: var(--font); font-size: 13px; caret-color: var(--gold); }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--gold); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo h3 { color: var(--green-hi); font-size: 13.5px; margin: 14px 0 4px; }
+      .seo a { color: var(--gold); }
+      .seo ul, .seo ol { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo table th { color: var(--gold-dim); text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+      .seo table td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎LANKA PANEL <small>· power · train · rupee · results</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="lang-sel" aria-label="Language">
+          <option value="en">EN</option>
+          <option value="ta">தமிழ்</option>
+          <option value="si">සිංහල</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="power"><b>⚡ <span data-t="power">POWER</span></b><span data-t="powerS">Cuts · weather</span></div>
+        <div class="tab" data-tab="train"><b>🚂 <span data-t="train">TRAIN</span></b><span data-t="trainS">Lines · booking</span></div>
+        <div class="tab" data-tab="rupee"><b>💱 <span data-t="rupee">RUPEE</span></b><span data-t="rupeeS">FX · remit</span></div>
+        <div class="tab" data-tab="results"><b>🗂 <span data-t="results">RESULTS</span></b><span data-t="resultsS">Exams · ID</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span data-t="termS">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        FX data: open.er-api.com (mid-market, updated daily) · Weather: open-meteo.com · For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings live only in your browser (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Lanka Panel">
+      <h2>What is Lanka Panel?</h2>
+      <p>
+        A free, data-light utility panel for daily life in <strong>Sri Lanka</strong>. It puts four things on one fast page:
+        <strong>power-cut information</strong> — official CEB and PUCSL links plus a plain-English explanation of how the
+        demand-management letter groups work, with live temperatures for Colombo, Kandy, Jaffna and Galle;
+        a <strong>railway directory</strong> covering the Main, Coastal, Puttalam, Kelani Valley, Northern and Batticaloa lines
+        with key stations, typical journey times and official booking links; <strong>rupee tools</strong> — live mid-market
+        rates for USD, AED, QAR, KRW and GBP against the LKR, a converter and a remittance true-cost calculator; and
+        <strong>results &amp; ID portals</strong> — G.C.E. A/L and O/L results at doenets.lk, NIC services and passports,
+        together with the clearest short explanation of the <strong>Z-score</strong> you will find anywhere.
+        No app install, no account — it works on cheap data and old phones.
+      </p>
+
+      <h2>The A/L Z-score, demystified</h2>
+      <p>
+        University admission in Sri Lanka is not decided by your raw A/L marks. Each subject's marks are converted to a
+        <strong>Z-score</strong>: in plain words, <em>your mark minus the island-wide average for that subject, divided by how
+        spread out everyone's marks were</em> (the standard deviation). A Z-score of 0 means you scored exactly the national
+        average; +1.0 means you beat the average by one "typical gap"; +2.0 puts you far ahead of almost everyone.
+        Your final figure is the <strong>average of your three subject Z-scores</strong>. The Department of Examinations adopted
+        this system because different subjects have very different marking difficulty — comparing raw marks across
+        Biology, Combined Mathematics and Physics would be unfair. The Z-score puts everyone on the same statistical ruler,
+        so what matters is how far you rose above the crowd sitting the <em>same paper</em>.
+      </p>
+
+      <h2>Why a 75 in Biology can beat an 85 in Combined Maths</h2>
+      <p>
+        This is the part that surprises most families. Suppose Biology was brutally hard one year: the island mean was 45
+        with a standard deviation of 12. A student scoring <strong>75</strong> sits (75 − 45) ÷ 12 = <strong>+2.50</strong> —
+        two and a half typical gaps above the nation. Now suppose Combined Maths was gentler: mean 60, standard deviation 15.
+        A student scoring <strong>85</strong> gets (85 − 60) ÷ 15 = <strong>+1.67</strong>. The "lower" raw mark produces the
+        far stronger Z-score, because it represents a rarer achievement on a harder paper. This is why you cannot judge your
+        chances from raw marks, and why cut-off Z-scores differ every year and for every course and district.
+      </p>
+      <table>
+        <tr><th>Subject</th><th>Your raw mark</th><th>Island mean</th><th>Std. deviation</th><th>Z-score</th></tr>
+        <tr><td>Biology (hard paper)</td><td>75</td><td>45</td><td>12</td><td><strong>+2.50</strong></td></tr>
+        <tr><td>Combined Maths (easier paper)</td><td>85</td><td>60</td><td>15</td><td><strong>+1.67</strong></td></tr>
+      </table>
+
+      <h2>District quotas: how university seats are actually allocated</h2>
+      <p>
+        A high Z-score alone does not fix your fate — <strong>where you sat the exam</strong> matters too. For most courses,
+        roughly <strong>40%</strong> of seats are filled on all-island merit (the top Z-scores nationwide, regardless of
+        district), about <strong>55%</strong> are divided among the 25 districts in proportion to their population, and around
+        <strong>5%</strong> is reserved for a list of educationally disadvantaged districts. The practical effect: the cut-off
+        Z-score for, say, Medicine can be noticeably lower in a rural district than in Colombo, because Colombo students
+        compete against a much deeper pool for their district share. The exact percentages and disadvantaged-district list
+        are set by the University Grants Commission (<a href="https://www.ugc.ac.lk/" rel="noopener">ugc.ac.lk</a>) and can
+        change — always read the current admissions handbook before making decisions.
+      </p>
+
+      <h2>CEB demand-management groups A–W, explained</h2>
+      <p>
+        When electricity supply falls short, the Ceylon Electricity Board does not switch the whole island off at once.
+        The country's distribution feeders are bundled into <strong>letter groups — A through W</strong> — and a rotating
+        schedule assigns each group its interruption window, so the pain is shared in slices of a few hours rather than a
+        blanket blackout. Any schedule must be approved by the regulator, the Public Utilities Commission of Sri Lanka
+        (<a href="https://www.pucsl.gov.lk/" rel="noopener">PUCSL</a>), which publishes the approved time bands. Your home's
+        group is fixed by which feeder serves your street, not by your postal district name — neighbouring streets can sit
+        in different groups. During the 2022 crisis these group letters became household vocabulary; the same machinery is
+        reused whenever scheduled interruptions return.
+      </p>
+
+      <h2>How to find your power-cut group</h2>
+      <p>
+        The reliable way is the CEB's own customer portal, <a href="https://cebcare.ceb.lk/" rel="noopener">cebcare.ceb.lk</a>:
+        enter your <strong>account number</strong> (printed on any electricity bill) or search by address, and the portal shows
+        the group letter attached to your supply point plus any scheduled interruption for it. If you cannot find a bill, the
+        10-digit account number is also on the meter-reading slip. PUCSL's site publishes the approved schedule tables per group,
+        so once you know your letter you can read your time bands directly. Beware of third-party "schedule apps" that are
+        updated late — schedules can change same-day, and only CEB and PUCSL announcements are authoritative. LECO customers
+        (parts of the Western coastal belt) should check <a href="https://www.leco.lk/" rel="noopener">leco.lk</a> instead.
+      </p>
+
+      <h2>Sri Lanka's railway lines at a glance</h2>
+      <p>
+        Sri Lanka Railways runs a compact but scenic network out of Colombo Fort. The <strong>Main Line</strong> climbs from
+        Colombo through Kandy country to the tea highlands and ends at Badulla — the Nanu Oya–Ella stretch is often called one
+        of the world's most beautiful rides. The <strong>Coastal Line</strong> hugs the sea south to Galle, Matara and Beliatta.
+        The <strong>Puttalam Line</strong> serves Negombo and the airport belt; the <strong>Kelani Valley Line</strong> is
+        Colombo's commuter artery toward Avissawella; the <strong>Northern Line</strong> reaches Jaffna and Kankesanthurai;
+        and the <strong>Batticaloa Line</strong> branches east through Polonnaruwa. Typical journey times below are for
+        express services in normal conditions; slow trains take considerably longer.
+      </p>
+      <table>
+        <tr><th>Route</th><th>Line</th><th>Typical express time</th></tr>
+        <tr><td>Colombo Fort → Kandy</td><td>Main</td><td>≈ 2.5–3 h</td></tr>
+        <tr><td>Colombo Fort → Ella</td><td>Main</td><td>≈ 8–9 h</td></tr>
+        <tr><td>Colombo Fort → Badulla</td><td>Main</td><td>≈ 9–10 h</td></tr>
+        <tr><td>Colombo Fort → Galle</td><td>Coastal</td><td>≈ 2–2.5 h</td></tr>
+        <tr><td>Colombo Fort → Matara</td><td>Coastal</td><td>≈ 3–3.5 h</td></tr>
+        <tr><td>Colombo Fort → Jaffna</td><td>Northern</td><td>≈ 6–7 h</td></tr>
+        <tr><td>Colombo Fort → Batticaloa</td><td>Batticaloa</td><td>≈ 7–8 h</td></tr>
+      </table>
+
+      <h2>How to get a railway season ticket</h2>
+      <p>
+        Daily commuters can cut fares dramatically with a <strong>monthly season ticket</strong> between two named stations.
+        The process is old-fashioned but simple: (1) pick your origin and destination stations — the ticket is valid only on
+        that section; (2) collect the application form from the issuing station or download it via
+        <a href="https://railway.gov.lk/" rel="noopener">railway.gov.lk</a>; (3) public-sector and many private-sector
+        employees can have the form certified by their employer for a concessionary rate, while ordinary season tickets need
+        no certification; (4) hand in the form with a photo and pay at the counter <em>before</em> the month begins — busy
+        stations run dedicated season queues in the last days of each month; (5) renew monthly, keeping the card intact.
+        Carry it on every journey: travelling outside your named section counts as ticketless travel.
+      </p>
+
+      <h2>Remittance corridors: the true cost of sending money home</h2>
+      <p>
+        Remittances are one of Sri Lanka's largest foreign-exchange earners, and most of it flows from the
+        <strong>Middle East (UAE, Qatar, Saudi Arabia, Kuwait), South Korea and Italy</strong>. The advertised "zero fee" is
+        rarely the real price — the margin hides in the exchange rate. To see the true cost, compare what the recipient
+        actually gets against the mid-market rate: <em>(mid-market value − received value) ÷ mid-market value</em>. Gulf
+        corridors are among the world's cheapest (often 2–4% all-in), Korea's EPS workers usually remit through dedicated
+        bank channels at similar cost, and Italy–Sri Lanka transfers vary widely by provider. Two rules: always compare the
+        <strong>LKR amount received</strong>, not the fee; and avoid informal <em>undiyal/hawala</em> channels — they are
+        illegal, uninsured, and starve official reserves. The calculator in the RUPEE tab does this math for you.
+      </p>
+
+      <h2>The two monsoons: what SW and NE actually mean</h2>
+      <p>
+        Sri Lanka has no single "rainy season" — it has two, hitting opposite coasts. The <strong>South-West (Yala) monsoon</strong>,
+        roughly May to September, soaks the west and south-west — Colombo, Galle, the hill country's western slopes — and makes
+        west-coast seas rough, while the east coast (Trincomalee, Arugam Bay, Pasikudah) enjoys its calm, dry beach season.
+        The <strong>North-East (Maha) monsoon</strong>, roughly December to February, reverses the pattern: rain moves to the
+        north and east while the west and south turn dry and sunny — which is why Mirissa and Unawatuna peak from December to
+        March. Between the two sit inter-monsoon spells (October–November especially) with island-wide afternoon thunderstorms.
+        For farmers the names matter too: <em>Maha</em> and <em>Yala</em> are the two cultivation seasons keyed to these rains.
+      </p>
+
+      <h2>Official portals linked from this page</h2>
+      <p>
+        Every lookup this page points to is a free, official government or utility service. If a site or SMS shortcode asks
+        you to pay for a result check, a "faster" NIC status, or a power-cut schedule, it is not official. Bookmark these:
+      </p>
+      <ul>
+        <li><a href="https://cebcare.ceb.lk/" rel="noopener">CEB Care</a> — power-cut group lookup and outage schedule by account number</li>
+        <li><a href="https://www.pucsl.gov.lk/" rel="noopener">PUCSL</a> — regulator; approved interruption schedules</li>
+        <li><a href="https://railway.gov.lk/" rel="noopener">Sri Lanka Railways</a> — timetables, fares, season ticket forms</li>
+        <li><a href="https://seatreservation.railway.gov.lk/" rel="noopener">SLR Seat Reservation</a> — online booking for reserved intercity seats</li>
+        <li><a href="https://www.doenets.lk/" rel="noopener">DoE (doenets.lk)</a> — G.C.E. A/L and O/L results release</li>
+        <li><a href="https://www.ugc.ac.lk/" rel="noopener">UGC</a> — university admission handbook, Z-score cut-offs</li>
+        <li><a href="https://drp.gov.lk/" rel="noopener">Dept. for Registration of Persons</a> — NIC services</li>
+        <li><a href="https://www.immigration.gov.lk/" rel="noopener">Dept. of Immigration &amp; Emigration</a> — passports</li>
+      </ul>
+
+      <h2>Frequently asked questions</h2>
+      <h3>How is the A/L Z-score calculated?</h3>
+      <p>
+        For each subject: (your mark − the island-wide mean for that subject) ÷ the subject's standard deviation. Your final
+        Z-score is the average across your three A/L subjects. It measures how far you rose above everyone who sat the same
+        papers, which is why it — not raw marks — decides university selection.
+      </p>
+      <h3>How do I find my CEB power-cut group?</h3>
+      <p>
+        Log the account number from any electricity bill into <a href="https://cebcare.ceb.lk/" rel="noopener">cebcare.ceb.lk</a>
+        (or search by address). The portal shows your feeder's letter group (A–W) and any scheduled interruption. PUCSL
+        publishes the approved time bands per group.
+      </p>
+      <h3>Can I book Sri Lanka Railways seats online?</h3>
+      <p>
+        Yes — reserved seats on intercity and long-distance trains can be booked at
+        <a href="https://seatreservation.railway.gov.lk/" rel="noopener">seatreservation.railway.gov.lk</a>. Unreserved
+        (2nd/3rd class ordinary) tickets are sold at station counters only. Book hill-country trains days ahead in season.
+      </p>
+      <h3>Where do A/L and O/L results come out?</h3>
+      <p>
+        On the Department of Examinations portal <a href="https://www.doenets.lk/" rel="noopener">doenets.lk</a>, using your
+        index number. Results are free to check — ignore any site or SMS service that demands payment for the same lookup.
+      </p>
+      <h3>Is the exchange rate on this page the rate I'll get?</h3>
+      <p>
+        No — it is the mid-market reference rate from open.er-api.com. Banks and remittance providers apply their own margins.
+        Use the remittance calculator to measure a provider's true all-in cost against the mid-market rate.
+      </p>
+      <h3>Does this site store my data?</h3>
+      <p>
+        No accounts, no server storage, no ad scripts. Your language and tab preferences are kept only in your own browser's
+        localStorage, and nothing you type in the terminal or calculators leaves your device.
+      </p>
+      <h3>What is the district quota in university admission?</h3>
+      <p>
+        After the all-island merit share (roughly 40% of seats), about 55% of seats for each course are divided among the 25
+        districts in proportion to population, with around 5% reserved for educationally disadvantaged districts — so the
+        cut-off Z-score for the same course differs from district to district. The UGC handbook has the current figures.
+      </p>
+      <h3>When are the best months to visit each coast?</h3>
+      <p>
+        West and south coasts (Colombo, Galle, Mirissa): roughly December to March, during the North-East monsoon when that
+        side is dry. East coast (Trincomalee, Arugam Bay): roughly May to September, while the South-West monsoon soaks the
+        opposite shore. October–November brings island-wide inter-monsoon thunderstorms.
+      </p>
+
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab for a small terminal — <code>help</code>, <code>fx</code>,
+        <code>links</code>, <code>zscore</code> (the Z-score explainer in 10 lines), <code>line coastal</code> (stations of any
+        railway line) and <code>clear</code>. All figures are for information only; official sources are always authoritative.
+      </p>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Lanka Panel",
+        "url": "https://srilanka.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "CEB power-cut group lookup links, live city temperatures, railway line directory with booking links, live LKR exchange rates, remittance true-cost calculator, A/L Z-score explainer, exam results and NIC/passport portals, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How is the A/L Z-score calculated?",
+            "acceptedAnswer": { "@type": "Answer", "text": "For each subject: (your mark minus the island-wide mean for that subject) divided by the subject's standard deviation. The final Z-score is the average across your three A/L subjects. It measures how far you rose above everyone who sat the same papers, which is why it — not raw marks — decides university selection." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I find my CEB power-cut group?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Enter the account number from any electricity bill into cebcare.ceb.lk, or search by address. The portal shows your feeder's letter group (A–W) and any scheduled interruption. PUCSL publishes the approved time bands per group." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I book Sri Lanka Railways seats online?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes — reserved seats on intercity and long-distance trains can be booked at seatreservation.railway.gov.lk. Unreserved 2nd/3rd class ordinary tickets are sold at station counters only. Book hill-country trains several days ahead in tourist season." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where do A/L and O/L results come out?",
+            "acceptedAnswer": { "@type": "Answer", "text": "On the Department of Examinations portal doenets.lk, using your index number. Results are free to check — ignore any site or SMS service that demands payment for the same lookup." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the exchange rate on this page the rate I'll get?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No — it is the mid-market reference rate from open.er-api.com. Banks and remittance providers apply their own margins. Use the remittance calculator to measure a provider's true all-in cost against the mid-market rate." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this site store my data?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No accounts, no server storage, no ad scripts. Language and tab preferences are kept only in the browser's localStorage, and nothing typed into the terminal or calculators leaves the device." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the district quota in university admission?",
+            "acceptedAnswer": { "@type": "Answer", "text": "After the all-island merit share (roughly 40% of seats), about 55% of seats per course are divided among the 25 districts in proportion to population, with around 5% reserved for educationally disadvantaged districts — so cut-off Z-scores for the same course differ by district. The UGC handbook has the current figures." }
+          },
+          {
+            "@type": "Question",
+            "name": "When are the best months to visit each coast of Sri Lanka?",
+            "acceptedAnswer": { "@type": "Answer", "text": "West and south coasts (Colombo, Galle, Mirissa): roughly December to March, during the North-East monsoon when that side is dry. East coast (Trincomalee, Arugam Bay): roughly May to September, while the South-West monsoon soaks the opposite shore. October–November brings island-wide inter-monsoon thunderstorms." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= UI 라벨 번역 번들 (편집 본문은 영어 고정 — 라벨만 교체) ================= */
+      var T = {
+        en: {
+          power: 'POWER', powerS: 'Cuts · weather',
+          train: 'TRAIN', trainS: 'Lines · booking',
+          rupee: 'RUPEE', rupeeS: 'FX · remit',
+          results: 'RESULTS', resultsS: 'Exams · ID',
+          termS: 'Terminal',
+          loading: 'Loading …', amount: 'Amount', fromTo: 'From → To',
+          youSend: 'You send', fee: 'Provider fee', provRate: 'Provider’s rate (1 unit → LKR)',
+          temp: 'Temperature now', updated: 'Updated',
+        },
+        ta: {
+          power: 'மின்சாரம்', powerS: 'மின்வெட்டு · வானிலை',
+          train: 'ரயில்', trainS: 'பாதைகள் · முன்பதிவு',
+          rupee: 'ரூபாய்', rupeeS: 'மாற்று · பணம்',
+          results: 'முடிவுகள்', resultsS: 'தேர்வு · அடையாளம்',
+          termS: 'முனையம்',
+          loading: 'ஏற்றுகிறது …', amount: 'தொகை', fromTo: 'இருந்து → க்கு',
+          youSend: 'அனுப்பும் தொகை', fee: 'சேவைக் கட்டணம்', provRate: 'வழங்குநர் விகிதம் (1 → LKR)',
+          temp: 'தற்போதைய வெப்பநிலை', updated: 'புதுப்பிப்பு',
+        },
+        si: {
+          power: 'විදුලිය', powerS: 'කප්පාදු · කාලගුණය',
+          train: 'දුම්රිය', trainS: 'මාර්ග · වෙන්කිරීම',
+          rupee: 'රුපියල', rupeeS: 'විනිමය · ප්‍රේෂණ',
+          results: 'ප්‍රතිඵල', resultsS: 'විභාග · හැඳුනුම්පත',
+          termS: 'ටර්මිනලය',
+          loading: 'පූරණය වෙමින් …', amount: 'මුදල', fromTo: 'සිට → දක්වා',
+          youSend: 'එවන මුදල', fee: 'සේවා ගාස්තුව', provRate: 'සපයන්නාගේ අනුපාතය (1 → LKR)',
+          temp: 'දැන් උෂ්ණත්වය', updated: 'යාවත්කාලීන',
+        },
+      };
+
+      /* ================= 데이터 (링크는 2026-07 공식 도메인 기준) ================= */
+      var POWER_LINKS = [
+        ['https://cebcare.ceb.lk/', 'CEB Care — know your schedule', 'Look up your power-cut group (A–W) by account number or address'],
+        ['https://www.ceb.lk/', 'Ceylon Electricity Board', 'Official announcements, tariffs, breakdown notices'],
+        ['https://www.pucsl.gov.lk/', 'PUCSL — regulator', 'Approved interruption schedules and time bands per group'],
+        ['https://www.leco.lk/', 'LECO', 'Lanka Electricity Company — for LECO-served coastal areas'],
+      ];
+      var CITIES = [
+        { name: 'Colombo', lat: 6.93, lon: 79.86 },
+        { name: 'Kandy', lat: 7.29, lon: 80.63 },
+        { name: 'Jaffna', lat: 9.66, lon: 80.03 },
+        { name: 'Galle', lat: 6.05, lon: 80.22 },
+      ];
+      var LINES = [
+        {
+          key: 'main', name: 'Main Line', route: 'Colombo Fort → Badulla',
+          stations: 'Colombo Fort · Ragama · Gampaha · Veyangoda · Polgahawela · Rambukkana · Peradeniya · Kandy (branch) · Gampola · Nawalapitiya · Hatton · Talawakele · Nanu Oya (Nuwara Eliya) · Haputale · Bandarawela · Ella · Demodara · Badulla',
+          meta: 'The classic hill-country climb. Nanu Oya–Ella is the famous scenic stretch; ≈ 9–10 h end to end, Kandy ≈ 2.5–3 h.',
+        },
+        {
+          key: 'coastal', name: 'Coastal Line', route: 'Colombo Fort → Beliatta',
+          stations: 'Colombo Fort · Mount Lavinia · Moratuwa · Panadura · Kalutara South · Aluthgama · Ambalangoda · Hikkaduwa · Galle · Weligama · Matara · Beliatta',
+          meta: 'Runs metres from the Indian Ocean. Galle ≈ 2–2.5 h, Matara ≈ 3–3.5 h by express.',
+        },
+        {
+          key: 'puttalam', name: 'Puttalam Line', route: 'Colombo Fort → Puttalam',
+          stations: 'Colombo Fort · Ragama · Ja-Ela · Seeduwa · Katunayake (Airport) · Negombo · Kochchikade · Chilaw · Puttalam',
+          meta: 'The airport-and-lagoon line. Handy for Negombo; slow but frequent commuter services.',
+        },
+        {
+          key: 'kelani', name: 'Kelani Valley Line', route: 'Colombo Maradana → Avissawella',
+          stations: 'Maradana · Baseline Road · Nugegoda · Maharagama · Kottawa · Homagama · Padukka · Avissawella',
+          meta: 'Colombo’s narrow commuter artery through the suburbs — season-ticket country.',
+        },
+        {
+          key: 'northern', name: 'Northern Line', route: 'Polgahawela → Kankesanthurai',
+          stations: 'Polgahawela · Kurunegala · Maho · Anuradhapura · Medawachchiya · Vavuniya · Kilinochchi · Jaffna · Kankesanthurai',
+          meta: 'Rebuilt after the war; Colombo–Jaffna ≈ 6–7 h on intercity services.',
+        },
+        {
+          key: 'batticaloa', name: 'Batticaloa Line', route: 'Maho → Batticaloa',
+          stations: 'Maho · Gal Oya Junction · Polonnaruwa · Valaichchenai · Batticaloa',
+          meta: 'Branches east toward the lagoons; Colombo–Batticaloa ≈ 7–8 h through ancient-city country.',
+        },
+      ];
+      var TRAIN_LINKS = [
+        ['https://railway.gov.lk/', 'Sri Lanka Railways', 'Timetables, fares, season ticket forms, notices'],
+        ['https://seatreservation.railway.gov.lk/', 'Online seat reservation', 'Book reserved intercity / long-distance seats'],
+      ];
+      /* 대표 구간 소요시간 (급행 기준, 평시) */
+      var JOURNEYS = [
+        ['Colombo Fort → Kandy', 'Main', '≈ 2.5–3 h'],
+        ['Colombo Fort → Nanu Oya (Nuwara Eliya)', 'Main', '≈ 6–7 h'],
+        ['Colombo Fort → Ella', 'Main', '≈ 8–9 h'],
+        ['Colombo Fort → Badulla', 'Main', '≈ 9–10 h'],
+        ['Colombo Fort → Galle', 'Coastal', '≈ 2–2.5 h'],
+        ['Colombo Fort → Matara', 'Coastal', '≈ 3–3.5 h'],
+        ['Colombo Fort → Negombo', 'Puttalam', '≈ 1–1.5 h'],
+        ['Colombo Fort → Jaffna', 'Northern', '≈ 6–7 h'],
+        ['Colombo Fort → Batticaloa', 'Batticaloa', '≈ 7–8 h'],
+      ];
+      /* 좌석 등급 요약 */
+      var CLASSES = [
+        ['1st / AC', 'Reserved only — book online; observation saloon on hill trains sells out first'],
+        ['2nd reserved', 'Best value on intercity; bookable online'],
+        ['2nd / 3rd ordinary', 'Unreserved, counter-only, very cheap; standing likely at peak'],
+      ];
+      /* 몬순 요약 (POWER 탭 날씨 카드 보조) */
+      var MONSOON = [
+        ['SW (Yala) · May–Sep', 'Rain on the west & south-west; east coast calm and dry'],
+        ['NE (Maha) · Dec–Feb', 'Rain on the north & east; west & south dry and sunny'],
+        ['Inter-monsoon · Oct–Nov', 'Island-wide afternoon thunderstorms'],
+      ];
+      /* 송금 회랑 요약 (RUPEE 탭) */
+      var CORRIDORS = [
+        ['Gulf (AED · QAR · SAR)', 'Among the world’s cheapest corridors — often 2–4% all-in via licensed exchange houses'],
+        ['South Korea (KRW)', 'EPS workers: dedicated bank remittance channels, typically similar 2–4% all-in'],
+        ['Italy / Europe (EUR · GBP)', 'Costs vary widely by provider — always compare LKR received, not the fee'],
+      ];
+      var RESULT_LINKS = [
+        ['https://www.doenets.lk/', 'doenets.lk — exam results', 'G.C.E. A/L and O/L results by index number (free)'],
+        ['https://www.exams.gov.lk/', 'Department of Examinations', 'Certificates, re-corrections, exam calendar'],
+        ['https://www.ugc.ac.lk/', 'UGC — university admission', 'Admissions handbook, Z-score cut-off marks by course & district'],
+        ['https://drp.gov.lk/', 'DRP — National Identity Card', 'NIC first issue, amendments, duplicates'],
+        ['https://www.immigration.gov.lk/', 'Immigration & Emigration', 'Passport applications, appointments, status'],
+      ];
+      var FX_SHOW = ['USD', 'AED', 'QAR', 'KRW', 'GBP'];
+
+      /* __PURE_START__ 순수 로직 */
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* 송금 실효 비용: 보낸 금액·수수료·제시 환율 vs 미드마켓 환율 → 수취액과 총 비용% */
+      function remitCost(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var midValue = sendAmt * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* Z-score: (mark − mean) / sd */
+      function zscore(mark, mean, sd) {
+        if (!isFinite(mark) || !isFinite(mean) || !(sd > 0)) return null;
+        return (mark - mean) / sd;
+      }
+      /* WMO weather code → 짧은 텍스트 */
+      function wxText(code) {
+        if (code === 0) return 'clear';
+        if (code <= 2) return 'partly cloudy';
+        if (code === 3) return 'overcast';
+        if (code === 45 || code === 48) return 'fog';
+        if (code >= 51 && code <= 67) return 'rain';
+        if (code >= 80 && code <= 82) return 'showers';
+        if (code >= 95) return 'thunderstorm';
+        return 'cloudy';
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var lang = store.get('lk:lang', 'en'); if (!T[lang]) lang = 'en';
+      var tab = store.get('lk:tab', 'power');
+      var fxCache = null; // { rates, date, at }
+      var wxCache = null; // { list, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var L = function (k) { return (T[lang] && T[lang][k]) || T.en[k] || k; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 로컬 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('lk:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('lk:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* 날씨 — open-meteo (키 불필요), 4개 도시 일괄 요청 + localStorage 폴백 */
+      function loadWx() {
+        if (wxCache && Date.now() - wxCache.at < 30 * 60 * 1000) return Promise.resolve(wxCache);
+        var lats = CITIES.map(function (c) { return c.lat; }).join(',');
+        var lons = CITIES.map(function (c) { return c.lon; }).join(',');
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons +
+          '&current=temperature_2m,weather_code&timezone=Asia%2FColombo';
+        return fetch(url)
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            var arr = Array.isArray(j) ? j : [j];
+            var list = CITIES.map(function (c, i) {
+              var cur = arr[i] && arr[i].current;
+              return { name: c.name, t: cur ? cur.temperature_2m : null, code: cur ? cur.weather_code : null };
+            });
+            wxCache = { list: list, at: Date.now() };
+            store.set('lk:wx', { list: list });
+            return wxCache;
+          })
+          .catch(function () {
+            var c = store.get('lk:wx', null);
+            if (c) { wxCache = { list: c.list, at: Date.now(), stale: true }; return wxCache; }
+            throw new Error('wx unavailable');
+          });
+      }
+
+      /* ================= 공용 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+
+      /* ================= ⚡ POWER ================= */
+      function cardPower() {
+        var html = '<div class="card"><h2>⚡ Power cuts — find your group</h2>' +
+          linksHtml(POWER_LINKS) +
+          '<div class="note">Schedules can change same-day. Only CEB / PUCSL announcements are authoritative — third-party apps update late.</div></div>';
+        html += '<div class="card"><h2>How the A–W groups work</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0">When supply falls short, CEB rotates interruptions across feeder groups lettered <b style="color:var(--gold)">A–W</b> instead of cutting the whole island. Your group is fixed by the feeder serving your street — neighbouring streets can differ. PUCSL must approve every schedule and publishes the time bands per group.</p>' +
+          '<p style="font-size:13.5px;margin:6px 0 0">To find yours: open <a href="https://cebcare.ceb.lk/" target="_blank" rel="noopener" style="color:var(--gold)">cebcare.ceb.lk</a> and enter the account number printed on any electricity bill (or search by address).</p></div>';
+        html += '<div class="card"><h2>' + esc(L('temp')) + ' <span class="muted">(open-meteo)</span></h2><div class="row" id="wx-row"><span class="loading">' + esc(L('loading')) + '</span></div>' +
+          '<h3>Monsoon at a glance</h3>' +
+          '<table class="tb"><tr><th>Season</th><th>What it means</th></tr>' +
+          MONSOON.map(function (m) {
+            return '<tr><td class="c">' + esc(m[0]) + '</td><td>' + esc(m[1]) + '</td></tr>';
+          }).join('') +
+          '</table></div>';
+        return html;
+      }
+      function wirePower() {
+        loadWx().then(function (wx) {
+          var row = $('wx-row');
+          if (!row) return;
+          row.innerHTML = wx.list.map(function (c) {
+            var t = c.t == null ? '—' : Math.round(c.t) + '°C';
+            var w = c.code == null ? '' : ' · ' + wxText(c.code);
+            return '<div class="kv"><div class="k">' + esc(c.name.toUpperCase()) + '</div><div class="v">' + t + '</div><div class="muted">' + esc(w.replace(' · ', '')) + (wx.stale ? ' (cached)' : '') + '</div></div>';
+          }).join('');
+        }).catch(function () {
+          var row = $('wx-row');
+          if (row) row.innerHTML = '<span class="muted">Weather unavailable right now.</span>';
+        });
+      }
+
+      /* ================= 🚂 TRAIN ================= */
+      function cardTrain() {
+        var html = '<div class="card"><h2>🚂 Booking &amp; timetables</h2>' + linksHtml(TRAIN_LINKS) +
+          '<div class="note">Reserved seats sell out days ahead on hill-country trains in season. Unreserved tickets: station counters only.</div></div>';
+        html += '<div class="card"><h2>Line directory</h2>' + LINES.map(function (l) {
+          return '<div class="ln"><div class="nm">' + esc(l.name) + ' <span class="muted">· ' + esc(l.route) + '</span></div>' +
+            '<div class="st">' + esc(l.stations) + '</div>' +
+            '<div class="mt">' + esc(l.meta) + '</div></div>';
+        }).join('') + '</div>';
+        html += '<div class="card"><h2>Typical journey times <span class="muted">(express, normal conditions)</span></h2>' +
+          '<table class="tb"><tr><th>Route</th><th>Line</th><th>Time</th></tr>' +
+          JOURNEYS.map(function (j) {
+            return '<tr><td>' + esc(j[0]) + '</td><td>' + esc(j[1]) + '</td><td class="c">' + esc(j[2]) + '</td></tr>';
+          }).join('') +
+          '</table>' +
+          '<h3>Classes in one line each</h3>' +
+          '<table class="tb"><tr><th>Class</th><th>Notes</th></tr>' +
+          CLASSES.map(function (c) {
+            return '<tr><td class="c">' + esc(c[0]) + '</td><td>' + esc(c[1]) + '</td></tr>';
+          }).join('') +
+          '</table></div>';
+        html += '<div class="card"><h2>Season ticket — how to</h2><ol style="font-size:13.5px;margin:4px 0;padding-left:20px">' +
+          '<li>Pick your two stations — the ticket is valid only on that section.</li>' +
+          '<li>Get the application form at the issuing station or via <a href="https://railway.gov.lk/" target="_blank" rel="noopener" style="color:var(--gold)">railway.gov.lk</a>.</li>' +
+          '<li>Employer certification unlocks concessionary rates (ordinary season needs none).</li>' +
+          '<li>Pay at the counter with a photo <b>before</b> the month starts — expect queues in the last days of the month.</li>' +
+          '<li>Renew monthly; travelling beyond your named section counts as ticketless travel.</li></ol></div>';
+        return html;
+      }
+
+      /* ================= 💱 RUPEE ================= */
+      function cardRupee(fx) {
+        var r = fx.rates;
+        var html = '<div class="card"><h2>💱 LKR today <span class="muted">(mid-market)</span></h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(1, base, 'LKR', r);
+          html += '<div class="kv"><div class="k">1 ' + base + '</div><div class="v">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 1 }) + ' LKR') + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">' + esc(L('updated')) + ': ' + esc(fx.date) + '</div>' +
+          '<div class="note">Mid-market reference rates only — bank and kiosk rates differ.</div></div>';
+
+        /* 환전 계산기 */
+        var curList = ['LKR'].concat(FX_SHOW);
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>Converter</h2><form class="calc" id="cv-form" onsubmit="return false">' +
+          '<div><label>' + esc(L('amount')) + '</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>' + esc(L('fromTo')) + '</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts('LKR') + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 실효비용 계산기 */
+        var midUsd = r.LKR || 0;
+        html += '<div class="card"><h2>Remittance true-cost calculator</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">The margin hides in the rate, not the fee. Enter what a provider quotes you (Gulf / Korea / Italy corridors):</p>' +
+          '<form class="calc" id="rm-form" onsubmit="return false">' +
+          '<div><label>' + esc(L('youSend')) + '</label><input type="number" id="rm-amt" value="200" min="1" step="any" /></div>' +
+          '<div><label>Currency</label><select id="rm-cur">' + FX_SHOW.map(function (x) { return '<option' + (x === 'USD' ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div>' +
+          '<div><label>' + esc(L('fee')) + ' <span class="muted">(same currency)</span></label><input type="number" id="rm-fee" value="3" min="0" step="any" /></div>' +
+          '<div><label>' + esc(L('provRate')) + '</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + Math.round(midUsd * 0.97) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="result" id="rm-mid" style="margin-top:8px">—</div>' +
+          '<div class="note g">Rule of thumb: below 3% all-in is a good corridor deal. Avoid informal undiyal/hawala — illegal and uninsured.</div>' +
+          '<h3>Corridor notes</h3>' +
+          '<table class="tb"><tr><th>Corridor</th><th>What to expect</th></tr>' +
+          CORRIDORS.map(function (c) {
+            return '<tr><td class="c">' + esc(c[0]) + '</td><td>' + esc(c[1]) + '</td></tr>';
+          }).join('') +
+          '</table></div>';
+        return html;
+      }
+      function wireRupee(fx) {
+        var r = fx.rates;
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var cur = $('rm-cur').value;
+          var mid = convert(1, cur, 'LKR', r) || 0;
+          $('rm-mid').innerHTML = 'Mid-market today: 1 ' + cur + ' = <b>' + mid.toLocaleString('en', { maximumFractionDigits: 1 }) + ' LKR</b>';
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, mid);
+          $('rm-out').innerHTML = res == null ? '—' :
+            'Recipient gets <b>' + Math.round(res.received).toLocaleString('en') + ' LKR</b> · true cost <b class="' + (res.costPct > 6 ? 'crit' : res.costPct > 3 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b> vs mid-market';
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate', 'rm-cur'].forEach(function (id) { $(id).oninput = updR; $(id).onchange = updR; });
+        updR();
+      }
+
+      /* ================= 🗂 RESULTS & ID ================= */
+      var Z_LINES = [
+        'Z-SCORE IN 10 LINES',
+        '1. Raw A/L marks do NOT decide university entrance.',
+        '2. Each subject: z = (your mark − island mean) ÷ standard deviation.',
+        '3. Your final figure = average of your three subject z-scores.',
+        '4. z = 0 → exactly average; +1 → one “typical gap” above; +2 → far ahead.',
+        '5. Hard paper, low mean → a modest mark can yield a HUGE z.',
+        '6. Example: Bio 75 with mean 45, sd 12 → z = +2.50.',
+        '7. Example: Maths 85 with mean 60, sd 15 → z = +1.67. The 75 wins.',
+        '8. Seats: ≈40% all-island merit + ≈55% district quota + ≈5% disadvantaged districts.',
+        '9. So cut-offs differ per course, per district, per year — check ugc.ac.lk.',
+        '10. Free result check: doenets.lk with your index number. Never pay a “checker”.',
+      ];
+      function cardResults() {
+        var html = '<div class="card"><h2>🗂 Results &amp; ID — official portals</h2>' + linksHtml(RESULT_LINKS) +
+          '<div class="note">Results are free to check on doenets.lk — any site or SMS service charging for the same lookup is a scam. This page holds no personal data and performs no lookups itself.</div></div>';
+        html += '<div class="card"><h2>The Z-score, in plain words</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0">Your university chances ride on the <b style="color:var(--gold)">Z-score</b>, not raw marks: <i>(your mark − island average) ÷ how spread out marks were</i>, averaged over your three subjects. It measures how far you beat the crowd sitting the <b>same paper</b>.</p>' +
+          '<h3>Worked example — why 75 can beat 85</h3>' +
+          '<table class="tb"><tr><th>Subject</th><th>Mark</th><th>Mean</th><th>SD</th><th>Z</th></tr>' +
+          '<tr><td>Biology (hard year)</td><td>75</td><td>45</td><td>12</td><td class="c">+2.50</td></tr>' +
+          '<tr><td>Combined Maths (easier)</td><td>85</td><td>60</td><td>15</td><td class="c">+1.67</td></tr></table>' +
+          '<h3>District quotas</h3>' +
+          '<p style="font-size:13.5px;margin:4px 0">Roughly 40% of seats go on all-island merit, ≈55% by district population share, ≈5% to educationally disadvantaged districts — so cut-offs for the same course differ by district. Current figures: <a href="https://www.ugc.ac.lk/" target="_blank" rel="noopener" style="color:var(--gold)">ugc.ac.lk</a>.</p>' +
+          '<div class="note g">Type <b>zscore</b> in the &gt;_TERM tab for the 10-line summary.</div></div>';
+        html += '<div class="card"><h2>NIC &amp; passport — quick guide</h2>' +
+          '<table class="tb"><tr><th>Need</th><th>Where</th><th>Notes</th></tr>' +
+          '<tr><td>First NIC (age 15+)</td><td class="c">drp.gov.lk</td><td>Apply via your Grama Niladhari / school; birth certificate required</td></tr>' +
+          '<tr><td>Lost / damaged NIC</td><td class="c">drp.gov.lk</td><td>Police report for lost cards, then duplicate application</td></tr>' +
+          '<tr><td>New passport</td><td class="c">immigration.gov.lk</td><td>Online appointment first; one-day service costs more than normal</td></tr>' +
+          '<tr><td>Passport status</td><td class="c">immigration.gov.lk</td><td>Track by application reference — no third-party trackers</td></tr>' +
+          '</table>' +
+          '<div class="note">Fees and documents change — read the current checklist on the official site before queuing.</div></div>';
+        return html;
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ LANKA PANEL // island_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (mid-market FX) ............ [OK]</span>',
+        '<span class="t-dim">  uplink: open-meteo.com (weather) ................... [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for commands · <span class="t-hi">zscore</span> · <span class="t-hi">line coastal</span></span>',
+      ];
+      var T_CMDS = {
+        help: {
+          d: 'list all commands',
+          f: function () {
+            var ks = Object.keys(T_CMDS);
+            return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) {
+              return '  <span class="t-hi">' + k.padEnd(8) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>';
+            }).join('\n');
+          },
+        },
+        fx: {
+          d: 'today’s mid-market LKR rates',
+          f: function () {
+            return loadFx().then(function (fx) {
+              return FX_SHOW.map(function (b) {
+                var v = convert(1, b, 'LKR', fx.rates);
+                return '  1 ' + b + ' = <span class="t-hi">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 1 })) + ' LKR</span>';
+              }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, not the bank rate</span>';
+            });
+          },
+        },
+        links: {
+          d: 'all official portals',
+          f: function () {
+            return '<span class="t-hi">POWER</span>\n' + tLinks(POWER_LINKS) +
+              '\n<span class="t-hi">TRAIN</span>\n' + tLinks(TRAIN_LINKS) +
+              '\n<span class="t-hi">RESULTS & ID</span>\n' + tLinks(RESULT_LINKS);
+          },
+        },
+        zscore: {
+          d: 'the A/L z-score explained in 10 lines',
+          f: function () {
+            return Z_LINES.map(function (l, i) {
+              return i === 0 ? '<span class="t-hi">' + esc(l) + '</span>' : '  ' + esc(l);
+            }).join('\n');
+          },
+        },
+        line: {
+          d: 'line <name> — stations of a railway line',
+          f: function (a) {
+            var q = (a.join(' ') || '').toLowerCase();
+            if (!q) return 'usage: line main | coastal | puttalam | kelani | northern | batticaloa';
+            var m = LINES.find(function (l) { return l.key.indexOf(q) === 0 || l.name.toLowerCase().indexOf(q) >= 0; });
+            if (!m) return '<span class="t-crit">unknown line:</span> ' + esc(q) + ' — try: ' + LINES.map(function (l) { return l.key; }).join(' | ');
+            return '<span class="t-hi">' + esc(m.name) + '</span> <span class="t-dim">· ' + esc(m.route) + '</span>\n' +
+              '  ' + esc(m.stations) + '\n<span class="t-dim">  ' + esc(m.meta) + '</span>';
+          },
+        },
+        clear: {
+          d: 'clear screen',
+          f: function () { tBuf = []; tFlush(); return ''; },
+        },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@lanka:~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@lanka:~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      function applyLang() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) {
+          el.textContent = L(el.getAttribute('data-t'));
+        });
+      }
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'power') { view.innerHTML = cardPower(); wirePower(); return; }
+        if (tab === 'train') { view.innerHTML = cardTrain(); return; }
+        if (tab === 'results') { view.innerHTML = cardResults(); return; }
+        view.innerHTML = '<div class="loading">' + esc(L('loading')) + '</div>';
+        loadFx().then(function (fx) {
+          view.innerHTML = cardRupee(fx);
+          wireRupee(fx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">Could not load exchange rates — try again later.</div></div>';
+        });
+      }
+
+      (function init() {
+        var ls = $('lang-sel');
+        ls.value = lang;
+        ls.onchange = function () { lang = ls.value; store.set('lk:lang', lang); applyLang(); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('lk:tab', tab); render(); };
+        });
+        applyLang();
+        render();
+      })();
+    </script>
+  </body>
+</html>

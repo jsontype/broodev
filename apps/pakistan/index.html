@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pakistan Daily Utility — load-shedding, PKR rates, board results, NADRA &amp; USSD codes</title>
+    <meta name="description" content="One lightweight panel for daily life in Pakistan: DISCO load-shedding links (LESCO, K-Electric, IESCO and more), live USD/SAR/AED/GBP to PKR rates with a remittance true-cost calculator, all 24 education board result checkers, NADRA CNIC fees, passport tracking and verified USSD codes for Jazz, Telenor, Zong and Ufone." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://pakistan.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Pakistan Daily Utility — bijli · paisa · results · USSD" />
+    <meta name="twitter:description" content="Load-shedding links for every DISCO, live PKR rates &amp; remittance cost math, every BISE result checker, NADRA CNIC fees, Jazz/Telenor/Zong/Ufone USSD codes — one fast page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pakistan Daily Utility — bijli · paisa · results · USSD" />
+    <meta property="og:description" content="Load-shedding, live PKR rates, board results, NADRA fees and verified USSD codes — one fast page, English and Urdu." />
+    <meta property="og:url" content="https://pakistan.broodev.com/" />
+    <style>
+      :root {
+        --bg: #07130b; --bg-soft: #0b1c11; --panel: #0e2415; --line: #1f4a2e;
+        --acc: #37d67a; --acc-dim: #2a8a54; --text: #f2f7ef; --dim: #9dbfa8;
+        --gold: #ffd166; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--acc); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--acc); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--acc) 50%), linear-gradient(135deg, var(--acc) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--acc); color: var(--acc); background: #123020; }
+      .tab.on b { color: var(--acc); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--acc); letter-spacing: .5px; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--acc); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--acc); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(55,214,122,.07); border-left: 3px solid var(--acc-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      table.codes { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      table.codes th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.codes td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.codes td.c { font-family: var(--font); color: var(--acc); font-weight: 700; white-space: nowrap; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--acc); }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--acc-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 9.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #030a05; border: 1px solid #1f4a2e; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(55,214,122,.05); direction: ltr; text-align: left; }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #9defbd; text-shadow: 0 0 6px rgba(55,214,122,.3); }
+      #t-out .t-dim { color: #4e7a5f; text-shadow: none; }
+      #t-out .t-hi { color: #eafff2; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--acc); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--acc); white-space: nowrap; text-shadow: 0 0 6px rgba(55,214,122,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #eafff2; font-family: var(--font); font-size: 13px; caret-color: var(--acc); }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; direction: ltr; text-align: left; }
+      .seo h2 { color: var(--acc); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo a { color: var(--acc); }
+      .seo ul { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo table th { color: var(--acc-dim); text-align: left; border-bottom: 1px solid var(--line); padding: 3px 6px; }
+      .seo table td { border-bottom: 1px dashed rgba(255,255,255,.07); padding: 4px 6px; vertical-align: top; }
+
+      /* ===== RTL (우르두) 최소 보정 — 터미널·SEO 본문은 항상 LTR 유지 ===== */
+      [dir="rtl"] .note { border-left: 0; border-right: 3px solid var(--acc-dim); border-radius: 6px 0 0 6px; }
+      [dir="rtl"] table.codes th { text-align: right; }
+      [dir="rtl"] .sel { padding: 6px 10px 6px 26px; background-position: left 12px center, left 8px center; }
+      [dir="rtl"] .seo ul { padding-left: 18px; padding-right: 0; }
+      [dir="rtl"] .brand { direction: ltr; }
+      [dir="rtl"] footer { direction: ltr; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎PAK PANEL <small>· bijli · paisa · results · USSD</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="lang-sel" aria-label="Language">
+          <option value="en">English</option>
+          <option value="ur">اردو</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="bijli"><b>⚡ BIJLI</b><span id="ts-bijli">Load-shedding</span></div>
+        <div class="tab" data-tab="paisa"><b>💱 PAISA</b><span id="ts-paisa">FX · remit</span></div>
+        <div class="tab" data-tab="results"><b>🗂 RESULTS</b><span id="ts-results">Boards · NADRA</span></div>
+        <div class="tab" data-tab="ussd"><b>📟 USSD</b><span id="ts-ussd">Codes</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span id="ts-term">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        FX data: open.er-api.com (mid-market, updated daily) · Weather: open-meteo.com · For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings live only in your browser (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/" rel="noopener">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠 · 항상 영어/LTR) ===== -->
+    <section class="seo" aria-label="About Pakistan Daily Utility">
+      <h2>What is PAK PANEL?</h2>
+      <p>
+        PAK PANEL is a free, data-light utility page for everyday life in <strong>Pakistan</strong>. It gathers four
+        things people search for daily: <strong>bijli</strong> — load-shedding schedule and complaint links for every
+        distribution company from LESCO to K-Electric, plus live temperatures for Karachi, Lahore and Islamabad
+        (heat drives shedding); <strong>paisa</strong> — live mid-market USD, SAR, AED and GBP rates against the
+        Pakistani rupee, a converter, and a remittance true-cost calculator that exposes the hidden exchange-rate
+        margin; <strong>results &amp; ID</strong> — result-check methods for all 24 intermediate and secondary
+        education boards, NADRA CNIC fees and timelines, and passport tracking; and <strong>USSD</strong> —
+        quick codes for Jazz, Telenor, Zong and Ufone. The interface works in English and Urdu (RTL), installs
+        nothing, and runs fine on old phones and slow connections.
+      </p>
+
+      <h2>Why load-shedding differs street to street</h2>
+      <p>
+        Two houses a hundred metres apart can have opposite schedules because electricity is shed per
+        <strong>feeder</strong> — the medium-voltage line leaving a grid station — not per neighbourhood. Your feeder
+        is grouped with others into a rotation plan, so "Group A off 10–12" applies only to streets wired to that
+        feeder. Feeders serving hospitals, airports or industrial estates are often <strong>exempt</strong>, which is
+        why a street sharing a feeder with a hospital rarely goes dark. Finally, DISCOs apply heavier shedding to
+        <strong>high-loss feeders</strong>: where aggregate technical and commercial (AT&amp;C) losses — theft,
+        unpaid bills, leaky wires — are high, the feeder is scheduled for more hours off. Knowing your feeder name
+        (printed on your bill or available from your DISCO complaint office) is the key to reading any schedule.
+      </p>
+      <p>
+        A practical reading of your electricity bill helps here: the reference number's first block usually encodes
+        your sub-division, the "feeder" or "batch" field names the line you hang off, and the tariff code (A-1
+        residential, A-2 commercial, B industrial) hints at whether your feeder mixes exempt industrial load with
+        homes. When you call 118 or file an online complaint, quoting the feeder name gets you a meaningful answer
+        — "your feeder is on forced shedding for losses" or "there is a fault, crew dispatched" — instead of a
+        generic promise. During announced shortfalls, urban feeders commonly see two to six hours off per day and
+        high-loss rural feeders more; unannounced outages beyond the schedule are usually faults, which are worth
+        reporting because fault statistics feed into how DISCOs prioritise maintenance.
+      </p>
+
+      <h2>Pakistan's distribution companies (DISCOs)</h2>
+      <p>
+        Ten public DISCOs plus privately-run K-Electric cover the country. Each publishes its own schedules and
+        complaint channels; the national helpline <strong>118</strong> reaches most complaint centres:
+      </p>
+      <table>
+        <tr><th>Company</th><th>Region</th><th>Official site</th></tr>
+        <tr><td>LESCO</td><td>Lahore, Kasur, Okara, Sheikhupura</td><td><a href="https://www.lesco.gov.pk/" rel="noopener">lesco.gov.pk</a></td></tr>
+        <tr><td>K-Electric</td><td>Karachi (generation to retail, private)</td><td><a href="https://www.ke.com.pk/" rel="noopener">ke.com.pk</a></td></tr>
+        <tr><td>IESCO</td><td>Islamabad, Rawalpindi, Attock, Jhelum, Chakwal</td><td><a href="https://www.iesco.com.pk/" rel="noopener">iesco.com.pk</a></td></tr>
+        <tr><td>GEPCO</td><td>Gujranwala, Sialkot, Gujrat, Narowal</td><td><a href="https://www.gepco.com.pk/" rel="noopener">gepco.com.pk</a></td></tr>
+        <tr><td>FESCO</td><td>Faisalabad, Jhang, T.T. Singh, Sargodha, Mianwali</td><td><a href="https://www.fesco.com.pk/" rel="noopener">fesco.com.pk</a></td></tr>
+        <tr><td>MEPCO</td><td>Multan, Bahawalpur, D.G. Khan, Sahiwal — south Punjab</td><td><a href="https://www.mepco.com.pk/" rel="noopener">mepco.com.pk</a></td></tr>
+        <tr><td>PESCO</td><td>Peshawar and most of Khyber Pakhtunkhwa</td><td><a href="https://www.pesco.gov.pk/" rel="noopener">pesco.gov.pk</a></td></tr>
+        <tr><td>HESCO</td><td>Hyderabad and lower Sindh</td><td><a href="https://www.hesco.gov.pk/" rel="noopener">hesco.gov.pk</a></td></tr>
+        <tr><td>QESCO</td><td>Quetta and Balochistan</td><td><a href="https://www.qesco.com.pk/" rel="noopener">qesco.com.pk</a></td></tr>
+        <tr><td>SEPCO</td><td>Sukkur, Larkana — upper Sindh</td><td><a href="https://www.sepco.com.pk/" rel="noopener">sepco.com.pk</a></td></tr>
+      </table>
+      <p class="muted">Domains occasionally change during government reorganisations — if a link fails, search the company name plus "official".</p>
+
+      <h2>Heat and the grid — why summers mean more shedding</h2>
+      <p>
+        Load-shedding is a gap problem: when demand exceeds what generation and transmission can deliver, DISCOs cut
+        feeders in rotation to keep the grid from collapsing. Demand in Pakistan is brutally weather-driven — every
+        extra degree above roughly 35 °C pushes millions of fans, air-coolers and ACs harder, and evening peaks in a
+        June heatwave can exceed winter demand by thousands of megawatts. That is why the panel shows live
+        temperatures for Karachi, Lahore and Islamabad next to the DISCO directory: a 45 °C forecast in Punjab is a
+        reliable early warning of longer outages, especially on high-loss rural feeders that get shed first. Hydel
+        output (snow-melt dependent), fuel imports and transmission faults move the gap too, so schedules can change
+        the same day they are published.
+      </p>
+
+      <h2>Education boards of Pakistan — full result-check directory</h2>
+      <p>
+        Matric (SSC) and Intermediate (HSSC) results are issued by regional Boards of Intermediate and Secondary
+        Education (BISE). Check results on the board's official site with your roll number; many Punjab boards also
+        run SMS gateways (roll number to a shortcode — codes change between years, so treat them as
+        <strong>verify before use</strong>):
+      </p>
+      <table>
+        <tr><th>Board</th><th>Region</th><th>Site</th><th>Check method</th></tr>
+        <tr><td>BISE Lahore</td><td>Lahore division</td><td><a href="https://www.biselahore.com/" rel="noopener">biselahore.com</a></td><td>Web roll no · SMS to 80029 (verify)</td></tr>
+        <tr><td>BSEK Karachi</td><td>Karachi — matric (SSC)</td><td><a href="https://www.bsek.edu.pk/" rel="noopener">bsek.edu.pk</a></td><td>Web roll no</td></tr>
+        <tr><td>BIEK Karachi</td><td>Karachi — intermediate (HSSC)</td><td><a href="https://www.biek.edu.pk/" rel="noopener">biek.edu.pk</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Rawalpindi</td><td>Rawalpindi division</td><td><a href="https://www.biserawalpindi.edu.pk/" rel="noopener">biserawalpindi.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Faisalabad</td><td>Faisalabad division</td><td><a href="https://www.bisefsd.edu.pk/" rel="noopener">bisefsd.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Multan</td><td>Multan division</td><td><a href="https://www.bisemultan.edu.pk/" rel="noopener">bisemultan.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Gujranwala</td><td>Gujranwala division</td><td><a href="https://www.bisegrw.edu.pk/" rel="noopener">bisegrw.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Sargodha</td><td>Sargodha division</td><td><a href="https://www.bisesargodha.edu.pk/" rel="noopener">bisesargodha.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Bahawalpur</td><td>Bahawalpur division</td><td><a href="https://www.bisebwp.edu.pk/" rel="noopener">bisebwp.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE D.G. Khan</td><td>Dera Ghazi Khan division</td><td><a href="https://www.bisedgkhan.edu.pk/" rel="noopener">bisedgkhan.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Sahiwal</td><td>Sahiwal division</td><td><a href="https://www.bisesahiwal.edu.pk/" rel="noopener">bisesahiwal.edu.pk</a></td><td>Web roll no · SMS (verify)</td></tr>
+        <tr><td>BISE Peshawar</td><td>Peshawar valley, KP</td><td><a href="https://www.bisep.edu.pk/" rel="noopener">bisep.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Mardan</td><td>Mardan division, KP</td><td><a href="https://www.bisemdn.edu.pk/" rel="noopener">bisemdn.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Swat</td><td>Swat / Malakand upper, KP</td><td><a href="https://www.bisess.edu.pk/" rel="noopener">bisess.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Abbottabad</td><td>Hazara division, KP</td><td><a href="https://www.biseatd.edu.pk/" rel="noopener">biseatd.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Kohat</td><td>Kohat division, KP</td><td><a href="https://www.bisekt.edu.pk/" rel="noopener">bisekt.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Bannu</td><td>Bannu division, KP</td><td><a href="https://www.biseb.edu.pk/" rel="noopener">biseb.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Malakand</td><td>Malakand division, KP</td><td><a href="https://www.bisemalakand.edu.pk/" rel="noopener">bisemalakand.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Hyderabad</td><td>Hyderabad division, Sindh</td><td><a href="https://www.biseh.edu.pk/" rel="noopener">biseh.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Sukkur</td><td>Sukkur division, Sindh</td><td><a href="https://www.bisesuksindh.edu.pk/" rel="noopener">bisesuksindh.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Larkana</td><td>Larkana division, Sindh</td><td><a href="https://www.biselrk.edu.pk/" rel="noopener">biselrk.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BISE Mirpurkhas</td><td>Mirpurkhas division, Sindh</td><td><a href="https://www.bisemirpurkhas.edu.pk/" rel="noopener">bisemirpurkhas.edu.pk (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>BBISE Quetta</td><td>Balochistan (all divisions)</td><td><a href="https://www.bbiseqta.edu.pk/" rel="noopener">bbiseqta.edu.pk</a></td><td>Web roll no</td></tr>
+        <tr><td>AJK BISE Mirpur</td><td>Azad Jammu &amp; Kashmir</td><td><a href="https://www.ajkbise.net/" rel="noopener">ajkbise.net (verify)</a></td><td>Web roll no</td></tr>
+        <tr><td>FBISE (Federal)</td><td>Federal schools, cantonments, overseas</td><td><a href="https://www.fbise.edu.pk/" rel="noopener">fbise.edu.pk</a></td><td>Web roll no · SMS to 5050 (verify)</td></tr>
+      </table>
+
+      <h2>Checking results safely</h2>
+      <p>
+        On result day the official board sites often crash under load — that is when fake "result checker" sites
+        harvest traffic. Three rules keep you safe. First, results are <strong>free</strong>: no legitimate board
+        charges to display a result, so any site or SMS demanding payment is a scam. Second, prefer the board's own
+        domain (listed above) or its official SMS shortcode over third-party portals, which sometimes show stale or
+        wrong marks. Third, gazette PDFs published by boards are the authoritative record — if a website result
+        conflicts with your printed result card or the gazette, the board office decides. If a site is down, wait
+        thirty minutes rather than typing your roll number into an unknown mirror; several boards also announce
+        mirrors on their verified social accounts.
+      </p>
+
+      <h2>NADRA CNIC — fees, timelines and common rejections</h2>
+      <p>
+        NADRA issues the Computerised National Identity Card (CNIC/Smart NIC) at 18. Fees below are
+        <strong>indicative</strong> — NADRA revises them periodically, so confirm at
+        <a href="https://www.nadra.gov.pk/" rel="noopener">nadra.gov.pk</a> or a NADRA Registration Centre before
+        paying anyone:
+      </p>
+      <table>
+        <tr><th>Service</th><th>Normal</th><th>Urgent</th><th>Executive</th></tr>
+        <tr><td>Smart NIC — new / reissue (fee, PKR)</td><td>~750</td><td>~1,500</td><td>~2,500</td></tr>
+        <tr><td>Smart NIC — modification (fee, PKR)</td><td>~750</td><td>~1,500</td><td>~2,500</td></tr>
+        <tr><td>Typical delivery time</td><td>~31 working days</td><td>~9–12 working days</td><td>~5–7 working days</td></tr>
+      </table>
+      <p>
+        First-time CNICs in the normal category have at times been issued free under government policy — ask at the
+        counter. Common reasons applications stall or get rejected: parents' records not digitised or mismatched
+        (fix the family tree first), blurred or old photographs, unverified supporting documents (B-form, marriage
+        certificate), pending verification against a blocked family record, and name spellings that differ across
+        documents. Track your application with the tracking ID on your receipt, and never pay "agents" outside the
+        centre — every fee is payable only at the official counter or e-Sahulat franchise.
+      </p>
+
+      <h2>Passport application and tracking</h2>
+      <p>
+        Machine-readable and e-passports are issued by the Directorate General of Immigration &amp; Passports
+        (DGIP), a separate body from NADRA — you need a valid CNIC first. Apply at a regional passport office or
+        through the <a href="https://onlinemrp.dgip.gov.pk/" rel="noopener">DGIP online portal</a>, pay the fee at
+        National Bank or online, and keep the token: it carries your tracking number. Status can be checked on the
+        DGIP site (<a href="https://www.dgip.gov.pk/" rel="noopener">dgip.gov.pk</a>) with that number. Processing
+        categories mirror NADRA's normal/urgent/fast-track split and fees depend on validity (5 or 10 years) and
+        page count — check the current schedule on the official fee page rather than third-party summaries, which
+        age quickly. Renewals with an unchanged CNIC are usually the fastest route.
+      </p>
+
+      <h2>Interbank vs open market vs hundi — why the rates differ</h2>
+      <p>
+        Pakistan effectively has three dollar prices. The <strong>interbank rate</strong> is what banks quote each
+        other and is what applies to your bank remittance or card settlement; the State Bank publishes reference
+        rates daily. The <strong>open-market rate</strong> is what licensed exchange companies quote for physical
+        cash — usually a few rupees weaker, because cash carries handling cost and demand swings. The
+        <strong>hundi/hawala rate</strong> often looks best of all, but it is an <em>illegal</em> informal transfer
+        channel under Pakistani law: money moves through unregistered brokers, there is no receipt or recourse if it
+        vanishes, and it starves the country of documented foreign exchange. Legal channels have improved — banks
+        and licensed apps route through the Pakistan Remittance Initiative, and overseas Pakistanis can hold
+        <a href="https://www.sbp.org.pk/RDA/index.html" rel="noopener">Roshan Digital Accounts</a> with repatriable
+        balances. This page shows only the mid-market reference rate.
+      </p>
+
+      <h2>Remittances — reading the true cost</h2>
+      <p>
+        Remittance providers advertise "zero fee" while taking their margin inside the exchange rate. The honest
+        comparison is: multiply what you send by the <strong>mid-market rate</strong> to get the fair value, then
+        compare it with what the recipient actually gets after the provider's rate and fee. That difference,
+        expressed as a percentage, is the true cost — the calculator in the PAISA tab does this arithmetic for you.
+        For USD→PKR corridors a total cost under 3% is good; over 5% means shop around. Sending on weekdays, in
+        larger amounts, and to a bank account or wallet (rather than cash pickup) usually lowers the percentage.
+        Always compare at least two providers on the same day, because rates move daily and promotions change the
+        ranking week to week.
+      </p>
+      <p>
+        A worked example: you send USD 300, the provider charges a USD 3 fee and offers 272 when the mid-market
+        rate is 278. Fair value is 300 × 278 = 83,400 PKR; the recipient actually gets (300 − 3) × 272 = 80,784 PKR.
+        The gap of 2,616 PKR is 3.1% — despite the "low fee", most of the cost sat in the rate. Run the same
+        arithmetic on every quote and the cheapest provider is obvious. The PAISA tab's calculator colour-codes the
+        result: green under 3%, amber to 5%, red above. Remittances sent through banks and licensed operators also
+        count toward Pakistan Remittance Initiative incentives, and consistent formal-channel senders build the
+        paper trail needed for things like Roshan Digital Account facilities and remittance-backed financing.
+      </p>
+
+      <h2>Paying your electricity bill without queues</h2>
+      <p>
+        Every DISCO bill carries a 14-digit reference number, and that number is all you need to fetch a duplicate
+        bill or pay from a phone. Duplicate bills are downloadable from each DISCO's website (and most are also on
+        the unified <em>bill.pitc.com.pk</em> family of portals run by PITC, the power sector's IT arm). For payment,
+        the same reference works in mobile-wallet apps (JazzCash, Easypaisa), bank apps via the 1Bill/1Link utility
+        option, ATMs, and bank counters — no agent markup is justified for any of these. Pay a day or two before the
+        due date: bank-channel payments can post overnight, and a payment that posts after the due date attracts the
+        late-payment surcharge printed on the bill. Keep the transaction ID until the next bill confirms the credit;
+        if a paid bill shows as unpaid, the complaint office fixes it against that ID.
+      </p>
+
+      <h2>USSD quick codes — Jazz, Telenor, Zong, Ufone</h2>
+      <p>
+        USSD codes work on any handset with no data. Operators do change codes and per-check charges, so if one
+        fails, dial the operator's main menu or use the official app. Never share codes sent to you by strangers:
+      </p>
+      <table>
+        <tr><th>Action</th><th>Jazz</th><th>Telenor</th><th>Zong</th><th>Ufone</th></tr>
+        <tr><td>Balance check</td><td>*111#</td><td>*444#</td><td>*222#</td><td>*124#</td></tr>
+        <tr><td>Recharge card</td><td>*123*code#</td><td>*555*code#</td><td>*102*code#</td><td>*123*code#</td></tr>
+        <tr><td>Packages menu</td><td>*444#</td><td>*345#</td><td>*6464#</td><td>*3#</td></tr>
+        <tr><td>Own number check</td><td>*99#</td><td>*8888#</td><td>*8#</td><td>*780*3#</td></tr>
+      </table>
+      <p class="muted">Codes compiled 2026-07 and can change without notice; small balance-check fees may apply. Confirm with your operator if a code fails.</p>
+      <p>
+        Beyond the basics, each operator keeps a handful of service codes worth knowing: advance/loan balance
+        (Jazz *112#, Telenor *0#, Zong *911#, Ufone *456#), and internet/data balance menus reachable from the main
+        packages code. Two national codes are operator-independent: <strong>668#</strong>-style SIM-info services
+        change often, but <strong>*8484#</strong> has been used for biometric SIM verification campaigns and PTA's
+        <strong>0800-55055</strong> helpline handles complaints against any operator. If you receive a call or SMS
+        asking you to dial a code "to receive a prize" — that is a call-forwarding scam; never dial codes strangers
+        send you, and never share one-time PINs.
+      </p>
+
+      <h2>Living with load-shedding — a practical checklist</h2>
+      <p>
+        Households that plan around the schedule lose far less to outages than those that react to them. Charge
+        phones, power banks and UPS batteries during on-hours, not after the lights go out — a UPS that starts a
+        cut half-charged will not last it. Freeze bottles of water: moved into the fridge compartment during a cut,
+        they hold the temperature for hours and cost nothing. If you run a UPS or inverter, size it honestly (fans
+        and lights, not the iron or the water pump) and check battery electrolyte monthly in summer; heat kills
+        lead-acid batteries faster than cycling does. Solar with net-metering has become the structural answer for
+        many families — NEPRA-licensed installers handle the DISCO paperwork — but even a small panel that floats
+        the UPS battery through the day changes the economics. Finally, report every unscheduled outage: faults that
+        go unreported never make it into the maintenance queue.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      <p><strong>How do I check my matric or inter result by SMS?</strong> Punjab boards typically accept your roll
+      number by SMS to a shortcode (BISE Lahore has used 80029, FBISE 5050). Shortcodes change between sessions —
+      confirm the current code on your board's official site before sending, and note standard SMS charges apply.</p>
+      <p><strong>Why does the next street have bijli when mine doesn't?</strong> Shedding is applied per feeder, not
+      per area. Your neighbour may be on a different feeder, an exempt feeder (hospital/industry), or a lower-loss
+      feeder with fewer scheduled hours. Your feeder name is on your electricity bill.</p>
+      <p><strong>How much does a new CNIC cost?</strong> Indicatively around PKR 750 normal, 1,500 urgent and 2,500
+      executive for a Smart NIC, with first-time normal issuance sometimes free by policy. NADRA revises fees, so
+      treat these as ballpark figures and confirm at nadra.gov.pk.</p>
+      <p><strong>Is the open-market rate on this page?</strong> No. The page shows the mid-market reference rate
+      from open.er-api.com. Cash rates at exchange companies will differ, and hundi/hawala quotes — however
+      attractive — are illegal channels with no recourse.</p>
+      <p><strong>Are the USSD codes guaranteed?</strong> No — operators change codes and fees. The tables were
+      compiled in July 2026 and each carries a "verify" caution; the operator's own app or helpline is always
+      authoritative.</p>
+      <p><strong>Does PAK PANEL store my data?</strong> No accounts and no server storage. Language and tab
+      preferences live only in your browser's localStorage; nothing you type in the terminal leaves the page.</p>
+      <p><strong>How do I track my passport application?</strong> Use the tracking/token number printed on your
+      payment receipt on the DGIP online portal (onlinemrp.dgip.gov.pk) or the main DGIP site. Passports are issued
+      by DGIP, not NADRA — but you need a valid CNIC before applying.</p>
+      <p><strong>Which emergency and helpline numbers should I save?</strong> Police 15, Rescue 1122 (ambulance/fire
+      in most districts), Edhi 115, Motorway Police 130, NADRA helpline 1777 (from mobiles in Pakistan), PTA
+      telecom complaints 0800-55055, and the power complaint line 118 for most DISCOs.</p>
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab — <code>help</code>, <code>fx</code>,
+        <code>convert 100 usd pkr</code>, <code>board lahore</code>, <code>disco lesco</code>, <code>links</code>
+        and more. All figures are for information only; official sources are always authoritative.
+      </p>
+      <p>
+        Editorial note: all directory entries, fees and codes on this page were compiled and cross-checked against
+        official portals in July 2026. Government domains, SMS shortcodes and fee schedules in Pakistan change
+        without much notice — entries marked <em>verify</em> are the ones most likely to drift. Nothing here is
+        legal or financial advice.
+      </p>
+    </section>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Pakistan Daily Utility (PAK PANEL)",
+        "url": "https://pakistan.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "inLanguage": ["en", "ur"],
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "DISCO load-shedding directory, live PKR exchange rates, remittance true-cost calculator, all 24 education board result checkers, NADRA CNIC fee guide, passport tracking links, Jazz/Telenor/Zong/Ufone USSD codes, hacker-style terminal, English and Urdu UI"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I check my matric or inter result by SMS in Pakistan?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Most Punjab boards accept your roll number by SMS to a shortcode (BISE Lahore has used 80029, FBISE 5050). Shortcodes change between exam sessions, so confirm the current code on your board's official website before sending. Standard SMS charges apply and results are always free — never pay a third party." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why does my neighbour have electricity when my street doesn't?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Load-shedding is applied per feeder, not per neighbourhood. Your neighbour may be wired to a different feeder, an exempt feeder serving a hospital or industry, or a low-loss feeder that gets fewer scheduled outage hours. Your feeder name is printed on your electricity bill." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does a new CNIC cost at NADRA?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Indicatively around PKR 750 for normal, PKR 1,500 for urgent and PKR 2,500 for executive Smart NIC issuance, with delivery from roughly a month (normal) down to about a week (executive). First-time normal issuance has at times been free by government policy. NADRA revises fees periodically — confirm at nadra.gov.pk." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the difference between the interbank and open-market dollar rate?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The interbank rate is quoted between banks and applies to bank remittances and card settlements; the open-market rate is what licensed exchange companies quote for physical cash and is usually a few rupees weaker. Hundi/hawala quotes may look better but are illegal informal channels with no receipt or recourse." }
+          },
+          {
+            "@type": "Question",
+            "name": "Are the USSD codes on this page guaranteed to work?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Operators change codes and per-check fees without notice. The Jazz, Telenor, Zong and Ufone tables were compiled in July 2026 and are marked with a verify caution — the operator's official app or helpline is always authoritative." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does PAK PANEL store my personal data?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. There are no accounts and no server-side storage. Language and tab preferences are kept only in your browser's localStorage, and nothing typed into the terminal leaves the page." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I track my Pakistani passport application?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Use the tracking/token number printed on your payment receipt on the DGIP online portal (onlinemrp.dgip.gov.pk) or the main DGIP website. Passports are issued by the Directorate General of Immigration & Passports, not NADRA, but a valid CNIC is required before applying." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which emergency and helpline numbers should I save in Pakistan?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Police 15, Rescue 1122 for ambulance and fire in most districts, Edhi 115, Motorway Police 130, NADRA helpline 1777 from mobiles in Pakistan, PTA telecom complaints 0800-55055, and the power complaint line 118 for most DISCOs." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= i18n 번들 — 영어(기본)/우르두 ================= */
+      var T = {
+        en: {
+          ts_bijli: 'Load-shedding', ts_paisa: 'FX · remit', ts_results: 'Boards · NADRA', ts_ussd: 'Codes', ts_term: 'Terminal',
+          h_disco: '⚡ DISCO directory — schedules & complaints',
+          disco_body: 'Load-shedding is announced per feeder by your distribution company. Find yours below — schedules and complaint portals are on each official site; helpline 118 reaches most complaint centres.',
+          disco_note: 'Schedules change at short notice, sometimes the same day. The official DISCO channels are always authoritative.',
+          h_feeder: 'Feeder & group — why your street differs',
+          feeder_body: 'Electricity is shed per feeder (the line from the grid station), not per neighbourhood. Feeders are rotated in groups, feeders serving hospitals or industry are often exempt, and high-loss feeders (theft, unpaid bills) get more hours off. Your feeder name is printed on your bill — that is the key to reading any schedule.',
+          h_heat: 'Heat check — Karachi · Lahore · Islamabad',
+          heat_note: 'Hotter days push demand up: a heatwave forecast is an early warning of longer shedding, especially on high-loss feeders.',
+          heat_fail: 'Could not load temperatures — try again later.',
+          h_fx: '💱 PKR today', fx_mid: '(mid-market)',
+          fx_updated: 'Updated', fx_note: 'Mid-market reference rates only. Open-market cash and provider rates differ — this page does not publish parallel-market quotes.',
+          fx_fail: 'Could not load exchange rates — try again later.',
+          h_conv: 'Converter', l_amount: 'Amount', l_fromto: 'From → To',
+          h_remit: 'Remittance true-cost calculator',
+          remit_intro: '“Zero fee” providers hide their margin in the exchange rate. Enter what a provider quotes you and see the true cost vs the mid-market rate:',
+          l_send: 'You send (USD)', l_fee: 'Provider fee (USD)', l_rate: 'Provider’s rate (1 USD → PKR)',
+          remit_gets: 'Recipient gets', remit_cost: 'total cost', remit_vs: 'vs mid-market',
+          remit_note: 'Compared against today’s mid-market rate. Under 3% is good for USD→PKR; over 5% means shop around.',
+          h_rateexp: 'Interbank vs open market',
+          rateexp_body: 'Interbank = the rate between banks, applied to bank remittances and cards. Open market = licensed exchange companies’ cash rate, usually a few rupees weaker. Hundi/hawala may quote better but is illegal, with no receipt and no recourse — use banks, licensed apps or exchange companies.',
+          rda_link: 'Roshan Digital Account (SBP)', rda_desc: 'Bank accounts for overseas Pakistanis — repatriable, opened fully online',
+          h_boards: '🗂 Education boards — result check',
+          boards_body: 'All 24 boards with their official site and check method. Results are free; SMS shortcodes change between sessions — verify on the board site before sending.',
+          boards_note: 'Beware of look-alike “result checker” sites — use the official domains above. If a site is down on result day, wait and retry rather than using unknown mirrors.',
+          th_board: 'Board', th_method: 'Check method',
+          h_nadra: 'NADRA CNIC — fees & timelines (indicative)',
+          nadra_body: 'Smart NIC fees and delivery times below are indicative — NADRA revises them, so confirm at nadra.gov.pk before paying. First-time normal issuance has at times been free by policy.',
+          th_service: 'Service', th_normal: 'Normal', th_urgent: 'Urgent', th_exec: 'Executive',
+          nadra_r1: 'New / reissue (PKR)', nadra_r2: 'Modification (PKR)', nadra_r3: 'Delivery time',
+          nadra_t1: '~31 wd', nadra_t2: '~9–12 wd', nadra_t3: '~5–7 wd',
+          nadra_note: 'Common rejection causes: mismatched parent records, old photos, unverified documents, name spelling conflicts. Pay only at official counters — never through agents.',
+          h_passport: 'Passport — apply & track',
+          h_ussd: '📟 USSD quick codes',
+          ussd_body: 'Work on any phone, no data needed. Small balance-check fees may apply.',
+          th_action: 'Action', a_bal: 'Balance check', a_load: 'Recharge card', a_pkg: 'Packages menu', a_num: 'Own number',
+          ussd_note: 'Codes compiled 2026-07 but they change — if one fails, dial the operator’s main menu or use the official app. NEVER share your PIN or codes sent by strangers.',
+          loading: 'Loading …',
+        },
+        ur: {
+          ts_bijli: 'لوڈشیڈنگ', ts_paisa: 'ریٹ · ترسیلات', ts_results: 'بورڈ · نادرا', ts_ussd: 'کوڈز', ts_term: 'ٹرمینل',
+          h_disco: '⚡ ڈسکو ڈائریکٹری — شیڈول اور شکایات',
+          disco_body: 'لوڈشیڈنگ کا اعلان آپ کی بجلی کمپنی فیڈر کے حساب سے کرتی ہے۔ نیچے اپنی کمپنی تلاش کریں — شیڈول اور شکایت پورٹل ہر سرکاری سائٹ پر ہیں؛ ہیلپ لائن 118 اکثر شکایتی مراکز تک پہنچتی ہے۔',
+          disco_note: 'شیڈول مختصر نوٹس پر، بعض اوقات اسی دن بدل جاتے ہیں۔ سرکاری ڈسکو ذرائع ہمیشہ مستند ہیں۔',
+          h_feeder: 'فیڈر اور گروپ — آپ کی گلی الگ کیوں',
+          feeder_body: 'بجلی محلے کے بجائے فیڈر (گرڈ اسٹیشن سے نکلنے والی لائن) کے حساب سے بند کی جاتی ہے۔ فیڈر گروپوں میں باری باری بند ہوتے ہیں، ہسپتال یا صنعت والے فیڈر اکثر مستثنیٰ ہوتے ہیں، اور زیادہ نقصان (چوری، واجبات) والے فیڈرز کو زیادہ گھنٹے بند رکھا جاتا ہے۔ آپ کے فیڈر کا نام بجلی کے بل پر درج ہے — شیڈول سمجھنے کی یہی کنجی ہے۔',
+          h_heat: 'گرمی چیک — کراچی · لاہور · اسلام آباد',
+          heat_note: 'گرم دنوں میں طلب بڑھتی ہے: ہیٹ ویو کی پیش گوئی لمبی لوڈشیڈنگ کی پیشگی اطلاع ہے، خاص طور پر زیادہ نقصان والے فیڈرز پر۔',
+          heat_fail: 'درجہ حرارت لوڈ نہیں ہو سکا — بعد میں کوشش کریں۔',
+          h_fx: '💱 آج کا روپیہ', fx_mid: '(مڈ مارکیٹ)',
+          fx_updated: 'اپ ڈیٹ', fx_note: 'صرف مڈ مارکیٹ حوالہ ریٹ۔ اوپن مارکیٹ کیش اور کمپنیوں کے ریٹ مختلف ہوتے ہیں — یہ صفحہ متوازی مارکیٹ کے ریٹ شائع نہیں کرتا۔',
+          fx_fail: 'ایکسچینج ریٹ لوڈ نہیں ہو سکے — بعد میں کوشش کریں۔',
+          h_conv: 'کنورٹر', l_amount: 'رقم', l_fromto: 'سے ← تک',
+          h_remit: 'ترسیلاتِ زر — اصل لاگت کیلکولیٹر',
+          remit_intro: '”زیرو فیس“ کمپنیاں اپنا منافع ایکسچینج ریٹ میں چھپاتی ہیں۔ کمپنی کا بتایا ہوا ریٹ درج کریں اور مڈ مارکیٹ کے مقابلے میں اصل لاگت دیکھیں:',
+          l_send: 'آپ بھیجیں (USD)', l_fee: 'کمپنی فیس (USD)', l_rate: 'کمپنی کا ریٹ (1 USD ← PKR)',
+          remit_gets: 'وصول کنندہ کو ملیں گے', remit_cost: 'کل لاگت', remit_vs: 'بمقابلہ مڈ مارکیٹ',
+          remit_note: 'آج کے مڈ مارکیٹ ریٹ سے موازنہ۔ USD←PKR کے لیے 3% سے کم اچھا ہے؛ 5% سے زیادہ ہو تو دوسری کمپنی دیکھیں۔',
+          h_rateexp: 'انٹر بینک بمقابلہ اوپن مارکیٹ',
+          rateexp_body: 'انٹر بینک = بینکوں کے درمیان ریٹ، بینک ترسیلات اور کارڈ پر لاگو۔ اوپن مارکیٹ = لائسنس یافتہ ایکسچینج کمپنیوں کا کیش ریٹ، عموماً چند روپے کم۔ ہنڈی/حوالہ بہتر ریٹ دکھا سکتا ہے مگر غیر قانونی ہے، نہ رسید نہ داد رسی — بینک، لائسنس یافتہ ایپ یا ایکسچینج کمپنی استعمال کریں۔',
+          rda_link: 'روشن ڈیجیٹل اکاؤنٹ (اسٹیٹ بینک)', rda_desc: 'بیرونِ ملک پاکستانیوں کے لیے بینک اکاؤنٹ — مکمل آن لائن، رقم واپس بھیجنے کی سہولت',
+          h_boards: '🗂 تعلیمی بورڈ — رزلٹ چیک',
+          boards_body: 'تمام 24 بورڈ، سرکاری سائٹ اور چیک کرنے کا طریقہ۔ رزلٹ مفت ہے؛ SMS شارٹ کوڈ سیشن کے ساتھ بدلتے ہیں — بھیجنے سے پہلے بورڈ کی سائٹ سے تصدیق کریں۔',
+          boards_note: 'ملتے جلتے ”رزلٹ چیکر“ سائٹس سے ہوشیار رہیں — اوپر دیے گئے سرکاری ڈومین استعمال کریں۔ رزلٹ کے دن سائٹ بند ہو تو نامعلوم مررز کے بجائے تھوڑی دیر بعد دوبارہ کوشش کریں۔',
+          th_board: 'بورڈ', th_method: 'طریقہ',
+          h_nadra: 'نادرا شناختی کارڈ — فیس اور مدت (تخمینی)',
+          nadra_body: 'نیچے دی گئی اسمارٹ کارڈ فیس اور مدت تخمینی ہے — نادرا انہیں بدلتا رہتا ہے، ادائیگی سے پہلے nadra.gov.pk سے تصدیق کریں۔ پہلی بار نارمل اجرا بعض اوقات پالیسی کے تحت مفت رہا ہے۔',
+          th_service: 'سروس', th_normal: 'نارمل', th_urgent: 'ارجنٹ', th_exec: 'ایگزیکٹو',
+          nadra_r1: 'نیا / دوبارہ اجرا (روپے)', nadra_r2: 'ترمیم (روپے)', nadra_r3: 'ترسیل کی مدت',
+          nadra_t1: '~31 دن', nadra_t2: '~9–12 دن', nadra_t3: '~5–7 دن',
+          nadra_note: 'عام وجوہاتِ التوا: والدین کے ریکارڈ کا عدم مطابقت، پرانی تصاویر، غیر تصدیق شدہ دستاویزات، نام کے ہجوں کا فرق۔ فیس صرف سرکاری کاؤنٹر پر دیں — ایجنٹوں کے ذریعے ہرگز نہیں۔',
+          h_passport: 'پاسپورٹ — درخواست اور ٹریکنگ',
+          h_ussd: '📟 USSD فوری کوڈز',
+          ussd_body: 'ہر فون پر چلتے ہیں، ڈیٹا کی ضرورت نہیں۔ بیلنس چیک پر معمولی فیس لگ سکتی ہے۔',
+          th_action: 'کام', a_bal: 'بیلنس چیک', a_load: 'کارڈ لوڈ', a_pkg: 'پیکجز مینیو', a_num: 'اپنا نمبر',
+          ussd_note: 'کوڈز 2026-07 میں مرتب کیے گئے مگر بدلتے رہتے ہیں — کوئی کوڈ نہ چلے تو آپریٹر کا مین مینیو ڈائل کریں یا سرکاری ایپ استعمال کریں۔ اپنا PIN یا اجنبیوں کے بھیجے کوڈ کبھی شیئر نہ کریں۔',
+          loading: 'لوڈ ہو رہا ہے …',
+        },
+      };
+
+      /* ================= 데이터 (링크는 2026-07 큐레이션 · 일부 "verify" 표시) ================= */
+      var DISCOS = [
+        ['lesco', 'LESCO', 'Lahore · Kasur · Okara · Sheikhupura', 'https://www.lesco.gov.pk/'],
+        ['ke', 'K-Electric', 'Karachi (private, generation to retail)', 'https://www.ke.com.pk/'],
+        ['iesco', 'IESCO', 'Islamabad · Rawalpindi · Attock · Jhelum · Chakwal', 'https://www.iesco.com.pk/'],
+        ['gepco', 'GEPCO', 'Gujranwala · Sialkot · Gujrat · Narowal', 'https://www.gepco.com.pk/'],
+        ['fesco', 'FESCO', 'Faisalabad · Jhang · T.T. Singh · Sargodha · Mianwali', 'https://www.fesco.com.pk/'],
+        ['mepco', 'MEPCO', 'Multan · Bahawalpur · D.G. Khan · Sahiwal (south Punjab)', 'https://www.mepco.com.pk/'],
+        ['pesco', 'PESCO', 'Peshawar · most of Khyber Pakhtunkhwa', 'https://www.pesco.gov.pk/'],
+        ['hesco', 'HESCO', 'Hyderabad · lower Sindh', 'https://www.hesco.gov.pk/'],
+        ['qesco', 'QESCO', 'Quetta · Balochistan', 'https://www.qesco.com.pk/'],
+        ['sepco', 'SEPCO', 'Sukkur · Larkana · upper Sindh', 'https://www.sepco.com.pk/'],
+      ];
+
+      /* [이름, 지역, URL, 확인 방법] — SMS 코드는 세션마다 바뀌므로 verify 표기 */
+      var BOARDS = [
+        ['BISE Lahore', 'Lahore division, Punjab', 'https://www.biselahore.com/', 'Web roll no · SMS to 80029 (verify)'],
+        ['BSEK Karachi (matric)', 'Karachi — SSC', 'https://www.bsek.edu.pk/', 'Web roll no'],
+        ['BIEK Karachi (inter)', 'Karachi — HSSC', 'https://www.biek.edu.pk/', 'Web roll no'],
+        ['BISE Rawalpindi', 'Rawalpindi division, Punjab', 'https://www.biserawalpindi.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Faisalabad', 'Faisalabad division, Punjab', 'https://www.bisefsd.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Multan', 'Multan division, Punjab', 'https://www.bisemultan.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Gujranwala', 'Gujranwala division, Punjab', 'https://www.bisegrw.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Sargodha', 'Sargodha division, Punjab', 'https://www.bisesargodha.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Bahawalpur', 'Bahawalpur division, Punjab', 'https://www.bisebwp.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE D.G. Khan', 'Dera Ghazi Khan division, Punjab', 'https://www.bisedgkhan.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Sahiwal', 'Sahiwal division, Punjab', 'https://www.bisesahiwal.edu.pk/', 'Web roll no · SMS (verify)'],
+        ['BISE Peshawar', 'Peshawar valley, KP', 'https://www.bisep.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Mardan', 'Mardan division, KP', 'https://www.bisemdn.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Swat', 'Swat / upper Malakand, KP', 'https://www.bisess.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Abbottabad', 'Hazara division, KP', 'https://www.biseatd.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Kohat', 'Kohat division, KP', 'https://www.bisekt.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Bannu', 'Bannu division, KP', 'https://www.biseb.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Malakand', 'Malakand division, KP', 'https://www.bisemalakand.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Hyderabad', 'Hyderabad division, Sindh', 'https://www.biseh.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Sukkur', 'Sukkur division, Sindh', 'https://www.bisesuksindh.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Larkana', 'Larkana division, Sindh', 'https://www.biselrk.edu.pk/', 'Web roll no (site: verify)'],
+        ['BISE Mirpurkhas', 'Mirpurkhas division, Sindh', 'https://www.bisemirpurkhas.edu.pk/', 'Web roll no (site: verify)'],
+        ['BBISE Quetta', 'Balochistan (all divisions)', 'https://www.bbiseqta.edu.pk/', 'Web roll no'],
+        ['AJK BISE Mirpur', 'Azad Jammu & Kashmir', 'https://www.ajkbise.net/', 'Web roll no (site: verify)'],
+        ['FBISE (Federal)', 'Federal schools · cantonments · overseas', 'https://www.fbise.edu.pk/', 'Web roll no · SMS to 5050 (verify)'],
+      ];
+
+      /* 텔코별 [balance, load, packages, own number] — 모두 "codes change" 주의 문구와 함께 노출 */
+      var TELCOS = [
+        ['Jazz', '*111#', '*123*code#', '*444#', '*99#'],
+        ['Telenor', '*444#', '*555*code#', '*345#', '*8888#'],
+        ['Zong', '*222#', '*102*code#', '*6464#', '*8#'],
+        ['Ufone', '*124#', '*123*code#', '*3#', '*780*3#'],
+      ];
+
+      var CITIES = [
+        ['Karachi', 24.86, 67.01],
+        ['Lahore', 31.55, 74.34],
+        ['Islamabad', 33.69, 73.06],
+      ];
+      var FX_SHOW = ['USD', 'SAR', 'AED', 'GBP'];
+
+      /* __PURE_START__ 순수 로직 */
+      /* 송금 실효 비용: 보낸 금액·수수료·제시 환율 vs 미드마켓 환율 → 수취액과 총 비용% */
+      function remitCost(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var midValue = sendAmt * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var qlang = (location.search.match(/[?&]lang=(en|ur)\b/) || [])[1];
+      var lang = qlang || store.get('pk:lang', 'en'); if (!T[lang]) lang = 'en';
+      var tab = store.get('pk:tab', 'bijli');
+      var fxCache = null; // { rates, date, at }
+      var wxCache = null; // { temps, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var tr = function (k) { return (T[lang] && T[lang][k] != null) ? T[lang][k] : T.en[k]; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      function applyLang() {
+        document.documentElement.lang = lang === 'ur' ? 'ur' : 'en';
+        document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr';
+        ['bijli', 'paisa', 'results', 'ussd', 'term'].forEach(function (k) {
+          var el = $('ts-' + k); if (el) el.textContent = tr('ts_' + k);
+        });
+      }
+
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 로컬 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('pk:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('pk:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* 날씨 — open-meteo (키 불필요) 3개 도시 일괄 조회, 30분 캐시 + localStorage 폴백 */
+      function loadWx() {
+        if (wxCache && Date.now() - wxCache.at < 30 * 60 * 1000) return Promise.resolve(wxCache);
+        var lats = CITIES.map(function (c) { return c[1]; }).join(',');
+        var lons = CITIES.map(function (c) { return c[2]; }).join(',');
+        return fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons + '&current=temperature_2m')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            var arr = Array.isArray(j) ? j : [j];
+            var temps = arr.map(function (o) { return o && o.current ? o.current.temperature_2m : null; });
+            if (!temps.length || temps[0] == null) throw new Error('bad payload');
+            wxCache = { temps: temps, at: Date.now() };
+            store.set('pk:wx', { temps: temps });
+            return wxCache;
+          })
+          .catch(function () {
+            var c = store.get('pk:wx', null);
+            if (c) { wxCache = { temps: c.temps, cached: true, at: Date.now() }; return wxCache; }
+            throw new Error('wx unavailable');
+          });
+      }
+
+      /* ================= 탭 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+
+      /* --- ⚡ BIJLI --- */
+      function cardBijli() {
+        var discoLinks = DISCOS.map(function (d) { return [d[3], d[1], d[2]]; });
+        var html = '<div class="card"><h2>' + tr('h_disco') + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(tr('disco_body')) + '</p>' +
+          linksHtml(discoLinks) +
+          '<div class="note">' + esc(tr('disco_note')) + '</div></div>';
+        html += '<div class="card"><h2>' + tr('h_feeder') + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 0">' + esc(tr('feeder_body')) + '</p></div>';
+        html += '<div class="card"><h2>' + tr('h_heat') + '</h2><div id="wx-row" class="loading">' + esc(tr('loading')) + '</div>' +
+          '<div class="note">' + esc(tr('heat_note')) + '</div></div>';
+        return html;
+      }
+      function wireBijli() {
+        loadWx().then(function (wx) {
+          var el = $('wx-row'); if (!el) return;
+          el.className = 'row';
+          el.innerHTML = CITIES.map(function (c, i) {
+            var t = wx.temps[i];
+            var cl = t == null ? '' : t >= 40 ? 'crit' : t >= 35 ? 'warn' : 'ok';
+            return '<div class="kv"><div class="k">' + esc(c[0]) + '</div><div class="v ' + cl + '">' + (t == null ? '—' : t.toFixed(1) + ' °C') + '</div></div>';
+          }).join('') + (wx.cached ? '<div class="muted">(cached)</div>' : '');
+        }).catch(function () {
+          var el = $('wx-row'); if (el) { el.className = 'muted'; el.textContent = tr('heat_fail'); }
+        });
+      }
+
+      /* --- 💱 PAISA --- */
+      function cardPaisa(fx) {
+        var r = fx.rates;
+        var html = '<div class="card"><h2>' + tr('h_fx') + ' <span class="muted">' + esc(tr('fx_mid')) + '</span></h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(1, base, 'PKR', r);
+          html += '<div class="kv"><div class="k">1 ' + base + '</div><div class="v">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' PKR') + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">' + esc(tr('fx_updated')) + ': ' + esc(fx.date) + '</div>' +
+          '<div class="note">' + esc(tr('fx_note')) + '</div></div>';
+
+        /* 환전 계산기 */
+        var curList = ['PKR'].concat(FX_SHOW);
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>' + tr('h_conv') + '</h2><form class="calc" id="cv-form">' +
+          '<div><label>' + esc(tr('l_amount')) + '</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>' + esc(tr('l_fromto')) + '</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts('PKR') + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 실효비용 계산기 */
+        var midPkr = r.PKR || 0;
+        html += '<div class="card"><h2>' + tr('h_remit') + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + esc(tr('remit_intro')) + '</p>' +
+          '<form class="calc" id="rm-form">' +
+          '<div><label>' + esc(tr('l_send')) + '</label><input type="number" id="rm-amt" value="300" min="1" step="any" /></div>' +
+          '<div><label>' + esc(tr('l_fee')) + '</label><input type="number" id="rm-fee" value="3" min="0" step="any" /></div>' +
+          '<div class="full"><label>' + esc(tr('l_rate')) + '</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + Math.round(midPkr * 0.98) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">' + esc(tr('remit_note')) + ' (1 USD = ' + midPkr.toLocaleString('en', { maximumFractionDigits: 2 }) + ' PKR)</div></div>';
+
+        /* 인터뱅크 vs 오픈마켓 설명 + RDA */
+        html += '<div class="card"><h2>' + tr('h_rateexp') + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(tr('rateexp_body')) + '</p>' +
+          linksHtml([
+            ['https://www.sbp.org.pk/RDA/index.html', tr('rda_link'), tr('rda_desc')],
+            ['https://www.sbp.org.pk/', 'State Bank of Pakistan', 'Official reference exchange rates & remittance policy'],
+          ]) + '</div>';
+        return html;
+      }
+      function wirePaisa(fx) {
+        var r = fx.rates;
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, r.PKR);
+          $('rm-out').innerHTML = res == null ? '—' :
+            esc(tr('remit_gets')) + ' <b>' + Math.round(res.received).toLocaleString('en') + ' PKR</b> · ' + esc(tr('remit_cost')) + ' <b class="' + (res.costPct > 5 ? 'crit' : res.costPct > 3 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b> ' + esc(tr('remit_vs'));
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate'].forEach(function (id) { $(id).oninput = updR; });
+        updR();
+      }
+
+      /* --- 🗂 RESULTS & ID --- */
+      function cardResults() {
+        var rows = BOARDS.map(function (b) {
+          return '<tr><td><a href="' + b[2] + '" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none">' + esc(b[0]) + '</a><br /><span class="muted">' + esc(b[1]) + '</span></td><td>' + esc(b[3]) + '</td></tr>';
+        }).join('');
+        var html = '<div class="card"><h2>' + tr('h_boards') + '</h2>' +
+          '<p class="muted" style="margin:2px 0 8px">' + esc(tr('boards_body')) + '</p>' +
+          '<table class="codes"><tr><th>' + esc(tr('th_board')) + '</th><th>' + esc(tr('th_method')) + '</th></tr>' + rows + '</table>' +
+          '<div class="note">' + esc(tr('boards_note')) + '</div></div>';
+
+        html += '<div class="card"><h2>' + tr('h_nadra') + '</h2>' +
+          '<p class="muted" style="margin:2px 0 8px">' + esc(tr('nadra_body')) + '</p>' +
+          '<table class="codes"><tr><th>' + esc(tr('th_service')) + '</th><th>' + esc(tr('th_normal')) + '</th><th>' + esc(tr('th_urgent')) + '</th><th>' + esc(tr('th_exec')) + '</th></tr>' +
+          '<tr><td>' + esc(tr('nadra_r1')) + '</td><td class="c">~750</td><td class="c">~1,500</td><td class="c">~2,500</td></tr>' +
+          '<tr><td>' + esc(tr('nadra_r2')) + '</td><td class="c">~750</td><td class="c">~1,500</td><td class="c">~2,500</td></tr>' +
+          '<tr><td>' + esc(tr('nadra_r3')) + '</td><td>' + esc(tr('nadra_t1')) + '</td><td>' + esc(tr('nadra_t2')) + '</td><td>' + esc(tr('nadra_t3')) + '</td></tr>' +
+          '</table>' +
+          linksHtml([['https://www.nadra.gov.pk/', 'NADRA — official', 'Fees, centres, Pak-ID online services']]) +
+          '<div class="note">' + esc(tr('nadra_note')) + '</div></div>';
+
+        html += '<div class="card"><h2>' + tr('h_passport') + '</h2>' +
+          linksHtml([
+            ['https://onlinemrp.dgip.gov.pk/', 'DGIP online portal', 'Apply online & track application status with your token number'],
+            ['https://www.dgip.gov.pk/', 'DGIP — Immigration & Passports', 'Offices, fee schedule, e-passport info'],
+          ]) + '</div>';
+        return html;
+      }
+
+      /* --- 📟 USSD --- */
+      function cardUssd() {
+        var head = '<tr><th>' + esc(tr('th_action')) + '</th>' + TELCOS.map(function (t) { return '<th>' + esc(t[0]) + '</th>'; }).join('') + '</tr>';
+        var acts = [['a_bal', 1], ['a_load', 2], ['a_pkg', 3], ['a_num', 4]];
+        var rows = acts.map(function (a) {
+          return '<tr><td>' + esc(tr(a[0])) + '</td>' + TELCOS.map(function (t) { return '<td class="c">' + esc(t[a[1]]) + '</td>'; }).join('') + '</tr>';
+        }).join('');
+        return '<div class="card"><h2>' + tr('h_ussd') + '</h2>' +
+          '<p class="muted" style="margin:2px 0 8px">' + esc(tr('ussd_body')) + '</p>' +
+          '<div style="overflow-x:auto"><table class="codes">' + head + rows + '</table></div>' +
+          '<div class="note">' + esc(tr('ussd_note')) + '</div></div>';
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ PAK PANEL // bijli_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (mid-market FX) ............ [OK]</span>',
+        '<span class="t-dim">  wx: open-meteo (KHI · LHE · ISB) ................... [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> · try <span class="t-hi">board lahore</span> or <span class="t-hi">disco lesco</span></span>',
+      ];
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'what this terminal is', f: function () { return 'Daily-utility terminal for Pakistan — FX, remittance math, DISCO links, board results, NADRA, USSD.\nStatic page, no accounts; nothing you type leaves the browser.'; } },
+        fx: { d: 'today’s PKR mid-market rates', f: function () { return loadFx().then(function (fx) { return FX_SHOW.map(function (b) { var v = convert(1, b, 'PKR', fx.rates); return '  1 ' + b + ' = <span class="t-hi">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 })) + ' PKR</span>'; }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, not open-market cash rate</span>'; }); } },
+        rate: { d: 'rate <CUR> — 1 USD in any currency', f: function (a) { var q = (a[0] || '').toUpperCase(); if (!q) return 'usage: rate SAR'; return loadFx().then(function (fx) { return fx.rates[q] == null ? '<span class="t-crit">unknown currency</span>' : '1 USD = <span class="t-hi">' + fx.rates[q].toLocaleString('en') + ' ' + q + '</span>'; }); } },
+        convert: { d: 'convert <amt> <from> <to>', f: function (a) { var amt = +a[0], f2 = (a[1] || '').toUpperCase(), t2 = (a[2] || '').toUpperCase(); if (!(amt > 0) || !f2 || !t2) return 'usage: convert 100 USD PKR'; return loadFx().then(function (fx) { var v = convert(amt, f2, t2, fx.rates); return v == null ? '<span class="t-crit">unknown currency</span>' : amt.toLocaleString('en') + ' ' + f2 + ' = <span class="t-hi">' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + t2 + '</span>'; }); } },
+        remit: { d: 'remit <sendUSD> <feeUSD> <rate> — true cost', f: function (a) { var s = +a[0], fe = +a[1], rt = +a[2]; if (!(s > 0) || !(rt > 0) || isNaN(fe)) return 'usage: remit 300 3 278'; return loadFx().then(function (fx) { var r = remitCost(s, fe, rt, fx.rates.PKR); if (!r) return '<span class="t-crit">bad inputs</span>'; var cl = r.costPct > 5 ? 't-crit' : r.costPct > 3 ? 't-warn' : 't-ok'; return 'recipient gets <span class="t-hi">' + Math.round(r.received).toLocaleString('en') + ' PKR</span> · true cost <span class="' + cl + '">' + r.costPct.toFixed(1) + '%</span> vs mid-market\n<span class="t-dim">under 3% is a good USD→PKR deal · use legal channels only</span>'; }); } },
+        heat: { d: 'live temps — Karachi · Lahore · Islamabad', f: function () { return loadWx().then(function (wx) { return CITIES.map(function (c, i) { var t = wx.temps[i]; var cl = t == null ? 't-dim' : t >= 40 ? 't-crit' : t >= 35 ? 't-warn' : 't-ok'; return '  ' + c[0].padEnd(10) + ' <span class="' + cl + '">' + (t == null ? '—' : t.toFixed(1) + ' °C') + '</span>'; }).join('\n') + '\n<span class="t-dim">heat = demand spike = longer shedding on weak feeders</span>'; }); } },
+        links: { d: 'curated official links', f: function () { return '<span class="t-hi">POWER</span>\n' + tLinks(DISCOS.slice(0, 3).map(function (d) { return [d[3], d[1], d[2]]; })) + '\n<span class="t-hi">ID / DOCS</span>\n' + tLinks([['https://www.nadra.gov.pk/', 'NADRA', 'CNIC fees & Pak-ID services'], ['https://onlinemrp.dgip.gov.pk/', 'DGIP portal', 'passport apply & track'], ['https://www.sbp.org.pk/RDA/index.html', 'Roshan Digital Account', 'banking for overseas Pakistanis']]) + '\n<span class="t-dim">full DISCO list: <span class="t-hi">disco</span> · boards: <span class="t-hi">board &lt;city&gt;</span></span>'; } },
+        board: { d: 'board <city> — result-check method', f: function (a) { var q = a.join(' ').toLowerCase(); if (!q) return 'usage: board lahore | karachi | peshawar | quetta | federal …'; var hits = BOARDS.filter(function (b) { return (b[0] + ' ' + b[1]).toLowerCase().indexOf(q) >= 0; }); if (!hits.length) return '<span class="t-crit">no board matches</span> "' + esc(q) + '" — try a city or division name'; return hits.map(function (b) { return '<span class="t-hi">' + esc(b[0]) + '</span> <span class="t-dim">(' + esc(b[1]) + ')</span>\n  ' + tLink(b[2]) + '\n  method: ' + esc(b[3]); }).join('\n') + '\n<span class="t-warn">results are free — never pay a “checker” site</span>'; } },
+        disco: { d: 'disco <name> — that DISCO’s links', f: function (a) { var q = a.join(' ').toLowerCase(); if (!q) return DISCOS.map(function (d) { return '  <span class="t-hi">' + d[1].padEnd(11) + '</span> <span class="t-dim">' + esc(d[2]) + '</span>'; }).join('\n') + '\n<span class="t-dim">usage: disco lesco</span>'; var hits = DISCOS.filter(function (d) { return (d[0] + ' ' + d[1] + ' ' + d[2]).toLowerCase().indexOf(q) >= 0; }); if (!hits.length) return '<span class="t-crit">no DISCO matches</span> "' + esc(q) + '"'; return hits.map(function (d) { return '<span class="t-hi">' + esc(d[1]) + '</span> <span class="t-dim">— ' + esc(d[2]) + '</span>\n  ' + tLink(d[3]) + '\n  complaints: helpline <span class="t-hi">118</span> or the portal on the site'; }).join('\n'); } },
+        ussd: { d: 'USSD codes for all four operators', f: function () { return TELCOS.map(function (t) { return '<span class="t-hi">' + t[0] + '</span>\n  balance ' + t[1] + ' · load ' + t[2] + ' · packages ' + t[3] + ' · own no ' + t[4]; }).join('\n') + '\n<span class="t-warn">codes change — verify with your operator · never share your PIN</span>'; } },
+        sources: { d: 'data sources', f: function () { return '  FX: open.er-api.com (mid-market, daily)\n  weather: open-meteo.com\n  DISCO/board/NADRA/USSD: official portals, curated 2026-07 — some marked “verify”'; } },
+        lang: { d: 'lang <en|ur> — switch language', f: function (a) { var q = (a[0] || '').toLowerCase(); if (!T[q]) return 'usage: lang en | ur'; lang = q; store.set('pk:lang', lang); applyLang(); return 'language → <span class="t-hi">' + (q === 'ur' ? 'اردو (RTL)' : 'English') + '</span>'; } },
+        whoami: { d: 'who are you', f: function () { return 'user@pakpanel // 🇵🇰 Pakistan — stay sharp, verify everything'; } },
+        version: { d: 'app version', f: function () { return 'pak-panel terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'bijli'; store.set('pk:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@pakpanel:~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@pakpanel:~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'bijli') { view.innerHTML = cardBijli(); wireBijli(); return; }
+        if (tab === 'results') { view.innerHTML = cardResults(); return; }
+        if (tab === 'ussd') { view.innerHTML = cardUssd(); return; }
+        view.innerHTML = '<div class="loading">' + esc(tr('loading')) + '</div>';
+        loadFx().then(function (fx) {
+          view.innerHTML = cardPaisa(fx);
+          wirePaisa(fx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">' + esc(tr('fx_fail')) + '</div></div>';
+        });
+      }
+
+      (function init() {
+        var ls = $('lang-sel');
+        ls.value = lang;
+        ls.onchange = function () { lang = ls.value; store.set('pk:lang', lang); applyLang(); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('pk:tab', tab); render(); };
+        });
+        applyLang();
+        render();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bangla Panel — flood &amp; cyclone signals, load-shedding, taka rates &amp; SSC/HSC results</title>
+    <meta name="description" content="One lightweight panel for daily life in Bangladesh: maritime storm signals No.1–11 explained in plain language, FFWC flood danger levels, BPDB/DESCO/DPDC load-shedding links, live USD/SAR/AED/MYR→BDT rates with the 2.5% remittance incentive calculator, and SSC/HSC result checking with SMS formats." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://bangladesh.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Bangla Panel — pani · bidyut · taka · results" />
+    <meta name="twitter:description" content="Cyclone signals 1–11 in plain language, FFWC danger levels, load-shedding links, live taka rates, remittance incentive math, SSC/HSC SMS formats — one fast page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Bangla Panel — pani · bidyut · taka · results" />
+    <meta property="og:description" content="Cyclone signals 1–11 in plain language, FFWC danger levels, load-shedding links, live taka rates, remittance incentive math, SSC/HSC SMS formats — one fast page." />
+    <meta property="og:url" content="https://bangladesh.broodev.com/" />
+    <style>
+      :root {
+        --bg: #06150e; --bg-soft: #0a2117; --panel: #0d281c; --line: #1e4a35;
+        --red: #f42a41; --red-dim: #a12433; --text: #eaf6ee; --dim: #9dc4ab;
+        --green: #7de8a8; --green-dim: #3f8f63; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--red); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--green); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--green) 50%), linear-gradient(135deg, var(--green) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--red); color: var(--green); background: #123524; }
+      .tab.on b { color: var(--red); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--green); letter-spacing: .5px; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; color: var(--green); }
+      .ok { color: var(--green); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--green); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(244,42,65,.07); border-left: 3px solid var(--red-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      table.tbl th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.tbl td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); vertical-align: top; }
+      table.tbl td.c { font-family: var(--font); color: var(--green); font-weight: 700; white-space: nowrap; }
+      .sig { border-left: 3px solid var(--line); padding: 6px 10px; margin: 8px 0; border-radius: 0 6px 6px 0; background: var(--bg-soft); }
+      .sig.s-low { border-left-color: var(--green-dim); }
+      .sig.s-mid { border-left-color: var(--warn); }
+      .sig.s-high { border-left-color: var(--red); }
+      .sig b.no { font-family: var(--font); font-size: 14px; }
+      .sig.s-low b.no { color: var(--green); } .sig.s-mid b.no { color: var(--warn); } .sig.s-high b.no { color: var(--red); }
+      .sig .mn { font-size: 13px; margin: 2px 0; }
+      .sig .ac { font-size: 12.5px; color: var(--dim); }
+      .sig .ac b { color: var(--warn); font-weight: 600; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--green); }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--green-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 9.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #030b07; border: 1px solid var(--line); border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(125,232,168,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #a8f0c4; text-shadow: 0 0 6px rgba(125,232,168,.3); }
+      #t-out .t-dim { color: #4f8264; text-shadow: none; }
+      #t-out .t-hi { color: #e8fff0; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--green); }
+      #t-out a { color: #7fd8ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--red); white-space: nowrap; text-shadow: 0 0 6px rgba(244,42,65,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #e8fff0; font-family: var(--font); font-size: 13px; caret-color: var(--green); }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--green); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo h3 { color: var(--text); font-size: 13.5px; margin: 14px 0 4px; }
+      .seo a { color: var(--green); }
+      .seo ul, .seo ol { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo table th { color: var(--text); text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+      .seo table td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); vertical-align: top; }
+      .seo code { color: var(--green); font-family: var(--font); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎BANGLA PANEL <small>· pani · bidyut · taka · results</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="lang-sel" aria-label="Language">
+          <option value="en">English</option>
+          <option value="bn">বাংলা</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="pani"><b>🌊 PANI</b><span data-t="tabPani">Flood · cyclone</span></div>
+        <div class="tab" data-tab="bidyut"><b>⚡ BIDYUT</b><span data-t="tabBidyut">Load-shedding</span></div>
+        <div class="tab" data-tab="taka"><b>💱 TAKA</b><span data-t="tabTaka">FX · remit</span></div>
+        <div class="tab" data-tab="results"><b>🗂 RESULTS</b><span data-t="tabResults">Exams · ID</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span data-t="tabTerm">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        FX: open.er-api.com (mid-market, daily) · Rain: open-meteo.com · Signals/danger levels: BMD &amp; FFWC definitions, plain-language summary.<br />
+        For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings live only in your browser (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Bangla Panel">
+      <h2>What is Bangla Panel?</h2>
+      <p>
+        Bangla Panel is a free, data-light utility page for daily life in <strong>Bangladesh</strong>. It gathers four things that
+        people search for at stressful moments and puts them on one fast page: <strong>flood and cyclone information</strong>
+        (the maritime signal system No.&nbsp;1–11 explained in plain language, FFWC danger-level basics, official links to the
+        Flood Forecasting &amp; Warning Centre and the Bangladesh Meteorological Department, plus a three-day rain outlook for
+        Dhaka, Chattogram, Sylhet and Khulna), <strong>load-shedding links</strong> for BPDB, DESCO, DPDC, NESCO and REB with a guide
+        to reading area-wise schedules, <strong>money tools</strong> — live mid-market USD, SAR, AED and MYR rates against the taka,
+        a converter and a remittance calculator that includes the government's 2.5% cash incentive — and
+        <strong>SSC/HSC result checking</strong> with the SMS formats, plus NID and e-passport service links. No app install,
+        no account; it works on cheap data and old Android phones, in English or বাংলা.
+      </p>
+
+      <h2>Bangladesh maritime storm signals No. 1–11, explained</h2>
+      <p>
+        Bangladesh uses a numbered signal system for its sea ports (Chattogram, Mongla, Payra, Cox's Bazar). The number is not a
+        simple 1-to-11 "badness scale" — it encodes <strong>three things at once</strong>: how strong the storm is, how close it is,
+        and <strong>which side of the port</strong> its centre is expected to pass. Signals 1–2 are distant alerts, 3–4 are local
+        cautions, 5–7 are <strong>Danger</strong> signals (winds 62–88 km/h), and 8–10 are <strong>Great Danger</strong> signals
+        (winds 89 km/h and above, hurricane force). Signal 11 is special: it means communication with the storm warning centre
+        has broken down and catastrophic weather is feared. River ports use a separate, smaller 1–4 set, so a "No.&nbsp;3" on the
+        river is not the same as a "No.&nbsp;3" at sea.
+      </p>
+      <table>
+        <tr><th>Signal</th><th>Name</th><th>Wind</th><th>Meaning for the port</th></tr>
+        <tr><td>No. 1</td><td>Distant Cautionary</td><td>squalls possible far at sea</td><td>A storm may form in the distant deep sea; departing ships could meet rough weather en route.</td></tr>
+        <tr><td>No. 2</td><td>Distant Warning</td><td>storm formed, far away</td><td>A storm exists in the distant sea; vessels leaving port may be in danger, the port itself is not yet threatened.</td></tr>
+        <tr><td>No. 3</td><td>Local Cautionary</td><td>up to 40–50 km/h</td><td>The port is threatened by squally weather.</td></tr>
+        <tr><td>No. 4</td><td>Local Warning</td><td>51–61 km/h</td><td>A storm is nearby and the port is likely to be affected, but the danger is not yet great.</td></tr>
+        <tr><td>No. 5</td><td>Danger</td><td>62–88 km/h</td><td>The storm will cross the coast keeping the port on its <strong>left</strong>.</td></tr>
+        <tr><td>No. 6</td><td>Danger</td><td>62–88 km/h</td><td>Same severity as No. 5, but the port stays on the storm's <strong>right</strong>.</td></tr>
+        <tr><td>No. 7</td><td>Danger</td><td>62–88 km/h</td><td>Same severity, but the storm will pass <strong>over or very near</strong> the port.</td></tr>
+        <tr><td>No. 8</td><td>Great Danger</td><td>89 km/h +</td><td>A severe cyclone will cross the coast keeping the port on its <strong>left</strong>.</td></tr>
+        <tr><td>No. 9</td><td>Great Danger</td><td>89 km/h +</td><td>Same severity, port on the storm's <strong>right</strong>.</td></tr>
+        <tr><td>No. 10</td><td>Great Danger</td><td>89 km/h +</td><td>A severe cyclone will pass <strong>over or very near</strong> the port — the highest alert.</td></tr>
+        <tr><td>No. 11</td><td>Communication Failure</td><td>—</td><td>Contact with the storm warning centre is lost; devastating weather is feared.</td></tr>
+      </table>
+
+      <h2>Why signals 5, 6 and 7 are "the same" but different</h2>
+      <p>
+        Newcomers often assume No.&nbsp;7 must be much worse than No.&nbsp;5. In wind terms it is not — all three describe the same
+        62–88 km/h storm band. The difference is <strong>geometry</strong>: whether the cyclone's centre will cross the coast to the
+        left of the port, to the right of it, or straight over it. That detail matters enormously to mariners, because a
+        northern-hemisphere cyclone's <strong>right-front quadrant</strong> carries the strongest onshore winds and the highest storm
+        surge. A port kept on the storm's right side (No.&nbsp;6 / No.&nbsp;9) can face worse surge than the raw signal number
+        suggests. The same left/right/over logic repeats one level up in the Great Danger set: 8 mirrors 5, 9 mirrors 6, and 10
+        mirrors 7 at hurricane intensity.
+      </p>
+
+      <h2>Great Danger Signal No. 10 — what it actually means</h2>
+      <p>
+        No.&nbsp;10 is the highest working signal in the system. It means a severe cyclone with sustained winds of
+        <strong>89 km/h or more</strong> — often far more — is expected to pass directly over or very near the port. Historically,
+        No.&nbsp;10 has been hoisted for the deadliest storms to strike the Bay of Bengal coast, and it is the trigger for
+        <strong>mass evacuation to cyclone shelters</strong> coordinated by the Cyclone Preparedness Programme's volunteers. If
+        No.&nbsp;10 is announced for your area: move to a shelter or a strong concrete building immediately, keep away from the
+        shoreline and low embankments because storm surge — not wind — causes most deaths, carry dry food, water, medicines and
+        documents in a waterproof bag, and follow volunteer megaphone instructions. Do not wait "to see how bad it gets".
+      </p>
+
+      <h2>FFWC danger levels: what "X cm above danger level" means</h2>
+      <p>
+        The Flood Forecasting &amp; Warning Centre (FFWC) monitors water levels at stations on the Ganges/Padma, Brahmaputra/Jamuna,
+        Meghna, Surma-Kushiyara and other rivers. Each station has a pre-defined <strong>danger level</strong> — a water height at
+        which the river begins to flood adjacent low-lying land protected by that gauge. When a bulletin says a station is
+        "<strong>45 cm above danger level</strong>", it means the water surface is 45 centimetres higher than that threshold, and
+        nearby floodplains, chars and unprotected homesteads are likely already inundating. Rule of thumb: <em>above</em> danger
+        level means an active flood situation; roughly <strong>a metre or more above</strong> usually indicates a severe flood with
+        embankment stress. Rising versus falling trend matters as much as the number, so always read the FFWC forecast alongside
+        the level itself.
+      </p>
+
+      <h2>Cyclone season and basic preparation</h2>
+      <p>
+        The Bay of Bengal has two cyclone seasons: <strong>pre-monsoon (April–May)</strong> and <strong>post-monsoon
+        (October–November)</strong>. The pre-monsoon window has produced many of Bangladesh's most destructive storms because the
+        shallow, funnel-shaped bay amplifies storm surge into the low-lying delta. Sensible preparation is cheap: know the location
+        of your nearest <strong>cyclone shelter</strong> before the season starts, keep phone power banks charged when a depression
+        forms, store drinking water and dry food for 2–3 days, and keep NID cards and land documents in a sealed plastic bag.
+        Listen for signal changes on radio, TV and mosque announcements — the jump from No.&nbsp;4 to No.&nbsp;8 can happen within
+        a day as a storm intensifies over warm water.
+      </p>
+
+      <h2>Checking SSC and HSC results: web, SMS and result-day tips</h2>
+      <p>
+        Official results are published on <a href="https://educationboardresults.gov.bd/" rel="noopener">educationboardresults.gov.bd</a>
+        (with <a href="https://eboardresults.com/" rel="noopener">eboardresults.com</a> as the boards' alternate portal) — you need
+        your <strong>roll and registration number</strong>. The SMS channel works even when websites are overloaded: send a message to
+        <strong>16222</strong> in the pattern <code>SSC &lt;first 3 letters of board&gt; &lt;roll&gt; &lt;year&gt;</code>, e.g.
+        <code>SSC DHA 123456 2026</code>; use <code>HSC</code> for HSC, and <code>MAD</code> / <code>TEC</code> for Madrasah and
+        Technical boards. Formats occasionally change, so verify the current year's instructions in the official press release.
+        Result-day survival tips: the first 1–2 hours after publication are the worst for server load — the SMS route and the
+        alternate portal usually respond first, and board-wise full-marksheet options appear once traffic settles.
+      </p>
+      <table>
+        <tr><th>Exam</th><th>SMS format → 16222</th><th>Example</th></tr>
+        <tr><td>SSC</td><td><code>SSC &lt;board&gt; &lt;roll&gt; &lt;year&gt;</code></td><td><code>SSC DHA 123456 2026</code></td></tr>
+        <tr><td>HSC</td><td><code>HSC &lt;board&gt; &lt;roll&gt; &lt;year&gt;</code></td><td><code>HSC RAJ 654321 2026</code></td></tr>
+        <tr><td>Dakhil (Madrasah)</td><td><code>DAKHIL MAD &lt;roll&gt; &lt;year&gt;</code></td><td><code>DAKHIL MAD 123456 2026</code></td></tr>
+        <tr><td>SSC Vocational</td><td><code>SSC TEC &lt;roll&gt; &lt;year&gt;</code></td><td><code>SSC TEC 123456 2026</code></td></tr>
+      </table>
+      <p>
+        Board codes: DHA (Dhaka), RAJ (Rajshahi), COM (Cumilla), JES (Jashore), CHI (Chattogram), BAR (Barishal), SYL (Sylhet),
+        DIN (Dinajpur), MYM (Mymensingh), MAD (Madrasah), TEC (Technical). Standard SMS charges apply.
+      </p>
+
+      <h2>The 2.5% remittance incentive: legal channels vs hundi</h2>
+      <p>
+        To pull remittances out of informal <em>hundi</em> networks, the government pays a <strong>cash incentive — 2.5% of the
+        remitted amount</strong> — on money sent home through legal banking channels, mobile financial services and licensed
+        exchange houses. The incentive is credited automatically with the payout for ordinary amounts; larger transfers may need
+        simple paperwork such as proof of employment abroad. The practical math matters: a hundi dealer may quote a slightly
+        better street rate, but the legal route adds 2.5% on top of the bank rate, creates a paper trail that helps with loans and
+        visas, and carries none of the legal risk — hundi is illegal on both ends of the transfer. Use the calculator in the TAKA
+        tab to compare a provider's quote (fee plus exchange-rate margin) against the mid-market rate with the incentive included.
+      </p>
+
+      <h2>How to read a load-shedding area schedule</h2>
+      <p>
+        When generation falls short, distribution companies publish <strong>area-wise load-shedding schedules</strong>: your feeder
+        or area name mapped to one or more time blocks when supply may be cut. To read one, first identify <strong>which company
+        serves you</strong> — DESCO (northern Dhaka), DPDC (southern Dhaka), NESCO (Rajshahi/Rangpur region), West Zone (Khulna
+        region) or REB/palli bidyut samity (most rural areas) — then find your <strong>feeder or block name</strong> on that
+        company's schedule page, which is usually your neighbourhood or substation name rather than your postal address. Schedules
+        shift day to day with the supply-demand gap, so treat published slots as "most likely windows", not guarantees, and expect
+        extra unscheduled cuts during heat waves and gas shortages.
+      </p>
+
+      <h2>NID corrections and e-passport status</h2>
+      <p>
+        National ID services live at <a href="https://services.nidw.gov.bd/" rel="noopener">services.nidw.gov.bd</a>. For a
+        correction (name spelling, date of birth, etc.): register an account with your NID/form number and face verification,
+        apply under the correction category with scanned supporting documents (SSC certificate, birth certificate — the SSC
+        certificate carries the most weight for name/DOB), pay the government fee through mobile banking, and track the
+        application status in the same portal. E-passport applications and status checks are at
+        <a href="https://www.epassport.gov.bd/" rel="noopener">epassport.gov.bd</a> — you need your Online Registration ID (OID)
+        or application ID plus date of birth. Both services are free to check; anyone demanding money "to speed up a status" is
+        running a scam.
+      </p>
+
+      <h2>Data sources and method</h2>
+      <p>
+        Exchange rates come from <strong>open.er-api.com</strong> — daily mid-market reference rates, not the street or bank counter
+        rate; providers always quote differently, which is exactly what the remittance calculator measures. The rain outlook uses
+        the free <strong>Open-Meteo</strong> forecast API for Dhaka, Chattogram, Sylhet and Khulna. Everything else on this page is a
+        <strong>curated link to an official source</strong>: FFWC and BMD for flood and cyclone bulletins, BPDB/DESCO/DPDC/NESCO/REB
+        for power, the education boards for results, NIDW and DIP for identity documents. This page performs no lookups on your
+        behalf, stores nothing on any server, and never asks for personal data. Signal meanings and danger-level explanations are
+        original plain-language summaries of the official definitions — the live official bulletin always wins.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>Is Signal No. 4 dangerous?</h3>
+      <p>
+        No.&nbsp;4 means a storm is nearby and the port is likely to be affected, with winds up to 51–61 km/h — disruptive, but not
+        yet a Danger signal. The serious escalation points are No.&nbsp;5–7 (Danger, 62–88 km/h) and No.&nbsp;8–10 (Great Danger,
+        89 km/h+). Treat No.&nbsp;4 as your cue to prepare, because signals can jump quickly.
+      </p>
+      <h3>What does "50 cm above danger level" mean in a flood bulletin?</h3>
+      <p>
+        Each FFWC river station has a fixed danger level — the height where flooding of nearby low land begins. "50 cm above"
+        means the river is half a metre over that line, so adjacent floodplains are likely already flooding. Whether it is rising
+        or falling matters as much as the number.
+      </p>
+      <h3>How do I check my SSC result by SMS?</h3>
+      <p>
+        Send <code>SSC &lt;first 3 letters of your board&gt; &lt;roll&gt; &lt;year&gt;</code> to <strong>16222</strong> — for example
+        <code>SSC DHA 123456 2026</code>. Use HSC for HSC, DAKHIL MAD for Madrasah, SSC TEC for Technical. Verify the current
+        year's format in the official notice, as it can change.
+      </p>
+      <h3>What is the 2.5% remittance incentive?</h3>
+      <p>
+        A government cash bonus of 2.5% added to remittances that arrive through legal channels (banks, licensed exchange houses,
+        MFS). It is credited with the payout for normal amounts. Hundi transfers get no incentive, no paper trail, and are illegal.
+      </p>
+      <h3>Why does my area's load-shedding time differ from my friend's?</h3>
+      <p>
+        Schedules are feeder-based, not city-wide. Two neighbourhoods on different feeders — even adjacent ones — can have entirely
+        different cut windows, and each distribution company (DESCO, DPDC, NESCO, REB…) publishes its own schedule.
+      </p>
+      <h3>Does this site store my data?</h3>
+      <p>
+        No. There are no accounts and no server-side storage. Your language and tab preferences are kept only in your own
+        browser's localStorage, and nothing you type in the terminal leaves your device.
+      </p>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Bangla Panel",
+        "url": "https://bangladesh.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "inLanguage": ["en", "bn"],
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Maritime storm signals 1-11 explainer, FFWC danger level guide, BMD cyclone links, 3-day rain outlook, load-shedding links (BPDB/DESCO/DPDC/NESCO/REB), live USD/SAR/AED/MYR to BDT rates, remittance calculator with 2.5% incentive, SSC/HSC result SMS formats, NID and e-passport links, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Signal No. 4 dangerous?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. 4 means a storm is nearby and the port is likely to be affected, with winds up to 51-61 km/h - disruptive, but not yet a Danger signal. The serious escalation points are No. 5-7 (Danger, 62-88 km/h) and No. 8-10 (Great Danger, 89 km/h+). Treat No. 4 as your cue to prepare, because signals can jump quickly." }
+          },
+          {
+            "@type": "Question",
+            "name": "What does '50 cm above danger level' mean in a flood bulletin?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Each FFWC river station has a fixed danger level - the height where flooding of nearby low land begins. '50 cm above' means the river is half a metre over that line, so adjacent floodplains are likely already flooding. Whether it is rising or falling matters as much as the number." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I check my SSC result by SMS?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Send 'SSC <first 3 letters of your board> <roll> <year>' to 16222 - for example 'SSC DHA 123456 2026'. Use HSC for HSC, DAKHIL MAD for Madrasah, SSC TEC for Technical. Verify the current year's format in the official notice, as it can change." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the 2.5% remittance incentive?",
+            "acceptedAnswer": { "@type": "Answer", "text": "A government cash bonus of 2.5% added to remittances that arrive through legal channels (banks, licensed exchange houses, MFS). It is credited with the payout for normal amounts. Hundi transfers get no incentive, no paper trail, and are illegal." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why does my area's load-shedding time differ from my friend's?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Schedules are feeder-based, not city-wide. Two neighbourhoods on different feeders - even adjacent ones - can have entirely different cut windows, and each distribution company (DESCO, DPDC, NESCO, REB) publishes its own schedule." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this site store my data?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. There are no accounts and no server-side storage. Your language and tab preferences are kept only in your own browser's localStorage, and nothing you type in the terminal leaves your device." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= i18n 번들 — 정적 SEO 본문은 영어 고정, UI만 번역 ================= */
+      var T = {
+        en: {
+          tabPani: 'Flood · cyclone', tabBidyut: 'Load-shedding', tabTaka: 'FX · remit', tabResults: 'Exams · ID', tabTerm: 'Terminal',
+          loading: 'Loading …', updated: 'Updated', fetchFail: 'Could not load data — try again later.',
+          offNote: 'For information only — always verify with official sources.',
+          officialLinks: 'Official links',
+          paniTitle: '🌊 Flood & cyclone — Bangladesh',
+          paniIntro: 'Two systems to know: FFWC river danger levels for floods, and the maritime signal numbers 1–11 for cyclones. Both are explained below in plain language.',
+          sigTitle: 'Maritime signals No. 1–11 — plain language',
+          sigIntro: 'For sea ports (Chattogram, Mongla, Payra, Cox\u2019s Bazar). The number encodes strength + distance + which side of the port the storm will pass. River ports use a separate 1–4 set.',
+          sigMeaning: 'Meaning', sigAction: 'Do',
+          sigGroupLow: 'CAUTION (1–4)', sigGroupMid: 'DANGER (5–7 · 62–88 km/h)', sigGroupHigh: 'GREAT DANGER (8–10 · 89+ km/h) & 11',
+          dlTitle: 'FFWC danger level — how to read it',
+          dlBody: 'Every FFWC river station has a fixed “danger level”. When a bulletin says a station is e.g. 45 cm ABOVE danger level, the water is 45 cm over the height where nearby low-lying land starts to flood — so flooding is likely already happening there. About 1 m or more above usually means a severe flood. The trend (rising/falling) matters as much as the number.',
+          rainTitle: 'Rain outlook — next 3 days (mm/day)',
+          rainNote: 'Open-Meteo model forecast. Heavy monsoon rain upstream can raise rivers days later — check FFWC for the flood picture.',
+          city: 'City', today: 'Today', tomorrow: 'Tomorrow', day3: 'Day 3',
+          paniLinksNote: 'Bulletins and signals change fast — the official sources above are always authoritative.',
+          bidyutTitle: '⚡ Load-shedding — who serves you',
+          bidyutIntro: 'Find your distribution company first, then look up your feeder/area name on its schedule page. Published slots are “most likely windows”, not guarantees.',
+          bidyutGuideTitle: 'How to read an area schedule',
+          bidyutG1: 'Identify your company: DESCO = north Dhaka · DPDC = south Dhaka · NESCO = Rajshahi/Rangpur · WZPDCL = Khulna zone · REB/palli bidyut = most rural areas.',
+          bidyutG2: 'On its site, find your feeder or block — usually your neighbourhood or substation name, not your postal address.',
+          bidyutG3: 'Each row maps that feeder to possible cut windows. Schedules shift daily with the supply gap.',
+          bidyutG4: 'Heat waves and gas shortages bring extra unscheduled cuts — keep devices charged when a shortfall is announced.',
+          bidyutNote: 'Complaints and outage reports go to your own company\u2019s hotline (16999 DESCO · 16116 DPDC · 16899 BPDB) — verify numbers on the official sites.',
+          takaTitle: '💱 Taka today (mid-market)',
+          takaNote: 'Mid-market reference rates only. Bank counters, exchange houses and MFS quote differently — that margin is what the calculator below measures.',
+          convTitle: 'Converter', amount: 'Amount', fromTo: 'From → To',
+          remitTitle: 'Remittance calculator — with 2.5% incentive',
+          remitIntro: 'Money sent through legal channels earns a 2.5% government cash incentive on top. Enter a provider\u2019s quote to see the true cost vs mid-market:',
+          youSend: 'You send', providerFee: 'Provider fee (same currency)', providerRate: 'Provider\u2019s rate (1 unit → BDT)',
+          recipientGets: 'Recipient gets', incentive: 'incentive', total: 'total', trueCost: 'true cost vs mid-market + incentive',
+          remitNote: 'Legal channels: banks, licensed exchange houses, MFS. Hundi pays no incentive, leaves no paper trail, and is illegal on both ends.',
+          incTitle: 'The 2.5% incentive in one card',
+          incBody: 'The government adds 2.5% cash on remittances received through banking channels — credited automatically with the payout for ordinary amounts (bigger transfers may need simple documents like proof of employment). A hundi dealer\u2019s “better rate” usually evaporates once you add the legal channel\u2019s incentive and safety.',
+          resultsTitle: '🗂 SSC / HSC results',
+          resultsIntro: 'Web portals need roll + registration number. SMS works even when the sites are overloaded on result day.',
+          smsTitle: 'Result check by SMS → 16222',
+          smsNote: 'Verify the current year\u2019s format in the official notice — patterns can change. Standard SMS charges apply. Board codes: DHA RAJ COM JES CHI BAR SYL DIN MYM · MAD (Madrasah) · TEC (Technical).',
+          exam: 'Exam', format: 'Format', example: 'Example',
+          nidTitle: 'NID & e-passport',
+          nidSteps: 'NID correction in 4 steps:',
+          nidS1: 'Register at services.nidw.gov.bd with your NID/form number + face verification.',
+          nidS2: 'Apply under the correction category; upload supporting documents (SSC certificate carries the most weight for name/DOB).',
+          nidS3: 'Pay the government fee via mobile banking.',
+          nidS4: 'Track the application status in the same portal.',
+          nidNote: 'Status checks are free on official portals. Anyone charging money “to speed things up” is a scam.',
+          serverTips: 'Result-day tips: first 1–2 hours = worst server load. The SMS route and the alternate portal (eboardresults.com) usually respond first.'
+        },
+        bn: {
+          tabPani: 'বন্যা · ঘূর্ণিঝড়', tabBidyut: 'লোডশেডিং', tabTaka: 'রেট · রেমিট্যান্স', tabResults: 'ফলাফল · আইডি', tabTerm: 'টার্মিনাল',
+          loading: 'লোড হচ্ছে …', updated: 'হালনাগাদ', fetchFail: 'ডেটা লোড করা যায়নি — পরে আবার চেষ্টা করুন।',
+          offNote: 'শুধু তথ্যের জন্য — সবসময় সরকারি সূত্রে যাচাই করুন।',
+          officialLinks: 'সরকারি লিংক',
+          paniTitle: '🌊 বন্যা ও ঘূর্ণিঝড় — বাংলাদেশ',
+          paniIntro: 'দুটি ব্যবস্থা জানা দরকার: বন্যার জন্য FFWC-র নদীর বিপৎসীমা, আর ঘূর্ণিঝড়ের জন্য সমুদ্র বন্দরের ১–১১ নম্বর সংকেত। নিচে সহজ ভাষায় ব্যাখ্যা করা হয়েছে।',
+          sigTitle: 'সমুদ্র বন্দর সংকেত ১–১১ — সহজ ভাষায়',
+          sigIntro: 'সমুদ্র বন্দরের জন্য (চট্টগ্রাম, মোংলা, পায়রা, কক্সবাজার)। নম্বরটি একসাথে তিনটি তথ্য বহন করে: ঝড়ের শক্তি + দূরত্ব + ঝড়টি বন্দরের কোন পাশ দিয়ে যাবে। নদী বন্দরে আলাদা ১–৪ সংকেত ব্যবহৃত হয়।',
+          sigMeaning: 'অর্থ', sigAction: 'করণীয়',
+          sigGroupLow: 'সতর্কতা (১–৪)', sigGroupMid: 'বিপদ সংকেত (৫–৭ · ৬২–৮৮ কি.মি./ঘণ্টা)', sigGroupHigh: 'মহাবিপদ সংকেত (৮–১০ · ৮৯+ কি.মি./ঘণ্টা) ও ১১',
+          dlTitle: 'FFWC বিপৎসীমা — কীভাবে পড়বেন',
+          dlBody: 'FFWC-র প্রতিটি নদী স্টেশনের একটি নির্ধারিত “বিপৎসীমা” আছে। বুলেটিনে যখন বলা হয় কোনো স্টেশনে পানি বিপৎসীমার ৪৫ সে.মি. উপরে, তার মানে আশপাশের নিচু এলাকা প্লাবিত হওয়া শুরু হওয়ার উচ্চতার চেয়ে পানি ৪৫ সে.মি. বেশি — অর্থাৎ সেখানে সম্ভবত ইতোমধ্যে বন্যা চলছে। প্রায় ১ মিটার বা তার বেশি হলে সাধারণত তীব্র বন্যা বোঝায়। পানি বাড়ছে না কমছে — সেই প্রবণতা সংখ্যার মতোই গুরুত্বপূর্ণ।',
+          rainTitle: 'বৃষ্টির পূর্বাভাস — আগামী ৩ দিন (মি.মি./দিন)',
+          rainNote: 'Open-Meteo মডেল পূর্বাভাস। উজানে ভারী বর্ষণ কয়েক দিন পরে নদীর পানি বাড়াতে পারে — বন্যার চিত্রের জন্য FFWC দেখুন।',
+          city: 'শহর', today: 'আজ', tomorrow: 'আগামীকাল', day3: '৩য় দিন',
+          paniLinksNote: 'বুলেটিন ও সংকেত দ্রুত বদলায় — উপরের সরকারি সূত্রই সবসময় চূড়ান্ত।',
+          bidyutTitle: '⚡ লোডশেডিং — আপনার এলাকা কার আওতায়',
+          bidyutIntro: 'আগে জেনে নিন আপনার বিতরণ কোম্পানি কোনটি, তারপর তাদের সাইটে আপনার ফিডার/এলাকার নাম খুঁজুন। প্রকাশিত সময়সূচি “সম্ভাব্য সময়”, নিশ্চয়তা নয়।',
+          bidyutGuideTitle: 'এলাকাভিত্তিক সময়সূচি কীভাবে পড়বেন',
+          bidyutG1: 'আপনার কোম্পানি চিনুন: DESCO = ঢাকার উত্তর · DPDC = ঢাকার দক্ষিণ · NESCO = রাজশাহী/রংপুর · WZPDCL = খুলনা অঞ্চল · REB/পল্লী বিদ্যুৎ = অধিকাংশ গ্রামীণ এলাকা।',
+          bidyutG2: 'তাদের সাইটে আপনার ফিডার বা ব্লক খুঁজুন — সাধারণত মহল্লা বা উপকেন্দ্রের নাম, ডাক ঠিকানা নয়।',
+          bidyutG3: 'প্রতিটি সারিতে সেই ফিডারের সম্ভাব্য বিদ্যুৎ-বিচ্ছিন্ন সময় দেখানো হয়। ঘাটতির সাথে সময়সূচি প্রতিদিন বদলায়।',
+          bidyutG4: 'তাপপ্রবাহ ও গ্যাস সংকটে অতিরিক্ত অনির্ধারিত লোডশেডিং হয় — ঘাটতির ঘোষণা এলে ডিভাইস চার্জ রাখুন।',
+          bidyutNote: 'অভিযোগ ও বিভ্রাট রিপোর্ট নিজ কোম্পানির হটলাইনে (১৬৯৯৯ DESCO · ১৬১১৬ DPDC · ১৬৮৯৯ BPDB) — নম্বর সরকারি সাইটে যাচাই করুন।',
+          takaTitle: '💱 আজকের টাকা (মিড-মার্কেট)',
+          takaNote: 'শুধু মিড-মার্কেট রেফারেন্স রেট। ব্যাংক, এক্সচেঞ্জ হাউস ও MFS আলাদা রেট দেয় — সেই পার্থক্যই নিচের ক্যালকুলেটর মাপে।',
+          convTitle: 'কনভার্টার', amount: 'পরিমাণ', fromTo: 'থেকে → তে',
+          remitTitle: 'রেমিট্যান্স ক্যালকুলেটর — ২.৫% প্রণোদনাসহ',
+          remitIntro: 'বৈধ পথে পাঠানো টাকায় সরকার অতিরিক্ত ২.৫% নগদ প্রণোদনা দেয়। প্রকৃত খরচ দেখতে প্রোভাইডারের কোট লিখুন:',
+          youSend: 'পাঠাবেন', providerFee: 'প্রোভাইডার ফি (একই মুদ্রায়)', providerRate: 'প্রোভাইডারের রেট (১ ইউনিট → টাকা)',
+          recipientGets: 'প্রাপক পাবেন', incentive: 'প্রণোদনা', total: 'মোট', trueCost: 'মিড-মার্কেট + প্রণোদনার তুলনায় প্রকৃত খরচ',
+          remitNote: 'বৈধ পথ: ব্যাংক, লাইসেন্সধারী এক্সচেঞ্জ হাউস, MFS। হুন্ডিতে প্রণোদনা নেই, কাগজপত্র নেই, এবং দুই প্রান্তেই তা অবৈধ।',
+          incTitle: '২.৫% প্রণোদনা এক নজরে',
+          incBody: 'ব্যাংকিং চ্যানেলে আসা রেমিট্যান্সে সরকার ২.৫% নগদ যোগ করে — সাধারণ অঙ্কে টাকার সাথে স্বয়ংক্রিয়ভাবে জমা হয় (বড় অঙ্কে বিদেশে চাকরির প্রমাণের মতো সহজ কাগজ লাগতে পারে)। হুন্ডির “ভালো রেট” সাধারণত বৈধ পথের প্রণোদনা ও নিরাপত্তা যোগ করলে আর ভালো থাকে না।',
+          resultsTitle: '🗂 এসএসসি / এইচএসসি ফলাফল',
+          resultsIntro: 'ওয়েব পোর্টালে রোল + রেজিস্ট্রেশন নম্বর লাগে। ফল প্রকাশের দিনে সাইট অচল হলেও SMS কাজ করে।',
+          smsTitle: 'SMS-এ ফলাফল → ১৬২২২',
+          smsNote: 'চলতি বছরের ফরম্যাট সরকারি বিজ্ঞপ্তিতে যাচাই করুন — প্যাটার্ন বদলাতে পারে। সাধারণ SMS চার্জ প্রযোজ্য। বোর্ড কোড: DHA RAJ COM JES CHI BAR SYL DIN MYM · MAD (মাদ্রাসা) · TEC (কারিগরি)।',
+          exam: 'পরীক্ষা', format: 'ফরম্যাট', example: 'উদাহরণ',
+          nidTitle: 'এনআইডি ও ই-পাসপোর্ট',
+          nidSteps: '৪ ধাপে এনআইডি সংশোধন:',
+          nidS1: 'services.nidw.gov.bd-তে এনআইডি/ফর্ম নম্বর + ফেস ভেরিফিকেশন দিয়ে নিবন্ধন করুন।',
+          nidS2: 'সংশোধন ক্যাটাগরিতে আবেদন করুন; প্রমাণপত্র আপলোড করুন (নাম/জন্মতারিখের জন্য এসএসসি সনদ সবচেয়ে গুরুত্বপূর্ণ)।',
+          nidS3: 'মোবাইল ব্যাংকিংয়ে সরকারি ফি দিন।',
+          nidS4: 'একই পোর্টালে আবেদনের অবস্থা ট্র্যাক করুন।',
+          nidNote: 'সরকারি পোর্টালে স্ট্যাটাস দেখা ফ্রি। “দ্রুত করিয়ে দেব” বলে টাকা চাইলে সেটি প্রতারণা।',
+          serverTips: 'ফল প্রকাশের দিনের টিপস: প্রথম ১–২ ঘণ্টায় সার্ভারে সবচেয়ে চাপ। SMS ও বিকল্প পোর্টাল (eboardresults.com) সাধারণত আগে সাড়া দেয়।'
+        }
+      };
+
+      /* ================= 신호 데이터 — BMD 정의의 쉬운 요약(원문이 항상 우선) ================= */
+      var SIGNALS = [
+        { n: 1, g: 'low', en: 'Distant Cautionary Signal No. 1', bn: '১ নং দূরবর্তী সতর্ক সংকেত',
+          mEn: 'A squally area exists in the distant deep sea where a storm may form. Ships leaving port could meet rough weather en route.',
+          mBn: 'দূর গভীর সাগরে ঝড়ো হাওয়ার একটি এলাকা রয়েছে, সেখানে ঝড় সৃষ্টি হতে পারে। বন্দর ছেড়ে যাওয়া জাহাজ পথে দুর্যোগে পড়তে পারে।',
+          aEn: 'Normal port work continues; ocean-going vessels should check forecasts before departure.',
+          aBn: 'বন্দরের স্বাভাবিক কাজ চলবে; দূরযাত্রার জাহাজ ছাড়ার আগে পূর্বাভাস দেখে নিন।' },
+        { n: 2, g: 'low', en: 'Distant Warning Signal No. 2', bn: '২ নং দূরবর্তী হুঁশিয়ারি সংকেত',
+          mEn: 'A storm has formed in the distant sea. Vessels leaving port may run into it; the port itself is not yet threatened.',
+          mBn: 'দূর সাগরে ঝড় সৃষ্টি হয়েছে। বন্দর ছাড়লে জাহাজ ঝড়ের কবলে পড়তে পারে; বন্দর এখনো সরাসরি হুমকিতে নয়।',
+          aEn: 'Small craft should avoid the deep sea; monitor bulletins.',
+          aBn: 'ছোট নৌযান গভীর সাগর এড়িয়ে চলুন; বুলেটিনে নজর রাখুন।' },
+        { n: 3, g: 'low', en: 'Local Cautionary Signal No. 3', bn: '৩ নং স্থানীয় সতর্ক সংকেত',
+          mEn: 'The port is threatened by squally weather; winds may reach 40–50 km/h.',
+          mBn: 'বন্দর ঝড়ো হাওয়ার কবলে পড়তে পারে; বাতাসের গতি ঘণ্টায় ৪০–৫০ কি.মি. পর্যন্ত হতে পারে।',
+          aEn: 'Boats and small trawlers stay near the coast; fishing vessels stay alert.',
+          aBn: 'নৌকা ও ছোট ট্রলার উপকূলের কাছে থাকুন; মাছ ধরার নৌযান সতর্ক থাকুন।' },
+        { n: 4, g: 'low', en: 'Local Warning Signal No. 4', bn: '৪ নং স্থানীয় হুঁশিয়ারি সংকেত',
+          mEn: 'A storm is nearby and the port is likely to be affected (winds 51–61 km/h), but the danger is not yet great.',
+          mBn: 'ঝড় কাছাকাছি এবং বন্দর আক্রান্ত হতে পারে (বাতাস ৫১–৬১ কি.মি./ঘণ্টা), তবে এখনো বড় বিপদ নয়।',
+          aEn: 'Small craft move to shelter; listen to radio bulletins and prepare.',
+          aBn: 'ছোট নৌযান নিরাপদ আশ্রয়ে যান; রেডিও বুলেটিন শুনুন ও প্রস্তুতি নিন।' },
+        { n: 5, g: 'mid', en: 'Danger Signal No. 5', bn: '৫ নং বিপদ সংকেত',
+          mEn: 'A storm (62–88 km/h) will cross the coast keeping the port on its LEFT.',
+          mBn: 'ঝড় (৬২–৮৮ কি.মি./ঘণ্টা) বন্দরকে বাম দিকে রেখে উপকূল অতিক্রম করবে।',
+          aEn: 'All vessels to safe shelter now; coastal residents begin preparations.',
+          aBn: 'সব নৌযান এখনই নিরাপদ আশ্রয়ে; উপকূলবাসী প্রস্তুতি শুরু করুন।' },
+        { n: 6, g: 'mid', en: 'Danger Signal No. 6', bn: '৬ নং বিপদ সংকেত',
+          mEn: 'Same severity as No. 5 (62–88 km/h), but the storm keeps the port on its RIGHT — often the worse surge side.',
+          mBn: '৫ নং-এর সমান তীব্রতা (৬২–৮৮ কি.মি./ঘণ্টা), তবে ঝড় বন্দরকে ডান দিকে রেখে যাবে — সাধারণত জলোচ্ছ্বাসের দিক থেকে বেশি ঝুঁকির পাশ।',
+          aEn: 'Same as No. 5 — shelter vessels, prepare, expect surge risk.',
+          aBn: '৫ নং-এর মতোই — নৌযান আশ্রয়ে নিন, প্রস্তুতি নিন, জলোচ্ছ্বাসের ঝুঁকি ধরে নিন।' },
+        { n: 7, g: 'mid', en: 'Danger Signal No. 7', bn: '৭ নং বিপদ সংকেত',
+          mEn: 'Same severity (62–88 km/h), but the storm will pass OVER or very near the port.',
+          mBn: 'একই তীব্রতা (৬২–৮৮ কি.মি./ঘণ্টা), তবে ঝড় বন্দরের উপর বা খুব কাছ দিয়ে যাবে।',
+          aEn: 'Complete preparations; vulnerable people near the coast consider moving early.',
+          aBn: 'প্রস্তুতি সম্পন্ন করুন; উপকূলের ঝুঁকিপূর্ণ মানুষ আগেভাগে সরার কথা ভাবুন।' },
+        { n: 8, g: 'high', en: 'Great Danger Signal No. 8', bn: '৮ নং মহাবিপদ সংকেত',
+          mEn: 'A severe cyclone (89 km/h or more) will cross the coast keeping the port on its LEFT.',
+          mBn: 'প্রচণ্ড ঘূর্ণিঝড় (৮৯+ কি.মি./ঘণ্টা) বন্দরকে বাম দিকে রেখে উপকূল অতিক্রম করবে।',
+          aEn: 'Prepare to evacuate to cyclone shelters; follow CPP volunteer instructions.',
+          aBn: 'আশ্রয়কেন্দ্রে যাওয়ার প্রস্তুতি নিন; সিপিপি স্বেচ্ছাসেবকদের নির্দেশ মানুন।' },
+        { n: 9, g: 'high', en: 'Great Danger Signal No. 9', bn: '৯ নং মহাবিপদ সংকেত',
+          mEn: 'Same severity (89 km/h+), port on the storm\u2019s RIGHT — high surge risk.',
+          mBn: 'একই তীব্রতা (৮৯+ কি.মি./ঘণ্টা), বন্দর ঝড়ের ডান পাশে — জলোচ্ছ্বাসের ঝুঁকি বেশি।',
+          aEn: 'Evacuate low-lying areas; move to shelters without delay.',
+          aBn: 'নিচু এলাকা ছাড়ুন; দেরি না করে আশ্রয়কেন্দ্রে যান।' },
+        { n: 10, g: 'high', en: 'Great Danger Signal No. 10', bn: '১০ নং মহাবিপদ সংকেত',
+          mEn: 'A severe cyclone (89 km/h+) will pass OVER or very near the port — the highest alert. Storm surge, not wind, causes most deaths.',
+          mBn: 'প্রচণ্ড ঘূর্ণিঝড় (৮৯+ কি.মি./ঘণ্টা) বন্দরের উপর বা খুব কাছ দিয়ে যাবে — সর্বোচ্চ সতর্কতা। বেশিরভাগ প্রাণহানি ঘটে বাতাসে নয়, জলোচ্ছ্বাসে।',
+          aEn: 'Go to a cyclone shelter or strong concrete building NOW. Leave the shoreline and low embankments. Carry water, dry food, medicine, documents in a waterproof bag.',
+          aBn: 'এখনই আশ্রয়কেন্দ্র বা মজবুত পাকা ভবনে যান। তীর ও নিচু বাঁধ ছাড়ুন। পানি, শুকনো খাবার, ওষুধ ও কাগজপত্র ওয়াটারপ্রুফ ব্যাগে নিন।' },
+        { n: 11, g: 'high', en: 'Communication Failure Signal No. 11', bn: '১১ নং যোগাযোগ বিচ্ছিন্ন সংকেত',
+          mEn: 'Communication with the storm warning centre has broken down; devastating weather is feared.',
+          mBn: 'আবহাওয়া সতর্কীকরণ কেন্দ্রের সাথে যোগাযোগ বিচ্ছিন্ন; ভয়াবহ দুর্যোগের আশঙ্কা।',
+          aEn: 'Follow the last known instructions and local administration guidance.',
+          aBn: 'সর্বশেষ জানা নির্দেশনা ও স্থানীয় প্রশাসনের কথা মেনে চলুন।' }
+      ];
+
+      /* ================= 링크 데이터 (2026-07 도메인 기준·모두 공식) ================= */
+      var L_PANI = [
+        ['https://www.ffwc.gov.bd/', 'FFWC — Flood Forecasting & Warning Centre', 'River levels vs danger level, flood bulletins & forecasts'],
+        ['https://www.bmd.gov.bd/', 'BMD — Bangladesh Meteorological Department', 'Cyclone warnings, signal announcements, weather bulletins'],
+        ['http://www.cpp.gov.bd/', 'CPP — Cyclone Preparedness Programme', 'Volunteer network, shelter & evacuation coordination'],
+        ['https://ddm.gov.bd/', 'Department of Disaster Management', 'Situation reports and disaster guidance']
+      ];
+      var L_BIDYUT = [
+        ['https://www.bpdb.gov.bd/', 'BPDB — Power Development Board', 'National generation & load-shedding notices'],
+        ['https://www.desco.org.bd/', 'DESCO — Dhaka Electric Supply Company', 'Northern Dhaka: schedules, outage info, complaints'],
+        ['https://dpdc.org.bd/', 'DPDC — Dhaka Power Distribution Company', 'Southern Dhaka: schedules and outage notices'],
+        ['https://www.nesco.gov.bd/', 'NESCO — Northern Electricity Supply', 'Rajshahi & Rangpur divisions'],
+        ['https://reb.gov.bd/', 'BREB — Rural Electrification Board', 'Palli bidyut samities — most rural areas']
+      ];
+      var L_RESULTS = [
+        ['https://educationboardresults.gov.bd/', 'educationboardresults.gov.bd', 'Official SSC/HSC/JSC results (roll + registration number)'],
+        ['https://eboardresults.com/', 'eboardresults.com', 'Boards\u2019 alternate portal — often faster on result day'],
+        ['https://services.nidw.gov.bd/', 'services.nidw.gov.bd', 'NID registration, correction, reissue, status'],
+        ['https://www.epassport.gov.bd/', 'epassport.gov.bd', 'E-passport application & status check (OID + date of birth)']
+      ];
+      var SMS_FORMATS = [
+        ['SSC', 'SSC <board> <roll> <year>', 'SSC DHA 123456 2026'],
+        ['HSC', 'HSC <board> <roll> <year>', 'HSC RAJ 654321 2026'],
+        ['Dakhil', 'DAKHIL MAD <roll> <year>', 'DAKHIL MAD 123456 2026'],
+        ['SSC Voc', 'SSC TEC <roll> <year>', 'SSC TEC 123456 2026']
+      ];
+      var CITIES = [
+        { key: 'dhaka', en: 'Dhaka', bn: 'ঢাকা', lat: 23.81, lon: 90.41 },
+        { key: 'ctg', en: 'Chattogram', bn: 'চট্টগ্রাম', lat: 22.34, lon: 91.83 },
+        { key: 'sylhet', en: 'Sylhet', bn: 'সিলেট', lat: 24.9, lon: 91.87 },
+        { key: 'khulna', en: 'Khulna', bn: 'খুলনা', lat: 22.82, lon: 89.55 }
+      ];
+      var FX_SHOW = ['USD', 'SAR', 'AED', 'MYR'];
+      var INCENTIVE_PCT = 2.5;
+
+      /* __PURE_START__ 순수 로직 */
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* 송금: 수취액 = (송금액-수수료)×제시환율, 프리미엄 = 수취액×2.5%,
+         기준 = 송금액×미드마켓환율×(1+2.5%) → 총 비용% */
+      function remitCalc(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var incentive = received * (INCENTIVE_PCT / 100);
+        var benchmark = sendAmt * midRate * (1 + INCENTIVE_PCT / 100);
+        var costPct = ((benchmark - (received + incentive)) / benchmark) * 100;
+        return { received: received, incentive: incentive, total: received + incentive, costPct: costPct };
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+      };
+      var qLang = (function () { try { var m = location.search.match(/[?&]lang=(en|bn)/); return m ? m[1] : null; } catch (e) { return null; } })();
+      var lang = qLang || store.get('bd:lang', 'en'); if (lang !== 'en' && lang !== 'bn') lang = 'en';
+      var tab = store.get('bd:tab', 'pani');
+      var fxCache = null; // { rates, date, at }
+      var rainCache = null; // { rows, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var t = function (k) { return (T[lang] && T[lang][k]) || T.en[k] || k; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates || !j.rates.BDT) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('bd:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('bd:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* 비 — open-meteo 멀티 로케이션(4개 도시 1회 호출), 60분 캐시 + localStorage 폴백 */
+      function loadRain() {
+        if (rainCache && Date.now() - rainCache.at < 60 * 60 * 1000) return Promise.resolve(rainCache);
+        var lats = CITIES.map(function (c) { return c.lat; }).join(',');
+        var lons = CITIES.map(function (c) { return c.lon; }).join(',');
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons +
+          '&daily=precipitation_sum&forecast_days=3&timezone=Asia%2FDhaka';
+        return fetch(url)
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            var arr = Array.isArray(j) ? j : [j];
+            var rows = CITIES.map(function (c, i) {
+              var d = arr[i] && arr[i].daily && arr[i].daily.precipitation_sum;
+              return { key: c.key, vals: d && d.length >= 3 ? d.slice(0, 3) : [null, null, null] };
+            });
+            rainCache = { rows: rows, at: Date.now() };
+            store.set('bd:rain', { rows: rows, savedAt: Date.now() });
+            return rainCache;
+          })
+          .catch(function () {
+            var c = store.get('bd:rain', null);
+            if (c && c.rows) { rainCache = { rows: c.rows, at: Date.now(), stale: true }; return rainCache; }
+            throw new Error('rain unavailable');
+          });
+      }
+
+      /* ================= 공통 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+      function rainCell(v) {
+        if (v == null) return '<td>—</td>';
+        var cls = v >= 50 ? 'crit' : v >= 20 ? 'warn' : 'ok';
+        return '<td class="' + cls + '">' + Math.round(v) + '</td>';
+      }
+      function sigBlock(s) {
+        var name = lang === 'bn' ? s.bn : s.en;
+        var mean = lang === 'bn' ? s.mBn : s.mEn;
+        var act = lang === 'bn' ? s.aBn : s.aEn;
+        return '<div class="sig s-' + s.g + '"><b class="no">' + esc(name) + '</b>' +
+          '<div class="mn">' + esc(mean) + '</div>' +
+          '<div class="ac"><b>' + esc(t('sigAction')) + ':</b> ' + esc(act) + '</div></div>';
+      }
+
+      /* ================= PANI 탭 ================= */
+      function cardPani() {
+        var html = '<div class="card"><h2>' + esc(t('paniTitle')) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(t('paniIntro')) + '</p>' +
+          linksHtml(L_PANI) +
+          '<div class="note">' + esc(t('paniLinksNote')) + '</div></div>';
+
+        /* 시그니처 카드: 해상 신호 1–11 */
+        html += '<div class="card"><h2>' + esc(t('sigTitle')) + '</h2>' +
+          '<p class="muted" style="margin:2px 0 8px">' + esc(t('sigIntro')) + '</p>' +
+          '<div class="muted" style="letter-spacing:.5px;margin-top:6px">' + esc(t('sigGroupLow')) + '</div>' +
+          SIGNALS.filter(function (s) { return s.g === 'low'; }).map(sigBlock).join('') +
+          '<div class="muted" style="letter-spacing:.5px;margin-top:10px">' + esc(t('sigGroupMid')) + '</div>' +
+          SIGNALS.filter(function (s) { return s.g === 'mid'; }).map(sigBlock).join('') +
+          '<div class="muted" style="letter-spacing:.5px;margin-top:10px">' + esc(t('sigGroupHigh')) + '</div>' +
+          SIGNALS.filter(function (s) { return s.g === 'high'; }).map(sigBlock).join('') +
+          '</div>';
+
+        /* FFWC 위험수위 설명 */
+        html += '<div class="card"><h2>' + esc(t('dlTitle')) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0">' + esc(t('dlBody')) + '</p></div>';
+
+        /* 강수 전망 */
+        html += '<div class="card"><h2>' + esc(t('rainTitle')) + '</h2><div id="rain-box" class="loading">' + esc(t('loading')) + '</div>' +
+          '<div class="note">' + esc(t('rainNote')) + '</div></div>';
+        return html;
+      }
+      function wireRain() {
+        loadRain().then(function (rc) {
+          var head = '<tr><th>' + esc(t('city')) + '</th><th>' + esc(t('today')) + '</th><th>' + esc(t('tomorrow')) + '</th><th>' + esc(t('day3')) + '</th></tr>';
+          var rows = rc.rows.map(function (r) {
+            var c = null;
+            for (var i = 0; i < CITIES.length; i++) if (CITIES[i].key === r.key) c = CITIES[i];
+            var nm = c ? (lang === 'bn' ? c.bn : c.en) : r.key;
+            return '<tr><td>' + esc(nm) + '</td>' + r.vals.map(rainCell).join('') + '</tr>';
+          }).join('');
+          var box = $('rain-box');
+          if (box) box.innerHTML = '<table class="tbl">' + head + rows + '</table>' + (rc.stale ? '<div class="muted" style="margin-top:4px">(cached)</div>' : '');
+        }).catch(function () {
+          var box = $('rain-box');
+          if (box) box.innerHTML = '<span class="muted">' + esc(t('fetchFail')) + '</span>';
+        });
+      }
+
+      /* ================= BIDYUT 탭 ================= */
+      function cardBidyut() {
+        var steps = ['bidyutG1', 'bidyutG2', 'bidyutG3', 'bidyutG4'].map(function (k, i) {
+          return '<tr><td class="c">' + (i + 1) + '</td><td>' + esc(t(k)) + '</td></tr>';
+        }).join('');
+        return '<div class="card"><h2>' + esc(t('bidyutTitle')) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(t('bidyutIntro')) + '</p>' +
+          linksHtml(L_BIDYUT) + '</div>' +
+          '<div class="card"><h2>' + esc(t('bidyutGuideTitle')) + '</h2>' +
+          '<table class="tbl">' + steps + '</table>' +
+          '<div class="note">' + esc(t('bidyutNote')) + '</div></div>';
+      }
+
+      /* ================= TAKA 탭 ================= */
+      function cardTaka(fx) {
+        var r = fx.rates;
+        var html = '<div class="card"><h2>' + esc(t('takaTitle')) + '</h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(1, base, 'BDT', r);
+          html += '<div class="kv"><div class="k">1 ' + base + '</div><div class="v">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' BDT') + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">' + esc(t('updated')) + ': ' + esc(fx.date) + '</div>' +
+          '<div class="note">' + esc(t('takaNote')) + '</div></div>';
+
+        /* 환전 계산기 */
+        var curList = ['BDT'].concat(FX_SHOW);
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>' + esc(t('convTitle')) + '</h2><form class="calc" id="cv-form" onsubmit="return false">' +
+          '<div><label>' + esc(t('amount')) + '</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>' + esc(t('fromTo')) + '</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts('BDT') + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 계산기 (2.5% 프리미엄 포함) */
+        var usdMid = r.BDT || 0;
+        html += '<div class="card"><h2>' + esc(t('remitTitle')) + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + esc(t('remitIntro')) + '</p>' +
+          '<form class="calc" id="rm-form" onsubmit="return false">' +
+          '<div><label>' + esc(t('youSend')) + '</label><div style="display:flex;gap:6px"><input type="number" id="rm-amt" value="500" min="1" step="any" /><select id="rm-cur">' + FX_SHOW.map(function (x) { return '<option>' + x + '</option>'; }).join('') + '</select></div></div>' +
+          '<div><label>' + esc(t('providerFee')) + '</label><input type="number" id="rm-fee" value="5" min="0" step="any" /></div>' +
+          '<div class="full"><label>' + esc(t('providerRate')) + '</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + Math.round(usdMid * 0.98) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">' + esc(t('remitNote')) + '</div></div>';
+
+        /* 프리미엄 설명 카드 */
+        html += '<div class="card"><h2>' + esc(t('incTitle')) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0">' + esc(t('incBody')) + '</p></div>';
+        return html;
+      }
+      function wireTaka(fx) {
+        var r = fx.rates;
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var cur = $('rm-cur').value;
+          var mid = convert(1, cur, 'BDT', r);
+          var res = remitCalc(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, mid || 0);
+          if (res == null) { $('rm-out').innerHTML = '—'; return; }
+          var cl = res.costPct > 6 ? 'crit' : res.costPct > 3 ? 'warn' : 'ok';
+          $('rm-out').innerHTML =
+            esc(t('recipientGets')) + ' <b>' + Math.round(res.received).toLocaleString('en') + ' BDT</b>' +
+            ' + ' + INCENTIVE_PCT + '% ' + esc(t('incentive')) + ' <b>' + Math.round(res.incentive).toLocaleString('en') + ' BDT</b>' +
+            ' = <b>' + Math.round(res.total).toLocaleString('en') + ' BDT</b> ' + esc(t('total')) +
+            '<br /><span class="' + cl + '">' + res.costPct.toFixed(1) + '%</span> <span class="muted">' + esc(t('trueCost')) + '</span>';
+          var mp = $('rm-rate');
+          if (mp && !mp.value && mid) mp.placeholder = 'e.g. ' + Math.round(mid * 0.98);
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate'].forEach(function (id) { $(id).oninput = updR; });
+        $('rm-cur').onchange = updR;
+        updR();
+      }
+
+      /* ================= RESULTS 탭 ================= */
+      function cardResults() {
+        var smsRows = SMS_FORMATS.map(function (s) {
+          return '<tr><td>' + esc(s[0]) + '</td><td class="c">' + esc(s[1]) + '</td><td class="c">' + esc(s[2]) + '</td></tr>';
+        }).join('');
+        var nid = ['nidS1', 'nidS2', 'nidS3', 'nidS4'].map(function (k, i) {
+          return '<tr><td class="c">' + (i + 1) + '</td><td>' + esc(t(k)) + '</td></tr>';
+        }).join('');
+        return '<div class="card"><h2>' + esc(t('resultsTitle')) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(t('resultsIntro')) + '</p>' +
+          linksHtml(L_RESULTS) +
+          '<div class="note">' + esc(t('serverTips')) + '</div></div>' +
+          '<div class="card"><h2>' + esc(t('smsTitle')) + '</h2>' +
+          '<table class="tbl"><tr><th>' + esc(t('exam')) + '</th><th>' + esc(t('format')) + '</th><th>' + esc(t('example')) + '</th></tr>' + smsRows + '</table>' +
+          '<div class="note">' + esc(t('smsNote')) + '</div></div>' +
+          '<div class="card"><h2>' + esc(t('nidTitle')) + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + esc(t('nidSteps')) + '</p>' +
+          '<table class="tbl">' + nid + '</table>' +
+          '<div class="note">' + esc(t('nidNote')) + '</div></div>';
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ BANGLA PANEL // delta_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (mid-market FX) ............ [OK]</span>',
+        '<span class="t-dim">  uplink: api.open-meteo.com (rain, Asia/Dhaka) ...... [OK]</span>',
+        '<span class="t-dim">  watch: FFWC danger levels · BMD signals 1\u201311 ....... [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> \u00b7 try <span class="t-hi">signal 10</span> or <span class="t-hi">sms</span></span>'
+      ];
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        fx: { d: 'today\u2019s BDT mid-market rates', f: function () { return loadFx().then(function (fx) { return FX_SHOW.map(function (b) { var v = convert(1, b, 'BDT', fx.rates); return '  1 ' + b + ' = <span class="t-hi">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 })) + ' BDT</span>'; }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, banks/MFS quote differently · legal remittance adds +2.5% incentive</span>'; }); } },
+        links: { d: 'all official links (pani·bidyut·results)', f: function () { return '<span class="t-hi">PANI</span>\n' + tLinks(L_PANI) + '\n<span class="t-hi">BIDYUT</span>\n' + tLinks(L_BIDYUT) + '\n<span class="t-hi">RESULTS & ID</span>\n' + tLinks(L_RESULTS); } },
+        signal: { d: 'signal <1-11> — maritime signal meaning', f: function (a) {
+          var n = parseInt(a[0], 10);
+          if (!(n >= 1 && n <= 11)) return 'usage: signal 1 .. signal 11';
+          var s = SIGNALS[n - 1];
+          var cl = s.g === 'high' ? 't-crit' : s.g === 'mid' ? 't-warn' : 't-ok';
+          return '<span class="' + cl + '">' + esc(s.en) + '</span> · ' + esc(s.bn) +
+            '\n  <span class="t-hi">meaning:</span> ' + esc(s.mEn) +
+            '\n  <span class="t-hi">do:</span> ' + esc(s.aEn) +
+            '\n<span class="t-dim">sea-port system (CTG/Mongla/Payra/Cox\u2019s Bazar) — river ports use a separate 1\u20134 set · live signal: bmd.gov.bd</span>';
+        } },
+        sms: { d: 'SSC/HSC result SMS formats', f: function () {
+          return SMS_FORMATS.map(function (s) { return '  <span class="t-hi">' + esc(s[0]).padEnd(9) + '</span> ' + esc(s[1]) + ' <span class="t-dim">\u2192 16222 · e.g. ' + esc(s[2]) + '</span>'; }).join('\n') +
+            '\n<span class="t-dim">boards: DHA RAJ COM JES CHI BAR SYL DIN MYM · MAD=Madrasah · TEC=Technical</span>' +
+            '\n<span class="t-warn">verify current year format in the official notice — patterns change</span>';
+        } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } }
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@dhaka:~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@dhaka:~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      function applyLangStatic() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-t]'), function (el) {
+          el.textContent = t(el.getAttribute('data-t'));
+        });
+      }
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'pani') { view.innerHTML = cardPani(); wireRain(); return; }
+        if (tab === 'bidyut') { view.innerHTML = cardBidyut(); return; }
+        if (tab === 'results') { view.innerHTML = cardResults(); return; }
+        view.innerHTML = '<div class="loading">' + esc(t('loading')) + '</div>';
+        loadFx().then(function (fx) {
+          view.innerHTML = cardTaka(fx);
+          wireTaka(fx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">' + esc(t('fetchFail')) + '</div></div>';
+        });
+      }
+
+      (function init() {
+        var ls = $('lang-sel');
+        ls.value = lang;
+        if (qLang) store.set('bd:lang', qLang);
+        ls.onchange = function () { lang = ls.value; store.set('bd:lang', lang); applyLangStatic(); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('bd:tab', tab); render(); };
+        });
+        applyLangStatic();
+        render();
+      })();
+    </script>
+  </body>
+</html>

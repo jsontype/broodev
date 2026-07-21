@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mongol Panel — Ulaanbaatar air quality, weather, tugrug rates &amp; herder tools</title>
+    <meta name="description" content="One fast panel for daily life in Mongolia: live PM2.5 for Ulaanbaatar districts (Bayankhoshuu, Zuragt, city centre, Zaisan), weather and wind chill for aimag centres, live USD/MNT rates, a private herder livestock log, and plain-English guides to dzud and index-based livestock insurance (IBLI)." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://mongolia.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Mongol Panel — agaar · tsag · tugrug · mal" />
+    <meta name="twitter:description" content="Live Ulaanbaatar PM2.5 by district, weather &amp; wind chill, USD/MNT rates, herder livestock log, dzud &amp; IBLI guides — one fast page, no app." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Mongol Panel — agaar · tsag · tugrug · mal" />
+    <meta property="og:description" content="Live Ulaanbaatar PM2.5 by district, weather &amp; wind chill, USD/MNT rates, herder livestock log, dzud &amp; IBLI guides — one fast page, no app." />
+    <meta property="og:url" content="https://mongolia.broodev.com/" />
+    <style>
+      :root {
+        --bg: #0a0f1c; --bg-soft: #0e1626; --panel: #111c30; --line: #23385c;
+        --sky: #4a9fe8; --sky-dim: #2e6ba3; --red: #da2032; --gold: #f2c14e;
+        --text: #dcebf9; --dim: #8fa8c4; --ok: #52d68a; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--sky); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      select, button { font-family: inherit; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--sky); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--sky) 50%), linear-gradient(135deg, var(--sky) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--sky); color: var(--sky); background: #14243f; }
+      .tab.on b { color: var(--sky); }
+
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--sky); letter-spacing: .5px; }
+      .card h2 .au { color: var(--gold); }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 30px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--ok); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+
+      .band { display: flex; align-items: center; gap: 12px; margin: 8px 0 4px; }
+      .band-dot { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font); font-weight: 700; font-size: 10px; text-align: center; border: 2px solid; flex: none; line-height: 1.2; }
+      .b-good { color: var(--ok); border-color: var(--ok); background: rgba(82,214,138,.08); }
+      .b-mod { color: var(--gold); border-color: var(--gold); background: rgba(242,193,78,.08); }
+      .b-usg { color: var(--warn); border-color: var(--warn); background: rgba(255,209,102,.08); }
+      .b-bad { color: #ff9d5c; border-color: #ff9d5c; background: rgba(255,157,92,.10); }
+      .b-vbad { color: var(--crit); border-color: var(--crit); background: rgba(255,107,107,.10); }
+      .b-haz { color: #e08cff; border-color: #e08cff; background: rgba(224,140,255,.10); }
+
+      table.days { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+      table.days th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+      table.days td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.06); white-space: nowrap; }
+      .scroll-x { overflow-x: auto; }
+
+      .links a { display: block; color: var(--sky); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(74,159,232,.06); border-left: 3px solid var(--sky-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      .note.red { background: rgba(218,32,50,.07); border-left-color: var(--red); }
+
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--gold); }
+
+      form.mal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.mal input, form.mal select { background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+      form.mal .full { grid-column: 1 / -1; }
+      .btn { background: var(--sky); color: #06121f; border: 0; border-radius: 6px; padding: 9px 14px; font-weight: 700; font-size: 14px; cursor: pointer; }
+      ul.log { list-style: none; margin: 12px 0 0; padding: 0; }
+      ul.log li { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.08); font-size: 13.5px; }
+      ul.log li .d { color: var(--dim); font-family: var(--font); font-size: 12px; min-width: 78px; }
+      ul.log li .x { margin-left: auto; background: none; border: 1px solid var(--line); color: var(--crit); border-radius: 4px; cursor: pointer; padding: 2px 8px; flex: none; }
+
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--sky-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 25px; } .tab { font-size: 9.5px; } .kv { min-width: 84px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #050a14; border: 1px solid #1d3a55; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(74,159,232,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #9ecdf5; text-shadow: 0 0 6px rgba(74,159,232,.3); }
+      #t-out .t-dim { color: #46688f; text-shadow: none; }
+      #t-out .t-hi { color: #e8f4ff; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--ok); }
+      #t-out a { color: var(--gold); }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--sky); white-space: nowrap; text-shadow: 0 0 6px rgba(74,159,232,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #e8f4ff; font-family: var(--font); font-size: 13px; caret-color: var(--sky); }
+
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--sky); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo h3 { color: var(--text); font-size: 13.5px; margin: 14px 0 4px; }
+      .seo a { color: var(--sky); }
+      .seo ul { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo th { color: var(--gold); font-weight: 600; text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+      .seo td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); vertical-align: top; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎MONGOL PANEL <small>· agaar · tsag · tugrug · mal</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="loc-sel" aria-label="Location"></select>
+        <select class="sel" id="lang-sel" aria-label="Language">
+          <option value="en">EN</option>
+          <option value="mn">Монгол</option>
+        </select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="agaar"><b>😷 AGAAR</b><span id="ts-agaar">Air</span></div>
+        <div class="tab" data-tab="tsag"><b>❄ TSAG</b><span id="ts-tsag">Weather</span></div>
+        <div class="tab" data-tab="tugrug"><b>💱 TUGRUG</b><span id="ts-tugrug">Money</span></div>
+        <div class="tab" data-tab="mal"><b>🐎 MAL</b><span id="ts-mal">Herder</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span id="ts-term">Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        Air quality &amp; weather: open-meteo.com (model data) · FX: open.er-api.com (mid-market, daily) · For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings and the herder log live only in your browser (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Mongol Panel">
+      <h2>What is Mongol Panel?</h2>
+      <p>
+        A free, data-light utility panel for daily life in Mongolia. It puts four things on one fast page:
+        <strong>live PM2.5 and PM10</strong> for four Ulaanbaatar reference points (Bayankhoshuu, Zuragt, the city centre and
+        Zaisan), with the numbers translated into multiples of the WHO guideline so they actually mean something;
+        <strong>weather and computed wind chill</strong> for seven aimag centres from Khovd to Choibalsan, with a 7-day outlook;
+        <strong>live tugrug exchange rates</strong> (USD, CNY, RUB, KRW against MNT) and a converter; and a set of
+        <strong>herder tools</strong> — a private on-device livestock log plus plain-English explainers of dzud and
+        index-based livestock insurance (IBLI). No app install, no account, no ads. Everything loads from free public
+        APIs and the page works on a cheap phone over a slow connection, in English or with Mongolian interface labels.
+      </p>
+
+      <h2>Why Ulaanbaatar&rsquo;s winter air is among the world&rsquo;s worst</h2>
+      <p>
+        Roughly half of Ulaanbaatar&rsquo;s population lives in the <strong>ger districts</strong> — sprawling hillside
+        neighbourhoods of fenced plots, small houses and traditional felt gers that ring the city&rsquo;s north and west.
+        Most plots are not connected to the central heating grid, so through a winter that regularly sits below
+        &minus;25&nbsp;°C each household burns raw coal (and, in the hardest times, whatever else burns) in a simple stove,
+        every day, from October to April. Tens of thousands of stoves lighting up at dusk act like one enormous,
+        unfiltered chimney. On the coldest January evenings, monitors in districts such as Bayankhoshuu have recorded
+        PM2.5 concentrations dozens of times above the WHO 24-hour guideline — episodes that rank among the worst
+        urban air readings recorded anywhere. The switch to refined briquettes after 2019 helped, but winter
+        pollution remains a defining fact of city life.
+      </p>
+
+      <h2>The valley inversion: how the city traps its own smoke</h2>
+      <p>
+        Geography makes the coal problem dramatically worse. Ulaanbaatar sits in the valley of the Tuul River at about
+        1,300&nbsp;m, hemmed in by four mountains. In winter, dense cold air drains down the slopes and pools on the
+        valley floor while a layer of warmer air sits on top — a classic <strong>temperature inversion</strong>. The warm lid
+        stops vertical mixing, so smoke from stoves, power plants and traffic cannot rise and disperse; it simply
+        accumulates in the air people breathe. Inversions are strongest on clear, calm, extremely cold nights — exactly
+        the nights when everyone burns the most fuel. That is why the same city can show moderate air on a windy
+        afternoon and hazardous air twelve hours later: the emissions barely changed, but the lid closed.
+      </p>
+
+      <h2>What PM2.5 numbers actually mean</h2>
+      <p>
+        PM2.5 is particulate matter smaller than 2.5 micrometres — small enough to pass from the lungs into the
+        bloodstream. The World Health Organization&rsquo;s 2021 guideline values are <strong>5&nbsp;µg/m³ as an annual mean</strong> and
+        <strong>15&nbsp;µg/m³ as a 24-hour mean</strong>. Mongol Panel divides the live reading by the 24-hour guideline and shows
+        the multiple, because &ldquo;12× WHO&rdquo; communicates more than &ldquo;180&nbsp;µg/m³&rdquo;. A rough decoder:
+      </p>
+      <table>
+        <tr><th>PM2.5 (µg/m³)</th><th>vs WHO 24-h</th><th>What it feels like in UB terms</th></tr>
+        <tr><td>0–15</td><td>≤1×</td><td>Clean — a windy summer day on the steppe</td></tr>
+        <tr><td>15–35</td><td>1–2×</td><td>Noticeable haze; sensitive people limit exertion</td></tr>
+        <tr><td>35–75</td><td>2–5×</td><td>A typical UB winter afternoon; masks sensible outdoors</td></tr>
+        <tr><td>75–150</td><td>5–10×</td><td>A bad winter day; keep children indoors when possible</td></tr>
+        <tr><td>150–250</td><td>10–17×</td><td>A cold January evening in a ger district</td></tr>
+        <tr><td>250+</td><td>17×+</td><td>Peak inversion nights; hazardous for everyone</td></tr>
+      </table>
+
+      <h2>Reading air quality district by district</h2>
+      <p>
+        A single &ldquo;Ulaanbaatar AQI&rdquo; number hides how uneven the city&rsquo;s air really is, because pollution
+        concentrates where the stoves are and where the cold air pools. The four reference points in this panel are
+        chosen to span that gradient. They use approximate coordinates and model data, so treat them as
+        <em>indicative</em>, and use the official <a href="https://agaar.mn/" rel="noopener">agaar.mn</a> monitors for decisions:
+      </p>
+      <table>
+        <tr><th>Point</th><th>Character</th><th>Typical winter pattern</th></tr>
+        <tr><td>Bayankhoshuu</td><td>Ger district, north-west</td><td>Often the worst readings in the city, peaks after dusk</td></tr>
+        <tr><td>Zuragt</td><td>North of centre, mixed ger/apartment</td><td>High evenings, somewhat better middays</td></tr>
+        <tr><td>City centre</td><td>Apartment core, heavy traffic</td><td>Moderate-to-high; traffic adds NO₂ to the smoke drifting south</td></tr>
+        <tr><td>Zaisan</td><td>South of the Tuul, foot of Bogd Khan</td><td>Usually the cleanest of the four, but not exempt on still nights</td></tr>
+      </table>
+
+      <h2>Dzud, explained: when a dry summer meets a hard winter</h2>
+      <p>
+        <strong>Dzud</strong> (зуд) is Mongolia&rsquo;s signature climate disaster: a winter so severe that livestock die en masse.
+        The mechanism is a one-two punch across two seasons. First a <strong>dry summer</strong> stunts pasture growth, so
+        animals enter November without the fat reserves they need and herders cannot cut enough hay. Then a
+        <strong>hard winter</strong> — deep snow, ice crusts, or weeks of &minus;40&nbsp;°C — locks away whatever grazing
+        remains. Animals that would survive either half easily die when the two combine, not of cold directly but of
+        slow starvation. Because roughly a quarter of Mongolians depend on herding, a bad dzud is an economic and
+        social shock, driving migration to Ulaanbaatar&rsquo;s ger districts and, indirectly, the city&rsquo;s air problem.
+      </p>
+
+      <h2>White, black and iron: the types of dzud</h2>
+      <p>
+        Herders distinguish several kinds of dzud by the specific way winter blocks access to pasture. The 1999–2002
+        run of consecutive dzuds killed roughly 11 million animals; the 2009–10 dzud killed about 10 million — around
+        a fifth of the national herd — and the 2023–24 winter was estimated at over 7 million head lost. The main types:
+      </p>
+      <table>
+        <tr><th>Type</th><th>Mechanism</th></tr>
+        <tr><td>White dzud (цагаан зуд)</td><td>Snow too deep for animals to dig through to grass</td></tr>
+        <tr><td>Black dzud (хар зуд)</td><td>No snow at all in a cold winter — no drinking water on the steppe</td></tr>
+        <tr><td>Iron dzud (төмөр зуд)</td><td>Rain or thaw refreezes into an ice sheet that seals off pasture</td></tr>
+        <tr><td>Storm dzud (шуурган зуд)</td><td>Prolonged blizzards scatter herds and stop grazing</td></tr>
+        <tr><td>Hoof dzud (туурайн зуд)</td><td>Overcrowded pasture is trampled and exhausted before spring</td></tr>
+      </table>
+
+      <h2>IBLI: insurance that pays on an index, not on your losses</h2>
+      <p>
+        Classic livestock insurance barely works on the steppe: verifying individual animal deaths across thousands of
+        kilometres is impossible, and moral hazard is real. Mongolia&rsquo;s answer, piloted with the World Bank in 2006, is
+        <strong>index-based livestock insurance (IBLI)</strong>. The trigger is not your losses but the <strong>soum-level adult
+        mortality rate</strong> for each species, computed from the National Statistics Office&rsquo;s annual livestock census.
+        If your soum&rsquo;s mortality for, say, goats crosses the threshold (historically around 6%), every insured goat
+        herder in that soum is paid automatically — whether their own animals lived or died. Catastrophic losses beyond
+        the commercial layer&rsquo;s cap have been backstopped by a public safety-net layer. The design rewards good
+        husbandry: saving your animals in a dzud never reduces your payout. Sales run through commercial insurers; ask
+        an agent or your soum office for current terms before each winter.
+      </p>
+
+      <h2>Wind chill: a table for herders</h2>
+      <p>
+        Air temperature understates the danger of steppe winter, because wind strips heat from skin far faster than
+        still air. The table below uses the standard North American wind-chill formula — the same one this panel
+        computes live — for common Mongolian winter conditions. Values are &ldquo;feels like&rdquo; °C; exposed skin can
+        freeze in under 10 minutes below roughly &minus;40 wind chill, and in a couple of minutes below &minus;55:
+      </p>
+      <table>
+        <tr><th>Air temp</th><th>10 km/h wind</th><th>20 km/h</th><th>30 km/h</th><th>40 km/h</th></tr>
+        <tr><td>−10 °C</td><td>−15</td><td>−18</td><td>−20</td><td>−21</td></tr>
+        <tr><td>−20 °C</td><td>−27</td><td>−30</td><td>−33</td><td>−34</td></tr>
+        <tr><td>−30 °C</td><td>−39</td><td>−43</td><td>−46</td><td>−48</td></tr>
+        <tr><td>−40 °C</td><td>−51</td><td>−56</td><td>−59</td><td>−61</td></tr>
+      </table>
+
+      <h2>Salaries in dollars, rent in tugrug: living with the MNT</h2>
+      <p>
+        The tugrug has depreciated against the US dollar over most of the past two decades, and Ulaanbaatar&rsquo;s economy
+        has quietly adapted: landlords of newer apartments often quote rent in USD (payable in MNT at the day&rsquo;s rate),
+        some employers advertise salaries as dollar-equivalents, and big-ticket items like cars are mentally priced in
+        dollars. This creates a real household exposure — if your income is fixed in MNT but your rent tracks USD, a
+        10% depreciation is effectively a 10% rent increase. The TUGRUG tab shows the daily mid-market rate for USD,
+        CNY (the trade currency), RUB and KRW (remittances from workers in Korea are significant), with a converter.
+        Bank counter rates will differ from mid-market by a spread; the mid-market number is your fair-value reference.
+      </p>
+
+      <h2>A year on the steppe: the herder&rsquo;s risk calendar</h2>
+      <p>
+        Dzud losses are decided long before the first blizzard, which is why the useful question is never &ldquo;how cold
+        will January be?&rdquo; but &ldquo;what did I do in August?&rdquo;. The calendar below maps the decision points that
+        recur every year in Mongolian herding — the moments when acting early is cheap and acting late is ruinous.
+        Exact timing shifts with the aimag and the year, but the sequence does not:
+      </p>
+      <table>
+        <tr><th>Season</th><th>What happens</th><th>The decision that matters</th></tr>
+        <tr><td>Spring (Mar–May)</td><td>Birthing season; animals at their weakest after winter</td><td>Shelter and feed for newborns; spring storms kill more weak stock than midwinter does</td></tr>
+        <tr><td>Summer (Jun–Aug)</td><td>Pasture growth — or, in a dry year, the seed of the next dzud</td><td>Judge the grass honestly; a poor summer means destocking and hay purchases start now</td></tr>
+        <tr><td>Autumn (Sep–Nov)</td><td>Animals fatten; markets are liquid; IBLI sales window</td><td>Sell surplus while prices hold, stack hay above a normal year&rsquo;s need, insure before winter</td></tr>
+        <tr><td>Winter (Dec–Feb)</td><td>Survival phase; feed is whatever was stored or reachable</td><td>Ration fodder, agree otor movement routes with neighbouring soums before snow blocks them</td></tr>
+      </table>
+      <p>
+        The pattern generalises: every catastrophic dzud on record was preceded by a summer whose warnings were visible
+        by September. The NAMEM risk maps, the autumn body-condition of the herd and the hay stack are the three
+        instruments on the dashboard — the winter itself only reads out what they already said.
+      </p>
+
+      <h2>Masks, purifiers and stoves: practical winter protection</h2>
+      <p>
+        On hazardous days the goal is to cut the dose, not to be perfect. Outdoors, a well-fitted <strong>KF94/N95-class
+        respirator</strong> filters most PM2.5; surgical masks and scarves do very little for fine particles. Indoors matters
+        more than people assume: UB apartments and gers leak smoky air, so a <strong>HEPA purifier</strong> sized to the room
+        (or a DIY box-fan filter) in the sleeping room is the highest-value purchase, run on recirculate with doors
+        closed during evening peaks. Time your ventilation for midday, when the inversion is weakest. In ger
+        households, stove discipline — dry refined briquettes, correct lighting technique, a sealed flue — cuts both
+        indoor smoke and carbon-monoxide risk, which is a separate and deadly winter hazard.
+      </p>
+
+      <h2>FAQ</h2>
+      <h3>Is the air-quality data here official?</h3>
+      <p>
+        No. The PM2.5/PM10 numbers come from Open-Meteo&rsquo;s free air-quality API, which serves atmospheric <em>model</em>
+        data (CAMS) for approximate district coordinates. It is good for spotting trends and bad episodes, but the
+        official reference is the national monitoring network at <a href="https://agaar.mn/" rel="noopener">agaar.mn</a>.
+      </p>
+      <h3>When is Ulaanbaatar&rsquo;s air at its worst?</h3>
+      <p>
+        December through February, and within a day the worst hours are evening and night, when stoves are stoked and
+        the inversion lid is firmly closed. Calm, clear, extremely cold nights are the worst combination; windy days
+        flush the valley and can be surprisingly clean.
+      </p>
+      <h3>What does a dry summer have to do with a winter disaster?</h3>
+      <p>
+        Everything. A dry summer means poor pasture, so animals enter winter thin and herders enter it with too little
+        hay. The winter itself only finishes what the summer started — that is the dzud mechanism, and why risk can be
+        assessed months before the first snowstorm.
+      </p>
+      <h3>How does IBLI decide who gets paid?</h3>
+      <p>
+        By an index, not by inspecting your animals. When the annual census shows a soum&rsquo;s adult mortality rate for a
+        species crossed the threshold, every insured herder of that species in the soum is paid the same rate
+        automatically. Your individual losses — larger or smaller — do not change the payout.
+      </p>
+      <h3>Does school really close at −40 °C?</h3>
+      <p>
+        Cold-weather closures are a real and regularly used practice in Mongolia, and −40 is the number everyone
+        quotes, but the actual thresholds vary by year, by grade level and by aimag directive. Treat any threshold in
+        this panel as folklore-with-a-basis and confirm with your school or local education authority.
+      </p>
+      <h3>Is my herder log uploaded anywhere?</h3>
+      <p>
+        No. The livestock log is stored only in your browser&rsquo;s localStorage and never leaves your device. Clearing
+        browser data deletes it; there are no accounts and no server.
+      </p>
+      <h3>Which exchange rate should I trust — this page or the bank counter?</h3>
+      <p>
+        Both, for different jobs. This page shows the mid-market rate — the midpoint between global buy and sell
+        prices — which is the fair-value reference for judging any quote. The bank or exchange-office counter rate is
+        what you will actually get, and it always sits a spread away from mid-market. If the counter rate is more than
+        a couple of percent off the mid-market number shown here, shop around.
+      </p>
+      <h3>Do surgical masks or scarves protect against PM2.5?</h3>
+      <p>
+        Barely. Fine particles slip around the loose edges of a surgical mask and straight through the weave of a
+        scarf. Protection outdoors requires a respirator built to a filtration standard — KF94, N95 or FFP2 — worn
+        with a tight seal to the face. On the coldest days a scarf over the respirator keeps it from icing up.
+      </p>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Mongol Panel",
+        "url": "https://mongolia.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Live PM2.5 by Ulaanbaatar district, weather and wind chill for aimag centres, USD/MNT exchange rates and converter, private herder livestock log, dzud and IBLI explainers, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is the air-quality data here official?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. The PM2.5/PM10 numbers come from Open-Meteo's free air-quality API, which serves atmospheric model data (CAMS) for approximate district coordinates. It is useful for trends and bad episodes, but the official reference is the national monitoring network at agaar.mn." }
+          },
+          {
+            "@type": "Question",
+            "name": "When is Ulaanbaatar's air at its worst?",
+            "acceptedAnswer": { "@type": "Answer", "text": "December through February, and within a day the worst hours are evening and night, when stoves are stoked and the temperature inversion is strongest. Calm, clear, extremely cold nights are the worst combination; windy days flush the valley." }
+          },
+          {
+            "@type": "Question",
+            "name": "What does a dry summer have to do with a winter disaster?",
+            "acceptedAnswer": { "@type": "Answer", "text": "A dry summer means poor pasture, so animals enter winter thin and herders have too little hay. A harsh winter then finishes what the summer started — that is the dzud mechanism, and why risk can be assessed months before the first snowstorm." }
+          },
+          {
+            "@type": "Question",
+            "name": "How does IBLI decide who gets paid?",
+            "acceptedAnswer": { "@type": "Answer", "text": "By an index, not by inspecting animals. When the annual census shows a soum's adult mortality rate for a species crossed the threshold, every insured herder of that species in the soum is paid automatically, regardless of individual losses." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does school really close at −40 °C in Mongolia?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Cold-weather closures are a real practice and −40 is the commonly quoted number, but actual thresholds vary by year, grade level and local directive. Always confirm with your school or local education authority." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the herder livestock log uploaded anywhere?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. The log is stored only in the browser's localStorage and never leaves the device. There are no accounts and no server storage." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which exchange rate should I trust — this page or the bank counter?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Both, for different jobs. This page shows the mid-market rate, the fair-value reference for judging any quote. The bank or exchange-office counter rate is what you actually get and always includes a spread; if it is more than a couple of percent off mid-market, shop around." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do surgical masks or scarves protect against PM2.5?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Barely. Fine particles slip around the loose edges of a surgical mask and through the weave of a scarf. Outdoor protection requires a fitted respirator built to a filtration standard such as KF94, N95 or FFP2." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= 데이터: UB 구역(AQI용, 근사 좌표) · 아이막 중심지(날씨용) ================= */
+      var DIST = [
+        { id: 'bayankhoshuu', name: 'Bayankhoshuu', lat: 47.968, lon: 106.837, note: 'ger district NW — often the worst' },
+        { id: 'zuragt', name: 'Zuragt', lat: 47.944, lon: 106.899, note: 'north of centre, mixed ger/apartment' },
+        { id: 'center', name: 'City centre', lat: 47.919, lon: 106.918, note: 'apartment core + traffic' },
+        { id: 'zaisan', name: 'Zaisan', lat: 47.886, lon: 106.913, note: 'south of the Tuul — usually cleanest' },
+      ];
+      var LOCS = [
+        { id: 'ulaanbaatar', name: 'Ulaanbaatar', lat: 47.918, lon: 106.917 },
+        { id: 'erdenet', name: 'Erdenet', lat: 49.028, lon: 104.044 },
+        { id: 'darkhan', name: 'Darkhan', lat: 49.469, lon: 105.947 },
+        { id: 'murun', name: 'Murun', lat: 49.634, lon: 100.162 },
+        { id: 'dalanzadgad', name: 'Dalanzadgad', lat: 43.570, lon: 104.425 },
+        { id: 'khovd', name: 'Khovd', lat: 48.005, lon: 91.642 },
+        { id: 'choibalsan', name: 'Choibalsan', lat: 48.096, lon: 114.535 },
+      ];
+      var FX_SHOW = ['USD', 'CNY', 'RUB', 'KRW'];
+
+      /* ================= i18n — UI 라벨만 전환 (본문·설명 카드는 영어 고정, html lang="en" 유지) ================= */
+      var I = {
+        en: {
+          tAgaar: 'Air', tTsag: 'Weather', tTugrug: 'Money', tMal: 'Herder', tTerm: 'Terminal',
+          district: 'UB district', aqNow: 'Air quality now', pm25: 'PM2.5', pm10: 'PM10',
+          whoX: '× WHO 24-h', avg24: '24-h average', now: 'Right now',
+          temp: 'Temp', wind: 'Wind', chill: 'Wind chill', snow: 'Snow',
+          days7: '7-day forecast', day: 'Day', minmax: 'Min…Max',
+          rates: 'Tugrug today', converter: 'Converter', amount: 'Amount', fromTo: 'From → To',
+          updated: 'Updated', cached: '(cached)',
+          logTitle: 'My livestock log (this device only)',
+          date: 'Date', species: 'Species', count: 'Count', notes: 'Notes', add: 'Add', empty: 'No entries yet.',
+          sp: { sheep: 'Sheep', goat: 'Goat', cattle: 'Cattle', horse: 'Horse', camel: 'Camel' },
+          loading: 'Loading …', fetchErr: 'Could not load data — try again later.',
+        },
+        mn: {
+          tAgaar: 'Агаар', tTsag: 'Цаг агаар', tTugrug: 'Ханш', tMal: 'Мал', tTerm: 'Терминал',
+          district: 'УБ дүүрэг', aqNow: 'Агаарын чанар одоо', pm25: 'PM2.5', pm10: 'PM10',
+          whoX: '× ДЭМБ 24 цаг', avg24: '24 цагийн дундаж', now: 'Яг одоо',
+          temp: 'Хэм', wind: 'Салхи', chill: 'Салхины хүйтэн', snow: 'Цас',
+          days7: '7 хоногийн урьдчилсан мэдээ', day: 'Өдөр', minmax: 'Мин…Макс',
+          rates: 'Төгрөгийн ханш', converter: 'Хөрвүүлэгч', amount: 'Дүн', fromTo: 'Хаанаас → Хааш',
+          updated: 'Шинэчлэгдсэн', cached: '(кэш)',
+          logTitle: 'Миний малын бүртгэл (зөвхөн энэ төхөөрөмж)',
+          date: 'Огноо', species: 'Төрөл', count: 'Тоо', notes: 'Тэмдэглэл', add: 'Нэмэх', empty: 'Бүртгэл алга.',
+          sp: { sheep: 'Хонь', goat: 'Ямаа', cattle: 'Үхэр', horse: 'Адуу', camel: 'Тэмээ' },
+          loading: 'Ачааллаж байна …', fetchErr: 'Мэдээлэл ачаалагдсангүй — дараа дахин үзнэ үү.',
+        },
+      };
+
+      /* __PURE_START__ 순수 로직 */
+      /* 표준(북미) 윈드칠 공식 — T≤10°C, V>4.8km/h 에서 유효, 그 외엔 기온 그대로 */
+      function windChill(tempC, windKmh) {
+        if (tempC == null || windKmh == null) return null;
+        if (tempC > 10 || windKmh <= 4.8) return tempC;
+        var v = Math.pow(windKmh, 0.16);
+        return 13.12 + 0.6215 * tempC - 11.37 * v + 0.3965 * tempC * v;
+      }
+      /* PM2.5 → 등급 (WHO 24h 가이드라인 15µg/m³ 배수 기준의 밴드) */
+      function aqiBand(pm25) {
+        if (pm25 == null || isNaN(pm25)) return null;
+        if (pm25 <= 15) return { key: 'GOOD', cls: 'b-good', label: 'GOOD', advice: 'Clean air — enjoy it while it lasts.' };
+        if (pm25 <= 35) return { key: 'MOD', cls: 'b-mod', label: 'MODER-ATE', advice: 'Noticeable haze. Sensitive people should limit heavy exertion outdoors.' };
+        if (pm25 <= 75) return { key: 'USG', cls: 'b-usg', label: 'UNHLTH SENS.', advice: 'Unhealthy for sensitive groups — children, elderly and anyone with lung or heart conditions should mask up outdoors.' };
+        if (pm25 <= 150) return { key: 'BAD', cls: 'b-bad', label: 'UN-HEALTHY', advice: 'Unhealthy for everyone. Wear a KF94/N95 outdoors, run the purifier indoors.' };
+        if (pm25 <= 250) return { key: 'VBAD', cls: 'b-vbad', label: 'VERY UNHLTH', advice: 'Very unhealthy — keep children indoors, seal windows, ventilate only at midday.' };
+        return { key: 'HAZ', cls: 'b-haz', label: 'HAZARD-OUS', advice: 'Hazardous. Avoid all outdoor exertion; this is a peak inversion episode.' };
+      }
+      /* WHO 24h 가이드라인(15µg/m³) 배수 */
+      function whoMult(pm25) { return pm25 == null ? null : pm25 / 15; }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var lang = store.get('mp:lang', 'en'); if (!I[lang]) lang = 'en';
+      var locId = store.get('mp:loc', 'ulaanbaatar');
+      var distId = store.get('mp:dist', 'bayankhoshuu');
+      var tab = store.get('mp:tab', 'agaar');
+      var aqCache = {};   // distId → { data, at }
+      var wxCache = {};   // locId → { data, at }
+      var fxCache = null; // { rates, date, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var t = function () { return I[lang]; };
+      var dist = function () { return DIST.find(function (d) { return d.id === distId; }) || DIST[0]; };
+      var loc = function () { return LOCS.find(function (l) { return l.id === locId; }) || LOCS[0]; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* ================= 데이터 페치 (키 불필요 무료 API · 30~60분 캐시 · localStorage 폴백) ================= */
+      function fetchJSON(url) {
+        return fetch(url).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+      }
+      /* PM2.5/PM10 — open-meteo air-quality API */
+      function loadAir(d) {
+        var c = aqCache[d.id];
+        if (c && Date.now() - c.at < 30 * 60 * 1000) return Promise.resolve(c);
+        var url = 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=' + d.lat + '&longitude=' + d.lon +
+          '&current=pm2_5,pm10&hourly=pm2_5&timezone=auto&forecast_days=2';
+        return fetchJSON(url).then(function (j) {
+          if (!j.current) throw new Error('bad payload');
+          var entry = { data: j, at: Date.now(), stale: false };
+          aqCache[d.id] = entry;
+          store.set('mp:aq:' + d.id, { data: j, savedAt: Date.now() });
+          return entry;
+        }).catch(function () {
+          var saved = store.get('mp:aq:' + d.id, null);
+          if (saved) { var e2 = { data: saved.data, at: Date.now(), stale: true }; aqCache[d.id] = e2; return e2; }
+          throw new Error('air unavailable');
+        });
+      }
+      /* 날씨 — open-meteo forecast API */
+      function loadWx(l) {
+        var c = wxCache[l.id];
+        if (c && Date.now() - c.at < 30 * 60 * 1000) return Promise.resolve(c);
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + l.lat + '&longitude=' + l.lon +
+          '&current=temperature_2m,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,snowfall_sum' +
+          '&timezone=auto&forecast_days=7';
+        return fetchJSON(url).then(function (j) {
+          if (!j.current || !j.daily) throw new Error('bad payload');
+          var entry = { data: j, at: Date.now(), stale: false };
+          wxCache[l.id] = entry;
+          store.set('mp:wx:' + l.id, { data: j, savedAt: Date.now() });
+          return entry;
+        }).catch(function () {
+          var saved = store.get('mp:wx:' + l.id, null);
+          if (saved) { var e2 = { data: saved.data, at: Date.now(), stale: true }; wxCache[l.id] = e2; return e2; }
+          throw new Error('weather unavailable');
+        });
+      }
+      /* 환율 — open.er-api.com (일 1회 갱신) */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetchJSON('https://open.er-api.com/v6/latest/USD').then(function (j) {
+          if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+          fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now(), stale: false };
+          store.set('mp:fx', { rates: j.rates, date: j.time_last_update_utc });
+          return fxCache;
+        }).catch(function () {
+          var saved = store.get('mp:fx', null);
+          if (saved) { fxCache = { rates: saved.rates, date: saved.date, at: Date.now(), stale: true }; return fxCache; }
+          throw new Error('fx unavailable');
+        });
+      }
+
+      /* ================= 공통 헬퍼 ================= */
+      function fmtD(iso) { var d = new Date(iso); return (d.getMonth() + 1) + '/' + d.getDate(); }
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+      var LINKS_OFFICIAL = [
+        ['https://agaar.mn/', 'agaar.mn — official air quality network', 'Ulaanbaatar city monitoring stations, live and historical'],
+        ['https://www.tsag-agaar.gov.mn/', 'NAMEM — tsag-agaar.gov.mn', 'National weather agency: warnings, dzud watch, forecasts'],
+        ['https://www.1212.mn/', 'NSO Mongolia — 1212.mn', 'National Statistics Office: livestock census, prices, population'],
+        ['https://mofa.gov.mn/', 'mofa.gov.mn — Ministry of Food & Agriculture', 'Herding policy, veterinary campaigns, winter preparedness'],
+      ];
+
+      /* ================= AGAAR 탭 ================= */
+      function cardAgaar(entry) {
+        var L = t(), d = dist(), cur = entry.data.current;
+        var pm25 = cur.pm2_5, pm10 = cur.pm10;
+        var band = aqiBand(pm25);
+        var mult = whoMult(pm25);
+        var hours = entry.data.hourly || {};
+        var avg = null;
+        if (hours.pm2_5 && hours.pm2_5.length) {
+          var vals = hours.pm2_5.slice(0, 24).filter(function (v) { return v != null; });
+          if (vals.length) avg = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+        }
+        var opts = DIST.map(function (x) {
+          return '<option value="' + x.id + '"' + (x.id === d.id ? ' selected' : '') + '>' + esc(x.name) + '</option>';
+        }).join('');
+        var html = '<div class="card"><h2>😷 ' + L.aqNow + ' — <span class="au">' + esc(d.name) + '</span></h2>' +
+          '<div class="row" style="margin-bottom:8px;align-items:center"><span class="muted">' + L.district + '</span>' +
+          '<select class="sel" id="dist-sel" aria-label="' + L.district + '">' + opts + '</select>' +
+          '<span class="muted">' + esc(d.note) + ' · approx. coords</span></div>' +
+          '<div class="band"><div class="band-dot ' + (band ? band.cls : 'b-mod') + '">' + (band ? band.label : '—') + '</div>' +
+          '<div><div class="row">' +
+          '<div class="kv"><div class="k">' + L.pm25 + '</div><div class="v">' + (pm25 == null ? '—' : Math.round(pm25) + ' µg/m³') + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.pm10 + '</div><div class="v">' + (pm10 == null ? '—' : Math.round(pm10) + ' µg/m³') + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.whoX + '</div><div class="v ' + (mult != null && mult > 5 ? 'crit' : mult != null && mult > 1 ? 'warn' : 'ok') + '">' + (mult == null ? '—' : mult.toFixed(1) + '×') + '</div></div>' +
+          '<div class="kv"><div class="k">' + L.avg24 + '</div><div class="v">' + (avg == null ? '—' : Math.round(avg) + ' µg/m³') + '</div></div>' +
+          '</div>' + (band ? '<div class="muted" style="margin-top:4px">' + band.advice + '</div>' : '') + '</div></div>' +
+          '<div class="muted">' + (entry.stale ? L.cached + ' · ' : '') + 'Model data (Open-Meteo/CAMS) — official monitors: agaar.mn · WHO 24-h guideline = 15 µg/m³</div></div>';
+
+        html += '<div class="card"><h2>Why winter air gets this bad here</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">Half of Ulaanbaatar lives in ger districts off the heating grid, burning coal briquettes through −30&nbsp;°C nights. The city sits in a mountain valley, and on calm cold nights a temperature inversion puts a lid over it — stove smoke has nowhere to go. Evenings Dec–Feb are the peak; windy middays are the reprieve. The full explainer is at the bottom of this page.</p>' +
+          '<div class="note red">On HAZARDOUS nights, ventilate at midday only, and beware carbon monoxide from stoves — a separate, faster killer than PM2.5.</div></div>';
+
+        html += '<div class="card"><h2>Masks &amp; purifiers — what actually works</h2>' +
+          '<ul style="font-size:13.5px;margin:4px 0;padding-left:18px">' +
+          '<li>Outdoors: fitted <b>KF94 / N95</b> respirator. Scarves and surgical masks barely filter PM2.5.</li>' +
+          '<li>Indoors: a <b>HEPA purifier in the sleeping room</b> beats one big unit in the hall. DIY box-fan + HEPA filter works.</li>' +
+          '<li>Run purifiers on recirculate during the 18:00–02:00 peak; air the room at midday.</li>' +
+          '<li>Ger stoves: dry refined briquettes, top-lighting, sealed flue — less smoke in and out.</li>' +
+          '</ul></div>';
+
+        html += '<div class="card"><h2>Official sources</h2>' + linksHtml([LINKS_OFFICIAL[0], LINKS_OFFICIAL[1]]) + '</div>';
+        return html;
+      }
+
+      /* ================= TSAG 탭 ================= */
+      function cardTsag(entry) {
+        var L = t(), l = loc(), cur = entry.data.current, d = entry.data.daily;
+        var chill = windChill(cur.temperature_2m, cur.wind_speed_10m);
+        var html = '<div class="card"><h2>❄ ' + L.now + ' — <span class="au">' + esc(l.name) + '</span></h2>' +
+          '<div class="big">' + Math.round(cur.temperature_2m) + '°C</div>' +
+          '<div class="row" style="margin-top:8px">' +
+          '<div class="kv"><div class="k">' + L.wind + '</div><div class="v">' + Math.round(cur.wind_speed_10m) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">' + L.chill + '</div><div class="v ' + (chill != null && chill <= -40 ? 'crit' : chill != null && chill <= -27 ? 'warn' : '') + '">' + (chill == null ? '—' : Math.round(chill) + '°C') + '</div></div>' +
+          '</div>' +
+          '<div class="muted" style="margin-top:6px">' + (entry.stale ? L.cached + ' · ' : '') + 'Wind chill computed with the standard JAG/TI formula.</div></div>';
+
+        html += '<div class="card"><h2>' + L.days7 + '</h2><div class="scroll-x"><table class="days">' +
+          '<tr><th>' + L.day + '</th><th>' + L.minmax + '</th><th>' + L.wind + ' max</th><th>' + L.snow + '</th></tr>';
+        for (var i = 0; i < d.time.length; i++) {
+          html += '<tr><td>' + fmtD(d.time[i]) + '</td><td>' + Math.round(d.temperature_2m_min[i]) + '…' + Math.round(d.temperature_2m_max[i]) + '°C</td>' +
+            '<td>' + Math.round(d.wind_speed_10m_max[i]) + ' km/h</td><td>' + (d.snowfall_sum[i] || 0).toFixed(1) + ' cm</td></tr>';
+        }
+        html += '</table></div></div>';
+
+        html += '<div class="card"><h2>Extreme-cold thresholds</h2>' +
+          '<div class="scroll-x"><table class="days">' +
+          '<tr><th>Temp / chill</th><th>Common practice</th></tr>' +
+          '<tr><td>−25 °C</td><td>Limit children’s time outdoors; cover all skin</td></tr>' +
+          '<tr><td>−30 °C</td><td>Kindergartens/lower grades often kept home in some years</td></tr>' +
+          '<tr><td>−40 °C</td><td>The famous school-closure threshold; herders avoid long travel</td></tr>' +
+          '<tr><td>−48 °C chill</td><td>Exposed skin can freeze in minutes — emergency-only movement</td></tr>' +
+          '</table></div>' +
+          '<div class="note">Closure thresholds vary by year, grade and aimag directive — treat these as widely-followed lore and <b>confirm locally</b> with your school or khoroo.</div></div>';
+
+        html += '<div class="card"><h2>Dzud risk — the two-season mechanism</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">Dzud risk is set in <b>summer</b>: dry pasture → thin animals + no hay → a normal-to-hard winter becomes a mass-mortality event. Watch three factors: summer rainfall in your aimag, autumn animal body condition, and hay/fodder stocks going into November. NAMEM publishes seasonal dzud-risk maps — the earlier you destock or buy fodder, the cheaper it is.</p>' +
+          linksHtml([LINKS_OFFICIAL[1]]) + '</div>';
+        return html;
+      }
+
+      /* ================= TUGRUG 탭 ================= */
+      function cardTugrug(fx) {
+        var L = t(), r = fx.rates;
+        var html = '<div class="card"><h2>💱 ' + L.rates + ' <span class="muted">(mid-market)</span></h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(base === 'KRW' ? 1000 : 1, base, 'MNT', r);
+          html += '<div class="kv"><div class="k">' + (base === 'KRW' ? '1000' : '1') + ' ' + base + '</div>' +
+            '<div class="v">' + (v == null ? '—' : Math.round(v).toLocaleString('en') + ' ₮') + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">' + L.updated + ': ' + esc(fx.date) + (fx.stale ? ' ' + L.cached : '') + '</div>' +
+          '<div class="note">Mid-market reference only — bank and exchange-office counter rates include a spread.</div></div>';
+
+        var curList = ['MNT'].concat(FX_SHOW);
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>' + L.converter + '</h2><form class="calc" id="cv-form" onsubmit="return false">' +
+          '<div><label>' + L.amount + '</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>' + L.fromTo + '</label><div style="display:flex;gap:6px"><select id="cv-from" class="sel" style="flex:1">' + opts('USD') + '</select><select id="cv-to" class="sel" style="flex:1">' + opts('MNT') + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        html += '<div class="card"><h2>Salary in USD, rent in MNT — mind the gap</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">Many UB landlords quote rent in USD (paid in tugrug at the day’s rate) while most salaries are fixed in MNT. If the tugrug slips 10% against the dollar, your USD-quoted rent just rose 10% in real terms. When negotiating, fix the currency of the bigger flow: MNT rent if you earn MNT, or ask for a capped conversion rate. The same logic applies to car loans and tuition quoted in dollars.</p></div>';
+        return html;
+      }
+
+      function wireTugrug(fx) {
+        var r = fx.rates;
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+      }
+
+      /* ================= MAL 탭 ================= */
+      function cardMal() {
+        var L = t();
+        var opts = Object.keys(L.sp).map(function (k) { return '<option value="' + k + '">' + L.sp[k] + '</option>'; }).join('');
+        var html = '<div class="card"><h2>🐎 ' + L.logTitle + '</h2>' +
+          '<div class="note">Stored only in this browser — nothing is uploaded. Use it as your private tally through the winter; it does not replace any official count.</div>' +
+          '<form class="mal" id="mal-form">' +
+          '<input type="date" id="m-date" required value="' + new Date().toISOString().slice(0, 10) + '" aria-label="' + L.date + '" />' +
+          '<select id="m-sp" aria-label="' + L.species + '">' + opts + '</select>' +
+          '<input type="number" id="m-n" min="1" value="1" required aria-label="' + L.count + '" />' +
+          '<input type="text" id="m-notes" placeholder="' + L.notes + '" maxlength="80" aria-label="' + L.notes + '" />' +
+          '<button class="btn full" type="submit">+ ' + L.add + '</button>' +
+          '</form><ul class="log" id="mal-list"></ul></div>';
+
+        html += '<div class="card"><h2>Dzud — what to watch, when</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">The five classic types: <b>white</b> (deep snow), <b>black</b> (no snow, no water), <b>iron</b> (ice crust seals the pasture), <b>storm</b> (blizzards), <b>hoof</b> (trampled, exhausted pasture). All share one mechanism — animals cannot reach feed. The decisive moves happen early: destock in autumn while prices hold, stack hay above the normal year’s need, agree otor (movement) routes before the snow. Recent history is brutal: ~11M head lost 1999–2002, ~10M in 2009–10, 7M+ in 2023–24.</p></div>';
+
+        html += '<div class="card"><h2>IBLI — index-based livestock insurance</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">IBLI pays when your <b>soum’s</b> adult mortality rate for a species (from the NSO census) crosses a threshold — around 6% historically — not when your own animals die. Everyone insured in the soum is paid the same rate automatically, so saving your herd never cuts your payout. Buy before winter through commercial insurers; catastrophic layers beyond the commercial cap have been publicly backstopped. Ask your soum office or an insurance agent for this season’s terms.</p>' +
+          '<div class="note">Premiums, thresholds and participating insurers change season to season — verify current terms before relying on any figure here.</div></div>';
+
+        html += '<div class="card"><h2>Official sources</h2>' + linksHtml([LINKS_OFFICIAL[2], LINKS_OFFICIAL[3]]) + '</div>';
+        return html;
+      }
+
+      function renderMalList() {
+        var L = t();
+        var list = store.get('mp:mal', []);
+        var ul = $('mal-list');
+        if (!ul) return;
+        if (!list.length) { ul.innerHTML = '<li class="muted">' + L.empty + '</li>'; return; }
+        ul.innerHTML = list.map(function (c, i) {
+          return '<li><span class="d">' + esc(c.date) + '</span><span>' + esc(L.sp[c.sp] || c.sp) + ' × ' + esc(c.n) +
+            (c.notes ? ' <span class="muted">· ' + esc(c.notes) + '</span>' : '') + '</span><button class="x" data-i="' + i + '" aria-label="delete">×</button></li>';
+        }).join('');
+        Array.prototype.forEach.call(ul.querySelectorAll('.x'), function (b) {
+          b.onclick = function () { var l = store.get('mp:mal', []); l.splice(+b.dataset.i, 1); store.set('mp:mal', l); renderMalList(); };
+        });
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ MONGOL PANEL // steppe_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open-meteo air+wx · open.er-api ............ [OK]</span>',
+        '<span class="t-dim">  grid: 4 UB districts · 7 aimag centres ............. [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for commands · <span class="t-hi">aqi</span> for the air right now</span>',
+      ];
+      var T_CMDS = {
+        help: { d: 'list all commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'what this terminal is', f: function () { return 'Daily-utility terminal for Mongolia — UB air quality, steppe weather, tugrug FX, herder tools.\nStatic page, no accounts; nothing you type leaves the browser.'; } },
+        aqi: { d: 'current PM2.5 + verdict (selected district)', f: function () {
+          return loadAir(dist()).then(function (e) {
+            var pm = e.data.current.pm2_5, band = aqiBand(pm), m = whoMult(pm);
+            if (pm == null || !band) return '<span class="t-crit">no PM2.5 value available</span>';
+            var cl = band.key === 'GOOD' ? 't-ok' : (band.key === 'MOD' || band.key === 'USG') ? 't-warn' : 't-crit';
+            return '<span class="t-hi">' + esc(dist().name) + '</span> · PM2.5 <span class="t-hi">' + Math.round(pm) + ' µg/m³</span> (' + m.toFixed(1) + '× WHO 24-h)\nverdict: <span class="' + cl + '">' + band.key + '</span> — ' + esc(band.advice) + (e.stale ? '\n<span class="t-dim">(cached — live fetch failed)</span>' : '');
+          });
+        } },
+        zud: { d: 'dzud risk factors summary', f: function () {
+          return '<span class="t-hi">DZUD RISK — the two-season mechanism</span>\n' +
+            '  1. <span class="t-warn">dry summer</span>   → poor pasture → thin animals, little hay\n' +
+            '  2. <span class="t-crit">hard winter</span>  → snow/ice/−40 locks remaining feed\n' +
+            '  types: white (deep snow) · black (no snow/water) · iron (ice crust) · storm · hoof\n' +
+            '  watch: summer rainfall · autumn body condition · hay stocks · NAMEM risk maps\n' +
+            '  history: ~11M head lost 1999–2002 · ~10M in 2009–10 · 7M+ in 2023–24\n' +
+            '  ' + tLink('https://www.tsag-agaar.gov.mn/', 'tsag-agaar.gov.mn — official dzud watch');
+        } },
+        fx: { d: 'tugrug rates today', f: function () {
+          return loadFx().then(function (fx) {
+            return FX_SHOW.map(function (b) {
+              var v = convert(b === 'KRW' ? 1000 : 1, b, 'MNT', fx.rates);
+              return '  ' + (b === 'KRW' ? '1000' : '   1') + ' ' + b + ' = <span class="t-hi">' + (v == null ? '—' : Math.round(v).toLocaleString('en') + ' ₮') + '</span>';
+            }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + (fx.stale ? ' (cached)' : '') + ' · mid-market, not the counter rate</span>';
+          });
+        } },
+        convert: { d: 'convert <amt> <from> <to>', f: function (a) { var amt = +a[0], f2 = (a[1] || '').toUpperCase(), t2 = (a[2] || '').toUpperCase(); if (!(amt > 0) || !f2 || !t2) return 'usage: convert 100 USD MNT'; return loadFx().then(function (fx) { var v = convert(amt, f2, t2, fx.rates); return v == null ? '<span class="t-crit">unknown currency</span>' : amt.toLocaleString('en') + ' ' + f2 + ' = <span class="t-hi">' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + t2 + '</span>'; }); } },
+        chill: { d: 'chill <temp> <windKmh> — wind chill', f: function (a) { var T2 = +a[0], V = +a[1]; if (isNaN(T2) || isNaN(V)) return 'usage: chill -25 30'; var w = windChill(T2, V); return T2 + '°C @ ' + V + ' km/h feels like <span class="' + (w <= -40 ? 't-crit' : w <= -27 ? 't-warn' : 't-hi') + '">' + Math.round(w) + '°C</span>'; } },
+        weather: { d: 'current weather (selected location)', f: function () { return loadWx(loc()).then(function (e) { var c = e.data.current; var w = windChill(c.temperature_2m, c.wind_speed_10m); return '<span class="t-hi">' + esc(loc().name) + '</span> · ' + Math.round(c.temperature_2m) + '°C · wind ' + Math.round(c.wind_speed_10m) + ' km/h · chill ' + (w == null ? '—' : Math.round(w) + '°C') + (e.stale ? ' <span class="t-dim">(cached)</span>' : ''); }); } },
+        districts: { d: 'list UB districts (AQI points)', f: function () { return DIST.map(function (d) { return '  ' + (d.id === distId ? '<span class="t-hi">▸ ' : '<span class="t-dim">  ') + d.id.padEnd(14) + '</span> ' + d.name + ' <span class="t-dim">— ' + esc(d.note) + '</span>'; }).join('\n'); } },
+        district: { d: 'district <name> — switch AQI point', f: function (a) { var q = (a[0] || '').toLowerCase(); var m = DIST.find(function (d) { return d.id === q || d.name.toLowerCase().indexOf(q) === 0; }); if (!m) return '<span class="t-crit">unknown district.</span> try: districts'; distId = m.id; store.set('mp:dist', distId); return 'switched → <span class="t-hi">' + m.name + '</span>'; } },
+        locs: { d: 'list weather locations', f: function () { return LOCS.map(function (l) { return '  ' + (l.id === locId ? '<span class="t-hi">▸ ' : '<span class="t-dim">  ') + l.id.padEnd(13) + '</span> ' + l.name; }).join('\n'); } },
+        loc: { d: 'loc <name> — switch weather location', f: function (a) { var q = (a[0] || '').toLowerCase(); var m = LOCS.find(function (l) { return l.id === q || l.name.toLowerCase().indexOf(q) === 0; }); if (!m) return '<span class="t-crit">unknown location.</span> try: locs'; locId = m.id; store.set('mp:loc', locId); var ls = $('loc-sel'); if (ls) ls.value = locId; return 'switched → <span class="t-hi">' + m.name + '</span>'; } },
+        links: { d: 'curated official links', f: function () { return LINKS_OFFICIAL.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); } },
+        log: { d: 'herder log — list entries', f: function () { var l = store.get('mp:mal', []); return l.length ? l.slice(0, 15).map(function (c) { return '  ' + c.date + ' ' + c.sp + ' ×' + c.n + (c.notes ? ' — ' + esc(c.notes) : ''); }).join('\n') : '<span class="t-dim">log empty — add entries in the MAL tab</span>'; } },
+        sources: { d: 'data sources', f: function () { return '  air: air-quality-api.open-meteo.com (CAMS model)\n  weather: api.open-meteo.com (hourly model)\n  fx: open.er-api.com (mid-market, daily)\n  everything else: official links only'; } },
+        whoami: { d: 'who are you', f: function () { return 'guest@' + esc(distId) + ' // eternal blue sky overhead, coal smoke below — verify everything'; } },
+        version: { d: 'app version', f: function () { return 'mongol-panel terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'agaar'; store.set('mp:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">guest@' + esc(distId) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">guest@' + esc(distId) + ':~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트/이벤트 ================= */
+      function render() {
+        var L = t();
+        $('ts-agaar').textContent = L.tAgaar; $('ts-tsag').textContent = L.tTsag;
+        $('ts-tugrug').textContent = L.tTugrug; $('ts-mal').textContent = L.tMal; $('ts-term').textContent = L.tTerm;
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'mal') {
+          view.innerHTML = cardMal();
+          renderMalList();
+          $('mal-form').onsubmit = function (e) {
+            e.preventDefault();
+            var l = store.get('mp:mal', []);
+            l.unshift({ date: $('m-date').value, sp: $('m-sp').value, n: +$('m-n').value || 1, notes: $('m-notes').value.trim() });
+            store.set('mp:mal', l.slice(0, 500));
+            $('m-notes').value = '';
+            renderMalList();
+          };
+          return;
+        }
+        view.innerHTML = '<div class="loading">' + L.loading + '</div>';
+        if (tab === 'agaar') {
+          loadAir(dist()).then(function (entry) {
+            view.innerHTML = cardAgaar(entry);
+            var ds = $('dist-sel');
+            if (ds) ds.onchange = function () { distId = ds.value; store.set('mp:dist', distId); render(); };
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div>' + linksHtml([LINKS_OFFICIAL[0]]) + '</div>';
+          });
+        } else if (tab === 'tsag') {
+          loadWx(loc()).then(function (entry) {
+            view.innerHTML = cardTsag(entry);
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div>' + linksHtml([LINKS_OFFICIAL[1]]) + '</div>';
+          });
+        } else {
+          loadFx().then(function (fx) {
+            view.innerHTML = cardTugrug(fx);
+            wireTugrug(fx);
+          }).catch(function () {
+            view.innerHTML = '<div class="card"><div class="muted">' + L.fetchErr + '</div></div>';
+          });
+        }
+      }
+
+      /* 초기화 */
+      (function init() {
+        var ls2 = $('loc-sel');
+        LOCS.forEach(function (l) {
+          var o = document.createElement('option'); o.value = l.id; o.textContent = l.name; ls2.appendChild(o);
+        });
+        ls2.value = loc().id;
+        ls2.onchange = function () { locId = ls2.value; store.set('mp:loc', locId); render(); };
+        var lg = $('lang-sel');
+        lg.value = lang;
+        lg.onchange = function () { lang = lg.value; store.set('mp:lang', lang); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('mp:tab', tab); render(); };
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>

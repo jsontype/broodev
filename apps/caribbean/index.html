@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carib Panel — hurricane prep, power outages, FX &amp; official portals for Jamaica, Trinidad &amp; Tobago, Barbados and the Bahamas</title>
+    <meta name="description" content="One lightweight daily-utility panel for the Caribbean: Saffir-Simpson hurricane playbooks with island-specific notes, live capital-city wind and rain, JPS/T&amp;TEC/BL&amp;P/BPL outage links, live JMD/TTD/BBD/BSD exchange rates with a remittance true-cost calculator, and official passport, tax and CXC results portals." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://caribbean.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Carib Panel — storm · power · money · status" />
+    <meta name="twitter:description" content="Hurricane playbooks, live wind &amp; rain, outage links, live FX &amp; remittance true cost, official portals for JM · TT · BB · BS — one fast page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Carib Panel — storm · power · money · status" />
+    <meta property="og:description" content="Hurricane playbooks, live capital-city wind &amp; rain, JPS/T&amp;TEC/BL&amp;P/BPL outage links, live JMD/TTD/BBD/BSD rates, remittance true-cost math and official portals — one fast page." />
+    <meta property="og:url" content="https://caribbean.broodev.com/" />
+    <style>
+      :root {
+        --bg: #04191c;
+        --bg-soft: #072226;
+        --panel: #0a2a2f;
+        --line: #155059;
+        --coral: #ff7f66;
+        --coral-dim: #b85a49;
+        --teal: #4dd8c0;
+        --text: #e6f5f1;
+        --dim: #8db8b0;
+        --ok: #5fdc8f;
+        --warn: #ffd166;
+        --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--coral); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--teal); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--teal) 50%), linear-gradient(135deg, var(--teal) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--coral); color: var(--coral); background: #123236; }
+      .tab.on b { color: var(--coral); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--teal); letter-spacing: .5px; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; }
+      .ok { color: var(--ok); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--teal); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(255,127,102,.08); border-left: 3px solid var(--coral-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      table.tb { width: 100%; border-collapse: collapse; font-size: 13px; }
+      table.tb th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.tb td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); vertical-align: top; }
+      table.tb td.c { font-family: var(--font); color: var(--coral); font-weight: 700; white-space: nowrap; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--coral); }
+      .season { display: flex; gap: 4px; margin: 10px 0 4px; }
+      .season .m { flex: 1; text-align: center; font-family: var(--font); font-size: 10.5px; color: var(--dim); padding: 6px 0; border-radius: 4px; background: var(--bg-soft); border: 1px solid var(--line); }
+      .season .m.mid { background: #29393a; color: var(--warn); border-color: #4b5c46; }
+      .season .m.peak { background: #3d2b28; color: var(--coral); border-color: var(--coral-dim); font-weight: 700; }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--coral-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 9.5px; } .season .m { font-size: 9px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #02100f; border: 1px solid var(--line); border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(77,216,192,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #9fe8da; text-shadow: 0 0 6px rgba(77,216,192,.3); }
+      #t-out .t-dim { color: #4e837a; text-shadow: none; }
+      #t-out .t-hi { color: #eafffb; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--ok); }
+      #t-out a { color: #ffb09e; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--coral); white-space: nowrap; text-shadow: 0 0 6px rgba(255,127,102,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #eafffb; font-family: var(--font); font-size: 13px; caret-color: var(--coral); }
+
+      /* ===== 정적 SEO 본문 ===== */
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--teal); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo h3 { color: var(--text); font-size: 13.5px; margin: 14px 0 4px; }
+      .seo a { color: var(--coral); }
+      .seo ul, .seo ol { padding-left: 18px; }
+      .seo strong { color: var(--text); }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0; }
+      .seo table th { color: var(--teal); font-weight: 600; text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+      .seo table td { padding: 5px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); vertical-align: top; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎CARIB PANEL <small>· storm · power · money · status</small></span>
+        <span class="sp"></span>
+        <select class="sel" id="cty-sel" aria-label="Country"></select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="storm"><b>🌀 STORM</b><span>Hurricane</span></div>
+        <div class="tab" data-tab="power"><b>⚡ POWER</b><span>Outages</span></div>
+        <div class="tab" data-tab="money"><b>💱 MONEY</b><span>FX · remit</span></div>
+        <div class="tab" data-tab="status"><b>🗂 STATUS</b><span>Gov · exams</span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span>Terminal</span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        FX data: open.er-api.com (mid-market, updated daily) · Weather &amp; marine data: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)<br />
+        For information only — always verify with official sources.<br />
+        Privacy: no accounts, no server storage — settings live only in your browser (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/" rel="noopener">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="About Carib Panel">
+      <h2>What is Carib Panel?</h2>
+      <p>
+        A free, data-light utility panel for daily life in <strong>Jamaica, Trinidad &amp; Tobago, Barbados and the Bahamas</strong>.
+        It puts four things on one fast page. First, <strong>hurricane readiness</strong>: a plain-English Saffir-Simpson explainer
+        with island-specific reality notes, live wind and rain for your capital city, and links to the
+        <a href="https://www.nhc.noaa.gov/" rel="noopener">US National Hurricane Center</a> and each island’s official met office.
+        Second, <strong>power outage links</strong> for JPS, T&amp;TEC, Barbados Light &amp; Power and Bahamas Power &amp; Light, with a
+        downed-line safety card. Third, <strong>money tools</strong>: live mid-market rates for JMD, TTD, BBD and BSD, a converter,
+        and a remittance true-cost calculator built for the US–Caribbean corridor. Fourth, <strong>official status portals</strong>
+        for passports, CXC results, tax and driver’s licences. No app install, no account — it loads fast on any phone,
+        which matters most when the grid is shaky.
+      </p>
+
+      <h2>The Saffir-Simpson scale — what each category actually means</h2>
+      <p>
+        The Saffir-Simpson Hurricane Wind Scale rates sustained winds only — it says nothing about rain, storm surge or how slowly
+        a system crawls over your island, which are often the deadlier parts. Still, it is the shared language of every advisory,
+        so it pays to know what the numbers mean in practice. A useful rule of thumb: damage rises roughly exponentially, not
+        linearly, with category. A Category 4 does not do “twice” the damage of a Category 2 — historically it does many times more.
+        Treat anything at Category 3 or above (a “major” hurricane) as an event you prepare days for, not hours.
+      </p>
+      <table>
+        <tr><th>Category</th><th>Sustained winds</th><th>What it typically does</th></tr>
+        <tr><td>1</td><td>119–153 km/h (74–95 mph)</td><td>Roof, gutter and fence damage; snapped branches; power cuts lasting days from downed lines.</td></tr>
+        <tr><td>2</td><td>154–177 km/h (96–110 mph)</td><td>Major roof and siding damage; shallow-rooted trees down; near-total power loss for days to weeks.</td></tr>
+        <tr><td>3</td><td>178–208 km/h (111–129 mph)</td><td>Structural damage to well-built homes; water and electricity out for days to weeks; “major” threshold.</td></tr>
+        <tr><td>4</td><td>209–251 km/h (130–156 mph)</td><td>Severe damage — most of the roof structure and some exterior walls lost; areas uninhabitable for weeks or months.</td></tr>
+        <tr><td>5</td><td>≥ 252 km/h (≥ 157 mph)</td><td>Catastrophic — a high share of framed homes destroyed; long-term power loss; some areas uninhabitable for months.</td></tr>
+      </table>
+
+      <h2>Same storm, different island: why a Cat 3 hits Jamaica and the Bahamas differently</h2>
+      <p>
+        The category is only half of your risk — the other half is geography and building stock. <strong>Jamaica</strong> is
+        mountainous: wind gets funnelled and rain gets wrung out over the Blue Mountains, so flash floods and landslides can kill far
+        from the coast, while low-lying Portmore and the Kingston waterfront carry the surge risk. <strong>The Bahamas</strong> is the
+        opposite: a low-lying archipelago where much of the land sits only a few metres above sea level, so <strong>storm surge is the
+        main killer</strong> — Hurricane Dorian (2019) pushed roughly 6 m of water over parts of Abaco and Grand Bahama.
+        <strong>Barbados</strong> is the easternmost island and often the first landfall of Atlantic systems, but its low relief and
+        heavy coral-limestone construction change the picture again. <strong>Trinidad</strong> sits south of the classic hurricane
+        belt near 10°N — rare direct hits, but Tobago is measurably more exposed, and flooding remains Trinidad’s recurring threat.
+      </p>
+      <table>
+        <tr><th>Island</th><th>Biggest threat</th><th>Building-stock note</th><th>Who runs shelters</th><th>First move when a watch is issued</th></tr>
+        <tr><td>Jamaica</td><td>Flash floods, landslides, surge in Portmore/Kingston harbour</td><td>Concrete block common in towns; zinc roofing widespread in older stock</td><td>ODPEM + parish councils</td><td>Know your parish shelter list; clear drains and gullies around the house</td></tr>
+        <tr><td>Trinidad &amp; Tobago</td><td>Street and river flooding; Tobago takes wind that Trinidad rarely sees</td><td>Concrete-frame dominant; informal hillside housing vulnerable to slips</td><td>ODPM + municipal corporations</td><td>Check ODPM advisories; do not assume “Trinidad never gets hit”</td></tr>
+        <tr><td>Barbados</td><td>First-landfall wind events; south- and west-coast marine damage</td><td>Coral-limestone masonry plus timber chattel houses that need tie-downs</td><td>Department of Emergency Management (DEM)</td><td>Secure the roof and shutters early — systems arrive with less warning time from the east</td></tr>
+        <tr><td>Bahamas</td><td>Storm surge over low-lying cays; whole-island inundation possible</td><td>Timber-frame common in Family Islands; elevation, not walls, decides survival</td><td>NEMA Bahamas</td><td>Decide evacuation early — on a 3 m elevation island, vertical evacuation may not exist</td></tr>
+      </table>
+      <p>
+        The practical conclusion: read your <strong>island’s own met office</strong> alongside the NHC cone. The cone tells you where
+        the centre may go; your met office tells you what that means for your coast, your river and your parish.
+      </p>
+
+      <h2>Hurricane season prep calendar: May to November</h2>
+      <p>
+        The Atlantic season officially runs <strong>1 June to 30 November</strong>, with a sharp climatological peak from
+        mid-August to mid-October. The most expensive mistake is compressing all preparation into the 48 hours before landfall,
+        when plywood, water and batteries are sold out and the queues at the pump are hours long. Spread the work out instead —
+        by month, it looks like this:
+      </p>
+      <table>
+        <tr><th>When</th><th>What to do</th></tr>
+        <tr><td>May</td><td>Service the roof (fix lifted sheets, check straps), trim trees near lines, photograph the house for insurance, review your policy’s hurricane deductible.</td></tr>
+        <tr><td>June</td><td>Season opens. Build the kit: 3+ days of water (4 L/person/day), shelf food, medication, cash in small bills, power bank, torch, first aid. Confirm your nearest official shelter.</td></tr>
+        <tr><td>July</td><td>Dry-run the plan with the household: who grabs what, where documents live (waterproof bag), how you regroup if phones die. Top up phone credit habits.</td></tr>
+        <tr><td>Aug–Sep (peak)</td><td>Check the NHC Tropical Weather Outlook every morning. Keep vehicle tanks above half. Refresh water stocks. Never let the kit be “borrowed empty”.</td></tr>
+        <tr><td>October</td><td>Stay alert — late-season storms form closer to home (western Caribbean) and give less lead time than long-track Cape Verde systems.</td></tr>
+        <tr><td>November</td><td>Season closes on the 30th. Do a debrief: what ran out, what was useless, what to change. Store the kit dry — it is next year’s head start.</td></tr>
+      </table>
+
+      <h2>Sending money home: the true cost of a US→Caribbean remittance</h2>
+      <p>
+        Remittances are a pillar of Caribbean economies — for Jamaica they are worth several billion US dollars a year, much of it
+        from the diaspora corridors in the US, UK and Canada. The advertised “fee” is only part of what you pay. Most providers also
+        take an <strong>exchange-rate margin</strong>: they convert your dollars at a rate worse than the mid-market rate and keep
+        the difference. A transfer advertised as “$4.99 fee” can quietly cost 5–7% once that margin is counted. The honest math is:
+        take what the recipient actually gets in local currency, compare it with what the mid-market rate would have given, and
+        express the shortfall as a percentage of the amount sent. That is exactly what the calculator in the MONEY tab does.
+        As a benchmark, the UN Sustainable Development Goal target for remittance cost is <strong>3%</strong> — many Caribbean
+        corridors still run well above it, so comparing two providers before every large transfer is worth real money.
+      </p>
+
+      <h2>Pegged vs floating: why BBD and BSD barely move but JMD does</h2>
+      <p>
+        The four currencies on this panel behave very differently, and knowing which kind you hold changes how you read any rate.
+        The <strong>Bahamian dollar (BSD)</strong> is pegged 1:1 to the US dollar, and the <strong>Barbadian dollar (BBD)</strong>
+        is pegged at 2:1 — those rates essentially do not move, so if a money-transfer provider quotes you a “special rate” of,
+        say, 1.92 BBD per USD, the 4% gap <em>is</em> their margin, in plain sight. The <strong>Trinidad &amp; Tobago dollar (TTD)</strong>
+        is a managed float that has stayed near 6.8 per USD for years, though access to US dollars at that official rate can be
+        limited. The <strong>Jamaican dollar (JMD)</strong> floats and genuinely moves week to week, which is why Jamaicans watch
+        the rate the way other islands watch the weather. Rule of thumb: for pegged currencies, judge a provider by its fee;
+        for the JMD, judge it by the rate.
+      </p>
+
+      <h2>After the storm: why your street gets power back last</h2>
+      <p>
+        Utilities across the region — JPS in Jamaica, T&amp;TEC in Trinidad &amp; Tobago, Barbados Light &amp; Power, and BPL in the
+        Bahamas — restore power in roughly the same order, and it is not first-come-first-served. First come the
+        <strong>generating stations and transmission lines</strong>, because nothing downstream works without them. Then
+        <strong>substations</strong>, then feeders serving <strong>critical infrastructure</strong> — hospitals, water pumping
+        stations, airports, emergency services. Next are the <strong>main feeders</strong> that bring back thousands of customers
+        per repair, then smaller lateral lines, and only at the very end <strong>individual service drops</strong> — the single
+        span from the pole to one house. If your neighbours have light and you do not, you are probably in that last category, and
+        you should report it specifically, because the utility may believe your area is already restored. One rule outranks all of
+        this: <strong>treat every downed line as live</strong>. Lines can be re-energised remotely without warning, and standing
+        water can carry current metres from the wire.
+      </p>
+
+      <h2>Checking CXC / CSEC results without getting scammed</h2>
+      <p>
+        The Caribbean Examinations Council releases CSEC and CAPE results through its official student portal at
+        <a href="https://results.cxc.org/" rel="noopener">results.cxc.org</a>, usually in August for the May/June sitting.
+        You need the credentials on your registration slip — candidate number, plus the details your school or ministry provides.
+        Two things to know. First, <strong>the official check is free</strong>: any site or WhatsApp contact charging to “unlock”
+        results early is a scam, and look-alike domains appear every results season. Second, your school and the ministry receive
+        the same data, so if the portal is overloaded on results morning (it usually is), waiting a few hours costs you nothing.
+        One regional wrinkle: <strong>the Bahamas does not sit CXC</strong> — Bahamian students take BJC and BGCSE examinations run
+        by the Ministry of Education in Nassau, with results distributed through schools and the ministry rather than a public
+        portal. Jamaica, Trinidad &amp; Tobago and Barbados all use CXC.
+      </p>
+
+      <h2>Official portals worth bookmarking</h2>
+      <p>
+        Every island keeps its high-stakes paperwork behind a handful of official portals, and knowing the real domain is half the
+        battle against phishing. In <strong>Jamaica</strong>: PICA for passports, Tax Administration Jamaica for TRN, property tax
+        and driver’s licence payments. In <strong>Trinidad &amp; Tobago</strong>: the Immigration Division for passports, the Inland
+        Revenue Division for BIR numbers and e-Tax, and the Ministry of Works’ Licensing Division for permits. In
+        <strong>Barbados</strong>: the Immigration Department for passports and the Barbados Revenue Authority, which unusually
+        handles both taxes and driver’s licensing. In the <strong>Bahamas</strong>: the Passport Office under the Department of
+        Immigration, the Department of Inland Revenue for business licences and VAT, and the Road Traffic Department for licences.
+        The STATUS tab lists all of these with one-line explanations of what each portal actually does — no logins, no lookups,
+        just the verified front doors.
+      </p>
+
+      <h2>Reading the weather numbers on this page</h2>
+      <p>
+        The STORM tab shows live conditions and a 3-day outlook for your capital — Kingston, Port of Spain, Bridgetown or Nassau —
+        using the free <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> forecast and marine APIs. Three numbers do
+        most of the work. <strong>Sustained wind</strong> is what the Saffir-Simpson categories are built on; compare it with the
+        table above. <strong>Gusts</strong> run 20–40% higher than sustained wind and are what actually removes loose roof sheets,
+        so treat the gust figure as your “what will break” number. <strong>Daily rain totals</strong> matter more than intensity on
+        mountainous islands — 200 mm falling on saturated Jamaican hillsides is a landslide setup regardless of wind. The marine
+        line adds maximum wave height, which fishers and coastal households can read as an early surge proxy. These are model
+        forecasts, not warnings: when a system is inside the NHC cone, official advisories and your met office override anything
+        a forecast model shows here.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      <h3>Is Carib Panel free, and does it show ads?</h3>
+      <p>Yes, it is completely free, and it currently shows no advertising. There are no accounts and no server-side storage — your country choice and preferences live only in your browser’s localStorage.</p>
+      <h3>Where does the exchange-rate data come from and how fresh is it?</h3>
+      <p>Rates come from open.er-api.com, which publishes mid-market reference rates updated roughly once a day. They are for orientation — the rate a bank, cambio or remittance provider offers you will differ, and that difference is exactly what the remittance calculator measures.</p>
+      <h3>Which hurricane category should I actually prepare for?</h3>
+      <p>Prepare your household to ride out a Category 1–2 (water, food, cash, secured roof) and plan to evacuate or shelter for anything Category 3 and above. Surge and rain kill more people than wind, so a low category with a slow, wet track can be worse than the number suggests.</p>
+      <h3>Why is my street the last to get power back after a storm?</h3>
+      <p>Utilities restore in order of impact: generation and transmission first, then substations, hospitals and water plants, then the biggest feeders. A single service drop to one house is the smallest possible repair, so it is scheduled last — report it specifically so the utility knows your street is still dark.</p>
+      <h3>How do I check CXC results — and does the Bahamas use CXC?</h3>
+      <p>CSEC and CAPE results are released free on the official portal at results.cxc.org using your candidate credentials. The Bahamas does not sit CXC — students there take BJC and BGCSE exams administered by the Ministry of Education, with results issued through schools.</p>
+      <h3>Do Barbados and Bahamas dollars really stay fixed to the US dollar?</h3>
+      <p>Yes. The Bahamian dollar is pegged 1:1 and the Barbadian dollar at 2:1 to the US dollar, and both pegs have held for decades. Any provider quoting you a noticeably worse rate on a pegged currency is charging a hidden margin, not reflecting the market.</p>
+      <p>
+        Power users: open the <strong>&gt;_TERM</strong> tab for a hacker-style terminal — <code>help</code>,
+        <code>cat 4</code> (prints the Category 4 playbook), <code>season</code> (prep timeline), <code>fx</code>,
+        <code>convert 100 usd jmd</code>, <code>remit 200 5 150</code>, <code>links</code> and more.
+        All figures are for information only; official sources are always authoritative.
+      </p>
+    </section>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Carib Panel",
+        "url": "https://caribbean.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Saffir-Simpson hurricane playbooks with island-specific notes, live capital-city wind and rain via Open-Meteo, JPS/T&TEC/BL&P/BPL outage links, live JMD/TTD/BBD/BSD exchange rates, remittance true-cost calculator, official passport/tax/CXC portals, hacker-style terminal"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Carib Panel free, and does it show ads?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is completely free, and it currently shows no advertising. There are no accounts and no server-side storage — your country choice and preferences live only in your browser's localStorage." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does the exchange-rate data come from and how fresh is it?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Rates come from open.er-api.com, which publishes mid-market reference rates updated roughly once a day. They are for orientation — the rate a bank, cambio or remittance provider offers you will differ, and that difference is exactly what the remittance calculator measures." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which hurricane category should I actually prepare for?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Prepare your household to ride out a Category 1–2 (water, food, cash, secured roof) and plan to evacuate or shelter for anything Category 3 and above. Surge and rain kill more people than wind, so a low category with a slow, wet track can be worse than the number suggests." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why is my street the last to get power back after a storm?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Utilities restore in order of impact: generation and transmission first, then substations, hospitals and water plants, then the biggest feeders. A single service drop to one house is the smallest possible repair, so it is scheduled last — report it specifically so the utility knows your street is still dark." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I check CXC results — and does the Bahamas use CXC?",
+            "acceptedAnswer": { "@type": "Answer", "text": "CSEC and CAPE results are released free on the official portal at results.cxc.org using your candidate credentials. The Bahamas does not sit CXC — students there take BJC and BGCSE exams administered by the Ministry of Education, with results issued through schools." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do Barbados and Bahamas dollars really stay fixed to the US dollar?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Bahamian dollar is pegged 1:1 and the Barbadian dollar at 2:1 to the US dollar, and both pegs have held for decades. Any provider quoting you a noticeably worse rate on a pegged currency is charging a hidden margin, not reflecting the market." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= 국가 데이터 (링크는 공식 도메인만 수록) ================= */
+      var CTY = {
+        jm: {
+          name: 'Jamaica', cur: 'JMD', flag: '🇯🇲',
+          capital: 'Kingston', lat: 17.97, lon: -76.79, city: 'kingston',
+          stormNote: 'Mountainous terrain wrings extreme rain out of passing systems — flash floods and landslides can kill far inland. Portmore and the Kingston waterfront carry the storm-surge risk. Know your parish shelter list before the season peaks.',
+          met: [
+            ['https://metservice.gov.jm/', 'Meteorological Service of Jamaica', 'Official forecasts, watches and warnings for Jamaica'],
+            ['https://www.odpem.org.jm/', 'ODPEM', 'Office of Disaster Preparedness — shelters and emergency advisories'],
+          ],
+          power: {
+            util: 'JPS — Jamaica Public Service',
+            body: 'JPS is the national grid operator. Outage reporting works best through the official site and the MyJPS app — report your specific street, not just your area, after a storm.',
+            links: [
+              ['https://www.jpsco.com/', 'JPS — Jamaica Public Service', 'Outage information, reporting and restoration updates'],
+            ],
+          },
+          status: [
+            ['https://www.pica.gov.jm/', 'PICA — Passport, Immigration & Citizenship Agency', 'Passport applications and renewals (book online, biometric appointment)'],
+            ['https://results.cxc.org/', 'CXC — CSEC/CAPE results portal', 'Official free results check with your candidate credentials (usually August)'],
+            ['https://www.jamaicatax.gov.jm/', 'TAJ — Tax Administration Jamaica', 'TRN, property tax, and driver’s licence fee payments'],
+          ],
+        },
+        tt: {
+          name: 'Trinidad & Tobago', cur: 'TTD', flag: '🇹🇹',
+          capital: 'Port of Spain', lat: 10.66, lon: -61.52, city: 'portofspain',
+          stormNote: 'Trinidad sits near 10°N, south of the classic hurricane belt — direct hits are rare but not impossible, and Tobago is measurably more exposed. Street and river flooding is the recurring threat; never let “we never get hit” replace a kit.',
+          met: [
+            ['https://www.metoffice.gov.tt/', 'Trinidad & Tobago Meteorological Service', 'Official forecasts, watches and warnings for T&T'],
+            ['https://odpm.gov.tt/', 'ODPM', 'Office of Disaster Preparedness and Management — alerts and shelters'],
+          ],
+          power: {
+            util: 'T&TEC — Trinidad & Tobago Electricity Commission',
+            body: 'T&TEC runs the national grid for both islands. Report outages with your account number and nearest pole number if you can see one — it speeds up dispatch.',
+            links: [
+              ['https://ttec.co.tt/', 'T&TEC', 'Outage reporting and service updates'],
+            ],
+          },
+          status: [
+            ['https://www.immigration.gov.tt/', 'Immigration Division', 'Machine-readable passport applications and appointments'],
+            ['https://results.cxc.org/', 'CXC — CSEC/CAPE results portal', 'Official free results check with your candidate credentials (usually August)'],
+            ['https://www.ird.gov.tt/', 'IRD — Inland Revenue Division', 'BIR file numbers, e-Tax filing and payments'],
+            ['https://www.mowt.gov.tt/', 'Ministry of Works & Transport', 'Licensing Division — driver’s permits and renewals'],
+          ],
+        },
+        bb: {
+          name: 'Barbados', cur: 'BBD', flag: '🇧🇧',
+          capital: 'Bridgetown', lat: 13.10, lon: -59.61, city: 'bridgetown',
+          stormNote: 'Easternmost island — often the first landfall of Atlantic systems, with less warning time than islands further west (Beryl 2024 passed just south as a major hurricane). Chattel houses need early tie-downs; the fishing fleet and south coast take the marine damage.',
+          met: [
+            ['https://www.barbadosweather.org/', 'Barbados Meteorological Services', 'Official forecasts, watches and warnings for Barbados'],
+            ['https://dem.gov.bb/', 'DEM — Department of Emergency Management', 'Shelter lists and emergency advisories'],
+          ],
+          power: {
+            util: 'BL&P — Barbados Light & Power',
+            body: 'Barbados Light & Power runs the island grid. Check the official channels for restoration updates after a system passes, and report downed lines immediately — do not wait to see if a crew arrives.',
+            links: [
+              ['https://www.blpc.com.bb/', 'Barbados Light & Power', 'Outage reporting and customer updates'],
+            ],
+          },
+          status: [
+            ['https://www.immigration.gov.bb/', 'Barbados Immigration Department', 'Passport applications and renewals'],
+            ['https://results.cxc.org/', 'CXC — CSEC/CAPE results portal', 'Official free results check with your candidate credentials (usually August)'],
+            ['https://bra.gov.bb/', 'BRA — Barbados Revenue Authority', 'Taxes AND driver’s licensing — one authority handles both'],
+          ],
+        },
+        bs: {
+          name: 'Bahamas', cur: 'BSD', flag: '🇧🇸',
+          capital: 'Nassau', lat: 25.05, lon: -77.35, city: 'nassau',
+          stormNote: 'A low-lying archipelago where storm surge, not wind, is the main killer — Dorian (2019) put roughly 6 m of water over parts of Abaco and Grand Bahama. On a 3 m-elevation cay, evacuation decisions must be made early; vertical evacuation may simply not exist.',
+          met: [
+            ['https://met.gov.bs/', 'Bahamas Department of Meteorology', 'Official forecasts, watches and warnings for the Bahamas'],
+          ],
+          power: {
+            util: 'BPL — Bahamas Power and Light',
+            body: 'BPL serves New Providence and most Family Islands. After a hurricane, restoration is island-by-island — follow official updates and report your specific street once your island’s feeder is back.',
+            links: [
+              ['https://www.bplco.com/', 'Bahamas Power and Light', 'Outage reporting and restoration updates'],
+            ],
+          },
+          status: [
+            ['https://www.immigration.gov.bs/', 'Bahamas Department of Immigration', 'Passport Office — applications and renewals'],
+            ['https://inlandrevenue.finance.gov.bs/', 'Department of Inland Revenue', 'Business licences, VAT and real property tax'],
+            ['https://www.bahamas.gov.bs/', 'Bahamas government portal', 'Road Traffic Department — driver’s licence renewals · BJC/BGCSE exam info (the Bahamas does not sit CXC)'],
+          ],
+        },
+      };
+      var CTY_ORDER = ['jm', 'tt', 'bb', 'bs'];
+      var FX_SHOW = ['USD', 'CAD', 'GBP', 'EUR'];
+
+      /* 새피어-심프슨 카테고리 플레이북 (STORM 탭 + 터미널 `cat` 공용) */
+      var SS_CATS = {
+        1: {
+          wind: '119–153 km/h (74–95 mph)',
+          label: 'Very dangerous winds — damage to roofs, gutters, fences',
+          play: [
+            'Secure or bring in everything loose: bins, zinc sheets, plant pots, boats on trailers.',
+            'Charge phones and power banks; fill water containers before the wind arrives.',
+            'Expect power cuts of hours to days from downed lines — have cash, the ATMs go down too.',
+            'Stay off the roads during the passage; most Cat 1 injuries are from debris and flooding, not wind.',
+          ],
+        },
+        2: {
+          wind: '154–177 km/h (96–110 mph)',
+          label: 'Extremely dangerous winds — extensive damage likely',
+          play: [
+            'Shutter or board windows; brace external doors, especially garage doors.',
+            'Move to an interior room away from windows for the passage.',
+            'Expect near-total power loss for days to weeks — freeze water bottles now to keep food longer.',
+            'If you live under big trees or beside a swollen gully, relocate before the wind starts.',
+          ],
+        },
+        3: {
+          wind: '178–208 km/h (111–129 mph)',
+          label: 'MAJOR hurricane — devastating damage',
+          play: [
+            'This is the evacuation-decision line: low-lying, coastal and landslide-prone homes should move to a shelter or sturdier building.',
+            'Water and electricity may be out for days to weeks — 4 L of water per person per day, minimum 3 days.',
+            'Document the house with photos before the storm for insurance.',
+            'After passage, treat every downed line as live and every flooded road as impassable.',
+          ],
+        },
+        4: {
+          wind: '209–251 km/h (130–156 mph)',
+          label: 'MAJOR hurricane — catastrophic damage',
+          play: [
+            'Evacuate surge zones and weak structures — this is not a ride-it-out category for timber or zinc-roof homes.',
+            'Well-built homes lose most of the roof structure; pick the strongest interior room on the lowest non-flooding floor.',
+            'Expect weeks-to-months of disruption: stock medication, keep documents in a waterproof bag on your person.',
+            'Fuel every vehicle and every jerry can before the ports and pumps close.',
+          ],
+        },
+        5: {
+          wind: '≥ 252 km/h (≥ 157 mph)',
+          label: 'MAJOR hurricane — catastrophic, area may be uninhabitable',
+          play: [
+            'Leave the impact zone if any official route exists — Dorian (Cat 5, Bahamas 2019) showed surge can submerge entire settlements.',
+            'If evacuation is impossible: strongest concrete structure available, highest floor above surge, interior room, life jackets if you have them.',
+            'Assume total infrastructure loss: no power, water, phones or ports for an extended period.',
+            'Aftermath is the second disaster — do not return to a surge zone until authorities clear it.',
+          ],
+        },
+      };
+
+      /* __PURE_START__ 순수 로직 */
+      /* 송금 실효 비용: 보낸 금액·수수료·제시 환율 vs 미드마켓 환율 → 수취액과 총 비용% */
+      function remitCost(sendAmt, feeAmt, offeredRate, midRate) {
+        if (!(sendAmt > 0) || !(offeredRate > 0) || !(midRate > 0) || feeAmt < 0 || feeAmt >= sendAmt) return null;
+        var received = (sendAmt - feeAmt) * offeredRate;
+        var midValue = sendAmt * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* 지속풍속(km/h) → 새피어-심프슨 카테고리 (0 = 허리케인 미만) */
+      function ssCat(windKmh) {
+        if (!(windKmh >= 0)) return null;
+        if (windKmh >= 252) return 5;
+        if (windKmh >= 209) return 4;
+        if (windKmh >= 178) return 3;
+        if (windKmh >= 154) return 2;
+        if (windKmh >= 119) return 1;
+        return 0;
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var cty = store.get('cb:cty', 'jm'); if (!CTY[cty]) cty = 'jm';
+      var tab = store.get('cb:tab', 'storm');
+      var fxCache = null;   // { rates, date, at }
+      var wxCache = {};     // per-country: { data, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var C = function () { return CTY[cty]; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 로컬 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('cb:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('cb:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* 날씨 — open-meteo.com (키 불필요), 국가별 30분 메모리 캐시. 해양 파고는 실패해도 무시 */
+      function loadWx(key) {
+        var c = CTY[key];
+        var hit = wxCache[key];
+        if (hit && Date.now() - hit.at < 30 * 60 * 1000) return Promise.resolve(hit.data);
+        var fUrl = 'https://api.open-meteo.com/v1/forecast?latitude=' + c.lat + '&longitude=' + c.lon +
+          '&current=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m' +
+          '&daily=wind_gusts_10m_max,precipitation_sum&forecast_days=3&timezone=auto';
+        var mUrl = 'https://marine-api.open-meteo.com/v1/marine?latitude=' + c.lat + '&longitude=' + c.lon +
+          '&daily=wave_height_max&forecast_days=3&timezone=auto';
+        var fc = fetch(fUrl).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+        var mr = fetch(mUrl).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+        return Promise.all([fc, mr]).then(function (res) {
+          var data = { fc: res[0], mr: res[1] };
+          if (!data.fc || !data.fc.current) throw new Error('bad payload');
+          wxCache[key] = { data: data, at: Date.now() };
+          return data;
+        });
+      }
+
+      /* ================= 공용 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+
+      /* ================= STORM 탭 ================= */
+      function wxHtml(data) {
+        var cur = data.fc.current, daily = data.fc.daily;
+        var gustNow = cur.wind_gusts_10m, windNow = cur.wind_speed_10m;
+        var cat = ssCat(windNow);
+        var catTxt = cat === null ? '' : (cat === 0 ? '<span class="ok">below hurricane force</span>' : '<span class="crit">Category ' + cat + ' force at the station!</span>');
+        var html = '<div class="row">' +
+          '<div class="kv"><div class="k">TEMP</div><div class="v">' + Math.round(cur.temperature_2m) + '°C</div></div>' +
+          '<div class="kv"><div class="k">WIND</div><div class="v">' + Math.round(windNow) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">GUSTS</div><div class="v ' + (gustNow >= 60 ? 'warn' : '') + '">' + Math.round(gustNow) + ' km/h</div></div>' +
+          '<div class="kv"><div class="k">RAIN NOW</div><div class="v">' + cur.precipitation + ' mm</div></div>' +
+          '</div><div class="muted" style="margin-top:6px">Current wind: ' + catTxt + '</div>';
+        if (daily && daily.time) {
+          html += '<table class="tb" style="margin-top:10px"><tr><th>Day</th><th>Max gusts</th><th>Rain total</th>' + (data.mr ? '<th>Max wave</th>' : '') + '</tr>';
+          for (var i = 0; i < daily.time.length; i++) {
+            var g = daily.wind_gusts_10m_max[i], p = daily.precipitation_sum[i];
+            var w = data.mr && data.mr.daily && data.mr.daily.wave_height_max ? data.mr.daily.wave_height_max[i] : null;
+            html += '<tr><td>' + esc(daily.time[i]) + '</td>' +
+              '<td class="' + (g >= 90 ? 'crit' : g >= 60 ? 'warn' : '') + '">' + Math.round(g) + ' km/h</td>' +
+              '<td class="' + (p >= 100 ? 'crit' : p >= 50 ? 'warn' : '') + '">' + Math.round(p) + ' mm</td>' +
+              (data.mr ? '<td>' + (w == null ? '—' : w.toFixed(1) + ' m') + '</td>' : '') + '</tr>';
+          }
+          html += '</table>';
+        }
+        return html;
+      }
+
+      function cardStorm() {
+        var c = C();
+        var html = '<div class="card"><h2>🌀 Live conditions — ' + esc(c.capital) + ', ' + c.flag + ' ' + esc(c.name) + '</h2>' +
+          '<div id="wx-box"><div class="loading">Loading Open-Meteo forecast …</div></div>' +
+          '<div class="note">Model forecast, not a warning. When a system is in the NHC cone, official advisories override everything here.</div></div>';
+
+        html += '<div class="card"><h2>Island reality check</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(c.stormNote) + '</p>' +
+          linksHtml(c.met.concat([
+            ['https://www.nhc.noaa.gov/', 'NHC — US National Hurricane Center', 'Advisories, forecast cones and the Tropical Weather Outlook'],
+            ['https://www.noaa.gov/', 'NOAA', 'Parent agency — seasonal outlooks and research'],
+          ])) + '</div>';
+
+        html += '<div class="card"><h2>Saffir-Simpson quick reference</h2>' +
+          '<table class="tb"><tr><th>Cat</th><th>Winds</th><th>Meaning</th></tr>';
+        for (var k = 1; k <= 5; k++) {
+          html += '<tr><td class="c">' + k + '</td><td>' + esc(SS_CATS[k].wind) + '</td><td>' + esc(SS_CATS[k].label) + '</td></tr>';
+        }
+        html += '</table><div class="muted" style="margin-top:6px">Full playbooks: open the &gt;_TERM tab and type <b>cat 3</b> (or any 1–5).</div></div>';
+
+        html += '<div class="card"><h2>Season timeline — June to November</h2>' +
+          '<div class="season">' +
+          '<div class="m">MAY</div><div class="m mid">JUN</div><div class="m mid">JUL</div>' +
+          '<div class="m peak">AUG</div><div class="m peak">SEP</div><div class="m mid">OCT</div><div class="m mid">NOV</div>' +
+          '</div>' +
+          '<p class="muted" style="margin:6px 0 0">Season runs 1 Jun – 30 Nov; the climatological peak is mid-Aug to mid-Oct. ' +
+          'Late-season systems form closer to home (western Caribbean) and give less lead time. ' +
+          'Type <b>season</b> in the terminal for the month-by-month prep checklist.</p></div>';
+        return html;
+      }
+
+      function mountStorm() {
+        var key = cty;
+        loadWx(key).then(function (data) {
+          if (cty !== key || tab !== 'storm') return;
+          var box = $('wx-box');
+          if (box) box.innerHTML = wxHtml(data);
+        }).catch(function () {
+          if (cty !== key || tab !== 'storm') return;
+          var box = $('wx-box');
+          if (box) box.innerHTML = '<div class="muted">Could not load the forecast — check your connection and try again. Official met office links below still work.</div>';
+        });
+      }
+
+      /* ================= POWER 탭 ================= */
+      function cardPower() {
+        var c = C();
+        var html = '<div class="card"><h2>⚡ ' + esc(c.power.util) + ' — ' + c.flag + ' ' + esc(c.name) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(c.power.body) + '</p>' +
+          linksHtml(c.power.links) +
+          '<div class="note">Report your exact street after a storm — if neighbours have light and you don’t, your single service drop may be the only repair left on the list, and the utility may think your area is done.</div></div>';
+
+        html += '<div class="card"><h2>After the storm: downed lines</h2>' +
+          '<table class="tb"><tr><th>Rule</th><th>Why</th></tr>' +
+          '<tr><td class="c">STAY 10 m AWAY</td><td>Treat every downed or hanging line as live — lines are re-energised remotely without warning.</td></tr>' +
+          '<tr><td class="c">WATER = WIRE</td><td>Flood water touching a downed line can carry current metres from the cable.</td></tr>' +
+          '<tr><td class="c">NEVER MOVE IT</td><td>Not with wood, not with rope — insulation you improvise is not insulation.</td></tr>' +
+          '<tr><td class="c">GENERATOR OUTSIDE</td><td>Carbon monoxide kills quietly after storms; never run one indoors or near windows. Never backfeed the house wiring.</td></tr>' +
+          '<tr><td class="c">REPORT IT</td><td>Call the utility’s emergency line or use the official app/site — a reported line gets a crew, an unreported one doesn’t.</td></tr>' +
+          '</table></div>';
+
+        html += '<div class="card"><h2>Restoration order (why you might be last)</h2>' +
+          '<p class="muted" style="margin:2px 0 0">1. Generation &amp; transmission → 2. Substations → 3. Hospitals, water plants, airports → ' +
+          '4. Biggest feeders (thousands of customers per repair) → 5. Lateral lines → 6. Individual service drops. ' +
+          'The full explanation is in the article at the bottom of this page.</p></div>';
+        return html;
+      }
+
+      /* ================= MONEY 탭 ================= */
+      function cardMoney(fx) {
+        var c = C(), r = fx.rates;
+        var pegNote = '';
+        if (c.cur === 'BSD') pegNote = ' Pegged 1:1 to USD — any provider quoting a worse rate is charging a hidden margin.';
+        if (c.cur === 'BBD') pegNote = ' Pegged 2:1 to USD — any provider quoting a worse rate is charging a hidden margin.';
+        var html = '<div class="card"><h2>💱 ' + c.cur + ' today <span class="muted">(mid-market)</span></h2><div class="row">';
+        FX_SHOW.forEach(function (base) {
+          var v = convert(1, base, c.cur, r);
+          html += '<div class="kv"><div class="k">1 ' + base + '</div><div class="v">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + c.cur) + '</div></div>';
+        });
+        html += '</div><div class="muted" style="margin-top:6px">Updated: ' + esc(fx.date) + '</div>' +
+          '<div class="note">Mid-market reference rates only — bank, cambio and remittance rates differ.' + esc(pegNote) + '</div></div>';
+
+        /* 환전 계산기 */
+        var curList = [c.cur].concat(FX_SHOW.filter(function (x) { return x !== c.cur; }));
+        var opts = function (sel) { return curList.map(function (x) { return '<option' + (x === sel ? ' selected' : '') + '>' + x + '</option>'; }).join(''); };
+        html += '<div class="card"><h2>Converter</h2><form class="calc" id="cv-form">' +
+          '<div><label>Amount</label><input type="number" id="cv-amt" value="100" min="0" step="any" /></div>' +
+          '<div><label>From → To</label><div style="display:flex;gap:6px"><select id="cv-from">' + opts('USD') + '</select><select id="cv-to">' + opts(c.cur) + '</select></div></div>' +
+          '</form><div class="result" id="cv-out">—</div></div>';
+
+        /* 송금 실효비용 계산기 */
+        var mid = r[c.cur] || 0;
+        html += '<div class="card"><h2>US → ' + esc(c.name) + ' remittance true cost</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">The advertised fee is only part of the cost — most providers also take an exchange-rate margin. Enter what a provider quotes you (diaspora corridors: US, UK, Canada):</p>' +
+          '<form class="calc" id="rm-form">' +
+          '<div><label>You send (USD)</label><input type="number" id="rm-amt" value="200" min="1" step="any" /></div>' +
+          '<div><label>Provider fee (USD)</label><input type="number" id="rm-fee" value="5" min="0" step="any" /></div>' +
+          '<div class="full"><label>Provider’s rate (1 USD → ' + c.cur + ')</label><input type="number" id="rm-rate" step="any" placeholder="e.g. ' + (mid * 0.97).toFixed(2) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">Compared against today’s mid-market rate (1 USD = ' + mid.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + c.cur + '). ' +
+          'The UN SDG target for remittance cost is 3% — below that is a genuinely good deal.</div></div>';
+        return html;
+      }
+
+      function wireMoney(fx) {
+        var r = fx.rates, c = C();
+        var upd = function () {
+          var amt = +$('cv-amt').value, f = $('cv-from').value, to = $('cv-to').value;
+          var v = convert(amt, f, to, r);
+          $('cv-out').innerHTML = v == null ? '—' : esc(amt.toLocaleString('en')) + ' ' + f + ' = <b>' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + to + '</b>';
+        };
+        ['cv-amt', 'cv-from', 'cv-to'].forEach(function (id) { $(id).oninput = upd; $(id).onchange = upd; });
+        upd();
+        var updR = function () {
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, r[c.cur]);
+          $('rm-out').innerHTML = res == null ? '—' :
+            'Recipient gets <b>' + res.received.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + c.cur + '</b> · total cost <b class="' + (res.costPct > 6 ? 'crit' : res.costPct > 3 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b> vs mid-market';
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate'].forEach(function (id) { $(id).oninput = updR; });
+        updR();
+      }
+
+      /* ================= STATUS 탭 ================= */
+      function cardStatus() {
+        var c = C();
+        return '<div class="card"><h2>🗂 Official portals — ' + c.flag + ' ' + esc(c.name) + '</h2>' +
+          linksHtml(c.status) +
+          '<div class="note">These are the official portals — this page holds no personal data and performs no lookups itself. ' +
+          'Official checks (CXC results, passport status) are FREE: anyone charging to “unlock” them is a scam.</div></div>' +
+          '<div class="card"><h2>How to use them</h2>' +
+          '<table class="tb"><tr><th>Task</th><th>How</th></tr>' +
+          '<tr><td class="c">PASSPORT</td><td>Apply/renew on the immigration portal above; book the biometric appointment online where offered and bring the printed confirmation.</td></tr>' +
+          '<tr><td class="c">CXC RESULTS</td><td>results.cxc.org with the candidate credentials from your registration slip — free, usually live in August. (Bahamas: BJC/BGCSE via the Ministry of Education instead.)</td></tr>' +
+          '<tr><td class="c">TAX</td><td>Register for your taxpayer number first (TRN / BIR / TIN) — every other e-service hangs off it.</td></tr>' +
+          '<tr><td class="c">LICENCE</td><td>Renewals need your old licence + ID; in Barbados the Revenue Authority handles it, elsewhere the transport/licensing authority.</td></tr>' +
+          '</table></div>';
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ CARIB PANEL // island_ops terminal v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (mid-market FX) ............ [OK]</span>',
+        '<span class="t-dim">  wx: open-meteo.com forecast + marine ............... [OK]</span>',
+        '<span class="t-dim">  grid: JM · TT · BB · BS ............................ [OK]</span>',
+        '<span class="t-dim">  type <span class="t-hi">help</span> for commands · <span class="t-hi">cat 4</span> for the Cat 4 playbook</span>',
+      ];
+      var T_CMDS = {
+        help: {
+          d: 'list all commands',
+          f: function () {
+            var ks = Object.keys(T_CMDS);
+            return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) {
+              return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>';
+            }).join('\n');
+          },
+        },
+        banner: { d: 'show boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: {
+          d: 'what this terminal is',
+          f: function () {
+            return 'Daily-utility terminal for JM/TT/BB/BS — hurricane playbooks, live wind, FX, remittance math, power and gov portals.\nStatic page, no accounts; nothing you type leaves the browser.';
+          },
+        },
+        countries: {
+          d: 'list supported countries',
+          f: function () {
+            return CTY_ORDER.map(function (k) {
+              return '  ' + (k === cty ? '<span class="t-hi">▸ ' : '<span class="t-dim">  ') + k + '</span> ' + CTY[k].flag + ' ' + CTY[k].name + ' (' + CTY[k].cur + ')';
+            }).join('\n');
+          },
+        },
+        country: {
+          d: 'country <jm|tt|bb|bs> — switch',
+          f: function (a) {
+            var q = (a[0] || '').toLowerCase();
+            if (!CTY[q]) return 'usage: country jm | tt | bb | bs';
+            cty = q; store.set('cb:cty', cty);
+            var cs = $('cty-sel'); if (cs) cs.value = cty;
+            return 'switched → <span class="t-hi">' + CTY[q].flag + ' ' + CTY[q].name + '</span>';
+          },
+        },
+        cat: {
+          d: 'cat <1-5> — hurricane category playbook',
+          f: function (a) {
+            var n = parseInt(a[0], 10);
+            if (!SS_CATS[n]) return 'usage: cat 1 | 2 | 3 | 4 | 5';
+            var s = SS_CATS[n];
+            var head = n >= 3 ? '<span class="t-crit">' : '<span class="t-warn">';
+            return head + '=== CATEGORY ' + n + ' — ' + esc(s.wind) + ' ===</span>\n<span class="t-hi">' + esc(s.label) + '</span>\n' +
+              s.play.map(function (p, i) { return '  ' + (i + 1) + '. ' + esc(p); }).join('\n') +
+              '\n<span class="t-dim">wind scale only — surge and rain are judged separately, and often matter more</span>';
+          },
+        },
+        season: {
+          d: 'hurricane season prep timeline',
+          f: function () {
+            return '<span class="t-hi">=== ATLANTIC SEASON 1 JUN – 30 NOV · peak mid-Aug → mid-Oct ===</span>\n' +
+              '  <span class="t-hi">MAY   </span> service roof, trim trees near lines, photograph house for insurance\n' +
+              '  <span class="t-hi">JUN   </span> build the kit: 3+ days water (4 L/person/day), food, meds, cash, torch\n' +
+              '  <span class="t-hi">JUL   </span> dry-run the family plan; waterproof-bag the documents\n' +
+              '  <span class="t-warn">AUG-SEP</span> <span class="t-warn">PEAK</span> — check NHC outlook daily, tanks above half, kit stays full\n' +
+              '  <span class="t-hi">OCT   </span> stay alert: late systems form close (W Caribbean) = less lead time\n' +
+              '  <span class="t-hi">NOV   </span> season closes on the 30th — debrief, restock, store the kit dry';
+          },
+        },
+        storm: {
+          d: 'live wind & rain for the capital',
+          f: function () {
+            var key = cty;
+            return loadWx(key).then(function (data) {
+              var cur = data.fc.current;
+              var cat = ssCat(cur.wind_speed_10m);
+              return '<span class="t-hi">' + esc(CTY[key].capital) + '</span> — ' + Math.round(cur.temperature_2m) + '°C · wind <span class="t-hi">' +
+                Math.round(cur.wind_speed_10m) + ' km/h</span> · gusts <span class="t-hi">' + Math.round(cur.wind_gusts_10m) + ' km/h</span> · rain now ' + cur.precipitation + ' mm\n' +
+                (cat > 0 ? '<span class="t-crit">CATEGORY ' + cat + ' FORCE WIND AT THE STATION</span>' : '<span class="t-ok">below hurricane force</span>') +
+                '\n<span class="t-dim">open-meteo model forecast — official advisories override</span>';
+            });
+          },
+        },
+        fx: {
+          d: 'today’s mid-market rates',
+          f: function () {
+            return loadFx().then(function (fx) {
+              var c = CTY[cty];
+              return FX_SHOW.map(function (b) {
+                var v = convert(1, b, c.cur, fx.rates);
+                return '  1 ' + b + ' = <span class="t-hi">' + (v == null ? '—' : v.toLocaleString('en', { maximumFractionDigits: 2 })) + ' ' + c.cur + '</span>';
+              }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + ' · mid-market, not counter rate</span>';
+            });
+          },
+        },
+        rate: {
+          d: 'rate <CUR> — 1 USD in any currency',
+          f: function (a) {
+            var q = (a[0] || '').toUpperCase();
+            if (!q) return 'usage: rate JMD';
+            return loadFx().then(function (fx) {
+              return fx.rates[q] == null ? '<span class="t-crit">unknown currency</span>' : '1 USD = <span class="t-hi">' + fx.rates[q].toLocaleString('en') + ' ' + q + '</span>';
+            });
+          },
+        },
+        convert: {
+          d: 'convert <amt> <from> <to>',
+          f: function (a) {
+            var amt = +a[0], f2 = (a[1] || '').toUpperCase(), t2 = (a[2] || '').toUpperCase();
+            if (!(amt > 0) || !f2 || !t2) return 'usage: convert 100 USD JMD';
+            return loadFx().then(function (fx) {
+              var v = convert(amt, f2, t2, fx.rates);
+              return v == null ? '<span class="t-crit">unknown currency</span>' : amt.toLocaleString('en') + ' ' + f2 + ' = <span class="t-hi">' + v.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + t2 + '</span>';
+            });
+          },
+        },
+        remit: {
+          d: 'remit <sendUSD> <feeUSD> <rate> — true cost',
+          f: function (a) {
+            var s = +a[0], fe = +a[1], rt = +a[2];
+            if (!(s > 0) || !(rt > 0) || isNaN(fe)) return 'usage: remit 200 5 150';
+            return loadFx().then(function (fx) {
+              var mid = fx.rates[CTY[cty].cur];
+              var r = remitCost(s, fe, rt, mid);
+              if (!r) return '<span class="t-crit">bad inputs</span>';
+              var cl = r.costPct > 6 ? 't-crit' : r.costPct > 3 ? 't-warn' : 't-ok';
+              return 'recipient gets <span class="t-hi">' + r.received.toLocaleString('en', { maximumFractionDigits: 2 }) + ' ' + CTY[cty].cur + '</span> · true cost <span class="' + cl + '">' + r.costPct.toFixed(1) + '%</span> vs mid-market\n' +
+                '<span class="t-dim">UN SDG target is 3% — below that is a good corridor</span>';
+            });
+          },
+        },
+        links: {
+          d: 'curated official links (current country)',
+          f: function () {
+            var c = CTY[cty];
+            return '<span class="t-hi">' + c.flag + ' ' + esc(c.name) + ' — official links</span>\n' +
+              '<span class="t-dim">met / disaster:</span>\n' + tLinks(c.met) + '\n' +
+              '<span class="t-dim">power:</span>\n' + tLinks(c.power.links) + '\n' +
+              '<span class="t-dim">status portals:</span>\n' + tLinks(c.status);
+          },
+        },
+        power: { d: 'power outage info & links', f: function () { var c = CTY[cty]; return esc(c.power.body) + '\n' + tLinks(c.power.links); } },
+        status: { d: 'gov/exam status portals (current country)', f: function () { return tLinks(CTY[cty].status); } },
+        nhc: { d: 'National Hurricane Center links', f: function () { return '  ' + tLink('https://www.nhc.noaa.gov/', 'NHC — nhc.noaa.gov') + ' <span class="t-dim">— advisories & forecast cones</span>\n  ' + tLink('https://www.nhc.noaa.gov/gtwo.php', 'Tropical Weather Outlook') + ' <span class="t-dim">— formation chances, 7-day</span>'; } },
+        safety: {
+          d: 'post-storm safety basics',
+          f: function () {
+            return '  1. Treat EVERY downed line as live — stay 10 m away, report it\n' +
+              '  2. Flood water hides current, sewage and debris — do not wade or drive through\n' +
+              '  3. Generators stay outside, far from windows — CO kills quietly\n' +
+              '  4. Official checks (CXC, passport) are free — paid “unlockers” are scams';
+          },
+        },
+        sources: {
+          d: 'data sources',
+          f: function () {
+            return '  FX: open.er-api.com (mid-market, daily)\n  weather/marine: open-meteo.com (CC BY 4.0)\n  storm/power/status: official portals only (verified 2026-07)';
+          },
+        },
+        whoami: { d: 'who are you', f: function () { return 'user@' + CTY[cty].city + ' // ' + CTY[cty].flag + ' ' + CTY[cty].name + ' — stay ready, verify everything'; } },
+        version: { d: 'app version', f: function () { return 'carib-panel terminal v1.0 · static build · © broodev'; } },
+        exit: { d: 'leave terminal', f: function () { tab = 'storm'; store.set('cb:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@' + esc(C().city) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@' + esc(C().city) + ':~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      function render() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'storm') { view.innerHTML = cardStorm(); mountStorm(); return; }
+        if (tab === 'power') { view.innerHTML = cardPower(); return; }
+        if (tab === 'status') { view.innerHTML = cardStatus(); return; }
+        view.innerHTML = '<div class="loading">Loading rates …</div>';
+        loadFx().then(function (fx) {
+          view.innerHTML = cardMoney(fx);
+          wireMoney(fx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">Could not load exchange rates — check your connection and try again.</div></div>';
+        });
+      }
+
+      (function init() {
+        var cs = $('cty-sel');
+        CTY_ORDER.forEach(function (k) {
+          var o = document.createElement('option'); o.value = k; o.textContent = CTY[k].flag + ' ' + CTY[k].name; cs.appendChild(o);
+        });
+        cs.value = cty;
+        cs.onchange = function () { cty = cs.value; store.set('cb:cty', cty); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('cb:tab', tab); render(); };
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>

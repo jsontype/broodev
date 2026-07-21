@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STAN PANEL — деньги, документы, свет и USSD для Узбекистана, Кыргызстана и Таджикистана</title>
+    <meta name="description" content="Бесплатная панель для Центральной Азии: курс рубля к UZS/KGS/TJS и калькулятор перевода RUB домой, патент и миграционный учёт для работы в России, зимние отключения света в Таджикистане, USSD-коды Beeline/Ucell/MegaCom/Tcell." />
+    <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://stans.broodev.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="STAN PANEL — деньги · документы · свет · USSD" />
+    <meta name="twitter:description" content="Курс RUB→UZS/KGS/TJS, калькулятор перевода, патент и регистрация в России, зимние лимиты света, USSD-коды — одна быстрая страница." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="STAN PANEL — деньги · документы · свет · USSD" />
+    <meta property="og:description" content="Ежедневная панель для Узбекистана, Кыргызстана и Таджикистана: перевод RUB домой без скрытых потерь, патент по шагам, отключения света, USSD-коды." />
+    <meta property="og:url" content="https://stans.broodev.com/" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="STAN PANEL" />
+    <meta name="theme-color" content="#0a1420" />
+    <style>
+      :root {
+        --bg: #0a1420; --bg-soft: #0e1b2b; --panel: #122236; --line: #24405c;
+        --gold: #e8b64c; --gold-dim: #9a7a35; --text: #e8f0f8; --dim: #93aac2;
+        --blue: #7fc4ff; --green: #5bd68f; --warn: #ffd166; --crit: #ff6b6b;
+        --font: 'Consolas', 'Menlo', ui-monospace, monospace;
+        --ui: 'Segoe UI', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--ui); line-height: 1.6; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 14px 14px 80px; }
+      header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
+      .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--gold); letter-spacing: .5px; }
+      .brand small { color: var(--dim); font-weight: 400; }
+      .top .sp { flex: 1; }
+      .lang-btn { background: var(--panel); color: var(--blue); border: 1px solid var(--line); border-radius: 6px; font-size: 12px; font-family: var(--font); padding: 6px 10px; cursor: pointer; }
+      .lang-btn:hover { border-color: var(--gold); color: var(--gold); }
+      .sel { appearance: none; -webkit-appearance: none; background: var(--panel); color: var(--gold); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; padding: 6px 26px 6px 10px; cursor: pointer; background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: right 12px center, right 8px center; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; }
+      .sel option { background: var(--bg-soft); color: var(--text); }
+      nav.tabs { display: flex; gap: 6px; margin: 4px 0 14px; }
+      .tab { flex: 1; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 4px; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1.3; user-select: none; }
+      .tab b { display: block; font-family: var(--font); font-size: 12.5px; color: var(--text); }
+      .tab.on { border-color: var(--gold); color: var(--gold); background: #1a2c42; }
+      .tab.on b { color: var(--gold); }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+      .card h2 { margin: 0 0 8px; font-size: 14px; font-family: var(--font); color: var(--gold); letter-spacing: .5px; }
+      .muted { color: var(--dim); font-size: 12px; }
+      .big { font-size: 28px; font-weight: 800; line-height: 1.1; }
+      .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; }
+      .kv { min-width: 96px; }
+      .kv .k { font-size: 11px; color: var(--dim); letter-spacing: .5px; }
+      .kv .v { font-size: 16px; font-weight: 600; color: var(--blue); }
+      .ok { color: var(--green); } .warn { color: var(--warn); } .crit { color: var(--crit); }
+      .links a { display: block; color: var(--gold); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.07); font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .links a span { color: var(--dim); font-size: 12px; display: block; }
+      .note { background: rgba(232,182,76,.07); border-left: 3px solid var(--gold-dim); padding: 8px 12px; font-size: 12.5px; color: var(--dim); border-radius: 0 6px 6px 0; margin: 10px 0; }
+      table.codes { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      table.codes th { color: var(--dim); font-weight: 500; text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+      table.codes td { padding: 6px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+      table.codes td.c { font-family: var(--font); color: var(--green); font-weight: 700; white-space: nowrap; }
+      table.codes td a { color: var(--blue); text-decoration: none; }
+      form.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      form.calc label { font-size: 11.5px; color: var(--dim); display: block; margin-bottom: 3px; }
+      form.calc input, form.calc select { width: 100%; background: var(--bg-soft); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px; }
+      form.calc .full { grid-column: 1 / -1; }
+      .result { margin-top: 12px; padding: 10px 12px; background: var(--bg-soft); border-radius: 8px; font-size: 14px; }
+      .result b { color: var(--gold); }
+      .step { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px dashed rgba(255,255,255,.07); }
+      .step .n { font-family: var(--font); color: var(--gold); font-weight: 700; font-size: 16px; min-width: 22px; }
+      .step .t b { display: block; font-size: 13.5px; color: var(--blue); }
+      .step .t span { font-size: 12.5px; color: var(--dim); }
+      footer { margin-top: 26px; color: var(--dim); font-size: 12px; text-align: center; }
+      footer a { color: var(--gold-dim); }
+      .loading { color: var(--dim); font-size: 13px; padding: 6px 0; }
+      @media (max-width: 480px) { .big { font-size: 23px; } .tab { font-size: 9.5px; } }
+
+      /* ===== 해커 터미널 ===== */
+      .term { background: #050b12; border: 1px solid #24405c; border-radius: 8px; padding: 12px 12px 10px; font-family: var(--font); font-size: 13px; line-height: 1.5; position: relative; overflow: hidden; box-shadow: inset 0 0 40px rgba(232,182,76,.05); }
+      .term::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      #t-out { max-height: 46vh; min-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #ffdf9e; text-shadow: 0 0 6px rgba(232,182,76,.3); }
+      #t-out .t-dim { color: #6e86a0; text-shadow: none; }
+      #t-out .t-hi { color: #fef3d8; }
+      #t-out .t-warn { color: var(--warn); } #t-out .t-crit { color: var(--crit); } #t-out .t-ok { color: var(--green); }
+      #t-out a { color: #7fc4ff; }
+      .t-line { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+      .t-ps { color: var(--gold); white-space: nowrap; text-shadow: 0 0 6px rgba(232,182,76,.4); }
+      #t-in { flex: 1; background: transparent; border: 0; outline: none; color: #fef3d8; font-family: var(--font); font-size: 13px; caret-color: var(--gold); }
+      .seo { max-width: 760px; margin: 26px auto 0; padding: 0 14px; color: var(--dim); font-size: 13.5px; }
+      .seo h2 { color: var(--gold); font-size: 15px; font-family: var(--font); margin: 22px 0 6px; }
+      .seo a { color: var(--gold); }
+      .seo ul, .seo ol { padding-left: 18px; }
+      .seo table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+      .seo table th { text-align: left; color: var(--blue); border-bottom: 1px solid var(--line); padding: 4px 6px; font-weight: 600; }
+      .seo table td { padding: 4px 6px; border-bottom: 1px dashed rgba(255,255,255,.08); }
+      .seo strong { color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <span class="brand">▎STAN PANEL <small>· деньги · документы · свет · USSD</small></span>
+        <span class="sp"></span>
+        <button class="lang-btn" id="lang-btn" aria-label="Language">EN</button>
+        <select class="sel" id="cty-sel" aria-label="Страна"></select>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <div class="tab" data-tab="money"><b>💱</b><span></span></div>
+        <div class="tab" data-tab="docs"><b>🛂</b><span></span></div>
+        <div class="tab" data-tab="power"><b>⚡</b><span></span></div>
+        <div class="tab" data-tab="ussd"><b>📟</b><span></span></div>
+        <div class="tab" data-tab="term"><b>&gt;_TERM</b><span></span></div>
+      </nav>
+
+      <main id="view"></main>
+
+      <footer>
+        Курсы: open.er-api.com (мид-маркет, обновление раз в сутки) · Погода: open-meteo.com<br />
+        Информация носит справочный характер — всегда проверяйте официальные источники.<br />
+        Приватность: без аккаунтов и серверного хранения — настройки живут только в вашем браузере (localStorage).<br />
+        © 2026 broodev · Y-Systems · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a> · <a href="https://broodev.com/" rel="noopener">broodev.com</a>
+      </footer>
+    </div>
+
+    <!-- ===== 정적 SEO 본문 (JS 없이도 크롤러가 읽는 원본 콘텐츠) ===== -->
+    <section class="seo" aria-label="О STAN PANEL / About STAN PANEL">
+      <p>
+        <em>STAN PANEL is a free, data-light daily-utility page for Central Asia — <strong>Uzbekistan, Kyrgyzstan and Tajikistan</strong>.
+        It combines a RUB remittance cost calculator with live mid-market rates, a step-by-step Russian work-patent guide for labour
+        migrants, winter power-rationing information for Tajikistan, and verified USSD quick codes for the main mobile operators.
+        No app install, no account, works on cheap data. The reference content below is in Russian — the interface has an English toggle.</em>
+      </p>
+
+      <h2>Что такое STAN PANEL?</h2>
+      <p>
+        STAN PANEL — бесплатная лёгкая страница для повседневных задач жителей и трудовых мигрантов из
+        <strong>Узбекистана, Кыргызстана и Таджикистана</strong>. На одной вкладке — живой курс доллара и рубля к
+        <strong>UZS, KGS и TJS</strong> (мид-маркет, open.er-api.com) и калькулятор, который показывает
+        <strong>реальную стоимость перевода RUB домой</strong>: комиссию плюс скрытую маржу в курсе. На второй — понятный
+        разбор <strong>патента и миграционного учёта</strong> для работы в России с официальными ссылками. Дальше —
+        объяснение <strong>зимних лимитов электроэнергии в Таджикистане</strong> с текущей температурой в трёх столицах,
+        таблицы <strong>USSD-кодов</strong> по операторам и хакерский терминал для тех, кто любит командную строку.
+        Ни рекламы, ни регистрации — настройки хранятся только в вашем браузере.
+      </p>
+
+      <h2>Патент на работу в России: первые 30 дней после въезда</h2>
+      <p>
+        Гражданам Узбекистана и Таджикистана для легальной работы у российских работодателей нужен
+        <strong>патент</strong>. Ключевое правило: заявление на патент подаётся <strong>в течение 30 календарных дней
+        со дня въезда</strong> — при опоздании назначается штраф, а с некоторых пор документы могут вовсе не принять.
+        До подачи нужно успеть: получить миграционную карту с целью визита <strong>«работа»</strong> (её отмечают на границе —
+        исправить потом сложно), встать на миграционный учёт, пройти <strong>медкомиссию</strong> в уполномоченной организации,
+        сдать экзамен по русскому языку, истории и основам права, пройти <strong>дактилоскопию и фотографирование</strong>,
+        оформить полис ДМС и оплатить первый авансовый платёж НДФЛ. В Москве всё оформляется через ММЦ («Сахарово»),
+        в регионах — через подразделения по вопросам миграции МВД.
+      </p>
+
+      <h2>Ежемесячный платёж по патенту: сколько и как считается</h2>
+      <p>
+        Патент «живёт», пока оплачен <strong>фиксированный авансовый платёж НДФЛ</strong>. Сумма считается так:
+        базовая ставка 1 200 ₽ × коэффициент-дефлятор (устанавливается ежегодно) × региональный коэффициент
+        (устанавливается законом субъекта РФ). Поэтому в каждом регионе своя цена, и она меняется каждый год.
+        Ориентиры на 2026 год (<strong>суммы ориентировочные</strong> — точную цифру проверяйте на сайте ФНС
+        или регионального правительства перед оплатой):
+      </p>
+      <table>
+        <tr><th>Регион</th><th>Платёж в месяц (ориентировочно)</th></tr>
+        <tr><td>Москва</td><td>≈ 8 900 – 9 500 ₽</td></tr>
+        <tr><td>Московская область</td><td>≈ 8 500 – 9 200 ₽</td></tr>
+        <tr><td>Санкт-Петербург и Ленинградская область</td><td>≈ 4 600 – 5 400 ₽</td></tr>
+        <tr><td>Большинство остальных регионов</td><td>≈ 5 000 – 9 000 ₽</td></tr>
+      </table>
+      <p>
+        Платить можно через банк по реквизитам ФНС региона, терминалы и онлайн-банки. <strong>Храните все чеки</strong> —
+        это единственное доказательство, что патент действовал в конкретный месяц.
+      </p>
+
+      <h2>Чем грозит просрочка платежа по патенту</h2>
+      <p>
+        Самая частая и самая дорогая ошибка. Патент прекращает действовать <strong>со дня, следующего за последним
+        оплаченным днём</strong> — не с конца месяца и не после предупреждения. Просрочка даже на один день означает:
+        патент аннулирован, работа стала нелегальной, а восстановить документ нельзя — только оформлять заново
+        (новая медкомиссия, экзамен, платежи). Работа без действующего патента — штраф порядка
+        <strong>5 000 – 7 000 ₽</strong> с возможным <strong>административным выдворением</strong> и запретом на въезд
+        на несколько лет. Практические правила: платите минимум <strong>за 3–5 дней до даты выдачи патента</strong>
+        (именно она, а не первое число месяца, задаёт цикл), можно оплатить сразу несколько месяцев вперёд,
+        и сверяйте назначение платежа — ошибка в реквизитах равна неоплате.
+      </p>
+
+      <h2>Как реально сравнить стоимость перевода RUB → домой</h2>
+      <p>
+        Провайдеры переводов зарабатывают дважды: на <strong>комиссии</strong>, которую видно, и на
+        <strong>марже в обменном курсе</strong>, которую не видно. «Комиссия 0%» почти всегда означает, что курс
+        провайдера хуже мид-маркета на 1–4%. Честное сравнение делается так: возьмите сумму в рублях, узнайте
+        <strong>сколько сумов/сомов/сомони реально получит семья</strong>, и сравните с суммой по мид-маркет курсу.
+        Формула: полная стоимость % = (сумма × мид-курс − фактически получено) ÷ (сумма × мид-курс) × 100.
+        Пример: отправляете 10 000 ₽ при мид-курсе 1 ₽ = 155 UZS. По мид-маркету это 1 550 000 сумов.
+        Если семья получает 1 480 000 — полная стоимость перевода <strong>4,5%</strong>, сколько бы ни обещала реклама.
+        Калькулятор на вкладке «Деньги» считает это автоматически по сегодняшнему курсу.
+      </p>
+
+      <h2>Системы переводов из России: что учитывать</h2>
+      <p>
+        Основные каналы перевода RUB в Центральную Азию — специализированные системы денежных переводов и
+        банковские карты. Комиссии ниже указаны <strong>ориентировочно</strong> и меняются: всегда проверяйте
+        итоговую сумму к получению перед подтверждением перевода.
+      </p>
+      <table>
+        <tr><th>Канал</th><th>Как работает</th><th>Комиссия (ориентировочно)</th></tr>
+        <tr><td><a href="https://koronapay.com/" rel="noopener">Золотая Корона</a></td><td>Выдача наличными или на карту в банках-партнёрах UZ/KG/TJ</td><td>Часто 0–1% при выдаче в нацвалюте — маржа сидит в курсе</td></tr>
+        <tr><td><a href="https://unistream.ru/" rel="noopener">Юнистрим</a></td><td>Сеть пунктов выдачи и партнёрских банков</td><td>≈ 0–1,5% + курсовая маржа</td></tr>
+        <tr><td>Банковские карты / переводы по номеру</td><td>Перевод на карту местного банка, если банк поддерживает</td><td>Зависит от банка; смотрите курс конвертации RUB→нацвалюта</td></tr>
+      </table>
+      <p>
+        Правило одно: сравнивайте не «комиссию», а <strong>сумму к получению</strong> при одинаковой отправляемой сумме.
+      </p>
+
+      <h2>Миграционный учёт (регистрация): сроки и штрафы</h2>
+      <p>
+        После въезда в Россию иностранный гражданин должен встать на <strong>миграционный учёт по месту пребывания</strong>.
+        Общее правило — <strong>7 рабочих дней</strong>, но по межправительственным соглашениям сроки длиннее:
+        граждане государств ЕАЭС (в том числе <strong>Кыргызстана</strong>) — до 30 суток, для граждан
+        <strong>Таджикистана</strong> действует увеличенный срок по двустороннему соглашению (проверяйте актуальную
+        редакцию). Регистрацию оформляет <strong>принимающая сторона</strong> — собственник жилья, гостиница или
+        работодатель; уведомление можно подать через МФЦ, почту или Госуслуги. Проживание без учёта — штраф
+        порядка 2 000 – 5 000 ₽ (в Москве и Санкт-Петербурге до 7 000 ₽) с риском выдворения при повторном
+        нарушении. «Резиновые» адреса, купленные регистрации без реального проживания — уголовный риск для
+        принимающей стороны и аннулирование документов для мигранта.
+      </p>
+
+      <h2>Кыргызстан и ЕАЭС: почему гражданам КР патент не нужен</h2>
+      <p>
+        Кыргызстан — член <strong>Евразийского экономического союза</strong> (с 2015 года), поэтому его граждане
+        работают в России <strong>без патента и без разрешения на работу</strong> — достаточно трудового или
+        гражданско-правового договора. Срок постановки на миграционный учёт для работающих граждан ЕАЭС — до
+        30 суток, а действующий договор позволяет продлевать пребывание на срок его действия. Узбекистан и
+        Таджикистан в ЕАЭС не входят, поэтому их гражданам патент обязателен. Это главная развилка, которую
+        стоит понимать при переезде: гражданин КР экономит и деньги (ежемесячные платежи по патенту), и время
+        (медкомиссия и экзамен для патента не требуются), но регистрация и полис ДМС нужны всем.
+      </p>
+
+      <h2>Зимние ограничения электроэнергии в Таджикистане: почему и когда</h2>
+      <p>
+        Таджикистан получает <strong>более 90% электроэнергии от гидроэлектростанций</strong>, прежде всего от
+        Нурекской ГЭС. Зимой приток воды в реки падает в разы, а потребление, наоборот, достигает пика —
+        отопление в стране во многом электрическое. Разрыв покрывают <strong>лимитами</strong>: энергохолдинг
+        «Барки Точик» вводит графики подачи, обычно <strong>с конца сентября–октября до конца марта–апреля</strong>.
+        В типичный лимитный сезон в сельской местности электричество подают по несколько часов утром и вечером;
+        Душанбе и крупные города ограничивают мягче или не ограничивают вовсе. Точные графики меняются от года
+        к году в зависимости от водности — следите за объявлениями «Барки Точик» и местных властей. Достройка
+        Рогунской ГЭС постепенно увеличивает зимнюю выработку, но пока сезонные лимиты остаются реальностью.
+      </p>
+
+      <h2>USSD-коды операторов: Узбекистан, Кыргызстан, Таджикистан</h2>
+      <p>
+        Быстрые коды — самый дешёвый способ проверить баланс без приложения и интернета.
+        <strong>Коды меняются</strong> — если код не сработал, сверьтесь с сайтом оператора.
+      </p>
+      <table>
+        <tr><th>Страна</th><th>Оператор</th><th>Баланс</th><th>Сайт</th></tr>
+        <tr><td>🇺🇿 UZ</td><td>Beeline</td><td>*102#</td><td><a href="https://beeline.uz/" rel="noopener">beeline.uz</a></td></tr>
+        <tr><td>🇺🇿 UZ</td><td>Ucell</td><td>*100#</td><td><a href="https://ucell.uz/" rel="noopener">ucell.uz</a></td></tr>
+        <tr><td>🇺🇿 UZ</td><td>Mobiuz (быв. UMS)</td><td>*100#</td><td><a href="https://mobi.uz/" rel="noopener">mobi.uz</a></td></tr>
+        <tr><td>🇰🇬 KG</td><td>Beeline</td><td>*102#</td><td><a href="https://beeline.kg/" rel="noopener">beeline.kg</a></td></tr>
+        <tr><td>🇰🇬 KG</td><td>MegaCom</td><td>*100#</td><td><a href="https://megacom.kg/" rel="noopener">megacom.kg</a></td></tr>
+        <tr><td>🇰🇬 KG</td><td>O!</td><td>*111#</td><td><a href="https://o.kg/" rel="noopener">o.kg</a></td></tr>
+        <tr><td>🇹🇯 TJ</td><td>Tcell</td><td>*111#</td><td><a href="https://tcell.tj/" rel="noopener">tcell.tj</a></td></tr>
+        <tr><td>🇹🇯 TJ</td><td>MegaFon TJ</td><td>*100#</td><td><a href="https://megafon.tj/" rel="noopener">megafon.tj</a></td></tr>
+        <tr><td>🇹🇯 TJ</td><td>Babilon-Mobile</td><td>*121#</td><td><a href="https://babilon-m.tj/" rel="noopener">babilon-m.tj</a></td></tr>
+      </table>
+      <p>
+        Никогда не сообщайте PIN и коды из SMS «сотрудникам оператора» — операторы их не спрашивают.
+      </p>
+
+      <h2>Официальные источники, которыми стоит пользоваться</h2>
+      <p>
+        Всё, что касается статуса документов, проверяйте только на официальных ресурсах — «проверка запрета на
+        въезд за деньги» на сторонних сайтах почти всегда развод. Главные адреса:
+        <a href="https://гувм.мвд.рф/" rel="noopener">ГУВМ МВД России</a> (миграция, патенты, проверка запрета
+        на въезд), <a href="https://www.gosuslugi.ru/" rel="noopener">Госуслуги</a> (уведомления, записи),
+        <a href="https://mc.mos.ru/" rel="noopener">ММЦ Москвы («Сахарово»)</a> (оформление патента в Москве),
+        <a href="https://www.nalog.gov.ru/" rel="noopener">ФНС России</a> (реквизиты и суммы платежей по патенту),
+        <a href="http://www.barqitojik.tj/" rel="noopener">Барки Точик</a> (энергоснабжение Таджикистана),
+        <a href="https://minenergy.uz/" rel="noopener">Минэнерго Узбекистана</a> и
+        <a href="https://severelectro.kg/" rel="noopener">Северэлектро</a> (отключения в Бишкеке и Чуйской области).
+        STAN PANEL не хранит персональные данные и не делает проверок за вас — только даёт верные ссылки.
+      </p>
+
+      <h2>Часто задаваемые вопросы (FAQ)</h2>
+      <p><strong>Нужен ли патент гражданам Кыргызстана?</strong><br />
+        Нет. Кыргызстан входит в ЕАЭС, поэтому его граждане работают в России по трудовому или гражданско-правовому
+        договору без патента. Миграционный учёт и полис ДМС при этом обязательны.</p>
+      <p><strong>Что будет, если просрочить ежемесячный платёж по патенту?</strong><br />
+        Патент автоматически прекращает действовать со дня, следующего за последним оплаченным. Восстановить его
+        нельзя — придётся оформлять новый. Работа с недействующим патентом грозит штрафом и выдворением,
+        поэтому платите за несколько дней до даты выдачи патента.</p>
+      <p><strong>Как узнать точную сумму платежа по патенту в моём регионе?</strong><br />
+        Сумма = 1 200 ₽ × коэффициент-дефлятор × региональный коэффициент, оба меняются ежегодно.
+        Точную цифру смотрите на сайте ФНС России или регионального правительства — суммы в таблицах в интернете
+        быстро устаревают.</p>
+      <p><strong>Какой способ перевода денег домой самый выгодный?</strong><br />
+        Тот, при котором семья получает больше при той же отправленной сумме. Сравнивайте не комиссию, а итоговую
+        сумму к получению против мид-маркет курса — калькулятор на вкладке «Деньги» показывает полную стоимость
+        перевода в процентах.</p>
+      <p><strong>Почему зимой в Таджикистане отключают свет?</strong><br />
+        Более 90% электроэнергии страны дают ГЭС. Зимой приток воды минимален, а потребление максимально, поэтому
+        «Барки Точик» вводит лимиты — обычно с осени до конца марта–апреля. Города страдают меньше, сёла — сильнее.</p>
+      <p><strong>Правда ли, что миграционную карту с целью «работа» нельзя исправить позже?</strong><br />
+        Цель визита фиксируется при въезде, и патент выдают только при цели «работа». Исправление на практике
+        означает выезд и повторный въезд, поэтому проверяйте отметку сразу на границе.</p>
+    </section>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "STAN PANEL",
+        "alternateName": "Стан Панель — деньги, документы, свет и USSD для Центральной Азии",
+        "url": "https://stans.broodev.com/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "inLanguage": ["ru", "en"],
+        "isAccessibleForFree": true,
+        "publisher": { "@type": "Organization", "name": "Y-Systems", "url": "https://broodev.com/" },
+        "featureList": "Калькулятор стоимости перевода RUB в UZS/KGS/TJS, живые курсы валют, гид по патенту и миграционному учёту в России, зимние отключения света в Таджикистане, USSD-коды операторов, хакерский терминал"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Нужен ли патент гражданам Кыргызстана?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Нет. Кыргызстан входит в ЕАЭС, поэтому его граждане работают в России по трудовому или гражданско-правовому договору без патента. Миграционный учёт и полис ДМС при этом обязательны." }
+          },
+          {
+            "@type": "Question",
+            "name": "Что будет, если просрочить ежемесячный платёж по патенту?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Патент автоматически прекращает действовать со дня, следующего за последним оплаченным. Восстановить его нельзя — придётся оформлять новый. Работа с недействующим патентом грозит штрафом и выдворением, поэтому платите за несколько дней до даты выдачи патента." }
+          },
+          {
+            "@type": "Question",
+            "name": "Как узнать точную сумму платежа по патенту в моём регионе?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Сумма равна 1 200 рублей, умноженным на коэффициент-дефлятор и региональный коэффициент; оба меняются ежегодно. Точную цифру смотрите на сайте ФНС России или регионального правительства." }
+          },
+          {
+            "@type": "Question",
+            "name": "Какой способ перевода денег домой самый выгодный?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Тот, при котором семья получает больше при той же отправленной сумме. Сравнивайте не комиссию, а итоговую сумму к получению против мид-маркет курса — скрытая маржа в курсе часто дороже комиссии." }
+          },
+          {
+            "@type": "Question",
+            "name": "Почему зимой в Таджикистане отключают свет?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Более 90% электроэнергии Таджикистана дают гидроэлектростанции. Зимой приток воды минимален, а потребление максимально, поэтому Барки Точик вводит лимиты подачи — обычно с осени до конца марта или апреля." }
+          },
+          {
+            "@type": "Question",
+            "name": "Правда ли, что миграционную карту с целью «работа» нельзя исправить позже?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Цель визита фиксируется при въезде, и патент выдают только при цели «работа». Исправление на практике означает выезд и повторный въезд, поэтому проверяйте отметку сразу на границе." }
+          }
+        ]
+      }
+    </script>
+
+    <script>
+      'use strict';
+
+      /* ================= 언어 번들 ================= */
+      var T = {
+        ru: {
+          tabMoney: '💱 ДЕНЬГИ', tabMoneyS: 'курс · перевод',
+          tabDocs: '🛂 ДОКУМЕНТЫ', tabDocsS: 'патент · учёт',
+          tabPower: '⚡ СВЕТ', tabPowerS: 'отключения',
+          tabUssd: '📟 USSD', tabUssdS: 'коды',
+          tabTerm: '>_TERM', tabTermS: 'терминал',
+          loading: 'Загружаем курсы …',
+          fxFail: 'Не удалось загрузить курсы — попробуйте позже.',
+          ratesH: '💱 Курс сегодня — ', midMarket: '(мид-маркет)',
+          updated: 'Обновлено: ',
+          ratesNote: 'Только справочные мид-маркет курсы. Курсы провайдеров переводов и обменников отличаются — сравнивайте сумму к получению.',
+          calcH: 'Калькулятор перевода RUB → ',
+          calcIntro: 'Провайдер зарабатывает на комиссии И на марже в курсе. Введите, что вам предлагают:',
+          lSend: 'Отправляете (RUB)', lFee: 'Комиссия (RUB)',
+          lRate: 'Курс провайдера (1 RUB → ',
+          recGets: 'Семья получит ', totalCost: ' · полная стоимость ', vsMid: ' от мид-маркета',
+          calcNote1: 'Сравнение с сегодняшним мид-маркетом (1 RUB = ',
+          calcNote2: '). Ниже 2% — хороший перевод, выше 5% — ищите другой канал.',
+          sysH: 'Системы переводов',
+          sysNote: 'Комиссии указаны ориентировочно и меняются. Итоговую сумму к получению всегда проверяйте перед подтверждением перевода.',
+          cbankH: 'Официальный курс — центральный банк',
+          cbankNote: 'Центробанк публикует официальный курс — он близок к мид-маркету и удобен как ориентир при споре с обменником.',
+          sys: [
+            ['https://koronapay.com/', 'Золотая Корона (KoronaPay)', 'Выдача наличными/на карту в банках-партнёрах · комиссия часто 0–1%, маржа в курсе (ориентировочно)'],
+            ['https://unistream.ru/', 'Юнистрим', 'Сеть пунктов выдачи · комиссия ≈ 0–1,5% + курсовая маржа (ориентировочно)'],
+            ['https://www.gosuslugi.ru/', 'Банковские карты / переводы по номеру', 'Если местный банк поддерживает — сверяйте курс конвертации банка (ориентировочно)'],
+          ],
+          docsH: '🛂 Работа в России — документы',
+          stepsH: '5 шагов после въезда (для патента)',
+          steps: [
+            ['Миграционная карта — цель «работа»', 'Отмечается при въезде. Без цели «работа» патент не выдадут, исправить потом почти невозможно.'],
+            ['Миграционный учёт (регистрация)', 'Общее правило — 7 рабочих дней; для граждан ЕАЭС до 30 суток. Оформляет принимающая сторона.'],
+            ['Медкомиссия + экзамен + дактилоскопия', 'Только уполномоченные медорганизации; экзамен по русскому, истории и праву; отпечатки и фото.'],
+            ['Патент — подача в течение 30 дней с въезда', 'ММЦ (в Москве — «Сахарово») или подразделения МВД. Плюс полис ДМС и первый платёж НДФЛ.'],
+            ['Ежемесячный платёж — не опаздывать', 'Патент гаснет со дня после последнего оплаченного. Платите за 3–5 дней до даты выдачи патента, храните чеки.'],
+          ],
+          docsLinksH: 'Официальные ссылки',
+          docsLinks: [
+            ['https://гувм.мвд.рф/', 'ГУВМ МВД России', 'Патенты, миграционный учёт, проверка запрета на въезд'],
+            ['https://www.gosuslugi.ru/', 'Госуслуги', 'Уведомления, записи, справки'],
+            ['https://mc.mos.ru/', 'ММЦ Москвы («Сахарово»)', 'Оформление патента в Москве'],
+            ['https://www.nalog.gov.ru/', 'ФНС России', 'Суммы и реквизиты платежей по патенту'],
+          ],
+          docsNote: 'Суммы платежей и сроки меняются — перед оплатой проверяйте региональный коэффициент на сайте ФНС. Не покупайте «готовые» регистрации и медсправки: это аннулирование документов и запрет на въезд.',
+          finesH: 'Чем грозят нарушения (ориентировочно)',
+          finesCols: ['Нарушение', 'Последствие'],
+          fines: [
+            ['Просрочка платежа по патенту', 'Патент аннулирован со следующего дня; восстановлению не подлежит'],
+            ['Работа без патента / не по патенту', '≈ 5 000–7 000 ₽ + возможное выдворение и запрет на въезд'],
+            ['Проживание без миграционного учёта', '≈ 2 000–5 000 ₽ (Москва/СПб до 7 000 ₽), при повторе — выдворение'],
+            ['Просрочка подачи на патент (30 дней)', 'Штраф ≈ 10 000–15 000 ₽; документы могут не принять'],
+          ],
+          finesNote: 'Суммы штрафов — по КоАП РФ, ориентировочно; точные санкции зависят от региона и обстоятельств.',
+          wxH: '🌡 Температура сейчас',
+          wxFail: 'Погода недоступна — попробуйте позже.',
+          wxNote: 'Зимой (октябрь–март) при низких температурах в Таджикистане действуют лимиты электроэнергии — смотрите объявления «Барки Точик».',
+          powerH: '⚡ Свет и отключения — ',
+          powerNote: 'Графики меняются без предупреждения — официальные источники выше всегда главнее.',
+          ussdH: '📟 USSD-коды — ',
+          ussdCols: ['Оператор', 'Код', 'Назначение'],
+          ussdNote: 'Коды меняются — проверяйте на сайте оператора, если код не сработал. Никогда не сообщайте PIN и коды из SMS.',
+          ussdVerified: 'Сверено 2026-07, но коды меняются — проверяйте.',
+        },
+        en: {
+          tabMoney: '💱 MONEY', tabMoneyS: 'FX · remit',
+          tabDocs: '🛂 DOCS', tabDocsS: 'patent · reg.',
+          tabPower: '⚡ POWER', tabPowerS: 'outages',
+          tabUssd: '📟 USSD', tabUssdS: 'codes',
+          tabTerm: '>_TERM', tabTermS: 'terminal',
+          loading: 'Loading rates …',
+          fxFail: 'Could not load exchange rates — try again later.',
+          ratesH: '💱 Rates today — ', midMarket: '(mid-market)',
+          updated: 'Updated: ',
+          ratesNote: 'Mid-market reference rates only. Transfer providers and exchange offices quote different rates — compare the amount received.',
+          calcH: 'Remittance calculator RUB → ',
+          calcIntro: 'Providers earn on the fee AND the exchange-rate margin. Enter what you are quoted:',
+          lSend: 'You send (RUB)', lFee: 'Fee (RUB)',
+          lRate: 'Provider rate (1 RUB → ',
+          recGets: 'Family receives ', totalCost: ' · total cost ', vsMid: ' vs mid-market',
+          calcNote1: 'Compared against today\u2019s mid-market (1 RUB = ',
+          calcNote2: '). Under 2% is a good deal; over 5% — look for another channel.',
+          sysH: 'Transfer systems',
+          sysNote: 'Fees are indicative and change. Always verify the final amount received before confirming a transfer.',
+          cbankH: 'Official rate — central bank',
+          cbankNote: 'The central bank publishes an official rate — close to mid-market and a handy reference when arguing with an exchange office.',
+          sys: [
+            ['https://koronapay.com/', 'Zolotaya Korona (KoronaPay)', 'Cash/card payout via partner banks · fee often 0–1%, margin sits in the rate (indicative)'],
+            ['https://unistream.ru/', 'Unistream', 'Payout point network · fee ≈ 0–1.5% + FX margin (indicative)'],
+            ['https://www.gosuslugi.ru/', 'Bank cards / transfers by phone number', 'If the local bank supports it — check the bank\u2019s conversion rate (indicative)'],
+          ],
+          docsH: '🛂 Working in Russia — documents',
+          stepsH: '5 steps after entry (for the patent)',
+          steps: [
+            ['Migration card — purpose "work"', 'Marked at the border. Without purpose "work" no patent is issued; fixing it later is nearly impossible.'],
+            ['Migration registration', 'General rule — 7 working days; EAEU citizens get up to 30 days. Filed by your host (landlord/employer).'],
+            ['Medical exam + language test + fingerprints', 'Authorised medical centres only; Russian language/history/law exam; fingerprinting and photo.'],
+            ['Patent — apply within 30 days of entry', 'Migration centre (Moscow: "Sakharovo") or MVD offices. Plus health insurance and the first tax payment.'],
+            ['Monthly payment — never late', 'The patent dies the day after the last paid day. Pay 3–5 days before your patent issue date; keep all receipts.'],
+          ],
+          docsLinksH: 'Official links',
+          docsLinks: [
+            ['https://гувм.мвд.рф/', 'GUVM MVD Russia', 'Patents, migration registration, entry-ban check'],
+            ['https://www.gosuslugi.ru/', 'Gosuslugi', 'Notifications, appointments, certificates'],
+            ['https://mc.mos.ru/', 'Moscow Migration Centre ("Sakharovo")', 'Patent processing in Moscow'],
+            ['https://www.nalog.gov.ru/', 'Federal Tax Service', 'Patent payment amounts and details'],
+          ],
+          docsNote: 'Payment amounts and deadlines change — verify the regional coefficient on the tax service site before paying. Never buy "ready" registrations or medical certificates: that means cancelled documents and an entry ban.',
+          finesH: 'What violations cost (indicative)',
+          finesCols: ['Violation', 'Consequence'],
+          fines: [
+            ['Late monthly patent payment', 'Patent void from the next day; cannot be restored'],
+            ['Working without / outside a patent', '≈ 5,000–7,000 ₽ + possible deportation and entry ban'],
+            ['Living without migration registration', '≈ 2,000–5,000 ₽ (Moscow/SPb up to 7,000 ₽); repeat — deportation'],
+            ['Missing the 30-day patent deadline', 'Fine ≈ 10,000–15,000 ₽; application may be refused'],
+          ],
+          finesNote: 'Fine amounts follow the Russian administrative code and are indicative; exact sanctions depend on region and circumstances.',
+          wxH: '🌡 Temperature now',
+          wxFail: 'Weather unavailable — try again later.',
+          wxNote: 'In winter (October–March), low temperatures in Tajikistan mean electricity rationing — watch Barqi Tojik announcements.',
+          powerH: '⚡ Power & outages — ',
+          powerNote: 'Schedules change without notice — the official sources above are always authoritative.',
+          ussdH: '📟 USSD codes — ',
+          ussdCols: ['Operator', 'Code', 'What it does'],
+          ussdNote: 'Codes change — verify on the operator\u2019s site if a code fails. Never share your PIN or SMS codes.',
+          ussdVerified: 'Checked 2026-07, but codes change — verify.',
+        },
+      };
+
+      /* ================= 국가 데이터 (링크는 2026-07 기준 공식 도메인) ================= */
+      var CTY = {
+        uz: {
+          cur: 'UZS', flag: '🇺🇿', host: 'tashkent',
+          name: { ru: 'Узбекистан', en: 'Uzbekistan' },
+          capital: { ru: 'Ташкент', en: 'Tashkent' },
+          lat: 41.2995, lon: 69.2401,
+          docsNote: {
+            ru: 'Гражданам Узбекистана патент ОБЯЗАТЕЛЕН (Узбекистан не в ЕАЭС). Подача — в течение 30 дней с въезда. Запрет на въезд проверяйте только на сайте ГУВМ МВД.',
+            en: 'Uzbek citizens MUST get a patent (Uzbekistan is not in the EAEU). Apply within 30 days of entry. Check entry bans only on the official GUVM MVD site.',
+          },
+          power: {
+            ru: 'Отключения в Узбекистане в основном локальные: ремонты сетей и пиковые нагрузки (зимой — газ и электричество одновременно). Графики публикуют региональные электросети и хокимияты.',
+            en: 'Outages in Uzbekistan are mostly local: grid repairs and peak loads (in winter, gas and electricity peak together). Schedules come from regional grid companies and local authorities.',
+          },
+          powerLinks: [
+            ['https://minenergy.uz/', 'Минэнерго Узбекистана / Ministry of Energy', 'Официальные объявления по энергоснабжению'],
+            ['https://my.gov.uz/', 'my.gov.uz', 'Единый портал госуслуг Узбекистана'],
+          ],
+          ussd: [
+            ['Beeline UZ', '*102#', { ru: 'Баланс', en: 'Balance' }],
+            ['Beeline UZ', '*110#', { ru: 'Меню услуг и пакетов', en: 'Services & bundles menu' }],
+            ['Ucell', '*100#', { ru: 'Баланс', en: 'Balance' }],
+            ['Ucell', '*111#', { ru: 'Меню услуг', en: 'Services menu' }],
+            ['Mobiuz (быв. UMS)', '*100#', { ru: 'Баланс', en: 'Balance' }],
+            ['Mobiuz (быв. UMS)', '*111#', { ru: 'Меню услуг', en: 'Services menu' }],
+          ],
+          sites: [['https://beeline.uz/', 'beeline.uz'], ['https://ucell.uz/', 'ucell.uz'], ['https://mobi.uz/', 'mobi.uz']],
+          cbank: ['https://cbu.uz/', { ru: 'ЦБ Узбекистана (cbu.uz)', en: 'Central Bank of Uzbekistan (cbu.uz)' }],
+        },
+        kg: {
+          cur: 'KGS', flag: '🇰🇬', host: 'bishkek',
+          name: { ru: 'Кыргызстан', en: 'Kyrgyzstan' },
+          capital: { ru: 'Бишкек', en: 'Bishkek' },
+          lat: 42.8746, lon: 74.5698,
+          docsNote: {
+            ru: 'Кыргызстан — член ЕАЭС: патент НЕ нужен, работа по трудовому/ГПХ договору. Миграционный учёт — до 30 суток, полис ДМС обязателен.',
+            en: 'Kyrgyzstan is an EAEU member: NO patent needed — work under an employment/civil contract. Migration registration within 30 days; health insurance is mandatory.',
+          },
+          power: {
+            ru: 'Энергосистема Кыргызстана зависит от Токтогульской ГЭС: в маловодные годы зимой вводят графики отключений. Плановые работы по Бишкеку и Чуйской области публикует «Северэлектро».',
+            en: 'Kyrgyzstan\u2019s grid depends on the Toktogul hydro plant: in low-water years, winter outage schedules appear. Severelectro publishes planned works for Bishkek and Chuy region.',
+          },
+          powerLinks: [
+            ['https://severelectro.kg/', 'Северэлектро / Severelectro', 'Плановые отключения — Бишкек и Чуйская область'],
+            ['https://minenergo.gov.kg/', 'Минэнерго КР / Ministry of Energy', 'Официальные объявления по энергосистеме'],
+          ],
+          ussd: [
+            ['Beeline KG', '*102#', { ru: 'Баланс', en: 'Balance' }],
+            ['Beeline KG', '*110#', { ru: 'Меню услуг', en: 'Services menu' }],
+            ['MegaCom', '*100#', { ru: 'Баланс', en: 'Balance' }],
+            ['MegaCom', '*111#', { ru: 'Меню услуг', en: 'Services menu' }],
+            ['O!', '*111#', { ru: 'Баланс', en: 'Balance' }],
+            ['O!', '*505#', { ru: 'Меню услуг', en: 'Services menu' }],
+          ],
+          sites: [['https://beeline.kg/', 'beeline.kg'], ['https://megacom.kg/', 'megacom.kg'], ['https://o.kg/', 'o.kg']],
+          cbank: ['https://www.nbkr.kg/', { ru: 'Нацбанк КР (nbkr.kg)', en: 'National Bank of the Kyrgyz Republic (nbkr.kg)' }],
+        },
+        tj: {
+          cur: 'TJS', flag: '🇹🇯', host: 'dushanbe',
+          name: { ru: 'Таджикистан', en: 'Tajikistan' },
+          capital: { ru: 'Душанбе', en: 'Dushanbe' },
+          lat: 38.5598, lon: 68.787,
+          docsNote: {
+            ru: 'Гражданам Таджикистана патент ОБЯЗАТЕЛЕН (Таджикистан не в ЕАЭС). Действует соглашение о двойном гражданстве с Россией; сроки учёта — по двустороннему соглашению, проверяйте актуальные правила.',
+            en: 'Tajik citizens MUST get a patent (Tajikistan is not in the EAEU). A dual-citizenship agreement with Russia exists; registration deadlines follow a bilateral agreement — verify current rules.',
+          },
+          power: {
+            ru: 'Более 90% электроэнергии Таджикистана — от ГЭС. Зимой (обычно с конца сентября–октября до конца марта–апреля) «Барки Точик» вводит лимиты: в сёлах свет подают по несколько часов утром и вечером, Душанбе ограничивают мягче.',
+            en: 'Over 90% of Tajikistan\u2019s electricity is hydro. In winter (usually late September/October to late March/April) Barqi Tojik imposes rationing: villages get a few hours morning and evening; Dushanbe is restricted less.',
+          },
+          powerLinks: [
+            ['http://www.barqitojik.tj/', 'Барки Точик / Barqi Tojik', 'Национальный энергохолдинг — объявления о лимитах'],
+          ],
+          ussd: [
+            ['Tcell', '*111#', { ru: 'Баланс', en: 'Balance' }],
+            ['Tcell', '*100#', { ru: 'Меню услуг', en: 'Services menu' }],
+            ['MegaFon TJ', '*100#', { ru: 'Баланс', en: 'Balance' }],
+            ['MegaFon TJ', '*105#', { ru: 'Меню услуг', en: 'Services menu' }],
+            ['Babilon-Mobile', '*121#', { ru: 'Баланс', en: 'Balance' }],
+            ['Babilon-Mobile', '*505#', { ru: 'Меню услуг', en: 'Services menu' }],
+          ],
+          sites: [['https://tcell.tj/', 'tcell.tj'], ['https://megafon.tj/', 'megafon.tj'], ['https://babilon-m.tj/', 'babilon-m.tj']],
+          cbank: ['https://nbt.tj/', { ru: 'Нацбанк Таджикистана (nbt.tj)', en: 'National Bank of Tajikistan (nbt.tj)' }],
+        },
+      };
+      var CTY_ORDER = ['uz', 'kg', 'tj'];
+
+      /* __PURE_START__ 순수 로직 */
+      /* 송금 실효 비용: 보낸 RUB·수수료·제시 환율 vs 미드마켓 환율 → 수취액과 총 비용% */
+      function remitCost(sendRub, feeRub, offeredRate, midRate) {
+        if (!(sendRub > 0) || !(offeredRate > 0) || !(midRate > 0) || feeRub < 0 || feeRub >= sendRub) return null;
+        var received = (sendRub - feeRub) * offeredRate;
+        var midValue = sendRub * midRate;
+        var costPct = ((midValue - received) / midValue) * 100;
+        return { received: received, costPct: costPct };
+      }
+      /* 환전: amount × (rates[to]/rates[from]) — rates 는 USD 기준 */
+      function convert(amount, from, to, rates) {
+        if (!(amount > 0) || rates[from] == null || rates[to] == null) return null;
+        return amount * (rates[to] / rates[from]);
+      }
+      /* __PURE_END__ */
+
+      /* ================= 상태 ================= */
+      var store = {
+        get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      };
+      var qsLang = null;
+      try { qsLang = new URLSearchParams(location.search).get('lang'); } catch (e) {}
+      var LANG = qsLang === 'en' || qsLang === 'ru' ? qsLang : store.get('st:lang', 'ru');
+      if (LANG !== 'en') LANG = 'ru';
+      var cty = store.get('st:cty', 'uz'); if (!CTY[cty]) cty = 'uz';
+      var tab = store.get('st:tab', 'money');
+      var fxCache = null; // { rates, date, at }
+      var wxCache = null; // { temps: {uz,kg,tj}, at }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var C = function () { return CTY[cty]; };
+      var t = function (k) { return T[LANG][k] != null ? T[LANG][k] : T.ru[k]; };
+      var L = function (obj) { return obj[LANG] != null ? obj[LANG] : obj.ru; };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+      var fmt = function (n, d) { return n.toLocaleString(LANG === 'ru' ? 'ru' : 'en', { maximumFractionDigits: d == null ? 0 : d }); };
+
+      /* FX — open.er-api.com (키 불필요·CORS 개방·일 1회 갱신), 로컬 60분 캐시 + localStorage 폴백 */
+      function loadFx() {
+        if (fxCache && Date.now() - fxCache.at < 60 * 60 * 1000) return Promise.resolve(fxCache);
+        return fetch('https://open.er-api.com/v6/latest/USD')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            if (j.result !== 'success' || !j.rates) throw new Error('bad payload');
+            fxCache = { rates: j.rates, date: j.time_last_update_utc, at: Date.now() };
+            store.set('st:fx', { rates: j.rates, date: j.time_last_update_utc });
+            return fxCache;
+          })
+          .catch(function () {
+            var c = store.get('st:fx', null);
+            if (c) { fxCache = { rates: c.rates, date: c.date + ' (cached)', at: Date.now() }; return fxCache; }
+            throw new Error('fx unavailable');
+          });
+      }
+
+      /* 날씨 — open-meteo.com (키 불필요), 3개 수도 일괄 조회, 30분 캐시 + localStorage 폴백 */
+      function loadWx() {
+        if (wxCache && Date.now() - wxCache.at < 30 * 60 * 1000) return Promise.resolve(wxCache);
+        var lats = CTY_ORDER.map(function (k) { return CTY[k].lat; }).join(',');
+        var lons = CTY_ORDER.map(function (k) { return CTY[k].lon; }).join(',');
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons + '&current=temperature_2m&timezone=auto';
+        return fetch(url)
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (j) {
+            var arr = Array.isArray(j) ? j : [j];
+            var temps = {};
+            CTY_ORDER.forEach(function (k, i) {
+              var cur = arr[i] && arr[i].current;
+              temps[k] = cur && typeof cur.temperature_2m === 'number' ? cur.temperature_2m : null;
+            });
+            wxCache = { temps: temps, at: Date.now() };
+            store.set('st:wx', { temps: temps });
+            return wxCache;
+          })
+          .catch(function () {
+            var c = store.get('st:wx', null);
+            if (c) { wxCache = { temps: c.temps, at: Date.now(), stale: true }; return wxCache; }
+            throw new Error('wx unavailable');
+          });
+      }
+
+      /* ================= 공용 렌더 ================= */
+      function linksHtml(list) {
+        return '<div class="links">' + list.map(function (l) {
+          return '<a href="' + l[0] + '" target="_blank" rel="noopener">' + esc(l[1]) + '<span>' + esc(l[2]) + '</span></a>';
+        }).join('') + '</div>';
+      }
+
+      /* ===== 💱 ДЕНЬГИ ===== */
+      function cardMoney(fx) {
+        var c = C(), r = fx.rates;
+        var vUsd = convert(1, 'USD', c.cur, r);
+        var vRub = convert(1, 'RUB', c.cur, r);
+        var html = '<div class="card"><h2>' + t('ratesH') + c.cur + ' <span class="muted">' + t('midMarket') + '</span></h2><div class="row">' +
+          '<div class="kv"><div class="k">1 USD</div><div class="v">' + (vUsd == null ? '—' : fmt(vUsd, 0) + ' ' + c.cur) + '</div></div>' +
+          '<div class="kv"><div class="k">1 RUB</div><div class="v">' + (vRub == null ? '—' : fmt(vRub, 2) + ' ' + c.cur) + '</div></div>' +
+          '<div class="kv"><div class="k">10 000 RUB</div><div class="v">' + (vRub == null ? '—' : fmt(vRub * 10000, 0) + ' ' + c.cur) + '</div></div>' +
+          '</div><div class="muted" style="margin-top:6px">' + t('updated') + esc(fx.date) + '</div>' +
+          '<div class="note">' + t('ratesNote') + '</div></div>';
+
+        /* 송금 계산기: RUB → 현지 통화 */
+        html += '<div class="card"><h2>' + t('calcH') + c.cur + '</h2>' +
+          '<p class="muted" style="margin:2px 0 6px">' + t('calcIntro') + '</p>' +
+          '<form class="calc" id="rm-form" onsubmit="return false">' +
+          '<div><label>' + t('lSend') + '</label><input type="number" id="rm-amt" value="10000" min="1" step="any" /></div>' +
+          '<div><label>' + t('lFee') + '</label><input type="number" id="rm-fee" value="100" min="0" step="any" /></div>' +
+          '<div class="full"><label>' + t('lRate') + c.cur + ')</label><input type="number" id="rm-rate" step="any" placeholder="' + (vRub == null ? '' : (vRub * 0.97).toFixed(2)) + '" /></div>' +
+          '</form><div class="result" id="rm-out">—</div>' +
+          '<div class="note">' + t('calcNote1') + (vRub == null ? '—' : fmt(vRub, 2) + ' ' + c.cur) + t('calcNote2') + '</div></div>';
+
+        /* 송금 시스템 디렉토리 */
+        html += '<div class="card"><h2>' + t('sysH') + '</h2>' + linksHtml(t('sys')) +
+          '<div class="note">' + t('sysNote') + '</div></div>';
+
+        /* 중앙은행 공식 환율 */
+        html += '<div class="card"><h2>' + t('cbankH') + '</h2><div class="links">' +
+          '<a href="' + c.cbank[0] + '" target="_blank" rel="noopener">' + esc(L(c.cbank[1])) + '<span>' + t('cbankNote') + '</span></a>' +
+          '</div></div>';
+        return html;
+      }
+
+      function wireMoney(fx) {
+        var c = C(), mid = convert(1, 'RUB', c.cur, fx.rates);
+        var upd = function () {
+          var res = remitCost(+$('rm-amt').value, +$('rm-fee').value, +$('rm-rate').value, mid);
+          $('rm-out').innerHTML = res == null ? '—' :
+            t('recGets') + '<b>' + fmt(Math.round(res.received), 0) + ' ' + c.cur + '</b>' + t('totalCost') +
+            '<b class="' + (res.costPct > 5 ? 'crit' : res.costPct > 2 ? 'warn' : 'ok') + '">' + res.costPct.toFixed(1) + '%</b>' + t('vsMid');
+        };
+        ['rm-amt', 'rm-fee', 'rm-rate'].forEach(function (id) { $(id).oninput = upd; });
+        upd();
+      }
+
+      /* ===== 🛂 ДОКУМЕНТЫ ===== */
+      function cardDocs() {
+        var c = C();
+        var html = '<div class="card"><h2>' + t('docsH') + ' · ' + c.flag + ' ' + esc(L(c.name)) + '</h2>' +
+          '<div class="note">' + esc(L(c.docsNote)) + '</div></div>';
+        html += '<div class="card"><h2>' + t('stepsH') + '</h2>' +
+          t('steps').map(function (s, i) {
+            return '<div class="step"><div class="n">' + (i + 1) + '</div><div class="t"><b>' + esc(s[0]) + '</b><span>' + esc(s[1]) + '</span></div></div>';
+          }).join('') + '</div>';
+        html += '<div class="card"><h2>' + t('finesH') + '</h2>' +
+          '<table class="codes"><tr><th>' + t('finesCols')[0] + '</th><th>' + t('finesCols')[1] + '</th></tr>' +
+          t('fines').map(function (f) { return '<tr><td>' + esc(f[0]) + '</td><td>' + esc(f[1]) + '</td></tr>'; }).join('') +
+          '</table><div class="note">' + t('finesNote') + '</div></div>';
+        html += '<div class="card"><h2>' + t('docsLinksH') + '</h2>' + linksHtml(t('docsLinks')) +
+          '<div class="note">' + t('docsNote') + '</div></div>';
+        return html;
+      }
+
+      /* ===== ⚡ СВЕТ ===== */
+      function cardPower() {
+        var c = C();
+        var html = '<div class="card"><h2>' + t('wxH') + '</h2><div class="row" id="wx-row"><span class="loading">…</span></div>' +
+          '<div class="note">' + t('wxNote') + '</div></div>';
+        html += '<div class="card"><h2>' + t('powerH') + c.flag + ' ' + esc(L(c.name)) + '</h2>' +
+          '<p style="font-size:13.5px;margin:4px 0 8px">' + esc(L(c.power)) + '</p>' +
+          linksHtml(c.powerLinks) +
+          '<div class="note">' + t('powerNote') + '</div></div>';
+        return html;
+      }
+
+      function wirePower() {
+        loadWx().then(function (wx) {
+          var row = $('wx-row');
+          if (!row) return;
+          row.innerHTML = CTY_ORDER.map(function (k) {
+            var v = wx.temps[k];
+            var hot = k === cty;
+            return '<div class="kv"><div class="k">' + CTY[k].flag + ' ' + esc(L(CTY[k].capital)) + '</div>' +
+              '<div class="v"' + (hot ? ' style="color:var(--gold)"' : '') + '>' + (v == null ? '—' : (v > 0 ? '+' : '') + Math.round(v) + '°C') + '</div></div>';
+          }).join('') + (wx.stale ? '<span class="muted">(cached)</span>' : '');
+        }).catch(function () {
+          var row = $('wx-row');
+          if (row) row.innerHTML = '<span class="muted">' + t('wxFail') + '</span>';
+        });
+      }
+
+      /* ===== 📟 USSD ===== */
+      function cardUssd() {
+        var c = C(), cols = t('ussdCols');
+        var rows = c.ussd.map(function (u) {
+          return '<tr><td>' + esc(u[0]) + '</td><td class="c">' + esc(u[1]) + '</td><td>' + esc(L(u[2])) + '</td></tr>';
+        }).join('');
+        var sites = c.sites.map(function (s) { return '<a href="' + s[0] + '" target="_blank" rel="noopener">' + esc(s[1]) + '</a>'; }).join(' · ');
+        return '<div class="card"><h2>' + t('ussdH') + c.flag + ' ' + esc(L(c.name)) + '</h2>' +
+          '<p class="muted" style="margin:2px 0 8px">' + t('ussdVerified') + '</p>' +
+          '<table class="codes"><tr><th>' + cols[0] + '</th><th>' + cols[1] + '</th><th>' + cols[2] + '</th></tr>' + rows + '</table>' +
+          '<p class="muted" style="margin:8px 0 0">' + sites + '</p>' +
+          '<div class="note">' + t('ussdNote') + '</div></div>';
+      }
+
+      /* ================= 해커 터미널 ================= */
+      var tBuf = [], tHist = [], tHistIdx = -1;
+      function tFlush() { var o = $('t-out'); if (!o) return; o.innerHTML = tBuf.join('\n'); o.scrollTop = 99999; }
+      function tPrint(s) { tBuf.push(s); tFlush(); }
+      function tLink(u, label) { return '<a href="' + u + '" target="_blank" rel="noopener">' + esc(label || u) + '</a>'; }
+      function tLinks(list) { return list.map(function (l) { return '  ' + tLink(l[0], l[1]) + ' <span class="t-dim">— ' + esc(l[2]) + '</span>'; }).join('\n'); }
+      var T_BANNER = [
+        '<span class="t-hi">  ███ STAN PANEL // терминал v1.0</span>',
+        '<span class="t-dim">  uplink: open.er-api.com (мид-маркет FX) ....... [OK]</span>',
+        '<span class="t-dim">  weather: open-meteo.com ....................... [OK]</span>',
+        '<span class="t-dim">  grid: UZ · KG · TJ ............................ [OK]</span>',
+        '<span class="t-dim">  введите <span class="t-hi">help</span> — список команд · <span class="t-hi">country kg</span> — сменить страну</span>',
+      ];
+      var T_CMDS = {
+        help: { d: 'список команд / list commands', f: function () { var ks = Object.keys(T_CMDS); return '<span class="t-hi">' + ks.length + ' commands:</span>\n' + ks.map(function (k) { return '  <span class="t-hi">' + k.padEnd(10) + '</span> <span class="t-dim">' + T_CMDS[k].d + '</span>'; }).join('\n'); } },
+        banner: { d: 'показать баннер / boot banner', f: function () { return T_BANNER.join('\n'); } },
+        clear: { d: 'очистить экран / clear screen', f: function () { tBuf = []; tFlush(); return ''; } },
+        about: { d: 'что это / what this is', f: function () { return 'STAN PANEL — деньги, документы, свет и USSD для UZ/KG/TJ.\nСтатическая страница, без аккаунтов; ничего из введённого не покидает браузер.'; } },
+        fx: { d: 'курс для текущей страны / rates', f: function () { return loadFx().then(function (fx) { var c = C(); var vU = convert(1, 'USD', c.cur, fx.rates), vR = convert(1, 'RUB', c.cur, fx.rates); return '  1 USD = <span class="t-hi">' + (vU == null ? '—' : fmt(vU, 0)) + ' ' + c.cur + '</span>\n  1 RUB = <span class="t-hi">' + (vR == null ? '—' : fmt(vR, 2)) + ' ' + c.cur + '</span>\n  10 000 RUB = <span class="t-hi">' + (vR == null ? '—' : fmt(vR * 10000, 0)) + ' ' + c.cur + '</span>\n<span class="t-dim">' + esc(fx.date) + ' · мид-маркет, не курс провайдера</span>'; }); } },
+        kurs: { d: 'все курсы UZS/KGS/TJS / all rates', f: function () { return loadFx().then(function (fx) { return CTY_ORDER.map(function (k) { var c2 = CTY[k]; var vU = convert(1, 'USD', c2.cur, fx.rates), vR = convert(1, 'RUB', c2.cur, fx.rates); return '  ' + c2.flag + ' <span class="t-hi">' + c2.cur + '</span>  1 USD = <span class="t-hi">' + (vU == null ? '—' : fmt(vU, 0)) + '</span>  ·  1 RUB = <span class="t-hi">' + (vR == null ? '—' : fmt(vR, 2)) + '</span>'; }).join('\n') + '\n<span class="t-dim">' + esc(fx.date) + '</span>'; }); } },
+        patent: { d: 'патент по шагам / patent steps', f: function () { var s = T[LANG].steps; return '<span class="t-hi">ПАТЕНТ — 5 шагов:</span>\n' + s.map(function (x, i) { return '  ' + (i + 1) + '. <span class="t-hi">' + esc(x[0]) + '</span>\n     <span class="t-dim">' + esc(x[1]) + '</span>'; }).join('\n') + '\n<span class="t-warn">просрочка платежа = патент аннулирован со следующего дня</span>'; } },
+        links: { d: 'официальные ссылки / official links', f: function () { var c = C(); return '<span class="t-hi">' + c.flag + ' ' + esc(L(c.name)) + ':</span>\n' + tLinks(T[LANG].docsLinks) + '\n' + tLinks(c.powerLinks); } },
+        ussd: { d: 'USSD-коды текущей страны / codes', f: function () { var c = C(); return '<span class="t-hi">' + c.flag + ' ' + esc(L(c.name)) + ':</span>\n' + c.ussd.map(function (u) { return '  <span class="t-hi">' + esc(u[1]).padEnd(8) + '</span> ' + esc(u[0]) + ' <span class="t-dim">— ' + esc(L(u[2])) + '</span>'; }).join('\n') + '\n<span class="t-warn">коды меняются — проверяйте на сайте оператора</span>'; } },
+        temp: { d: 'температура в трёх столицах / weather', f: function () { return loadWx().then(function (wx) { return CTY_ORDER.map(function (k) { var v = wx.temps[k]; return '  ' + CTY[k].flag + ' ' + esc(L(CTY[k].capital)).padEnd(10) + ' <span class="t-hi">' + (v == null ? '—' : (v > 0 ? '+' : '') + Math.round(v) + '°C') + '</span>'; }).join('\n') + '\n<span class="t-dim">open-meteo.com · зимой минус = лимиты света в TJ</span>'; }); } },
+        countries: { d: 'список стран / list countries', f: function () { return CTY_ORDER.map(function (k) { return '  ' + (k === cty ? '<span class="t-hi">▸ ' : '<span class="t-dim">  ') + k + '</span> ' + CTY[k].flag + ' ' + esc(L(CTY[k].name)) + ' (' + CTY[k].cur + ')'; }).join('\n'); } },
+        country: { d: 'country <uz|kg|tj> — сменить страну', f: function (a) { var q = (a[0] || '').toLowerCase(); if (!CTY[q]) return 'usage: country uz | kg | tj'; cty = q; store.set('st:cty', cty); return 'switched → <span class="t-hi">' + CTY[q].flag + ' ' + esc(L(CTY[q].name)) + '</span>'; } },
+        sources: { d: 'источники данных / data sources', f: function () { return '  FX: open.er-api.com (мид-маркет, раз в сутки)\n  погода: open-meteo.com\n  документы/свет: только официальные порталы\n  USSD: сайты операторов (сверено 2026-07)'; } },
+        whoami: { d: 'кто вы / who you are', f: function () { return 'user@' + C().host + ' // ' + C().flag + ' ' + esc(L(C().name)) + ' — проверяйте всё по официальным источникам'; } },
+        version: { d: 'версия / app version', f: function () { return 'stan-panel terminal v1.0 · static build · © broodev'; } },
+        lang: { d: 'lang <ru|en> — язык интерфейса', f: function (a) { var q = (a[0] || '').toLowerCase(); if (q !== 'ru' && q !== 'en') return 'usage: lang ru | lang en'; setLang(q); return 'language → <span class="t-hi">' + q + '</span>'; } },
+        exit: { d: 'выйти из терминала / leave', f: function () { tab = 'money'; store.set('st:tab', tab); render(); return ''; } },
+      };
+      function termHtml() {
+        return '<div class="card" style="padding:10px"><div class="term"><div id="t-out"></div>' +
+          '<div class="t-line"><span class="t-ps">user@' + esc(C().host) + ':~$</span><input id="t-in" autocomplete="off" spellcheck="false" aria-label="terminal input" /></div></div></div>';
+      }
+      function termRun(line) {
+        var parts = line.trim().split(/\s+/), name = (parts[0] || '').toLowerCase(), args = parts.slice(1);
+        if (!name) return;
+        tPrint('<span class="t-dim">user@' + esc(C().host) + ':~$</span> ' + esc(line));
+        var c = T_CMDS[name];
+        if (!c) { tPrint('<span class="t-crit">command not found:</span> ' + esc(name) + ' — try <span class="t-hi">help</span>'); return; }
+        var r;
+        try { r = c.f(args); } catch (e) { tPrint('<span class="t-crit">error:</span> ' + esc(e.message)); return; }
+        if (r && typeof r.then === 'function') {
+          tPrint('<span class="t-dim">… fetching</span>');
+          r.then(function (s) { tBuf.pop(); if (s) tPrint(s); else tFlush(); }).catch(function () { tBuf.pop(); tPrint('<span class="t-crit">fetch failed</span>'); });
+        } else if (r) tPrint(r);
+      }
+      function mountTerm() {
+        if (!tBuf.length) tBuf = T_BANNER.slice();
+        tFlush();
+        var inp = $('t-in');
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') { var v = inp.value; inp.value = ''; if (v.trim()) { tHist.unshift(v); tHistIdx = -1; } termRun(v); }
+          else if (e.key === 'ArrowUp') { if (tHistIdx < tHist.length - 1) { tHistIdx++; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { if (tHistIdx > -1) { tHistIdx--; inp.value = tHist[tHistIdx] || ''; } e.preventDefault && e.preventDefault(); }
+        };
+        try { inp.focus(); } catch (e) {}
+      }
+
+      /* ================= 마운트 ================= */
+      var TAB_KEYS = { money: ['tabMoney', 'tabMoneyS'], docs: ['tabDocs', 'tabDocsS'], power: ['tabPower', 'tabPowerS'], ussd: ['tabUssd', 'tabUssdS'], term: ['tabTerm', 'tabTermS'] };
+      function renderTabs() {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          var keys = TAB_KEYS[el.dataset.tab];
+          el.querySelector('b').textContent = t(keys[0]);
+          el.querySelector('span').textContent = t(keys[1]);
+          el.classList.toggle('on', el.dataset.tab === tab);
+        });
+      }
+      function renderCtySel() {
+        var cs = $('cty-sel');
+        cs.innerHTML = '';
+        CTY_ORDER.forEach(function (k) {
+          var o = document.createElement('option');
+          o.value = k;
+          o.textContent = CTY[k].flag + ' ' + L(CTY[k].name);
+          cs.appendChild(o);
+        });
+        cs.value = cty;
+      }
+      function render() {
+        renderTabs();
+        var view = $('view');
+        if (tab === 'term') { view.innerHTML = termHtml(); mountTerm(); return; }
+        if (tab === 'docs') { view.innerHTML = cardDocs(); return; }
+        if (tab === 'power') { view.innerHTML = cardPower(); wirePower(); return; }
+        if (tab === 'ussd') { view.innerHTML = cardUssd(); return; }
+        view.innerHTML = '<div class="loading">' + t('loading') + '</div>';
+        loadFx().then(function (fx) {
+          if (tab !== 'money') return;
+          view.innerHTML = cardMoney(fx);
+          wireMoney(fx);
+        }).catch(function () {
+          view.innerHTML = '<div class="card"><div class="muted">' + t('fxFail') + '</div></div>';
+        });
+      }
+      function setLang(l) {
+        LANG = l === 'en' ? 'en' : 'ru';
+        store.set('st:lang', LANG);
+        document.documentElement.lang = LANG;
+        $('lang-btn').textContent = LANG === 'ru' ? 'EN' : 'RU';
+        renderCtySel();
+        render();
+      }
+
+      (function init() {
+        document.documentElement.lang = LANG;
+        $('lang-btn').textContent = LANG === 'ru' ? 'EN' : 'RU';
+        $('lang-btn').onclick = function () { setLang(LANG === 'ru' ? 'en' : 'ru'); };
+        renderCtySel();
+        $('cty-sel').onchange = function () { cty = $('cty-sel').value; store.set('st:cty', cty); render(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el) {
+          el.onclick = function () { tab = el.dataset.tab; store.set('st:tab', tab); render(); };
+        });
+        render();
+      })();
+    </script>
+  </body>
+</html>
