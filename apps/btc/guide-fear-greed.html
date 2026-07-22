@@ -20,6 +20,24 @@
           "광고가 게재되는 화면"의 콘텐츠가 얇았다.) -->
     <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+    <style>
+      /* 라이브 차트(종이 질감) 전용 — 나머지는 content.css를 그대로 사용 */
+      .bd-figs { margin: 26px 0 10px; }
+      .bd-fig { margin: 0 0 18px; }
+      .bd-chart { background: #f6f5f0; border: 1px solid #d8d4c4; border-radius: 6px; padding: 10px 10px 6px; }
+      .bd-pane { position: relative; }
+      .bd-pane + .bd-pane { margin-top: 8px; border-top: 1px dashed #d8d4c4; padding-top: 8px; }
+      .bd-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 2px 6px; }
+      .bd-title { color: #1f2620; font-size: 12.5px; font-weight: 700; }
+      .bd-legend { display: inline-flex; flex-wrap: wrap; gap: 3px 12px; font-size: 11px; color: #4c5449; margin-left: auto; }
+      .bd-legend i { display: inline-block; width: 13px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+      .bd-svg { display: block; width: 100%; }
+      .bd-tip { position: absolute; z-index: 5; pointer-events: none; background: rgba(31, 38, 32, 0.94); color: #f6f5f0; border-radius: 4px; padding: 5px 8px; font-size: 11px; line-height: 1.65; white-space: nowrap; }
+      .bd-tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+      .bd-loading, .bd-err { color: #6b7268; font-size: 12px; padding: 48px 10px; text-align: center; }
+      .bd-err { color: #9c4a38; }
+      .bd-cap { color: #5f776e; font-size: 11.5px; line-height: 1.7; margin: 6px 2px 0; }
+    </style>
   </head>
   <body>
     <main class="wrap">
@@ -49,6 +67,22 @@
           <li><a href="#never">이 지표를 믿으면 안 되는 상황</a></li>
         </ol>
       </div>
+
+      <section class="bd-figs" aria-label="공포·탐욕 지수 라이브 차트">
+        <p class="muted">Alternative.me 공개 API의 공포·탐욕 지수 전체 이력입니다. 본문에서 말하는 “공포 구간에서의 체류”가 실제로 얼마나 길게 이어지는지, 하루짜리 공포와 한 달짜리 공포가 어떻게 다른지 먼저 눈에 담으세요.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-fng-hist" class="bd-pane"><div class="bd-loading">차트 데이터를 불러오는 중…</div></div>
+          </div>
+          <p class="bd-cap">공포·탐욕 지수 전체 이력(2018~). 초록 음영 = 25 이하(극단적 공포), 빨강 음영 = 75 이상(극단적 탐욕). 데이터: Alternative.me Fear &amp; Greed API — 방문 시점에 받아 그린 <strong>근사치·참고용</strong>입니다.</p>
+        </div>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-fng-90" class="bd-pane"><div class="bd-loading">차트 데이터를 불러오는 중…</div></div>
+          </div>
+          <p class="bd-cap">최근 90일 상세 — 오늘의 지수가 어느 구간에서 움직이고 있는지 확인용. 데이터: Alternative.me Fear &amp; Greed API — 방문 시점에 받아 그린 <strong>근사치·참고용</strong>입니다.</p>
+        </div>
+      </section>
 
       <h2 id="why">왜 공포지수만 보면 망하는가</h2>
       <p>
@@ -194,5 +228,422 @@
       <hr />
       <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
     </main>
+    <script>
+(function () {
+  'use strict';
+  if (!window.fetch || !window.localStorage) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var DAY = 86400000;
+  var HALVINGS = [Date.UTC(2012, 10, 28), Date.UTC(2016, 6, 9), Date.UTC(2020, 4, 11), Date.UTC(2024, 3, 19)];
+  var INK = '#26302b', GRID = '#e3e0d2', AXIS = '#6b7268', ORANGE = '#e08a2e';
+  var GREEN = '#2f7d4f', RED = '#b23a2e', BLUE = '#3a6ea5';
+
+  function el(n, attrs, parent) {
+    var e = document.createElementNS(NS, n);
+    if (attrs) { for (var k in attrs) e.setAttribute(k, attrs[k]); }
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function fmtDate(t) { var d = new Date(t); return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()); }
+  function fmtUsd(v) {
+    if (v >= 1000) return '$' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    if (v >= 1) return '$' + v.toFixed(2);
+    return '$' + v.toFixed(4);
+  }
+  function fmtUsdShort(v) {
+    if (v >= 1e6) return '$' + (v / 1e6) + 'M';
+    if (v >= 1000) return '$' + (v / 1000) + 'k';
+    return '$' + v;
+  }
+  function fmtNum(v) { var a = Math.abs(v); if (a >= 1000) return (v / 1000).toFixed(1) + 'k'; return String(Math.round(v * 100) / 100); }
+
+  function getCache(key, ttlMs) {
+    try {
+      var raw = localStorage.getItem(key);
+      if (!raw) return null;
+      var o = JSON.parse(raw);
+      if (!o || !o.t || !o.d || !o.d.length) return null;
+      if (Date.now() - o.t > ttlMs) return null;
+      return o.d;
+    } catch (e) { return null; }
+  }
+  function setCache(key, d) { try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: d })); } catch (e) { /* 저장 실패(용량 초과 등)는 무시 — 캐시는 선택 사항 */ } }
+
+  function loadSeries(key, url, parse, done, fail) {
+    var cached = getCache(key, 6 * 3600 * 1000);
+    if (cached) { done(cached); return; }
+    fetch(url)
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function (j) {
+        var pts = parse(j);
+        if (!pts || pts.length < 30) throw new Error('empty');
+        setCache(key, pts);
+        done(pts);
+      })
+      .catch(function () {
+        var stale = getCache(key, Infinity);
+        if (stale) done(stale); else fail();
+      });
+  }
+  function loadBtcPrices(done, fail) {
+    loadSeries('bd.cm.btc.priceusd.v1',
+      'https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceUSD&frequency=1d&page_size=10000',
+      function (j) {
+        var rows = (j && j.data) || [], out = [];
+        for (var i = 0; i < rows.length; i++) {
+          var t = Date.parse(rows[i].time), p = parseFloat(rows[i].PriceUSD);
+          if (isFinite(t) && isFinite(p) && p > 0) out.push([t, p]);
+        }
+        out.sort(function (a, b) { return a[0] - b[0]; });
+        return out;
+      }, done, fail);
+  }
+  function loadFng(done, fail) {
+    loadSeries('bd.fng.history.v1', 'https://api.alternative.me/fng/?limit=0',
+      function (j) {
+        var rows = (j && j.data) || [], out = [];
+        for (var i = 0; i < rows.length; i++) {
+          var t = parseInt(rows[i].timestamp, 10) * 1000, v = parseFloat(rows[i].value);
+          if (isFinite(t) && isFinite(v)) out.push([t, v]);
+        }
+        out.sort(function (a, b) { return a[0] - b[0]; });
+        return out;
+      }, done, fail);
+  }
+
+  function sma(pts, n) {
+    var out = [], sum = 0;
+    for (var i = 0; i < pts.length; i++) {
+      sum += pts[i][1];
+      if (i >= n) sum -= pts[i - n][1];
+      if (i >= n - 1) out.push([pts[i][0], sum / n]);
+    }
+    return out;
+  }
+  function ema(pts, n) {
+    if (pts.length < n) return [];
+    var k = 2 / (n + 1), seed = 0, i;
+    for (i = 0; i < n; i++) seed += pts[i][1];
+    seed /= n;
+    var out = [[pts[n - 1][0], seed]], prev = seed;
+    for (i = n; i < pts.length; i++) {
+      prev = pts[i][1] * k + prev * (1 - k);
+      out.push([pts[i][0], prev]);
+    }
+    return out;
+  }
+  function rsiWilder(pts, n) {
+    if (pts.length <= n) return [];
+    var g = 0, l = 0, i, d;
+    for (i = 1; i <= n; i++) { d = pts[i][1] - pts[i - 1][1]; if (d > 0) g += d; else l -= d; }
+    g /= n; l /= n;
+    var out = [[pts[n][0], l === 0 ? 100 : 100 - 100 / (1 + g / l)]];
+    for (i = n + 1; i < pts.length; i++) {
+      d = pts[i][1] - pts[i - 1][1];
+      g = (g * (n - 1) + (d > 0 ? d : 0)) / n;
+      l = (l * (n - 1) + (d < 0 ? -d : 0)) / n;
+      out.push([pts[i][0], l === 0 ? 100 : 100 - 100 / (1 + g / l)]);
+    }
+    return out;
+  }
+  function macdCalc(pts, fast, slow, sigN) {
+    var eF = ema(pts, fast), eS = ema(pts, slow);
+    var off = eF.length - eS.length, line = [], i;
+    for (i = 0; i < eS.length; i++) line.push([eS[i][0], eF[i + off][1] - eS[i][1]]);
+    var signal = ema(line, sigN), off2 = line.length - signal.length, hist = [];
+    for (i = 0; i < signal.length; i++) hist.push([signal[i][0], line[i + off2][1] - signal[i][1]]);
+    return { line: line, signal: signal, hist: hist };
+  }
+  function drawdownPct(pts) {
+    var out = [], ath = -Infinity;
+    for (var i = 0; i < pts.length; i++) {
+      if (pts[i][1] > ath) ath = pts[i][1];
+      out.push([pts[i][0], (pts[i][1] / ath - 1) * 100]);
+    }
+    return out;
+  }
+  function sliceFrom(pts, t0) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) if (pts[i][0] >= t0) out.push(pts[i]);
+    return out;
+  }
+  // 버킷별 최소·최대를 보존하는 다운샘플 — 스파이크(고점·저점)를 잃지 않는다
+  function downsample(pts, max) {
+    if (pts.length <= max) return pts;
+    var buckets = Math.max(1, Math.floor(max / 2)), size = pts.length / buckets, out = [], b, i;
+    for (b = 0; b < buckets; b++) {
+      var s = Math.floor(b * size), e = Math.min(pts.length, Math.floor((b + 1) * size));
+      if (s >= e) continue;
+      var mn = s, mx = s;
+      for (i = s; i < e; i++) {
+        if (pts[i][1] < pts[mn][1]) mn = i;
+        if (pts[i][1] > pts[mx][1]) mx = i;
+      }
+      if (mn === mx) out.push(pts[mn]);
+      else if (mn < mx) out.push(pts[mn], pts[mx]);
+      else out.push(pts[mx], pts[mn]);
+    }
+    if (!out.length || out[out.length - 1][0] !== pts[pts.length - 1][0]) out.push(pts[pts.length - 1]);
+    return out;
+  }
+  function nearest(pts, t) {
+    var lo = 0, hi = pts.length - 1;
+    if (hi < 0) return null;
+    while (hi - lo > 1) { var m = (lo + hi) >> 1; if (pts[m][0] < t) lo = m; else hi = m; }
+    return (t - pts[lo][0]) <= (pts[hi][0] - t) ? pts[lo] : pts[hi];
+  }
+  function niceStep(raw) {
+    var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var r = raw / mag;
+    if (r >= 7.5) return 10 * mag;
+    if (r >= 3.5) return 5 * mag;
+    if (r >= 1.5) return 2 * mag;
+    return mag;
+  }
+  function showError(paneIds) {
+    for (var i = 0; i < paneIds.length; i++) {
+      var m = document.getElementById(paneIds[i]);
+      if (!m) continue;
+      m.innerHTML = i === 0 ? '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>' : '';
+    }
+  }
+
+  function drawChart(o) {
+    var mount = document.getElementById(o.mount);
+    if (!mount) return;
+    mount.innerHTML = '';
+    var W = 860, H = o.height || 300;
+    var padL = 52, padR = 10, padT = 8, padB = 20;
+    var pw = W - padL - padR, ph = H - padT - padB;
+    var series = o.series || [], i, j;
+
+    var xd = o.xDomain;
+    if (!xd) {
+      var tmin = Infinity, tmax = -Infinity;
+      for (i = 0; i < series.length; i++) {
+        var sp = series[i].pts;
+        if (!sp.length) continue;
+        if (sp[0][0] < tmin) tmin = sp[0][0];
+        if (sp[sp.length - 1][0] > tmax) tmax = sp[sp.length - 1][0];
+      }
+      xd = [tmin, tmax];
+    }
+    var ymn = o.yMin, ymx = o.yMax;
+    if (ymn == null || ymx == null) {
+      var lo = Infinity, hi = -Infinity;
+      for (i = 0; i < series.length; i++) {
+        var pp = series[i].pts;
+        for (j = 0; j < pp.length; j++) { var v = pp[j][1]; if (v < lo) lo = v; if (v > hi) hi = v; }
+      }
+      var padv = (hi - lo) * 0.06 || 1;
+      if (ymn == null) ymn = o.log ? lo * 0.8 : lo - padv;
+      if (ymx == null) ymx = o.log ? hi * 1.25 : hi + padv;
+    }
+    function lv(v) { return o.log ? Math.log(v) : v; }
+    var Y0 = lv(ymn), Y1 = lv(ymx);
+    function X(t) { return padL + (t - xd[0]) / (xd[1] - xd[0]) * pw; }
+    function Y(v) { var c = Math.max(ymn, Math.min(ymx, v)); return padT + (1 - (lv(c) - Y0) / (Y1 - Y0)) * ph; }
+
+    var head = document.createElement('div');
+    head.className = 'bd-head';
+    if (o.title) { var ttl = document.createElement('span'); ttl.className = 'bd-title'; ttl.textContent = o.title; head.appendChild(ttl); }
+    var legendItems = [];
+    for (i = 0; i < series.length; i++) if (series[i].name) legendItems.push({ name: series[i].name, color: series[i].color || INK });
+    if (o.legendExtra) legendItems = legendItems.concat(o.legendExtra);
+    if (legendItems.length) {
+      var lg = document.createElement('span');
+      lg.className = 'bd-legend';
+      for (i = 0; i < legendItems.length; i++) {
+        var it = document.createElement('span');
+        var chip = document.createElement('i');
+        chip.style.background = legendItems[i].color;
+        it.appendChild(chip);
+        it.appendChild(document.createTextNode(legendItems[i].name));
+        lg.appendChild(it);
+      }
+      head.appendChild(lg);
+    }
+    mount.appendChild(head);
+
+    var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'none', 'class': 'bd-svg', role: 'img' });
+    svg.style.height = H + 'px';
+    mount.appendChild(svg);
+
+    var bands = o.bands || [];
+    for (i = 0; i < bands.length; i++) {
+      var yA = Y(bands[i].to), yB = Y(bands[i].from);
+      el('rect', { x: padL, y: Math.min(yA, yB), width: pw, height: Math.abs(yB - yA), fill: bands[i].color }, svg);
+    }
+
+    var yticks = [];
+    if (o.log) {
+      var e0 = Math.ceil(Math.log(ymn) / Math.LN10 - 1e-9), e1 = Math.floor(Math.log(ymx) / Math.LN10 + 1e-9);
+      for (i = e0; i <= e1; i++) yticks.push(Math.pow(10, i));
+    } else {
+      var step = niceStep((ymx - ymn) / 5);
+      for (var tv = Math.ceil(ymn / step) * step; tv <= ymx + step * 1e-3; tv += step) {
+        yticks.push(Math.abs(tv) < step * 1e-9 ? 0 : tv);
+      }
+    }
+    var yFmt = o.yFmt || function (v) { return String(Math.round(v * 100) / 100); };
+    for (i = 0; i < yticks.length; i++) {
+      var yy = Y(yticks[i]);
+      el('line', { x1: padL, x2: padL + pw, y1: yy, y2: yy, stroke: GRID, 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, svg);
+      var ytxt = el('text', { x: padL - 6, y: yy + 3.5, 'text-anchor': 'end', 'font-size': 10, fill: AXIS }, svg);
+      ytxt.textContent = yFmt(yticks[i]);
+    }
+
+    var spanDays = (xd[1] - xd[0]) / DAY;
+    var xticks = [];
+    var d0 = new Date(xd[0]), d1 = new Date(xd[1]);
+    if (spanDays > 900) {
+      var yr0 = d0.getUTCFullYear() + 1, yr1 = d1.getUTCFullYear();
+      var stepY = Math.max(1, Math.ceil((yr1 - yr0 + 1) / 8));
+      for (var yr = yr0; yr <= yr1; yr += stepY) xticks.push({ t: Date.UTC(yr, 0, 1), label: String(yr) });
+    } else {
+      var stepM = spanDays > 400 ? 3 : (spanDays > 150 ? 2 : 1);
+      var cur = new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 1, 1));
+      while (cur.getTime() <= xd[1]) {
+        if (cur.getUTCMonth() % stepM === 0) xticks.push({ t: cur.getTime(), label: String(cur.getUTCFullYear()).slice(2) + '.' + pad2(cur.getUTCMonth() + 1) });
+        cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1));
+      }
+    }
+    for (i = 0; i < xticks.length; i++) {
+      var xx = X(xticks[i].t);
+      if (xx < padL || xx > padL + pw) continue;
+      el('line', { x1: xx, x2: xx, y1: padT, y2: padT + ph, stroke: GRID, 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, svg);
+      var xtxt = el('text', { x: xx, y: padT + ph + 14, 'text-anchor': 'middle', 'font-size': 10, fill: AXIS }, svg);
+      xtxt.textContent = xticks[i].label;
+    }
+
+    if (o.halvings) {
+      for (i = 0; i < HALVINGS.length; i++) {
+        if (HALVINGS[i] < xd[0] || HALVINGS[i] > xd[1]) continue;
+        var hx = X(HALVINGS[i]);
+        el('line', { x1: hx, x2: hx, y1: padT, y2: padT + ph, stroke: ORANGE, 'stroke-width': 1.2, 'stroke-dasharray': '5,4', 'vector-effect': 'non-scaling-stroke' }, svg);
+      }
+    }
+
+    var hls = o.hlines || [];
+    for (i = 0; i < hls.length; i++) {
+      var hy = Y(hls[i].y);
+      el('line', { x1: padL, x2: padL + pw, y1: hy, y2: hy, stroke: hls[i].color || AXIS, 'stroke-width': 1, 'stroke-dasharray': hls[i].dash || '2,3', 'vector-effect': 'non-scaling-stroke' }, svg);
+      if (hls[i].label) {
+        var htxt = el('text', { x: padL + pw - 4, y: hy - 3, 'text-anchor': 'end', 'font-size': 9.5, fill: hls[i].color || AXIS }, svg);
+        htxt.textContent = hls[i].label;
+      }
+    }
+
+    for (i = 0; i < series.length; i++) {
+      var s = series[i], pts = s.pts;
+      if (!pts.length) continue;
+      if (s.type === 'bars') {
+        var bw = Math.max(0.6, (pw / pts.length) * 0.72), y0b = Y(0);
+        for (j = 0; j < pts.length; j++) {
+          var by = Y(pts[j][1]);
+          el('rect', {
+            x: X(pts[j][0]) - bw / 2, y: Math.min(by, y0b), width: bw,
+            height: Math.max(0.5, Math.abs(y0b - by)),
+            fill: pts[j][1] >= 0 ? (s.up || GREEN) : (s.down || RED)
+          }, svg);
+        }
+        continue;
+      }
+      var d = '';
+      for (j = 0; j < pts.length; j++) d += (j ? 'L' : 'M') + X(pts[j][0]).toFixed(2) + ' ' + Y(pts[j][1]).toFixed(2);
+      if (s.type === 'area') {
+        var base = Y(o.areaBase != null ? o.areaBase : 0);
+        el('path', {
+          d: d + 'L' + X(pts[pts.length - 1][0]).toFixed(2) + ' ' + base.toFixed(2) + 'L' + X(pts[0][0]).toFixed(2) + ' ' + base.toFixed(2) + 'Z',
+          fill: s.fill || 'rgba(178,58,46,0.16)'
+        }, svg);
+      }
+      el('path', { d: d, fill: 'none', stroke: s.color || INK, 'stroke-width': s.width || 1.4, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' }, svg);
+    }
+
+    var mks = o.markers || [];
+    for (i = 0; i < mks.length; i++) {
+      var mx = X(mks[i].t), my = Y(mks[i].v), up = mks[i].dir === 'up';
+      var dpath = up
+        ? 'M' + mx.toFixed(1) + ' ' + (my + 5).toFixed(1) + 'L' + (mx - 5).toFixed(1) + ' ' + (my + 13).toFixed(1) + 'L' + (mx + 5).toFixed(1) + ' ' + (my + 13).toFixed(1) + 'Z'
+        : 'M' + mx.toFixed(1) + ' ' + (my - 5).toFixed(1) + 'L' + (mx - 5).toFixed(1) + ' ' + (my - 13).toFixed(1) + 'L' + (mx + 5).toFixed(1) + ' ' + (my - 13).toFixed(1) + 'Z';
+      el('path', { d: dpath, fill: up ? GREEN : RED, stroke: '#f6f5f0', 'stroke-width': 0.8 }, svg);
+    }
+
+    el('rect', { x: padL, y: padT, width: pw, height: ph, fill: 'none', stroke: '#cfccbc', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, svg);
+
+    var ref = null;
+    for (i = 0; i < series.length; i++) { if (series[i].pts.length && series[i].type !== 'bars') { ref = series[i].pts; break; } }
+    if (!ref) { for (i = 0; i < series.length; i++) { if (series[i].pts.length) { ref = series[i].pts; break; } } }
+    if (ref && ref.length) {
+      var cross = el('line', { y1: padT, y2: padT + ph, x1: -10, x2: -10, stroke: '#55604f', 'stroke-width': 1, 'stroke-dasharray': '3,3', 'vector-effect': 'non-scaling-stroke', visibility: 'hidden' }, svg);
+      var tip = document.createElement('div');
+      tip.className = 'bd-tip';
+      tip.style.display = 'none';
+      mount.appendChild(tip);
+      var move = function (clientX) {
+        var r = svg.getBoundingClientRect();
+        if (r.width <= 0) return;
+        var t = xd[0] + ((clientX - r.left) / r.width * W - padL) / pw * (xd[1] - xd[0]);
+        if (t < xd[0]) t = xd[0];
+        if (t > xd[1]) t = xd[1];
+        var np = nearest(ref, t);
+        if (!np) return;
+        var sx = X(np[0]);
+        cross.setAttribute('x1', sx);
+        cross.setAttribute('x2', sx);
+        cross.setAttribute('visibility', 'visible');
+        var html = '<b>' + fmtDate(np[0]) + '</b>';
+        for (var k = 0; k < series.length; k++) {
+          var sk = series[k];
+          if (!sk.pts.length || !sk.name) continue;
+          var pk = nearest(sk.pts, np[0]);
+          if (!pk || Math.abs(pk[0] - np[0]) > 40 * DAY) continue;
+          var f = sk.fmt || yFmt;
+          html += '<br><i style="background:' + (sk.color || INK) + '"></i>' + sk.name + ' ' + f(pk[1]);
+        }
+        tip.innerHTML = html;
+        tip.style.display = 'block';
+        var px = sx / W * r.width;
+        var flip = px > r.width * 0.55;
+        tip.style.left = flip ? 'auto' : Math.round(px + 14) + 'px';
+        tip.style.right = flip ? Math.round(r.width - px + 14) + 'px' : 'auto';
+        tip.style.top = (head.offsetHeight + 10) + 'px';
+      };
+      var hide = function () { cross.setAttribute('visibility', 'hidden'); tip.style.display = 'none'; };
+      svg.addEventListener('mousemove', function (e) { move(e.clientX); });
+      svg.addEventListener('mouseleave', hide);
+      svg.addEventListener('touchstart', function (e) { if (e.touches.length) move(e.touches[0].clientX); }, { passive: true });
+      svg.addEventListener('touchmove', function (e) { if (e.touches.length) move(e.touches[0].clientX); }, { passive: true });
+      svg.addEventListener('touchend', hide);
+    }
+  }
+
+  // === 이 페이지 전용 차트 ===
+  loadFng(function (pts) {
+    var zoneBands = [
+      { from: 0, to: 25, color: 'rgba(47,125,79,0.15)' },
+      { from: 75, to: 100, color: 'rgba(178,58,46,0.13)' }
+    ];
+    var zoneLines = [{ y: 25, color: GREEN, label: '25' }, { y: 75, color: RED, label: '75' }];
+    var fmtInt = function (v) { return String(Math.round(v)); };
+    drawChart({
+      mount: 'bd-fng-hist',
+      title: '공포·탐욕 지수 — 전체 이력',
+      height: 260, yMin: 0, yMax: 100, yFmt: fmtInt,
+      bands: zoneBands, hlines: zoneLines,
+      series: [{ name: 'F&G', color: INK, pts: downsample(pts, 800), fmt: fmtInt }]
+    });
+    drawChart({
+      mount: 'bd-fng-90',
+      title: '최근 90일 상세',
+      height: 170, yMin: 0, yMax: 100, yFmt: fmtInt,
+      bands: zoneBands, hlines: zoneLines,
+      series: [{ name: 'F&G', color: INK, width: 1.6, pts: pts.slice(-90), fmt: fmtInt }]
+    });
+  }, function () { showError(['bd-fng-hist', 'bd-fng-90']); });
+})();
+    </script>
   </body>
 </html>

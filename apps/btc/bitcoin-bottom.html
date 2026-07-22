@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>비트코인 바닥을 파악하는 방법 — 시가총액 vs 평균 매수원가 | broodev</title>
+    <meta name="description" content="비트코인의 바닥은 가격이 아니라 '시가총액이 투자자 평균 매수원가(실현시총) 아래로 내려갔는가'로 잡힙니다. 2011·2015·2018·2020·2022 다섯 번의 바닥에서 MVRV가 실제로 1 아래로 갔던 기록을 라이브 차트로 재구성하고, Thermocap(누적 채굴보상)까지 합성하는 broodev 바닥 점수(BOTTOM RADAR)의 계산식을 전부 공개합니다." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://broodev.com/bitcoin-bottom" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="비트코인 바닥을 파악하는 방법 — 시가총액 vs 평균 매수원가" />
+    <meta property="og:description" content="시가총액이 평균 매수원가 아래로 내려간 다섯 번의 기록. MVRV Z-Score·Thermocap을 라이브 차트로 재구성하고 바닥 점수 계산식을 공개합니다." />
+    <meta property="og:url" content="https://broodev.com/bitcoin-bottom" />
+    <meta property="og:image" content="https://broodev.com/og-image.png" />
+    <link rel="stylesheet" href="/content.css" />
+    <!-- Google AdSense (Auto ads) — 이 페이지는 원본 해설 콘텐츠다. 광고 게재 화면 = 콘텐츠 화면.
+         (이전에는 광고가 대시보드에만 있고 정작 콘텐츠 페이지엔 없어서, AdSense 가 심사하는
+          "광고가 게재되는 화면"의 콘텐츠가 얇았다.) -->
+    <meta name="google-adsense-account" content="ca-pub-5511225478572825" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+    <style>
+      /* 이 페이지 전용: 라이브 차트(밝은 종이 배경) + 정보 툴팁. 공용 스타일은 content.css. */
+      .chart-panel { position: relative; background: #f6f5f0; border: 1px solid rgba(0, 0, 0, 0.14); border-radius: 8px; padding: 12px 10px 6px; margin: 14px 0 6px; }
+      .chart-panel svg { display: block; width: 100%; height: auto; font-family: inherit; }
+      .chart-status { color: #8a8375; font-size: 12px; text-align: center; padding: 70px 0; }
+      .chart-src { color: #5f776e; font-size: 11px; margin: 4px 0 18px; }
+      .chart-tip { position: absolute; display: none; pointer-events: none; z-index: 5; background: #fffdf7; border: 1px solid #b9b2a2; border-radius: 4px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); color: #26221a; font-size: 11px; line-height: 1.6; padding: 6px 9px; white-space: nowrap; }
+      .chart-tip b { color: #111; }
+      .info-tip { position: relative; display: inline-block; cursor: help; color: var(--neon); border-bottom: 1px dotted var(--neon); font-size: 14px; vertical-align: middle; margin-left: 6px; outline-offset: 2px; }
+      .info-tip .tip-bubble { display: none; position: absolute; left: 0; top: calc(100% + 8px); width: min(360px, 82vw); background: var(--panel); border: 1px solid var(--neon); border-radius: 6px; padding: 10px 12px; z-index: 10; font-size: 12.5px; font-weight: 400; line-height: 1.7; color: var(--dim); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55); white-space: normal; }
+      .info-tip:hover .tip-bubble, .info-tip:focus .tip-bubble, .info-tip:focus-within .tip-bubble { display: block; }
+      .info-tip .tip-bubble b { display: block; color: var(--text); margin-bottom: 4px; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <nav class="nav">
+        <a href="/">← 대시보드</a>
+        <a href="/methodology">점수 방법론</a>
+        <a href="/indicators">지표 해설</a>
+        <a href="/bitcoin-bottom">바닥 신호</a>
+        <a href="/glossary">용어집</a>
+      </nav>
+
+      <h1>비트코인 바닥을 파악하는 방법<br />— 시가총액 vs 평균 매수원가</h1>
+      <p class="muted">최종 수정: 2026-07-22 · 작성: Y-Systems · 대상: broodev 바닥 점수(BOTTOM RADAR)의 온체인 항목</p>
+
+      <p class="lead">
+        비트코인의 바닥을 가격으로 찾으려는 시도는 매번 실패했습니다. 2018년의 바닥은 3,150달러였고 2022년의 바닥은 15,500달러였습니다 — <strong>다섯 배 차이입니다.</strong>
+        그런데 두 바닥에는 가격이 아닌 공통점이 하나 있었습니다. <strong>비트코인의 시가총액이, 모든 투자자가 실제로 지불한 금액의 합(평균 매수원가 총액) 아래로 내려가 있었다</strong>는 것입니다.
+        이 글은 그 관찰을 라이브 데이터로 직접 그려서 보여주고, 다섯 번의 바닥에서 이 신호가 실제로 어떻게 찍혔는지 연대순으로 따라가고,
+        broodev의 <strong>바닥 점수(BOTTOM RADAR)</strong>가 이것을 어떤 가중치로 합성하는지 계산식째 공개합니다.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">목차</div>
+        <ol>
+          <li><a href="#concept">왜 '평균 매수원가'가 바닥을 말해주는가 — 실현시총</a></li>
+          <li><a href="#chart-mc">라이브 차트 ① — 시가총액 vs 평균 매수원가 (2010~현재)</a></li>
+          <li><a href="#history">다섯 번의 바닥 — MVRV가 1 아래로 내려간 날들</a></li>
+          <li><a href="#mvrv-z">라이브 차트 ② — MVRV Z-Score로 표준화하기</a></li>
+          <li><a href="#thermocap">라이브 차트 ③ — Thermocap, 채굴 원가가 말하는 바닥</a></li>
+          <li><a href="#divergence">두 지표가 갈리는 순간 읽는 법</a></li>
+          <li><a href="#limits">이 지표들의 한계 — 표본 4사이클, ETF 시대</a></li>
+          <li><a href="#radar">broodev 바닥 점수(BOTTOM RADAR)의 합성법 — 가중치 공개</a></li>
+          <li><a href="#faq">자주 묻는 질문</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>이 글의 수치에 대하여.</strong> 아래의 차트는 이 페이지가 열릴 때 <strong>CoinMetrics Community API와 blockchain.info에서 직접 받아 브라우저에서 그리는 실데이터</strong>입니다(6시간 캐시).
+        반면 본문 표의 과거 바닥 시점 MVRV 값과 이후 수익률은 <strong>재구성한 근사치</strong>입니다 — 어느 데이터 소스를 쓰느냐, 저점을 어느 날로 잡느냐에 따라 소수점이 흔들립니다.
+        이 글의 논지는 소수점이 아니라 <strong>"시가총액이 원가 아래로 내려간 구간이 바닥과 겹쳤다"는 반복 패턴</strong>에 있습니다.
+      </div>
+
+      <h2 id="concept">왜 '평균 매수원가'가 바닥을 말해주는가 — 실현시총</h2>
+      <p>
+        시가총액은 다들 압니다. <code>현재가 × 유통량</code>. 마지막 체결가 하나가 전체 코인의 가치를 대표한다고 <em>가정하는</em> 숫자입니다.
+        그런데 온체인 데이터에는 시가총액보다 훨씬 흥미로운 숫자가 하나 더 있습니다. <strong>실현시총(Realized Cap)</strong>입니다.
+      </p>
+      <pre><code>시가총액   = 현재가 × 유통량                    (모든 코인을 '지금 가격'으로 평가)
+실현시총   = Σ (각 코인 × 그 코인이 마지막으로 이동한 날의 가격)
+           = 투자자들이 실제로 지불한 금액의 총합 ≈ 시장 전체의 평균 매수원가 × 유통량</code></pre>
+      <p>
+        블록체인은 모든 코인이 <strong>언제 마지막으로 지갑을 옮겼는지</strong>를 기록합니다. 코인이 이동한 날의 가격을 그 코인의 '취득 원가'로 간주하고 전부 더하면,
+        시장 전체가 비트코인에 실제로 넣은 돈의 총액이 나옵니다. 주식으로 치면 <strong>전 주주의 평균 매수단가에 주식수를 곱한 것</strong>과 같습니다.
+        그래서 이 글에서는 실현시총을 <strong>'평균 매수원가 (총액)'</strong>이라고 부릅니다.
+      </p>
+      <p>두 숫자의 비율이 그 유명한 <strong>MVRV</strong>입니다.</p>
+      <pre><code>MVRV = 시가총액 ÷ 실현시총
+
+MVRV 2.0  → 평균 보유자가 원금의 2배 (전원 이익 구간)
+MVRV 1.0  → 시장 전체가 정확히 본전
+MVRV 0.8  → 평균 보유자가 −20% 손실 (전원 손실 구간)</code></pre>
+      <p>
+        여기서 바닥의 논리가 나옵니다. <strong>MVRV가 1 아래로 내려간다는 건, 비트코인 보유자 전체가 평균적으로 물려 있다는 뜻입니다.</strong>
+        역사적으로 이 구간에서는 두 가지 일이 일어났습니다. 첫째, 손실을 못 견딘 투자자들의 <strong>투매(capitulation)</strong>가 절정에 달합니다.
+        둘째, 그 물량을 받아가는 쪽은 손익에 흔들리지 않는 장기 보유자들입니다. 코인이 <strong>약한 손에서 강한 손으로 넘어가는 순간</strong>이고,
+        네 번의 사이클에서 이 순간이 전부 <strong>대바닥과 겹쳤습니다.</strong> 아래 차트에서 직접 확인할 수 있습니다.
+      </p>
+
+      <h2 id="chart-mc">라이브 차트 ① — 시가총액 vs 평균 매수원가<span class="info-tip" tabindex="0" role="note" aria-label="시가총액 vs 평균 매수원가 설명">ⓘ<span class="tip-bubble"><b>시가총액 vs 평균 매수원가</b>파란 선은 투자자들의 평균 매수원가입니다. 시가총액(검정)이 이 선 아래로 내려가면, 평균적으로 손실 구간이라는 뜻이라 역사적으로 바닥권이었습니다.</span></span></h2>
+      <p>
+        검정 선이 <strong>시가총액</strong>, 파란 선이 <strong>평균 매수원가(실현시총)</strong>입니다. 로그 스케일이고, 주황 점선은 네 번의 반감기입니다.
+        마우스를 올리면 날짜와 두 값이 표시됩니다. 눈으로 볼 것은 하나입니다 — <strong>검정 선이 파란 선 아래로 파고든 구간</strong>. 그게 전부 바닥이었습니다.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">데이터를 불러와 차트를 그리는 중입니다… (몇 초 걸릴 수 있습니다)</div></div>
+      <p class="chart-src">데이터: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, 일봉 전 역사 · 실현시총 = 시가총액 ÷ MVRV) · 6시간 로컬 캐시 · 로그 스케일</p>
+      <p>
+        파란 선의 성질을 하나 눈여겨보세요. <strong>거의 떨어지지 않습니다.</strong> 시가총액이 −80% 폭락하는 동안에도 평균 매수원가는 완만하게만 내려옵니다.
+        원가는 <em>거래가 실제로 일어나야만</em> 갱신되기 때문입니다. 공포에 찬 시장에서도 대부분의 코인은 움직이지 않고, 움직이지 않은 코인의 원가는 그대로입니다.
+        그래서 파란 선은 <strong>가격의 중력선이 아니라 시장의 장부가</strong>처럼 행동합니다. 시가총액이 장부가를 뚫고 내려가는 일은 드물고, 드물어서 신호입니다.
+      </p>
+
+      <h2 id="history">다섯 번의 바닥 — MVRV가 1 아래로 내려간 날들</h2>
+      <p>
+        비트코인 역사에서 시가총액이 평균 매수원가 아래로 내려간(MVRV &lt; 1) 국면은 손에 꼽습니다. 다섯 번의 대바닥과 겹친 기록을 정리하면 이렇습니다.
+        모든 수치는 <strong>근사치</strong>입니다 — 저점을 어느 날로 잡느냐에 따라 달라집니다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>바닥 국면</th><th>당시 가격(근사)</th><th>MVRV 최저(근사)</th><th>1년 뒤(근사)</th><th>2년 뒤(근사)</th></tr></thead>
+          <tbody>
+            <tr><td>2011년 11월</td><td>약 $2</td><td><code>0.4~0.6</code></td><td>약 $11 (+400%대)</td><td>약 $1,000 (수백 배)</td></tr>
+            <tr><td>2015년 1월</td><td>약 $170~230</td><td><code>0.55~0.7</code></td><td>약 $380~430 (+90~130%)</td><td>약 $900 (+300%대)</td></tr>
+            <tr><td>2018년 12월</td><td>약 $3,200</td><td><code>0.7 안팎</code></td><td>약 $7,200 (+120%대)</td><td>약 $23,000 (+600%대)</td></tr>
+            <tr><td>2020년 3월</td><td>약 $3,800~5,000</td><td><code>0.85~0.95</code> (수일간)</td><td>약 $58,000 (+1,000%대)</td><td>약 $44,000 (+700%대)</td></tr>
+            <tr><td>2022년 11월</td><td>약 $15,500</td><td><code>0.75~0.85</code></td><td>약 $37,000 (+130%대)</td><td>약 $90,000 (+480%대)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        다섯 번의 바닥은 원인이 전부 달랐습니다. 자체 버블 붕괴(2011), 마운트곡스 여파(2015), ICO 버블 청산(2018), 팬데믹 패닉(2020), FTX 파산(2022).
+        가격은 $2에서 $15,500까지 <strong>7,750배</strong> 차이가 납니다. 그런데 <strong>MVRV는 다섯 번 모두 1 아래, 대체로 0.7~0.9 구간</strong>에 있었습니다.
+        절대 가격이 아니라 <strong>"시장 전체의 원가 대비 얼마나 할인됐는가"</strong>로 재면, 다섯 개의 전혀 다른 바닥이 거의 같은 자리에 찍힙니다.
+      </p>
+      <div class="note warn">
+        <strong>단, 역은 성립하지 않습니다.</strong> "MVRV &lt; 1 = 즉시 바닥"이 아닙니다.
+        2011년과 2014~2015년, 2018년 말에는 MVRV가 1 아래에서 <strong>수 주~수개월</strong>을 머물렀고, 그 안에서도 가격은 더 빠졌습니다.
+        이 지표가 말해주는 건 "여기가 최저점"이 아니라 <strong>"역사적으로 이 구간에서 분할 매수한 사람은 1~2년 뒤 크게 이겼다"</strong>는 구간 정보입니다.
+        타이밍 도구가 아니라 <strong>구간 도구</strong>로 읽으세요.
+      </div>
+
+      <h2 id="mvrv-z">라이브 차트 ② — MVRV Z-Score로 표준화하기</h2>
+      <p>
+        MVRV 비율에는 약점이 하나 있습니다. <strong>고점의 높이가 사이클마다 다르다</strong>는 것입니다. 2011년 고점의 MVRV는 7을 넘었지만 2021년에는 4에 못 미쳤습니다.
+        시장이 커질수록 진폭이 압축되기 때문입니다. 그래서 broodev 엔진은 비율 대신 <strong>Z-Score</strong>를 씁니다 — 시가총액과 실현시총의 <em>차이</em>가,
+        시가총액의 역사적 변동성 대비 몇 표준편차나 벌어졌는지를 재는 방식입니다.
+      </p>
+      <pre><code>MVRV Z-Score = (시가총액 − 실현시총) ÷ σ(시가총액)
+               σ = 시가총액의 전 역사 표준편차
+
+z &lt; 0   → 시가총액이 평균 매수원가 아래 (역사적 바닥권)
+z ≈ 1~2 → 평상 구간
+z &gt; 5   → 역사적 천장권 (2011·2013·2017 꼭지)</code></pre>
+      <p>
+        아래 차트가 전 역사의 MVRV Z-Score입니다. 초록 음영이 <strong>z &lt; 0 (바닥권)</strong>, 붉은 음영이 <strong>z &gt; 5 (과열권)</strong>입니다.
+        2011·2015·2018·2022의 바닥이 전부 0선 아래로 파고들었고(2020년 3월은 0선을 스치는 수준), 2011·2013·2017의 대천장은 전부 z 7~9의 붉은 음영에 닿았습니다.
+        그런데 <strong>2021년 고점의 z는 3.5 부근에 그쳤습니다</strong> — 시장이 커질수록 위쪽 진폭이 압축된다는, 뒤의 한계 절에서 다시 나올 이야기입니다.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">데이터를 불러와 차트를 그리는 중입니다…</div></div>
+      <p class="chart-src">데이터: CoinMetrics Community API에서 위 차트와 동일한 원본으로 계산 · z = (시총 − 실현시총) ÷ σ(시총) · σ는 각 시점까지의 전 역사(확장 윈도우) · 6시간 로컬 캐시</p>
+      <div class="note">
+        <strong>계산 방식 그대로 공개합니다.</strong> broodev 대시보드의 MVRV Z는
+        CoinMetrics Community API의 <code>CapMrktCurUSD</code>(시가총액)와 <code>CapMVRVCur</code>(MVRV 비율)에서
+        <code>실현시총 = 시가총액 ÷ MVRV</code>로 유도한 뒤, <strong>전 역사 σ(시가총액)</strong>로 나눠 표준화한 값입니다.
+        위 차트의 과거 구간은 <strong>그 시점까지의 σ</strong>(확장 윈도우)로 계산합니다 — "그날의 투자자가 볼 수 있었던 값"을 그리기 위해서입니다.
+        마지막 점은 정의상 대시보드의 현재값과 정확히 일치합니다. 무료 API이고 키도 필요 없으므로 누구나 같은 숫자를 재현할 수 있습니다.
+      </div>
+
+      <h2 id="thermocap">라이브 차트 ③ — Thermocap, 채굴 원가가 말하는 바닥</h2>
+      <p>
+        실현시총이 <strong>투자자의 원가</strong>라면, 비트코인에는 또 하나의 원가가 있습니다. <strong>생산자의 원가</strong>, 즉 채굴 원가입니다.
+        <strong>Thermocap(써모캡)</strong>은 비트코인 출범 이후 <strong>채굴자에게 지급된 보상(블록 보상 + 수수료)의 누적 총액(USD)</strong>입니다.
+        네트워크의 보안에 지금까지 투입된 돈의 총합 — 말하자면 <strong>이 자산을 만드는 데 든 총비용</strong>입니다.
+      </p>
+      <pre><code>Thermocap    = Σ (일별 채굴자 수익 USD)  ← 2009년부터 누적
+Thermocap Z  = z-score of ln(시가총액 ÷ Thermocap)   [전 역사 기준]
+
+시가총액/Thermocap 비율은 역사적으로 수 배 ~ 수십 배 사이를 오간다.
+비율의 로그를 표준화한 z가 낮을수록 '생산 원가 대비 저평가'.</code></pre>
+      <p>
+        시가총액은 Thermocap의 몇 배 위에서 거래되는 게 정상 상태입니다(우상향 자산의 성질입니다). 중요한 건 그 배율이 <strong>역사적 범위의 어디에 있느냐</strong>이고,
+        배율의 로그를 z-score로 표준화하면 사이클 간 비교가 가능해집니다. 아래 차트에서 <strong>z가 0 아래로 내려간 구간</strong>이 역사적 바닥권과 겹치는 것을 볼 수 있습니다.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">데이터를 불러와 차트를 그리는 중입니다…</div></div>
+      <p class="chart-src">데이터: blockchain.info charts/miners-revenue (전 기간) — 샘플 간격을 일수로 가중해 누적(적분 근사) · CoinMetrics 일봉 시가총액과 날짜 정렬 · z = ln(시총/Thermocap)의 전 역사 z-score · 6시간 로컬 캐시</p>
+      <p>
+        Thermocap의 분모는 실현시총과 결정적으로 다릅니다. <strong>절대 줄지 않고, 시장과 무관하게 매일 조금씩만 늘어납니다.</strong>
+        투자자들이 공포에 코인을 던져도 채굴 보상의 누적치는 꿈쩍하지 않습니다. 그래서 Thermocap Z는 실현시총 기반 지표보다
+        <strong>더 느리고, 더 완고한 바닥 기준선</strong>이 됩니다. 이 지표는 채굴 보상 데이터가 존재하는 <strong>비트코인 전용</strong>입니다 — 알트코인에는 계산할 수 없습니다.
+      </p>
+
+      <h2 id="divergence">두 지표가 갈리는 순간 읽는 법</h2>
+      <p>
+        같은 '원가' 지표인데 왜 둘 다 보는가. <strong>분모가 움직이는 속도가 다르기 때문입니다.</strong>
+        실현시총(MVRV의 분모)은 코인이 손바뀜할 때마다 갱신됩니다 — 강세장이 길어지면 원가 자체가 올라오고, 투매가 끝나면 원가가 내려앉습니다.
+        Thermocap은 그런 것 없이 누적만 됩니다. 이 속도 차이가 신호를 만듭니다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>조합</th><th>해석</th><th>역사적 예 (근사)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z 낮음 + Thermocap Z 낮음</td><td><strong>깊은 바닥권.</strong> 투자자 원가와 생산 원가 모두에 근접</td><td>2015년 · 2018년 말 · 2022년 말</td></tr>
+            <tr><td>MVRV Z 낮음 + Thermocap Z 보통</td><td>사이클 중반의 급락. 투매는 나왔지만 구조적 바닥까지는 미확인</td><td>2020년 3월 · 2021년 7월</td></tr>
+            <tr><td>MVRV Z 보통 + Thermocap Z 높음</td><td>강세장 후반. 원가가 이미 크게 올라와 MVRV만 보면 착시</td><td>2021년 11월 (2차 고점)</td></tr>
+            <tr><td>둘 다 높음</td><td><strong>역사적 천장권.</strong> 신규 매수 최악의 구간</td><td>2013년 말 · 2017년 말</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        특히 세 번째 행이 중요합니다. 강세장이 1년 넘게 이어지면 <strong>실현시총이 가격을 따라 올라와서 MVRV가 "정상"처럼 보입니다.</strong>
+        2021년 11월의 사이클 최고점에서 MVRV는 2011~2017년 고점들보다 한참 낮았습니다. 마이어 배수가 <a href="/mayer-multiple">2021년 11월에 중립이라고 말했던 것</a>과
+        정확히 같은 구조의 침묵입니다. 그때 Thermocap처럼 <strong>분모가 따라 올라오지 않는 지표</strong>가 교차 검증 역할을 합니다.
+      </p>
+
+      <h2 id="limits">이 지표들의 한계 — 표본 4사이클, ETF 시대</h2>
+      <p>정직하게 적습니다. 이 글의 논거가 어디까지 유효한지입니다.</p>
+      <ul>
+        <li>
+          <strong>표본이 4사이클뿐입니다.</strong> "MVRV &lt; 1이 바닥이었다"는 관찰의 표본은 다섯 번의 국면, 완결된 사이클로는 네 개입니다.
+          통계라고 부르기 민망한 크기이고, <strong>관찰은 법칙이 아닙니다.</strong> 다음 사이클이 같은 자리에서 멈춘다는 보장은 없습니다.
+        </li>
+        <li>
+          <strong>ETF 시대의 왜곡 가능성.</strong> 2024년 이후 현물 ETF와 수탁 기관에 대량의 코인이 잠겼습니다.
+          ETF 주식은 온체인 이동 없이 손바뀜하므로, <strong>실제 매매가 일어나도 실현시총(원가)이 갱신되지 않을 수 있습니다.</strong>
+          온체인 원가가 실제 시장의 원가보다 낡은 값이 되어가는 구조적 변화이고, 과거 사이클과의 직접 비교를 흐립니다.
+        </li>
+        <li>
+          <strong>실현시총은 거래소 내부 이동에 왜곡될 수 있습니다.</strong> 거래소가 콜드월렛을 재정리하며 코인을 옮기면,
+          실매수가 없어도 그 물량의 '원가'가 이동일 가격으로 다시 찍힙니다. 반대로 거래소 <em>안</em>에서 손바뀜한 코인은 온체인에 흔적이 없어 원가가 갱신되지 않습니다.
+        </li>
+        <li>
+          <strong>영원히 잠든 코인 문제.</strong> 초기에 채굴된 뒤 한 번도 움직이지 않은 코인(사토시 물량 등 수백만 개 추정)은
+          원가가 0 부근으로 계산됩니다. 실현시총이 구조적으로 낮게 잡히는 방향의 편향입니다.
+        </li>
+        <li>
+          <strong>전 역사 σ의 성질.</strong> MVRV Z의 분모인 σ(시가총액)는 전 역사로 계산하므로, 시장 규모가 커질수록 σ도 커져
+          <strong>최근 사이클의 z 진폭이 과거보다 눌립니다.</strong> "z &gt; 7 같은 극단값은 다시 안 나올 수 있다"는 뜻이며, 임계값을 절대 기준으로 쓰면 안 되는 이유입니다.
+        </li>
+      </ul>
+
+      <h2 id="radar">broodev 바닥 점수(BOTTOM RADAR)의 합성법 — 가중치 공개</h2>
+      <p>
+        broodev 대시보드의 <strong>BOTTOM RADAR</strong>는 "지금 사면 오르나"가 아니라 <strong>"지금이 역사적 바닥권인가"</strong> 한 가지 질문에만 답하는 별도 합성 점수입니다.
+        단기·장기 점수와는 가중치 자체가 다릅니다. 온체인 원가 지표 둘에 55%를 몰아준 것이 핵심입니다.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>지표</th><th>가중치</th><th>왜 이 비중인가</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>투자자 평균 매수원가 대비. 다섯 번의 바닥에서 전부 작동한 1순위 신호</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>생산(채굴) 원가 대비. MVRV의 분모가 착시를 일으킬 때의 교차 검증</td></tr>
+            <tr><td>마이어 배수</td><td>15%</td><td>200일선 대비 가격. 온체인이 못 보는 순수 가격 축</td></tr>
+            <tr><td>365일 낙폭</td><td>15%</td><td>고점 대비 하락 깊이. 분모가 고정된 고점이라 하락장 후반에도 침묵하지 않음</td></tr>
+            <tr><td>공포·탐욕 지수</td><td>15%</td><td>투매 심리의 온도계. 바닥은 언제나 극단적 공포와 함께 왔다</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        다섯 항목의 합은 <strong>1.00</strong>입니다. 각 지표는 장기(역발상) 정규화 점수를 쓰며 — 온체인 2종은 z값을 아래 앵커 표로 0~100에 매핑합니다 —
+        데이터가 없는 지표는 0점 처리하지 않고 <strong>계산에서 제외한 뒤 남은 가중치를 합 100%로 재정규화</strong>합니다.
+        BTC가 아닌 코인에서는 Thermocap이 항상 빠지고, CoinMetrics 미지원 코인에서는 MVRV까지 빠지므로 커버리지 표시를 꼭 확인하세요.
+      </p>
+      <pre><code>z → 점수 매핑 (Z_ANCHORS, 구간 선형 보간)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>합성 점수는 다섯 구간으로 해석합니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>바닥 점수</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>역사적 바닥권 — 과거 대바닥들과 같은 자리</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>저평가 — 원가 대비 할인 구간</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>중립</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>고평가 — 원가 대비 프리미엄 구간</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>천장권·과열 — 과거 대천장들과 같은 자리</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        가중치 35·20·15·15·15가 최적이라는 증명은 없습니다. 확실한 건 방향뿐입니다 — 바닥 판정에서는 <strong>원가 기반 온체인 지표가 가격 기반 지표보다 사이클 간 재현성이 좋았고</strong>,
+        그래서 그쪽에 과반을 실었습니다. 전체 점수 체계(단기·장기 탭의 8개 지표 합성)는 <a href="/methodology">점수 방법론 문서</a>에 전부 공개되어 있습니다.
+      </p>
+
+      <h2 id="faq">자주 묻는 질문</h2>
+      <dl>
+        <dt>MVRV가 1 아래로 내려가면 무조건 바닥인가요?</dt>
+        <dd>
+          아닙니다. 역사적으로 MVRV &lt; 1 구간은 대바닥과 겹쳤지만, 그 구간 <em>안에서도</em> 가격은 추가로 20~40% 더 빠진 적이 있습니다(2011년, 2015년).
+          "최저점 신호"가 아니라 "역사적으로 1~2년 뒤 성과가 좋았던 분할 매수 구간"으로 읽어야 하며, 표본은 사이클 네 개뿐입니다.
+        </dd>
+        <dt>실현시총(평균 매수원가)은 어디서 볼 수 있나요?</dt>
+        <dd>
+          이 페이지의 차트가 CoinMetrics Community API(무료·키 불필요)의 시가총액과 MVRV에서 실현시총을 직접 유도해 그립니다.
+          broodev 대시보드의 MVRV·Z 카드와 바닥 점수(BOTTOM RADAR)도 같은 데이터, 같은 계산식을 사용합니다.
+        </dd>
+        <dt>알트코인에도 이 방법을 쓸 수 있나요?</dt>
+        <dd>
+          부분적으로만 가능합니다. broodev는 CoinMetrics가 MVRV를 제공하는 10개 코인(BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA)에서 MVRV Z를 계산하고,
+          미지원 코인은 N/A 처리 후 가중치를 재정규화합니다. Thermocap(누적 채굴보상)은 비트코인 전용입니다.
+        </dd>
+        <dt>왜 시가총액이 평균 매수원가 아래로 내려가면 바닥인가요?</dt>
+        <dd>
+          시가총액이 실현시총 아래라는 건 보유자 전체가 평균적으로 손실 상태라는 뜻입니다. 이 구간에서는 손실을 견디지 못한 투매가 절정에 달하고,
+          그 물량이 장기 보유자에게 넘어가면서 매도 압력이 소진됩니다. 다만 이는 과거 네 사이클의 관찰이지 보장된 법칙이 아닙니다.
+        </dd>
+      </dl>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "MVRV가 1 아래로 내려가면 무조건 바닥인가요?",
+            "acceptedAnswer": { "@type": "Answer", "text": "아닙니다. 역사적으로 MVRV < 1 구간은 대바닥과 겹쳤지만, 그 구간 안에서도 가격은 추가로 20~40% 더 빠진 적이 있습니다(2011년, 2015년). 최저점 신호가 아니라 역사적으로 1~2년 뒤 성과가 좋았던 분할 매수 구간으로 읽어야 하며, 표본은 사이클 네 개뿐입니다." }
+          },
+          {
+            "@type": "Question",
+            "name": "실현시총(평균 매수원가)은 어디서 볼 수 있나요?",
+            "acceptedAnswer": { "@type": "Answer", "text": "broodev.com/bitcoin-bottom 페이지의 차트가 CoinMetrics Community API(무료, 키 불필요)의 시가총액과 MVRV에서 실현시총을 직접 유도해 그립니다. broodev 대시보드의 MVRV·Z 카드와 바닥 점수(BOTTOM RADAR)도 같은 데이터, 같은 계산식을 사용합니다." }
+          },
+          {
+            "@type": "Question",
+            "name": "알트코인에도 이 방법을 쓸 수 있나요?",
+            "acceptedAnswer": { "@type": "Answer", "text": "부분적으로만 가능합니다. broodev는 CoinMetrics가 MVRV를 제공하는 10개 코인(BTC, ETH, XRP, DOGE, BCH, LINK, XLM, LTC, DOT, MANA)에서 MVRV Z-Score를 계산하고, 미지원 코인은 N/A 처리 후 가중치를 재정규화합니다. Thermocap(누적 채굴보상)은 비트코인 전용입니다." }
+          },
+          {
+            "@type": "Question",
+            "name": "왜 시가총액이 평균 매수원가 아래로 내려가면 바닥인가요?",
+            "acceptedAnswer": { "@type": "Answer", "text": "시가총액이 실현시총 아래라는 건 보유자 전체가 평균적으로 손실 상태라는 뜻입니다. 이 구간에서는 손실을 견디지 못한 투매가 절정에 달하고, 그 물량이 장기 보유자에게 넘어가면서 매도 압력이 소진됩니다. 다만 이는 과거 네 사이클의 관찰이지 보장된 법칙이 아닙니다." }
+          }
+        ]
+      }
+      </script>
+
+      <div class="note warn">
+        <strong>⚠ 투자 유의</strong><br />
+        본 문서와 broodev의 점수는 공개 지표를 합성한 <strong>참고 자료이며 투자 자문이 아닙니다.</strong>
+        본문의 과거 MVRV 값과 수익률은 데이터 소스에 따라 달라질 수 있는 <strong>근사치이며, 과거의 패턴이 미래를 보장하지 않습니다.</strong>
+        암호화폐는 <strong>원금 전액 손실이 가능한</strong> 고위험 자산입니다.
+        모든 투자 판단과 그 결과(손익)에 대한 책임은 전적으로 이용자 본인에게 있습니다. 반드시 스스로 조사하세요(DYOR).
+      </div>
+
+      <h2>이어서 읽기</h2>
+      <div class="related">
+        <a href="/methodology"><b>점수 방법론</b><span>8개 지표를 어떤 가중치로 합성하는가 (수치 전부 공개)</span></a>
+        <a href="/indicators"><b>8개 지표 해설</b><span>MVRV·Thermocap 포함, 각 지표가 언제 배신하는가</span></a>
+        <a href="/mayer-multiple"><b>마이어 배수의 역사</b><span>200일선이 사이클마다 말해준 것 — 가격 축의 바닥 지표</span></a>
+        <a href="/"><b>대시보드로</b><span>지금 바닥 점수(BOTTOM RADAR) 확인하기</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
+    </main>
+
+    <script>
+      /* ── 라이브 차트 3종 — 바닐라 JS + SVG (라이브러리 없음) ──
+       * 데이터: CoinMetrics Community(시총·MVRV) + blockchain.info(채굴자 수익).
+       * 대시보드 엔진(index.html)과 동일한 계산: 실현시총 = 시총/MVRV,
+       * MVRV Z = (시총−실현시총)/σ(시총, 전역사), Thermocap Z = z(ln(시총/누적채굴보상)). */
+      (function () {
+        'use strict'
+        var CM_URL = 'https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapMrktCurUSD,CapMVRVCur&frequency=1d&page_size=10000'
+        var MR_URL = 'https://api.blockchain.info/charts/miners-revenue?timespan=all&format=json&cors=true'
+        var TTL = 6 * 3600 * 1000 // 6시간 캐시
+        var HALVINGS = ['2012-11-28', '2016-07-09', '2020-05-11', '2024-04-19'].map(function (d) { return Date.parse(d + 'T00:00:00Z') })
+        var MAXPTS = 800
+
+        function cacheGet (k) { try { var r = localStorage.getItem(k); if (!r) return null; var o = JSON.parse(r); return (o && Date.now() - o.t < TTL) ? o.d : null } catch (e) { return null } }
+        function cacheSet (k, d) { try { localStorage.setItem(k, JSON.stringify({ t: Date.now(), d: d })) } catch (e) {} }
+        function getJSON (url, ms) {
+          return new Promise(function (resolve, reject) {
+            var ctrl = window.AbortController ? new AbortController() : null
+            var to = setTimeout(function () { if (ctrl) ctrl.abort(); reject(new Error('timeout')) }, ms || 15000)
+            fetch(url, ctrl ? { signal: ctrl.signal } : {})
+              .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json() })
+              .then(function (j) { clearTimeout(to); resolve(j) }, function (e) { clearTimeout(to); reject(e) })
+          })
+        }
+        function mean (a) { var s = 0, i; for (i = 0; i < a.length; i++) s += a[i]; return s / a.length }
+        function stdev (a) { if (a.length < 2) return 0; var m = mean(a), s = 0, i; for (i = 0; i < a.length; i++) s += (a[i] - m) * (a[i] - m); return Math.sqrt(s / a.length) }
+        function pickIdx (len, maxN) { // ≤maxN 개 균등 다운샘플(첫·끝 보존)
+          if (len <= maxN) { var all = [], i; for (i = 0; i < len; i++) all.push(i); return all }
+          var step = (len - 1) / (maxN - 1), out = [], k
+          for (k = 0; k < maxN; k++) out.push(Math.round(k * step))
+          return out
+        }
+        function nearestIdx (arr, x) {
+          var lo = 0, hi = arr.length - 1
+          while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (arr[mid] < x) lo = mid; else hi = mid }
+          return (x - arr[lo] < arr[hi] - x) ? lo : hi
+        }
+        function fmtUsd (v) {
+          if (v >= 1e12) return '$' + (v / 1e12).toFixed(2) + 'T'
+          if (v >= 1e9) return '$' + (v / 1e9).toFixed(1) + 'B'
+          if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M'
+          if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K'
+          return '$' + v.toFixed(0)
+        }
+        function fmtDate (t) { var d = new Date(t); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2) }
+        function fail (id, msg) { var m = document.getElementById(id); if (m) m.innerHTML = '<div class="chart-status">' + (msg || '데이터 로드 실패 — 잠시 후 새로고침해 주세요.') + '</div>' }
+        function svgEl (tag, attrs) { var n = document.createElementNS('http://www.w3.org/2000/svg', tag); for (var k in attrs) n.setAttribute(k, attrs[k]); return n }
+
+        /* 범용 라인차트. o = { t, series:[{v,color,w,label}], log, zones, halvings, zeroLine, height, fmtTick, tipHTML(i) } */
+        function lineChart (mount, o) {
+          var W = 860, H = o.height || 330, L = 56, R = 14, T = 14, B = 30
+          var iw = W - L - R, ih = H - T - B
+          var t0 = o.t[0], t1 = o.t[o.t.length - 1]
+          var vmin = Infinity, vmax = -Infinity
+          o.series.forEach(function (s) { s.v.forEach(function (v) { if (v == null || (o.log && v <= 0)) return; if (v < vmin) vmin = v; if (v > vmax) vmax = v }) })
+          if (!isFinite(vmin) || !isFinite(vmax) || t1 <= t0) return
+          var ymin, ymax
+          if (o.log) { ymin = Math.log10(vmin) - 0.15; ymax = Math.log10(vmax) + 0.15 }
+          else { var pad = (vmax - vmin) * 0.08 || 1; ymin = vmin - pad; ymax = vmax + pad }
+          var X = function (t) { return L + ((t - t0) / (t1 - t0)) * iw }
+          var Y = function (v) { var u = o.log ? Math.log10(v) : v; return T + (1 - (u - ymin) / (ymax - ymin)) * ih }
+          var yOf = function (u) { return T + (1 - (u - ymin) / (ymax - ymin)) * ih } // 축 단위(로그면 지수) 직접
+          var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': o.aria || '차트' })
+
+          // 배경 영역(zones) — z 차트의 바닥권/과열권 음영
+          ;(o.zones || []).forEach(function (z) {
+            var top = Math.min(ymax, z.to == null ? ymax : z.to)
+            var bot = Math.max(ymin, z.from == null ? ymin : z.from)
+            if (top <= bot) return
+            var y1 = yOf(top), y2 = yOf(bot)
+            svg.appendChild(svgEl('rect', { x: L, y: y1.toFixed(1), width: iw, height: (y2 - y1).toFixed(1), fill: z.fill }))
+            if (z.label) { var zl = svgEl('text', { x: W - R - 5, y: (z.labelTop ? y1 + 12 : y2 - 5).toFixed(1), 'text-anchor': 'end', 'font-size': 10, fill: z.color || '#777' }); zl.textContent = z.label; svg.appendChild(zl) }
+          })
+
+          // y 그리드 + 라벨
+          var ticks = []
+          if (o.log) { for (var e = Math.ceil(ymin); e <= Math.floor(ymax); e++) ticks.push(Math.pow(10, e)) }
+          else { var span = ymax - ymin, st = span > 16 ? 4 : span > 8 ? 2 : 1; for (var v = Math.ceil(ymin / st) * st; v <= ymax; v += st) ticks.push(v) }
+          ticks.forEach(function (tv) {
+            var y = Y(tv)
+            svg.appendChild(svgEl('line', { x1: L, x2: W - R, y1: y.toFixed(1), y2: y.toFixed(1), stroke: 'rgba(0,0,0,0.08)' }))
+            var lb = svgEl('text', { x: L - 6, y: (y + 3.5).toFixed(1), 'text-anchor': 'end', 'font-size': 10, fill: '#8a8375' })
+            lb.textContent = o.fmtTick ? o.fmtTick(tv) : String(tv)
+            svg.appendChild(lb)
+          })
+
+          // 연도 눈금
+          var yA = new Date(t0).getUTCFullYear() + 1, yB = new Date(t1).getUTCFullYear()
+          var stepY = (yB - yA > 9) ? 2 : 1
+          for (var yy = yA; yy <= yB; yy += stepY) {
+            var ty = Date.UTC(yy, 0, 1); if (ty < t0 || ty > t1) continue
+            var x = X(ty)
+            svg.appendChild(svgEl('line', { x1: x.toFixed(1), x2: x.toFixed(1), y1: T, y2: T + ih, stroke: 'rgba(0,0,0,0.05)' }))
+            var xl = svgEl('text', { x: x.toFixed(1), y: H - 8, 'text-anchor': 'middle', 'font-size': 10, fill: '#8a8375' }); xl.textContent = yy; svg.appendChild(xl)
+          }
+
+          // 반감기 수직 점선 (주황)
+          ;(o.halvings || []).forEach(function (ht) {
+            if (ht < t0 || ht > t1) return
+            var x = X(ht)
+            svg.appendChild(svgEl('line', { x1: x.toFixed(1), x2: x.toFixed(1), y1: T, y2: T + ih, stroke: '#e08a1e', 'stroke-width': 1, 'stroke-dasharray': '4 4' }))
+            var hl = svgEl('text', { x: (x + 3).toFixed(1), y: T + 10, 'font-size': 9, fill: '#e08a1e' }); hl.textContent = '반감기'; svg.appendChild(hl)
+          })
+
+          // 0선 (z 차트)
+          if (o.zeroLine && ymin < 0 && ymax > 0) {
+            var zy = yOf(0)
+            svg.appendChild(svgEl('line', { x1: L, x2: W - R, y1: zy.toFixed(1), y2: zy.toFixed(1), stroke: 'rgba(0,0,0,0.35)', 'stroke-dasharray': '2 3' }))
+          }
+
+          // 시리즈 경로
+          o.series.forEach(function (s) {
+            var d = '', started = false, i, v
+            for (i = 0; i < o.t.length; i++) {
+              v = s.v[i]
+              if (v == null || (o.log && v <= 0)) { started = false; continue }
+              d += (started ? 'L' : 'M') + X(o.t[i]).toFixed(1) + ' ' + Y(v).toFixed(1)
+              started = true
+            }
+            svg.appendChild(svgEl('path', { d: d, fill: 'none', stroke: s.color, 'stroke-width': s.w || 1.6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }))
+          })
+
+          // 범례
+          if (o.legend) {
+            var lx = L + 10
+            o.series.forEach(function (s) {
+              if (!s.label) return
+              svg.appendChild(svgEl('line', { x1: lx, x2: lx + 16, y1: T + 9, y2: T + 9, stroke: s.color, 'stroke-width': 2.4 }))
+              var ll = svgEl('text', { x: lx + 21, y: T + 12.5, 'font-size': 11, fill: '#3a352a' }); ll.textContent = s.label; svg.appendChild(ll)
+              lx += 21 + s.label.length * 11 + 26
+            })
+          }
+
+          // 호버 크로스헤어 + 툴팁
+          var cross = svgEl('line', { x1: 0, x2: 0, y1: T, y2: T + ih, stroke: 'rgba(0,0,0,0.4)', 'stroke-width': 1, visibility: 'hidden' })
+          svg.appendChild(cross)
+          var dots = o.series.map(function (s) { var c = svgEl('circle', { r: 3, fill: s.color, stroke: '#f6f5f0', 'stroke-width': 1, visibility: 'hidden' }); svg.appendChild(c); return c })
+          mount.innerHTML = ''
+          mount.appendChild(svg)
+          var tip = document.createElement('div'); tip.className = 'chart-tip'; mount.appendChild(tip)
+          function hide () { cross.setAttribute('visibility', 'hidden'); dots.forEach(function (d) { d.setAttribute('visibility', 'hidden') }); tip.style.display = 'none' }
+          svg.addEventListener('pointerleave', hide)
+          svg.addEventListener('pointermove', function (ev) {
+            var r = svg.getBoundingClientRect()
+            var mx = (ev.clientX - r.left) * (W / r.width)
+            if (mx < L || mx > W - R) { hide(); return }
+            var i = nearestIdx(o.t, t0 + ((mx - L) / iw) * (t1 - t0))
+            var x = X(o.t[i])
+            cross.setAttribute('x1', x.toFixed(1)); cross.setAttribute('x2', x.toFixed(1)); cross.setAttribute('visibility', 'visible')
+            o.series.forEach(function (s, k) {
+              var v = s.v[i]
+              if (v == null || (o.log && v <= 0)) { dots[k].setAttribute('visibility', 'hidden'); return }
+              dots[k].setAttribute('cx', x.toFixed(1)); dots[k].setAttribute('cy', Y(v).toFixed(1)); dots[k].setAttribute('visibility', 'visible')
+            })
+            tip.innerHTML = o.tipHTML(i)
+            tip.style.display = 'block'
+            var mr = mount.getBoundingClientRect()
+            var cx = ev.clientX - mr.left, cy = ev.clientY - mr.top
+            tip.style.left = (cx + 14 + tip.offsetWidth > mr.width ? Math.max(2, cx - tip.offsetWidth - 12) : cx + 14) + 'px'
+            tip.style.top = Math.max(4, cy - tip.offsetHeight - 10) + 'px'
+          })
+        }
+
+        /* ── 데이터 로드 ── */
+        function loadCM () {
+          var c = cacheGet('bb:cm:v1')
+          if (c) return Promise.resolve(c)
+          return getJSON(CM_URL, 15000).then(function (j) {
+            var rows = (j.data || []).filter(function (r) { return +r.CapMrktCurUSD > 0 && +r.CapMVRVCur > 0 })
+            if (rows.length < 100) throw new Error('insufficient')
+            var d = { t: [], mc: [], mvrv: [] }
+            rows.forEach(function (r) { d.t.push(Date.parse(r.time)); d.mc.push(+r.CapMrktCurUSD); d.mvrv.push(+r.CapMVRVCur) })
+            cacheSet('bb:cm:v1', d)
+            return d
+          })
+        }
+        function loadMR () {
+          var c = cacheGet('bb:mr:v1')
+          if (c) return Promise.resolve(c)
+          return getJSON(MR_URL, 15000).then(function (j) {
+            var vals = (j.values || []).filter(function (v) { return v && v.y >= 0 })
+            if (vals.length < 100) throw new Error('insufficient')
+            var d = { x: vals.map(function (v) { return v.x }), y: vals.map(function (v) { return v.y }) }
+            cacheSet('bb:mr:v1', d)
+            return d
+          })
+        }
+
+        /* ── 차트 ①: 시가총액(검정) vs 실현시총(파랑), 로그 ── */
+        function drawChart1 (d) {
+          var idx = pickIdx(d.t.length, MAXPTS)
+          var t = idx.map(function (i) { return d.t[i] })
+          var mc = idx.map(function (i) { return d.mc[i] })
+          var rc = idx.map(function (i) { return d.mc[i] / d.mvrv[i] })
+          lineChart(document.getElementById('chart1'), {
+            t: t, log: true, height: 350, legend: true, halvings: HALVINGS,
+            aria: '비트코인 시가총액과 평균 매수원가(실현시총)의 전 역사 로그 차트',
+            series: [
+              { v: mc, color: '#111111', w: 1.7, label: '시가총액' },
+              { v: rc, color: '#2563c9', w: 1.7, label: '평균 매수원가(실현시총)' },
+            ],
+            fmtTick: fmtUsd,
+            tipHTML: function (i) {
+              var mv = mc[i] / rc[i]
+              return '<b>' + fmtDate(t[i]) + '</b><br />시가총액 ' + fmtUsd(mc[i]) + '<br />평균 매수원가 ' + fmtUsd(rc[i]) + '<br />MVRV ' + mv.toFixed(2) + '×'
+            },
+          })
+        }
+
+        /* ── 차트 ②: MVRV Z-Score = (시총 − 실현시총) / σ(시총) ──
+         * σ는 각 시점까지의 전 역사(확장 윈도우) — 과거 구간을 "그날 볼 수 있었던 값"으로 그린다.
+         * 마지막 점은 대시보드 엔진(전 역사 σ)의 현재값과 정의상 일치. 초기 120일은 σ 불안정 → 제외. */
+        function drawChart2 (d) {
+          var n = d.mc.length, zAll = new Array(n), s1 = 0, s2 = 0, i
+          for (i = 0; i < n; i++) {
+            s1 += d.mc[i]; s2 += d.mc[i] * d.mc[i]
+            var m = s1 / (i + 1), varc = s2 / (i + 1) - m * m
+            var sd = varc > 0 ? Math.sqrt(varc) : 0
+            zAll[i] = (i >= 120 && sd > 0) ? (d.mc[i] - d.mc[i] / d.mvrv[i]) / sd : null
+          }
+          var idx = pickIdx(d.t.length, MAXPTS)
+          var t = idx.map(function (i) { return d.t[i] })
+          var z = idx.map(function (i) { return zAll[i] })
+          lineChart(document.getElementById('chart2'), {
+            t: t, log: false, height: 310, zeroLine: true, halvings: HALVINGS,
+            aria: 'MVRV Z-Score 전 역사 차트 (0 아래 바닥권, 5 초과 과열)',
+            zones: [
+              { to: 0, fill: 'rgba(34,139,84,0.14)', label: '바닥권 (z < 0)', color: '#22713f' },
+              { from: 0, to: 2, fill: 'rgba(0,0,0,0.03)' },
+              { from: 5, fill: 'rgba(200,52,44,0.12)', label: '과열 (z > 5)', color: '#b03a30', labelTop: true },
+            ],
+            series: [{ v: z, color: '#1f2a44', w: 1.6, label: null }],
+            fmtTick: function (v) { return 'z ' + v },
+            tipHTML: function (i) { return '<b>' + fmtDate(t[i]) + '</b><br />MVRV Z-Score ' + z[i].toFixed(2) },
+          })
+        }
+
+        /* ── 차트 ③: Thermocap Z = z(ln(시총 / 누적 채굴보상)) ──
+         * 채굴자 수익을 샘플 간격(일)으로 가중해 누적(적분 근사) 후 CM 일봉 시총과 날짜 정렬. */
+        function drawChart3 (d, mr) {
+          var cum = [], acc = 0, i
+          for (i = 0; i < mr.x.length; i++) {
+            var dDays = i === 0 ? 1 : Math.max(1, (mr.x[i] - mr.x[i - 1]) / 86400)
+            acc += mr.y[i] * dDays
+            cum.push({ t: mr.x[i] * 1000, v: acc })
+          }
+          var lnPts = [], p = 0
+          for (i = 0; i < d.t.length; i++) {
+            while (p < cum.length - 1 && cum[p + 1].t <= d.t[i]) p++
+            if (cum[p].v > 0) lnPts.push({ t: d.t[i], ln: Math.log(d.mc[i] / cum[p].v) })
+          }
+          if (lnPts.length < 100) { fail('chart3'); return }
+          var lns = lnPts.map(function (x) { return x.ln })
+          var mu = mean(lns), sd = stdev(lns)
+          if (!(sd > 0)) { fail('chart3'); return }
+          var idx = pickIdx(lnPts.length, MAXPTS)
+          var t = idx.map(function (k) { return lnPts[k].t })
+          var z = idx.map(function (k) { return (lnPts[k].ln - mu) / sd })
+          lineChart(document.getElementById('chart3'), {
+            t: t, log: false, height: 310, zeroLine: true, halvings: HALVINGS,
+            aria: 'Thermocap Z-Score 전 역사 차트 (시가총액 대 누적 채굴보상)',
+            zones: [
+              { to: -1, fill: 'rgba(34,139,84,0.14)', label: '원가 근접 (z < −1)', color: '#22713f' },
+              { from: 1.5, fill: 'rgba(200,52,44,0.12)', label: '과열 (z > 1.5)', color: '#b03a30', labelTop: true },
+            ],
+            series: [{ v: z, color: '#7a3e12', w: 1.6, label: null }],
+            fmtTick: function (v) { return 'z ' + v },
+            tipHTML: function (i) { return '<b>' + fmtDate(t[i]) + '</b><br />Thermocap Z ' + z[i].toFixed(2) },
+          })
+        }
+
+        loadCM().then(function (d) {
+          try { drawChart1(d) } catch (e) { fail('chart1') }
+          try { drawChart2(d) } catch (e) { fail('chart2') }
+          loadMR().then(function (mr) {
+            try { drawChart3(d, mr) } catch (e) { fail('chart3') }
+          }, function () { fail('chart3') })
+        }, function () {
+          fail('chart1'); fail('chart2'); fail('chart3')
+        })
+      })()
+    </script>
+  </body>
+</html>
