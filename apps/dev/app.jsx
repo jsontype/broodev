@@ -13,6 +13,16 @@ const APPS = [
   { slug: 'voca', name: 'VOCA_DECK',   url: 'https://voca.broodev.com', category: 'learn',  status: 'live', tags: ['단어암기', '깜빡이', 'CSV'] },
   { slug: 'greenland', name: 'GREENLAND_INFO', url: 'https://greenland.broodev.com', category: 'info', status: 'soon', tags: ['그린란드', '날씨', '오로라'] },
   { slug: 'africa', name: 'AFRICA_UTILITY', url: 'https://africa.broodev.com', category: 'info', status: 'soon', tags: ['아프리카', '환율', 'USSD'] },
+  { slug: 'philippines', name: 'PINAS_PANEL', url: 'https://philippines.broodev.com', category: 'info', status: 'soon', tags: ['필리핀', '태풍', '송금', 'USSD'] },
+  { slug: 'caribbean', name: 'CARIB_PANEL', url: 'https://caribbean.broodev.com', category: 'info', status: 'soon', tags: ['카리브', '허리케인', '환율'] },
+  { slug: 'pakistan', name: 'PAK_PANEL', url: 'https://pakistan.broodev.com', category: 'info', status: 'soon', tags: ['파키스탄', '로드셰딩', '시험결과', 'USSD'] },
+  { slug: 'bangladesh', name: 'BANGLA_PANEL', url: 'https://bangladesh.broodev.com', category: 'info', status: 'soon', tags: ['방글라데시', '사이클론', '시험결과'] },
+  { slug: 'nepal', name: 'NEPAL_PANEL', url: 'https://nepal.broodev.com', category: 'info', status: 'soon', tags: ['네팔', '달력변환', 'EPS', '트레킹'] },
+  { slug: 'srilanka', name: 'LANKA_PANEL', url: 'https://srilanka.broodev.com', category: 'info', status: 'soon', tags: ['스리랑카', '정전', '기차', 'Z-score'] },
+  { slug: 'stans', name: 'STAN_PANEL', url: 'https://stans.broodev.com', category: 'info', status: 'soon', tags: ['중앙아시아', '송금', '노동허가'] },
+  { slug: 'pacific', name: 'PACIFIC_PANEL', url: 'https://pacific.broodev.com', category: 'info', status: 'soon', tags: ['태평양', '사이클론', '계절노동'] },
+  { slug: 'nunavut', name: 'NUNAVUT_PANEL', url: 'https://nunavut.broodev.com', category: 'info', status: 'soon', tags: ['누나부트', '북극', '오로라', '수렵'] },
+  { slug: 'mongolia', name: 'MONGOL_PANEL', url: 'https://mongolia.broodev.com', category: 'info', status: 'soon', tags: ['몽골', '대기질', '조드', '유목'] },
 ];
 const ROADMAP = [];
 /* 앱 설명/카테고리 라벨 — 현재 UI 언어 번들에서 조회, 구버전 캐시 번들이면 ko로 폴백(코드·빈칸 노출 방지) */
@@ -23,8 +33,9 @@ const appDesc = (a, t, fmt) => {
   if (a.slug === 'btc') return ap.sigAllDesc || KO_APPS.sigAllDesc || fmt(ap.sigTpl, { name: (ap.coin || {}).btc || 'Bitcoin' });
   if (a.slug === 'voca') return ap.vocaDesc;
   if (a.slug === 'voca-tutorial') return ap.vocaTutDesc;
-  if (a.slug === 'greenland') return ap.greenlandDesc || KO_APPS.greenlandDesc;
-  if (a.slug === 'africa') return ap.africaDesc || KO_APPS.africaDesc;
+  /* 국가정보 앱 등: <slug>Desc 키를 일반 조회 (greenland·africa 포함) */
+  const d = ap[a.slug + 'Desc'] || KO_APPS[a.slug + 'Desc'];
+  if (d) return d;
   return fmt(ap.sigTpl, { name: (ap.coin || {})[a.slug] || a.name });
 };
 
