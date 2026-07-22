@@ -408,8 +408,8 @@
       .duo-wrap { position: relative; }
       .duo-plot { position: relative; }
       .duo-svg { display: block; width: 100%; height: clamp(200px, 34vw, 300px); border: 1px solid var(--line); border-radius: 4px; }
-      .duo-tip { position: absolute; top: 8px; z-index: 20; background: rgba(255,255,255,.96); color: #111; border: 1px solid #999; border-radius: 4px; padding: 6px 9px; font-size: 11px; line-height: 1.5; pointer-events: none; white-space: nowrap; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
-      .duo-tip b { display: block; margin-bottom: 2px; }
+      .duo-tip { position: absolute; top: 8px; z-index: 20; background: rgba(7,18,13,.96); color: var(--text); border: 1px solid var(--line); border-radius: 4px; padding: 6px 9px; font-size: 11px; line-height: 1.5; pointer-events: none; white-space: nowrap; box-shadow: 0 0 16px -4px rgba(0,255,156,.35); }
+      .duo-tip b { display: block; margin-bottom: 2px; color: var(--neon); }
       .duo-tip span { display: flex; align-items: center; gap: 5px; }
       .duo-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 7px; font-size: 11px; color: var(--dim); }
       .duo-legend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -2005,7 +2005,7 @@
       /* =========================================================
        *  바닥 레이더 — 시가총액 vs 평균 매수원가(로그) 차트 + 바닥 점수
        *  bustudy.kr/btc 방법론 참조: MVRV(총평단)·Thermocap(원가) 기반
-       *  차트는 밝은 배경(종이 차트) — 시총 검정 / 평균 매수원가 파랑 (문구와 색 일치)
+       *  차트는 다크 터미널 테마 — 시총 흰색 / 평균 매수원가 파랑 (툴팁 문구와 색 일치)
        * ========================================================= */
       const BTC_HALVINGS = [1354060800000, 1468022400000, 1589155200000, 1713484800000] // 2012-11-28 · 2016-07-09 · 2020-05-11 · 2024-04-19
       function DuoLogChart({ chart, oc }) {
@@ -2044,25 +2044,25 @@
           <div className="duo-wrap">
             <div className="duo-plot" onMouseMove={onMove} onMouseLeave={() => setHi(null)} onTouchStart={onMove} onTouchMove={onMove} onTouchEnd={() => setHi(null)}>
               <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="duo-svg">
-                <rect x="0" y="0" width={W} height={H} fill="#f6f5f0" />
-                {yearTicks.map((tk, i) => <line key={'y' + i} x1={tk.x} x2={tk.x} y1={padT} y2={H - padB} stroke="rgba(0,0,0,.07)" strokeWidth="1" />)}
-                {halvings.map((hv, i) => <line key={'h' + i} x1={hv.x} x2={hv.x} y1={padT} y2={H - padB} stroke="#e8842c" strokeWidth="1.2" strokeDasharray="5 4" />)}
-                <path d={path(chart.rc)} fill="none" stroke="#2563c9" strokeWidth="1.8" />
-                <path d={path(chart.mc)} fill="none" stroke="#111111" strokeWidth="1.6" />
-                {yearTicks.map((tk, i) => <text key={'t' + i} x={tk.x} y={H - 8} fontSize="11" fill="#666" textAnchor="middle" fontFamily="monospace">{tk.y}</text>)}
-                {hi != null && <line x1={X(hi)} x2={X(hi)} y1={padT} y2={H - padB} stroke="rgba(0,0,0,.4)" strokeWidth="1" />}
+                <rect x="0" y="0" width={W} height={H} fill="#0b120e" />
+                {yearTicks.map((tk, i) => <line key={'y' + i} x1={tk.x} x2={tk.x} y1={padT} y2={H - padB} stroke="rgba(255,255,255,.06)" strokeWidth="1" />)}
+                {halvings.map((hv, i) => <line key={'h' + i} x1={hv.x} x2={hv.x} y1={padT} y2={H - padB} stroke="#e8964a" strokeWidth="1.2" strokeDasharray="5 4" />)}
+                <path d={path(chart.rc)} fill="none" stroke="#4da3ff" strokeWidth="1.8" />
+                <path d={path(chart.mc)} fill="none" stroke="#e6f2ec" strokeWidth="1.6" />
+                {yearTicks.map((tk, i) => <text key={'t' + i} x={tk.x} y={H - 8} fontSize="11" fill="#7d918a" textAnchor="middle" fontFamily="monospace">{tk.y}</text>)}
+                {hi != null && <line x1={X(hi)} x2={X(hi)} y1={padT} y2={H - padB} stroke="rgba(255,255,255,.35)" strokeWidth="1" />}
               </svg>
               {hi != null && (
                 <div className="duo-tip" style={{ left: `${tipX}%`, transform: tipTransform }}>
                   <b>{new Date(chart.t[hi]).toLocaleDateString(locale)}</b>
-                  <span><i className="duo-dot" style={{ background: '#111' }} />{oc.bottom.mcLabel}: {fmtCompact(chart.mc[hi])}</span>
-                  <span><i className="duo-dot" style={{ background: '#2563c9' }} />{oc.bottom.rcLabel}: {fmtCompact(chart.rc[hi])}</span>
+                  <span><i className="duo-dot" style={{ background: '#e6f2ec' }} />{oc.bottom.mcLabel}: {fmtCompact(chart.mc[hi])}</span>
+                  <span><i className="duo-dot" style={{ background: '#4da3ff' }} />{oc.bottom.rcLabel}: {fmtCompact(chart.rc[hi])}</span>
                 </div>
               )}
             </div>
             <div className="duo-legend">
-              <span><i className="duo-dot" style={{ background: '#111' }} />{oc.bottom.mcLabel}</span>
-              <span><i className="duo-dot" style={{ background: '#2563c9' }} />{oc.bottom.rcLabel}</span>
+              <span><i className="duo-dot" style={{ background: '#e6f2ec' }} />{oc.bottom.mcLabel}</span>
+              <span><i className="duo-dot" style={{ background: '#4da3ff' }} />{oc.bottom.rcLabel}</span>
               {halvings.length > 0 && <span><i className="duo-dash" />{oc.bottom.halving}</span>}
             </div>
           </div>
@@ -2483,7 +2483,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: '지금이 바닥인가?', chartTitle: '시가총액 vs 평균 매수원가 (로그)',
             tipTitle: '시가총액 vs 평균 매수원가',
-            tipBody: '파란 선은 투자자들의 평균 매수원가입니다. 시가총액(검정)이 이 선 아래로 내려가면, 평균적으로 손실 구간이라는 뜻이라 역사적으로 바닥권이었습니다.',
+            tipBody: '파란 선은 투자자들의 평균 매수원가입니다. 시가총액(흰색)이 이 선 아래로 내려가면, 평균적으로 손실 구간이라는 뜻이라 역사적으로 바닥권이었습니다.',
             mcLabel: '시가총액', rcLabel: '평균 매수원가(실현시총)', halving: '반감기',
             underCost: '⚑ 지금 시가총액이 평균 매수원가 아래 — 역사적 바닥권 신호', overCost: '시가총액이 평균 매수원가 위 (정상 범위)',
             noData: '이 코인은 온체인 데이터(CoinMetrics) 미지원 — 바닥 점수는 가격 기반 지표로만 계산됩니다',
@@ -2506,7 +2506,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'Is this the bottom?', chartTitle: 'Market cap vs average cost basis (log)',
             tipTitle: 'Market cap vs average cost basis',
-            tipBody: 'The blue line is investors’ average cost basis (realized cap). When market cap (black) falls below it, the average holder is at a loss — historically a bottom zone.',
+            tipBody: 'The blue line is investors’ average cost basis (realized cap). When market cap (white) falls below it, the average holder is at a loss — historically a bottom zone.',
             mcLabel: 'Market cap', rcLabel: 'Avg. cost basis (realized cap)', halving: 'halving',
             underCost: '⚑ Market cap is below the average cost basis — historic bottom-zone signal', overCost: 'Market cap above average cost basis (normal range)',
             noData: 'On-chain data (CoinMetrics) not available for this coin — bottom score uses price-based indicators only',
@@ -2529,7 +2529,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: '今が底か？', chartTitle: '時価総額 vs 平均取得単価（ログ）',
             tipTitle: '時価総額 vs 平均取得単価',
-            tipBody: '青い線は投資家の平均取得単価です。時価総額（黒）がこの線を下回ると、平均的に損失圏という意味で、歴史的に底値圏でした。',
+            tipBody: '青い線は投資家の平均取得単価です。時価総額（白）がこの線を下回ると、平均的に損失圏という意味で、歴史的に底値圏でした。',
             mcLabel: '時価総額', rcLabel: '平均取得単価（実現時価総額）', halving: '半減期',
             underCost: '⚑ 時価総額が平均取得単価を下回っています — 歴史的底値圏シグナル', overCost: '時価総額は平均取得単価の上（通常範囲）',
             noData: 'このコインはオンチェーンデータ（CoinMetrics）非対応 — 底値スコアは価格ベース指標のみで計算',
@@ -2552,7 +2552,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: '现在是底部吗？', chartTitle: '市值 vs 平均持仓成本（对数）',
             tipTitle: '市值 vs 平均持仓成本',
-            tipBody: '蓝线是投资者的平均持仓成本。当市值（黑色）跌破该线，意味着平均处于亏损区间，历史上是底部区域。',
+            tipBody: '蓝线是投资者的平均持仓成本。当市值（白色）跌破该线，意味着平均处于亏损区间，历史上是底部区域。',
             mcLabel: '市值', rcLabel: '平均持仓成本（已实现市值）', halving: '减半',
             underCost: '⚑ 市值已低于平均持仓成本 — 历史底部区信号', overCost: '市值高于平均持仓成本（正常区间）',
             noData: '该币种暂无链上数据（CoinMetrics）— 底部评分仅用价格类指标计算',
@@ -2575,7 +2575,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: '現在是底部嗎？', chartTitle: '市值 vs 平均持倉成本（對數）',
             tipTitle: '市值 vs 平均持倉成本',
-            tipBody: '藍線是投資人的平均持倉成本。當市值（黑色）跌破該線，代表平均處於虧損區間，歷史上是底部區域。',
+            tipBody: '藍線是投資人的平均持倉成本。當市值（白色）跌破該線，代表平均處於虧損區間，歷史上是底部區域。',
             mcLabel: '市值', rcLabel: '平均持倉成本（已實現市值）', halving: '減半',
             underCost: '⚑ 市值已低於平均持倉成本 — 歷史底部區訊號', overCost: '市值高於平均持倉成本（正常區間）',
             noData: '此幣種暫無鏈上資料（CoinMetrics）— 底部評分僅用價格類指標計算',
@@ -2598,7 +2598,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'ตอนนี้คือก้นเหวหรือยัง?', chartTitle: 'มูลค่าตลาด vs ต้นทุนซื้อเฉลี่ย (ล็อก)',
             tipTitle: 'มูลค่าตลาด vs ต้นทุนซื้อเฉลี่ย',
-            tipBody: 'เส้นสีน้ำเงินคือต้นทุนซื้อเฉลี่ยของนักลงทุน เมื่อมูลค่าตลาด (สีดำ) ลงต่ำกว่าเส้นนี้ แปลว่าโดยเฉลี่ยอยู่ในโซนขาดทุน ซึ่งในอดีตคือโซนก้นเหว',
+            tipBody: 'เส้นสีน้ำเงินคือต้นทุนซื้อเฉลี่ยของนักลงทุน เมื่อมูลค่าตลาด (สีขาว) ลงต่ำกว่าเส้นนี้ แปลว่าโดยเฉลี่ยอยู่ในโซนขาดทุน ซึ่งในอดีตคือโซนก้นเหว',
             mcLabel: 'มูลค่าตลาด', rcLabel: 'ต้นทุนซื้อเฉลี่ย (realized cap)', halving: 'ฮาล์ฟวิ่ง',
             underCost: '⚑ มูลค่าตลาดต่ำกว่าต้นทุนซื้อเฉลี่ย — สัญญาณโซนก้นเหวในอดีต', overCost: 'มูลค่าตลาดสูงกว่าต้นทุนเฉลี่ย (ช่วงปกติ)',
             noData: 'เหรียญนี้ไม่มีข้อมูลออนเชน (CoinMetrics) — คะแนนก้นเหวใช้เฉพาะตัวชี้วัดราคา',
@@ -2621,7 +2621,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: '¿Es este el suelo?', chartTitle: 'Cap. de mercado vs coste medio de compra (log)',
             tipTitle: 'Cap. de mercado vs coste medio de compra',
-            tipBody: 'La línea azul es el coste medio de compra de los inversores. Cuando la capitalización (negra) cae por debajo, el tenedor medio está en pérdidas — históricamente zona de suelo.',
+            tipBody: 'La línea azul es el coste medio de compra de los inversores. Cuando la capitalización (blanca) cae por debajo, el tenedor medio está en pérdidas — históricamente zona de suelo.',
             mcLabel: 'Cap. de mercado', rcLabel: 'Coste medio (realized cap)', halving: 'halving',
             underCost: '⚑ La capitalización está bajo el coste medio — señal de zona de suelo histórico', overCost: 'Capitalización sobre el coste medio (rango normal)',
             noData: 'Sin datos on-chain (CoinMetrics) para esta moneda — la puntuación de suelo usa solo indicadores de precio',
@@ -2644,7 +2644,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'Est-ce le plancher ?', chartTitle: 'Cap. boursière vs coût moyen d’achat (log)',
             tipTitle: 'Cap. boursière vs coût moyen d’achat',
-            tipBody: 'La ligne bleue est le coût moyen d’achat des investisseurs. Quand la capitalisation (noire) passe dessous, le détenteur moyen est en perte — historiquement une zone de plancher.',
+            tipBody: 'La ligne bleue est le coût moyen d’achat des investisseurs. Quand la capitalisation (blanche) passe dessous, le détenteur moyen est en perte — historiquement une zone de plancher.',
             mcLabel: 'Cap. boursière', rcLabel: 'Coût moyen (realized cap)', halving: 'halving',
             underCost: '⚑ Capitalisation sous le coût moyen — signal de zone de plancher historique', overCost: 'Capitalisation au-dessus du coût moyen (plage normale)',
             noData: 'Pas de données on-chain (CoinMetrics) pour cette pièce — le score de plancher n’utilise que des indicateurs de prix',
@@ -2667,7 +2667,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'Ist das der Boden?', chartTitle: 'Marktkapitalisierung vs. Ø-Einstandskurs (log)',
             tipTitle: 'Marktkapitalisierung vs. Ø-Einstandskurs',
-            tipBody: 'Die blaue Linie ist der durchschnittliche Einstandskurs der Anleger. Fällt die Marktkapitalisierung (schwarz) darunter, ist der Durchschnittshalter im Verlust — historisch eine Bodenzone.',
+            tipBody: 'Die blaue Linie ist der durchschnittliche Einstandskurs der Anleger. Fällt die Marktkapitalisierung (weiß) darunter, ist der Durchschnittshalter im Verlust — historisch eine Bodenzone.',
             mcLabel: 'Marktkap.', rcLabel: 'Ø-Einstand (Realized Cap)', halving: 'Halving',
             underCost: '⚑ Marktkap. unter dem Ø-Einstand — Signal einer historischen Bodenzone', overCost: 'Marktkap. über dem Ø-Einstand (Normalbereich)',
             noData: 'Keine On-Chain-Daten (CoinMetrics) für diesen Coin — Boden-Score nutzt nur Preisindikatoren',
@@ -2690,7 +2690,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'È questo il minimo?', chartTitle: 'Cap. di mercato vs costo medio d’acquisto (log)',
             tipTitle: 'Cap. di mercato vs costo medio d’acquisto',
-            tipBody: 'La linea blu è il costo medio d’acquisto degli investitori. Quando la capitalizzazione (nera) scende sotto, il detentore medio è in perdita — storicamente zona di minimo.',
+            tipBody: 'La linea blu è il costo medio d’acquisto degli investitori. Quando la capitalizzazione (bianca) scende sotto, il detentore medio è in perdita — storicamente zona di minimo.',
             mcLabel: 'Cap. di mercato', rcLabel: 'Costo medio (realized cap)', halving: 'halving',
             underCost: '⚑ Capitalizzazione sotto il costo medio — segnale di zona di minimo storico', overCost: 'Capitalizzazione sopra il costo medio (range normale)',
             noData: 'Dati on-chain (CoinMetrics) non disponibili per questa moneta — lo score di minimo usa solo indicatori di prezzo',
@@ -2713,7 +2713,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'É este o fundo?', chartTitle: 'Cap. de mercado vs custo médio de compra (log)',
             tipTitle: 'Cap. de mercado vs custo médio de compra',
-            tipBody: 'A linha azul é o custo médio de compra dos investidores. Quando a capitalização (preta) cai abaixo dela, o detentor médio está em perda — historicamente zona de fundo.',
+            tipBody: 'A linha azul é o custo médio de compra dos investidores. Quando a capitalização (branca) cai abaixo dela, o detentor médio está em perda — historicamente zona de fundo.',
             mcLabel: 'Cap. de mercado', rcLabel: 'Custo médio (realized cap)', halving: 'halving',
             underCost: '⚑ Capitalização abaixo do custo médio — sinal de zona de fundo histórico', overCost: 'Capitalização acima do custo médio (faixa normal)',
             noData: 'Sem dados on-chain (CoinMetrics) para esta moeda — o score de fundo usa apenas indicadores de preço',
@@ -2736,7 +2736,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'Это дно?', chartTitle: 'Капитализация vs средняя цена входа (лог)',
             tipTitle: 'Капитализация vs средняя цена входа',
-            tipBody: 'Синяя линия — средняя цена входа инвесторов. Когда капитализация (чёрная) опускается ниже неё, средний держатель в убытке — исторически это была зона дна.',
+            tipBody: 'Синяя линия — средняя цена входа инвесторов. Когда капитализация (белая) опускается ниже неё, средний держатель в убытке — исторически это была зона дна.',
             mcLabel: 'Капитализация', rcLabel: 'Средняя цена входа (realized cap)', halving: 'халвинг',
             underCost: '⚑ Капитализация ниже средней цены входа — сигнал исторической зоны дна', overCost: 'Капитализация выше средней цены входа (норма)',
             noData: 'Для этой монеты нет ончейн-данных (CoinMetrics) — оценка дна считается только по ценовым индикаторам',
@@ -2759,7 +2759,7 @@
           bottom: {
             title: 'BOTTOM RADAR', q: 'Is dit de bodem?', chartTitle: 'Marktkapitalisatie vs gem. aankoopprijs (log)',
             tipTitle: 'Marktkapitalisatie vs gem. aankoopprijs',
-            tipBody: 'De blauwe lijn is de gemiddelde aankoopprijs van beleggers. Zakt de marktkapitalisatie (zwart) eronder, dan staat de gemiddelde houder op verlies — historisch een bodemzone.',
+            tipBody: 'De blauwe lijn is de gemiddelde aankoopprijs van beleggers. Zakt de marktkapitalisatie (wit) eronder, dan staat de gemiddelde houder op verlies — historisch een bodemzone.',
             mcLabel: 'Marktkap.', rcLabel: 'Gem. aankoopprijs (realized cap)', halving: 'halving',
             underCost: '⚑ Marktkap. onder de gem. aankoopprijs — signaal van historische bodemzone', overCost: 'Marktkap. boven de gem. aankoopprijs (normaal bereik)',
             noData: 'Geen on-chain data (CoinMetrics) voor deze munt — bodemscore gebruikt alleen prijsindicatoren',

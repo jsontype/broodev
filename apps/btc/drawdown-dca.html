@@ -24,19 +24,19 @@
       /* 라이브 차트(종이 질감) 전용 — 나머지는 content.css를 그대로 사용 */
       .bd-figs { margin: 26px 0 10px; }
       .bd-fig { margin: 0 0 18px; }
-      .bd-chart { background: #f6f5f0; border: 1px solid #d8d4c4; border-radius: 6px; padding: 10px 10px 6px; }
+      .bd-chart { background: #0b120e; border: 1px solid #1d2b24; border-radius: 6px; padding: 10px 10px 6px; }
       .bd-pane { position: relative; }
-      .bd-pane + .bd-pane { margin-top: 8px; border-top: 1px dashed #d8d4c4; padding-top: 8px; }
+      .bd-pane + .bd-pane { margin-top: 8px; border-top: 1px dashed #1d2b24; padding-top: 8px; }
       .bd-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 2px 6px; }
-      .bd-title { color: #1f2620; font-size: 12.5px; font-weight: 700; }
-      .bd-legend { display: inline-flex; flex-wrap: wrap; gap: 3px 12px; font-size: 11px; color: #4c5449; margin-left: auto; }
+      .bd-title { color: #cfe6dc; font-size: 12.5px; font-weight: 700; }
+      .bd-legend { display: inline-flex; flex-wrap: wrap; gap: 3px 12px; font-size: 11px; color: #8ba396; margin-left: auto; }
       .bd-legend i { display: inline-block; width: 13px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
       .bd-svg { display: block; width: 100%; }
-      .bd-tip { position: absolute; z-index: 5; pointer-events: none; background: rgba(31, 38, 32, 0.94); color: #f6f5f0; border-radius: 4px; padding: 5px 8px; font-size: 11px; line-height: 1.65; white-space: nowrap; }
+      .bd-tip { position: absolute; z-index: 5; pointer-events: none; background: rgba(31, 38, 32, 0.94); color: #0b120e; border-radius: 4px; padding: 5px 8px; font-size: 11px; line-height: 1.65; white-space: nowrap; }
       .bd-tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
-      .bd-loading, .bd-err { color: #6b7268; font-size: 12px; padding: 48px 10px; text-align: center; }
-      .bd-err { color: #9c4a38; }
-      .bd-cap { color: #5f776e; font-size: 11.5px; line-height: 1.7; margin: 6px 2px 0; }
+      .bd-loading, .bd-err { color: #7d918a; font-size: 12px; padding: 48px 10px; text-align: center; }
+      .bd-err { color: #ff6b5c; }
+      .bd-cap { color: #7d918a; font-size: 11.5px; line-height: 1.7; margin: 6px 2px 0; }
     </style>
   </head>
   <body>
@@ -548,8 +548,8 @@ STRONG BUY(80점) 문턱을 넘으려면, 나머지 5개 지표의 가중평균�
   var NS = 'http://www.w3.org/2000/svg';
   var DAY = 86400000;
   var HALVINGS = [Date.UTC(2012, 10, 28), Date.UTC(2016, 6, 9), Date.UTC(2020, 4, 11), Date.UTC(2024, 3, 19)];
-  var INK = '#26302b', GRID = '#e3e0d2', AXIS = '#6b7268', ORANGE = '#e08a2e';
-  var GREEN = '#2f7d4f', RED = '#b23a2e', BLUE = '#3a6ea5';
+  var INK = '#d8e8e0', GRID = '#1c2822', AXIS = '#7d918a', ORANGE = '#e8964a';
+  var GREEN = '#35c98a', RED = '#ff5c6e', BLUE = '#4da3ff';
 
   function el(n, attrs, parent) {
     var e = document.createElementNS(NS, n);
@@ -881,16 +881,16 @@ STRONG BUY(80점) 문턱을 넘으려면, 나머지 5개 지표의 가중평균�
       var dpath = up
         ? 'M' + mx.toFixed(1) + ' ' + (my + 5).toFixed(1) + 'L' + (mx - 5).toFixed(1) + ' ' + (my + 13).toFixed(1) + 'L' + (mx + 5).toFixed(1) + ' ' + (my + 13).toFixed(1) + 'Z'
         : 'M' + mx.toFixed(1) + ' ' + (my - 5).toFixed(1) + 'L' + (mx - 5).toFixed(1) + ' ' + (my - 13).toFixed(1) + 'L' + (mx + 5).toFixed(1) + ' ' + (my - 13).toFixed(1) + 'Z';
-      el('path', { d: dpath, fill: up ? GREEN : RED, stroke: '#f6f5f0', 'stroke-width': 0.8 }, svg);
+      el('path', { d: dpath, fill: up ? GREEN : RED, stroke: '#0b120e', 'stroke-width': 0.8 }, svg);
     }
 
-    el('rect', { x: padL, y: padT, width: pw, height: ph, fill: 'none', stroke: '#cfccbc', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, svg);
+    el('rect', { x: padL, y: padT, width: pw, height: ph, fill: 'none', stroke: '#2a3b32', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, svg);
 
     var ref = null;
     for (i = 0; i < series.length; i++) { if (series[i].pts.length && series[i].type !== 'bars') { ref = series[i].pts; break; } }
     if (!ref) { for (i = 0; i < series.length; i++) { if (series[i].pts.length) { ref = series[i].pts; break; } } }
     if (ref && ref.length) {
-      var cross = el('line', { y1: padT, y2: padT + ph, x1: -10, x2: -10, stroke: '#55604f', 'stroke-width': 1, 'stroke-dasharray': '3,3', 'vector-effect': 'non-scaling-stroke', visibility: 'hidden' }, svg);
+      var cross = el('line', { y1: padT, y2: padT + ph, x1: -10, x2: -10, stroke: '#8ba396', 'stroke-width': 1, 'stroke-dasharray': '3,3', 'vector-effect': 'non-scaling-stroke', visibility: 'hidden' }, svg);
       var tip = document.createElement('div');
       tip.className = 'bd-tip';
       tip.style.display = 'none';
@@ -943,10 +943,10 @@ STRONG BUY(80점) 문턱을 넘으려면, 나머지 5개 지표의 가중평균�
       yFmt: function (v) { return Math.round(v) + '%'; },
       legendExtra: [{ name: '반감기', color: ORANGE }],
       hlines: [
-        { y: -30, color: '#c07a2e', label: '-30%' },
+        { y: -30, color: '#e8964a', label: '-30%' },
         { y: -50, color: RED, label: '-50%' }
       ],
-      series: [{ name: 'ATH 대비 낙폭', color: '#8a3a2e', type: 'area', fill: 'rgba(178,58,46,0.18)', pts: downsample(dd, 800), fmt: function (v) { return v.toFixed(1) + '%'; } }]
+      series: [{ name: 'ATH 대비 낙폭', color: '#ff6b5c', type: 'area', fill: 'rgba(178,58,46,0.18)', pts: downsample(dd, 800), fmt: function (v) { return v.toFixed(1) + '%'; } }]
     });
   }, function () { showError(['bd-dd-main']); });
 })();
