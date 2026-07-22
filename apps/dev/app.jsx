@@ -3,6 +3,7 @@
    - i18n: window.WEB_I18N (i18n.js 코어 + i18n/<lang>.js 언어 데이터)
    ========================================================================== */
 const { useState, useEffect, useCallback } = React;
+const { motion, AnimatePresence } = window.Motion; // Motion for React (framer-motion UMD, index.html에서 로드)
 const I18N = window.WEB_I18N;
 
 const COMPANY = { operator: 'Y-Systems', ceo: 'jsontype', email: 'jsontyper@gmail.com' };
