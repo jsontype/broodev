@@ -36,9 +36,13 @@
       .cell { flex: 1; aspect-ratio: 4/5; min-width: 0; background: var(--floor); border: 1px solid var(--line); border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); transition: background .15s; }
       .cell.tele { background: #3a1c15; border-color: var(--red); box-shadow: inset 0 0 12px rgba(201,67,47,.35); }
       .cell.tele::after { content: '⚠'; position: absolute; top: 2px; right: 4px; font-size: 10px; color: var(--red); }
-      .unit { line-height: 1; text-shadow: 0 2px 6px rgba(0,0,0,.6); position: relative; }
+      .unit { line-height: 0; position: relative; width: 78%; }
+      .unit svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)); }
+      .unit.flip svg { transform: scaleX(-1); }
+      .unit.boss { width: 96%; }
       .unit .face { position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--gold); }
-      .unit .face.R { right: -11px; } .unit .face.L { left: -11px; }
+      .unit .face.R { right: -12px; } .unit .face.L { left: -12px; }
+      .unit .face { opacity: .8; }
       .unit .uhp { position: absolute; left: 50%; transform: translateX(-50%); bottom: -13px; font-size: 9px; letter-spacing: 1px; color: var(--red); white-space: nowrap; }
       .unit.pl { color: var(--washi); } .unit.en { color: #d98d6a; } .unit.boss { color: var(--red); }
       .lane-idx { display: flex; gap: 5px; margin-bottom: 10px; }
@@ -122,14 +126,52 @@
         bal:  { key: 'bal',  name: '발도술', glyph: '拔', cd: 5, dmg: 2, info: function (t) { return '전방 1칸 ' + t.dmg + '딜'; } },
       };
 
+      /* =========================================================
+       * 픽셀 스프라이트 (자체 제작 도트) — 10×12 그리드, 기본 오른쪽 향
+       * ========================================================= */
+      var SPRITES = {
+        player: { c: { k: '#20202a', f: '#e8b98a', a: '#3c5a8f', t: '#d9a441', l: '#26365a', w: '#e3e3ea' }, r: [
+          '....kk...w', '...kkkk..w', '...ffff..w', '...ffff..w', '..aaaaaa.w', '.aaaaaaaaw',
+          '.aaaaaaaa.', '..tttttt..', '..aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
+        ronin: { c: { k: '#3a3a40', f: '#e0ac7e', a: '#6b5b4a', l: '#463b2f', w: '#c9c9d2' }, r: [
+          '....kk....', '...kkkk...', '...ffff...', '...ffff...', '..aaaaaa..', '.aaaaaaaa.',
+          '.aaaaaaaw.', '..aaaaaaw.', '..aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
+        archer: { c: { k: '#2e3a2e', f: '#e0ac7e', a: '#4a7a4f', l: '#2f5234', o: '#8a5a33' }, r: [
+          '....kk...o', '...kkkk..o', '...ffff..o', '...ffff..o', '..aaaaaa.o', '.aaaaaaaao',
+          '.aaaaaaa.o', '..aaaaaa.o', '..aa..aa.o', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
+        spear: { c: { k: '#20202a', f: '#e0ac7e', a: '#3f7a7a', l: '#285757', o: '#8a5a33', w: '#e3e3ea' }, r: [
+          '.........w', '....kk...o', '...kkkk..o', '...ffff..o', '...ffff..o', '..aaaaaa.o',
+          '.aaaaaaaao', '.aaaaaaa.o', '..aa..aa.o', '..ll..ll.o', '..ll..ll..', '..kk..kk..'] },
+        nin: { c: { k: '#23232f', f: '#e0ac7e', a: '#2a2a3a', l: '#1c1c26', w: '#9a9aa8' }, r: [
+          '....kk....', '...kkkk...', '...kffk...', '...kkkk...', '..aaaaaa..', '.aaaaaaaa.',
+          '.aaaaaaaw.', '..aaaaaa..', '..aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
+        monk: { c: { f: '#e8b98a', a: '#c07830', l: '#8f5a22', o: '#6b4526', k: '#20202a' }, r: [
+          'o...ff....', 'o..ffff...', 'o..ffff...', 'o.aaaaaa..', 'oaaaaaaaa.', 'oaaaaaaaa.',
+          'oaaaaaaaa.', 'o.aaaaaa..', 'o.aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
+        daimyo: { c: { g: '#d9a441', k: '#20202a', f: '#e0ac7e', a: '#8f2f2a', l: '#5c1f1c', w: '#e3e3ea' }, r: [
+          'g..gggg..g', '.g.gggg.g.', '...ffff..w', '...ffff..w', '..aaaaaa.w', '.aaaaaaaaw',
+          '.aaaaaaaaw', '.aggggggaw', '.aaaaaaaa.', '..aa..aa..', '..ll..ll..', '..kk..kk..'] },
+      };
+      var spriteCache = {};
+      function unitSvg(key) {
+        if (spriteCache[key]) return spriteCache[key];
+        var sp = SPRITES[key], rects = '';
+        for (var y = 0; y < sp.r.length; y++) for (var x = 0; x < sp.r[y].length; x++) {
+          var ch = sp.r[y][x];
+          if (ch !== '.' && sp.c[ch]) rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + sp.c[ch] + '"/>';
+        }
+        spriteCache[key] = '<svg viewBox="0 0 10 12" shape-rendering="crispEdges" aria-hidden="true">' + rects + '</svg>';
+        return spriteCache[key];
+      }
+
       /* 적 도감 (오리지널) */
       var FOE_DEFS = {
-        ronin:  { glyph: '浪', name: '낭인',  hp: 1, spd: 1, rng: [1] },
-        archer: { glyph: '弓', name: '궁수',  hp: 1, spd: 1, rng: [2, 3, 4] },
-        spear:  { glyph: '槍', name: '창병',  hp: 2, spd: 1, rng: [1, 2] },
-        nin:    { glyph: '忍', name: '자객',  hp: 1, spd: 2, rng: [1] },
-        monk:   { glyph: '僧', name: '승병',  hp: 3, spd: 1, rng: [1], both: true },
-        daimyo: { glyph: '大', name: '다이묘', hp: 8, spd: 1, rng: [1, 2], boss: true },
+        ronin:  { sprite: 'ronin', glyph: '浪', name: '낭인',  hp: 1, spd: 1, rng: [1] },
+        archer: { sprite: 'archer', glyph: '弓', name: '궁수',  hp: 1, spd: 1, rng: [2, 3, 4] },
+        spear:  { sprite: 'spear', glyph: '槍', name: '창병',  hp: 2, spd: 1, rng: [1, 2] },
+        nin:    { sprite: 'nin', glyph: '忍', name: '자객',  hp: 1, spd: 2, rng: [1] },
+        monk:   { sprite: 'monk', glyph: '僧', name: '승병',  hp: 3, spd: 1, rng: [1], both: true },
+        daimyo: { sprite: 'daimyo', glyph: '大', name: '다이묘', hp: 8, spd: 1, rng: [1, 2], boss: true },
       };
 
       /* 스테이지 구성: 3스테이지 × 3웨이브, 마지막은 보스 */
@@ -353,8 +395,15 @@
         var cells = '';
         for (var i = 0; i < W; i++) {
           var inner = '';
-          if (S.p.pos === i) inner = '<span class="unit pl">侍<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
-          else { var f = foeAt(i); if (f) inner = '<span class="unit ' + (FOE_DEFS[f.type].boss ? 'boss' : 'en') + '">' + f.glyph + '<span class="uhp">' + '●'.repeat(f.hp) + '</span></span>'; }
+          if (S.p.pos === i) {
+            inner = '<span class="unit pl' + (S.p.dir < 0 ? ' flip' : '') + '">' + unitSvg('player') + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
+          } else {
+            var f = foeAt(i);
+            if (f) {
+              var lookLeft = S.p.pos < f.pos;
+              inner = '<span class="unit ' + (FOE_DEFS[f.type].boss ? 'boss' : 'en') + (lookLeft ? ' flip' : '') + '">' + unitSvg(FOE_DEFS[f.type].sprite) + '<span class="uhp">' + '●'.repeat(f.hp) + '</span></span>';
+            }
+          }
           cells += '<div class="cell' + (teleCells[i] ? ' tele' : '') + '">' + inner + '</div>';
         }
         var idx = ''; for (var j = 0; j < W; j++) idx += '<span>' + (j + 1) + '</span>';
