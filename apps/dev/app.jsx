@@ -59,48 +59,52 @@ const ORBITS = [
 ];
 
 const PROJECTS = [
-  { hash: 'a3f9c21', name: 'BTC_SIGNAL', status: 'live', statusLabel: 'LIVE',
+  { hash: 'a3f9c21', name: 'BTC_SIGNAL', status: 'live', statusLabel: 'LIVE', cat: 'crypto',
     desc: '15종 코인의 공포·탐욕 지수와 6개 지표를 합성한 매수 타이밍 점수(0~100) · 13개 언어.',
     url: 'https://broodev.com', link: 'broodev.com' },
-  { hash: '7be02d4', name: 'VOCA_DECK', status: 'live', statusLabel: 'LIVE',
+  { hash: '7be02d4', name: 'VOCA_DECK', status: 'live', statusLabel: 'LIVE', cat: 'learn',
     desc: '깜빡이 단어암기장 — CSV 임포트·3초 자동 반복·TTS. 설치 없이 링크 하나로.',
     url: 'https://voca.broodev.com', link: 'voca.broodev.com' },
-  { hash: 'c51ffa9', name: 'GREENLAND_INFO', status: 'live', statusLabel: 'LIVE',
+  { hash: 'c51ffa9', name: 'GREENLAND_INFO', status: 'live', statusLabel: 'LIVE', cat: 'arctic',
     desc: '그린란드 15개 마을의 날씨·조석·오로라·극야 카운트다운·결항 리스크 + 36명령 터미널.',
     url: 'https://greenland.broodev.com', link: 'greenland.broodev.com' },
-  { hash: 'd72e9a5', name: 'AFRICA_UTILITY', status: 'live', statusLabel: 'LIVE',
+  { hash: 'd72e9a5', name: 'AFRICA_UTILITY', status: 'live', statusLabel: 'LIVE', cat: 'africa',
     desc: '나이지리아·케냐·가나·남아공 정전·환율·송금 실효비용·USSD 코드 + 32명령 터미널.',
     url: 'https://africa.broodev.com', link: 'africa.broodev.com' },
-  { hash: 'b19d3c8', name: 'MONGOL_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: 'b19d3c8', name: 'MONGOL_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '울란바토르 대기질·날씨·투그릭 환율 — 몽골 생활 인포패널.',
     url: 'https://mongolia.broodev.com', link: 'mongolia.broodev.com' },
-  { hash: 'e2a7f14', name: 'NEPAL_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: 'e2a7f14', name: 'NEPAL_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '비크람 삼바트 달력 변환·루피 환율·산악 날씨 — 네팔 인포패널.',
     url: 'https://nepal.broodev.com', link: 'nepal.broodev.com' },
-  { hash: '9c4d0b2', name: 'PINAS_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: '9c4d0b2', name: 'PINAS_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '태풍 시그널·USD/PHP 환율·정부 조회 — 필리핀 인포패널.',
     url: 'https://philippines.broodev.com', link: 'philippines.broodev.com' },
-  { hash: '3f8e6a9', name: 'BANGLA_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: '3f8e6a9', name: 'BANGLA_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '홍수·사이클론 경보·로드셰딩 — 방글라데시 인포패널.',
     url: 'https://bangladesh.broodev.com', link: 'bangladesh.broodev.com' },
-  { hash: '6b1c9e3', name: 'CARIB_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: '6b1c9e3', name: 'CARIB_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'islands',
     desc: '허리케인 대비·정전·환율 — 카리브 인포패널.',
     url: 'https://caribbean.broodev.com', link: 'caribbean.broodev.com' },
-  { hash: 'd94a2c7', name: 'NUNAVUT_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: 'd94a2c7', name: 'NUNAVUT_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'arctic',
     desc: '캐나다 북극권의 날씨·생활 정보 — 누나부트 인포패널.',
     url: 'https://nunavut.broodev.com', link: 'nunavut.broodev.com' },
-  { hash: '58e7d1f', name: 'PACIFIC_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: '58e7d1f', name: 'PACIFIC_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'islands',
     desc: '남태평양 사이클론·해양·환율·시즌 정보 — 태평양 인포패널.',
     url: 'https://pacific.broodev.com', link: 'pacific.broodev.com' },
-  { hash: 'a7f3b85', name: 'PAKISTAN_UTILITY', status: 'live', statusLabel: 'LIVE',
+  { hash: 'a7f3b85', name: 'PAKISTAN_UTILITY', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '로드셰딩·PKR 환율·생활 유틸 — 파키스탄 데일리 유틸.',
     url: 'https://pakistan.broodev.com', link: 'pakistan.broodev.com' },
-  { hash: '2c9f7e4', name: 'LANKA_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: '2c9f7e4', name: 'LANKA_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '정전·기차·루피 환율·시험 조회 — 스리랑카 인포패널.',
     url: 'https://srilanka.broodev.com', link: 'srilanka.broodev.com' },
-  { hash: 'f1b8d36', name: 'STAN_PANEL', status: 'live', statusLabel: 'LIVE',
+  { hash: 'f1b8d36', name: 'STAN_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
     desc: '중앙아시아 5국의 돈·서류·생활 유틸 — 스탄 패널.',
     url: 'https://stans.broodev.com', link: 'stans.broodev.com' },
+];
+const CATS = [
+  ['crypto', '암호화폐'], ['learn', '학습'], ['arctic', '극지'],
+  ['asia', '아시아'], ['africa', '아프리카'], ['islands', '카리브 · 태평양'],
 ];
 
 const SERVICES = [
@@ -515,17 +519,26 @@ function DeepLog() {
     <section className="board" id="log" aria-label="프로젝트">
       <div className="log-head">
         <div className="h-cmd"><span className="cmd">$</span> ls universe/ --all</div>
-        <div className="h-sub">14개 앱 — 전부 라이브. 한눈에 보고, 클릭하면 새 탭으로 엽니다.</div>
+        <div className="h-sub">14개 앱 — 전부 라이브. 카테고리별로 한눈에, 클릭하면 새 탭으로.</div>
       </div>
-      <div className="board-grid">
-        {PROJECTS.map(pr => (
-          <a className="bcard" key={pr.hash} href={pr.url} target="_blank" rel="noopener">
-            <div className="b-top"><h3 className="b-name">{pr.name}</h3><span className="b-live">{pr.statusLabel}</span></div>
-            <p className="b-desc">{pr.desc}</p>
-            <div className="b-link">$ open {pr.link} ↗</div>
-          </a>
-        ))}
-      </div>
+      {CATS.map(([key, label]) => {
+        const items = PROJECTS.filter(pr => pr.cat === key);
+        if (!items.length) return null;
+        return (
+          <div className="b-group" key={key}>
+            <div className="b-cat"><span className="cmd">$</span> ls universe/{key}/ <em>— {label} ({items.length})</em></div>
+            <div className="board-grid">
+              {items.map(pr => (
+                <a className="bcard" key={pr.hash} href={pr.url} target="_blank" rel="noopener">
+                  <div className="b-top"><h3 className="b-name">{pr.name}</h3><span className="b-live">{pr.statusLabel}</span></div>
+                  <p className="b-desc">{pr.desc}</p>
+                  <div className="b-link">$ open {pr.link} ↗</div>
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </section>
   );
 }
