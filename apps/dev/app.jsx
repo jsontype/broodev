@@ -67,18 +67,18 @@ const PROJECTS = [
     desc: '단어와 뜻을 큰 글자로 번갈아 보여주는 깜빡이 단어암기장. CSV 암기장 임포트, 3초 자동 반복, TTS 발음까지 — 설치 없이 링크 하나로.',
     tags: ['React', 'CSV Import', 'Web TTS'], metric: '설치 0초 · 100% 무료',
     url: 'https://voca.broodev.com', link: 'voca.broodev.com' },
-  { hash: 'c51ffa9', name: 'COUNTRY_PANELS ×12', status: 'orbit', statusLabel: 'IN ORBIT · 12 COUNTRIES',
-    desc: '그린란드의 오로라 예보부터 몽골의 대기질, 네팔의 달력 변환, 필리핀의 태풍 시그널까지 — 12개국의 사소하지만 절실한 일상 문제를 담은 인포패널 함대.',
-    tags: ['12 Countries', 'Realtime API', 'i18n'], metric: '북극권 → 태평양, 12개 궤도 진입 중',
+  { hash: 'c51ffa9', name: 'GREENLAND_INFO', status: 'orbit', statusLabel: 'IN ORBIT · LAUNCH READY',
+    desc: '그린란드 15개 마을의 날씨·파고·조석·오로라·극야 카운트다운, 노선별 결항 리스크, 사냥 신고 안내 — 36개 명령의 해커 터미널까지 담은 극지 인포패널.',
+    tags: ['Vanilla JS', 'Open-Meteo · NOAA', 'Terminal'], metric: '북위 77° Qaanaaq까지 15개 정착지',
+    url: null, link: null },
+  { hash: 'd72e9a5', name: 'AFRICA_UTILITY', status: 'orbit', statusLabel: 'IN ORBIT · LAUNCH READY',
+    desc: '나이지리아·케냐·가나·남아공의 정전 정보, 실시간 환율·송금 실효비용 계산기, 정부/시험 조회 포털, 검증된 USSD 코드 — 32개 명령 터미널 포함 일상 유틸.',
+    tags: ['Vanilla JS', 'Live FX', '4 Countries'], metric: '저사양·저대역폭 최적화 단일 파일',
     url: null, link: null },
   { hash: 'f04ac88', name: 'CODINGCAFE1', status: 'live', statusLabel: 'LIVE · YOUTUBE',
     desc: '코딩을 배우는 사람들을 위한 유튜브 채널. 만드는 법뿐 아니라 "왜 그렇게 만드는가"를 나눕니다.',
     tags: ['YouTube', '강의', '멘토링'], metric: '지식은 나눌수록 컴파일된다',
     url: LINKS.youtube, link: 'youtube.com/c/CodingCafe1' },
-  { hash: 'e8d3b17', name: 'BROODEV_PORTAL', status: 'live', statusLabel: 'LIVE · COMPANY PORTAL',
-    desc: 'Y-Systems의 회사 포털. 13개 언어 i18n, 해시 라우팅 SPA, 빌드리스 아키텍처 — 이 페이지의 모선(母船)입니다.',
-    tags: ['React CDN', '13 Languages', 'SPA'], metric: '빌드 없이, 국경 없이',
-    url: LINKS.old, link: 'jsontype.github.io/home' },
 ];
 
 const SERVICES = [
@@ -92,7 +92,7 @@ const WHOAMI_TEXT = `$ cat ./about.md
 # Yang Donghwa — @jsontype
 도쿄에서 일하는 한국인 프론트엔드 개발자.
 낮에는 도쿄의 프로덕션 코드를 만들고,
-밤에는 broodev 우주에 14개의 웹앱을
+밤에는 broodev 우주에 무료 웹앱들을
 쏘아 올립니다.
 
 원칙은 하나 — "양보다 질".
