@@ -30,16 +30,31 @@
       .hud .hp { color: var(--red); font-size: 15px; letter-spacing: 2px; }
       .hud .st { color: var(--dim); }
       .hud .score { margin-left: auto; color: var(--gold); }
+      .hud .soul { color: #7fb7ff; letter-spacing: 2px; text-shadow: 0 0 8px rgba(127,183,255,.6); }
 
       /* 전장 */
       .lane { display: flex; gap: 5px; margin: 6px 0 4px; }
       .cell { flex: 1; aspect-ratio: 4/5; min-width: 0; background: var(--floor); border: 1px solid var(--line); border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); transition: background .15s; }
       .cell.tele { background: #3a1c15; border-color: var(--red); box-shadow: inset 0 0 12px rgba(201,67,47,.35); }
       .cell.tele::after { content: '⚠'; position: absolute; top: 2px; right: 4px; font-size: 10px; color: var(--red); }
-      .unit { line-height: 0; position: relative; width: 78%; }
+      .unit { line-height: 0; position: relative; width: 82%; transform-origin: 50% 100%; animation: breathe 2.4s ease-in-out infinite; }
       .unit svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)); }
       .unit.flip svg { transform: scaleX(-1); }
-      .unit.boss { width: 96%; }
+      .unit.boss { width: 96%; animation-duration: 3.2s; }
+      @keyframes breathe { 0%, 100% { transform: scaleY(1) translateY(0); } 50% { transform: scaleY(.965) translateY(1.2px); } }
+      .unit.stance svg { filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 0 7px rgba(217,164,65,.85)); animation: stancePulse .9s ease-in-out infinite alternate; }
+      @keyframes stancePulse { from { filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 0 4px rgba(217,164,65,.5)); } to { filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 0 11px rgba(217,164,65,1)); } }
+      .unit.atkR { animation: lungeR .3s ease-out; } .unit.atkL { animation: lungeL .3s ease-out; }
+      @keyframes lungeR { 0% { transform: translateX(0); } 35% { transform: translateX(34%); } 100% { transform: translateX(0); } }
+      @keyframes lungeL { 0% { transform: translateX(0); } 35% { transform: translateX(-34%); } 100% { transform: translateX(0); } }
+      .unit.hurt { animation: shake .3s ease-in-out; }
+      @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-9%); } 55% { transform: translateX(8%); } 80% { transform: translateX(-4%); } }
+      .fx-slash { position: absolute; inset: 6% 2%; pointer-events: none; z-index: 3; }
+      .fx-slash::before { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.95) 49%, rgba(217,164,65,.9) 52%, transparent 63%); animation: slashArc .32s ease-out forwards; border-radius: 8px; }
+      @keyframes slashArc { 0% { transform: rotate(-65deg) scale(.55); opacity: 0; } 25% { opacity: 1; } 100% { transform: rotate(48deg) scale(1.25); opacity: 0; } }
+      .fx-ehit { position: absolute; inset: 0; pointer-events: none; z-index: 3; border-radius: 6px; animation: ehitFlash .34s ease-out forwards; }
+      @keyframes ehitFlash { 0% { box-shadow: inset 0 0 0 2px rgba(201,67,47,0); background: rgba(201,67,47,0); } 30% { box-shadow: inset 0 0 18px 4px rgba(201,67,47,.7); background: rgba(201,67,47,.28); } 100% { box-shadow: inset 0 0 0 0 rgba(201,67,47,0); background: rgba(201,67,47,0); } }
+      @media (prefers-reduced-motion: reduce) { .unit, .unit svg, .fx-slash::before, .fx-ehit { animation: none !important; } }
       .unit .face { position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--gold); }
       .unit .face.R { right: -12px; } .unit .face.L { left: -12px; }
       .unit .face { opacity: .8; }
@@ -60,6 +75,15 @@
       .q-slot.full { border-style: solid; border-color: var(--gold); box-shadow: 0 0 10px rgba(217,164,65,.25); }
       .btn-strike { margin-left: auto; background: var(--red); color: #fff; border: 0; border-radius: 8px; font-family: var(--ui); font-weight: 800; font-size: 15px; padding: 11px 18px; cursor: pointer; }
       .btn-strike:disabled { opacity: .35; cursor: default; }
+      .btn-soul { margin-left: auto; background: linear-gradient(135deg, #1d3a6e, #3a6ac0); color: #eaf3ff; border: 1px solid #7fb7ff; border-radius: 8px; font-weight: 800; font-size: 14px; padding: 10px 14px; cursor: pointer; text-shadow: 0 0 6px rgba(127,183,255,.8); }
+      .btn-soul:not(:disabled) { animation: soulReady 1s ease-in-out infinite alternate; }
+      @keyframes soulReady { from { box-shadow: 0 0 4px rgba(127,183,255,.4); } to { box-shadow: 0 0 16px rgba(127,183,255,.95); } }
+      .btn-soul:disabled { opacity: .3; cursor: default; }
+      .btn-soul + .btn-strike { margin-left: 8px; }
+      .fx-dash { position: absolute; inset: 0; pointer-events: none; z-index: 4; overflow: hidden; border-radius: 6px; }
+      .fx-dash::before { content: ''; position: absolute; top: 42%; left: -30%; width: 160%; height: 16%; background: linear-gradient(90deg, transparent, rgba(127,183,255,.95), #fff, rgba(127,183,255,.95), transparent); animation: dashStreak .34s ease-out forwards; }
+      .fx-dash::after { content: ''; position: absolute; inset: 0; background: rgba(127,183,255,.16); animation: ehitFlash .4s ease-out forwards; }
+      @keyframes dashStreak { 0% { transform: translateX(-40%) scaleY(.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateX(40%) scaleY(1); opacity: 0; } }
 
       /* 기술패 */
       .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-bottom: 12px; }
@@ -113,7 +137,7 @@
        *  - 모든 행동(이동/전환/쌓기/대기/발동)이 1턴 → 적도 1턴 움직인다
        *  - 적은 공격을 1턴 예고(⚠)한 뒤 다음 턴에 집행한다
        * ========================================================= */
-      var W = 9, QMAX = 3;
+      var W = 9, QMAX = 3, SOULMAX = 3;
 
       /* 기술패 도감 (오리지널) */
       var TILE_DEFS = {
@@ -130,27 +154,231 @@
        * 픽셀 스프라이트 (자체 제작 도트) — 10×12 그리드, 기본 오른쪽 향
        * ========================================================= */
       var SPRITES = {
-        player: { c: { k: '#20202a', f: '#e8b98a', a: '#3c5a8f', t: '#d9a441', l: '#26365a', w: '#e3e3ea' }, r: [
-          '....kk...w', '...kkkk..w', '...ffff..w', '...ffff..w', '..aaaaaa.w', '.aaaaaaaaw',
-          '.aaaaaaaa.', '..tttttt..', '..aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
-        ronin: { c: { k: '#3a3a40', f: '#e0ac7e', a: '#6b5b4a', l: '#463b2f', w: '#c9c9d2' }, r: [
-          '....kk....', '...kkkk...', '...ffff...', '...ffff...', '..aaaaaa..', '.aaaaaaaa.',
-          '.aaaaaaaw.', '..aaaaaaw.', '..aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
-        archer: { c: { k: '#2e3a2e', f: '#e0ac7e', a: '#4a7a4f', l: '#2f5234', o: '#8a5a33' }, r: [
-          '....kk...o', '...kkkk..o', '...ffff..o', '...ffff..o', '..aaaaaa.o', '.aaaaaaaao',
-          '.aaaaaaa.o', '..aaaaaa.o', '..aa..aa.o', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
-        spear: { c: { k: '#20202a', f: '#e0ac7e', a: '#3f7a7a', l: '#285757', o: '#8a5a33', w: '#e3e3ea' }, r: [
-          '.........w', '....kk...o', '...kkkk..o', '...ffff..o', '...ffff..o', '..aaaaaa.o',
-          '.aaaaaaaao', '.aaaaaaa.o', '..aa..aa.o', '..ll..ll.o', '..ll..ll..', '..kk..kk..'] },
-        nin: { c: { k: '#23232f', f: '#e0ac7e', a: '#2a2a3a', l: '#1c1c26', w: '#9a9aa8' }, r: [
-          '....kk....', '...kkkk...', '...kffk...', '...kkkk...', '..aaaaaa..', '.aaaaaaaa.',
-          '.aaaaaaaw.', '..aaaaaa..', '..aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
-        monk: { c: { f: '#e8b98a', a: '#c07830', l: '#8f5a22', o: '#6b4526', k: '#20202a' }, r: [
-          'o...ff....', 'o..ffff...', 'o..ffff...', 'o.aaaaaa..', 'oaaaaaaaa.', 'oaaaaaaaa.',
-          'oaaaaaaaa.', 'o.aaaaaa..', 'o.aa..aa..', '..ll..ll..', '..ll..ll..', '..kk..kk..'] },
-        daimyo: { c: { g: '#d9a441', k: '#20202a', f: '#e0ac7e', a: '#8f2f2a', l: '#5c1f1c', w: '#e3e3ea' }, r: [
-          'g..gggg..g', '.g.gggg.g.', '...ffff..w', '...ffff..w', '..aaaaaa.w', '.aaaaaaaaw',
-          '.aaaaaaaaw', '.aggggggaw', '.aaaaaaaa.', '..aa..aa..', '..ll..ll..', '..kk..kk..'] },
+        player: { c: { h: '#1a1622', f: '#e9b98b', e: '#20202a', c: '#8f2620', C: '#c94236', a: '#232746', A: '#3a4a7e', t: '#c89235', p: '#181c30', w: '#eef0f8', g: '#c89a6a', k: '#100e18' }, r: [
+          '.........hh.........',
+          '........hhhh........',
+          '.......hhhhhh.......',
+          '.......hffffh.....w.',
+          '......hfeffefh....w.',
+          '......hffffffh....w.',
+          '.....ccffffff.....w.',
+          '...ccCCcccccc.....w.',
+          '..cC.aaAAAAaaaa...w.',
+          '.cC.aaAAAAAAAAaa..w.',
+          '.c..aaAAAAAAAAaa..w.',
+          '....aaAAttttAAaa..w.',
+          '....aaAAAAAAAAa..gw.',
+          '....aaAAAAAAAAa..gg.',
+          '.....tttttttttt.....',
+          '.....pppppppppp.....',
+          '....pppppppppppp....',
+          '....ppppp..ppppp....',
+          '....pppp....pppp....',
+          '....pppp....pppp....',
+          '....pppp....pppp....',
+          '....kkkk....kkkk....',
+          '....kkkk....kkkk....',
+          '...kkkkk....kkkkk...'] },
+        player_stance: { c: { h: '#1a1622', f: '#e9b98b', e: '#20202a', c: '#8f2620', C: '#c94236', a: '#232746', A: '#3a4a7e', t: '#c89235', p: '#181c30', w: '#eef0f8', g: '#c89a6a', k: '#100e18' }, r: [
+          '....wwwwwwwwwwwww...',
+          '.............gg.....',
+          '.......hhhhhhg......',
+          '.......hffffh.......',
+          '......hfeffefh......',
+          '......hffffffh......',
+          '.....ccffffff.......',
+          '...ccCCcccccc.......',
+          '..cC.aaAAAAaaaag....',
+          '.cC.aaAAAAAAAAaa....',
+          '.c..aaAAAAAAAAaa....',
+          '....aaAAttttAAaa....',
+          '....aaAAAAAAAAaa....',
+          '....aaAAAAAAAAaa....',
+          '.....tttttttttt.....',
+          '.....pppppppppp.....',
+          '...pppppppppppppp...',
+          '...ppppp....ppppp...',
+          '...pppp......pppp...',
+          '...pppp......pppp...',
+          '...kkkk......kkkk...',
+          '...kkkk......kkkk...',
+          '..kkkkk......kkkkk..',
+          '....................'] },
+        player_atk: { c: { h: '#1a1622', f: '#e9b98b', e: '#20202a', c: '#8f2620', C: '#c94236', a: '#232746', A: '#3a4a7e', t: '#c89235', p: '#181c30', w: '#eef0f8', g: '#c89a6a', k: '#100e18' }, r: [
+          '....................',
+          '.........hh.........',
+          '........hhhh........',
+          '........hffff.......',
+          '.......hfeffe.......',
+          '.......hfffff.......',
+          'ccc....cffff........',
+          '.cccCCCcc...........',
+          '....caaAAAAAAa......',
+          '....aaAAAAAAAAa.....',
+          '...aaAAAAAAAAAggwwww',
+          '...aaAAttAAAAAgwwwww',
+          '....aaAAAAAAAAa.....',
+          '....aaAAAAAAAa......',
+          '.....ttttttttt......',
+          '.....ppppppppp......',
+          '....pppppppppppp....',
+          '...ppppp...ppppp....',
+          '..pppp......pppp....',
+          '..pppp.......pppp...',
+          '.kkkk.........kkkk..',
+          '.kkkk.........kkkk..',
+          'kkkkk.........kkkkk.',
+          '....................'] },
+        ronin: { c: { h: '#3d3a45', f: '#e0ac7e', e: '#20202a', a: '#463a2c', A: '#5f5040', b: '#3a3026', w: '#c9c9d2', p: '#332b22', k: '#161420' }, r: [
+          '.....hhh.hh.........',
+          '....hhhhhhhh........',
+          '....hhhhhhhhh.......',
+          '.....hffffh.........',
+          '....hffffffh........',
+          '....hfeffefh........',
+          '....hffffffh........',
+          '.....ffffff.........',
+          '...aaaaaaaaaa.......',
+          '..aaAAAAAAAAaa......',
+          '..aaAAAAAAAAaa......',
+          '..aaAAAAAAAAaa......',
+          '..aaAAAAAAAAaa......',
+          '...bbbbbbbbbb.wwwww.',
+          '...aAAAAAAAAa.......',
+          '...pppppppppp.......',
+          '..pppppppppppp......',
+          '..ppppp..ppppp......',
+          '..pppp....pppp......',
+          '..pppp....pppp......',
+          '..pppp....pppp......',
+          '..kkkk....kkkk......',
+          '..kkkk....kkkk......',
+          '.kkkkk....kkkkk.....'] },
+        archer: { c: { h: '#2e3a2e', f: '#e0ac7e', e: '#20202a', a: '#2c4a33', A: '#3a5f42', b: '#2f3a26', o: '#8a5a33', y: '#cfd8c9', g: '#c89a6a', p: '#26402c', k: '#161420' }, r: [
+          '.......hh...........',
+          '......hhhh..........',
+          '.....hhhhhh.....oo..',
+          '.....hffffh.....o.y.',
+          '....hffffffh....o.y.',
+          '....hfeffefh....o.y.',
+          '....hffffffh....o.y.',
+          '.....ffffff.....o.y.',
+          '...aaaaaaaaaa...o.y.',
+          '..aaAAAAAAAAaa..o.y.',
+          '..aaAAAAAAAAaagggo..',
+          '..aaAAAAAAAAaa..o.y.',
+          '..aaAAAAAAAAaa..o.y.',
+          '...bbbbbbbbbb...o.y.',
+          '...aAAAAAAAAa...o.y.',
+          '...pppppppppp...o.y.',
+          '..pppppppppppp..o.y.',
+          '..ppppp..ppppp..o.y.',
+          '..pppp....pppp..o.y.',
+          '..pppp....pppp..o.y.',
+          '..pppp....pppp..oo..',
+          '..kkkk....kkkk......',
+          '..kkkk....kkkk......',
+          '.kkkkk....kkkkk.....'] },
+        spear: { c: { m: '#4a4436', f: '#e0ac7e', e: '#20202a', a: '#24494c', A: '#2f5f63', b: '#26302f', o: '#8a5a33', w: '#e8e8f0', g: '#c89a6a', p: '#1d3d40', k: '#161420' }, r: [
+          '................ww..',
+          '.................w..',
+          '........mm.......o..',
+          '......mmmmmm.....o..',
+          '....mmmmmmmmmm...o..',
+          '.....ffffff......o..',
+          '.....feffef......o..',
+          '.....ffffff......o..',
+          '...aaaaaaaaaa....o..',
+          '..aaAAAAAAAAaa...o..',
+          '..aaAAAAAAAAaa.ggo..',
+          '..aaAAAAAAAAaa...o..',
+          '..aaAAAAAAAAaa..go..',
+          '...bbbbbbbbbb....o..',
+          '...aAAAAAAAAa....o..',
+          '...pppppppppp....o..',
+          '..pppppppppppp...o..',
+          '..ppppp..ppppp...o..',
+          '..pppp....pppp...o..',
+          '..pppp....pppp...o..',
+          '..pppp....pppp...o..',
+          '..kkkk....kkkk...o..',
+          '..kkkk....kkkk......',
+          '.kkkkk....kkkkk.....'] },
+        nin: { c: { k: '#23232f', f: '#e0ac7e', e: '#0e0e14', a: '#2a2a3a', r: '#8f2f2a', w: '#9a9aa8', g: '#c89a6a' }, r: [
+          '....................',
+          '....................',
+          '......kkkkkk........',
+          '.....kkkkkkkk.......',
+          '.....kkffffkk.......',
+          '.....kkfeefkk.......',
+          '.....kkkkkkkk.......',
+          '......kkkkkk........',
+          '....aaaaaaaaaa......',
+          '...aaaaaaaaaaaa.....',
+          '...aaaaaaaaaaaa.w...',
+          '...aaaaaaaaaaaag....',
+          '...aaaaaaaaaaaa.....',
+          '....rrrrrrrrrr......',
+          '....aaaaaaaaaa......',
+          '...aaaaaaaaaaaa.....',
+          '...aaaaa..aaaaa.....',
+          '...aaaa....aaaa.....',
+          '...aaaa....aaaa.....',
+          '...kkkk....kkkk.....',
+          '...kkkk....kkkk.....',
+          '..kkkkk....kkkkk....',
+          '....................',
+          '....................'] },
+        monk: { c: { f: '#e8b98a', e: '#20202a', a: '#8a4f16', A: '#a35f1f', t: '#7a4a2b', b: '#5c3a1a', o: '#6b4526', w: '#d8d8e0', g: '#c89a6a', k: '#161420' }, r: [
+          '.w..................',
+          'www.................',
+          '.o.....ffff.........',
+          '.o....ffffff........',
+          '.o....ffffff........',
+          '.o....feffef........',
+          '.o....ffffff........',
+          '.o.....ffff.........',
+          '.o...aaaaaaaaaa.....',
+          '.o..aattttttttaa....',
+          '.og.aaAAAAAAAAaa....',
+          '.o..aaAAAAAAAAaa....',
+          '.o..aaAAAAAAAAaa....',
+          '.o...bbbbbbbbbb.....',
+          '.o...AAAAAAAAAA.....',
+          '.o...AAAAAAAAAA.....',
+          '.o..AAAAAAAAAAAA....',
+          '.o..AAAAAAAAAAAA....',
+          '.o..AAAAAAAAAAAA....',
+          '.o..AAAAAAAAAAAA....',
+          '.o..AAAAAAAAAAAA....',
+          '.o...kk......kk.....',
+          '.o..kkk......kkk....',
+          '....................'] },
+        daimyo: { c: { g: '#d9a441', m: '#1c1826', f: '#e0ac7e', e: '#20202a', k: '#161420', r: '#4e1815', R: '#701f1c', w: '#e8e8f0' }, r: [
+          '..g...........g.....',
+          '..gg.........gg.....',
+          '...gg.mmmmm.gg......',
+          '....gmmmmmmmg.......',
+          '.....mmmmmmm........',
+          '.....ffffff.........',
+          '.....feffef.........',
+          '.....kkkkkk.........',
+          '...rrrrrrrrrrrr.....',
+          '..rrRRRRRRRRRRrr....',
+          '.rrrRRRRRRRRRRrrr...',
+          '.rrrRRggggggRRrrr.w.',
+          '.rrrRRRRRRRRRRrrr.w.',
+          '..rrRRggggggRRrr..w.',
+          '..rrRRRRRRRRRRrr..w.',
+          '...rrggggggggrr...w.',
+          '...rrrrrrrrrrrr...w.',
+          '...rrrr....rrrr...w.',
+          '...rrrr....rrrr...g.',
+          '...rrrr....rrrr.....',
+          '...kkkk....kkkk.....',
+          '...kkkk....kkkk.....',
+          '..kkkkk....kkkkk....',
+          '....................'] },
       };
       var spriteCache = {};
       function unitSvg(key) {
@@ -160,7 +388,7 @@
           var ch = sp.r[y][x];
           if (ch !== '.' && sp.c[ch]) rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + sp.c[ch] + '"/>';
         }
-        spriteCache[key] = '<svg viewBox="0 0 10 12" shape-rendering="crispEdges" aria-hidden="true">' + rects + '</svg>';
+        spriteCache[key] = '<svg viewBox="0 0 ' + sp.r[0].length + ' ' + sp.r.length + '" shape-rendering="crispEdges" aria-hidden="true">' + rects + '</svg>';
         return spriteCache[key];
       }
 
@@ -182,12 +410,26 @@
       ];
 
       var S = null; /* 게임 상태 */
-      var uid = 1;
+      var uid = 1, runSeq = 0;
+      /* 연출 상태 — 한 행동의 이펙트를 320ms 보여준 뒤 스스로 지운다 */
+      var FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [] };
+      var fxTimer = 0;
+      function fxClear() { FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [] }; }
+      function fxSchedule() {
+        clearTimeout(fxTimer);
+        fxTimer = setTimeout(function () {
+          fxClear();
+          if (S && !S.over && !S.won && !S.reward && S.screen === 'play') render();
+        }, 320);
+      }
 
       function newRun() {
+        clearTimeout(fxTimer); fxClear();
         S = {
+          runId: ++runSeq, lock: false,
           screen: 'play', stage: 0, wave: 0, turn: 0, kills: 0,
           p: { pos: 4, dir: 1, hp: 3, maxHp: 3 },
+          soul: 0,
           tiles: [mkTile('seg'), mkTile('jji'), mkTile('su')],
           queue: [], foes: [], log: '무사의 길이 열렸다. 적의 예고(⚠)를 읽어라.',
           over: false, won: false, reward: null,
@@ -215,8 +457,9 @@
 
       /* ---- 기술 집행 (오리지널 효과) ---- */
       function hitFoe(f, dmg, why) {
+        FX.slash.push(f.pos); FX.hurt.push(f.pos);
         f.hp -= dmg;
-        if (f.hp <= 0) { S.kills++; S.log = why + ' — ' + f.name + ' 격파!'; }
+        if (f.hp <= 0) { S.kills++; if (!S.soulCasting) { S.soul = Math.min(SOULMAX, S.soul + 1); S.log = why + ' — ' + f.name + ' 격파! (魂 +1)'; } else { S.log = why + ' — ' + f.name + ' 격파!'; } }
         else S.log = why + ' — ' + f.name + ' ' + f.hp + 'HP 남음';
       }
       function execTile(t) {
@@ -265,6 +508,7 @@
           if (f.hp <= 0 || !f.intent) continue;
           if (f.intent.cells.indexOf(S.p.pos) >= 0) {
             S.p.hp -= 1;
+            FX.ehit.push(S.p.pos); FX.hurtP = true;
             S.log = f.name + '의 일격! 체력 -1';
             if (S.p.hp <= 0) { S.over = true; saveBest(); return; }
           }
@@ -318,16 +562,38 @@
 
       /* ---- 웨이브/보상/진행 ---- */
       function afterAction() {
-        if (S.over) { render(); return; }
         if (!S.foes.some(function (f) { return f.hp > 0; })) {
-          if (S.stage === WAVES.length - 1 && S.wave === WAVES[S.stage].length - 1) { S.won = true; saveBest(); render(); return; }
-          S.reward = rollRewards();
-          render(); return;
+          /* 막타 연출을 먼저 보여주고 380ms 후에 보상/승리 화면으로 */
+          var finalWin = S.stage === WAVES.length - 1 && S.wave === WAVES[S.stage].length - 1;
+          S.lock = true;
+          var myRun = S.runId;
+          render();
+          fxSchedule();
+          setTimeout(function () {
+            if (!S || S.runId !== myRun) return;
+            S.lock = false;
+            if (finalWin) { S.won = true; saveBest(); } else { S.reward = rollRewards(); }
+            render();
+          }, 380);
+          return;
         }
         foePhase();
         S.turn++;
         tickCooldowns();
+        if (S.over) {
+          /* 최후의 일격 연출 후 낙명 화면 */
+          S.lock = true;
+          var myRun2 = S.runId;
+          render();
+          setTimeout(function () {
+            if (!S || S.runId !== myRun2) return;
+            S.lock = false;
+            render();
+          }, 420);
+          return;
+        }
         render();
+        if (FX.atk || FX.slash.length || FX.ehit.length || FX.hurtP || FX.dash.length) fxSchedule();
       }
       function tickCooldowns() { S.tiles.forEach(function (t) { if (t.cdLeft > 0) t.cdLeft--; }); }
       function rollRewards() {
@@ -358,7 +624,7 @@
 
       /* ---- 플레이어 행동 (모두 1턴) ---- */
       function act(type, arg) {
-        if (!S || S.screen !== 'play' || S.over || S.won || S.reward) return;
+        if (!S || S.screen !== 'play' || S.over || S.won || S.reward || S.lock) return;
         var p = S.p;
         if (type === 'move') {
           var np = p.pos + arg;
@@ -370,8 +636,27 @@
           var t = S.tiles[arg];
           if (!t || t.cdLeft > 0 || S.queue.length >= QMAX || S.queue.indexOf(arg) >= 0) return;
           S.queue.push(arg); S.log = t.name + ' 준비 (' + S.queue.length + '/' + QMAX + ')';
+        } else if (type === 'soul') {
+          if (S.soul < SOULMAX) { S.log = '혼이 아직 차오르지 않았다. (魂 ' + S.soul + '/' + SOULMAX + ')'; render(); return; }
+          var d2 = p.dir;
+          var targets = S.foes.filter(function (f2) { return f2.hp > 0 && (d2 > 0 ? f2.pos > p.pos : f2.pos < p.pos); });
+          if (!targets.length) { S.log = '전방에 벨 적이 없다.'; render(); return; }
+          S.soulCasting = true; /* 오의로 벤 적은 혼을 되돌려주지 않는다 (무한 연쇄 방지) */
+          FX.atk = true; FX.dash = [];
+          var far = p.pos;
+          targets.forEach(function (f2) { if (d2 > 0 ? f2.pos > far : f2.pos < far) far = f2.pos; });
+          var landing = far + d2;
+          if (!inBoard(landing)) landing = far;
+          for (var cpos = p.pos + d2; d2 > 0 ? cpos <= far : cpos >= far; cpos += d2) FX.dash.push(cpos);
+          targets.forEach(function (f2) { hitFoe(f2, 2, '일섬'); });
+          while (foeAt(landing) && landing !== p.pos) landing -= d2;
+          p.pos = landing;
+          S.soulCasting = false;
+          S.soul = 0;
+          S.log = '오의 · 일섬(一閃)! 전방을 꿰뚫었다 — ' + targets.length + '명 관통';
         } else if (type === 'strike') {
           if (!S.queue.length) return;
+          FX.atk = true;
           var names = [];
           S.queue.forEach(function (idx) { var tl = S.tiles[idx]; names.push(tl.name); execTile(tl); if (S.over) return; });
           S.queue = [];
@@ -388,7 +673,7 @@
       var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
       function render() {
         if (!S || S.screen === 'title') { $g.innerHTML = titleHtml(); wire(); return; }
-        if (S.over || S.won) { $g.innerHTML = endHtml(); wire(); return; }
+        if ((S.over || S.won) && !S.lock) { $g.innerHTML = endHtml(); wire(); return; }
         if (S.reward) { $g.innerHTML = rewardHtml(); wire(); return; }
         var teleCells = {};
         S.foes.forEach(function (f) { if (f.intent) f.intent.cells.forEach(function (c) { teleCells[c] = 1; }); });
@@ -396,14 +681,23 @@
         for (var i = 0; i < W; i++) {
           var inner = '';
           if (S.p.pos === i) {
-            inner = '<span class="unit pl' + (S.p.dir < 0 ? ' flip' : '') + '">' + unitSvg('player') + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
+            var pose = FX.atk ? 'player_atk' : (S.queue.length ? 'player_stance' : 'player');
+            var pCls = 'unit pl' + (S.p.dir < 0 ? ' flip' : '') +
+              (FX.atk ? (S.p.dir > 0 ? ' atkR' : ' atkL') : '') +
+              (!FX.atk && S.queue.length ? ' stance' : '') +
+              (FX.hurtP ? ' hurt' : '');
+            inner = '<span class="' + pCls + '">' + unitSvg(pose) + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
           } else {
             var f = foeAt(i);
             if (f) {
               var lookLeft = S.p.pos < f.pos;
-              inner = '<span class="unit ' + (FOE_DEFS[f.type].boss ? 'boss' : 'en') + (lookLeft ? ' flip' : '') + '">' + unitSvg(FOE_DEFS[f.type].sprite) + '<span class="uhp">' + '●'.repeat(f.hp) + '</span></span>';
+              var eCls = 'unit ' + (FOE_DEFS[f.type].boss ? 'boss' : 'en') + (lookLeft ? ' flip' : '') + (FX.hurt.indexOf(i) >= 0 ? ' hurt' : '');
+              inner = '<span class="' + eCls + '">' + unitSvg(FOE_DEFS[f.type].sprite) + '<span class="uhp">' + '●'.repeat(f.hp) + '</span></span>';
             }
           }
+          if (FX.dash.indexOf(i) >= 0) inner += '<span class="fx-dash"></span>';
+          if (FX.slash.indexOf(i) >= 0) inner += '<span class="fx-slash"></span>';
+          if (FX.ehit.indexOf(i) >= 0) inner += '<span class="fx-ehit"></span>';
           cells += '<div class="cell' + (teleCells[i] ? ' tele' : '') + '">' + inner + '</div>';
         }
         var idx = ''; for (var j = 0; j < W; j++) idx += '<span>' + (j + 1) + '</span>';
@@ -423,14 +717,16 @@
         $g.innerHTML =
           '<div class="hud"><span class="hp">' + '♥'.repeat(S.p.hp) + '<span style="opacity:.25">' + '♥'.repeat(Math.max(0, S.p.maxHp - S.p.hp)) + '</span></span>' +
           '<span class="st">STAGE ' + (S.stage + 1) + '/3 · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
+          '<span class="soul" title="적을 격파하면 혼이 차오른다">魂 ' + '●'.repeat(S.soul) + '<span style="opacity:.3">' + '●'.repeat(SOULMAX - S.soul) + '</span></span>' +
           '<span class="score">SCORE ' + score() + '</span></div>' +
           '<div class="lane">' + cells + '</div><div class="lane-idx">' + idx + '</div>' +
           '<div class="intent">' + (intents.length ? '⚠ 예고: ' + intents.join(' · ') : '적이 다음 수를 노린다…') + '</div>' +
           '<div class="log">» ' + S.log + '</div>' +
-          '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div>' +
+          '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-soul" id="soul" ' + (S.soul >= SOULMAX ? '' : 'disabled') + '>魂 일섬</button>' +
+          '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div>' +
           '<div class="tiles">' + tiles + '</div>' +
           '<div class="moves"><button class="mbtn" data-a="left">◀ 이동</button><button class="mbtn" data-a="flip">⇄ 전환</button><button class="mbtn" data-a="wait">◦ 대기</button><button class="mbtn" data-a="right">이동 ▶</button></div>' +
-          '<div class="keys">키보드: ←→ 이동 · ↑ 전환 · 1~6 기술패 · Space 발동 · W 대기</div>';
+          '<div class="keys">키보드: ←→ 이동 · ↑ 전환 · 1~6 기술패 · Space 발동 · E 魂일섬 · W 대기</div>';
         wire();
       }
       function titleHtml() {
@@ -442,6 +738,7 @@
           '적은 공격 전에 <b>⚠로 예고</b>한다 — 예고된 칸을 피하거나, 그 전에 베어라.<br />' +
           '기술패를 <b>콤보 큐(최대 3)</b>에 쌓고 <b>발동</b>하면 한 호흡에 집행된다. 사용한 패는 쿨다운.<br />' +
           '기술은 <b>바라보는 방향(▶/◀)</b>으로 나간다. 등 뒤는 <b>⇄ 전환</b>으로 지켜라.<br />' +
+          '적을 격파하면 <b>혼(魂)</b>이 차오른다. 3개가 모이면 오의 <b>일섬(一閃)</b> — 전방의 모든 적을 <b>관통하며 베어</b> 반대편으로 빠져나간다.<br />' +
           '웨이브를 이기면 보상 — 새 기술·강화·회복. 3스테이지 끝의 <b>다이묘</b>를 베면 승리.</div></div>';
       }
       function rewardHtml() {
@@ -458,6 +755,7 @@
       function wire() {
         var st = document.getElementById('start'); if (st) st.onclick = newRun;
         var sk = document.getElementById('strike'); if (sk) sk.onclick = function () { act('strike'); };
+        var so = document.getElementById('soul'); if (so) so.onclick = function () { act('soul'); };
         Array.prototype.forEach.call($g.querySelectorAll('[data-a]'), function (b) {
           b.onclick = function () { act(b.dataset.a === 'left' ? 'move' : b.dataset.a === 'right' ? 'move' : b.dataset.a, b.dataset.a === 'left' ? -1 : b.dataset.a === 'right' ? 1 : undefined); };
         });
@@ -471,6 +769,7 @@
         else if (e.key === 'ArrowUp') act('flip');
         else if (e.key === ' ') { e.preventDefault(); act('strike'); }
         else if (e.key === 'w' || e.key === 'W') act('wait');
+        else if (e.key === 'e' || e.key === 'E') act('soul');
         else if (e.key >= '1' && e.key <= '6') act('queue', +e.key - 1);
       });
 
