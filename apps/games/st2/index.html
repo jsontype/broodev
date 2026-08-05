@@ -141,6 +141,13 @@
       .mbtn .m-lb { font-weight: 700; letter-spacing: .5px; }
       .mbtn kbd { font-family: var(--font); font-size: 10px; color: var(--dim); border: 1px solid #4a3c26; border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; background: rgba(0,0,0,.3); }
       .keys { font-size: 11px; color: #5d5344; text-align: center; font-family: var(--font); }
+      .diff-row { display: flex; gap: 8px; justify-content: center; margin: 16px 0 2px; flex-wrap: wrap; }
+      .diff-btn { display: flex; flex-direction: column; gap: 2px; align-items: center; background: #1c170e; border: 1px solid #4a3c26; border-radius: 8px; color: var(--dim); padding: 8px 12px; cursor: pointer; font-family: var(--ui); }
+      .diff-btn b { color: var(--ink); font-size: 13px; }
+      .diff-btn span { font-size: 10px; }
+      .diff-btn.sel { border-color: var(--gold); box-shadow: 0 0 10px rgba(217,164,65,.35); }
+      .diff-btn.sel b { color: var(--gold); }
+      .uhp .uarm { color: #7fb7ff; text-shadow: 0 0 5px rgba(127,183,255,.7); }
 
       /* 오버레이 화면 */
       .screen { border: 1px solid var(--line); background: rgba(20,17,13,.96); border-radius: 12px; padding: 28px 22px; text-align: center; }
@@ -194,13 +201,20 @@
        *  - 적은 공격을 1턴 예고(⚠)한 뒤 다음 턴에 집행한다
        * ========================================================= */
       var W = 9, QMAX = 3, SOULMAX = 3;
+      var DIFFS = [
+        { name: '입문', desc: '기본 규칙' },
+        { name: '수련', desc: '적 체력 상승' },
+        { name: '달인', desc: '체력 가속 · 갑옷 적' },
+        { name: '수라', desc: '최고 가속 · 갑옷 강화 · 2연격' },
+      ];
+      function curDiff() { try { return Math.min(3, Math.max(0, +(localStorage.getItem('st2:diff') || 0))); } catch (e) { return 0; } }
 
       /* 기술패 도감 (오리지널) */
       var TILE_DEFS = {
         seg:  { key: 'seg',  name: '연속 베기', glyph: '斬', cd: 2, dmg: 1, hits: 2, info: function (t) { return '전방 1칸 ' + t.dmg + '딜 ×2연타'; } },
         hoe:  { key: 'hoe',  name: '회전베기', glyph: '旋', cd: 4, dmg: 1, info: function (t) { return '양옆 1칸 ' + t.dmg + '딜'; } },
         su:   { key: 'su',   name: '수리검', glyph: '手', cd: 3, dmg: 1, info: function (t) { return '전방 직선 첫 적 ' + t.dmg + '딜'; } },
-        mil:  { key: 'mil',  name: '밀치기', glyph: '押', cd: 2, dmg: 0, info: function (t) { return '전방 적 2칸 넉백' + (t.dmg ? ' +' + t.dmg + '딜' : '') + ' (벽 충돌 시 1딜)'; } },
+        mil:  { key: 'mil',  name: '밀치기', glyph: '押', cd: 2, dmg: 0, info: function (t) { return '전방 적을 벽까지 넉백' + (t.dmg ? ' +' + t.dmg + '딜' : '') + ' (충돌 시 서로 1딜)'; } },
         brk:  { key: 'brk',  name: '돌파',   glyph: '破', cd: 7, dmg: 1, info: function (t) { return '전방 첫 적(붙은 적 포함) 관통 ' + t.dmg + '딜 · 너머 착지'; } },
         dol:  { key: 'dol',  name: '돌진',   glyph: '走', cd: 4, dmg: 1, info: function (t) { return '전방 3칸 이동 후 ' + t.dmg + '딜'; } },
         bal:  { key: 'bal',  name: '발도술', glyph: '拔', cd: 5, dmg: 1, info: function (t) { return '전방 1·2칸 각 ' + t.dmg + '딜'; } },
@@ -557,16 +571,16 @@
 
       /* 스테이지 구성: 3스테이지 × 3웨이브, 마지막은 보스 */
       /* 15스테이지 — 일반 웨이브 2개씩, 3·6·9·12는 다이묘, 15는 최종보스 쇼군 */
-      var STAGES = 15, BOSS_EVERY = 3;
+      var STAGES = 12, BOSS_EVERY = 3;
       function wavesFor(stage) {
         var sNo = stage + 1;
         var pool = ['ronin'];
         if (sNo >= 2) pool.push('archer');
         if (sNo >= 3) pool.push('spear');
-        if (sNo >= 4) pool.push('ronin2');
-        if (sNo >= 5) pool.push('nin');
-        if (sNo >= 7) pool.push('monk');
-        var count = Math.min(4, 1 + Math.floor(sNo / 3));
+        if (sNo >= 3) pool.push('ronin2');
+        if (sNo >= 4) pool.push('nin');
+        if (sNo >= 6) pool.push('monk');
+        var count = Math.min(4, 1 + Math.floor(sNo / 2.5)); /* 12스테이지 압축 가속 */
         var waves = [];
         for (var w = 0; w < 2; w++) {
           var wave = [];
@@ -673,6 +687,9 @@
           queue: [], foes: [], log: '무사의 길이 열렸다. 적의 예고(⚠)를 읽어라.',
           over: false, won: false, reward: null,
         };
+        S.diff = curDiff();
+        S.rewardSlots = 3;
+        S.tiles.forEach(function (t) { t.cdLeft = Math.max(0, t.cd - 2); }); /* 시작: 쿨 2턴만 경감 */
         S.stageWaves = wavesFor(0);
         spawnWave();
         render();
@@ -703,7 +720,15 @@
         /* 벽에서 리스폰하면 벽 반대쪽을 본다 */
         if (S.p.pos === 0) S.p.dir = 1;
         else if (S.p.pos === W - 1) S.p.dir = -1;
-        S.foes.forEach(function (bf) { if (bf.type === 'daimyo') bf.hp = 6 + 2 * Math.ceil((S.stage + 1) / 3); });
+        S.foes.forEach(function (bf) { if (bf.type === 'daimyo') bf.hp = 6 + 2 * Math.ceil((S.stage + 1) / 2.4); });
+        var dl = S.diff || 0, dNo = S.stage + 1;
+        if (dl > 0) S.foes.forEach(function (bf) {
+          bf.hp += Math.floor(dl * dNo / 5); /* 난이도별 체력 가속(12스테이지 압축) */
+          var bs = FOE_DEFS[bf.type].boss;
+          if (bs) { if (dl >= 2) bf.armor = dl - 1; }
+          else if (dl >= 2 && dNo >= (dl >= 3 ? 3 : 4) && Math.random() < (dl >= 3 ? 0.4 : 0.3)) bf.armor = (dl >= 3 && Math.random() < 0.35) ? 2 : 1;
+          if (dl >= 3 && !bs && dNo >= 5 && Math.random() < 0.25) bf.dbl = true; /* 2연격 */
+        });
         var hasBoss = S.foes.some(function (bf) { return FOE_DEFS[bf.type].boss; });
         S.log = 'STAGE ' + (S.stage + 1) + ' — ' + (hasBoss ? '⚔ 보스가 길을 막는다!' : (S.wave + 1) + '번째 대치. 적 ' + S.foes.length + '명.');
       }
@@ -732,7 +757,7 @@
         seg: ['p', 'R', '.', '.', '.'],
         hoe: ['r', 'p', 'r', '.', '.'],
         su:  ['p', 'f', 'f', 'f', 'r'],
-        mil: ['p', 'r', 'm', 'm', '.'],
+        mil: ['p', 'r', 'm', 'm', 'm'],
         dol: ['p', 'm', 'm', 'm', 'r'],
         brk: ['p', 'f', 'f', 'f', 'm'],
         bal: ['p', 'r', 'r', '.', '.'],
@@ -746,6 +771,12 @@
 
       /* ---- 기술 집행 (오리지널 효과) ---- */
       function hitFoe(f, dmg, why) {
+        if ((f.armor || 0) > 0) { /* 갑옷(파란 점): 어떤 피해든 1점으로 막는다 */
+          f.armor--;
+          FX.slash.push(f.pos); FX.hurt.push(f.pos);
+          S.log = why + ' — ' + f.name + '의 갑옷이 막았다! (남은 갑옷 ' + f.armor + ')';
+          return;
+        }
         FX.slash.push(f.pos); FX.hurt.push(f.pos);
         f.hp -= dmg;
         if (f.hp <= 0) {
@@ -783,10 +814,16 @@
           if (tgt) {
             if (t.dmg > 0) hitFoe(tgt, t.dmg, t.name);
             if (tgt.hp > 0) {
-              var to = tgt.pos, moved = 0;
-              while (moved < 2 && inBoard(to + d) && !foeAt(to + d) && to + d !== p.pos) { to += d; moved++; }
+              /* 벽 끝까지 넉백 — 뒤 적과 부딪히면 양쪽 모두 충돌 피해 */
+              var to = tgt.pos;
+              while (inBoard(to + d) && !foeAt(to + d)) to += d;
               tgt.pos = to;
-              if (moved < 2) hitFoe(tgt, 1, '밀치기 충돌');
+              var behind = foeAt(to + d);
+              if (behind && behind !== tgt) {
+                hitFoe(tgt, 1, '충돌');
+                if (behind.hp > 0) hitFoe(behind, 1, '충돌');
+                S.log = '밀치기 — ' + tgt.name + ' 격돌! 양쪽 모두 충격';
+              } else if (!inBoard(to + d)) hitFoe(tgt, 1, '벽 충돌');
               else S.log = '밀치기 — ' + tgt.name + ' 넉백';
             }
           }
@@ -835,10 +872,10 @@
           if (f.intent.delay > 1) { f.intent.delay--; continue; } /* 차지 중 — 아직 안 쏨 */
           FX.fatk.push(f.pos);
           if (f.intent.cells.indexOf(S.p.pos) >= 0) {
-            S.p.hp -= 1;
+            S.p.hp -= (f.dbl ? 2 : 1);
             FX.ehit.push(S.p.pos); FX.hurtP = true; FX.quake = true;
             SFX.hurt();
-            S.log = f.name + '의 일격! 체력 -1';
+            S.log = f.name + (f.dbl ? '의 2연격!! 체력 -2' : '의 일격! 체력 -1');
             if (S.p.hp <= 0) { S.over = true; saveBest(); return; }
           }
           f.intent = null;
@@ -938,16 +975,22 @@
         var opts = [];
         var unowned = Object.keys(TILE_DEFS).filter(function (k) { return !S.tiles.some(function (t) { return t.key === k; }); });
         if (unowned.length && S.tiles.length < 6) { var k = unowned[(Math.random() * unowned.length) | 0]; opts.push({ kind: 'new', key: k, label: '새 기술패: ' + TILE_DEFS[k].name, desc: TILE_DEFS[k].info(TILE_DEFS[k]) }); }
-        var up = S.tiles[(Math.random() * S.tiles.length) | 0];
-        opts.push({ kind: 'dmg', key: up.key, label: up.name + ' 강화', desc: '피해 +1 (현재 ' + up.dmg + ')' });
+        /* 강화 풀을 섞어 요양·안목도 공평하게 (예전엔 요양이 항상 잘려나가는 버그) */
+        var pool = [];
+        var ups = S.tiles.slice();
+        for (var ui = ups.length - 1; ui > 0; ui--) { var uj = (Math.random() * (ui + 1)) | 0; var ut = ups[ui]; ups[ui] = ups[uj]; ups[uj] = ut; }
+        ups.slice(0, 2).forEach(function (up) { pool.push({ kind: 'dmg', key: up.key, label: up.name + ' 강화', desc: '피해 +1 (현재 ' + up.dmg + ')' }); });
         var cdT = S.tiles.filter(function (t) { return t.cd > 1; });
-        if (cdT.length) { var c = cdT[(Math.random() * cdT.length) | 0]; opts.push({ kind: 'cd', key: c.key, label: c.name + ' 단련', desc: '쿨다운 -1 (현재 ' + c.cd + '턴)' }); }
-        opts.push({ kind: 'hp', label: '요양', desc: '최대 체력 +1 · 전체 회복' });
+        if (cdT.length) { var c = cdT[(Math.random() * cdT.length) | 0]; pool.push({ kind: 'cd', key: c.key, label: c.name + ' 단련', desc: '쿨다운 -1 (현재 ' + c.cd + '턴)' }); }
+        pool.push({ kind: 'hp', label: '요양', desc: '최대 체력 +1 · 전체 회복' });
+        if ((S.rewardSlots || 3) < 6) pool.push({ kind: 'slot', label: '안목', desc: '보상 선택지 +1 (현재 ' + (S.rewardSlots || 3) + '/6)' });
+        for (var si = pool.length - 1; si > 0; si--) { var sj = (Math.random() * (si + 1)) | 0; var sv = pool[si]; pool[si] = pool[sj]; pool[sj] = sv; }
+        opts = opts.concat(pool);
         /* 레어(보라) — 오의 강화는 가끔만 뜬다 */
         var rares = [];
         if (Math.random() < 0.18) rares.push({ kind: 'soul_dmg', rare: 1, label: '오의 연마 · 일섬', desc: '일섬 피해 +2 (현재 ' + S.soulDmg + ')' });
         if (S.soulMax > 2 && Math.random() < 0.04) rares.push({ kind: 'soul_max', rare: 2, label: '혼의 그릇 · 일섬', desc: '혼 게이지 ' + S.soulMax + ' → ' + (S.soulMax - 1) + ' (충전 단축)' });
-        return rares.concat(opts).slice(0, 3);
+        return rares.concat(opts).slice(0, S.rewardSlots || 3);
       }
       function pickReward(i) {
         if (!S || !S.reward || !S.reward[i]) return;
@@ -958,11 +1001,12 @@
         else if (o.kind === 'hp') { S.p.maxHp++; S.p.hp = S.p.maxHp; }
         else if (o.kind === 'soul_dmg') S.soulDmg += 2;
         else if (o.kind === 'soul_max') S.soulMax = Math.max(2, S.soulMax - 1);
+        else if (o.kind === 'slot') S.rewardSlots = Math.min(6, (S.rewardSlots || 3) + 1);
         S.reward = null;
         S.wave++;
         if (S.wave >= S.stageWaves.length) { S.stage++; S.wave = 0; S.stageWaves = wavesFor(S.stage); }
         S.queue = [];
-        S.tiles.forEach(function (t) { t.cdLeft = 0; });
+        S.tiles.forEach(function (t) { t.cdLeft = Math.max(0, t.cd - 2); }); /* 웨이브 시작: 쿨 2턴만 경감 */
         spawnWave();
         render();
       }
@@ -974,8 +1018,10 @@
         bgmStart();
         if (type === 'move') {
           var np = p.pos + arg;
-          if (!inBoard(np) || foeAt(np)) { S.log = '길이 막혀 있다.'; render(); return; }
-          p.pos = np; SFX.step();
+          if (!inBoard(np)) { S.log = '길이 막혀 있다.'; render(); return; }
+          var blocker = foeAt(np);
+          if (blocker) { blocker.pos = p.pos; p.pos = np; SFX.step(); S.log = blocker.name + '와 자리를 바꿨다.'; }
+          else { p.pos = np; SFX.step(); }
         } else if (type === 'flip') { p.dir = -p.dir; S.log = '방향 전환.'; SFX.flip(); }
         else if (type === 'wait') { S.log = '호흡을 고른다.'; }
         else if (type === 'queue') {
@@ -1017,17 +1063,19 @@
         try { var b = +localStorage.getItem('st2:best') || 0; if (score() > b) localStorage.setItem('st2:best', String(score())); } catch (e) {}
         recordRun();
       }
-      function loadBoard() { try { return JSON.parse(localStorage.getItem('st2:board') || '[]'); } catch (e) { return []; } }
+      /* 난이도별 보드 분리 — 입문은 기존 키 그대로(기록 보존) */
+      function boardKey(d) { return 'st2:board' + (d ? ':d' + d : ''); }
+      function loadBoard(d) { try { return JSON.parse(localStorage.getItem(boardKey(d)) || '[]'); } catch (e) { return []; } }
       function recordRun() {
         try {
-          var b = loadBoard();
+          var b = loadBoard(S.diff);
           b.push({ s: score(), st: S.stage + 1, k: S.kills, w: S.won ? 1 : 0, d: new Date().toISOString().slice(0, 10) });
           b.sort(function (x, y) { return y.s - x.s; });
-          localStorage.setItem('st2:board', JSON.stringify(b.slice(0, 10)));
+          localStorage.setItem(boardKey(S.diff), JSON.stringify(b.slice(0, 10)));
         } catch (e) {}
       }
-      function boardHtml(cur) {
-        var b = loadBoard();
+      function boardHtml(cur, dIdx) {
+        var b = loadBoard(dIdx || 0);
         if (!b.length) return '';
         var hi = cur != null ? b.findIndex(function (r) { return r.s === cur; }) : -1;
         var rows = b.slice(0, 5).map(function (r, i) {
@@ -1037,7 +1085,7 @@
           var mr = b[hi];
           rows += '<tr class="me"><td>' + (hi + 1) + '</td><td>' + mr.s + '</td><td>' + (mr.w ? '천하통일' : 'S' + mr.st) + '</td><td>' + mr.k + '</td><td>' + mr.d + '</td></tr>';
         }
-        return '<div class="board-label">— 나의 기록 (이 브라우저) —</div><table class="board"><tr><th>#</th><th>점수</th><th>도달</th><th>격파</th><th>날짜</th></tr>' + rows + '</table>';
+        return '<div class="board-label">— 나의 기록 · ' + DIFFS[dIdx || 0].name + ' (이 브라우저) —</div><table class="board"><tr><th>#</th><th>점수</th><th>도달</th><th>격파</th><th>날짜</th></tr>' + rows + '</table>';
       }
       function best() { try { return +localStorage.getItem('st2:best') || 0; } catch (e) { return 0; } }
 
@@ -1091,8 +1139,8 @@
               var eCls = 'unit ' + (FOE_DEFS[f.type].boss ? 'boss' : 'en') + ' sp-' + FOE_DEFS[f.type].sprite + (lookLeft ? ' flip' : '') + (FX.hurt.indexOf(i) >= 0 ? ' hurt' : '') +
                 (striking ? (lookLeft ? ' atkL' : ' atkR') : '') + (fImg ? ' imgmode' : '');
               var fBody = fImg ? '<img class="hero-img" src="' + fImg + '" alt="" />' : unitSvg(FOE_DEFS[f.type].sprite);
-              var intentBadge = f.intent ? '<span class="u-int' + (f.intent.delay <= 1 ? ' now' : '') + '">⚔' + f.intent.delay + '</span>' : '';
-              inner = '<span class="' + eCls + '">' + fBody + intentBadge + '<span class="uhp">' + '●'.repeat(f.hp) + '</span></span>';
+              var intentBadge = f.intent ? '<span class="u-int' + (f.intent.delay <= 1 ? ' now' : '') + '">⚔' + f.intent.delay + (f.dbl ? '×2' : '') + '</span>' : '';
+              inner = '<span class="' + eCls + '">' + fBody + intentBadge + '<span class="uhp">' + '●'.repeat(Math.max(0, f.hp)) + ((f.armor || 0) > 0 ? '<span class="uarm">' + '●'.repeat(f.armor) + '</span>' : '') + '</span></span>';
             }
           }
           if (FX.dash.indexOf(i) >= 0) inner += '<span class="fx-dash"></span>';
@@ -1117,7 +1165,7 @@
         }).join('');
         $g.innerHTML =
           '<div class="hud"><span class="hp">' + '♥'.repeat(S.p.hp) + '<span style="opacity:.25">' + '♥'.repeat(Math.max(0, S.p.maxHp - S.p.hp)) + '</span></span>' +
-          '<span class="st">STAGE ' + (S.stage + 1) + '/15 · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
+          '<span class="st">STAGE ' + (S.stage + 1) + '/12 · ' + DIFFS[S.diff || 0].name + ' · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
           '<span class="soul" title="적을 격파하면 혼이 차오른다">魂 ' + '●'.repeat(S.soul) + '<span style="opacity:.3">' + '●'.repeat(Math.max(0, S.soulMax - S.soul)) + '</span></span>' +
           '<span class="score">SCORE ' + score() + '</span>' +
           '<button class="mute" id="mute" title="사운드 켜기/끄기">' + (AU.muted ? '🔇' : '🔊') + '</button>' +
@@ -1140,29 +1188,34 @@
       function titleHtml() {
         return '<div class="screen"><h1>사무라이 택틱스 <span class="two">2</span></h1>' +
           '<div class="sub">한 줄 전장 · 큐 콤보 · 예고를 읽는 검술 두뇌전</div>' +
-          '<div class="stat">BEST SCORE ' + best() + '</div>' + boardHtml() +
-          '<button class="big-btn" id="start">입문 (시작)</button>' +
+          '<div class="stat">BEST SCORE ' + best() + '</div>' + boardHtml(null, curDiff()) +
+          '<div class="diff-row">' + DIFFS.map(function (df, i2) { return '<button class="diff-btn' + (i2 === curDiff() ? ' sel' : '') + '" data-diff="' + i2 + '"><b>' + df.name + '</b><span>' + df.desc + '</span></button>'; }).join('') + '</div>' +
+          '<button class="big-btn" id="start">' + DIFFS[curDiff()].name + ' (시작)</button>' +
           '<div class="howto"><b>규칙.</b> 모든 행동은 1턴이고, 그때마다 적도 움직인다.<br />' +
           '적은 공격 전에 <b>⚠로 예고</b>한다 — 예고된 칸을 피하거나, 그 전에 베어라.<br />' +
           '기술패를 <b>콤보 큐(최대 3)</b>에 쌓고 <b>발동</b>하면 한 호흡에 집행된다. 사용한 패는 쿨다운.<br />' +
           '기술은 <b>바라보는 방향(▶/◀)</b>으로 나간다. 등 뒤는 <b>⇄ 전환</b>으로 지켜라.<br />' +
           '적을 격파하면 <b>혼(魂)</b>이 차오른다. 게이지가 가득 차면 오의 <b>일섬(一閃)</b> — 전방의 모든 적을 <b>관통하며 베어</b> 반대편으로 빠져나간다.<br />' +
-          '웨이브를 이기면 보상 — 새 기술·강화·회복. <b>다이묘</b>가 3·6·9·12 스테이지마다 길을 막고, <b>15 스테이지의 쇼군</b>을 베면 천하통일.</div></div>';
+          '웨이브를 이기면 보상 — 새 기술·강화·회복. <b>다이묘</b>가 3·6·9 스테이지마다 길을 막고, <b>12 스테이지의 쇼군</b>을 베면 천하통일.</div></div>';
       }
       function rewardHtml() {
-        return '<div class="screen"><h1 style="font-size:22px">승리의 대가</h1><div class="sub">하나를 고르시오 — 숫자키 <b>1·2·3</b> (4 = 항복)</div><div class="reward-opts">' +
+        var giveN = S.reward.length + 1;
+        return '<div class="screen"><h1 style="font-size:22px">승리의 대가</h1><div class="sub">하나를 고르시오 — 숫자키 <b>1~' + S.reward.length + '</b> (' + giveN + ' = 항복)</div><div class="reward-opts">' +
           S.reward.map(function (o, i) { return '<button class="tile' + (o.rare === 2 ? ' legend' : o.rare ? ' rare' : '') + '" data-r="' + i + '"><span class="r-num">' + (i + 1) + '</span><div class="t-name">' + esc(o.label) + '</div><div class="t-info">' + esc(o.desc) + '</div></button>'; }).join('') +
-          '<button class="tile r-giveup" data-r="give"><span class="r-num">4</span><div class="t-name">🏳 항복</div><div class="t-info">런을 포기하고 처음부터 다시</div></button>' +
+          '<button class="tile r-giveup" data-r="give"><span class="r-num">' + giveN + '</span><div class="t-name">🏳 항복</div><div class="t-info">런을 포기하고 처음부터 다시</div></button>' +
           '</div></div>';
       }
       function endHtml() {
         return '<div class="screen"><h1 style="font-size:26px">' + (S.won ? '천하통일' : '낙명(落命)') + '</h1>' +
-          '<div class="sub">' + (S.won ? '다이묘를 베었다. 그대의 검이 시대를 갈랐다.' : 'STAGE ' + (S.stage + 1) + '에서 쓰러졌다. 검은 다시 잡는 자의 것.') + '</div>' +
-          '<div class="stat">SCORE ' + score() + ' · BEST ' + best() + ' · 격파 ' + S.kills + '</div>' + boardHtml(score()) +
+          '<div class="sub">' + (S.won ? '쇼군을 베었다. 그대의 검이 시대를 갈랐다.' : 'STAGE ' + (S.stage + 1) + '에서 쓰러졌다. 검은 다시 잡는 자의 것.') + '</div>' +
+          '<div class="stat">SCORE ' + score() + ' · BEST ' + best() + ' · 격파 ' + S.kills + '</div>' + boardHtml(score(), S.diff) +
           '<button class="big-btn" id="start">' + (S.won ? '한 번 더' : '재도전') + '</button></div>';
       }
       function wire() {
         var st = document.getElementById('start'); if (st) st.onclick = newRun;
+        Array.prototype.forEach.call($g.querySelectorAll('[data-diff]'), function (b) {
+          b.onclick = function () { try { localStorage.setItem('st2:diff', b.dataset.diff); } catch (err) {} $g.innerHTML = titleHtml(); wire(); };
+        });
         var sk = document.getElementById('strike'); if (sk) sk.onclick = function () { act('strike'); };
         var so = document.getElementById('soul'); if (so) so.onclick = function () { act('soul'); };
         var mu = document.getElementById('mute'); if (mu) mu.onclick = toggleMute;
@@ -1185,8 +1238,9 @@
       document.addEventListener('keydown', function (e) {
         if (!S) return;
         if (S.reward) {
-          if (e.key >= '1' && e.key <= '3' && S.reward[+e.key - 1]) pickReward(+e.key - 1);
-          else if (e.key === '4') { SFX.die(); newRun(); }
+          var rn = +e.key;
+          if (rn >= 1 && rn <= S.reward.length && S.reward[rn - 1]) pickReward(rn - 1);
+          else if (rn === S.reward.length + 1) { SFX.die(); newRun(); }
           return;
         }
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') act('move', -1);
