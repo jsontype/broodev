@@ -48,6 +48,8 @@
       .cell { flex: 1; aspect-ratio: 4/5; min-width: 0; background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(0,0,0,.26)); border: 1px solid rgba(0,0,0,.4); box-shadow: inset 0 -8px 14px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.05); border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; font-size: clamp(17px, 5.4vw, 30px); transition: background .15s; }
       .cell.tele { background: #3a1c15; border-color: var(--red); box-shadow: inset 0 0 12px rgba(201,67,47,.35); }
       .cell.tele::after { content: '⚠'; position: absolute; top: 2px; right: 4px; font-size: 10px; color: var(--red); }
+      .cell.tele.tele2 { background: #5c1810; border-color: #ff5a3c; box-shadow: inset 0 0 18px rgba(255,90,60,.6), 0 0 8px rgba(201,67,47,.45); }
+      .cell.tele.tele2::after { content: '⚠⚠'; color: #ff5a3c; text-shadow: 0 0 6px rgba(255,90,60,.8); }
       .unit { line-height: 0; position: relative; width: 94%; transform-origin: 50% 100%; animation: breathe 2s ease-in-out infinite; }
       .unit.pl { width: 100%; }
       .unit svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)); }
@@ -124,6 +126,9 @@
       .rng i.R { background: #8f1408; border-color: #5c0d05; box-shadow: 0 0 6px rgba(201,67,47,.9); }
       .rng i.f { background: rgba(201,67,47,.35); border-color: #5c2a20; }
       .rng i.m { background: rgba(127,183,255,.35); border-color: #2c4a6e; }
+      .cell.pv-hit { box-shadow: inset 0 0 0 2px rgba(201,67,47,.55); background: rgba(201,67,47,.16); }
+      .cell.pv-move { box-shadow: inset 0 0 0 2px rgba(127,183,255,.45); background: rgba(127,183,255,.13); }
+      .cell.pv-path { box-shadow: inset 0 0 0 2px rgba(201,67,47,.28); background: rgba(201,67,47,.08); }
       .tile .t-info { font-size: 10.5px; color: var(--dim); margin-top: 2px; line-height: 1.45; }
       .tile .t-cd { position: absolute; top: 6px; right: 8px; font-size: 11px; color: var(--red); font-family: var(--font); }
 
@@ -638,6 +643,7 @@
       var S = null; /* 게임 상태 */
       var uid = 1, runSeq = 0;
       var surrenderArm = 0; /* 항복 2단 확인 (오클릭 방지) */
+      var hoverTile = null; /* 기술패 호버 → 전장 사정권 미리보기 */
       /* 연출 상태 — 한 행동의 이펙트를 320ms 보여준 뒤 스스로 지운다 */
       var FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false, fatk: [], threw: false };
       var fxTimer = 0;
@@ -694,12 +700,12 @@
           '<stop offset="0" stop-color="#caa24a"/><stop offset="1" stop-color="#7e5f1e"/></linearGradient></defs>';
       }
       var TILE_ICONS = {
-        seg: '<svg viewBox="0 0 24 24">' + icoDefs('sg') + '<path d="M3 21 L17 5 L20 2 L21 3 L18 6 L5 22 Z" fill="url(#msg)" stroke="#3a3f52" stroke-width=".6"/><rect x="1.6" y="19.2" width="5" height="2.2" rx="1" transform="rotate(-45 4 20)" fill="url(#hsg)"/><path d="M20 2 L21 3" stroke="#fff" stroke-width="1.1"/></svg>',
+        seg: '<svg viewBox="0 0 24 24">' + icoDefs('sg') + '<path d="M2.6 16.4 Q11 14.6 19.4 2.8" fill="none" stroke="url(#msg)" stroke-width="2.6" stroke-linecap="round"/><path d="M6.4 21.2 Q15.4 19.2 22.6 8.2" fill="none" stroke="url(#msg)" stroke-width="1.7" stroke-linecap="round" opacity=".85"/><path d="M19.4 2.8 l1.4-1.6 M22.6 8.2 l1.2-1.4" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/></svg>',
         hoe: '<svg viewBox="0 0 24 24">' + icoDefs('ho') + '<path d="M12 3 A9 9 0 0 1 21 12 L18.6 12 A6.6 6.6 0 0 0 12 5.4 Z" fill="url(#mho)" stroke="#3a3f52" stroke-width=".5"/><path d="M12 21 A9 9 0 0 1 3 12 L5.4 12 A6.6 6.6 0 0 0 12 18.6 Z" fill="url(#mho)" stroke="#3a3f52" stroke-width=".5"/><circle cx="12" cy="12" r="2.2" fill="url(#hho)"/></svg>',
         su: '<svg viewBox="0 0 24 24">' + icoDefs('su') + '<path d="M12 1 L14.2 9.8 L23 12 L14.2 14.2 L12 23 L9.8 14.2 L1 12 L9.8 9.8 Z" fill="url(#msu)" stroke="#3a3f52" stroke-width=".6"/><circle cx="12" cy="12" r="2" fill="#232838" stroke="#5a6480" stroke-width=".7"/></svg>',
         mil: '<svg viewBox="0 0 24 24">' + icoDefs('mi') + '<path d="M6 20 V9 a1.6 1.6 0 0 1 3.2 0 V7 a1.6 1.6 0 0 1 3.2 0 V6.4 a1.6 1.6 0 0 1 3.2 0 V8 a1.5 1.5 0 0 1 3 0 v6.5 c0 3.6-2.6 6-6.2 6 C9 20.5 6 20 6 20 Z" fill="#e0b48a" stroke="#8a6a44" stroke-width=".7"/><path d="M20 7 q3 5 0 10 M22.5 5 q4 7 0 14" stroke="#7fb7ff" stroke-width="1" fill="none" opacity=".8"/></svg>',
         dol: '<svg viewBox="0 0 24 24">' + icoDefs('do') + '<path d="M2 12 L10 6 V10 L18 10 V14 L10 14 V18 Z" transform="rotate(180 10 12)" fill="url(#mdo)" stroke="#3a3f52" stroke-width=".6"/><path d="M3 5 h6 M2 19 h6 M1 12 h3" stroke="#7fb7ff" stroke-width="1" opacity=".7"/></svg>',
-        bal: '<svg viewBox="0 0 24 24">' + icoDefs('ba') + '<rect x="2" y="14.4" width="13" height="3.4" rx="1.6" transform="rotate(-14 8 16)" fill="#1c1a28" stroke="#454258" stroke-width=".6"/><path d="M9 12.6 L20 8.6 L22.6 7 L23 8 L21 9.6 L10 13.6 Z" fill="url(#mba)" stroke="#3a3f52" stroke-width=".5"/><path d="M22.6 7 L23 8" stroke="#fff" stroke-width="1.2"/><path d="M19 5.5 l1.2-1.2 M21.5 11 l1.4.6" stroke="#ffd166" stroke-width=".9"/></svg>',
+        bal: '<svg viewBox="0 0 24 24">' + icoDefs('ba') + '<rect x="0.8" y="17.6" width="11.5" height="3" rx="1.5" transform="rotate(-35 6 19)" fill="#1c1a28" stroke="#454258" stroke-width=".6"/><rect x="7.6" y="12.2" width="4.6" height="2.2" rx="1" transform="rotate(-35 10 13)" fill="url(#hba)"/><path d="M11 12 L21.4 3.2 L23.2 2 L23.8 3 L22 4.4 L12.4 13.6 Z" fill="url(#mba)" stroke="#3a3f52" stroke-width=".5"/><path d="M23.2 2 L23.8 3" stroke="#fff" stroke-width="1.2"/><path d="M14 1.6 A15 15 0 0 1 23.4 8.6" stroke="#cfe0ff" stroke-width="1" fill="none" opacity=".55"/></svg>',
       };
       /* 범위 미니맵: p=자신 · r=타격 · f=경유(관통) · m=이동 (향 방향 오른쪽 기준) */
       var TILE_RANGE = {
@@ -734,7 +740,16 @@
       function execTile(t) {
         var p = S.p, d = p.dir, tgt;
         if (t.key === 'seg') {
-          for (var h2 = 0; h2 < (TILE_DEFS.seg.hits || 1); h2++) { tgt = foeAt(p.pos + d); if (tgt) hitFoe(tgt, t.dmg, t.name); }
+          var hitPos = null;
+          for (var h2 = 0; h2 < (TILE_DEFS.seg.hits || 1); h2++) { tgt = foeAt(p.pos + d); if (tgt) { hitPos = tgt.pos; hitFoe(tgt, t.dmg, t.name); } }
+          if (hitPos != null) { /* 두 번째 베기 모션 — 잔상·검광·타격음 재생 */
+            var encoreRun = S.runId, encorePos = hitPos;
+            setTimeout(function () {
+              if (!S || S.runId !== encoreRun || S.screen !== 'play' || S.over || S.won || S.reward) return;
+              FX.atk = true; FX.slash.push(encorePos); FX.hurt.push(encorePos); SFX.slash();
+              render(); fxSchedule();
+            }, 170);
+          }
         } else if (t.key === 'bal') {
           [foeAt(p.pos + d), foeAt(p.pos + 2 * d)].forEach(function (f3) { if (f3) hitFoe(f3, t.dmg, t.name); });
         } else if (t.key === 'hoe') {
@@ -990,8 +1005,20 @@
         if (!S || S.screen === 'title') { $g.innerHTML = titleHtml(); wire(); return; }
         if ((S.over || S.won) && !S.lock) { $g.innerHTML = endHtml(); wire(); return; }
         if (S.reward) { $g.innerHTML = rewardHtml(); wire(); return; }
-        var teleCells = {};
-        S.foes.forEach(function (f) { if (f.intent) f.intent.cells.forEach(function (c) { teleCells[c] = 1; }); });
+        var teleCells = {}; /* 빨간 위험 표시는 집행 직전 턴(delay 1)에만 — 차지 중엔 ⚔ 배지가 경고 */
+        S.foes.forEach(function (f) { if (f.intent && f.intent.delay <= 1) f.intent.cells.forEach(function (c) { teleCells[c] = (teleCells[c] || 0) + 1; }); });
+        /* 기술패 호버 미리보기 — 스트립과 같은 색(빨강=타격, 파랑=이동, 연빨강=관통 경로) */
+        var pvCells = {};
+        if (hoverTile != null && S.tiles[hoverTile]) {
+          var pk = S.tiles[hoverTile].key, pdv = S.p.dir, pp = S.p.pos;
+          var mark = function (pos, cls) { if (inBoard(pos) && !pvCells[pos]) pvCells[pos] = cls; };
+          if (pk === 'seg') mark(pp + pdv, 'pv-hit');
+          else if (pk === 'bal') { mark(pp + pdv, 'pv-hit'); mark(pp + 2 * pdv, 'pv-hit'); }
+          else if (pk === 'hoe') { mark(pp + 1, 'pv-hit'); mark(pp - 1, 'pv-hit'); }
+          else if (pk === 'su') { for (var sq = pp + pdv; inBoard(sq); sq += pdv) { if (foeAt(sq)) { mark(sq, 'pv-hit'); break; } mark(sq, 'pv-path'); } }
+          else if (pk === 'mil') { mark(pp + pdv, 'pv-hit'); mark(pp + 2 * pdv, 'pv-move'); mark(pp + 3 * pdv, 'pv-move'); }
+          else if (pk === 'dol') { var dp = pp, ds = 0; while (ds < 3 && inBoard(dp + pdv) && !foeAt(dp + pdv)) { dp += pdv; ds++; mark(dp, 'pv-move'); } mark(dp + pdv, 'pv-hit'); }
+        }
         var cells = '';
         for (var i = 0; i < W; i++) {
           var inner = '';
@@ -1023,7 +1050,7 @@
           if (FX.dash.indexOf(i) >= 0) inner += '<span class="fx-dash"></span>';
           if (FX.slash.indexOf(i) >= 0) inner += '<span class="fx-slash"></span>';
           if (FX.ehit.indexOf(i) >= 0) inner += '<span class="fx-ehit"></span>';
-          cells += '<div class="cell' + (teleCells[i] ? ' tele' : '') + '">' + inner + '</div>';
+          cells += '<div class="cell' + (teleCells[i] ? ' tele' + (teleCells[i] > 1 ? ' tele2' : '') : '') + (pvCells[i] ? ' ' + pvCells[i] : '') + '">' + inner + '</div>';
         }
         var idx = ''; for (var j = 0; j < W; j++) idx += '<span>' + (j + 1) + '</span>';
         var intents = S.foes.filter(function (f) { return f.intent; }).map(function (f) { return f.name + ' → <b>' + f.intent.cells.map(function (c) { return c + 1; }).join('·') + '칸</b>'; });
@@ -1100,7 +1127,11 @@
         Array.prototype.forEach.call($g.querySelectorAll('[data-a]'), function (b) {
           b.onclick = function () { act(b.dataset.a === 'left' ? 'move' : b.dataset.a === 'right' ? 'move' : b.dataset.a, b.dataset.a === 'left' ? -1 : b.dataset.a === 'right' ? 1 : undefined); };
         });
-        Array.prototype.forEach.call($g.querySelectorAll('[data-q]'), function (b) { b.onclick = function () { act('queue', +b.dataset.q); }; });
+        Array.prototype.forEach.call($g.querySelectorAll('[data-q]'), function (b) {
+          b.onclick = function () { act('queue', +b.dataset.q); };
+          b.onmouseenter = function () { var v = +b.dataset.q; if (hoverTile !== v) { hoverTile = v; if (S.screen === 'play' && !S.reward) render(); } };
+          b.onmouseleave = function () { if (hoverTile != null) { hoverTile = null; if (S.screen === 'play' && !S.reward) render(); } };
+        });
         Array.prototype.forEach.call($g.querySelectorAll('[data-r]'), function (b) { b.onclick = function () { if (b.dataset.r === 'give') { SFX.die(); newRun(); } else pickReward(+b.dataset.r); }; });
       }
       document.addEventListener('keydown', function (e) {
@@ -1120,7 +1151,7 @@
       });
 
       /* 테스트 훅 (스텁 검증용) */
-      window.__ST2__ = { newRun: newRun, act: act, pickReward: pickReward, state: function () { return S; } };
+      window.__ST2__ = { newRun: newRun, act: act, pickReward: pickReward, state: function () { return S; }, hover: function (i) { hoverTile = i; if (S && S.screen === 'play') render(); } };
 
       /* 타이틀부터 */
       S = null; render();
