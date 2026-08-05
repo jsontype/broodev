@@ -141,6 +141,11 @@
       .mbtn .m-lb { font-weight: 700; letter-spacing: .5px; }
       .mbtn kbd { font-family: var(--font); font-size: 10px; color: var(--dim); border: 1px solid #4a3c26; border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; background: rgba(0,0,0,.3); }
       .keys { font-size: 11px; color: #5d5344; text-align: center; font-family: var(--font); }
+      .ach-box { margin: 20px auto 0; max-width: 470px; color: var(--dim); font-family: var(--ui); text-align: center; }
+      .ach-box summary { cursor: pointer; font-size: 13px; color: var(--gold); list-style-position: inside; }
+      .ach-grid { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 10px; }
+      .ach-gem { font-size: 21px; line-height: 1; cursor: help; color: hsl(var(--h), 75%, 62%); text-shadow: 0 0 9px hsla(var(--h), 80%, 60%, .65); }
+      .ach-gem.lock { color: #383126; text-shadow: none; }
       .diff-row { display: flex; gap: 8px; justify-content: center; margin: 16px 0 2px; flex-wrap: wrap; }
       .diff-btn { display: flex; flex-direction: column; gap: 2px; align-items: center; background: #1c170e; border: 1px solid #4a3c26; border-radius: 8px; color: var(--dim); padding: 8px 12px; cursor: pointer; font-family: var(--ui); }
       .diff-btn b { color: var(--ink); font-size: 13px; }
@@ -675,6 +680,72 @@
         }, 320);
       }
 
+      /* ---- 업적 (30종, localStorage) ---- */
+      var ACH = [
+        { id: 'first_blood', name: '첫 참격', desc: '적을 처음으로 벤다' },
+        { id: 'first_wave', name: '첫 대치', desc: '웨이브를 처음으로 승리한다' },
+        { id: 'first_boss', name: '다이묘 사냥', desc: '다이묘를 처치한다' },
+        { id: 'mid_way', name: '중원 진출', desc: '스테이지 6에 도달한다' },
+        { id: 'deep_way', name: '천하 목전', desc: '스테이지 10에 도달한다' },
+        { id: 'shogun_slayer', name: '쇼군 참수', desc: '쇼군을 베고 천하통일한다' },
+        { id: 'win_novice', name: '통일 · 입문', desc: '입문 난이도를 클리어한다' },
+        { id: 'win_trained', name: '통일 · 수련', desc: '수련 난이도를 클리어한다' },
+        { id: 'win_master', name: '통일 · 달인', desc: '달인 난이도를 클리어한다' },
+        { id: 'win_asura', name: '통일 · 수라', desc: '수라 난이도를 클리어한다' },
+        { id: 'untouchable', name: '무결의 검', desc: '한 대도 맞지 않고 클리어한다' },
+        { id: 'speed_win', name: '신속 제패', desc: '15분 안에 클리어한다' },
+        { id: 'turn_lord', name: '한 수의 무게', desc: '200턴 이내로 클리어한다' },
+        { id: 'perfect_boss', name: '완벽한 결투', desc: '보스 웨이브를 무피해로 넘긴다' },
+        { id: 'combo_full', name: '삼연 콤보', desc: '큐 3칸을 가득 채워 발동한다' },
+        { id: 'soul_first', name: '개안', desc: '일섬을 처음 발동한다' },
+        { id: 'soul_10', name: '오의 숙련', desc: '일섬을 누적 10회 발동한다' },
+        { id: 'pierce_3', name: '삼인 관통', desc: '일섬 한 번으로 3명을 관통한다' },
+        { id: 'pierce_5', name: '오인 관통', desc: '일섬 한 번으로 5명을 관통한다' },
+        { id: 'kills_10', name: '낭인 사냥꾼', desc: '누적 10명을 격파한다' },
+        { id: 'kills_100', name: '백인참', desc: '누적 100명을 격파한다' },
+        { id: 'kills_500', name: '수라장', desc: '누적 500명을 격파한다' },
+        { id: 'all_tiles', name: '병법 수집', desc: '기술패 6종을 모두 보유한다' },
+        { id: 'dmg_5', name: '명검', desc: '기술 하나를 피해 5까지 벼린다' },
+        { id: 'hp_6', name: '불사신', desc: '최대 체력 6에 도달한다' },
+        { id: 'slots_6', name: '넓은 안목', desc: '보상 선택지를 6까지 넓힌다' },
+        { id: 'rare_pick', name: '보랏빛 오의', desc: '오의 연마(보라)를 획득한다' },
+        { id: 'legend_pick', name: '혼의 그릇', desc: '전설(금주황) 보상을 획득한다' },
+        { id: 'wall_smash', name: '벽 처형', desc: '밀치기 벽 충돌로 누적 5명을 처치한다' },
+        { id: 'swap_50', name: '무영보', desc: '적과 자리 바꾸기를 누적 50회 한다' },
+      ];
+      var ACH_MAP = {};
+      ACH.forEach(function (d) { ACH_MAP[d.id] = d; });
+      function achGet() { try { return JSON.parse(localStorage.getItem('st2:ach') || '{}'); } catch (e) { return {}; } }
+      function statsGet() { try { return JSON.parse(localStorage.getItem('st2:stats') || '{}'); } catch (e) { return {}; } }
+      function statAdd(k) { var st = statsGet(); st[k] = (st[k] || 0) + 1; try { localStorage.setItem('st2:stats', JSON.stringify(st)); } catch (e) {} return st[k]; }
+      function unlock(id) {
+        if (!ACH_MAP[id]) return;
+        var a = achGet();
+        if (a[id]) return;
+        a[id] = new Date().toISOString().slice(0, 10);
+        try { localStorage.setItem('st2:ach', JSON.stringify(a)); } catch (e) {}
+        if (S && S.screen === 'play' && !S.over && !S.won) S.log = '🏆 업적 달성 — ' + ACH_MAP[id].name + '!';
+        SFX.reward();
+      }
+      function achHtml() {
+        var a = achGet();
+        var got = Object.keys(a).filter(function (k) { return ACH_MAP[k]; }).length;
+        var open = '';
+        try { open = localStorage.getItem('st2:achOpen') || ''; } catch (e) {}
+        return '<details class="ach-box"' + (open ? ' open' : '') + '><summary>🏆 업적 ' + got + ' / ' + ACH.length + '</summary><div class="ach-grid">' +
+          ACH.map(function (d, i2) {
+            var u = a[d.id];
+            var tip = d.name + ' — ' + d.desc + (u ? ' (달성 ' + u + ')' : ' (미달성)');
+            return '<span class="ach-gem' + (u ? '' : ' lock') + '" style="--h:' + ((i2 * 47) % 360) + '" title="' + esc(tip) + '" tabindex="0">◆</span>';
+          }).join('') + '</div></details>';
+      }
+      /* 항복 → 초기 화면 */
+      function goTitle() {
+        clearTimeout(fxTimer);
+        clearTimeout(surrenderArm); surrenderArm = 0;
+        S = null;
+        $g.innerHTML = titleHtml(); wire();
+      }
       function newRun() {
         clearTimeout(fxTimer); fxClear();
         clearTimeout(surrenderArm); surrenderArm = 0;
@@ -688,6 +759,7 @@
           over: false, won: false, reward: null,
         };
         S.diff = curDiff();
+        S.startTime = Date.now(); S.runDmg = 0; S.waveDmg = 0;
         S.rewardSlots = 3;
         S.tiles.forEach(function (t) { t.cdLeft = Math.max(0, t.cd - 2); }); /* 시작: 쿨 2턴만 경감 */
         S.stageWaves = wavesFor(0);
@@ -730,6 +802,7 @@
           if (dl >= 3 && !bs && dNo >= 5 && Math.random() < 0.25) bf.dbl = true; /* 2연격 */
         });
         var hasBoss = S.foes.some(function (bf) { return FOE_DEFS[bf.type].boss; });
+        S.waveHadBoss = hasBoss; S.waveDmg = 0;
         S.log = 'STAGE ' + (S.stage + 1) + ' — ' + (hasBoss ? '⚔ 보스가 길을 막는다!' : (S.wave + 1) + '번째 대치. 적 ' + S.foes.length + '명.');
       }
 
@@ -781,6 +854,12 @@
         f.hp -= dmg;
         if (f.hp <= 0) {
           S.kills++; SFX.hit();
+          var tk = statAdd('kills');
+            if (tk >= 1) unlock('first_blood');
+            if (tk >= 10) unlock('kills_10');
+            if (tk >= 100) unlock('kills_100');
+            if (tk >= 500) unlock('kills_500');
+            if (why && why.indexOf('벽 충돌') >= 0 && statAdd('wall') >= 5) unlock('wall_smash');
           if (!S.soulCasting) {
             S.soul = Math.min(S.soulMax, S.soul + 1);
             if (S.soul >= S.soulMax) SFX.soulReady(); else SFX.soulUp();
@@ -873,6 +952,7 @@
           FX.fatk.push(f.pos);
           if (f.intent.cells.indexOf(S.p.pos) >= 0) {
             S.p.hp -= (f.dbl ? 2 : 1);
+            S.runDmg += (f.dbl ? 2 : 1); S.waveDmg += (f.dbl ? 2 : 1);
             FX.ehit.push(S.p.pos); FX.hurtP = true; FX.quake = true;
             SFX.hurt();
             S.log = f.name + (f.dbl ? '의 2연격!! 체력 -2' : '의 일격! 체력 -1');
@@ -946,7 +1026,20 @@
           setTimeout(function () {
             if (!S || S.runId !== myRun) return;
             S.lock = false;
-            if (finalWin) { S.won = true; saveBest(); SFX.win(); } else { S.reward = rollRewards(); SFX.reward(); }
+            if (finalWin) {
+              S.won = true;
+              unlock('shogun_slayer');
+              unlock(['win_novice', 'win_trained', 'win_master', 'win_asura'][S.diff || 0]);
+              if (S.runDmg === 0) unlock('untouchable');
+              if (Date.now() - S.startTime <= 15 * 60 * 1000) unlock('speed_win');
+              if (S.turn <= 200) unlock('turn_lord');
+              if (S.waveDmg === 0) unlock('perfect_boss');
+              saveBest(); SFX.win();
+            } else {
+              unlock('first_wave');
+              if (S.waveHadBoss) { unlock('first_boss'); if (S.waveDmg === 0) unlock('perfect_boss'); }
+              S.reward = rollRewards(); SFX.reward();
+            }
             render();
           }, 380);
           return;
@@ -1002,9 +1095,17 @@
         else if (o.kind === 'soul_dmg') S.soulDmg += 2;
         else if (o.kind === 'soul_max') S.soulMax = Math.max(2, S.soulMax - 1);
         else if (o.kind === 'slot') S.rewardSlots = Math.min(6, (S.rewardSlots || 3) + 1);
+        if (S.tiles.length >= 6) unlock('all_tiles');
+        if (S.tiles.some(function (t2) { return t2.dmg >= 5; })) unlock('dmg_5');
+        if (S.p.maxHp >= 6) unlock('hp_6');
+        if (S.rewardSlots >= 6) unlock('slots_6');
+        if (o.kind === 'soul_dmg') unlock('rare_pick');
+        if (o.kind === 'soul_max') unlock('legend_pick');
         S.reward = null;
         S.wave++;
         if (S.wave >= S.stageWaves.length) { S.stage++; S.wave = 0; S.stageWaves = wavesFor(S.stage); }
+        if (S.stage + 1 >= 6) unlock('mid_way');
+        if (S.stage + 1 >= 10) unlock('deep_way');
         S.queue = [];
         S.tiles.forEach(function (t) { t.cdLeft = Math.max(0, t.cd - 2); }); /* 웨이브 시작: 쿨 2턴만 경감 */
         spawnWave();
@@ -1020,7 +1121,7 @@
           var np = p.pos + arg;
           if (!inBoard(np)) { S.log = '길이 막혀 있다.'; render(); return; }
           var blocker = foeAt(np);
-          if (blocker) { blocker.pos = p.pos; p.pos = np; SFX.step(); S.log = blocker.name + '와 자리를 바꿨다.'; }
+          if (blocker) { blocker.pos = p.pos; p.pos = np; SFX.step(); S.log = blocker.name + '와 자리를 바꿨다.'; if (statAdd('swap') >= 50) unlock('swap_50'); }
           else { p.pos = np; SFX.step(); }
         } else if (type === 'flip') { p.dir = -p.dir; S.log = '방향 전환.'; SFX.flip(); }
         else if (type === 'wait') { S.log = '호흡을 고른다.'; }
@@ -1046,9 +1147,15 @@
           p.pos = landing;
           S.soulCasting = false;
           S.soul = 0;
+          var sc2 = statAdd('soul');
+          if (sc2 >= 1) unlock('soul_first');
+          if (sc2 >= 10) unlock('soul_10');
+          if (targets.length >= 3) unlock('pierce_3');
+          if (targets.length >= 5) unlock('pierce_5');
           S.log = '오의 · 일섬(一閃)! 전방을 꿰뚫었다 — ' + targets.length + '명 관통';
         } else if (type === 'strike') {
           if (!S.queue.length) return;
+          if (S.queue.length >= QMAX) unlock('combo_full');
           FX.atk = true;
           SFX.slash();
           var names = [];
@@ -1196,13 +1303,13 @@
           '기술패를 <b>콤보 큐(최대 3)</b>에 쌓고 <b>발동</b>하면 한 호흡에 집행된다. 사용한 패는 쿨다운.<br />' +
           '기술은 <b>바라보는 방향(▶/◀)</b>으로 나간다. 등 뒤는 <b>⇄ 전환</b>으로 지켜라.<br />' +
           '적을 격파하면 <b>혼(魂)</b>이 차오른다. 게이지가 가득 차면 오의 <b>일섬(一閃)</b> — 전방의 모든 적을 <b>관통하며 베어</b> 반대편으로 빠져나간다.<br />' +
-          '웨이브를 이기면 보상 — 새 기술·강화·회복. <b>다이묘</b>가 3·6·9 스테이지마다 길을 막고, <b>12 스테이지의 쇼군</b>을 베면 천하통일.</div></div>';
+          '웨이브를 이기면 보상 — 새 기술·강화·회복. <b>다이묘</b>가 3·6·9 스테이지마다 길을 막고, <b>12 스테이지의 쇼군</b>을 베면 천하통일.</div>' + achHtml() + '</div>';
       }
       function rewardHtml() {
         var giveN = S.reward.length + 1;
         return '<div class="screen"><h1 style="font-size:22px">승리의 대가</h1><div class="sub">하나를 고르시오 — 숫자키 <b>1~' + S.reward.length + '</b> (' + giveN + ' = 항복)</div><div class="reward-opts">' +
           S.reward.map(function (o, i) { return '<button class="tile' + (o.rare === 2 ? ' legend' : o.rare ? ' rare' : '') + '" data-r="' + i + '"><span class="r-num">' + (i + 1) + '</span><div class="t-name">' + esc(o.label) + '</div><div class="t-info">' + esc(o.desc) + '</div></button>'; }).join('') +
-          '<button class="tile r-giveup" data-r="give"><span class="r-num">' + giveN + '</span><div class="t-name">🏳 항복</div><div class="t-info">런을 포기하고 처음부터 다시</div></button>' +
+          '<button class="tile r-giveup" data-r="give"><span class="r-num">' + giveN + '</span><div class="t-name">🏳 항복</div><div class="t-info">런을 포기하고 초기 화면으로</div></button>' +
           '</div></div>';
       }
       function endHtml() {
@@ -1213,6 +1320,8 @@
       }
       function wire() {
         var st = document.getElementById('start'); if (st) st.onclick = newRun;
+        var ab = $g.querySelectorAll('.ach-box')[0];
+        if (ab) ab.ontoggle = function () { try { localStorage.setItem('st2:achOpen', ab.open ? '1' : ''); } catch (err) {} };
         Array.prototype.forEach.call($g.querySelectorAll('[data-diff]'), function (b) {
           b.onclick = function () { try { localStorage.setItem('st2:diff', b.dataset.diff); } catch (err) {} $g.innerHTML = titleHtml(); wire(); };
         });
@@ -1221,7 +1330,7 @@
         var mu = document.getElementById('mute'); if (mu) mu.onclick = toggleMute;
         var gu = document.getElementById('giveup');
         if (gu) gu.onclick = function () {
-          if (surrenderArm) { clearTimeout(surrenderArm); surrenderArm = 0; SFX.die(); newRun(); return; }
+          if (surrenderArm) { clearTimeout(surrenderArm); surrenderArm = 0; SFX.die(); goTitle(); return; }
           surrenderArm = setTimeout(function () { surrenderArm = 0; if (S && S.screen === 'play') render(); }, 2200);
           render();
         };
@@ -1233,14 +1342,14 @@
           b.onmouseenter = function () { var v = +b.dataset.q; if (hoverTile !== v) { hoverTile = v; if (S.screen === 'play' && !S.reward) render(); } };
           b.onmouseleave = function () { if (hoverTile != null) { hoverTile = null; if (S.screen === 'play' && !S.reward) render(); } };
         });
-        Array.prototype.forEach.call($g.querySelectorAll('[data-r]'), function (b) { b.onclick = function () { if (b.dataset.r === 'give') { SFX.die(); newRun(); } else pickReward(+b.dataset.r); }; });
+        Array.prototype.forEach.call($g.querySelectorAll('[data-r]'), function (b) { b.onclick = function () { if (b.dataset.r === 'give') { SFX.die(); goTitle(); } else pickReward(+b.dataset.r); }; });
       }
       document.addEventListener('keydown', function (e) {
         if (!S) return;
         if (S.reward) {
           var rn = +e.key;
           if (rn >= 1 && rn <= S.reward.length && S.reward[rn - 1]) pickReward(rn - 1);
-          else if (rn === S.reward.length + 1) { SFX.die(); newRun(); }
+          else if (rn === S.reward.length + 1) { SFX.die(); goTitle(); }
           return;
         }
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') act('move', -1);
