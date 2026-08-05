@@ -152,14 +152,17 @@
         .queue { margin-bottom: 6px; }
         .q-slot .t-ico { width: 24px; height: 24px; }
         .btn-soul, .btn-strike { padding: 8px 10px; font-size: 13px; }
-        .tiles { grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 8px; }
+        .botrow { display: flex; gap: 8px; align-items: flex-start; }
+        .botrow .tiles { flex: 1; min-width: 0; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 0; }
         .tiles .tile { padding: 6px 5px 5px; }
         .tiles .tile .t-info { display: none; }
         .tiles .tile .t-name { font-size: 11px; }
         .tile .t-key, .mbtn .m-lb, .mbtn kbd, .keys, footer { display: none; }
-        .mbtn { padding: 8px 4px; }
-        .mbtn .m-ico { font-size: 18px; }
-        .moves { margin-bottom: 6px; }
+        .botrow .moves { display: grid; grid-template-columns: repeat(2, 46px); grid-auto-rows: 44px; gap: 6px; margin: 0; flex-shrink: 0; align-content: start; }
+        .mbtn { padding: 0; }
+        .mbtn .m-ico { font-size: 19px; }
+        .mbtn[data-a="left"] { order: 1; } .mbtn[data-a="right"] { order: 2; }
+        .mbtn[data-a="flip"] { order: 3; } .mbtn[data-a="wait"] { order: 4; }
         .rng i { width: 9px; height: 9px; }
         /* 타이틀(난이도 선택)·보상·종료(스코어보드) 화면도 한 화면에 */
         .screen h1 { font-size: 20px !important; margin: 4px 0 2px; }
@@ -177,7 +180,7 @@
       }
       /* 가로 모드(낮은 높이): 기술 6열·전장 더 낮게 */
       @media (max-height: 560px) {
-        .tiles { grid-template-columns: repeat(6, 1fr); }
+        .botrow .tiles { grid-template-columns: repeat(6, 1fr); }
         .cell { aspect-ratio: 5/4; }
       }
       .mbtn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; background: linear-gradient(180deg, #322a1e 0%, #241f15 55%, #1c170e 100%); border: 1px solid #4a3c26; border-radius: 10px; color: var(--ink); font-size: 13.5px; padding: 11px 4px; cursor: pointer; font-family: var(--ui); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 -3px 6px rgba(0,0,0,.35), 0 2px 5px rgba(0,0,0,.4); transition: transform .08s, box-shadow .08s, border-color .12s; }
@@ -1383,12 +1386,12 @@
           '<div class="log">» ' + S.log + '</div></div>' +
           '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-soul" id="soul" ' + (S.soul >= S.soulMax ? '' : 'disabled') + '>魂 일섬</button>' +
           '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div></div>' +
-          '<div class="tiles">' + tiles + '</div>' +
+          '<div class="botrow"><div class="tiles">' + tiles + '</div>' +
           '<div class="moves">' +
           '<button class="mbtn" data-a="left"><span class="m-ico">◀</span><span class="m-lb">이동</span><kbd>A</kbd></button>' +
           '<button class="mbtn" data-a="flip"><span class="m-ico">⇄</span><span class="m-lb">전환</span><kbd>W</kbd></button>' +
           '<button class="mbtn" data-a="wait"><span class="m-ico">❚❚</span><span class="m-lb">대기</span><kbd>S</kbd></button>' +
-          '<button class="mbtn" data-a="right"><span class="m-ico">▶</span><span class="m-lb">이동</span><kbd>D</kbd></button></div>' +
+          '<button class="mbtn" data-a="right"><span class="m-ico">▶</span><span class="m-lb">이동</span><kbd>D</kbd></button></div></div>' +
           '<div class="keys">키보드: A·D 이동 · W 전환 · S 대기 · 1~6 기술패 · Q 콤보 순서 · Space 발동 · E 魂일섬</div>';
         wire();
       }
