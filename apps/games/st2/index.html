@@ -154,6 +154,9 @@
       footer a { color: var(--dim); }
       .reward-opts { display: grid; gap: 8px; max-width: 420px; margin: 14px auto 0; }
       .reward-opts .tile { text-align: center; position: relative; padding-top: 12px; }
+      .reward-opts .tile.rare { border-color: #8a5cff; box-shadow: 0 0 14px rgba(138,92,255,.35), inset 0 0 22px rgba(138,92,255,.08); }
+      .reward-opts .tile.rare .t-name { color: #b98cff; text-shadow: 0 0 8px rgba(138,92,255,.55); }
+      .reward-opts .tile.rare .r-num { border-color: #8a5cff; color: #b98cff; }
       .r-num { position: absolute; top: 6px; left: 8px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-family: var(--font); font-size: 11px; font-weight: 700; color: var(--gold); border: 1px solid var(--gold); border-radius: 5px; background: rgba(217,164,65,.1); }
       .r-giveup { opacity: .75; } .r-giveup .t-name { color: var(--red); } .r-giveup .r-num { color: var(--red); border-color: var(--red); background: rgba(201,67,47,.08); }
     </style>
@@ -184,7 +187,7 @@
 
       /* 기술패 도감 (오리지널) */
       var TILE_DEFS = {
-        seg:  { key: 'seg',  name: '베기',   glyph: '斬', cd: 2, dmg: 1, hits: 2, info: function (t) { return '전방 1칸 ' + t.dmg + '딜 ×2연타'; } },
+        seg:  { key: 'seg',  name: '연속 베기', glyph: '斬', cd: 2, dmg: 1, hits: 2, info: function (t) { return '전방 1칸 ' + t.dmg + '딜 ×2연타'; } },
         hoe:  { key: 'hoe',  name: '회전베기', glyph: '旋', cd: 4, dmg: 1, info: function (t) { return '양옆 1칸 ' + t.dmg + '딜'; } },
         su:   { key: 'su',   name: '수리검', glyph: '手', cd: 3, dmg: 1, info: function (t) { return '전방 직선 첫 적 ' + t.dmg + '딜'; } },
         mil:  { key: 'mil',  name: '밀치기', glyph: '押', cd: 2, dmg: 0, info: function (t) { return '전방 적 2칸 넉백' + (t.dmg ? ' +' + t.dmg + '딜' : '') + ' (벽 충돌 시 1딜)'; } },
@@ -637,7 +640,7 @@
           runId: ++runSeq, lock: false,
           screen: 'play', stage: 0, wave: 0, turn: 0, kills: 0,
           p: { pos: 4, dir: 1, hp: 3, maxHp: 3 },
-          soul: 0,
+          soul: 0, soulDmg: 3, soulMax: SOULMAX,
           tiles: [mkTile('seg'), mkTile('bal'), mkTile('su')],
           queue: [], foes: [], log: '무사의 길이 열렸다. 적의 예고(⚠)를 읽어라.',
           over: false, won: false, reward: null,
@@ -704,8 +707,8 @@
         if (f.hp <= 0) {
           S.kills++; SFX.hit();
           if (!S.soulCasting) {
-            S.soul = Math.min(SOULMAX, S.soul + 1);
-            if (S.soul >= SOULMAX) SFX.soulReady(); else SFX.soulUp();
+            S.soul = Math.min(S.soulMax, S.soul + 1);
+            if (S.soul >= S.soulMax) SFX.soulReady(); else SFX.soulUp();
             S.log = why + ' — ' + f.name + ' 격파! (魂 +1)';
           } else S.log = why + ' — ' + f.name + ' 격파!';
         }
@@ -865,7 +868,11 @@
         var cdT = S.tiles.filter(function (t) { return t.cd > 1; });
         if (cdT.length) { var c = cdT[(Math.random() * cdT.length) | 0]; opts.push({ kind: 'cd', key: c.key, label: c.name + ' 단련', desc: '쿨다운 -1 (현재 ' + c.cd + '턴)' }); }
         opts.push({ kind: 'hp', label: '요양', desc: '최대 체력 +1 · 전체 회복' });
-        return opts.slice(0, 3);
+        /* 레어(보라) — 오의 강화는 가끔만 뜬다 */
+        var rares = [];
+        if (Math.random() < 0.18) rares.push({ kind: 'soul_dmg', rare: 1, label: '오의 연마 · 일섬', desc: '일섬 피해 +2 (현재 ' + S.soulDmg + ')' });
+        if (S.soulMax > 2 && Math.random() < 0.12) rares.push({ kind: 'soul_max', rare: 1, label: '혼의 그릇 · 일섬', desc: '혼 게이지 ' + S.soulMax + ' → ' + (S.soulMax - 1) + ' (충전 단축)' });
+        return rares.concat(opts).slice(0, 3);
       }
       function pickReward(i) {
         if (!S || !S.reward || !S.reward[i]) return;
@@ -874,6 +881,8 @@
         else if (o.kind === 'dmg') S.tiles.forEach(function (t) { if (t.key === o.key) t.dmg++; });
         else if (o.kind === 'cd') S.tiles.forEach(function (t) { if (t.key === o.key) t.cd = Math.max(1, t.cd - 1); });
         else if (o.kind === 'hp') { S.p.maxHp++; S.p.hp = S.p.maxHp; }
+        else if (o.kind === 'soul_dmg') S.soulDmg += 2;
+        else if (o.kind === 'soul_max') S.soulMax = Math.max(2, S.soulMax - 1);
         S.reward = null;
         S.wave++;
         if (S.wave >= S.stageWaves.length) { S.stage++; S.wave = 0; S.stageWaves = wavesFor(S.stage); }
@@ -899,7 +908,7 @@
           if (!t || t.cdLeft > 0 || S.queue.length >= QMAX || S.queue.indexOf(arg) >= 0) return;
           S.queue.push(arg); SFX.queue(); S.log = t.name + ' 준비 (' + S.queue.length + '/' + QMAX + ')';
         } else if (type === 'soul') {
-          if (S.soul < SOULMAX) { S.log = '혼이 아직 차오르지 않았다. (魂 ' + S.soul + '/' + SOULMAX + ')'; render(); return; }
+          if (S.soul < S.soulMax) { S.log = '혼이 아직 차오르지 않았다. (魂 ' + S.soul + '/' + S.soulMax + ')'; render(); return; }
           var d2 = p.dir;
           var targets = S.foes.filter(function (f2) { return f2.hp > 0 && (d2 > 0 ? f2.pos > p.pos : f2.pos < p.pos); });
           if (!targets.length) { S.log = '전방에 벨 적이 없다.'; render(); return; }
@@ -911,7 +920,7 @@
           var landing = far + d2;
           if (!inBoard(landing)) landing = far;
           for (var cpos = p.pos + d2; d2 > 0 ? cpos <= far : cpos >= far; cpos += d2) FX.dash.push(cpos);
-          targets.forEach(function (f2) { hitFoe(f2, 2, '일섬'); });
+          targets.forEach(function (f2) { hitFoe(f2, S.soulDmg, '일섬'); });
           while (foeAt(landing) && landing !== p.pos) landing -= d2;
           p.pos = landing;
           S.soulCasting = false;
@@ -1007,7 +1016,7 @@
         $g.innerHTML =
           '<div class="hud"><span class="hp">' + '♥'.repeat(S.p.hp) + '<span style="opacity:.25">' + '♥'.repeat(Math.max(0, S.p.maxHp - S.p.hp)) + '</span></span>' +
           '<span class="st">STAGE ' + (S.stage + 1) + '/15 · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
-          '<span class="soul" title="적을 격파하면 혼이 차오른다">魂 ' + '●'.repeat(S.soul) + '<span style="opacity:.3">' + '●'.repeat(SOULMAX - S.soul) + '</span></span>' +
+          '<span class="soul" title="적을 격파하면 혼이 차오른다">魂 ' + '●'.repeat(S.soul) + '<span style="opacity:.3">' + '●'.repeat(Math.max(0, S.soulMax - S.soul)) + '</span></span>' +
           '<span class="score">SCORE ' + score() + '</span>' +
           '<button class="mute" id="mute" title="사운드 켜기/끄기">' + (AU.muted ? '🔇' : '🔊') + '</button>' +
           '<button class="giveup" id="giveup" title="항복하고 처음부터">' + (surrenderArm ? '정말?' : '🏳 항복') + '</button></div>' +
@@ -1015,7 +1024,7 @@
           (FX.flash ? '<div class="fullflash"></div>' : '') +
           '<div class="intent">' + (intents.length ? '⚠ 예고: ' + intents.join(' · ') : '적이 다음 수를 노린다…') + '</div>' +
           '<div class="log">» ' + S.log + '</div>' +
-          '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-soul" id="soul" ' + (S.soul >= SOULMAX ? '' : 'disabled') + '>魂 일섬</button>' +
+          '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-soul" id="soul" ' + (S.soul >= S.soulMax ? '' : 'disabled') + '>魂 일섬</button>' +
           '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div>' +
           '<div class="tiles">' + tiles + '</div>' +
           '<div class="moves">' +
@@ -1035,12 +1044,12 @@
           '적은 공격 전에 <b>⚠로 예고</b>한다 — 예고된 칸을 피하거나, 그 전에 베어라.<br />' +
           '기술패를 <b>콤보 큐(최대 3)</b>에 쌓고 <b>발동</b>하면 한 호흡에 집행된다. 사용한 패는 쿨다운.<br />' +
           '기술은 <b>바라보는 방향(▶/◀)</b>으로 나간다. 등 뒤는 <b>⇄ 전환</b>으로 지켜라.<br />' +
-          '적을 격파하면 <b>혼(魂)</b>이 차오른다. 3개가 모이면 오의 <b>일섬(一閃)</b> — 전방의 모든 적을 <b>관통하며 베어</b> 반대편으로 빠져나간다.<br />' +
+          '적을 격파하면 <b>혼(魂)</b>이 차오른다. 게이지가 가득 차면 오의 <b>일섬(一閃)</b> — 전방의 모든 적을 <b>관통하며 베어</b> 반대편으로 빠져나간다.<br />' +
           '웨이브를 이기면 보상 — 새 기술·강화·회복. <b>다이묘</b>가 3·6·9·12 스테이지마다 길을 막고, <b>15 스테이지의 쇼군</b>을 베면 천하통일.</div></div>';
       }
       function rewardHtml() {
         return '<div class="screen"><h1 style="font-size:22px">승리의 대가</h1><div class="sub">하나를 고르시오 — 숫자키 <b>1·2·3</b> (4 = 항복)</div><div class="reward-opts">' +
-          S.reward.map(function (o, i) { return '<button class="tile" data-r="' + i + '"><span class="r-num">' + (i + 1) + '</span><div class="t-name">' + esc(o.label) + '</div><div class="t-info">' + esc(o.desc) + '</div></button>'; }).join('') +
+          S.reward.map(function (o, i) { return '<button class="tile' + (o.rare ? ' rare' : '') + '" data-r="' + i + '"><span class="r-num">' + (i + 1) + '</span><div class="t-name">' + esc(o.label) + '</div><div class="t-info">' + esc(o.desc) + '</div></button>'; }).join('') +
           '<button class="tile r-giveup" data-r="give"><span class="r-num">4</span><div class="t-name">🏳 항복</div><div class="t-info">런을 포기하고 처음부터 다시</div></button>' +
           '</div></div>';
       }
