@@ -91,6 +91,10 @@
       .intent { min-height: 20px; font-size: 12px; color: var(--dim); font-family: var(--font); margin-bottom: 8px; }
       .intent b { color: var(--red); font-weight: 600; }
       .log { min-height: 18px; font-size: 12px; color: var(--jade); font-family: var(--font); margin-bottom: 12px; }
+      .midrow { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+      .midrow .msgs { flex: 1 1 240px; min-width: 180px; }
+      .midrow .msgs .intent, .midrow .msgs .log { margin-bottom: 2px; min-height: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .midrow .queue { margin-bottom: 0; margin-left: auto; }
 
       /* 큐 */
       .queue { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
@@ -1374,15 +1378,16 @@
           (S.tut ? '<div class="tut-bar">' + TUT_STEPS[S.tut.step] + (S.tut.step >= 4 ? ' <button class="tut-done" id="tutdone">타이틀로 →</button>' : '') + '</div>' : '') +
           '<div class="lane' + (FX.quake ? ' quake' : '') + '">' + cells + '</div><div class="lane-idx">' + idx + '</div>' +
           (FX.flash ? '<div class="fullflash"></div>' : '') +
+          '<div class="midrow"><div class="msgs">' +
           '<div class="intent">' + (intents.length ? '⚠ 예고: ' + intents.join(' · ') : '적이 다음 수를 노린다…') + '</div>' +
-          '<div class="log">» ' + S.log + '</div>' +
+          '<div class="log">» ' + S.log + '</div></div>' +
           '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-soul" id="soul" ' + (S.soul >= S.soulMax ? '' : 'disabled') + '>魂 일섬</button>' +
-          '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div>' +
+          '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div></div>' +
           '<div class="tiles">' + tiles + '</div>' +
           '<div class="moves">' +
           '<button class="mbtn" data-a="left"><span class="m-ico">◀</span><span class="m-lb">이동</span><kbd>A</kbd></button>' +
           '<button class="mbtn" data-a="flip"><span class="m-ico">⇄</span><span class="m-lb">전환</span><kbd>W</kbd></button>' +
-          '<button class="mbtn" data-a="wait"><span class="m-ico">❞</span><span class="m-lb">대기</span><kbd>S</kbd></button>' +
+          '<button class="mbtn" data-a="wait"><span class="m-ico">❚❚</span><span class="m-lb">대기</span><kbd>S</kbd></button>' +
           '<button class="mbtn" data-a="right"><span class="m-ico">▶</span><span class="m-lb">이동</span><kbd>D</kbd></button></div>' +
           '<div class="keys">키보드: A·D 이동 · W 전환 · S 대기 · 1~6 기술패 · Q 콤보 순서 · Space 발동 · E 魂일섬</div>';
         wire();
