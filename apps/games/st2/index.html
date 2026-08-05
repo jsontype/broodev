@@ -52,6 +52,10 @@
       .unit.pl { width: 100%; }
       .unit svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)); }
       .unit.flip svg { transform: scaleX(-1); }
+      .hero-img { width: 100%; height: auto; display: block; image-rendering: pixelated; filter: drop-shadow(0 3px 4px rgba(0,0,0,.65)); }
+      .unit.flip .hero-img { transform: scaleX(-1); }
+      .unit.imgmode { width: 215%; margin-bottom: -6%; z-index: 2; }
+      .unit.imgmode .face { display: none; }
       .unit::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: -5px; height: 6px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%); }
       .unit.boss { width: 96%; animation-duration: 3.2s; }
       @keyframes breathe { 0%, 100% { transform: scaleY(1) translateY(0); } 50% { transform: scaleY(.93) scaleX(1.02) translateY(2.4px); } }
@@ -141,6 +145,11 @@
       .howto { text-align: left; max-width: 460px; margin: 14px auto 0; font-size: 12.5px; color: var(--dim); line-height: 1.75; }
       .howto b { color: var(--ink); }
       .stat { font-family: var(--font); font-size: 14px; color: var(--gold); margin: 8px 0; }
+      .board-label { margin-top: 14px; font-size: 11px; color: var(--dim); font-family: var(--font); }
+      .board { margin: 8px auto 0; border-collapse: collapse; font-family: var(--font); font-size: 11.5px; color: var(--dim); }
+      .board th, .board td { padding: 3px 11px; border-bottom: 1px dashed rgba(255,255,255,.1); text-align: center; }
+      .board th { color: var(--gold); font-weight: 600; }
+      .board tr.me td { color: var(--washi); background: rgba(217,164,65,.09); }
       footer { margin-top: 22px; color: #5d5344; font-size: 11px; text-align: center; }
       footer a { color: var(--dim); }
       .reward-opts { display: grid; gap: 8px; max-width: 420px; margin: 14px auto 0; }
@@ -175,7 +184,7 @@
 
       /* 기술패 도감 (오리지널) */
       var TILE_DEFS = {
-        seg:  { key: 'seg',  name: '베기',   glyph: '斬', cd: 2, dmg: 2, info: function (t) { return '전방 1칸 ' + t.dmg + '딜'; } },
+        seg:  { key: 'seg',  name: '베기',   glyph: '斬', cd: 2, dmg: 1, hits: 2, info: function (t) { return '전방 1칸 ' + t.dmg + '딜 ×2연타'; } },
         hoe:  { key: 'hoe',  name: '회전베기', glyph: '旋', cd: 4, dmg: 1, info: function (t) { return '양옆 1칸 ' + t.dmg + '딜'; } },
         su:   { key: 'su',   name: '수리검', glyph: '手', cd: 3, dmg: 1, info: function (t) { return '전방 직선 첫 적 ' + t.dmg + '딜'; } },
         mil:  { key: 'mil',  name: '밀치기', glyph: '押', cd: 2, dmg: 0, info: function (t) { return '전방 적 2칸 넉백' + (t.dmg ? ' +' + t.dmg + '딜' : '') + ' (벽 충돌 시 1딜)'; } },
@@ -303,7 +312,7 @@
           '........................',
           '........................',
           '........................'] },
-        ronin: { c: { k: '#0a0810', h: '#33303c', H: '#4c4859', f: '#e8b184', F: '#c28a5c', g: '#cf9a6d', e: '#1a1a2e', a: '#43351f', A: '#65502f', R: '#87704a', b: '#241d10', w: '#cdcdd6', W: '#f2f2f8', p: '#2f2716', P: '#463b24', s: '#121019' }, r: [
+        ronin: { c: { k: '#0a0810', h: '#33303c', H: '#4c4859', f: '#e8b184', F: '#c28a5c', g: '#cf9a6d', e: '#1a1a2e', a: '#2a2118', A: '#453a28', R: '#6b5c40', b: '#7e2019', w: '#cdcdd6', W: '#f2f2f8', p: '#2f2716', P: '#463b24', s: '#121019' }, r: [
           '.....h.hh..h............',
           '...hh.hhhhhh.h..........',
           '..hhhhhhhhhhhhh.........',
@@ -332,7 +341,7 @@
           '...kppk....kppk.........',
           '..ksssk....ksssk........',
           '..kssssk..kssssk........'] },
-        archer: { c: { k: '#0a0810', h: '#26331f', H: '#3a4d2f', f: '#e8b184', F: '#c28a5c', e: '#1a1a2e', a: '#27402a', A: '#3d5f3e', R: '#567d52', b: '#1a2414', o: '#754b28', O: '#946037', y: '#d6dccf', g: '#cf9a6d', p: '#213524', P: '#33502f', s: '#121019' }, r: [
+        archer: { c: { k: '#0a0810', h: '#26331f', H: '#3a4d2f', f: '#e8b184', F: '#c28a5c', e: '#1a1a2e', a: '#1e2b20', A: '#31452f', R: '#4c6647', b: '#7e2019', o: '#754b28', O: '#946037', y: '#d6dccf', g: '#cf9a6d', p: '#213524', P: '#33502f', s: '#121019' }, r: [
           '......hhhhhh......Oo....',
           '....hhhhhhhhhh....O.y...',
           '...hhhhhhhhhhhh...O.y...',
@@ -361,7 +370,7 @@
           '...kppk....kppk.........',
           '..ksssk....ksssk........',
           '..kssssk..kssssk........'] },
-        spear: { c: { k: '#0a0810', m: '#3f3820', M: '#5c522f', f: '#e8b184', F: '#c28a5c', e: '#1a1a2e', a: '#1d4144', A: '#2e5f60', R: '#468183', b: '#132325', o: '#754b28', O: '#946037', w: '#e3e7f4', W: '#ffffff', g: '#cf9a6d', p: '#182e30', P: '#294a49', s: '#121019' }, r: [
+        spear: { c: { k: '#0a0810', m: '#3f3820', M: '#5c522f', f: '#e8b184', F: '#c28a5c', e: '#1a1a2e', a: '#182f31', A: '#264a4b', R: '#3a6668', b: '#7e2019', o: '#754b28', O: '#946037', w: '#e3e7f4', W: '#ffffff', g: '#cf9a6d', p: '#182e30', P: '#294a49', s: '#121019' }, r: [
           '.........mm.............',
           '.....mmmmmmmmmm.........',
           '..mmMMMMMMMMMMmmm.......',
@@ -419,7 +428,7 @@
           '........................',
           '........................',
           '........................'] },
-        monk: { c: { k: '#0a0810', f: '#f0c193', F: '#cf9a6d', e: '#1a1a2e', a: '#7e4a12', A: '#a3661f', R: '#c98436', t: '#5c3a1a', b: '#40280e', o: '#54361a', O: '#6f4a26', w: '#d8d8e0', W: '#ffffff', g: '#cf9a6d' }, r: [
+        monk: { c: { k: '#0a0810', f: '#f0c193', F: '#cf9a6d', e: '#1a1a2e', a: '#7e4a12', A: '#a3661f', R: '#c98436', t: '#5c3a1a', b: '#7e2019', o: '#54361a', O: '#6f4a26', w: '#d8d8e0', W: '#ffffff', g: '#cf9a6d' }, r: [
           '..................Ww....',
           '..................wW....',
           '......ffffff......o.....',
@@ -478,6 +487,22 @@
           '.kmmmk......kmmmk.......',
           '.kmmmmk....kmmmmk.......'] },
       };
+      SPRITES.shogun = { c: { k: '#0a0810', g: '#c2ccde', G: '#f2f6ff', m: '#141020', M: '#241c38', f: '#e0ac7e', F: '#c28a5c', e: '#ff5a3c', r: '#1c1030', R: '#33205c', X: '#4f3390', w: '#e3e7f4', W: '#ffffff' }, r: SPRITES.daimyo.r };
+      /* 주인공 이미지 모드 — assets/hero.png(A·아이들) hero_iai(B·발도) hero_atk(C·베기) hero_shuriken(선택)
+         파일이 있으면 자동 감지해 이미지 렌더, 없으면 내장 도트로 폴백. 포즈 파일 없으면 아이들로 폴백 */
+      var HERO = { poses: {}, any: false };
+      (function () {
+        if (typeof Image === 'undefined') return; /* 테스트 스텁 */
+        var map = { player: 'hero', player_iai: 'hero_iai', player_shuriken: 'hero_shuriken', player_atk: 'hero_atk' };
+        Object.keys(map).forEach(function (k) {
+          var im = new Image();
+          im.onload = function () { HERO.poses[k] = im.src; HERO.any = true; if (S && S.screen === 'play' && !S.over && !S.won && !S.reward) render(); };
+          im.src = 'assets/' + map[k] + '.png';
+        });
+      })();
+      function heroSrc(pose) {
+        return HERO.poses[pose] || (pose === 'player_shuriken' ? HERO.poses.player_iai : null) || HERO.poses.player || null;
+      }
       var spriteCache = {};
       function unitSvg(key) {
         if (spriteCache[key]) return spriteCache[key];
@@ -498,14 +523,30 @@
         nin:    { sprite: 'nin', glyph: '忍', name: '자객',  hp: 1, spd: 2, rng: [1] },
         monk:   { sprite: 'monk', glyph: '僧', name: '승병',  hp: 3, spd: 1, rng: [1], both: true },
         daimyo: { sprite: 'daimyo', glyph: '大', name: '다이묘', hp: 8, spd: 1, rng: [1, 2], boss: true },
+        shogun: { sprite: 'shogun', glyph: '將', name: '쇼군', hp: 20, spd: 1, rng: [1, 2], boss: true },
       };
 
       /* 스테이지 구성: 3스테이지 × 3웨이브, 마지막은 보스 */
-      var WAVES = [
-        [['ronin'], ['ronin', 'ronin'], ['ronin', 'archer']],
-        [['spear', 'ronin'], ['archer', 'nin'], ['spear', 'archer', 'ronin']],
-        [['nin', 'nin', 'archer'], ['monk', 'spear'], ['daimyo']],
-      ];
+      /* 15스테이지 — 일반 웨이브 2개씩, 3·6·9·12는 다이묘, 15는 최종보스 쇼군 */
+      var STAGES = 15, BOSS_EVERY = 3;
+      function wavesFor(stage) {
+        var sNo = stage + 1;
+        var pool = ['ronin'];
+        if (sNo >= 2) pool.push('archer');
+        if (sNo >= 3) pool.push('spear');
+        if (sNo >= 5) pool.push('nin');
+        if (sNo >= 7) pool.push('monk');
+        var count = Math.min(4, 1 + Math.floor(sNo / 3));
+        var waves = [];
+        for (var w = 0; w < 2; w++) {
+          var wave = [];
+          for (var i = 0; i < count; i++) wave.push(pool[(Math.random() * pool.length) | 0]);
+          waves.push(wave);
+        }
+        if (sNo === STAGES) waves.push(['shogun']);
+        else if (sNo % BOSS_EVERY === 0) waves.push(['daimyo']);
+        return waves;
+      }
 
       /* =========================================================
        * 사운드 — 전부 웹오디오 합성(오리지널). 외부 오디오 파일 없음.
@@ -601,6 +642,7 @@
           queue: [], foes: [], log: '무사의 길이 열렸다. 적의 예고(⚠)를 읽어라.',
           over: false, won: false, reward: null,
         };
+        S.stageWaves = wavesFor(0);
         spawnWave();
         render();
       }
@@ -608,7 +650,7 @@
       function mkFoe(type, pos) { var d = FOE_DEFS[type]; return { id: uid++, type: type, glyph: d.glyph, name: d.name, hp: d.hp, pos: pos, intent: null, cool: 0 }; }
 
       function spawnWave() {
-        var list = WAVES[S.stage][S.wave];
+        var list = S.stageWaves[S.wave];
         var edges = [0, W - 1, 1, W - 2, 2];
         S.foes = [];
         for (var i = 0; i < list.length; i++) {
@@ -616,7 +658,9 @@
           if (pos === S.p.pos) pos = pos < W / 2 ? pos + 1 : pos - 1;
           S.foes.push(mkFoe(list[i], pos));
         }
-        S.log = 'STAGE ' + (S.stage + 1) + ' — ' + (S.wave + 1) + '번째 대치. 적 ' + S.foes.length + '명.';
+        S.foes.forEach(function (bf) { if (bf.type === 'daimyo') bf.hp = 6 + 2 * Math.ceil((S.stage + 1) / 3); });
+        var hasBoss = S.foes.some(function (bf) { return FOE_DEFS[bf.type].boss; });
+        S.log = 'STAGE ' + (S.stage + 1) + ' — ' + (hasBoss ? '⚔ 보스가 길을 막는다!' : (S.wave + 1) + '번째 대치. 적 ' + S.foes.length + '명.');
       }
 
       var foeAt = function (pos) { return S.foes.find(function (f) { return f.pos === pos && f.hp > 0; }) || null; };
@@ -670,7 +714,7 @@
       function execTile(t) {
         var p = S.p, d = p.dir, tgt;
         if (t.key === 'seg') {
-          tgt = foeAt(p.pos + d); if (tgt) hitFoe(tgt, t.dmg, t.name);
+          for (var h2 = 0; h2 < (TILE_DEFS.seg.hits || 1); h2++) { tgt = foeAt(p.pos + d); if (tgt) hitFoe(tgt, t.dmg, t.name); }
         } else if (t.key === 'bal') {
           [foeAt(p.pos + d), foeAt(p.pos + 2 * d)].forEach(function (f3) { if (f3) hitFoe(f3, t.dmg, t.name); });
         } else if (t.key === 'hoe') {
@@ -731,7 +775,7 @@
           var d = FOE_DEFS[f.type];
           var dist = Math.abs(S.p.pos - f.pos);
           var canHit = d.both ? dist === 1 : d.rng.indexOf(dist) >= 0;
-          if (f.type === 'daimyo') { bossAct(f); continue; }
+          if (FOE_DEFS[f.type].boss) { bossAct(f); continue; }
           if (canHit) f.intent = { cells: foeTelegraphCells(f), delay: FOE_DEFS[f.type].windup || 1 };
           else {
             var dir = S.p.pos > f.pos ? 1 : -1;
@@ -750,12 +794,19 @@
         S.foes = S.foes.filter(function (x) { return x.hp > 0; });
       }
       function bossAct(f) {
+        var fin = f.type === 'shogun';
         f.phase = (f.phase || 0) % 3;
-        var alive = S.foes.filter(function (x) { return x.hp > 0 && x.type !== 'daimyo'; }).length;
-        if (f.phase === 0 && alive < 2) {
-          var side = f.pos < S.p.pos ? -1 : 1;
-          var sp = f.pos + side;
-          if (inBoard(sp) && !foeAt(sp) && sp !== S.p.pos) { S.foes.push(mkFoe('ronin', sp)); S.log = '다이묘가 낭인을 불러낸다!'; }
+        var alive = S.foes.filter(function (x) { return x.hp > 0 && !FOE_DEFS[x.type].boss; }).length;
+        if (f.phase === 0 && alive < (fin ? 3 : 2)) {
+          var near = f.pos < S.p.pos ? -1 : 1;
+          var sides = fin ? [near, -near] : [near];
+          var minion = fin ? 'nin' : 'ronin';
+          var called = 0;
+          sides.forEach(function (side) {
+            var sp = f.pos + side;
+            if (inBoard(sp) && !foeAt(sp) && sp !== S.p.pos) { S.foes.push(mkFoe(minion, sp)); called++; }
+          });
+          if (called) S.log = f.name + '이(가) 수하를 불러낸다!';
         } else if (f.phase === 1) {
           f.intent = { cells: foeTelegraphCells(f), delay: FOE_DEFS[f.type].windup || 1 };
         } else {
@@ -763,7 +814,7 @@
           var np = f.pos + dir;
           if (inBoard(np) && np !== S.p.pos && !foeAt(np)) f.pos = np;
           var dist = Math.abs(S.p.pos - f.pos);
-          if (FOE_DEFS.daimyo.rng.indexOf(dist) >= 0) f.intent = { cells: foeTelegraphCells(f), delay: FOE_DEFS[f.type].windup || 1 };
+          if (FOE_DEFS[f.type].rng.indexOf(dist) >= 0) f.intent = { cells: foeTelegraphCells(f), delay: FOE_DEFS[f.type].windup || 1 };
         }
         f.phase++;
       }
@@ -772,7 +823,7 @@
       function afterAction() {
         if (!S.foes.some(function (f) { return f.hp > 0; })) {
           /* 막타 연출을 먼저 보여주고 380ms 후에 보상/승리 화면으로 */
-          var finalWin = S.stage === WAVES.length - 1 && S.wave === WAVES[S.stage].length - 1;
+          var finalWin = S.stage === STAGES - 1 && S.wave === S.stageWaves.length - 1;
           S.lock = true;
           var myRun = S.runId;
           render();
@@ -817,6 +868,7 @@
         return opts.slice(0, 3);
       }
       function pickReward(i) {
+        if (!S || !S.reward || !S.reward[i]) return;
         var o = S.reward[i];
         if (o.kind === 'new') S.tiles.push(mkTile(o.key));
         else if (o.kind === 'dmg') S.tiles.forEach(function (t) { if (t.key === o.key) t.dmg++; });
@@ -824,7 +876,7 @@
         else if (o.kind === 'hp') { S.p.maxHp++; S.p.hp = S.p.maxHp; }
         S.reward = null;
         S.wave++;
-        if (S.wave >= WAVES[S.stage].length) { S.stage++; S.wave = 0; }
+        if (S.wave >= S.stageWaves.length) { S.stage++; S.wave = 0; S.stageWaves = wavesFor(S.stage); }
         S.queue = [];
         S.tiles.forEach(function (t) { t.cdLeft = 0; });
         spawnWave();
@@ -876,8 +928,29 @@
         } else return;
         afterAction();
       }
-      function score() { return S.kills * 10 + (S.stage * 3 + S.wave) * 25 + (S.won ? 300 : 0); }
-      function saveBest() { try { var b = +localStorage.getItem('st2:best') || 0; if (score() > b) localStorage.setItem('st2:best', String(score())); } catch (e) {} }
+      function score() { return S.kills * 10 + (S.stage * 3 + S.wave) * 25 + (S.won ? 500 : 0); }
+      function saveBest() {
+        try { var b = +localStorage.getItem('st2:best') || 0; if (score() > b) localStorage.setItem('st2:best', String(score())); } catch (e) {}
+        recordRun();
+      }
+      function loadBoard() { try { return JSON.parse(localStorage.getItem('st2:board') || '[]'); } catch (e) { return []; } }
+      function recordRun() {
+        try {
+          var b = loadBoard();
+          b.push({ s: score(), st: S.stage + 1, k: S.kills, w: S.won ? 1 : 0, d: new Date().toISOString().slice(0, 10) });
+          b.sort(function (x, y) { return y.s - x.s; });
+          localStorage.setItem('st2:board', JSON.stringify(b.slice(0, 10)));
+        } catch (e) {}
+      }
+      function boardHtml(cur) {
+        var b = loadBoard();
+        if (!b.length) return '';
+        var hi = cur != null ? b.findIndex(function (r) { return r.s === cur; }) : -1;
+        var rows = b.slice(0, 5).map(function (r, i) {
+          return '<tr' + (i === hi ? ' class="me"' : '') + '><td>' + (i + 1) + '</td><td>' + r.s + '</td><td>' + (r.w ? '천하통일' : 'S' + r.st) + '</td><td>' + r.k + '</td><td>' + r.d + '</td></tr>';
+        }).join('');
+        return '<div class="board-label">— 나의 기록 (이 브라우저) —</div><table class="board"><tr><th>#</th><th>점수</th><th>도달</th><th>격파</th><th>날짜</th></tr>' + rows + '</table>';
+      }
       function best() { try { return +localStorage.getItem('st2:best') || 0; } catch (e) { return 0; } }
 
       /* ---- 렌더 ---- */
@@ -899,7 +972,9 @@
               (FX.atk ? (S.p.dir > 0 ? ' atkR' : ' atkL') : '') +
               (!FX.atk && S.queue.length ? ' stance' : '') +
               (FX.hurtP ? ' hurt' : '');
-            inner = '<span class="' + pCls + '" data-pose="' + pose + '">' + unitSvg(pose) + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
+            var heroImg = heroSrc(pose);
+            var heroBody = heroImg ? '<img class="hero-img" src="' + heroImg + '" alt="" />' : unitSvg(pose);
+            inner = '<span class="' + pCls + (heroImg ? ' imgmode' : '') + '" data-pose="' + pose + '">' + heroBody + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
           } else {
             var f = foeAt(i);
             if (f) {
@@ -925,13 +1000,13 @@
           var qd = S.queue.indexOf(i2) >= 0;
           return '<button class="tile" data-q="' + i2 + '" ' + (t.cdLeft > 0 || qd || S.queue.length >= QMAX ? 'disabled' : '') + '>' +
             (t.cdLeft > 0 ? '<span class="t-cd">' + t.cdLeft + '</span>' : '') +
-            '<div class="t-head"><span class="t-ico">' + (TILE_ICONS[t.key] || '') + '</span><span class="t-name">' + esc(t.name) + '</span>' + (t.dmg > 0 ? '<span class="t-dmg">' + t.dmg + '딜</span>' : '') + '</div>' +
+            '<div class="t-head"><span class="t-ico">' + (TILE_ICONS[t.key] || '') + '</span><span class="t-name">' + esc(t.name) + '</span>' + (t.dmg > 0 ? '<span class="t-dmg">' + t.dmg + '딜' + (TILE_DEFS[t.key].hits > 1 ? '×' + TILE_DEFS[t.key].hits : '') + '</span>' : '') + '</div>' +
             '<div class="t-info">' + TILE_DEFS[t.key].info(t) + ' · 쿨 ' + t.cd + '턴</div>' +
             rngHtml(t.key) + '</button>';
         }).join('');
         $g.innerHTML =
           '<div class="hud"><span class="hp">' + '♥'.repeat(S.p.hp) + '<span style="opacity:.25">' + '♥'.repeat(Math.max(0, S.p.maxHp - S.p.hp)) + '</span></span>' +
-          '<span class="st">STAGE ' + (S.stage + 1) + '/3 · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
+          '<span class="st">STAGE ' + (S.stage + 1) + '/15 · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
           '<span class="soul" title="적을 격파하면 혼이 차오른다">魂 ' + '●'.repeat(S.soul) + '<span style="opacity:.3">' + '●'.repeat(SOULMAX - S.soul) + '</span></span>' +
           '<span class="score">SCORE ' + score() + '</span>' +
           '<button class="mute" id="mute" title="사운드 켜기/끄기">' + (AU.muted ? '🔇' : '🔊') + '</button>' +
@@ -954,14 +1029,14 @@
       function titleHtml() {
         return '<div class="screen"><h1>사무라이 택틱스 <span class="two">2</span></h1>' +
           '<div class="sub">한 줄 전장 · 큐 콤보 · 예고를 읽는 검술 두뇌전</div>' +
-          '<div class="stat">BEST SCORE ' + best() + '</div>' +
+          '<div class="stat">BEST SCORE ' + best() + '</div>' + boardHtml() +
           '<button class="big-btn" id="start">입문 (시작)</button>' +
           '<div class="howto"><b>규칙.</b> 모든 행동은 1턴이고, 그때마다 적도 움직인다.<br />' +
           '적은 공격 전에 <b>⚠로 예고</b>한다 — 예고된 칸을 피하거나, 그 전에 베어라.<br />' +
           '기술패를 <b>콤보 큐(최대 3)</b>에 쌓고 <b>발동</b>하면 한 호흡에 집행된다. 사용한 패는 쿨다운.<br />' +
           '기술은 <b>바라보는 방향(▶/◀)</b>으로 나간다. 등 뒤는 <b>⇄ 전환</b>으로 지켜라.<br />' +
           '적을 격파하면 <b>혼(魂)</b>이 차오른다. 3개가 모이면 오의 <b>일섬(一閃)</b> — 전방의 모든 적을 <b>관통하며 베어</b> 반대편으로 빠져나간다.<br />' +
-          '웨이브를 이기면 보상 — 새 기술·강화·회복. 3스테이지 끝의 <b>다이묘</b>를 베면 승리.</div></div>';
+          '웨이브를 이기면 보상 — 새 기술·강화·회복. <b>다이묘</b>가 3·6·9·12 스테이지마다 길을 막고, <b>15 스테이지의 쇼군</b>을 베면 천하통일.</div></div>';
       }
       function rewardHtml() {
         return '<div class="screen"><h1 style="font-size:22px">승리의 대가</h1><div class="sub">하나를 고르시오 — 숫자키 <b>1·2·3</b> (4 = 항복)</div><div class="reward-opts">' +
@@ -972,7 +1047,7 @@
       function endHtml() {
         return '<div class="screen"><h1 style="font-size:26px">' + (S.won ? '천하통일' : '낙명(落命)') + '</h1>' +
           '<div class="sub">' + (S.won ? '다이묘를 베었다. 그대의 검이 시대를 갈랐다.' : 'STAGE ' + (S.stage + 1) + '에서 쓰러졌다. 검은 다시 잡는 자의 것.') + '</div>' +
-          '<div class="stat">SCORE ' + score() + ' · BEST ' + best() + ' · 격파 ' + S.kills + '</div>' +
+          '<div class="stat">SCORE ' + score() + ' · BEST ' + best() + ' · 격파 ' + S.kills + '</div>' + boardHtml(score()) +
           '<button class="big-btn" id="start">' + (S.won ? '한 번 더' : '재도전') + '</button></div>';
       }
       function wire() {
