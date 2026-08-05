@@ -31,6 +31,11 @@
       .hud .st { color: var(--dim); }
       .hud .score { margin-left: auto; color: var(--gold); }
       .hud .soul { color: #7fb7ff; letter-spacing: 2px; text-shadow: 0 0 8px rgba(127,183,255,.6); }
+      .hud .mute { background: none; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-size: 13px; padding: 3px 7px; }
+      .lane.quake { animation: quake .32s ease-in-out; }
+      @keyframes quake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-5px, 2px); } 45% { transform: translate(4px, -2px); } 70% { transform: translate(-3px, 1px); } 88% { transform: translate(2px, 0); } }
+      .fullflash { position: fixed; inset: 0; pointer-events: none; z-index: 50; background: radial-gradient(ellipse at 50% 45%, rgba(210,230,255,.9), rgba(127,183,255,.35) 55%, transparent 80%); animation: fullflash .3s ease-out forwards; }
+      @keyframes fullflash { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
 
       /* 전장 */
       .lane { display: flex; gap: 5px; margin: 6px 0 4px; }
@@ -409,12 +414,79 @@
         [['nin', 'nin', 'archer'], ['monk', 'spear'], ['daimyo']],
       ];
 
+      /* =========================================================
+       * 사운드 — 전부 웹오디오 합성(오리지널). 외부 오디오 파일 없음.
+       * 브라우저 정책상 첫 입력 때 컨텍스트가 열린다.
+       * ========================================================= */
+      var AU = { ctx: null, muted: false, bgmTimer: 0, step: 0 };
+      try { AU.muted = JSON.parse(localStorage.getItem('st2:mute') || 'false'); } catch (e) {}
+      function auCtx() {
+        if (AU.ctx) return AU.ctx;
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try { AU.ctx = new AC(); } catch (e) { return null; }
+        return AU.ctx;
+      }
+      function tone(freq, dur, type, vol, when, slide) {
+        var c = auCtx(); if (!c || AU.muted) return;
+        var o = c.createOscillator(), g = c.createGain();
+        var t = c.currentTime + (when || 0);
+        o.type = type || 'square';
+        o.frequency.setValueAtTime(freq, t);
+        if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, slide), t + dur);
+        g.gain.setValueAtTime(vol || 0.07, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(c.destination);
+        o.start(t); o.stop(t + dur + 0.02);
+      }
+      function noiseBurst(dur, vol, when, hp) {
+        var c = auCtx(); if (!c || AU.muted) return;
+        var t = c.currentTime + (when || 0);
+        var b = c.createBuffer(1, Math.max(1, (c.sampleRate * dur) | 0), c.sampleRate);
+        var d = b.getChannelData(0);
+        for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+        var src = c.createBufferSource(); src.buffer = b;
+        var g = c.createGain(); g.gain.value = vol || 0.12;
+        var f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp || 1800;
+        src.connect(f); f.connect(g); g.connect(c.destination); src.start(t);
+      }
+      var SFX = {
+        step: function () { tone(240, 0.045, 'square', 0.028); },
+        flip: function () { tone(330, 0.05, 'square', 0.03, 0, 250); },
+        queue: function () { tone(520, 0.07, 'square', 0.045); tone(780, 0.06, 'square', 0.03, 0.05); },
+        slash: function () { noiseBurst(0.13, 0.15); tone(900, 0.11, 'square', 0.05, 0, 200); },
+        hit: function () { tone(150, 0.13, 'square', 0.1, 0, 60); },
+        soulUp: function () { tone(660, 0.09, 'triangle', 0.055); tone(990, 0.12, 'triangle', 0.045, 0.07); },
+        soulReady: function () { [523, 659, 784, 1047].forEach(function (f2, i) { tone(f2, 0.15, 'triangle', 0.055, i * 0.07); }); },
+        pierce: function () { noiseBurst(0.32, 0.2, 0, 900); tone(280, 0.34, 'sawtooth', 0.085, 0, 1500); tone(1100, 0.28, 'triangle', 0.055, 0.06, 2400); },
+        hurt: function () { tone(190, 0.2, 'sawtooth', 0.085, 0, 70); noiseBurst(0.08, 0.07, 0, 500); },
+        reward: function () { tone(660, 0.13, 'triangle', 0.055); tone(880, 0.17, 'triangle', 0.055, 0.09); },
+        die: function () { tone(320, 0.5, 'sawtooth', 0.08, 0, 55); tone(160, 0.6, 'square', 0.05, 0.1, 45); },
+        win: function () { [523, 659, 784, 988, 1175, 1568].forEach(function (f2, i) { tone(f2, 0.24, 'triangle', 0.06, i * 0.11); }); },
+      };
+      /* BGM — 오리지널 저음 오스티나토 (어둡고 절제된 16스텝 루프) */
+      var BGM_SEQ = [110, 0, 131, 0, 110, 0, 98, 0, 110, 0, 131, 147, 110, 0, 98, 87];
+      function bgmStart() {
+        if (AU.bgmTimer || !auCtx()) return;
+        AU.bgmTimer = setInterval(function () {
+          if (AU.muted || !S || S.screen !== 'play' || S.over || S.won) return;
+          var f = BGM_SEQ[AU.step++ % 16];
+          if (f) { tone(f, 0.22, 'triangle', 0.032); tone(f / 2, 0.3, 'sine', 0.028); }
+          if (AU.step % 8 === 5) noiseBurst(0.025, 0.012, 0, 4000);
+        }, 245);
+      }
+      function toggleMute() {
+        AU.muted = !AU.muted;
+        try { localStorage.setItem('st2:mute', JSON.stringify(AU.muted)); } catch (e) {}
+        render();
+      }
+
       var S = null; /* 게임 상태 */
       var uid = 1, runSeq = 0;
       /* 연출 상태 — 한 행동의 이펙트를 320ms 보여준 뒤 스스로 지운다 */
-      var FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [] };
+      var FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false };
       var fxTimer = 0;
-      function fxClear() { FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [] }; }
+      function fxClear() { FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false }; }
       function fxSchedule() {
         clearTimeout(fxTimer);
         fxTimer = setTimeout(function () {
@@ -459,7 +531,14 @@
       function hitFoe(f, dmg, why) {
         FX.slash.push(f.pos); FX.hurt.push(f.pos);
         f.hp -= dmg;
-        if (f.hp <= 0) { S.kills++; if (!S.soulCasting) { S.soul = Math.min(SOULMAX, S.soul + 1); S.log = why + ' — ' + f.name + ' 격파! (魂 +1)'; } else { S.log = why + ' — ' + f.name + ' 격파!'; } }
+        if (f.hp <= 0) {
+          S.kills++; SFX.hit();
+          if (!S.soulCasting) {
+            S.soul = Math.min(SOULMAX, S.soul + 1);
+            if (S.soul >= SOULMAX) SFX.soulReady(); else SFX.soulUp();
+            S.log = why + ' — ' + f.name + ' 격파! (魂 +1)';
+          } else S.log = why + ' — ' + f.name + ' 격파!';
+        }
         else S.log = why + ' — ' + f.name + ' ' + f.hp + 'HP 남음';
       }
       function execTile(t) {
@@ -508,7 +587,8 @@
           if (f.hp <= 0 || !f.intent) continue;
           if (f.intent.cells.indexOf(S.p.pos) >= 0) {
             S.p.hp -= 1;
-            FX.ehit.push(S.p.pos); FX.hurtP = true;
+            FX.ehit.push(S.p.pos); FX.hurtP = true; FX.quake = true;
+            SFX.hurt();
             S.log = f.name + '의 일격! 체력 -1';
             if (S.p.hp <= 0) { S.over = true; saveBest(); return; }
           }
@@ -572,7 +652,7 @@
           setTimeout(function () {
             if (!S || S.runId !== myRun) return;
             S.lock = false;
-            if (finalWin) { S.won = true; saveBest(); } else { S.reward = rollRewards(); }
+            if (finalWin) { S.won = true; saveBest(); SFX.win(); } else { S.reward = rollRewards(); SFX.reward(); }
             render();
           }, 380);
           return;
@@ -585,6 +665,7 @@
           S.lock = true;
           var myRun2 = S.runId;
           render();
+          SFX.die();
           setTimeout(function () {
             if (!S || S.runId !== myRun2) return;
             S.lock = false;
@@ -626,23 +707,25 @@
       function act(type, arg) {
         if (!S || S.screen !== 'play' || S.over || S.won || S.reward || S.lock) return;
         var p = S.p;
+        bgmStart();
         if (type === 'move') {
           var np = p.pos + arg;
           if (!inBoard(np) || foeAt(np)) { S.log = '길이 막혀 있다.'; render(); return; }
-          p.pos = np;
-        } else if (type === 'flip') { p.dir = -p.dir; S.log = '방향 전환.'; }
+          p.pos = np; SFX.step();
+        } else if (type === 'flip') { p.dir = -p.dir; S.log = '방향 전환.'; SFX.flip(); }
         else if (type === 'wait') { S.log = '호흡을 고른다.'; }
         else if (type === 'queue') {
           var t = S.tiles[arg];
           if (!t || t.cdLeft > 0 || S.queue.length >= QMAX || S.queue.indexOf(arg) >= 0) return;
-          S.queue.push(arg); S.log = t.name + ' 준비 (' + S.queue.length + '/' + QMAX + ')';
+          S.queue.push(arg); SFX.queue(); S.log = t.name + ' 준비 (' + S.queue.length + '/' + QMAX + ')';
         } else if (type === 'soul') {
           if (S.soul < SOULMAX) { S.log = '혼이 아직 차오르지 않았다. (魂 ' + S.soul + '/' + SOULMAX + ')'; render(); return; }
           var d2 = p.dir;
           var targets = S.foes.filter(function (f2) { return f2.hp > 0 && (d2 > 0 ? f2.pos > p.pos : f2.pos < p.pos); });
           if (!targets.length) { S.log = '전방에 벨 적이 없다.'; render(); return; }
           S.soulCasting = true; /* 오의로 벤 적은 혼을 되돌려주지 않는다 (무한 연쇄 방지) */
-          FX.atk = true; FX.dash = [];
+          FX.atk = true; FX.dash = []; FX.flash = true; FX.quake = true;
+          SFX.pierce();
           var far = p.pos;
           targets.forEach(function (f2) { if (d2 > 0 ? f2.pos > far : f2.pos < far) far = f2.pos; });
           var landing = far + d2;
@@ -657,6 +740,7 @@
         } else if (type === 'strike') {
           if (!S.queue.length) return;
           FX.atk = true;
+          SFX.slash();
           var names = [];
           S.queue.forEach(function (idx) { var tl = S.tiles[idx]; names.push(tl.name); execTile(tl); if (S.over) return; });
           S.queue = [];
@@ -718,8 +802,10 @@
           '<div class="hud"><span class="hp">' + '♥'.repeat(S.p.hp) + '<span style="opacity:.25">' + '♥'.repeat(Math.max(0, S.p.maxHp - S.p.hp)) + '</span></span>' +
           '<span class="st">STAGE ' + (S.stage + 1) + '/3 · WAVE ' + (S.wave + 1) + ' · TURN ' + S.turn + '</span>' +
           '<span class="soul" title="적을 격파하면 혼이 차오른다">魂 ' + '●'.repeat(S.soul) + '<span style="opacity:.3">' + '●'.repeat(SOULMAX - S.soul) + '</span></span>' +
-          '<span class="score">SCORE ' + score() + '</span></div>' +
-          '<div class="lane">' + cells + '</div><div class="lane-idx">' + idx + '</div>' +
+          '<span class="score">SCORE ' + score() + '</span>' +
+          '<button class="mute" id="mute" title="사운드 켜기/끄기">' + (AU.muted ? '🔇' : '🔊') + '</button></div>' +
+          '<div class="lane' + (FX.quake ? ' quake' : '') + '">' + cells + '</div><div class="lane-idx">' + idx + '</div>' +
+          (FX.flash ? '<div class="fullflash"></div>' : '') +
           '<div class="intent">' + (intents.length ? '⚠ 예고: ' + intents.join(' · ') : '적이 다음 수를 노린다…') + '</div>' +
           '<div class="log">» ' + S.log + '</div>' +
           '<div class="queue"><span class="q-label">COMBO</span>' + qs + '<button class="btn-soul" id="soul" ' + (S.soul >= SOULMAX ? '' : 'disabled') + '>魂 일섬</button>' +
@@ -756,6 +842,7 @@
         var st = document.getElementById('start'); if (st) st.onclick = newRun;
         var sk = document.getElementById('strike'); if (sk) sk.onclick = function () { act('strike'); };
         var so = document.getElementById('soul'); if (so) so.onclick = function () { act('soul'); };
+        var mu = document.getElementById('mute'); if (mu) mu.onclick = toggleMute;
         Array.prototype.forEach.call($g.querySelectorAll('[data-a]'), function (b) {
           b.onclick = function () { act(b.dataset.a === 'left' ? 'move' : b.dataset.a === 'right' ? 'move' : b.dataset.a, b.dataset.a === 'left' ? -1 : b.dataset.a === 'right' ? 1 : undefined); };
         });
