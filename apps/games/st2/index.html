@@ -55,6 +55,7 @@
       .hero-img { width: 100%; height: auto; display: block; image-rendering: pixelated; filter: drop-shadow(0 3px 4px rgba(0,0,0,.65)); }
       .unit.flip .hero-img { transform: scaleX(-1); }
       .unit.imgmode { width: 215%; margin-bottom: -6%; z-index: 2; }
+      .unit.en.imgmode { width: 193%; } /* 일반 적은 주인공보다 10% 작게 */
       .unit.imgmode .face { display: none; }
       .unit::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: -5px; height: 6px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%); }
       .unit.boss { width: 96%; animation-duration: 3.2s; }
@@ -491,12 +492,13 @@
           '.kmmmmk....kmmmmk.......'] },
       };
       SPRITES.shogun = { c: { k: '#0a0810', g: '#c2ccde', G: '#f2f6ff', m: '#141020', M: '#241c38', f: '#e0ac7e', F: '#c28a5c', e: '#ff5a3c', r: '#1c1030', R: '#33205c', X: '#4f3390', w: '#e3e7f4', W: '#ffffff' }, r: SPRITES.daimyo.r };
+      SPRITES.ronin2 = { c: { k: '#0a0810', h: '#2a2f3c', H: '#414a5c', f: '#e8b184', F: '#c28a5c', g: '#cf9a6d', e: '#1a1a2e', a: '#232a3a', A: '#39455c', R: '#55637f', b: '#7e2019', w: '#cdcdd6', W: '#f2f2f8', p: '#20263a', P: '#333d54', s: '#121019' }, r: SPRITES.ronin.r };
       /* 주인공 이미지 모드 — assets/hero.png(A·아이들) hero_iai(B·발도) hero_atk(C·베기) hero_shuriken(선택)
          파일이 있으면 자동 감지해 이미지 렌더, 없으면 내장 도트로 폴백. 포즈 파일 없으면 아이들로 폴백 */
       var HERO = { poses: {}, any: false };
       (function () {
         if (typeof Image === 'undefined') return; /* 테스트 스텁 */
-        var map = { player: 'hero', player_iai: 'hero_iai', player_shuriken: 'hero_shuriken', player_atk: 'hero_atk' };
+        var map = { player: 'hero', player_iai: 'hero_iai', player_shuriken: 'hero_shuriken', player_atk: 'hero_atk', player_throw: 'hero_throw' };
         Object.keys(map).forEach(function (k) {
           var im = new Image();
           im.onload = function () { HERO.poses[k] = im.src; HERO.any = true; if (S && S.screen === 'play' && !S.over && !S.won && !S.reward) render(); };
@@ -504,13 +506,13 @@
         });
       })();
       function heroSrc(pose) {
-        return HERO.poses[pose] || (pose === 'player_shuriken' ? HERO.poses.player_iai : null) || HERO.poses.player || null;
+        return HERO.poses[pose] || (pose === 'player_shuriken' ? HERO.poses.player_iai : null) || (pose === 'player_throw' ? HERO.poses.player_atk : null) || HERO.poses.player || null;
       }
       /* 적 이미지 — assets/foe_<종류>.png(대기) _ready(공격 준비) _atk(공격 순간). 없으면 내장 도트 폴백 */
       var FOEIMG = { poses: {} };
       (function () {
         if (typeof Image === 'undefined') return; /* 테스트 스텁 */
-        ['ronin', 'archer', 'spear', 'nin', 'monk', 'daimyo', 'shogun'].forEach(function (sp) {
+        ['ronin', 'ronin2', 'archer', 'spear', 'nin', 'monk', 'daimyo', 'shogun'].forEach(function (sp) {
           ['', '_ready', '_atk'].forEach(function (suf) {
             var im = new Image();
             im.onload = function () { FOEIMG.poses[sp + suf] = im.src; if (S && S.screen === 'play' && !S.over && !S.won && !S.reward) render(); };
@@ -534,6 +536,7 @@
       /* 적 도감 (오리지널) */
       var FOE_DEFS = {
         ronin:  { sprite: 'ronin', glyph: '浪', name: '낭인',  hp: 1, spd: 1, rng: [1] },
+        ronin2: { sprite: 'ronin2', glyph: '武', name: '무사',  hp: 2, spd: 1, rng: [1] },
         archer: { sprite: 'archer', glyph: '弓', name: '궁수',  hp: 1, spd: 1, rng: [2, 3, 4], windup: 2 },
         spear:  { sprite: 'spear', glyph: '槍', name: '창병',  hp: 2, spd: 1, rng: [1, 2] },
         nin:    { sprite: 'nin', glyph: '忍', name: '자객',  hp: 1, spd: 2, rng: [1] },
@@ -550,6 +553,7 @@
         var pool = ['ronin'];
         if (sNo >= 2) pool.push('archer');
         if (sNo >= 3) pool.push('spear');
+        if (sNo >= 4) pool.push('ronin2');
         if (sNo >= 5) pool.push('nin');
         if (sNo >= 7) pool.push('monk');
         var count = Math.min(4, 1 + Math.floor(sNo / 3));
@@ -635,9 +639,9 @@
       var uid = 1, runSeq = 0;
       var surrenderArm = 0; /* 항복 2단 확인 (오클릭 방지) */
       /* 연출 상태 — 한 행동의 이펙트를 320ms 보여준 뒤 스스로 지운다 */
-      var FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false, fatk: [] };
+      var FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false, fatk: [], threw: false };
       var fxTimer = 0;
-      function fxClear() { FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false, fatk: [] }; }
+      function fxClear() { FX = { atk: false, slash: [], ehit: [], hurt: [], hurtP: false, dash: [], flash: false, quake: false, fatk: [], threw: false }; }
       function fxSchedule() {
         clearTimeout(fxTimer);
         fxTimer = setTimeout(function () {
@@ -736,6 +740,7 @@
         } else if (t.key === 'hoe') {
           [foeAt(p.pos + 1), foeAt(p.pos - 1)].forEach(function (f) { if (f) hitFoe(f, t.dmg, t.name); });
         } else if (t.key === 'su') {
+          FX.threw = true; /* 던지기 모션 (hero_throw) */
           for (var q = p.pos + d; inBoard(q); q += d) { var f2 = foeAt(q); if (f2) { hitFoe(f2, t.dmg, t.name); break; } }
         } else if (t.key === 'mil') {
           tgt = foeAt(p.pos + d);
@@ -753,7 +758,9 @@
           var np = p.pos, steps = 0;
           while (steps < 3 && inBoard(np + d) && !foeAt(np + d)) { np += d; steps++; }
           p.pos = np;
-          tgt = foeAt(p.pos + d); if (tgt) hitFoe(tgt, t.dmg, '돌진'); else if (steps) S.log = '돌진 — ' + steps + '칸 전진';
+          tgt = foeAt(p.pos + d);
+          if (tgt) hitFoe(tgt, t.dmg, steps ? '돌진 ' + steps + '칸' : '돌진');
+          else S.log = '돌진 — ' + steps + '칸 전진' + (steps < 3 ? ' (길이 막혔다)' : '');
         }
         t.cdLeft = t.cd;
       }
@@ -991,13 +998,14 @@
           if (S.p.pos === i) {
             var qFirst = S.queue.length ? S.tiles[S.queue[0]].key : null;
             var pose = FX.atk ? 'player_atk' : (qFirst ? (qFirst === 'su' ? 'player_shuriken' : 'player_iai') : 'player');
+            var imgPose = FX.atk && FX.threw ? 'player_throw' : pose; /* 던지기는 이미지 전용 포즈(도트 폴백은 atk) */
             var pCls = 'unit pl' + (S.p.dir < 0 ? ' flip' : '') +
               (FX.atk ? (S.p.dir > 0 ? ' atkR' : ' atkL') : '') +
               (!FX.atk && S.queue.length ? ' stance' : '') +
               (FX.hurtP ? ' hurt' : '');
-            var heroImg = heroSrc(pose);
+            var heroImg = heroSrc(imgPose);
             var heroBody = heroImg ? '<img class="hero-img" src="' + heroImg + '" alt="" />' : unitSvg(pose);
-            inner = '<span class="' + pCls + (heroImg ? ' imgmode' : '') + '" data-pose="' + pose + '">' + heroBody + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
+            inner = '<span class="' + pCls + (heroImg ? ' imgmode' : '') + '" data-pose="' + imgPose + '">' + heroBody + '<span class="face ' + (S.p.dir > 0 ? 'R' : 'L') + '">' + (S.p.dir > 0 ? '▶' : '◀') + '</span></span>';
           } else {
             var f = foeAt(i);
             if (f) {
