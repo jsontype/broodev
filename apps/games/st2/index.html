@@ -58,7 +58,6 @@
       .unit.flip .hero-img { transform: scaleX(-1); }
       .unit.imgmode { width: 215%; margin-bottom: -6%; z-index: 2; }
       .unit.en.imgmode { width: 193%; } /* 일반 적 기본 10% 축소 */
-      .unit.en.imgmode.sp-ronin { width: 154%; } /* 낭인은 추가 20% 축소 */
       .unit.en.imgmode.sp-ronin2 { width: 215%; } /* 무사는 축소 금지 — 주인공과 동급 */
       .unit.imgmode .face { display: none; }
       .unit::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: -5px; height: 6px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%); }
@@ -202,7 +201,7 @@
         hoe:  { key: 'hoe',  name: '회전베기', glyph: '旋', cd: 4, dmg: 1, info: function (t) { return '양옆 1칸 ' + t.dmg + '딜'; } },
         su:   { key: 'su',   name: '수리검', glyph: '手', cd: 3, dmg: 1, info: function (t) { return '전방 직선 첫 적 ' + t.dmg + '딜'; } },
         mil:  { key: 'mil',  name: '밀치기', glyph: '押', cd: 2, dmg: 0, info: function (t) { return '전방 적 2칸 넉백' + (t.dmg ? ' +' + t.dmg + '딜' : '') + ' (벽 충돌 시 1딜)'; } },
-        brk:  { key: 'brk',  name: '돌파',   glyph: '破', cd: 5, dmg: 1, info: function (t) { return '전방 모든 적 관통 ' + t.dmg + '딜 · 적진 너머 착지'; } },
+        brk:  { key: 'brk',  name: '돌파',   glyph: '破', cd: 7, dmg: 1, info: function (t) { return '전방 첫 적(붙은 적 포함) 관통 ' + t.dmg + '딜 · 너머 착지'; } },
         dol:  { key: 'dol',  name: '돌진',   glyph: '走', cd: 4, dmg: 1, info: function (t) { return '전방 3칸 이동 후 ' + t.dmg + '딜'; } },
         bal:  { key: 'bal',  name: '발도술', glyph: '拔', cd: 5, dmg: 1, info: function (t) { return '전방 1·2칸 각 ' + t.dmg + '딜'; } },
       };
@@ -792,18 +791,20 @@
             }
           }
         } else if (t.key === 'brk') {
-          var bd = d;
-          var bt = S.foes.filter(function (f3) { return f3.hp > 0 && (bd > 0 ? f3.pos > p.pos : f3.pos < p.pos); });
-          if (!bt.length) { S.log = '돌파 — 전방에 적이 없다.'; }
+          /* 일섬과 달리 첫 적까지만 — 단, 붙어 있는 적들은 한 블록으로 함께 관통 */
+          var bd = d, firstB = null;
+          for (var sc = p.pos + bd; inBoard(sc); sc += bd) { if (foeAt(sc)) { firstB = sc; break; } }
+          if (firstB == null) { S.log = '돌파 — 전방에 적이 없다.'; }
           else {
+            var block = [];
+            for (var bc = firstB; inBoard(bc) && foeAt(bc); bc += bd) block.push(foeAt(bc));
             FX.flash = true; FX.quake = true;
             SFX.pierce();
-            var farB = p.pos;
-            bt.forEach(function (f3) { if (bd > 0 ? f3.pos > farB : f3.pos < farB) farB = f3.pos; });
+            var farB = block[block.length - 1].pos;
             var landB = farB + bd;
             if (!inBoard(landB)) landB = farB;
             for (var cb = p.pos + bd; bd > 0 ? cb <= farB : cb >= farB; cb += bd) FX.dash.push(cb);
-            bt.forEach(function (f3) { hitFoe(f3, t.dmg, '돌파'); });
+            block.forEach(function (f3) { hitFoe(f3, t.dmg, '돌파'); });
             while (foeAt(landB) && landB !== p.pos) landB -= bd;
             p.pos = landB;
           }
@@ -1060,12 +1061,9 @@
           else if (pk === 'su') { for (var sq = pp + pdv; inBoard(sq); sq += pdv) { if (foeAt(sq)) { mark(sq, 'pv-hit'); break; } mark(sq, 'pv-path'); } }
           else if (pk === 'mil') { mark(pp + pdv, 'pv-hit'); }
           else if (pk === 'brk') {
-            var farP = null;
-            for (var b1 = pp + pdv; inBoard(b1); b1 += pdv) if (foeAt(b1)) farP = b1;
-            if (farP == null) { for (var b2 = pp + pdv; inBoard(b2); b2 += pdv) mark(b2, 'pv-path'); }
-            else {
-              for (var b3 = pp + pdv; pdv > 0 ? b3 <= farP : b3 >= farP; b3 += pdv) mark(b3, foeAt(b3) ? 'pv-hit' : 'pv-path');
-            }
+            var firstP = null;
+            for (var b1 = pp + pdv; inBoard(b1); b1 += pdv) { if (foeAt(b1)) { firstP = b1; break; } mark(b1, 'pv-path'); }
+            if (firstP != null) for (var b2 = firstP; inBoard(b2) && foeAt(b2); b2 += pdv) mark(b2, 'pv-hit');
           }
           else if (pk === 'dol') { var dp = pp, ds = 0; while (ds < 3 && inBoard(dp + pdv) && !foeAt(dp + pdv)) { dp += pdv; ds++; mark(dp, 'pv-path'); } mark(dp + pdv, 'pv-hit'); }
         }
@@ -1132,11 +1130,11 @@
           '<button class="btn-strike" id="strike" ' + (S.queue.length ? '' : 'disabled') + '>발동!</button></div>' +
           '<div class="tiles">' + tiles + '</div>' +
           '<div class="moves">' +
-          '<button class="mbtn" data-a="left"><span class="m-ico">◀</span><span class="m-lb">이동</span><kbd>←</kbd></button>' +
-          '<button class="mbtn" data-a="flip"><span class="m-ico">⇄</span><span class="m-lb">전환</span><kbd>↑</kbd></button>' +
-          '<button class="mbtn" data-a="wait"><span class="m-ico">◎</span><span class="m-lb">대기</span><kbd>W</kbd></button>' +
-          '<button class="mbtn" data-a="right"><span class="m-ico">▶</span><span class="m-lb">이동</span><kbd>→</kbd></button></div>' +
-          '<div class="keys">키보드: ←→ 이동 · ↑ 전환 · 1~6 기술패 · Space 발동 · E 魂일섬 · W 대기</div>';
+          '<button class="mbtn" data-a="left"><span class="m-ico">◀</span><span class="m-lb">이동</span><kbd>A</kbd></button>' +
+          '<button class="mbtn" data-a="flip"><span class="m-ico">⇄</span><span class="m-lb">전환</span><kbd>W</kbd></button>' +
+          '<button class="mbtn" data-a="wait"><span class="m-ico">◎</span><span class="m-lb">대기</span><kbd>S</kbd></button>' +
+          '<button class="mbtn" data-a="right"><span class="m-ico">▶</span><span class="m-lb">이동</span><kbd>D</kbd></button></div>' +
+          '<div class="keys">키보드: A·D 이동 · W 전환 · S 대기 · 1~6 기술패 · Space 발동 · E 魂일섬</div>';
         wire();
       }
       function titleHtml() {
@@ -1191,11 +1189,11 @@
           else if (e.key === '4') { SFX.die(); newRun(); }
           return;
         }
-        if (e.key === 'ArrowLeft') act('move', -1);
-        else if (e.key === 'ArrowRight') act('move', 1);
-        else if (e.key === 'ArrowUp') act('flip');
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') act('move', -1);
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') act('move', 1);
+        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') act('flip');
         else if (e.key === ' ') { e.preventDefault(); act('strike'); }
-        else if (e.key === 'w' || e.key === 'W') act('wait');
+        else if (e.key === 's' || e.key === 'S') act('wait');
         else if (e.key === 'e' || e.key === 'E') act('soul');
         else if (e.key >= '1' && e.key <= '6') act('queue', +e.key - 1);
       });
