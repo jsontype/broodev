@@ -163,6 +163,10 @@
       .reward-opts .tile.rare { border-color: #8a5cff; box-shadow: 0 0 14px rgba(138,92,255,.35), inset 0 0 22px rgba(138,92,255,.08); }
       .reward-opts .tile.rare .t-name { color: #b98cff; text-shadow: 0 0 8px rgba(138,92,255,.55); }
       .reward-opts .tile.rare .r-num { border-color: #8a5cff; color: #b98cff; }
+      .reward-opts .tile.legend { border-color: #ffab2e; box-shadow: 0 0 18px rgba(255,171,46,.45), inset 0 0 26px rgba(255,171,46,.1); animation: legendGlow 1.2s ease-in-out infinite alternate; }
+      .reward-opts .tile.legend .t-name { color: #ffc95e; text-shadow: 0 0 10px rgba(255,171,46,.7); }
+      .reward-opts .tile.legend .r-num { border-color: #ffab2e; color: #ffc95e; }
+      @keyframes legendGlow { from { box-shadow: 0 0 10px rgba(255,171,46,.3), inset 0 0 20px rgba(255,171,46,.07); } to { box-shadow: 0 0 22px rgba(255,171,46,.6), inset 0 0 30px rgba(255,171,46,.14); } }
       .r-num { position: absolute; top: 6px; left: 8px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-family: var(--font); font-size: 11px; font-weight: 700; color: var(--gold); border: 1px solid var(--gold); border-radius: 5px; background: rgba(217,164,65,.1); }
       .r-giveup { opacity: .75; } .r-giveup .t-name { color: var(--red); } .r-giveup .r-num { color: var(--red); border-color: var(--red); background: rgba(201,67,47,.08); }
     </style>
@@ -197,6 +201,7 @@
         hoe:  { key: 'hoe',  name: '회전베기', glyph: '旋', cd: 4, dmg: 1, info: function (t) { return '양옆 1칸 ' + t.dmg + '딜'; } },
         su:   { key: 'su',   name: '수리검', glyph: '手', cd: 3, dmg: 1, info: function (t) { return '전방 직선 첫 적 ' + t.dmg + '딜'; } },
         mil:  { key: 'mil',  name: '밀치기', glyph: '押', cd: 2, dmg: 0, info: function (t) { return '전방 적 2칸 넉백' + (t.dmg ? ' +' + t.dmg + '딜' : '') + ' (벽 충돌 시 1딜)'; } },
+        brk:  { key: 'brk',  name: '돌파',   glyph: '破', cd: 5, dmg: 1, info: function (t) { return '전방 모든 적 관통 ' + t.dmg + '딜 · 적진 너머 착지'; } },
         dol:  { key: 'dol',  name: '돌진',   glyph: '走', cd: 4, dmg: 1, info: function (t) { return '전방 3칸 이동 후 ' + t.dmg + '딜'; } },
         bal:  { key: 'bal',  name: '발도술', glyph: '拔', cd: 5, dmg: 1, info: function (t) { return '전방 1·2칸 각 ' + t.dmg + '딜'; } },
       };
@@ -705,6 +710,7 @@
         su: '<svg viewBox="0 0 24 24">' + icoDefs('su') + '<path d="M12 1 L14.2 9.8 L23 12 L14.2 14.2 L12 23 L9.8 14.2 L1 12 L9.8 9.8 Z" fill="url(#msu)" stroke="#3a3f52" stroke-width=".6"/><circle cx="12" cy="12" r="2" fill="#232838" stroke="#5a6480" stroke-width=".7"/></svg>',
         mil: '<svg viewBox="0 0 24 24">' + icoDefs('mi') + '<path d="M6 20 V9 a1.6 1.6 0 0 1 3.2 0 V7 a1.6 1.6 0 0 1 3.2 0 V6.4 a1.6 1.6 0 0 1 3.2 0 V8 a1.5 1.5 0 0 1 3 0 v6.5 c0 3.6-2.6 6-6.2 6 C9 20.5 6 20 6 20 Z" fill="#e0b48a" stroke="#8a6a44" stroke-width=".7"/><path d="M20 7 q3 5 0 10 M22.5 5 q4 7 0 14" stroke="#7fb7ff" stroke-width="1" fill="none" opacity=".8"/></svg>',
         dol: '<svg viewBox="0 0 24 24">' + icoDefs('do') + '<path d="M2 12 L10 6 V10 L18 10 V14 L10 14 V18 Z" transform="rotate(180 10 12)" fill="url(#mdo)" stroke="#3a3f52" stroke-width=".6"/><path d="M3 5 h6 M2 19 h6 M1 12 h3" stroke="#7fb7ff" stroke-width="1" opacity=".7"/></svg>',
+        brk: '<svg viewBox="0 0 24 24">' + icoDefs('br') + '<rect x="7" y="3.4" width="2.2" height="6.2" rx="1" fill="#1c1a28" stroke="#454258" stroke-width=".5" transform="rotate(8 8 6)"/><rect x="7" y="14.4" width="2.2" height="6.2" rx="1" fill="#1c1a28" stroke="#454258" stroke-width=".5" transform="rotate(-8 8 17)"/><rect x="14" y="3.8" width="2.2" height="5.6" rx="1" fill="#1c1a28" stroke="#454258" stroke-width=".5" transform="rotate(14 15 6)"/><rect x="14" y="14.6" width="2.2" height="5.6" rx="1" fill="#1c1a28" stroke="#454258" stroke-width=".5" transform="rotate(-14 15 17)"/><path d="M1 12 L19 12 L22.6 10.6 L23.6 12 L22.6 13.4 L19 12.9 Z" fill="url(#mbr)" stroke="#3a3f52" stroke-width=".5"/><path d="M22.6 10.6 L23.6 12" stroke="#fff" stroke-width="1"/></svg>',
         bal: '<svg viewBox="0 0 24 24">' + icoDefs('ba') + '<rect x="0.8" y="17.6" width="11.5" height="3" rx="1.5" transform="rotate(-35 6 19)" fill="#1c1a28" stroke="#454258" stroke-width=".6"/><rect x="7.6" y="12.2" width="4.6" height="2.2" rx="1" transform="rotate(-35 10 13)" fill="url(#hba)"/><path d="M11 12 L21.4 3.2 L23.2 2 L23.8 3 L22 4.4 L12.4 13.6 Z" fill="url(#mba)" stroke="#3a3f52" stroke-width=".5"/><path d="M23.2 2 L23.8 3" stroke="#fff" stroke-width="1.2"/><path d="M14 1.6 A15 15 0 0 1 23.4 8.6" stroke="#cfe0ff" stroke-width="1" fill="none" opacity=".55"/></svg>',
       };
       /* 범위 미니맵: p=자신 · r=타격 · f=경유(관통) · m=이동 (향 방향 오른쪽 기준) */
@@ -714,6 +720,7 @@
         su:  ['p', 'f', 'f', 'f', 'r'],
         mil: ['p', 'r', 'm', 'm', '.'],
         dol: ['p', 'm', 'm', 'm', 'r'],
+        brk: ['p', 'f', 'f', 'f', 'm'],
         bal: ['p', 'r', 'r', '.', '.'],
       };
       function rngHtml(key) {
@@ -768,6 +775,22 @@
               if (moved < 2) hitFoe(tgt, 1, '밀치기 충돌');
               else S.log = '밀치기 — ' + tgt.name + ' 넉백';
             }
+          }
+        } else if (t.key === 'brk') {
+          var bd = d;
+          var bt = S.foes.filter(function (f3) { return f3.hp > 0 && (bd > 0 ? f3.pos > p.pos : f3.pos < p.pos); });
+          if (!bt.length) { S.log = '돌파 — 전방에 적이 없다.'; }
+          else {
+            FX.flash = true; FX.quake = true;
+            SFX.pierce();
+            var farB = p.pos;
+            bt.forEach(function (f3) { if (bd > 0 ? f3.pos > farB : f3.pos < farB) farB = f3.pos; });
+            var landB = farB + bd;
+            if (!inBoard(landB)) landB = farB;
+            for (var cb = p.pos + bd; bd > 0 ? cb <= farB : cb >= farB; cb += bd) FX.dash.push(cb);
+            bt.forEach(function (f3) { hitFoe(f3, t.dmg, '돌파'); });
+            while (foeAt(landB) && landB !== p.pos) landB -= bd;
+            p.pos = landB;
           }
         } else if (t.key === 'dol') {
           var np = p.pos, steps = 0;
@@ -907,7 +930,7 @@
         /* 레어(보라) — 오의 강화는 가끔만 뜬다 */
         var rares = [];
         if (Math.random() < 0.18) rares.push({ kind: 'soul_dmg', rare: 1, label: '오의 연마 · 일섬', desc: '일섬 피해 +2 (현재 ' + S.soulDmg + ')' });
-        if (S.soulMax > 2 && Math.random() < 0.12) rares.push({ kind: 'soul_max', rare: 1, label: '혼의 그릇 · 일섬', desc: '혼 게이지 ' + S.soulMax + ' → ' + (S.soulMax - 1) + ' (충전 단축)' });
+        if (S.soulMax > 2 && Math.random() < 0.04) rares.push({ kind: 'soul_max', rare: 2, label: '혼의 그릇 · 일섬', desc: '혼 게이지 ' + S.soulMax + ' → ' + (S.soulMax - 1) + ' (충전 단축)' });
         return rares.concat(opts).slice(0, 3);
       }
       function pickReward(i) {
@@ -1017,6 +1040,15 @@
           else if (pk === 'hoe') { mark(pp + 1, 'pv-hit'); mark(pp - 1, 'pv-hit'); }
           else if (pk === 'su') { for (var sq = pp + pdv; inBoard(sq); sq += pdv) { if (foeAt(sq)) { mark(sq, 'pv-hit'); break; } mark(sq, 'pv-path'); } }
           else if (pk === 'mil') { mark(pp + pdv, 'pv-hit'); mark(pp + 2 * pdv, 'pv-move'); mark(pp + 3 * pdv, 'pv-move'); }
+          else if (pk === 'brk') {
+            var farP = null;
+            for (var b1 = pp + pdv; inBoard(b1); b1 += pdv) if (foeAt(b1)) farP = b1;
+            if (farP == null) { for (var b2 = pp + pdv; inBoard(b2); b2 += pdv) mark(b2, 'pv-path'); }
+            else {
+              for (var b3 = pp + pdv; pdv > 0 ? b3 <= farP : b3 >= farP; b3 += pdv) mark(b3, foeAt(b3) ? 'pv-hit' : 'pv-path');
+              mark(farP + pdv, 'pv-move');
+            }
+          }
           else if (pk === 'dol') { var dp = pp, ds = 0; while (ds < 3 && inBoard(dp + pdv) && !foeAt(dp + pdv)) { dp += pdv; ds++; mark(dp, 'pv-move'); } mark(dp + pdv, 'pv-hit'); }
         }
         var cells = '';
@@ -1103,7 +1135,7 @@
       }
       function rewardHtml() {
         return '<div class="screen"><h1 style="font-size:22px">승리의 대가</h1><div class="sub">하나를 고르시오 — 숫자키 <b>1·2·3</b> (4 = 항복)</div><div class="reward-opts">' +
-          S.reward.map(function (o, i) { return '<button class="tile' + (o.rare ? ' rare' : '') + '" data-r="' + i + '"><span class="r-num">' + (i + 1) + '</span><div class="t-name">' + esc(o.label) + '</div><div class="t-info">' + esc(o.desc) + '</div></button>'; }).join('') +
+          S.reward.map(function (o, i) { return '<button class="tile' + (o.rare === 2 ? ' legend' : o.rare ? ' rare' : '') + '" data-r="' + i + '"><span class="r-num">' + (i + 1) + '</span><div class="t-name">' + esc(o.label) + '</div><div class="t-info">' + esc(o.desc) + '</div></button>'; }).join('') +
           '<button class="tile r-giveup" data-r="give"><span class="r-num">4</span><div class="t-name">🏳 항복</div><div class="t-info">런을 포기하고 처음부터 다시</div></button>' +
           '</div></div>';
       }
