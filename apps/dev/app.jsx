@@ -59,6 +59,9 @@ const ORBITS = [
 ];
 
 const PROJECTS = [
+  { hash: 'e8b4a17', name: 'SAMURAI_TACTICS_2', status: 'live', statusLabel: 'LIVE', cat: 'game',
+    desc: '한 줄 전장 턴제 검술 로그라이크 — 큐 콤보·일섬 오의·4단계 난이도·업적 30종.',
+    url: 'https://samurai.broodev.com', link: 'samurai.broodev.com' },
   { hash: 'a3f9c21', name: 'BTC_SIGNAL', status: 'live', statusLabel: 'LIVE', cat: 'crypto',
     desc: '15종 코인의 공포·탐욕 지수와 6개 지표를 합성한 매수 타이밍 점수(0~100) · 13개 언어.',
     url: 'https://broodev.com', link: 'broodev.com' },
@@ -103,7 +106,7 @@ const PROJECTS = [
     url: 'https://stans.broodev.com', link: 'stans.broodev.com' },
 ];
 const CATS = [
-  ['crypto', '암호화폐'], ['learn', '학습'], ['arctic', '극지'],
+  ['game', '게임'], ['crypto', '암호화폐'], ['learn', '학습'], ['arctic', '극지'],
   ['asia', '아시아'], ['africa', '아프리카'], ['islands', '카리브 · 태평양'],
 ];
 
@@ -118,7 +121,7 @@ const WHOAMI_TEXT = `$ cat ./about.md
 # Yang Donghwa — @jsontype
 도쿄에서 일하는 한국인 프론트엔드 개발자.
 낮에는 도쿄의 프로덕션 코드를 만들고,
-밤에는 broodev 우주에 14개의 웹앱을
+밤에는 broodev 우주에 15개의 웹앱을
 쏘아 올립니다.
 
 원칙은 하나 — "양보다 질".
@@ -519,7 +522,7 @@ function DeepLog() {
     <section className="board" id="log" aria-label="프로젝트">
       <div className="log-head">
         <div className="h-cmd"><span className="cmd">$</span> ls universe/ --all</div>
-        <div className="h-sub">14개 앱 — 전부 라이브. 카테고리별로 한눈에, 클릭하면 새 탭으로.</div>
+        <div className="h-sub">15개 앱 — 전부 라이브. 카테고리별로 한눈에, 클릭하면 새 탭으로.</div>
       </div>
       {CATS.map(([key, label]) => {
         const items = PROJECTS.filter(pr => pr.cat === key);
