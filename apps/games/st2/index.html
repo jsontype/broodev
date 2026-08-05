@@ -57,7 +57,7 @@
       .hero-img { width: 100%; height: auto; display: block; image-rendering: pixelated; filter: drop-shadow(0 3px 4px rgba(0,0,0,.65)); }
       .unit.flip .hero-img { transform: scaleX(-1); }
       .unit.imgmode { width: 215%; margin-bottom: -6%; z-index: 2; }
-      .unit.en.imgmode { width: 193%; } /* 일반 적은 주인공보다 10% 작게 */
+      .unit.en.imgmode { width: 172%; } /* 일반 적은 주인공보다 20% 작게 */
       .unit.imgmode .face { display: none; }
       .unit::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: -5px; height: 6px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%); }
       .unit.boss { width: 96%; animation-duration: 3.2s; }
@@ -126,9 +126,8 @@
       .rng i.R { background: #8f1408; border-color: #5c0d05; box-shadow: 0 0 6px rgba(201,67,47,.9); }
       .rng i.f { background: rgba(201,67,47,.35); border-color: #5c2a20; }
       .rng i.m { background: rgba(127,183,255,.35); border-color: #2c4a6e; }
-      .cell.pv-hit { box-shadow: inset 0 0 0 2px rgba(201,67,47,.55); background: rgba(201,67,47,.16); }
-      .cell.pv-move { box-shadow: inset 0 0 0 2px rgba(127,183,255,.45); background: rgba(127,183,255,.13); }
-      .cell.pv-path { box-shadow: inset 0 0 0 2px rgba(201,67,47,.28); background: rgba(201,67,47,.08); }
+      .cell.pv-hit { box-shadow: inset 0 0 0 2px rgba(127,183,255,.6); background: rgba(127,183,255,.18); }
+      .cell.pv-path { box-shadow: inset 0 0 0 2px rgba(127,183,255,.3); background: rgba(127,183,255,.09); }
       .tile .t-info { font-size: 10.5px; color: var(--dim); margin-top: 2px; line-height: 1.45; }
       .tile .t-cd { position: absolute; top: 6px; right: 8px; font-size: 11px; color: var(--red); font-family: var(--font); }
 
@@ -684,11 +683,25 @@
         var list = S.stageWaves[S.wave];
         var edges = [0, W - 1, 1, W - 2, 2];
         S.foes = [];
+        /* 적은 항상 주인공과 최소 한 칸 띄우고(거리 2+), 빈 칸 중 후보와 가장 가까운 곳에 */
+        var placeFoe = function (cand) {
+          var best = -1, bestScore = -Infinity;
+          for (var c = 0; c < W; c++) {
+            if (Math.abs(c - S.p.pos) < 2) continue;
+            if (S.foes.some(function (x) { return x.pos === c; })) continue;
+            var score = -Math.abs(c - cand);
+            if (score > bestScore) { bestScore = score; best = c; }
+          }
+          return best;
+        };
         for (var i = 0; i < list.length; i++) {
-          var pos = edges[i % edges.length];
-          if (pos === S.p.pos) pos = pos < W / 2 ? pos + 1 : pos - 1;
+          var pos = placeFoe(edges[i % edges.length]);
+          if (pos < 0) continue; /* 놓을 곳 없음(이론상) */
           S.foes.push(mkFoe(list[i], pos));
         }
+        /* 벽에서 리스폰하면 벽 반대쪽을 본다 */
+        if (S.p.pos === 0) S.p.dir = 1;
+        else if (S.p.pos === W - 1) S.p.dir = -1;
         S.foes.forEach(function (bf) { if (bf.type === 'daimyo') bf.hp = 6 + 2 * Math.ceil((S.stage + 1) / 3); });
         var hasBoss = S.foes.some(function (bf) { return FOE_DEFS[bf.type].boss; });
         S.log = 'STAGE ' + (S.stage + 1) + ' — ' + (hasBoss ? '⚔ 보스가 길을 막는다!' : (S.wave + 1) + '번째 대치. 적 ' + S.foes.length + '명.');
@@ -1039,17 +1052,16 @@
           else if (pk === 'bal') { mark(pp + pdv, 'pv-hit'); mark(pp + 2 * pdv, 'pv-hit'); }
           else if (pk === 'hoe') { mark(pp + 1, 'pv-hit'); mark(pp - 1, 'pv-hit'); }
           else if (pk === 'su') { for (var sq = pp + pdv; inBoard(sq); sq += pdv) { if (foeAt(sq)) { mark(sq, 'pv-hit'); break; } mark(sq, 'pv-path'); } }
-          else if (pk === 'mil') { mark(pp + pdv, 'pv-hit'); mark(pp + 2 * pdv, 'pv-move'); mark(pp + 3 * pdv, 'pv-move'); }
+          else if (pk === 'mil') { mark(pp + pdv, 'pv-hit'); }
           else if (pk === 'brk') {
             var farP = null;
             for (var b1 = pp + pdv; inBoard(b1); b1 += pdv) if (foeAt(b1)) farP = b1;
             if (farP == null) { for (var b2 = pp + pdv; inBoard(b2); b2 += pdv) mark(b2, 'pv-path'); }
             else {
               for (var b3 = pp + pdv; pdv > 0 ? b3 <= farP : b3 >= farP; b3 += pdv) mark(b3, foeAt(b3) ? 'pv-hit' : 'pv-path');
-              mark(farP + pdv, 'pv-move');
             }
           }
-          else if (pk === 'dol') { var dp = pp, ds = 0; while (ds < 3 && inBoard(dp + pdv) && !foeAt(dp + pdv)) { dp += pdv; ds++; mark(dp, 'pv-move'); } mark(dp + pdv, 'pv-hit'); }
+          else if (pk === 'dol') { var dp = pp, ds = 0; while (ds < 3 && inBoard(dp + pdv) && !foeAt(dp + pdv)) { dp += pdv; ds++; } mark(dp + pdv, 'pv-hit'); }
         }
         var cells = '';
         for (var i = 0; i < W; i++) {
