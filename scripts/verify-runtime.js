@@ -50,9 +50,13 @@ function run(app, search) {
 }
 
 let bad = 0;
+/* 생성된 코인 앱도 전부 실행 검증 */
+const COIN_APPS = JSON.parse(fs.readFileSync(R + '/scripts/coins.json', 'utf8')).coins
+  .map((c) => c.sub).filter((sub) => fs.existsSync(R + '/apps/' + sub + '/index.html'));
 const cases = [
   ['btc', ''], ['btc', '?coin=eth'], ['btc', '?coin=pepe'], ['btc', '?coin=BOGUS'],
   ['voca', ''],
+  ...COIN_APPS.map((sub) => [sub, '']),
 ];
 for (const [app, search] of cases) {
   const r = run(app, search);
@@ -61,7 +65,7 @@ for (const [app, search] of cases) {
   else { bad = 1; console.log(`  ❌ ${label.padEnd(20)} ${r.err}`); }
 }
 /* 일반(비-babel) <script> 블록 문법 검사 — 호스트 인식 헬퍼·SEO 치환기 등 */
-for (const app of ['btc', 'voca']) {
+for (const app of ['btc', 'voca', ...COIN_APPS]) {
   const html2 = fs.readFileSync(R + '/apps/' + app + '/index.html', 'utf8');
   const plains = [...html2.matchAll(/<script>([^]*?)<\/script>/g)];
   let okAll = true;
