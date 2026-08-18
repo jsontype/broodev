@@ -41,9 +41,16 @@
          "복제된 콘텐츠가 있는 화면 / 게시자 콘텐츠가 없는 화면" 위반이다.
          (코인별 고유 해설을 작성해 붙이기 전까지 비-BTC 화면은 광고 없이 도구로만 제공) -->
     <script>
+      /* 2026-08-07 구조: 코인 서브도메인(eth.broodev.com 등)이 이 앱의 정식 입구 —
+         호스트명이 곧 코인이다. ?coin= 딥링크는 보조로 유지. */
+      window.__SUBCOIN = null;
+      try {
+        var __h = String(location.hostname || '').split('.')[0];
+        if (['eth', 'xrp', 'doge', 'bch', 'link', 'xlm', 'ltc', 'avax', 'shib', 'dot', 'pepe', 'grt', 'sand', 'mana'].indexOf(__h) >= 0) window.__SUBCOIN = __h;
+      } catch (e) {}
       (function () {
         var coin;
-        try { coin = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { coin = 'btc'; }
+        try { coin = window.__SUBCOIN || (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { coin = 'btc'; }
         if (coin !== 'btc') return; // 비-BTC → 광고 로더·계정 메타 주입 안 함
         var m = document.createElement('meta');
         m.name = 'google-adsense-account'; m.content = 'ca-pub-5511225478572825';
@@ -688,33 +695,33 @@
       .foot-desc{margin:8px auto 0;max-width:680px;opacity:.85}
     </style>
     <footer class="site-foot" aria-label="사이트 정보">
-      <!-- 코인 전환은 이제 한 앱 안에서(?coin=) 처리한다. 예전엔 코인마다 서브도메인
-           복제본을 링크했으나, 91% 동일한 페이지 15개가 색인되며 AdSense
-           "가치 없는/복제된 콘텐츠" 판정을 받아 루트 하나로 통합했다. -->
+      <!-- 2026-08-07: 코인별 전용 서브도메인이 정식 입구다. 같은 프로젝트가 서빙하고
+           미들웨어가 호스트별 canonical/title 을 구분한다. 현재 코인 마커(span.cur)는
+           정적으로는 btc 기준 — 코인 호스트에서는 아래 스크립트가 마커를 옮긴다. -->
       <div class="foot-fam-label">코인 매수 타이밍 시그널 · 코인 선택</div>
       <nav class="foot-fam" aria-label="코인 선택">
         <span class="cur" data-coin="btc" aria-current="page">비트코인</span>
-        <a data-coin="eth" href="/?coin=eth">이더리움</a>
-        <a data-coin="xrp" href="/?coin=xrp">리플</a>
-        <a data-coin="doge" href="/?coin=doge">도지코인</a>
-        <a data-coin="bch" href="/?coin=bch">비트코인캐시</a>
-        <a data-coin="link" href="/?coin=link">체인링크</a>
-        <a data-coin="xlm" href="/?coin=xlm">스텔라루멘</a>
-        <a data-coin="ltc" href="/?coin=ltc">라이트코인</a>
-        <a data-coin="avax" href="/?coin=avax">아발란체</a>
-        <a data-coin="shib" href="/?coin=shib">시바이누</a>
-        <a data-coin="dot" href="/?coin=dot">폴카닷</a>
-        <a data-coin="pepe" href="/?coin=pepe">페페</a>
-        <a data-coin="grt" href="/?coin=grt">더그래프</a>
-        <a data-coin="sand" href="/?coin=sand">샌드박스</a>
-        <a data-coin="mana" href="/?coin=mana">디센트럴랜드</a>
+        <a data-coin="eth" href="https://eth.broodev.com/">이더리움</a>
+        <a data-coin="xrp" href="https://xrp.broodev.com/">리플</a>
+        <a data-coin="doge" href="https://doge.broodev.com/">도지코인</a>
+        <a data-coin="bch" href="https://bch.broodev.com/">비트코인캐시</a>
+        <a data-coin="link" href="https://link.broodev.com/">체인링크</a>
+        <a data-coin="xlm" href="https://xlm.broodev.com/">스텔라루멘</a>
+        <a data-coin="ltc" href="https://ltc.broodev.com/">라이트코인</a>
+        <a data-coin="avax" href="https://avax.broodev.com/">아발란체</a>
+        <a data-coin="shib" href="https://shib.broodev.com/">시바이누</a>
+        <a data-coin="dot" href="https://dot.broodev.com/">폴카닷</a>
+        <a data-coin="pepe" href="https://pepe.broodev.com/">페페</a>
+        <a data-coin="grt" href="https://grt.broodev.com/">더그래프</a>
+        <a data-coin="sand" href="https://sand.broodev.com/">샌드박스</a>
+        <a data-coin="mana" href="https://mana.broodev.com/">디센트럴랜드</a>
         <a class="dev" data-coin="dev" href="https://dev.broodev.com/">◈ dev</a>
       </nav>
       <nav class="foot-links">
         <a href="/methodology">점수 방법론</a><span class="sep"> · </span><a href="/indicators">지표 해설</a><span class="sep"> · </span><a href="/guide-fear-greed">공포지수 활용법</a><span class="sep"> · </span><a href="/glossary">용어집</a>
       </nav>
       <nav class="foot-links">
-        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy">개인정보처리방침</a><span class="sep"> · </span><a href="/terms">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact?app=btc">📮 문의 &amp; 버그 신고</a>
+        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy">개인정보처리방침</a><span class="sep"> · </span><a href="/terms">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://broodev.com/contact?app=btc">📮 문의 &amp; 버그 신고</a>
       </nav>
       <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. 이 페이지의 비트코인 공포·탐욕 지수와 매수 타이밍 점수는 공개 지표를 합성한 참고 정보이며 투자 자문이 아닙니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
@@ -734,7 +741,22 @@
           sand: ['샌드박스', 'SAND'], mana: ['디센트럴랜드', 'MANA'],
         };
         var slug, c;
-        try { slug = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { return; }
+        try { slug = window.__SUBCOIN || (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { return; }
+        /* 코인 호스트: 푸터 자매 내비의 현재 마커를 이 코인으로 옮긴다 */
+        try {
+          if (window.__SUBCOIN) {
+            var curEl = document.querySelector('.foot-fam .cur[data-coin="btc"]');
+            var meEl = document.querySelector('.foot-fam a[data-coin="' + window.__SUBCOIN + '"]');
+            if (curEl && meEl) {
+              var btcLink = document.createElement('a');
+              btcLink.setAttribute('data-coin', 'btc'); btcLink.href = 'https://btc.broodev.com/'; btcLink.textContent = curEl.textContent;
+              curEl.replaceWith(btcLink);
+              var meCur = document.createElement('span');
+              meCur.className = 'cur'; meCur.setAttribute('data-coin', window.__SUBCOIN); meCur.setAttribute('aria-current', 'page'); meCur.textContent = meEl.textContent;
+              meEl.replaceWith(meCur);
+            }
+          }
+        } catch (e) {}
         c = COIN_NAMES[slug];
         if (!c) return; // btc(기본) 또는 미지원 → 원문 유지
         var ko = c[0], tk = c[1];
@@ -1428,10 +1450,11 @@
       const fngLabel = (v, t) => { const f = (t && t.fng) || T.ko.fng; return v == null ? '—' : v <= 25 ? f.extremeFear : v <= 45 ? f.fear : v < 55 ? f.neutral : v < 75 ? f.greed : f.extremeGreed }
 
       /* =========================================================
-       *  코인 레지스트리 — 한 앱이 ?coin= 으로 전 코인을 서빙한다.
-       *  (예전엔 코인마다 서브도메인 앱을 복제했으나, 91% 동일한 페이지가
-       *   15개 색인되면서 AdSense "가치 없는/복제된 콘텐츠"에 걸렸다.
-       *   이제 루트 1개로 통합하고 코인 서브도메인은 여기로 흡수한다.)
+       *  코인 레지스트리 — 한 앱이 전 코인을 서빙한다.
+       *  2026-08-07: 코인 서브도메인(eth.broodev.com 등)을 정식 입구로 복원 —
+       *  같은 Pages 프로젝트에 커스텀 도메인만 여러 개 붙이고, 호스트명으로
+       *  코인을 인식한다(window.__SUBCOIN). 미들웨어가 호스트별 canonical/title을
+       *  구분해 중복 색인을 막는다. ?coin= 딥링크는 보조로 유지.
        * ========================================================= */
       const COINS = [
         { slug: 'btc',  ticker: 'BTC',  sym: '₿', cg: 'bitcoin',      bn: 'BTCUSDT',  ko: '비트코인' },
@@ -1452,7 +1475,7 @@
       ]
       const COIN = (() => {
         let s = 'btc'
-        try { s = (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase() } catch {}
+        try { s = (typeof window !== 'undefined' && window.__SUBCOIN) || (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase() } catch {}
         return COINS.find((c) => c.slug === s) || COINS[0]
       })()
       /* 코인별 캐시 키 — 코인 전환 시 서로의 가격/히스토리를 섞지 않는다. */
@@ -2933,9 +2956,10 @@
                   <select
                     value={COIN.slug}
                     onChange={(e) => {
-                      const u = new URL(window.location.href)
-                      if (e.target.value === 'btc') u.searchParams.delete('coin')
-                      else u.searchParams.set('coin', e.target.value)
+                      const v = e.target.value
+                      const u = new URL('https://' + v + '.broodev.com/')
+                      const lang = new URLSearchParams(window.location.search).get('lang')
+                      if (lang) u.searchParams.set('lang', lang)
                       window.location.assign(u)
                     }}
                     aria-label="코인 선택"

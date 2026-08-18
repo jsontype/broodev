@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """
-코인 앱 생성기 — apps/btc 템플릿을 복제해 apps/<sub> 를 찍어낸다.
+[2026-08-07 폐기] 이 생성기는 더 이상 사용하지 않는다.
+현재 구조: apps/btc 하나가 전 코인을 서빙하고, 코인 서브도메인들은 같은 Pages
+프로젝트의 커스텀 도메인으로 붙는다(호스트명 인식 window.__SUBCOIN + 미들웨어
+호스트별 canonical/title). 앵커들이 구식이라 그대로 돌리면 안 된다.
+
+(원래 설명) 코인 앱 생성기 — apps/btc 템플릿을 복제해 apps/<sub> 를 찍어낸다.
 
 사용법:
   python3 scripts/gen_coin.py eth            # 한 개

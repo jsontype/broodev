@@ -19,7 +19,15 @@ const M = {
   th: { t: 'ดัชนีความกลัวและความโลภบิตคอยน์ · คะแนนจังหวะซื้อ | BTC_SIGNAL', d: 'ดัชนีความกลัว-ความโลภบิตคอยน์แบบเรียลไทม์ พร้อม RSI, MACD, Mayer Multiple และอื่นๆ รวม 8 ตัวชี้วัดเป็นคะแนนจังหวะซื้อ 0–100 ฟรี ไม่ต้องติดตั้ง', l: 'th_TH', img: IMG + '/og-en.png' },
 };
 
+const COIN_HOSTS = {
+  eth: ['이더리움', 'ETH'], xrp: ['리플', 'XRP'], doge: ['도지코인', 'DOGE'],
+  bch: ['비트코인캐시', 'BCH'], link: ['체인링크', 'LINK'], xlm: ['스텔라루멘', 'XLM'],
+  ltc: ['라이트코인', 'LTC'], avax: ['아발란체', 'AVAX'], shib: ['시바이누', 'SHIB'],
+  dot: ['폴카닷', 'DOT'], pepe: ['페페', 'PEPE'], grt: ['더그래프', 'GRT'],
+  sand: ['샌드박스', 'SAND'], mana: ['디센트럴랜드', 'MANA'],
+};
 class AttrSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('content', this.v); } }
+class HrefSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('href', this.v); } }
 class TextSetter { constructor(v) { this.v = v; } element(el) { el.setInnerContent(this.v); } }
 class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('lang', this.v); } }
 
@@ -44,11 +52,35 @@ async function ogRewrite(context) {
   try {
     const ct = res.headers.get('content-type') || '';
     if (!ct.includes('text/html')) return res;
-    const lang = new URL(request.url).searchParams.get('lang');
+    const u = new URL(request.url);
+    const lang = u.searchParams.get('lang');
     const m = lang && M[lang];
-    if (!m) return res; // ko/미지정/미지원 → 원본(한국어) 그대로
+    /* 코인 서브도메인: 호스트별 canonical/og:url 로 중복 색인 차단 + (ko 기본) 코인 제목/설명 */
+    const sub = u.hostname.split('.')[0];
+    const coin = COIN_HOSTS[sub];
+    if (!m && !coin) return res; // 루트(btc)·ko → 원본 그대로
 
-    return new HTMLRewriter()
+    let rw = new HTMLRewriter();
+    if (coin) {
+      const base = 'https://' + sub + '.broodev.com';
+      rw = rw
+        .on('link[rel="canonical"]', new HrefSetter(base + '/'))
+        .on('meta[property="og:url"]', new AttrSetter(base + '/'));
+      if (!m) {
+        const t = coin[0] + ' 공포·탐욕 지수 · 매수 타이밍 실시간 | ' + coin[1] + '_SIGNAL';
+        const d = coin[0] + '(' + coin[1] + ') 공포·탐욕 지수와 RSI·MACD 등 지표를 합성해 매수 타이밍을 0~100 점수로 보여주는 무료 대시보드. 설치 없음.';
+        rw = rw
+          .on('title', new TextSetter(t))
+          .on('meta[name="description"]', new AttrSetter(d))
+          .on('meta[property="og:title"]', new AttrSetter(t))
+          .on('meta[property="og:description"]', new AttrSetter(d))
+          .on('meta[name="twitter:title"]', new AttrSetter(t))
+          .on('meta[name="twitter:description"]', new AttrSetter(d));
+      }
+    }
+    if (!m) return rw.transform(res);
+
+    return rw
       .on('html', new LangSetter(lang))
       .on('title', new TextSetter(m.t))
       .on('meta[name="description"]', new AttrSetter(m.d))
