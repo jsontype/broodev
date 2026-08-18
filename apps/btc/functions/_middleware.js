@@ -3,7 +3,7 @@
 // 응답 직전에 OG 메타(title/description/locale/image)를 해당 언어로 갈아끼운다.
 // 기본(ko) 또는 미지원 lang → 원본 HTML 그대로(한국어).
 
-const IMG = 'https://broodev.com';
+const IMG = 'https://btc.broodev.com';
 const M = {
   en: { t: 'Bitcoin Fear & Greed Index · Buy-Timing Score | BTC_SIGNAL', d: 'Real-time Bitcoin Fear & Greed Index plus RSI, MACD, Mayer Multiple and more — 8 indicators in one 0–100 buy-timing score. Free, no install.', l: 'en_US', img: IMG + '/og-en.png' },
   ja: { t: 'ビットコイン 恐怖・強欲指数 · 買い時スコア | BTC_SIGNAL', d: 'ビットコインの恐怖・強欲指数にRSI・MACD・マイヤー倍率など8指標を合成し、買い時を0〜100で示す無料ダッシュボード。インストール不要。', l: 'ja_JP', img: IMG + '/og-ja.png' },
@@ -24,16 +24,8 @@ class TextSetter { constructor(v) { this.v = v; } element(el) { el.setInnerConte
 class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('lang', this.v); } }
 
 export async function onRequest(context) {
-  // btc.broodev.com 은 루트(broodev.com)와 같은 앱을 서빙하는 완전 중복 도메인 —
-  // 코인 서브도메인들과 동일하게 엣지에서 301로 루트에 통합한다(경로·쿼리 보존).
-  // 같은 폴더를 쓰는 루트 프로젝트에서도 이 미들웨어가 돌지만 hostname 분기라 무해.
-  try {
-    const u = new URL(context.request.url);
-    if (u.hostname === 'btc.broodev.com') {
-      u.hostname = 'broodev.com';
-      return Response.redirect(u.toString(), 301);
-    }
-  } catch (e) {}
+  // 2026-08-07 구조 전환: btc.broodev.com 이 이 앱의 정본 도메인이 됐다 (루트는 VOCA).
+  // 과거의 btc→루트 301 통합 리다이렉트는 제거 — 남아 있으면 정본이 보카로 튕긴다.
   const res = await ogRewrite(context);
   // *.pages.dev(프리뷰/기본 도메인)는 broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단
   try {

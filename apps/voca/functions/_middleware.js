@@ -24,7 +24,7 @@ class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute(
 
 export async function onRequest(context) {
   const res = await ogRewrite(context);
-  // *.pages.dev(프리뷰/기본 도메인)는 voca.broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단
+  // *.pages.dev(프리뷰/기본 도메인)는 broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단
   try {
     if (new URL(context.request.url).hostname.endsWith('.pages.dev')) {
       const r = new Response(res.body, res);
