@@ -59,9 +59,6 @@ const ORBITS = [
 ];
 
 const PROJECTS = [
-  { hash: 'b7d2e91', name: 'SAMURAI_TACTICS_1', status: 'live', statusLabel: 'STEAM', cat: 'game',
-    desc: '사무라이 택틱스 1 — Steam 출시작. 2편(웹)의 전신.',
-    url: 'https://store.steampowered.com/app/1860040/Samurai_Tactics/', link: 'store.steampowered.com' },
   { hash: 'e8b4a17', name: 'SAMURAI_TACTICS_2', status: 'live', statusLabel: 'LIVE', cat: 'game',
     desc: '한 줄 전장 턴제 검술 로그라이크 — 큐 콤보·일섬 오의·4단계 난이도·업적 30종.',
     url: 'https://samurai.broodev.com', link: 'samurai.broodev.com' },
