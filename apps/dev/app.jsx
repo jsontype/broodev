@@ -59,6 +59,9 @@ const ORBITS = [
 ];
 
 const PROJECTS = [
+  { hash: 'b7d2e91', name: 'SAMURAI_TACTICS_1', status: 'live', statusLabel: 'STEAM', cat: 'game',
+    desc: '사무라이 택틱스 1 — Steam 출시작. 2편(웹)의 전신.',
+    url: 'https://store.steampowered.com/app/1860040/Samurai_Tactics/', link: 'store.steampowered.com' },
   { hash: 'e8b4a17', name: 'SAMURAI_TACTICS_2', status: 'live', statusLabel: 'LIVE', cat: 'game',
     desc: '한 줄 전장 턴제 검술 로그라이크 — 큐 콤보·일섬 오의·4단계 난이도·업적 30종.',
     url: 'https://samurai.broodev.com', link: 'samurai.broodev.com' },
@@ -129,7 +132,7 @@ const WHOAMI_TEXT = `$ cat ./about.md
 
 const CHAPTERS = [
   ['boot', '00 boot'], ['whoami', '01 whoami'], ['stack', '02 stack'],
-  ['log', '03 log'], ['svc', '04 services'], ['ssh', '05 ssh'],
+  ['apps', '03 apps'], ['svc', '04 services'], ['ssh', '05 ssh'],
 ];
 
 /* ========================================================================== */
@@ -519,7 +522,7 @@ function Stack({ reduce }) {
 /* ========================================================================== */
 function DeepLog() {
   return (
-    <section className="board" id="log" aria-label="프로젝트">
+    <section className="board" id="apps" aria-label="프로젝트">
       <div className="log-head">
         <div className="h-cmd"><span className="cmd">$</span> ls universe/ --all</div>
         <div className="h-sub">15개 앱 — 전부 라이브. 카테고리별로 한눈에, 클릭하면 새 탭으로.</div>
