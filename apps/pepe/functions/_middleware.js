@@ -32,8 +32,8 @@ class TextSetter { constructor(v) { this.v = v; } element(el) { el.setInnerConte
 class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('lang', this.v); } }
 
 export async function onRequest(context) {
-  // 2026-08-07 구조 전환: btc.broodev.com 이 이 앱의 정본 도메인이 됐다 (루트는 VOCA).
-  // 과거의 btc→루트 301 통합 리다이렉트는 제거 — 남아 있으면 정본이 보카로 튕긴다.
+  // 2026-08-31 원복: 루트(broodev.com)가 페페 정본. btc.broodev.com 은 같은 앱을 서빙하되
+  // canonical 이 루트를 가리켜 중복 색인 없음 — 호스트 분기 리다이렉트는 두지 않는다.
   const res = await ogRewrite(context);
   // *.pages.dev(프리뷰/기본 도메인)는 broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단
   try {

@@ -4,7 +4,7 @@
 실제 코인 앱을 채운다. (v1은 broodev.com 루트 시절 앵커라 폐기)
 
 현행 템플릿 전제:
- - 자기참조 도메인이 https://btc.broodev.com (2026-08-07 구조 전환)
+ - 자기참조 도메인이 https://broodev.com (루트 = 비트코인, 2026-08-31 원복)
  - 런타임 코인 레지스트리(const COINS)·호스트 인식(window.__SUBCOIN)·
    서브도메인 푸터 내비·미들웨어 COIN_HOSTS 가 존재한다.
 
@@ -78,7 +78,7 @@ def brand(text, c):
 def transform_index(html, c):
     sub, base, names = c["sub"], f"https://{c['sub']}.broodev.com", c["names"]
     html, saved = protect(html, PROTECT_INDEX)
-    html = html.replace("https://btc.broodev.com", base)   # 자기참조 전부
+    html = html.replace("https://broodev.com", base)   # 자기참조 전부
     html = brand(html, c)
     html = apply_names(html, names)
     html = html.replace("bitcoin fear and greed index",
@@ -86,7 +86,7 @@ def transform_index(html, c):
     html = restore(html, saved)
     # 푸터 내비 현재 마커: btc 스팬 → 링크, 자기 코인 링크 → 스팬
     html = html.replace('<span class="cur" data-coin="btc" aria-current="page">비트코인</span>',
-                        '<a data-coin="btc" href="https://btc.broodev.com/">비트코인</a>')
+                        '<a data-coin="btc" href="https://broodev.com/">비트코인</a>')
     own = re.search(rf'<a data-coin="{sub}" href="https://{re.escape(sub)}\.broodev\.com/">(.*?)</a>', html)
     if not own:
         raise SystemExit(f"푸터 자기 코인 링크 앵커 실패: {sub}")
@@ -97,20 +97,20 @@ def transform_index(html, c):
 
 def transform_middleware(js, c):
     js, saved = protect(js, PROTECT_MW)
-    js = js.replace("https://btc.broodev.com", f"https://{c['sub']}.broodev.com")
+    js = js.replace("https://broodev.com", f"https://{c['sub']}.broodev.com")
     js = brand(js, c)
     js = apply_names(js, c["names"])
     return restore(js, saved)
 
 
 def transform_generic(text, c):
-    text = text.replace("https://btc.broodev.com", f"https://{c['sub']}.broodev.com")
+    text = text.replace("https://broodev.com", f"https://{c['sub']}.broodev.com")
     text = brand(text, c)
     return apply_names(text, c["names"])
 
 
 def transform_url_only(text, c):
-    return text.replace("https://btc.broodev.com", f"https://{c['sub']}.broodev.com")
+    return text.replace("https://broodev.com", f"https://{c['sub']}.broodev.com")
 
 
 TRANSFORMS = {
