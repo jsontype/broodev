@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Megahouse — 사진 → 엑셀 2×3 배열</title>
-    <meta name="description" content="사진을 올리면 파일명 순서대로 A4 한 페이지에 2×3으로 배열된 엑셀(.xlsx)을 바로 내려받습니다. 브라우저에서만 처리, 서버 전송 없음.">
+    <title>Megahouse — 사진 → 엑셀 · PPT 격자 배열</title>
+    <meta name="description" content="사진을 올리면 파일명 순서대로 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx)를 바로 내려받습니다. 브라우저에서만 처리, 서버 전송 없음.">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
     <!-- Theme Style -->
@@ -40,10 +40,10 @@
         .pg-lang.open .pg-lang-menu{display:block}
         .pg-lang-menu a{display:block;padding:9px 12px;border-radius:8px;color:var(--OnSurface);text-decoration:none;font-size:14px;white-space:nowrap}
         .pg-lang-menu a:hover,.pg-lang-menu a.active{background:rgba(49,248,163,.12);color:var(--Primary)}
-        /* 미리보기·설정 */
+        /* 미리보기 (비율·격자는 app.js 가 설정값으로 인라인 지정) */
         .pg-pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-bottom:24px}
         .pg-page-wrap{min-width:0}
-        .pg-page{background:#fff;border-radius:12px;padding:10px;aspect-ratio:210/297;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:8px;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+        .pg-page{background:#fff;border-radius:12px;padding:10px;aspect-ratio:210/297;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;box-shadow:0 2px 14px rgba(0,0,0,.18)}
         .pg-page-label{text-align:center;margin-top:8px;font-size:13px}
         .pg-cell{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0;border:1px dashed rgba(0,0,0,.15);border-radius:8px;overflow:hidden;background:#f5f5f5}
         .pg-cell img{flex:1;min-height:0;width:100%;object-fit:contain;background:#fff}
@@ -51,12 +51,15 @@
         .pg-cell .pg-no{position:absolute;left:6px;top:6px;z-index:1;background:rgba(0,0,0,.65);color:#fff;font-size:11px;line-height:1;border-radius:999px;padding:4px 7px}
         .pg-cell .pg-del{position:absolute;right:6px;top:6px;z-index:1;width:22px;height:22px;border:0;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;font-size:14px;line-height:22px;cursor:pointer;padding:0}
         .pg-cell.empty{opacity:.35}
+        /* 설정 */
         .uploadfile.dragover{outline:2px dashed currentColor;outline-offset:-6px}
         .pg-select,.pg-input{width:100%;padding:10px 14px;border:1px solid rgba(128,128,128,.35);border-radius:12px;background:transparent;color:inherit;font:inherit}
         .pg-select option{color:#111}
         .pg-check{display:flex;align-items:center;gap:10px;cursor:pointer}
         .pg-check input{width:16px;height:16px;margin:0}
         .pg-hint{font-size:12px;margin-top:8px}
+        .pg-chips{display:flex;flex-wrap:wrap;gap:8px}
+        .pg-chips .choose-item{width:auto;min-width:44px;flex:1 1 0;padding:0 10px;user-select:none}
         .tf-button[aria-disabled="true"]{opacity:.5;pointer-events:none}
     </style>
 </head>
@@ -73,7 +76,7 @@
                 <div class="overplay-menu d-lg-none"></div>
                 <div class="section-menu-left">
                     <div class="box-logo">
-                        <!-- 로고: Y Systems (구 템플릿 로고 교체 — 인라인이라 dark/light 는 CSS 변수로 자동) -->
+                        <!-- 로고: Y Systems (인라인이라 dark/light 는 CSS 변수로 자동) -->
                         <a href="index.html" id="site-logo-inner" class="pg-logo" aria-label="Y Systems">
                             <svg class="pg-logo-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
                                 <path d="M4 3 L16 17 L28 3" fill="none" stroke="#31F8A3" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -95,7 +98,7 @@
                                             <div class="icon">
                                                 <i class="icon-image"></i>
                                             </div>
-                                            <div class="text" data-i18n="menu_app">사진 → 엑셀 2×3</div>
+                                            <div class="text" data-i18n="menu_app">사진 → 엑셀 · PPT</div>
                                         </a>
                                     </li>
                                 </ul>
@@ -151,8 +154,8 @@
                                 <div class="flex-grow-1 relative">
                                     <div class="left text-to-image-wrap">
                                         <div class="heading">
-                                            <h4 class="mb-12" data-i18n="heading">사진 → 엑셀 2×3 배열</h4>
-                                            <p class="text-Secondary" data-i18n="intro">1.jpg, 2.jpg … 순서대로 사진을 올리면 A4 한 페이지에 2×3으로 배열된 엑셀 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.</p>
+                                            <h4 class="mb-12" data-i18n="heading">사진 → 엑셀 · PPT 격자 배열</h4>
+                                            <p class="text-Secondary" data-i18n="intro">사진을 올리면 파일명 순서대로, 선택한 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx) 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.</p>
                                         </div>
                                         <div class="text-to-image-content">
                                             <div class="mb-16 flex items-center justify-content-between flex-wrap gap16">
@@ -165,7 +168,7 @@
                                             <div class="flex items-center flex-wrap gap16">
                                                 <a href="#" class="tf-button" id="pg-download" aria-disabled="true">
                                                     <i class="icon icon-DownloadSimple"></i>
-                                                    <span data-i18n="download">엑셀 다운로드</span>
+                                                    <span id="pg-download-label">XLSX 다운로드</span>
                                                 </a>
                                                 <span id="pg-status" class="text-Secondary" role="status" aria-live="polite"></span>
                                             </div>
@@ -194,6 +197,52 @@
                                             </fieldset>
                                             <div class="d-grid gap16">
                                                 <fieldset class="">
+                                                    <label class="text-Secondary mb-8" for="pg-format" data-i18n="fmt_label">포맷</label>
+                                                    <select id="pg-format" class="pg-select">
+                                                        <option value="xlsx" data-i18n="fmt_xlsx">엑셀 (.xlsx)</option>
+                                                        <option value="pptx" data-i18n="fmt_pptx">파워포인트 (.pptx)</option>
+                                                    </select>
+                                                </fieldset>
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" for="pg-paper" data-i18n="paper_label">용지</label>
+                                                    <select id="pg-paper" class="pg-select">
+                                                        <option value="A4">A4 (210 × 297 mm)</option>
+                                                        <option value="A3">A3 (297 × 420 mm)</option>
+                                                        <option value="A5">A5 (148 × 210 mm)</option>
+                                                        <option value="B4">B4 JIS (257 × 364 mm)</option>
+                                                        <option value="B5">B5 JIS (182 × 257 mm)</option>
+                                                        <option value="Letter">Letter (8.5 × 11 in)</option>
+                                                        <option value="Legal">Legal (8.5 × 14 in)</option>
+                                                    </select>
+                                                </fieldset>
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" data-i18n="orient_label">방향</label>
+                                                    <div class="list-choose pg-chips" data-field="orientation" role="radiogroup">
+                                                        <div class="choose-item text-button" data-value="portrait" data-i18n="orient_portrait">세로</div>
+                                                        <div class="choose-item text-button" data-value="landscape" data-i18n="orient_landscape">가로</div>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" data-i18n="cols_label">가로 개수 (앞 숫자)</label>
+                                                    <div class="list-choose pg-chips" data-field="cols" role="radiogroup">
+                                                        <div class="choose-item text-button" data-value="1">1</div>
+                                                        <div class="choose-item text-button" data-value="2">2</div>
+                                                        <div class="choose-item text-button" data-value="3">3</div>
+                                                        <div class="choose-item text-button" data-value="4">4</div>
+                                                        <div class="choose-item text-button" data-value="5">5</div>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" data-i18n="rows_label">세로 개수 (뒤 숫자)</label>
+                                                    <div class="list-choose pg-chips" data-field="rows" role="radiogroup">
+                                                        <div class="choose-item text-button" data-value="1">1</div>
+                                                        <div class="choose-item text-button" data-value="2">2</div>
+                                                        <div class="choose-item text-button" data-value="3">3</div>
+                                                        <div class="choose-item text-button" data-value="4">4</div>
+                                                        <div class="choose-item text-button" data-value="5">5</div>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="">
                                                     <label class="text-Secondary mb-8" data-i18n="caption_label">캡션</label>
                                                     <label class="pg-check"><input type="checkbox" id="pg-caption" checked> <span data-i18n="caption_check">사진 아래 파일명 표시</span></label>
                                                 </fieldset>
@@ -208,13 +257,13 @@
                                                 </fieldset>
                                                 <fieldset class="">
                                                     <label class="text-Secondary mb-8" for="pg-filename" data-i18n="filename_label">파일 이름</label>
-                                                    <input type="text" id="pg-filename" class="pg-input" placeholder="photos-2x3.xlsx">
+                                                    <input type="text" id="pg-filename" class="pg-input" placeholder="2x3-20261002-153045123.xlsx">
                                                 </fieldset>
                                             </div>
                                         </div>
                                     </div>
                                     <button type="submit" class="tf-button w-full" data-i18n="generate">
-                                        엑셀 생성 · 다운로드
+                                        생성 · 다운로드
                                     </button>
                                 </form>
                             </div>
@@ -237,8 +286,9 @@
     <script src="js/bootstrap-select.min.js"></script>
     <script src="js/nice-select.min.js"></script>
     <script src="js/main.js"></script>
-    <!-- 앱: ExcelJS(CDN, 버전 고정) + i18n + 핵심 로직 + DOM -->
+    <!-- 앱: ExcelJS · PptxGenJS (CDN, 버전 고정) + i18n + 핵심 로직 + DOM -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js" crossorigin="anonymous"></script>
     <script src="js/i18n.js"></script>
     <script src="js/photo-grid.js"></script>
     <script src="js/app.js"></script>
