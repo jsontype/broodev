@@ -30,8 +30,10 @@ broodev/
 │  ├─ btc/        →  broodev.com (+ btc.broodev.com)  비트코인 매수 타이밍 시그널 (루트=대표앱)
 │  ├─ <coin>/     →  (통합됨) broodev.com/?coin=<coin>  14종 복제본 — noindex·광고제거, 301 예정
 │  │                                                  (btc 복제 — scripts/gen_coin.py 로 생성)
-│  ├─ dev/        →  dev.broodev.com                  개발자 소개 + 전체 앱 포털(유용한 앱들)
-│  └─ admin/      →  admin.broodev.com                관리자(데이터 수집·운영) — Google SSO 단독 접근
+│  ├─ home1/      →  dev.broodev.com                  개발자 소개 + 전체 앱 포털 (구 dev — 폴더명만 변경)
+│  ├─ admin/      →  admin.broodev.com                관리자(데이터 수집·운영) — Google SSO 단독 접근
+│  ├─ home2/      →  home2.broodev.com                업적 포트폴리오 · 다음 버전 홈 (구 y-systems 레포 home/)
+│  └─ megahouse/  →  megahouse.broodev.com            사진 → 엑셀 2×3 배열 다운로드 (구 y-systems 레포 apps/megahouse/)
 ├─ packages/
 │  └─ ui-terminal/   공통 "터미널/해킹" 테마(theme.css) — 모든 앱이 같은 룩 공유
 ├─ scripts/
@@ -48,8 +50,10 @@ broodev/
 | 코인 14종 | ~~`<coin>.broodev.com`~~ → **`broodev.com/?coin=<coin>`** | eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana — **루트 앱으로 통합됨**(코인 선택기). 서브도메인 복제본은 noindex·광고 제거 상태로 잔존, 301 예정 | React 18 (CDN) · 무빌드 | ⚪ 통합됨 |
 | [voca](apps/voca/) | voca.broodev.com | 깜빡이 단어암기장 (CSV 자동 반복 암기·13개국어) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
 | [voca-tutorial](apps/voca-tutorial/) | voca-tutorial.broodev.com | 깜빡이 사용법 10단계 인터랙티브 튜토리얼 | React 18 (CDN) · 무빌드 | 🟡 배포 대기 |
-| [dev](apps/dev/) | dev.broodev.com | 개발자 소개 + 유용한 앱들 포털 | React 18(CDN) · 정적 | 🟢 라이브 |
+| [home1](apps/home1/) | dev.broodev.com | 개발자 소개 + 유용한 앱들 포털 (구 `dev` — 폴더명만 변경, Pages Root directory 재지정 필요) | React 18(CDN) · 정적 | 🟢 라이브 |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
+| [home2](apps/home2/) | home2.broodev.com | 양동화 업적 포트폴리오 — 다음 버전 홈 (텍스트 교체 완료, 사진은 템플릿 원본) — 구 y-systems 레포 `home/` | 정적 HTML · Bootstrap 3 · jQuery | 🟡 배포 대기 |
+| [megahouse](apps/megahouse/) | megahouse.broodev.com | 사진 업로드 → A4 한 페이지 2×3 배열 엑셀(.xlsx) 다운로드 (브라우저 내 처리) — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS(CDN) | 🟡 배포 대기 |
 
 ### 🪙 코인 시그널 패밀리 (15종) — `scripts/gen_coin.py`
 btc를 템플릿으로 **동일 구조·기능**의 코인 앱을 찍어낸다. 코인 추가/재생성:
@@ -74,8 +78,10 @@ python3 scripts/gen_coin.py all          # 전체(14종)
 | broodev-`<coin>` | `apps/<coin>` | `<coin>.broodev.com` (14종) |
 | broodev-voca | `apps/voca` | voca.broodev.com |
 | broodev-voca-tutorial | `apps/voca-tutorial` | voca-tutorial.broodev.com |
-| broodev-dev | `apps/dev` | dev.broodev.com |
+| broodev-dev | `apps/home1` (구 `apps/dev` — Root directory 변경 필요) | dev.broodev.com |
 | broodev-admin | `apps/admin` | admin.broodev.com |
+| broodev-home2 | `apps/home2` | home2.broodev.com |
+| broodev-megahouse | `apps/megahouse` | megahouse.broodev.com |
 
 > 모두 Cloudflare Pages 무빌드(정적) 배포. 자세한 절차는 [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
 > **코인 14종은 각각 Pages 프로젝트(Root `apps/<coin>`) + 커스텀 도메인 `<coin>.broodev.com` 을 수동 추가**해야 한다(코드는 준비 완료). AdSense는 도메인(broodev.com) 승인이 서브도메인까지 커버.
