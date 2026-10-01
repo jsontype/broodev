@@ -39,7 +39,7 @@
 |---|---|
 | `index.html` | 화면(템플릿 셸 + 앱 마크업 + 앱 전용 `<style>`) |
 | `404.html` | 같은 셸의 404 페이지(ko/en/ja 정적) |
-| `js/i18n.js` | ko·ja·en 사전(45키) + 감지 + `apply()`/`set()` (`window.MH_I18N`) |
+| `js/i18n.js` | ko·ja·en 사전(44키) + 감지 + `apply()`/`set()` (`window.MH_I18N`) |
 | `js/photo-grid.js` | **핵심 로직** — `PAPERS`·`layout`·`pageCount`·`naturalCompare`·`buildWorkbook`·`buildPptx`(DOM 무관, Node 에서도 동작)·`readImage`(브라우저). UMD 라 `require()` 가능 |
 | `js/app.js` | DOM 연결(설정·업로드·미리보기·생성·다운로드·언어 풀다운) |
 | `css/`, `scss/`, `font/`, `icon/`, `images/`, `js/*.min.js` `main.js` `dark-light.js` | AIZOX 템플릿 자산 |
