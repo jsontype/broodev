@@ -91,12 +91,12 @@ function compareLangs(label, bundles, refLang = 'ko') {
 
 /* ── dev 포털 ── */
 {
-  const core = readFileSync('apps/dev/i18n.js', 'utf8')
+  const core = readFileSync('apps/home1/i18n.js', 'utf8')
   const bundles = { ko: evalObj(extractObject(core, 'var KO = {')) }
-  for (const f of readdirSync('apps/dev/i18n')) {
+  for (const f of readdirSync('apps/home1/i18n')) {
     const lang = f.replace(/\.js$/, '')
     const win = { __WEB: {} }
-    new Function('window', readFileSync('apps/dev/i18n/' + f, 'utf8'))(win)
+    new Function('window', readFileSync('apps/home1/i18n/' + f, 'utf8'))(win)
     bundles[lang] = win.__WEB[lang]
     if (!bundles[lang]) { console.log(`✖ dev i18n/${f}: window.__WEB['${lang}'] 등록 안 됨`); failures++ }
   }
