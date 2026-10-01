@@ -153,6 +153,7 @@ broodev/
 - 탭: **단기(모멘텀 추세추종)** / **장기(역발상 사이클)**.
 - 광고버전(루트, 색인·광고) ↔ `member/`(프리미엄, 광고·게이트 전무 + noindex) 2버전.
 - `#root` 바깥 `<section class="seo">`(정적 SEO 본문+FAQ, 크롤러용) + 공통 자매 푸터.
+- **BOTTOM RADAR 바닥 경고**(2026-10-02): 시가총액(흰선) < 평균 매수원가(파란선), 즉 `chain.underCost`(MVRV<1)이면 카드 안에 빨간 배너 `.bottom-alert`("🔴 현재 바닥입니다 — 매수 구간" + MVRV, `ONCHAIN_I18N.*.bottom.underCostTitle` 13개국어). 아니면 기존 회색 `.bottom-flag`(정상 범위/온체인 미지원). 코인 14종은 `gen_coin.py all` 로 재생성해 반영.
 
 ### 6.2 코인 14종 — `<coin>.broodev.com`
 btc와 **동일 구조**, 코인만 파라미터화. 목록:

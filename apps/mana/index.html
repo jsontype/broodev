@@ -415,6 +415,12 @@
       .bottom-stats b { color: var(--text); }
       .bottom-flag { margin-top: 8px; font-size: 12px; color: var(--dim); }
       .bottom-flag.on { color: var(--ok); font-weight: 700; }
+      /* 바닥 경고 — 시가총액(흰선) < 평균 매수원가(파란선), 즉 MVRV<1 일 때만 표시 */
+      .bottom-alert { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--crit); border-radius: 6px; background: rgba(255, 70, 70, 0.1); box-shadow: 0 0 18px rgba(255, 70, 70, 0.18); }
+      .bottom-alert-title { color: var(--crit); font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+      .bottom-alert-sub { color: var(--text); font-size: 12px; margin-top: 3px; }
+      @media (prefers-reduced-motion: no-preference) { .bottom-alert { animation: bottomAlertPulse 1.8s ease-in-out infinite; } }
+      @keyframes bottomAlertPulse { 50% { box-shadow: 0 0 4px rgba(255, 70, 70, 0.08); } }
       .duo-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 14px 0 6px; font-size: 12.5px; color: var(--text); font-weight: 700; flex-wrap: wrap; }
       .duo-src { color: var(--dim); font-size: 10.5px; font-weight: 400; }
       .duo-wrap { position: relative; }
@@ -2124,7 +2130,15 @@
                   {B.thermZ != null && <span>Thermocap z <b>{B.thermZ.toFixed(2)}</b></span>}
                 </div>
               )}
-              <div className={`bottom-flag ${B.underCost ? 'on' : ''}`}>{B.hasOnchain ? (B.underCost ? oc.bottom.underCost : oc.bottom.overCost) : oc.bottom.noData}</div>
+              {B.hasOnchain && B.underCost ? (
+                /* 흰선(시가총액)이 파란선(평균 매수원가) 아래 = MVRV<1 → 빨간 바닥 경고 */
+                <div className="bottom-alert" role="alert">
+                  <div className="bottom-alert-title">{oc.bottom.underCostTitle || ONCHAIN_I18N.ko.bottom.underCostTitle}</div>
+                  <div className="bottom-alert-sub">{oc.bottom.underCost}{B.mvrv != null ? ` · MVRV ${B.mvrv.toFixed(2)}×` : ''}</div>
+                </div>
+              ) : (
+                <div className="bottom-flag">{B.hasOnchain ? oc.bottom.overCost : oc.bottom.noData}</div>
+              )}
             </div>
             {B.hasOnchain && chain && chain.chart && (
               <>
@@ -2517,6 +2531,7 @@
             tipTitle: '시가총액 vs 평균 매수원가',
             tipBody: '파란 선은 투자자들의 평균 매수원가입니다. 시가총액(흰색)이 이 선 아래로 내려가면, 평균적으로 손실 구간이라는 뜻이라 역사적으로 바닥권이었습니다.',
             mcLabel: '시가총액', rcLabel: '평균 매수원가(실현시총)', halving: '반감기',
+            underCostTitle: '🔴 현재 바닥입니다 — 매수 구간',
             underCost: '⚑ 지금 시가총액이 평균 매수원가 아래 — 역사적 바닥권 신호', overCost: '시가총액이 평균 매수원가 위 (정상 범위)',
             noData: '이 코인은 온체인 데이터(CoinMetrics) 미지원 — 바닥 점수는 가격 기반 지표로만 계산됩니다',
             note: '온체인(MVRV·Thermocap) 중심 별도 합성 · 매수 추천이 아닌 참고 지표',
@@ -2540,6 +2555,7 @@
             tipTitle: 'Market cap vs average cost basis',
             tipBody: 'The blue line is investors’ average cost basis (realized cap). When market cap (white) falls below it, the average holder is at a loss — historically a bottom zone.',
             mcLabel: 'Market cap', rcLabel: 'Avg. cost basis (realized cap)', halving: 'halving',
+            underCostTitle: '🔴 Bottom now — buy zone',
             underCost: '⚑ Market cap is below the average cost basis — historic bottom-zone signal', overCost: 'Market cap above average cost basis (normal range)',
             noData: 'On-chain data (CoinMetrics) not available for this coin — bottom score uses price-based indicators only',
             note: 'Separate on-chain composite (MVRV·Thermocap) · reference only, not a buy recommendation',
@@ -2563,6 +2579,7 @@
             tipTitle: '時価総額 vs 平均取得単価',
             tipBody: '青い線は投資家の平均取得単価です。時価総額（白）がこの線を下回ると、平均的に損失圏という意味で、歴史的に底値圏でした。',
             mcLabel: '時価総額', rcLabel: '平均取得単価（実現時価総額）', halving: '半減期',
+            underCostTitle: '🔴 今が底です — 買い場',
             underCost: '⚑ 時価総額が平均取得単価を下回っています — 歴史的底値圏シグナル', overCost: '時価総額は平均取得単価の上（通常範囲）',
             noData: 'このコインはオンチェーンデータ（CoinMetrics）非対応 — 底値スコアは価格ベース指標のみで計算',
             note: 'オンチェーン（MVRV·Thermocap）中心の別合成 · 参考指標であり買い推奨ではありません',
@@ -2586,6 +2603,7 @@
             tipTitle: '市值 vs 平均持仓成本',
             tipBody: '蓝线是投资者的平均持仓成本。当市值（白色）跌破该线，意味着平均处于亏损区间，历史上是底部区域。',
             mcLabel: '市值', rcLabel: '平均持仓成本（已实现市值）', halving: '减半',
+            underCostTitle: '🔴 当前处于底部 — 买入区间',
             underCost: '⚑ 市值已低于平均持仓成本 — 历史底部区信号', overCost: '市值高于平均持仓成本（正常区间）',
             noData: '该币种暂无链上数据（CoinMetrics）— 底部评分仅用价格类指标计算',
             note: '以链上（MVRV·Thermocap）为主的独立合成 · 仅供参考，非买入建议',
@@ -2609,6 +2627,7 @@
             tipTitle: '市值 vs 平均持倉成本',
             tipBody: '藍線是投資人的平均持倉成本。當市值（白色）跌破該線，代表平均處於虧損區間，歷史上是底部區域。',
             mcLabel: '市值', rcLabel: '平均持倉成本（已實現市值）', halving: '減半',
+            underCostTitle: '🔴 目前處於底部 — 買入區間',
             underCost: '⚑ 市值已低於平均持倉成本 — 歷史底部區訊號', overCost: '市值高於平均持倉成本（正常區間）',
             noData: '此幣種暫無鏈上資料（CoinMetrics）— 底部評分僅用價格類指標計算',
             note: '以鏈上（MVRV·Thermocap）為主的獨立合成 · 僅供參考，非買進建議',
@@ -2632,6 +2651,7 @@
             tipTitle: 'มูลค่าตลาด vs ต้นทุนซื้อเฉลี่ย',
             tipBody: 'เส้นสีน้ำเงินคือต้นทุนซื้อเฉลี่ยของนักลงทุน เมื่อมูลค่าตลาด (สีขาว) ลงต่ำกว่าเส้นนี้ แปลว่าโดยเฉลี่ยอยู่ในโซนขาดทุน ซึ่งในอดีตคือโซนก้นเหว',
             mcLabel: 'มูลค่าตลาด', rcLabel: 'ต้นทุนซื้อเฉลี่ย (realized cap)', halving: 'ฮาล์ฟวิ่ง',
+            underCostTitle: '🔴 ตอนนี้คือก้นเหว — โซนซื้อ',
             underCost: '⚑ มูลค่าตลาดต่ำกว่าต้นทุนซื้อเฉลี่ย — สัญญาณโซนก้นเหวในอดีต', overCost: 'มูลค่าตลาดสูงกว่าต้นทุนเฉลี่ย (ช่วงปกติ)',
             noData: 'เหรียญนี้ไม่มีข้อมูลออนเชน (CoinMetrics) — คะแนนก้นเหวใช้เฉพาะตัวชี้วัดราคา',
             note: 'สังเคราะห์แยกโดยเน้นออนเชน (MVRV·Thermocap) · ข้อมูลอ้างอิง ไม่ใช่คำแนะนำซื้อ',
@@ -2655,6 +2675,7 @@
             tipTitle: 'Cap. de mercado vs coste medio de compra',
             tipBody: 'La línea azul es el coste medio de compra de los inversores. Cuando la capitalización (blanca) cae por debajo, el tenedor medio está en pérdidas — históricamente zona de suelo.',
             mcLabel: 'Cap. de mercado', rcLabel: 'Coste medio (realized cap)', halving: 'halving',
+            underCostTitle: '🔴 Suelo actual — zona de compra',
             underCost: '⚑ La capitalización está bajo el coste medio — señal de zona de suelo histórico', overCost: 'Capitalización sobre el coste medio (rango normal)',
             noData: 'Sin datos on-chain (CoinMetrics) para esta moneda — la puntuación de suelo usa solo indicadores de precio',
             note: 'Compuesto on-chain independiente (MVRV·Thermocap) · solo referencia, no recomendación de compra',
@@ -2678,6 +2699,7 @@
             tipTitle: 'Cap. boursière vs coût moyen d’achat',
             tipBody: 'La ligne bleue est le coût moyen d’achat des investisseurs. Quand la capitalisation (blanche) passe dessous, le détenteur moyen est en perte — historiquement une zone de plancher.',
             mcLabel: 'Cap. boursière', rcLabel: 'Coût moyen (realized cap)', halving: 'halving',
+            underCostTitle: '🔴 Plancher actuel — zone d’achat',
             underCost: '⚑ Capitalisation sous le coût moyen — signal de zone de plancher historique', overCost: 'Capitalisation au-dessus du coût moyen (plage normale)',
             noData: 'Pas de données on-chain (CoinMetrics) pour cette pièce — le score de plancher n’utilise que des indicateurs de prix',
             note: 'Composite on-chain distinct (MVRV·Thermocap) · référence seulement, pas une recommandation d’achat',
@@ -2701,6 +2723,7 @@
             tipTitle: 'Marktkapitalisierung vs. Ø-Einstandskurs',
             tipBody: 'Die blaue Linie ist der durchschnittliche Einstandskurs der Anleger. Fällt die Marktkapitalisierung (weiß) darunter, ist der Durchschnittshalter im Verlust — historisch eine Bodenzone.',
             mcLabel: 'Marktkap.', rcLabel: 'Ø-Einstand (Realized Cap)', halving: 'Halving',
+            underCostTitle: '🔴 Boden erreicht — Kaufzone',
             underCost: '⚑ Marktkap. unter dem Ø-Einstand — Signal einer historischen Bodenzone', overCost: 'Marktkap. über dem Ø-Einstand (Normalbereich)',
             noData: 'Keine On-Chain-Daten (CoinMetrics) für diesen Coin — Boden-Score nutzt nur Preisindikatoren',
             note: 'Separates On-Chain-Komposit (MVRV·Thermocap) · nur Referenz, keine Kaufempfehlung',
@@ -2724,6 +2747,7 @@
             tipTitle: 'Cap. di mercato vs costo medio d’acquisto',
             tipBody: 'La linea blu è il costo medio d’acquisto degli investitori. Quando la capitalizzazione (bianca) scende sotto, il detentore medio è in perdita — storicamente zona di minimo.',
             mcLabel: 'Cap. di mercato', rcLabel: 'Costo medio (realized cap)', halving: 'halving',
+            underCostTitle: '🔴 Minimo attuale — zona di acquisto',
             underCost: '⚑ Capitalizzazione sotto il costo medio — segnale di zona di minimo storico', overCost: 'Capitalizzazione sopra il costo medio (range normale)',
             noData: 'Dati on-chain (CoinMetrics) non disponibili per questa moneta — lo score di minimo usa solo indicatori di prezzo',
             note: 'Composito on-chain separato (MVRV·Thermocap) · solo riferimento, non una raccomandazione',
@@ -2747,6 +2771,7 @@
             tipTitle: 'Cap. de mercado vs custo médio de compra',
             tipBody: 'A linha azul é o custo médio de compra dos investidores. Quando a capitalização (branca) cai abaixo dela, o detentor médio está em perda — historicamente zona de fundo.',
             mcLabel: 'Cap. de mercado', rcLabel: 'Custo médio (realized cap)', halving: 'halving',
+            underCostTitle: '🔴 Fundo atual — zona de compra',
             underCost: '⚑ Capitalização abaixo do custo médio — sinal de zona de fundo histórico', overCost: 'Capitalização acima do custo médio (faixa normal)',
             noData: 'Sem dados on-chain (CoinMetrics) para esta moeda — o score de fundo usa apenas indicadores de preço',
             note: 'Composto on-chain separado (MVRV·Thermocap) · apenas referência, não recomendação de compra',
@@ -2770,6 +2795,7 @@
             tipTitle: 'Капитализация vs средняя цена входа',
             tipBody: 'Синяя линия — средняя цена входа инвесторов. Когда капитализация (белая) опускается ниже неё, средний держатель в убытке — исторически это была зона дна.',
             mcLabel: 'Капитализация', rcLabel: 'Средняя цена входа (realized cap)', halving: 'халвинг',
+            underCostTitle: '🔴 Сейчас дно — зона покупки',
             underCost: '⚑ Капитализация ниже средней цены входа — сигнал исторической зоны дна', overCost: 'Капитализация выше средней цены входа (норма)',
             noData: 'Для этой монеты нет ончейн-данных (CoinMetrics) — оценка дна считается только по ценовым индикаторам',
             note: 'Отдельный ончейн-композит (MVRV·Thermocap) · справочно, не рекомендация к покупке',
@@ -2793,6 +2819,7 @@
             tipTitle: 'Marktkapitalisatie vs gem. aankoopprijs',
             tipBody: 'De blauwe lijn is de gemiddelde aankoopprijs van beleggers. Zakt de marktkapitalisatie (wit) eronder, dan staat de gemiddelde houder op verlies — historisch een bodemzone.',
             mcLabel: 'Marktkap.', rcLabel: 'Gem. aankoopprijs (realized cap)', halving: 'halving',
+            underCostTitle: '🔴 Bodem nu — koopzone',
             underCost: '⚑ Marktkap. onder de gem. aankoopprijs — signaal van historische bodemzone', overCost: 'Marktkap. boven de gem. aankoopprijs (normaal bereik)',
             noData: 'Geen on-chain data (CoinMetrics) voor deze munt — bodemscore gebruikt alleen prijsindicatoren',
             note: 'Apart on-chain composiet (MVRV·Thermocap) · alleen ter referentie, geen koopadvies',
