@@ -8,9 +8,8 @@
 | ~~`broodev-btc`~~ | ~~`apps/btc`~~ | — | ~~btc.broodev.com~~ **2026-07-16 프로젝트·DNS 삭제** — 루트와 중복 광고 클론이어서 (AdSense §9-C-①) |
 | `broodev-admin` | `apps/admin` | 없음(정적)        | admin.broodev.com |
 | `broodev-dev` | `apps/dev` (공사중 페이지) | 없음(정적) | dev.broodev.com (§2-B) |
-| `broodev-home1` | `apps/home1` | 없음(정적) | home1.broodev.com (§2-B, 미생성) |
-| `broodev-home2` | `apps/home2` | 없음(정적) | home2.broodev.com (§2-B) |
-| `broodev-megahouse` | `apps/megahouse` | 없음(정적) | megahouse.broodev.com (§2-B) |
+| `broodev-home` | `apps/home` (home1·home2·home3 + 스위치 Function) | 없음(정적 + Pages Function) | home.broodev.com (§2-B) |
+| `broodev-utils` | `apps/utils` (구 megahouse) | 없음(정적) | utils.broodev.com (§2-B) |
 
 ---
 
@@ -76,20 +75,24 @@
    - 발급된 ID를 `apps/admin/app.jsx` 의 `GOOGLE_CLIENT_ID` 에 입력 후 커밋.
    - ⚠ admin 은 `noindex` 이고 클라이언트측 로그인은 임시 보호임. 실제 데이터 수집/보안은 백엔드(서버리스 + DB + 서버측 토큰 검증) 필요.
 
-## 2-B. home1 · home2 · megahouse — dev 리네임 + 구 y-systems 레포 통합 (2026-10-01)
+## 2-B. home(home1·home2·home3) · utils(구 megahouse) — dev 리네임 + 구 y-systems 레포 통합 (2026-10-01, 10-02 갱신)
 
-- `apps/dev` 의 포털 내용 → **`apps/home1`** 로 이동. `apps/dev` 는 **공사중 페이지(`index.html`, 200) + `404.html`** 만 남겨 `broodev-dev`(Root `apps/dev`) 프로젝트가 그대로 빌드되고 dev.broodev.com 은 공사중 안내를, 그 외 경로는 404 를 서빙한다(Pages 는 루트 `404.html` 을 커스텀 404 로 사용).
-  ⚠ 코인 앱·voca 등 **41개 파일의 공통 푸터**(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`)가 dev.broodev.com 을 가리킨다 → 푸시 후 전부 공사중 페이지로 온다(페이지에 broodev.com·voca·samurai 바로가기는 있음). 포털을 되살리려면 0번 참고.
-- 404 페이지: `home1`·`dev` 는 터미널 테마, `home2` 는 Photollax 룩, `megahouse` 는 AIZOX 셸 — 각 앱 폴더 루트의 `404.html`.
-- 구 `jsontype/y-systems` 레포의 `home/html/` → **`apps/home2/`**(업적 포트폴리오 · 다음 버전 홈), `apps/megahouse/` → `apps/megahouse/`(사진→엑셀 2×3) 로 이전. 둘 다 **순수 정적**(React·i18n·AdSense 없음). 원래 있던 `wrangler.toml` 은 broodev 관례(대시보드 Root directory 설정)에 맞춰 제거했다 — wrangler.toml 의 `name` 이 Pages 프로젝트명과 다르면 빌드가 실패하므로 두지 않는다.
+- `apps/dev` 의 포털 내용 → **`apps/home/home1`** 로 이동. `apps/dev` 는 **공사중 페이지(`index.html`, 200) + `404.html`** 만 남겨 `broodev-dev`(Root `apps/dev`) 프로젝트가 그대로 빌드되고 dev.broodev.com 은 공사중 안내(home.broodev.com 바로가기 포함)를, 그 외 경로는 404 를 서빙한다(Pages 는 루트 `404.html` 을 커스텀 404 로 사용).
+  ⚠ 코인 앱·voca 등 **41개 파일의 공통 푸터**(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`)가 dev.broodev.com 을 가리킨다 → 푸시 후 전부 공사중 페이지로 온다.
+- 구 `jsontype/y-systems` 레포의 `home/html/` → **`apps/home/home2/`**(업적 포트폴리오), `apps/megahouse/` → `apps/megahouse/`(사진→엑셀·PPT 격자 · 2026-10-02 `apps/utils/` 로 개명) 로 이전. 둘 다 **순수 정적**(React·i18n·AdSense 없음). 원래 있던 `wrangler.toml` 은 broodev 관례(대시보드 Root directory 설정)에 맞춰 제거했다 — wrangler.toml 의 `name` 이 Pages 프로젝트명과 다르면 빌드가 실패하므로 두지 않는다.
+- **2026-10-02: 홈 3종(home1·home2·home3)을 `apps/home/` 아래로 모아 Pages 프로젝트 하나(`broodev-home`)로 배포한다.** `apps/home/functions/_middleware.js` 의 `ACTIVE`(현재 `home3`)가 루트(/)에 띄울 홈을 고른다(내부 재작성, URL 그대로). `/home1/`·`/home2/`·`/home3/` 는 미리보기(noindex). home3 는 Davies 템플릿 기반 v3. 상세 [`apps/home/README.md`](../apps/home/README.md).
+- 404 페이지: `home1`·`dev` 는 터미널 테마, `home2` 는 Photollax 룩, `home3` 는 Davies 셸, `utils` 는 AIZOX 셸 — 각 폴더 루트의 `404.html`. home 프로젝트는 활성 홈의 404.html 을 Function 이 404 로 돌려준다.
 
-0. `broodev-dev` 는 **건드리지 않는다**(Root `apps/dev` 유지 → 공사중 페이지가 자동 배포). 포털을 다시 살리려면 (a) 새 프로젝트 `broodev-home1` — Root directory `apps/home1`, 빌드 없음, output `.` → Custom domains `home1.broodev.com`, 또는 (b) `broodev-dev` 의 Root directory 를 `apps/home1`(또는 `apps/home2`)로 바꿔 dev.broodev.com 에 복귀.
-1. 새 Pages 프로젝트 `broodev-home2` — Root directory `apps/home2`, Build command 비움, output `.` → Custom domains `home2.broodev.com`. 나중에 home2 를 정식 홈으로 올릴 때는 `broodev-dev` 의 Root directory 를 `apps/home2` 로 바꾸는 것만으로 dev.broodev.com 이 교체된다.
-2. 새 Pages 프로젝트 `broodev-megahouse` — Root directory `apps/megahouse`, Build command 비움, output `.` → Custom domains `megahouse.broodev.com`
-3. **Build watch paths** 를 각각 `apps/home2/*`, `apps/megahouse/*` 로 제한(다른 앱 커밋에 재배포되지 않게).
-4. 구 `y-systems-home`·`y-systems-megahouse` Pages 프로젝트와 `y-systems.com` 커스텀 도메인은 삭제, `jsontype/y-systems` 레포는 아카이브.
+0. `broodev-dev` 는 **건드리지 않는다**(Root `apps/dev` 유지 → 공사중 페이지가 자동 배포). dev.broodev.com 을 홈으로 되돌리고 싶으면 `broodev-dev` 의 Root directory 를 `apps/home` 으로 바꾸면 된다(스위치 포함).
+1. 새 Pages 프로젝트 `broodev-home` — Root directory `apps/home`, Build command 비움, output `.` (Functions 는 `apps/home/functions/` 를 자동 인식, 별도 설정 없음) → Custom domains `home.broodev.com`.
+2. 새 Pages 프로젝트 `broodev-utils` — Root directory `apps/utils`, Build command 비움, output `.` → Custom domains `utils.broodev.com`
+3. **Build watch paths** 를 각각 `apps/home/*`, `apps/utils/*` 로 제한(다른 앱 커밋에 재배포되지 않게). 전부 `*` 로 둬도 동작엔 문제 없음(무료 500빌드/월만 주의).
+4. 확인: `https://home.broodev.com/` = home3 렌더 · `/home1/` `/home2/` `/home3/` 각각 렌더 + 응답 헤더 `X-Robots-Tag: noindex` · `/없는경로` → home3 룩의 404(상태 404) · `/index.html` → `/` 리다이렉트 · `broodev-home.pages.dev` 는 noindex.
+5. 홈 전환: `_middleware.js` 의 `ACTIVE` 수정 후 푸시, 또는 Pages → Settings → Variables and Secrets → `HOME_ACTIVE=home2` + Retry deployment(커밋 없이).
+6. 구 `y-systems-home`·`y-systems-megahouse` Pages 프로젝트는 **존재하지 않음**(2026-10-02 확인, pages.dev 미해석) → 삭제할 것 없음. `jsontype/y-systems` 레포는 아카이브. `y-systems.com` 은 Cloudflare 에 없음(Sav.com 등록 · Afternic 네임서버 · 2027-11 만료) — 쓸 계획이 생기면 Cloudflare 에 사이트 추가 + NS 변경.
+7. samurai: `apps/games/st2` → **`games/samurai`** 로 이동(2026-10-02, apps 와 형제 폴더). 해당 Pages 프로젝트의 Root directory 를 `games/samurai` 로 변경(대시보드에서 직접).
 
-> ⚠ `apps/home2/assets/js/custom.js` 의 문의 폼은 `assets/php/email.php` 로 POST 한다 — Pages 는 PHP 를 실행하지 않으므로 **동작하지 않는다**(y-systems 레포 시절부터 동일). 실제로 쓰려면 Pages Function 또는 외부 폼 서비스로 교체.
+> ⚠ `apps/home/home2/assets/js/custom.js` 의 문의 폼은 `assets/php/email.php` 로 POST 한다 — Pages 는 PHP 를 실행하지 않으므로 **동작하지 않는다**(y-systems 레포 시절부터 동일). home3 의 폼은 백엔드 없이 **mailto** 로 연다. 실제 수신 폼이 필요하면 Pages Function 또는 외부 폼 서비스로 교체.
 
 ## 3. ~~btc (btc.broodev.com)~~ — 🗑 2026-07-16 폐기됨
 
