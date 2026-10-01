@@ -7,7 +7,8 @@
 | `broodev-web`   | **`apps/btc`** (§1-B 로 변경됨) | 없음(정적) | broodev.com (+ www) |
 | ~~`broodev-btc`~~ | ~~`apps/btc`~~ | — | ~~btc.broodev.com~~ **2026-07-16 프로젝트·DNS 삭제** — 루트와 중복 광고 클론이어서 (AdSense §9-C-①) |
 | `broodev-admin` | `apps/admin` | 없음(정적)        | admin.broodev.com |
-| `broodev-dev` | `apps/home1` (구 `apps/dev`) | 없음(정적) | dev.broodev.com — **Root directory 변경 필요 (§2-B)** |
+| `broodev-dev` | `apps/dev` (404 스텁) | 없음(정적) | dev.broodev.com (§2-B) |
+| `broodev-home1` | `apps/home1` | 없음(정적) | home1.broodev.com (§2-B, 미생성) |
 | `broodev-home2` | `apps/home2` | 없음(정적) | home2.broodev.com (§2-B) |
 | `broodev-megahouse` | `apps/megahouse` | 없음(정적) | megahouse.broodev.com (§2-B) |
 
@@ -77,10 +78,11 @@
 
 ## 2-B. home1 · home2 · megahouse — dev 리네임 + 구 y-systems 레포 통합 (2026-10-01)
 
-- `apps/dev` → **`apps/home1`** 폴더명 변경(도메인 dev.broodev.com 유지). ⚠ **이 커밋이 master 에 올라가면 `broodev-dev` 프로젝트는 Root directory `apps/dev` 가 없어져 빌드 실패** → 아래 0번을 푸시 직후 수행.
+- `apps/dev` 의 포털 내용 → **`apps/home1`** 로 이동. `apps/dev` 는 **`404.html` 스텁만** 남겨 `broodev-dev`(Root `apps/dev`) 프로젝트가 그대로 빌드되고 dev.broodev.com 은 404 를 서빙한다(Pages 는 루트 `404.html` 을 커스텀 404 로 사용하고, `index.html` 이 없으면 `/` 도 404).
+  ⚠ 코인 앱·voca 등 **41개 파일의 공통 푸터**(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`)가 dev.broodev.com 을 가리킨다 → 푸시 후 전부 404 페이지로 떨어진다(페이지에 broodev.com·voca·samurai 바로가기는 있음). 포털을 되살리려면 0번 참고.
 - 구 `jsontype/y-systems` 레포의 `home/html/` → **`apps/home2/`**(업적 포트폴리오 · 다음 버전 홈), `apps/megahouse/` → `apps/megahouse/`(사진→엑셀 2×3) 로 이전. 둘 다 **순수 정적**(React·i18n·AdSense 없음). 원래 있던 `wrangler.toml` 은 broodev 관례(대시보드 Root directory 설정)에 맞춰 제거했다 — wrangler.toml 의 `name` 이 Pages 프로젝트명과 다르면 빌드가 실패하므로 두지 않는다.
 
-0. `broodev-dev` → **Settings → Builds & deployments → Root directory** 를 `apps/dev` → **`apps/home1`** 로 변경, Build watch paths 도 `apps/home1/*` 로 → Retry deployment.
+0. `broodev-dev` 는 **건드리지 않는다**(Root `apps/dev` 유지 → 404 스텁이 자동 배포). 포털을 다시 살리려면 (a) 새 프로젝트 `broodev-home1` — Root directory `apps/home1`, 빌드 없음, output `.` → Custom domains `home1.broodev.com`, 또는 (b) `broodev-dev` 의 Root directory 를 `apps/home1`(또는 `apps/home2`)로 바꿔 dev.broodev.com 에 복귀.
 1. 새 Pages 프로젝트 `broodev-home2` — Root directory `apps/home2`, Build command 비움, output `.` → Custom domains `home2.broodev.com`. 나중에 home2 를 정식 홈으로 올릴 때는 `broodev-dev` 의 Root directory 를 `apps/home2` 로 바꾸는 것만으로 dev.broodev.com 이 교체된다.
 2. 새 Pages 프로젝트 `broodev-megahouse` — Root directory `apps/megahouse`, Build command 비움, output `.` → Custom domains `megahouse.broodev.com`
 3. **Build watch paths** 를 각각 `apps/home2/*`, `apps/megahouse/*` 로 제한(다른 앱 커밋에 재배포되지 않게).

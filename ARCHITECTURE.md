@@ -11,7 +11,7 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
-- 현재 **21개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home1`(포털, 구 dev) + `admin`(관리자) + `home2`(업적 포트폴리오 · 다음 버전 홈) + `megahouse`(사진→엑셀 2×3). 마지막 둘은 **구 y-systems 레포에서 통합한 순수 정적 사이트**(React·i18n·테마 없음, §4 "순수 정적"). `dev`는 2026-10-01 `home1`로 폴더명만 변경(도메인 dev.broodev.com 유지).
+- 현재 **21개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home1`(포털, 구 dev) + `admin`(관리자) + `home2`(업적 포트폴리오 · 다음 버전 홈) + `megahouse`(사진→엑셀 2×3). 마지막 둘은 **구 y-systems 레포에서 통합한 순수 정적 사이트**(React·i18n·테마 없음, §4 "순수 정적"). `dev` 의 포털 내용은 2026-10-01 `home1`로 이동했고 `apps/dev` 는 **404 스텁**(`404.html` 1장)만 남겨 dev.broodev.com 이 404 를 서빙한다.
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
@@ -78,7 +78,8 @@ broodev/
 │  │                        ← 코인 14종. btc 복제(gen_coin.py 생성). member/·adsense/ 없음.
 │  ├─ voca/                 깜빡이 단어암기장 (자기완결형·13개국어·CSV·모바일 대응)
 │  ├─ voca-tutorial/        voca 사용법 10단계 튜토리얼 (자기완결형·복제 아님·미니 데모)
-│  ├─ home1/                개발자 소개 + 전체 앱 포털 (구 dev · 2026-10 폴더명만 변경 · 분리형: index.html + app.jsx)
+│  ├─ dev/                  404 스텁 — 404.html 1장 + 파비콘 (dev.broodev.com, Pages broodev-dev 유지용)
+│  ├─ home1/                개발자 소개 + 전체 앱 포털 (구 dev 내용 · 2026-10 이동 · 분리형: index.html + app.jsx)
 │  │  ├─ index.html  app.jsx  styles.css  assets/(webm)  robots.txt  파비콘
 │  ├─ admin/                운영 관리자 콘솔 (분리형, noindex, Google SSO, 광고 없음)
 │  │  ├─ index.html  app.jsx  theme.css  i18n.js  robots.txt(Disallow: /)
@@ -158,8 +159,9 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 `eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana`.
 공포·탐욕 지수는 시장 전체값이라 코인별 차별화는 **가격 기반 5개 지표**가 담당.
 
-### 6.3 home1 (구 dev) — `dev.broodev.com`
-- **개발자 소개 + 전체 앱 포털**(`apps/web` → `apps/dev` → 2026-10-01 `apps/home1`로 폴더명만 변경, 도메인 dev.broodev.com 유지). 분리형(사이드바 SPA · 해시 라우팅).
+### 6.3 home1 (구 dev) — `home1.broodev.com`(미생성) · `apps/dev` = 404 스텁
+- **개발자 소개 + 전체 앱 포털**(`apps/web` → `apps/dev` → 2026-10-01 `apps/home1`로 이동). 분리형(사이드바 SPA · 해시 라우팅).
+- `apps/dev` 에는 `404.html` 만 남겨 dev.broodev.com(Pages `broodev-dev`, Root `apps/dev`)이 404 를 서빙한다 — 프로젝트 설정은 건드리지 않는다. ⚠ 코인 앱·voca 공통 푸터(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`, 41개 파일)가 dev.broodev.com 을 가리키므로 지금은 전부 404 로 떨어진다(§8).
 - `app.jsx`의 `APPS` 배열이 15종 코인 앱 카탈로그(유용한 앱 목록). `#/about #/apps #/privacy #/terms` 등 라우트.
 - ⚠ 정책 페이지는 **React 라우트**(`#/privacy`)이지 정적 파일이 아님(코인 앱과 다름).
 
@@ -231,7 +233,8 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 | --- | --- | --- | --- |
 | `broodev` (구 broodev-web) | `apps/btc` | **broodev.com** | 라이브(루트=btc로 전환됨) |
 | `broodev-btc` | `apps/btc` | btc.broodev.com | 라이브 |
-| `broodev-dev` | `apps/home1` | dev.broodev.com | 라이브 — **Root directory `apps/dev`→`apps/home1` 변경 필요** |
+| `broodev-dev` | `apps/dev` | dev.broodev.com | 라이브 — **404 스텁**(포털은 home1) |
+| `broodev-home1` | `apps/home1` | home1.broodev.com | **미생성 — 필요 시 수동 추가** |
 | `broodev-admin` | `apps/admin` | admin.broodev.com | 라이브 |
 | `broodev-voca` | `apps/voca` | voca.broodev.com | 라이브 |
 | `broodev-voca-tutorial` | `apps/voca-tutorial` | voca-tutorial.broodev.com | **미생성 — 수동 추가 필요** |

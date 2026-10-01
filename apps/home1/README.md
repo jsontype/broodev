@@ -2,11 +2,11 @@
 
 > **기술 스택:** React 18 UMD(CDN) + framer-motion UMD + `@babel/standalone@7`(브라우저 Babel) · Canvas 2D · 무빌드 정적. 분리형(`index.html` + `app.jsx` + `styles.css`). i18n 없음(한국어 단일), AdSense 없음.
 
-`dev.broodev.com` — **개발자 소개 + 전체 앱 포털** (">_ COSMIC COMPILER" 스크롤 연출).
+`home1.broodev.com`(미생성, 구 dev.broodev.com) — **개발자 소개 + 전체 앱 포털** (">_ COSMIC COMPILER" 스크롤 연출).
 
-2026-10-01 `apps/dev` → `apps/home1` 로 **폴더명만 변경**했다(코드·도메인 무변경). `home2`(Photollax 템플릿 기반 업적 포트폴리오)가 다음 버전 홈이고, 이 폴더는 현행 홈.
+2026-10-01 `apps/dev` 의 내용을 `apps/home1` 로 **이동**했다(코드 무변경). `apps/dev` 에는 404 스텁만 남아 dev.broodev.com 은 404 를 서빙한다. `home2`(Photollax 템플릿 기반 업적 포트폴리오)가 다음 버전 홈.
 
-⚠ Cloudflare Pages `broodev-dev` 프로젝트의 **Root directory 를 `apps/dev` → `apps/home1` 로 바꿔야** 다음 배포가 성공한다 — [`docs/deploy-cloudflare.md`](../../docs/deploy-cloudflare.md) §2-B 0번.
+배포: 이 폴더는 아직 Pages 프로젝트가 없다. 살리려면 새 프로젝트 `broodev-home1`(Root `apps/home1`) 또는 `broodev-dev` 의 Root 를 `apps/home1` 로 — [`docs/deploy-cloudflare.md`](../../docs/deploy-cloudflare.md) §2-B 0번.
 
 ## 파일
 
