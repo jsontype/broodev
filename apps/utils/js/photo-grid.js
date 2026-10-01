@@ -1,4 +1,4 @@
-/* Megahouse — 사진 → 엑셀 / PPT 격자 배열
+/* Utils (구 Megahouse) — 사진 → 엑셀 / PPT 격자 배열
    공통 레이아웃(용지·방향·가로×세로 개수 → 셀 좌표, px@96dpi) 위에
    xlsx 빌더(ExcelJS)와 pptx 빌더(PptxGenJS)가 같은 좌표를 쓴다.
    DOM 의존이 없는 부분(PAPERS·layout·naturalCompare·buildWorkbook·buildPptx)은
@@ -88,7 +88,7 @@
   function buildWorkbook(ExcelJS, images, opts) {
     var L = layout(opts);
     var wb = new ExcelJS.Workbook();
-    wb.creator = 'Megahouse';
+    wb.creator = 'Y-Systems';
     var ws = wb.addWorksheet(L.sheetName || 'Photos', {
       pageSetup: {
         paperSize: L.excelPaper, orientation: L.orientation, horizontalCentered: true,
@@ -155,7 +155,7 @@
     var lname = 'MH_' + L.paper + '_' + L.orientation;
     pptx.defineLayout({ name: lname, width: Math.round(L.pageWin * 10000) / 10000, height: Math.round(L.pageHin * 10000) / 10000 });
     pptx.layout = lname;
-    pptx.author = 'Megahouse';
+    pptx.author = 'Y-Systems';
     pptx.company = 'Y-Systems';
     pptx.title = L.cols + 'x' + L.rows + ' photo grid';
 

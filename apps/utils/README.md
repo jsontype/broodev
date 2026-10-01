@@ -1,8 +1,10 @@
-# megahouse
+# utils (구 megahouse)
 
 > **기술 스택:** 순수 정적 HTML · Bootstrap 5.0.2 · jQuery · **ExcelJS 4.4.0 + PptxGenJS 4.0.1(CDN, 버전 고정)** · 자체 i18n(**ko · ja · en**, `js/i18n.js`) · SCSS(수동 컴파일). React·Babel·broodev 13개국어 체계·터미널 테마·AdSense **없음**. 서버 없음 — 전부 브라우저 안에서 처리.
 
-`megahouse.broodev.com` — **사진 → 엑셀 · PPT 격자 배열.**
+`utils.broodev.com` — **업무 유틸 모음.** 일에 필요한 도구를 계속 추가하는 사이트(사이드바 그룹 "유틸" + 도구별 메뉴 항목). 2026-10-02 `megahouse` 에서 개명. 현재 도구 1개:
+
+**사진 → 엑셀 · PPT 격자 배열.**
 `1.jpg, 2.jpg, …` 를 올리면 파일명 순(숫자 인식: 1, 2, 10)으로 **선택한 용지 한 페이지에 가로×세로 개수대로** 배열한 `.xlsx` 또는 `.pptx` 를 바로 내려받는다. 페이지마다 강제 페이지 나눔(xlsx) / 슬라이드 1장(pptx).
 
 | 설정 | 선택지 | 기본 |
@@ -14,7 +16,7 @@
 | 캡션 | 사진 아래 파일명 | 켬 |
 | 이미지 최대 크기(긴 변) | 1200 · 1600 · 2400 · 원본 | 1600 |
 
-설정은 `localStorage(mh:settings)` 에 저장된다.
+설정은 `localStorage(mh:settings)` 에 저장된다(키 접두어 `mh:` 는 개명 전 그대로 — 저장된 설정·언어 호환).
 
 구 `jsontype/y-systems` 레포 `apps/megahouse/`(AIZOX 템플릿의 AI Image Enhancer 화면)를 2026-10-01 통합한 뒤, 셸(사이드바·헤더·다크/라이트)만 남기고 본문을 이 앱으로 교체했다. 원래 있던 `wrangler.toml` 은 broodev 관례(Pages 대시보드 Root directory)에 맞춰 제거.
 
@@ -31,7 +33,9 @@
 
 - **언어 감지**: `localStorage(mh:lang)` → `?lang=` → `navigator.language`(일본어→ja, 한국어→ko, 그 외→en). 헤더 우측 🌐 풀다운으로 바꾸면 저장된다.
 - 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(드롭존처럼 태그 포함) · `data-i18n-title/placeholder/aria-label`(속성). 동적 문구(요약·페이지 라벨·버튼·상태)는 `app.js` 가 `MH_I18N.t()` 로 그리고, 언어가 바뀌면 `mh:lang` 이벤트로 다시 그린다. 세 사전의 키는 동일해야 한다(검증 스크립트가 확인).
-- **로고**: 템플릿의 Aizox 로고를 **Y Systems**(인라인 SVG 마크 + 텍스트)로 교체. 인라인이라 dark/light 는 CSS 변수(`--OnSurface`)로 자동 — `dark-light.js` 의 `#logo_header` 이미지 스왑은 요소가 없어 no-op. `images/logo/*.svg` 도 Y Systems 워드마크로 바꿔 둠(현재 미사용). `images/favicon.png` 와 CSS/SCSS 상단 템플릿 크레딧 주석은 그대로.
+- **로고**: 템플릿의 Aizox 로고를 **Y Systems** 텍스트 워드마크로 교체(2026-10-02 Y 마크 아이콘 제거, 텍스트만). 텍스트라 dark/light 는 CSS 변수(`--OnSurface`)로 자동 — `dark-light.js` 의 `#logo_header` 이미지 스왑은 요소가 없어 no-op. `images/logo/*.svg` 도 Y Systems 워드마크로 바꿔 둠(현재 미사용). `images/favicon.png` 와 CSS/SCSS 상단 템플릿 크레딧 주석은 그대로.
+- **사이드바 그룹명**(`tools_heading`): 유틸 / ユーティリティ / Utils — 2026-10-02 'Megahouse Tools' 에서 사이트명(utils)에 맞춰 변경. 도구를 추가할 때는 `menu_app` 처럼 메뉴 항목 키를 하나씩 늘린다.
+- **생성·다운로드 버튼은 오른쪽 설정 패널의 submit 하나뿐.** 미리보기 아래에 있던 `{fmt} 다운로드` 중복 버튼과 i18n `download` 키는 2026-10-02 제거(헷갈린다는 피드백).
 
 ## 파일
 
@@ -50,7 +54,7 @@
 
 ```bash
 mkdir /tmp/pg && cd /tmp/pg && npm i exceljs pptxgenjs
-node -e "const PG=require('<repo>/apps/megahouse/js/photo-grid.js'),X=require('exceljs'),P=require('pptxgenjs');
+node -e "const PG=require('<repo>/apps/utils/js/photo-grid.js'),X=require('exceljs'),P=require('pptxgenjs');
 const img={name:'1.jpg',base64:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',extension:'png',width:1600,height:1200};
 const o={paper:'A3',orientation:'landscape',cols:3,rows:2,caption:true};
 PG.buildWorkbook(X,[img],o).xlsx.writeFile('out.xlsx').then(()=>PG.buildPptx(P,[img],o).write({outputType:'nodebuffer'})).then(b=>{require('fs').writeFileSync('out.pptx',b);console.log('ok')})"
@@ -66,4 +70,4 @@ sass scss/app.scss css/styles.css --watch
 
 ## 배포
 
-Cloudflare Pages 프로젝트 `broodev-megahouse` — Root directory `apps/megahouse`, 빌드 없음, output `.`. 절차는 [`docs/deploy-cloudflare.md`](../../docs/deploy-cloudflare.md) §2-B.
+Cloudflare Pages 프로젝트 `broodev-utils` — Root directory `apps/utils`, 빌드 없음, output `.`, Custom domain `utils.broodev.com`. 절차는 [`docs/deploy-cloudflare.md`](../../docs/deploy-cloudflare.md) §2-B.

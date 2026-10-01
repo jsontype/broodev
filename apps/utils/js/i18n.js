@@ -1,4 +1,4 @@
-/* Megahouse i18n — ko · ja · en
+/* Utils (utils.broodev.com, 구 Megahouse) i18n — ko · ja · en
    감지 순서: localStorage(mh:lang) → ?lang= → navigator.language → en (일본어면 ja, 한국어면 ko, 그 외 en)
    마크업: data-i18n="key"(textContent) · data-i18n-html="key"(innerHTML, 사전에 있는 내 문자열만) ·
            data-i18n-title / data-i18n-placeholder / data-i18n-aria-label(속성) · data-lang-current(현재 언어명)
@@ -11,11 +11,11 @@
 
   var D = {
     ko: {
-      title: 'Megahouse — 사진 → 엑셀 · PPT 격자 배열',
+      title: 'Utils — 사진 → 엑셀 · PPT 격자 배열',
       meta_desc: '사진을 올리면 파일명 순서대로 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx)를 바로 내려받습니다. 브라우저에서만 처리, 서버 전송 없음.',
-      tools_heading: 'Megahouse Tools',
+      tools_heading: '유틸',
       menu_app: '사진 → 엑셀 · PPT',
-      footer: '©2026 Megahouse · Y-Systems',
+      footer: '©2026 Utils · Y-Systems',
       heading: '사진 → 엑셀 · PPT 격자 배열',
       intro: '사진을 올리면 파일명 순서대로, 선택한 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx) 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.',
       preview: '미리보기:',
@@ -24,7 +24,6 @@
       page_label: '{i} / {n} 페이지',
       clear_all: '전부 지우기',
       remove: '제외',
-      download: '{fmt} 다운로드',
       settings: '설정',
       upload_label: '사진 업로드 (여러 장)',
       drop_html: '여기에 사진을 끌어다 놓거나 <br> <span class="text-Primary">클릭해서 선택</span>',
@@ -57,11 +56,11 @@
       err_decode: '이미지를 열 수 없습니다: {name}'
     },
     ja: {
-      title: 'Megahouse — 写真 → Excel · PPT グリッド配置',
+      title: 'Utils — 写真 → Excel · PPT グリッド配置',
       meta_desc: '写真をアップロードすると、ファイル名順に用紙 1 ページへ横×縦の枚数どおりに配置した Excel(.xlsx) または PowerPoint(.pptx) をすぐにダウンロードできます。処理はブラウザ内のみ、サーバー送信なし。',
-      tools_heading: 'Megahouse Tools',
+      tools_heading: 'ユーティリティ',
       menu_app: '写真 → Excel · PPT',
-      footer: '©2026 Megahouse · Y-Systems',
+      footer: '©2026 Utils · Y-Systems',
       heading: '写真 → Excel · PPT グリッド配置',
       intro: '写真をアップロードすると、ファイル名順に、選んだ用紙 1 ページへ横×縦の枚数どおりに配置した Excel(.xlsx) または PowerPoint(.pptx) ファイルをすぐにダウンロードできます。処理はすべてブラウザ内で完結し、写真はサーバーに送信されません。',
       preview: 'プレビュー:',
@@ -70,7 +69,6 @@
       page_label: '{i} / {n} ページ',
       clear_all: 'すべて削除',
       remove: '除外',
-      download: '{fmt} をダウンロード',
       settings: '設定',
       upload_label: '写真をアップロード（複数可）',
       drop_html: 'ここに写真をドラッグ＆ドロップ、または <br> <span class="text-Primary">クリックして選択</span>',
@@ -103,11 +101,11 @@
       err_decode: '画像を開けません: {name}'
     },
     en: {
-      title: 'Megahouse — Photos → Excel · PPT Grid',
+      title: 'Utils — Photos → Excel · PPT Grid',
       meta_desc: 'Upload photos and download an Excel (.xlsx) or PowerPoint (.pptx) file with them laid out in a columns × rows grid per page, ordered by file name. Runs entirely in your browser — nothing is uploaded.',
-      tools_heading: 'Megahouse Tools',
+      tools_heading: 'Utils',
       menu_app: 'Photos → Excel · PPT',
-      footer: '©2026 Megahouse · Y-Systems',
+      footer: '©2026 Utils · Y-Systems',
       heading: 'Photos → Excel · PPT grid',
       intro: 'Upload photos and download an Excel (.xlsx) or PowerPoint (.pptx) file with them laid out in your chosen columns × rows per page, on the paper size you pick, ordered by file name. Everything runs in your browser — nothing is sent to a server.',
       preview: 'Preview:',
@@ -116,7 +114,6 @@
       page_label: 'Page {i} / {n}',
       clear_all: 'Clear all',
       remove: 'Remove',
-      download: 'Download {fmt}',
       settings: 'Settings',
       upload_label: 'Upload photos (multiple)',
       drop_html: 'Drag &amp; drop photos here or <br> <span class="text-Primary">click to select</span>',

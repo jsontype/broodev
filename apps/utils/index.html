@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Megahouse — 사진 → 엑셀 · PPT 격자 배열</title>
+    <title>Utils — 사진 → 엑셀 · PPT 격자 배열</title>
     <meta name="description" content="사진을 올리면 파일명 순서대로 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx)를 바로 내려받습니다. 브라우저에서만 처리, 서버 전송 없음.">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -26,10 +26,9 @@
 
     <!-- 앱 전용 스타일 (템플릿 CSS 위에 덧씀) -->
     <style>
-        /* 로고: 인라인 SVG 마크 + 텍스트 (템플릿 폰트·테마 색 그대로 따라감) */
+        /* 로고: 텍스트 워드마크만 (템플릿 폰트·테마 색 그대로 따라감) */
         .pg-logo{display:inline-flex;align-items:center;gap:10px;color:var(--OnSurface);text-decoration:none}
         .pg-logo:hover{color:var(--OnSurface)}
-        .pg-logo-mark{width:32px;height:32px;flex:none}
         .pg-logo-text{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1;white-space:nowrap}
         /* 헤더 언어 풀다운 */
         .pg-lang{position:relative}
@@ -61,6 +60,15 @@
         .pg-chips{display:flex;flex-wrap:wrap;gap:8px}
         .pg-chips .choose-item{width:auto;min-width:44px;flex:1 1 0;padding:0 10px;user-select:none}
         .tf-button[aria-disabled="true"]{opacity:.5;pointer-events:none}
+        /* 설정 패널 스크롤바를 항상 보이게 — 템플릿은 ::-webkit-scrollbar{width:0} 로 숨겨서 아래에 설정이 더 있는지 알 수 없었음.
+           Chrome·Edge·Safari: ::-webkit-scrollbar 커스텀(8px, 항상 그려짐 — 오버레이/플루언트처럼 숨지 않음).
+           표준 속성(scrollbar-width/color)을 같이 주면 Chrome 121+ 이 ::-webkit 규칙을 버리고 가는 플루언트 바로 바꾸므로, Firefox 에만 @supports 로 적용 */
+        .sidebar-right .sidebar-content{padding-right:8px}
+        .sidebar-right .sidebar-content::-webkit-scrollbar{width:8px}
+        .sidebar-right .sidebar-content::-webkit-scrollbar-thumb{background:rgba(128,128,128,.6);border-radius:999px}
+        .sidebar-right .sidebar-content::-webkit-scrollbar-thumb:hover{background:rgba(128,128,128,.85)}
+        .sidebar-right .sidebar-content::-webkit-scrollbar-track{background:rgba(128,128,128,.14);border-radius:999px}
+        @supports not selector(::-webkit-scrollbar){.sidebar-right .sidebar-content{scrollbar-width:thin;scrollbar-color:rgba(128,128,128,.6) rgba(128,128,128,.14)}}
     </style>
 </head>
 
@@ -76,12 +84,8 @@
                 <div class="overplay-menu d-lg-none"></div>
                 <div class="section-menu-left">
                     <div class="box-logo">
-                        <!-- 로고: Y Systems (인라인이라 dark/light 는 CSS 변수로 자동) -->
+                        <!-- 로고: Y Systems 워드마크만 (Y 마크 아이콘은 2026-10-02 제거). 텍스트라 dark/light 는 CSS 변수로 자동 -->
                         <a href="index.html" id="site-logo-inner" class="pg-logo" aria-label="Y Systems">
-                            <svg class="pg-logo-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-                                <path d="M4 3 L16 17 L28 3" fill="none" stroke="#31F8A3" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M16 17 V29" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
-                            </svg>
                             <span class="pg-logo-text">Y Systems</span>
                         </a>
                         <div class="button-show-hide">
@@ -91,7 +95,7 @@
                     <div class="section-menu-left-wrap">
                         <div class="center">
                             <div class="center-item">
-                                <div class="center-heading" data-i18n="tools_heading">Megahouse Tools</div>
+                                <div class="center-heading" data-i18n="tools_heading">유틸</div>
                                 <ul>
                                     <li class="menu-item active">
                                         <a href="index.html" class="">
@@ -105,7 +109,7 @@
                             </div>
                         </div>
                         <div class="bot">
-                            <div class=" text-Secondary" data-i18n="footer">©2026 Megahouse · Y-Systems</div>
+                            <div class=" text-Secondary" data-i18n="footer">©2026 Utils · Y-Systems</div>
                         </div>
                     </div>
                 </div>
@@ -165,11 +169,8 @@
                                                 </div>
                                             </div>
                                             <div id="pg-pages" class="pg-pages"></div>
+                                            <!-- 생성·다운로드 버튼은 오른쪽 설정 패널 하나뿐 (미리보기 아래 중복 버튼은 2026-10-02 제거). 상태 문구만 남김 -->
                                             <div class="flex items-center flex-wrap gap16">
-                                                <a href="#" class="tf-button" id="pg-download" aria-disabled="true">
-                                                    <i class="icon icon-DownloadSimple"></i>
-                                                    <span id="pg-download-label">XLSX 다운로드</span>
-                                                </a>
                                                 <span id="pg-status" class="text-Secondary" role="status" aria-live="polite"></span>
                                             </div>
                                         </div>

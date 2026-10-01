@@ -1,4 +1,4 @@
-/* Megahouse — DOM 연결. 로직은 photo-grid.js (PhotoGrid), 문구는 i18n.js (MH_I18N) 에 있다. */
+/* Utils (구 Megahouse) — DOM 연결. 로직은 photo-grid.js (PhotoGrid), 문구는 i18n.js (MH_I18N) 에 있다. */
 (function () {
   'use strict';
   var PG = window.PhotoGrid, I = window.MH_I18N;
@@ -14,8 +14,6 @@
   var $maxPx = document.getElementById('pg-maxpx');
   var $name = document.getElementById('pg-filename');
   var $form = document.getElementById('pg-form');
-  var $download = document.getElementById('pg-download');
-  var $downloadLabel = document.getElementById('pg-download-label');
   var $clear = document.getElementById('pg-clear');
 
   var MIME = {
@@ -79,9 +77,8 @@
     updateLabels();
   }
 
-  // 포맷/격자에 따라 바뀌는 문구: 다운로드 버튼, 파일 이름 placeholder
+  // 포맷/격자에 따라 바뀌는 문구: 파일 이름 placeholder (다운로드 버튼은 설정 패널의 submit 하나뿐)
   function updateLabels() {
-    $downloadLabel.textContent = t('download', { fmt: S.format.toUpperCase() });
     $name.placeholder = defaultName();
   }
 
@@ -93,7 +90,6 @@
     $summary.textContent = n
       ? t('summary', { n: n, p: pages, c: L.cols, r: L.rows, paper: L.paper, orient: t('orient_' + L.orientation) })
       : t('no_photos');
-    $download.setAttribute('aria-disabled', n ? 'false' : 'true');
     for (var p = 0; p < pages; p++) {
       var wrap = document.createElement('div'); wrap.className = 'pg-page-wrap';
       var page = document.createElement('div'); page.className = 'pg-page';
@@ -190,7 +186,6 @@
     var btn = e.target.closest('.pg-del'); if (btn) removeAt(parseInt(btn.getAttribute('data-i'), 10));
   });
   $clear.addEventListener('click', function (e) { e.preventDefault(); clearAll(); });
-  $download.addEventListener('click', function (e) { e.preventDefault(); generate(); });
   $form.addEventListener('submit', function (e) { e.preventDefault(); generate(); });
 
   // 설정 컨트롤 → S → 저장 + 미리보기 갱신
