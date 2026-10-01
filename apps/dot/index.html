@@ -415,6 +415,14 @@
       .bottom-stats b { color: var(--text); }
       .bottom-flag { margin-top: 8px; font-size: 12px; color: var(--dim); }
       .bottom-flag.on { color: var(--ok); font-weight: 700; }
+      /* 한 줄 결론 — "지금이 바닥인가?" 에 예/아니오 (기준: 시가총액 < 평균 매수원가 = MVRV<1 · 온체인 미지원 코인은 보류) */
+      .bottom-answer { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 8px 0 2px; }
+      .bottom-answer-q { color: var(--dim); font-size: 12.5px; }
+      .bottom-answer-a { font-size: 24px; font-weight: 800; letter-spacing: .5px; line-height: 1.1; }
+      .bottom-answer.yes .bottom-answer-a { color: var(--crit); text-shadow: 0 0 14px rgba(255, 70, 70, .45); }
+      .bottom-answer.no .bottom-answer-a { color: var(--text); }
+      .bottom-answer.na .bottom-answer-a { color: var(--dim); font-size: 16px; }
+      .bottom-answer-why { flex-basis: 100%; color: var(--dim); font-size: 11.5px; }
       /* 바닥 경고 — 시가총액(흰선) < 평균 매수원가(파란선), 즉 MVRV<1 일 때만 표시 */
       .bottom-alert { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--crit); border-radius: 6px; background: rgba(255, 70, 70, 0.1); box-shadow: 0 0 18px rgba(255, 70, 70, 0.18); }
       .bottom-alert-title { color: var(--crit); font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
@@ -2113,11 +2121,21 @@
         if (!B || B.score == null) return null
         const bandTx = oc.bottom.bands[B.band.id] || ONCHAIN_I18N.ko.bottom.bands[B.band.id]
         const color = B.band.color === 'ok' ? 'var(--ok)' : B.band.color === 'warn' ? 'var(--warn)' : 'var(--crit)'
+        // 한 줄 결론 — 바닥 여부를 예/아니오로 명시. 기준 = 시가총액(흰선) < 평균 매수원가(파란선), 즉 MVRV<1.
+        // 온체인(CoinMetrics) 미지원 코인은 판정 보류(점수만 참고).
+        const verdict = !B.hasOnchain ? 'na' : (B.underCost ? 'yes' : 'no')
+        const ans = BOTTOM_ANSWER[lang] || BOTTOM_ANSWER.en
+        const why = verdict === 'na' ? ans.whyNa : (B.mvrv != null ? ans.why.replace('{mvrv}', B.mvrv.toFixed(2)) : '')
         return (
           <section className={`panel bottom-radar status-${B.band.color}`} style={{ '--accent': color }}>
             <span className="corner tl" /><span className="corner br" />
             <div className="bottom-head">
               <div className="panel-label">// {oc.bottom.title} — {oc.bottom.q}</div>
+              <div className={`bottom-answer ${verdict}`} role="status">
+                <span className="bottom-answer-q">{oc.bottom.q}</span>
+                <span className="bottom-answer-a">{ans[verdict]}</span>
+                {why && <span className="bottom-answer-why">{why}</span>}
+              </div>
               <div className="bottom-score-row">
                 <span className="bottom-score" style={{ color }}>{B.score.toFixed(0)}</span>
                 <span className="bottom-of">/ 100</span>
@@ -2834,6 +2852,22 @@
         },
       }
       const getOnchain = (lang) => ONCHAIN_I18N[lang] || ONCHAIN_I18N.en
+      // BOTTOM RADAR 한 줄 결론 — "지금이 바닥인가?" 에 예/아니오로 답한다 (판정 = MVRV<1 · 온체인 미지원 코인은 보류). 13개 언어 키 동일.
+      const BOTTOM_ANSWER = {
+        ko: { yes: '예 — 지금은 바닥입니다', no: '아니오 — 지금은 바닥이 아닙니다', na: '판정 보류 — 온체인 데이터 없음', why: '기준: 시가총액 ÷ 평균 매수원가 = MVRV {mvrv}× (1 미만이면 바닥)', whyNa: '이 코인은 온체인(CoinMetrics) 미지원 — 위 점수만 참고' },
+        en: { yes: 'YES — this is the bottom', no: 'NO — this is not the bottom', na: 'UNDETERMINED — no on-chain data', why: 'Rule: market cap ÷ avg. cost basis = MVRV {mvrv}× (below 1 = bottom)', whyNa: 'No on-chain (CoinMetrics) data for this coin — use the score above as reference only' },
+        ja: { yes: 'はい — 今が底です', no: 'いいえ — 今は底ではありません', na: '判定保留 — オンチェーンデータなし', why: '基準: 時価総額 ÷ 平均取得単価 = MVRV {mvrv}×（1未満なら底）', whyNa: 'このコインはオンチェーン（CoinMetrics）非対応 — 上のスコアのみ参考' },
+        zh: { yes: '是 — 现在是底部', no: '否 — 现在不是底部', na: '暂无法判定 — 无链上数据', why: '标准：市值 ÷ 平均持仓成本 = MVRV {mvrv}×（低于1即为底部）', whyNa: '该币种无链上数据（CoinMetrics）— 仅参考上方评分' },
+        'zh-Hant': { yes: '是 — 現在是底部', no: '否 — 現在不是底部', na: '暫無法判定 — 無鏈上資料', why: '標準：市值 ÷ 平均持倉成本 = MVRV {mvrv}×（低於1即為底部）', whyNa: '此幣種無鏈上資料（CoinMetrics）— 僅參考上方評分' },
+        th: { yes: 'ใช่ — ตอนนี้คือก้นเหว', no: 'ไม่ — ตอนนี้ยังไม่ใช่ก้นเหว', na: 'ยังตัดสินไม่ได้ — ไม่มีข้อมูลออนเชน', why: 'เกณฑ์: มูลค่าตลาด ÷ ต้นทุนซื้อเฉลี่ย = MVRV {mvrv}× (ต่ำกว่า 1 = ก้นเหว)', whyNa: 'เหรียญนี้ไม่มีข้อมูลออนเชน (CoinMetrics) — ดูคะแนนด้านบนเป็นข้อมูลอ้างอิงเท่านั้น' },
+        es: { yes: 'SÍ — este es el suelo', no: 'NO — este no es el suelo', na: 'SIN DETERMINAR — sin datos on-chain', why: 'Regla: cap. de mercado ÷ coste medio = MVRV {mvrv}× (menor que 1 = suelo)', whyNa: 'Sin datos on-chain (CoinMetrics) para esta moneda — usa la puntuación solo como referencia' },
+        fr: { yes: 'OUI — c’est le plancher', no: 'NON — ce n’est pas le plancher', na: 'INDÉTERMINÉ — pas de données on-chain', why: 'Règle : cap. boursière ÷ coût moyen = MVRV {mvrv}× (sous 1 = plancher)', whyNa: 'Pas de données on-chain (CoinMetrics) pour cette pièce — le score ci-dessus n’est qu’une référence' },
+        de: { yes: 'JA — das ist der Boden', no: 'NEIN — das ist nicht der Boden', na: 'OFFEN — keine On-Chain-Daten', why: 'Regel: Marktkap. ÷ Ø-Einstand = MVRV {mvrv}× (unter 1 = Boden)', whyNa: 'Keine On-Chain-Daten (CoinMetrics) für diesen Coin — Score oben nur als Referenz' },
+        it: { yes: 'SÌ — questo è il minimo', no: 'NO — questo non è il minimo', na: 'NON DETERMINATO — nessun dato on-chain', why: 'Regola: cap. di mercato ÷ costo medio = MVRV {mvrv}× (sotto 1 = minimo)', whyNa: 'Nessun dato on-chain (CoinMetrics) per questa moneta — lo score sopra è solo un riferimento' },
+        pt: { yes: 'SIM — este é o fundo', no: 'NÃO — este não é o fundo', na: 'INDETERMINADO — sem dados on-chain', why: 'Regra: cap. de mercado ÷ custo médio = MVRV {mvrv}× (abaixo de 1 = fundo)', whyNa: 'Sem dados on-chain (CoinMetrics) para esta moeda — use o score acima apenas como referência' },
+        ru: { yes: 'ДА — это дно', no: 'НЕТ — это не дно', na: 'НЕ ОПРЕДЕЛЕНО — нет ончейн-данных', why: 'Правило: капитализация ÷ средняя цена входа = MVRV {mvrv}× (ниже 1 = дно)', whyNa: 'Для этой монеты нет ончейн-данных (CoinMetrics) — оценка выше только для справки' },
+        nl: { yes: 'JA — dit is de bodem', no: 'NEE — dit is niet de bodem', na: 'ONBEPAALD — geen on-chain data', why: 'Regel: marktkap. ÷ gem. aankoopprijs = MVRV {mvrv}× (onder 1 = bodem)', whyNa: 'Geen on-chain data (CoinMetrics) voor deze munt — gebruik de score hierboven alleen als referentie' },
+      }
       // 탭 라벨 "단기 · 모멘텀" → [기간, 철학]. 버튼엔 기간만, 철학은 힌트 뒤에 "○○ 기반." 으로 붙임
       const splitModeLabel = (s) => { const i = (s || '').indexOf('·'); return i < 0 ? [(s || '').trim(), ''] : [s.slice(0, i).trim(), s.slice(i + 1).trim()] }
       const BASIS_FMT = { en: '{x}-based.', ko: '{x} 기반.', ja: '{x}ベース.', zh: '基于{x}。', 'zh-Hant': '基於{x}。', th: 'อิง{x}', es: 'Basado en {x}.', fr: 'Basé sur le {x}.', de: '{x}-basiert.', it: 'Basato su {x}.', pt: 'Baseado em {x}.', ru: 'На основе: {x}.', nl: 'Op basis van {x}.' }
