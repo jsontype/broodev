@@ -5,7 +5,7 @@ import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const R = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const html = readFileSync(`${R}/apps/games/st2/index.html`, 'utf8')
+const html = readFileSync(`${R}/games/samurai/index.html`, 'utf8')
 const code = html.match(/<script>([^]*?)<\/script>/)[1]
 let fail = 0
 const ok = (n, c, x = '') => { console.log((c ? '  ✅ ' : '  ❌ ') + n + (x ? ' — ' + x : '')); if (!c) fail++ }
