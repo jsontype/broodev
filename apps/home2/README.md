@@ -27,6 +27,7 @@
 |---|---|
 | `index.html` | 메인(원페이지: 슬라이드 13장 · 소개 · 하는 일 · broodev 앱 · 연락) |
 | `blog.html`, `blog-detail.html` | 업적 전체 목록 / N사 상세 (Blog 모달 iframe) |
+| `404.html` | 템플릿 룩의 404 페이지(`iframe-page` 레이아웃, Pages 커스텀 404) |
 | `assets/bootstrap/` | Bootstrap 3.3.6 |
 | `assets/css/`, `assets/js/` | 템플릿 스타일(`style.css`)·스크립트(`custom.js`) + 플러그인 |
 | `assets/fonts/` | Font Awesome · Elegant Icons |

@@ -11,7 +11,7 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
-- 현재 **21개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home1`(포털, 구 dev) + `admin`(관리자) + `home2`(업적 포트폴리오 · 다음 버전 홈) + `megahouse`(사진→엑셀 2×3). 마지막 둘은 **구 y-systems 레포에서 통합한 순수 정적 사이트**(React·i18n·테마 없음, §4 "순수 정적"). `dev` 의 포털 내용은 2026-10-01 `home1`로 이동했고 `apps/dev` 는 **404 스텁**(`404.html` 1장)만 남겨 dev.broodev.com 이 404 를 서빙한다.
+- 현재 **21개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home1`(포털, 구 dev) + `admin`(관리자) + `home2`(업적 포트폴리오 · 다음 버전 홈) + `megahouse`(사진→엑셀·PPT 격자). 마지막 둘은 **구 y-systems 레포에서 통합한 순수 정적 사이트**(React·i18n·테마 없음, §4 "순수 정적"). `dev` 의 포털 내용은 2026-10-01 `home1`로 이동했고 `apps/dev` 는 **공사중 페이지**(`index.html`) + `404.html` 만 남겨 dev.broodev.com 이 공사중 안내를 서빙한다.
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
@@ -78,14 +78,14 @@ broodev/
 │  │                        ← 코인 14종. btc 복제(gen_coin.py 생성). member/·adsense/ 없음.
 │  ├─ voca/                 깜빡이 단어암기장 (자기완결형·13개국어·CSV·모바일 대응)
 │  ├─ voca-tutorial/        voca 사용법 10단계 튜토리얼 (자기완결형·복제 아님·미니 데모)
-│  ├─ dev/                  404 스텁 — 404.html 1장 + 파비콘 (dev.broodev.com, Pages broodev-dev 유지용)
+│  ├─ dev/                  공사중 페이지(index.html) + 404.html + 파비콘 (dev.broodev.com, Pages broodev-dev 유지용)
 │  ├─ home1/                개발자 소개 + 전체 앱 포털 (구 dev 내용 · 2026-10 이동 · 분리형: index.html + app.jsx)
 │  │  ├─ index.html  app.jsx  styles.css  assets/(webm)  robots.txt  파비콘
 │  ├─ admin/                운영 관리자 콘솔 (분리형, noindex, Google SSO, 광고 없음)
 │  │  ├─ index.html  app.jsx  theme.css  i18n.js  robots.txt(Disallow: /)
 │  ├─ home2/                업적 포트폴리오 · 다음 버전 홈 (순수 정적 · Photollax 템플릿 · Bootstrap 3 · jQuery) — 구 y-systems 레포 home/html
 │  │  ├─ index.html  blog.html(업적 전체)  blog-detail.html(N사 상세)  assets/(bootstrap·css·fonts·img·js·scss·php)
-│  └─ megahouse/            사진 → 엑셀 2×3 배열 (순수 정적 · AIZOX 템플릿 · Bootstrap 5 · ExcelJS CDN) — 구 y-systems 레포 apps/megahouse
+│  └─ megahouse/            사진 → 엑셀·PPT 격자 배열 (순수 정적 · AIZOX 템플릿 · Bootstrap 5 · ExcelJS·PptxGenJS CDN) — 구 y-systems 레포 apps/megahouse
 │     ├─ index.html  js/photo-grid.js(핵심)  js/app.js(DOM)  css/  scss/  font/  icon/  images/
 ├─ packages/
 │  └─ ui-terminal/          공통 테마 원본
@@ -161,7 +161,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 
 ### 6.3 home1 (구 dev) — `home1.broodev.com`(미생성) · `apps/dev` = 404 스텁
 - **개발자 소개 + 전체 앱 포털**(`apps/web` → `apps/dev` → 2026-10-01 `apps/home1`로 이동). 분리형(사이드바 SPA · 해시 라우팅).
-- `apps/dev` 에는 `404.html` 만 남겨 dev.broodev.com(Pages `broodev-dev`, Root `apps/dev`)이 404 를 서빙한다 — 프로젝트 설정은 건드리지 않는다. ⚠ 코인 앱·voca 공통 푸터(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`, 41개 파일)가 dev.broodev.com 을 가리키므로 지금은 전부 404 로 떨어진다(§8).
+- `apps/dev` 에는 **공사중 페이지**(`index.html`, 200) + `404.html` 만 남겨 dev.broodev.com(Pages `broodev-dev`, Root `apps/dev`)이 공사중 안내를 서빙한다 — 프로젝트 설정은 건드리지 않는다. 코인 앱·voca 공통 푸터(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`, 41개 파일)가 dev.broodev.com 을 가리키므로 공사중 페이지에 broodev.com·voca·samurai 바로가기를 둠(§8). 각 앱 404: home1·dev = 터미널 테마, home2 = Photollax 룩, megahouse = AIZOX 셸.
 - `app.jsx`의 `APPS` 배열이 15종 코인 앱 카탈로그(유용한 앱 목록). `#/about #/apps #/privacy #/terms` 등 라우트.
 - ⚠ 정책 페이지는 **React 라우트**(`#/privacy`)이지 정적 파일이 아님(코인 앱과 다름).
 
@@ -176,7 +176,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - React·i18n·테마·AdSense **없음**. 문의 폼은 `assets/php/email.php` 로 POST → Pages 에서 **미동작**(교체 필요).
 
 ### 6.6 megahouse — `megahouse.broodev.com`
-- **사진 → 엑셀 2×3 배열.** 1.jpg, 2.jpg … 를 올리면 파일명 순(숫자 인식)으로 A4 세로 한 페이지에 2열×3행으로 배열한 `.xlsx` 를 바로 내려받는다. 전부 브라우저 내 처리(ExcelJS 4.4.0 CDN 고정), 서버 전송 없음.
+- **사진 → 엑셀·PPT 격자 배열.** 1.jpg, 2.jpg … 를 올리면 파일명 순(숫자 인식)으로 선택한 용지(A4·A3·A5·B4·B5·Letter·Legal)·방향(세로/가로)·가로×세로(각 1~5) 격자로 배열한 `.xlsx`(ExcelJS 4.4.0) 또는 `.pptx`(PptxGenJS 4.0.1)를 바로 내려받는다. CDN 버전 고정, 전부 브라우저 내 처리, 서버 전송 없음. 공통 `layout()` 을 두 빌더가 공유하고, Excel 행 높이 상한(409.5pt)은 이미지 행 서브행 분할로 대응.
 - `js/photo-grid.js` = 핵심(레이아웃·정렬·워크북 생성 — DOM 무관, Node 에서도 동작해 검증에 재사용) / `js/app.js` = DOM / `js/i18n.js` = **자체 i18n ko·ja·en**(브라우저 언어 → 일본어 ja·한국어 ko·그 외 en, 헤더 🌐 풀다운으로 전환·localStorage 저장). 셸은 AIZOX 템플릿(구 y-systems 레포 `apps/megahouse/`), 로고는 Y Systems 로 교체.
 - React·broodev 13개국어 체계·테마·AdSense **없음**.
 
@@ -233,7 +233,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 | --- | --- | --- | --- |
 | `broodev` (구 broodev-web) | `apps/btc` | **broodev.com** | 라이브(루트=btc로 전환됨) |
 | `broodev-btc` | `apps/btc` | btc.broodev.com | 라이브 |
-| `broodev-dev` | `apps/dev` | dev.broodev.com | 라이브 — **404 스텁**(포털은 home1) |
+| `broodev-dev` | `apps/dev` | dev.broodev.com | 라이브 — **공사중 페이지**(포털은 home1) |
 | `broodev-home1` | `apps/home1` | home1.broodev.com | **미생성 — 필요 시 수동 추가** |
 | `broodev-admin` | `apps/admin` | admin.broodev.com | 라이브 |
 | `broodev-voca` | `apps/voca` | voca.broodev.com | 라이브 |
