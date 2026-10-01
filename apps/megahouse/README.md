@@ -1,6 +1,6 @@
 # megahouse
 
-> **기술 스택:** 순수 정적 HTML · Bootstrap 5.0.2 · jQuery · **ExcelJS 4.4.0(CDN, 버전 고정)** · SCSS(수동 컴파일). React·Babel·i18n·터미널 테마·AdSense **없음**. 서버 없음 — 전부 브라우저 안에서 처리.
+> **기술 스택:** 순수 정적 HTML · Bootstrap 5.0.2 · jQuery · **ExcelJS 4.4.0(CDN, 버전 고정)** · 자체 i18n(**ko · ja · en**, `js/i18n.js`) · SCSS(수동 컴파일). React·Babel·broodev 13개국어 체계·터미널 테마·AdSense **없음**. 서버 없음 — 전부 브라우저 안에서 처리.
 
 `megahouse.broodev.com` — **사진 → 엑셀 2×3 배열.**
 `1.jpg, 2.jpg, …` 를 올리면 파일명 순(숫자 인식: 1, 2, 10)으로 **A4 세로 한 페이지에 2열×3행**으로 배열된 `.xlsx` 를 바로 내려받는다. 7장이면 2페이지(6 + 1), 페이지마다 강제 페이지 나눔.
@@ -15,13 +15,20 @@
 4. `pageSetup`: A4 세로, 여백 0.4in, 가로 1페이지 맞춤(열폭 근사 오차 보호), 페이지마다 `rowBreaks`
 5. `.xlsx` Blob 다운로드
 
+## i18n · 로고
+
+- **언어 감지**: `localStorage(mh:lang)` → `?lang=` → `navigator.language`(일본어→ja, 한국어→ko, 그 외→en). 헤더 우측 🌐 풀다운으로 바꾸면 저장된다.
+- 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(드롭존처럼 태그 포함) · `data-i18n-title/placeholder/aria-label`(속성). 동적 문구(요약·페이지 라벨·상태)는 `app.js` 가 `MH_I18N.t()` 로 그리고, 언어가 바뀌면 `mh:lang` 이벤트로 다시 그린다. 세 사전의 키는 동일해야 한다(검증 스크립트 참고).
+- **로고**: 템플릿의 Aizox 로고를 **Y Systems**(인라인 SVG 마크 + 텍스트)로 교체. 인라인이라 dark/light 는 CSS 변수(`--OnSurface`)로 자동 — `dark-light.js` 의 `#logo_header` 이미지 스왑은 요소가 없어 no-op. `images/logo/*.svg` 도 Y Systems 워드마크로 바꿔 둠(현재 미사용). `images/favicon.png` 와 CSS/SCSS 상단 템플릿 크레딧 주석은 그대로.
+
 ## 파일
 
 | 경로 | 설명 |
 |---|---|
 | `index.html` | 화면(템플릿 셸 + 앱 마크업 + 앱 전용 `<style>`) |
+| `js/i18n.js` | ko·ja·en 사전 + 감지 + `apply()`/`set()` (`window.MH_I18N`) |
 | `js/photo-grid.js` | **핵심 로직** — `layout`·`naturalCompare`·`buildWorkbook`(DOM 무관, Node 에서도 동작)·`readImage`(브라우저). UMD 라 `require()` 가능 |
-| `js/app.js` | DOM 연결(업로드·미리보기·생성·다운로드) |
+| `js/app.js` | DOM 연결(업로드·미리보기·생성·다운로드·언어 풀다운) |
 | `css/`, `scss/`, `font/`, `icon/`, `images/`, `js/*.min.js` `main.js` `dark-light.js` | AIZOX 템플릿 자산 |
 
 ## 검증

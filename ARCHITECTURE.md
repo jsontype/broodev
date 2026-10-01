@@ -112,7 +112,7 @@ broodev/
 | **자기완결형** | `btc`, 코인 14종 | 단일 `index.html`에 스타일·i18n·로직 전부 인라인 | 단일 파일로 충분한 앱 |
 | **분리형** | `dev`, `admin` | `index.html` + `app.jsx` + `theme.css` + `i18n.js` + `i18n/<lang>.js` | 규모 커지거나 다중 페이지 |
 | **생성형** | 코인 14종 | 자기완결형 btc를 `gen_coin.py`가 복제·치환 | 동일 구조 반복(코인) |
-| **순수 정적** | `home2`, `megahouse` | 템플릿 기반 HTML/CSS/JS(jQuery·Bootstrap). React·Babel·i18n·터미널 테마·AdSense **없음** | 외부 레포에서 통합한 사이트. broodev 규칙(i18n·SEO·테마)은 적용 대상 아님 |
+| **순수 정적** | `home2`, `megahouse` | 템플릿 기반 HTML/CSS/JS(jQuery·Bootstrap). React·Babel·13개국어 i18n 체계·터미널 테마·AdSense **없음**(megahouse 는 자체 ko·ja·en 3개 언어) | 외부 레포에서 통합한 사이트. broodev 규칙(i18n·SEO·테마)은 적용 대상 아님 |
 
 **새 앱(비코인)은 보통 자기완결형 또는 분리형 중 선택**한다. 코인이 아니면 생성기를 쓰지 않는다.
 
@@ -177,8 +177,8 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 
 ### 6.6 megahouse — `megahouse.broodev.com`
 - **사진 → 엑셀 2×3 배열.** 1.jpg, 2.jpg … 를 올리면 파일명 순(숫자 인식)으로 A4 세로 한 페이지에 2열×3행으로 배열한 `.xlsx` 를 바로 내려받는다. 전부 브라우저 내 처리(ExcelJS 4.4.0 CDN 고정), 서버 전송 없음.
-- `js/photo-grid.js` = 핵심(레이아웃·정렬·워크북 생성 — DOM 무관, Node 에서도 동작해 검증에 재사용) / `js/app.js` = DOM. 셸은 AIZOX 템플릿(구 y-systems 레포 `apps/megahouse/`).
-- React·i18n·테마·AdSense **없음**.
+- `js/photo-grid.js` = 핵심(레이아웃·정렬·워크북 생성 — DOM 무관, Node 에서도 동작해 검증에 재사용) / `js/app.js` = DOM / `js/i18n.js` = **자체 i18n ko·ja·en**(브라우저 언어 → 일본어 ja·한국어 ko·그 외 en, 헤더 🌐 풀다운으로 전환·localStorage 저장). 셸은 AIZOX 템플릿(구 y-systems 레포 `apps/megahouse/`), 로고는 Y Systems 로 교체.
+- React·broodev 13개국어 체계·테마·AdSense **없음**.
 
 ---
 

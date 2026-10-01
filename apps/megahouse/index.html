@@ -26,6 +26,21 @@
 
     <!-- 앱 전용 스타일 (템플릿 CSS 위에 덧씀) -->
     <style>
+        /* 로고: 인라인 SVG 마크 + 텍스트 (템플릿 폰트·테마 색 그대로 따라감) */
+        .pg-logo{display:inline-flex;align-items:center;gap:10px;color:var(--OnSurface);text-decoration:none}
+        .pg-logo:hover{color:var(--OnSurface)}
+        .pg-logo-mark{width:32px;height:32px;flex:none}
+        .pg-logo-text{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1;white-space:nowrap}
+        /* 헤더 언어 풀다운 */
+        .pg-lang{position:relative}
+        .pg-lang-toggle{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px 0 12px;border-radius:22px;border:1px solid var(--Line);background:transparent;color:var(--OnSurface);font:inherit;font-size:14px;cursor:pointer}
+        .pg-lang-caret{display:inline-block;font-size:16px;transform:rotate(-90deg);transition:transform .15s}
+        .pg-lang.open .pg-lang-caret{transform:rotate(90deg)}
+        .pg-lang-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:150px;margin:0;padding:6px;list-style:none;background:var(--Surface);border:1px solid var(--Line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;z-index:50}
+        .pg-lang.open .pg-lang-menu{display:block}
+        .pg-lang-menu a{display:block;padding:9px 12px;border-radius:8px;color:var(--OnSurface);text-decoration:none;font-size:14px;white-space:nowrap}
+        .pg-lang-menu a:hover,.pg-lang-menu a.active{background:rgba(49,248,163,.12);color:var(--Primary)}
+        /* 미리보기·설정 */
         .pg-pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-bottom:24px}
         .pg-page-wrap{min-width:0}
         .pg-page{background:#fff;border-radius:12px;padding:10px;aspect-ratio:210/297;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:8px;box-shadow:0 2px 14px rgba(0,0,0,.18)}
@@ -58,8 +73,13 @@
                 <div class="overplay-menu d-lg-none"></div>
                 <div class="section-menu-left">
                     <div class="box-logo">
-                        <a href="index.html" id="site-logo-inner">
-                            <img class="" id="logo_header" alt="Megahouse" src="images/logo/logo.svg" data-dark="images/logo/logo.svg" data-light="images/logo/logo-white.svg" >
+                        <!-- 로고: Y Systems (구 템플릿 Aizox 로고 교체 — 인라인이라 dark/light 는 CSS 변수로 자동) -->
+                        <a href="index.html" id="site-logo-inner" class="pg-logo" aria-label="Y Systems">
+                            <svg class="pg-logo-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                                <path d="M4 3 L16 17 L28 3" fill="none" stroke="#31F8A3" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17 V29" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
+                            </svg>
+                            <span class="pg-logo-text">Y Systems</span>
                         </a>
                         <div class="button-show-hide">
                             <i class="icon-CaretLeft"></i>
@@ -68,21 +88,21 @@
                     <div class="section-menu-left-wrap">
                         <div class="center">
                             <div class="center-item">
-                                <div class="center-heading">Megahouse Tools</div>
+                                <div class="center-heading" data-i18n="tools_heading">Megahouse Tools</div>
                                 <ul>
                                     <li class="menu-item active">
                                         <a href="index.html" class="">
                                             <div class="icon">
                                                 <i class="icon-image"></i>
                                             </div>
-                                            <div class="text">사진 → 엑셀 2×3</div>
+                                            <div class="text" data-i18n="menu_app">사진 → 엑셀 2×3</div>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                         <div class="bot">
-                            <div class=" text-Secondary">©2026 Megahouse · Y-Systems</div>
+                            <div class=" text-Secondary" data-i18n="footer">©2026 Megahouse · Y-Systems</div>
                         </div>
                     </div>
                 </div>
@@ -98,6 +118,19 @@
                         </div>
                         <div class="header-grid">
                             <div class="flex gap12">
+                                <!-- 언어 풀다운: ko · ja · en (선택은 localStorage 에 저장) -->
+                                <div class="pg-lang" id="pg-lang">
+                                    <button type="button" class="pg-lang-toggle" id="pg-lang-toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="pg-lang-menu" data-i18n-aria-label="lang_label">
+                                        <span aria-hidden="true">🌐</span>
+                                        <span data-lang-current>한국어</span>
+                                        <i class="icon-CaretLeft pg-lang-caret" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="pg-lang-menu" id="pg-lang-menu" role="listbox">
+                                        <li><a href="#" role="option" data-lang="ko" lang="ko">한국어</a></li>
+                                        <li><a href="#" role="option" data-lang="ja" lang="ja">日本語</a></li>
+                                        <li><a href="#" role="option" data-lang="en" lang="en">English</a></li>
+                                    </ul>
+                                </div>
                                 <div class="header-item button-dark-light">
                                     <i class="icon-Sun"></i>
                                 </div>
@@ -118,23 +151,23 @@
                                 <div class="flex-grow-1 relative">
                                     <div class="left text-to-image-wrap">
                                         <div class="heading">
-                                            <h4 class="mb-12">사진 → 엑셀 2×3 배열</h4>
-                                            <p class="text-Secondary">1.jpg, 2.jpg … 순서대로 사진을 올리면 A4 한 페이지에 2×3으로 배열된 엑셀 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.</p>
+                                            <h4 class="mb-12" data-i18n="heading">사진 → 엑셀 2×3 배열</h4>
+                                            <p class="text-Secondary" data-i18n="intro">1.jpg, 2.jpg … 순서대로 사진을 올리면 A4 한 페이지에 2×3으로 배열된 엑셀 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.</p>
                                         </div>
                                         <div class="text-to-image-content">
                                             <div class="mb-16 flex items-center justify-content-between flex-wrap gap16">
-                                                <h5>미리보기: <span id="pg-summary" class="text-Secondary">사진 없음</span></h5>
+                                                <h5><span data-i18n="preview">미리보기:</span> <span id="pg-summary" class="text-Secondary">사진 없음</span></h5>
                                                 <div class="result-action">
-                                                    <a href="#" id="pg-clear" title="전부 지우기"><i class="icon icon-ArrowsClockwise"></i></a>
+                                                    <a href="#" id="pg-clear" data-i18n-title="clear_all" title="전부 지우기"><i class="icon icon-ArrowsClockwise"></i></a>
                                                 </div>
                                             </div>
                                             <div id="pg-pages" class="pg-pages"></div>
                                             <div class="flex items-center flex-wrap gap16">
                                                 <a href="#" class="tf-button" id="pg-download" aria-disabled="true">
                                                     <i class="icon icon-DownloadSimple"></i>
-                                                    엑셀 다운로드
+                                                    <span data-i18n="download">엑셀 다운로드</span>
                                                 </a>
-                                                <span id="pg-status" class="text-Secondary"></span>
+                                                <span id="pg-status" class="text-Secondary" role="status" aria-live="polite"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -143,44 +176,44 @@
                                     <div class="sidebar-btn-close sidebar-close">
                                         <i class="icon-Export"></i>
                                     </div>
-                                    <h5 class="title">설정</h5>
+                                    <h5 class="title" data-i18n="settings">설정</h5>
                                     <div class="flex-grow-1 relative">
                                         <div class="sidebar-content">
                                             <fieldset class="">
-                                                <label class="text-Secondary mb-8" >사진 업로드 (여러 장)</label>
+                                                <label class="text-Secondary mb-8" data-i18n="upload_label">사진 업로드 (여러 장)</label>
                                                 <div class="">
                                                     <label class="uploadfile" for="pg-files" id="pg-drop">
                                                         <span class="icon">
                                                             <i class="icon-CloudArrowUp"></i>
                                                         </span>
-                                                        <span class="">여기에 사진을 끌어다 놓거나 <br> <span class="text-Primary">클릭해서 선택</span></span>
+                                                        <span class="" data-i18n-html="drop_html">여기에 사진을 끌어다 놓거나 <br> <span class="text-Primary">클릭해서 선택</span></span>
                                                         <input type="file" id="pg-files" name="photos" multiple accept="image/*">
                                                     </label>
                                                 </div>
-                                                <p class="text-Secondary pg-hint">1.jpg, 2.jpg, 10.jpg … 파일명의 숫자 순으로 배열됩니다. 여러 번 나눠 올려도 합쳐집니다.</p>
+                                                <p class="text-Secondary pg-hint" data-i18n="hint">1.jpg, 2.jpg, 10.jpg … 파일명의 숫자 순으로 배열됩니다. 여러 번 나눠 올려도 합쳐집니다.</p>
                                             </fieldset>
                                             <div class="d-grid gap16">
                                                 <fieldset class="">
-                                                    <label class="text-Secondary mb-8" >캡션</label>
-                                                    <label class="pg-check"><input type="checkbox" id="pg-caption" checked> 사진 아래 파일명 표시</label>
+                                                    <label class="text-Secondary mb-8" data-i18n="caption_label">캡션</label>
+                                                    <label class="pg-check"><input type="checkbox" id="pg-caption" checked> <span data-i18n="caption_check">사진 아래 파일명 표시</span></label>
                                                 </fieldset>
                                                 <fieldset class="">
-                                                    <label class="text-Secondary mb-8" for="pg-maxpx">이미지 최대 크기 (긴 변)</label>
+                                                    <label class="text-Secondary mb-8" for="pg-maxpx" data-i18n="maxpx_label">이미지 최대 크기 (긴 변)</label>
                                                     <select id="pg-maxpx" class="pg-select">
-                                                        <option value="1200">1200px — 가벼움</option>
-                                                        <option value="1600" selected>1600px — 권장 (인쇄 충분)</option>
-                                                        <option value="2400">2400px — 고화질</option>
-                                                        <option value="0">원본 그대로 (jpg·png·gif)</option>
+                                                        <option value="1200" data-i18n="opt_1200">1200px — 가벼움</option>
+                                                        <option value="1600" selected data-i18n="opt_1600">1600px — 권장 (인쇄 충분)</option>
+                                                        <option value="2400" data-i18n="opt_2400">2400px — 고화질</option>
+                                                        <option value="0" data-i18n="opt_0">원본 그대로 (jpg·png·gif)</option>
                                                     </select>
                                                 </fieldset>
                                                 <fieldset class="">
-                                                    <label class="text-Secondary mb-8" for="pg-filename">파일 이름</label>
+                                                    <label class="text-Secondary mb-8" for="pg-filename" data-i18n="filename_label">파일 이름</label>
                                                     <input type="text" id="pg-filename" class="pg-input" placeholder="photos-2x3.xlsx">
                                                 </fieldset>
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="submit" class="tf-button w-full">
+                                    <button type="submit" class="tf-button w-full" data-i18n="generate">
                                         엑셀 생성 · 다운로드
                                     </button>
                                 </form>
@@ -204,8 +237,9 @@
     <script src="js/bootstrap-select.min.js"></script>
     <script src="js/nice-select.min.js"></script>
     <script src="js/main.js"></script>
-    <!-- 앱: ExcelJS(CDN, 버전 고정) + 핵심 로직 + DOM -->
+    <!-- 앱: ExcelJS(CDN, 버전 고정) + i18n + 핵심 로직 + DOM -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js" crossorigin="anonymous"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/photo-grid.js"></script>
     <script src="js/app.js"></script>
 

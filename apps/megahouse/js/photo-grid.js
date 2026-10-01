@@ -140,7 +140,12 @@
     return new Promise(function (resolve, reject) {
       var url = URL.createObjectURL(file), img = new Image();
       img.onload = function () { URL.revokeObjectURL(url); resolve(img); };
-      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('이미지를 열 수 없습니다: ' + file.name)); };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        var err = new Error('Cannot open image: ' + file.name);
+        err.code = 'decode'; err.file = file.name;   // UI 가 언어별 메시지로 바꿔 보여준다
+        reject(err);
+      };
       img.src = url;
     });
   }

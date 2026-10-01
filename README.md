@@ -55,7 +55,7 @@ broodev/
 | [home1](apps/home1/) | home1.broodev.com (미생성) | 개발자 소개 + 유용한 앱들 포털 (구 `dev` 내용) | React 18(CDN) · 정적 | 🟡 배포 대기 |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 | [home2](apps/home2/) | home2.broodev.com | 양동화 업적 포트폴리오 — 다음 버전 홈 (텍스트 교체 완료, 사진은 템플릿 원본) — 구 y-systems 레포 `home/` | 정적 HTML · Bootstrap 3 · jQuery | 🟡 배포 대기 |
-| [megahouse](apps/megahouse/) | megahouse.broodev.com | 사진 업로드 → A4 한 페이지 2×3 배열 엑셀(.xlsx) 다운로드 (브라우저 내 처리) — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS(CDN) | 🟡 배포 대기 |
+| [megahouse](apps/megahouse/) | megahouse.broodev.com | 사진 업로드 → A4 한 페이지 2×3 배열 엑셀(.xlsx) 다운로드 (브라우저 내 처리) — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS(CDN) · ko·ja·en | 🟡 배포 대기 |
 
 ### 🪙 코인 시그널 패밀리 (15종) — `scripts/gen_coin.py`
 btc를 템플릿으로 **동일 구조·기능**의 코인 앱을 찍어낸다. 코인 추가/재생성:

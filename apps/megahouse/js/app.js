@@ -1,7 +1,8 @@
-/* Megahouse — DOM 연결. 로직은 photo-grid.js (PhotoGrid) 에 있다. */
+/* Megahouse — DOM 연결. 로직은 photo-grid.js (PhotoGrid), 문구는 i18n.js (MH_I18N) 에 있다. */
 (function () {
   'use strict';
-  var PG = window.PhotoGrid;
+  var PG = window.PhotoGrid, I = window.MH_I18N;
+  var t = I.t;
   var $files = document.getElementById('pg-files');
   var $drop = document.getElementById('pg-drop');
   var $pages = document.getElementById('pg-pages');
@@ -17,6 +18,7 @@
   var files = [];     // 정렬된 File 목록
   var urls = [];      // 미리보기 object URL (지울 때 revoke)
   var busy = false;
+  var lastStatus = null; // 언어 전환 시 같은 상태 문구를 다시 그리기 위한 {key, vars, isError}
 
   function isImage(f) { return /^image\//i.test(f.type) || /\.(jpe?g|png|gif|webp|bmp|heic|heif|avif)$/i.test(f.name); }
 
@@ -33,13 +35,13 @@
 
   function removeAt(i) { files.splice(i, 1); render(); }
 
-  function clearAll() { files = []; render(); setStatus(''); }
+  function clearAll() { files = []; render(); setStatus(null); }
 
   function render() {
     urls.forEach(function (u) { URL.revokeObjectURL(u); }); urls = [];
     $pages.innerHTML = '';
     var n = files.length, pages = Math.ceil(n / PG.PER_PAGE);
-    $summary.textContent = n ? n + '장 · ' + pages + '페이지 (2×3)' : '사진 없음';
+    $summary.textContent = n ? t('summary', { n: n, p: pages }) : t('no_photos');
     $download.setAttribute('aria-disabled', n ? 'false' : 'true');
     for (var p = 0; p < pages; p++) {
       var wrap = document.createElement('div'); wrap.className = 'pg-page-wrap';
@@ -53,14 +55,14 @@
           cell.innerHTML = '<span class="pg-no">' + (idx + 1) + '</span>' +
             '<img alt="" src="' + url + '">' +
             '<span class="pg-cap">' + escapeHtml(f.name) + '</span>' +
-            '<button type="button" class="pg-del" title="제외" data-i="' + idx + '">×</button>';
+            '<button type="button" class="pg-del" title="' + escapeHtml(t('remove')) + '" data-i="' + idx + '">×</button>';
         } else {
           cell.className = 'pg-cell empty';
         }
         page.appendChild(cell);
       }
       var label = document.createElement('div'); label.className = 'pg-page-label text-Secondary';
-      label.textContent = 'Page ' + (p + 1) + ' / ' + pages;
+      label.textContent = t('page_label', { i: p + 1, n: pages });
       wrap.appendChild(page); wrap.appendChild(label);
       $pages.appendChild(wrap);
     }
@@ -68,8 +70,10 @@
 
   function escapeHtml(s) { return s.replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
-  function setStatus(msg, isError) {
-    $status.textContent = msg || '';
+  // key=null 이면 비움. 언어가 바뀌면 같은 key/vars 로 다시 번역해 그린다.
+  function setStatus(key, vars, isError) {
+    lastStatus = key ? { key: key, vars: vars, isError: !!isError } : null;
+    $status.textContent = key ? t(key, vars) : '';
     $status.style.color = isError ? '#e5484d' : '';
   }
 
@@ -80,20 +84,20 @@
 
   function generate() {
     if (busy) return;
-    if (!files.length) { setStatus('사진을 먼저 올려 주세요.', true); return; }
-    if (!window.ExcelJS) { setStatus('ExcelJS 를 불러오지 못했습니다. 네트워크를 확인해 주세요.', true); return; }
+    if (!files.length) { setStatus('st_need', null, true); return; }
+    if (!window.ExcelJS) { setStatus('st_noexcel', null, true); return; }
     busy = true;
     var maxPx = parseInt($maxPx.value, 10) || 0;
     var images = [];
     var chain = Promise.resolve();
     files.forEach(function (f, i) {
       chain = chain.then(function () {
-        setStatus('이미지 처리 중 ' + (i + 1) + ' / ' + files.length + ' — ' + f.name);
+        setStatus('st_processing', { i: i + 1, n: files.length, name: f.name });
         return PG.readImage(f, maxPx).then(function (im) { images.push(im); });
       });
     });
     chain.then(function () {
-      setStatus('엑셀 생성 중…');
+      setStatus('st_building');
       var wb = PG.buildWorkbook(window.ExcelJS, images, { caption: $caption.checked });
       return wb.xlsx.writeBuffer();
     }).then(function (buf) {
@@ -104,9 +108,11 @@
       a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 10000);
-      setStatus('완료 — ' + name + ' (' + images.length + '장 · ' + Math.ceil(images.length / PG.PER_PAGE) + '페이지)');
+      setStatus('st_done', { name: name, n: images.length, p: Math.ceil(images.length / PG.PER_PAGE) });
     }).catch(function (err) {
-      setStatus('실패: ' + (err && err.message ? err.message : err), true);
+      var msg = err && err.code === 'decode' ? t('err_decode', { name: err.file })
+              : (err && err.message ? err.message : String(err));
+      setStatus('st_fail', { msg: msg }, true);
     }).then(function () { busy = false; });
   }
 
@@ -127,5 +133,31 @@
   $form.addEventListener('submit', function (e) { e.preventDefault(); generate(); });
   $name.placeholder = defaultName();
 
+  // 언어 풀다운 (헤더) — 자체 토글(Bootstrap dropdown/Popper 의존 없음). 항목 클릭 → 전환 + 저장
+  var $lang = document.getElementById('pg-lang'), $langToggle = document.getElementById('pg-lang-toggle');
+  function closeLang() {
+    if (!$lang) return;
+    $lang.classList.remove('open');
+    if ($langToggle) $langToggle.setAttribute('aria-expanded', 'false');
+  }
+  if ($lang && $langToggle) {
+    $langToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = $lang.classList.toggle('open');
+      $langToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) { if (!$lang.contains(e.target)) closeLang(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLang(); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'), function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); I.set(el.getAttribute('data-lang')); closeLang(); });
+  });
+  // 언어가 바뀌면 동적으로 그린 부분(요약·페이지 라벨·제외 버튼·상태 문구)도 다시 번역
+  document.addEventListener('mh:lang', function () {
+    render();
+    if (lastStatus) setStatus(lastStatus.key, lastStatus.vars, lastStatus.isError);
+  });
+
+  I.apply();
   render();
 }());
