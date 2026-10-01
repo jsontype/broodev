@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>Megahouse — 사진 → 엑셀 2×3 배열</title>
+    <meta name="description" content="사진을 올리면 파일명 순서대로 A4 한 페이지에 2×3으로 배열된 엑셀(.xlsx)을 바로 내려받습니다. 브라우저에서만 처리, 서버 전송 없음.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Theme Style -->
+    <link rel="stylesheet" type="text/css" href="css/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="css/animation.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+    <!-- Font -->
+    <link rel="stylesheet" href="font/fonts.css">
+
+    <!-- Icon -->
+    <link rel="stylesheet" href="icon/style.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/favicon.png">
+    <link rel="apple-touch-icon-precomposed" href="images/favicon.png">
+
+    <!-- 앱 전용 스타일 (템플릿 CSS 위에 덧씀) -->
+    <style>
+        .pg-pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-bottom:24px}
+        .pg-page-wrap{min-width:0}
+        .pg-page{background:#fff;border-radius:12px;padding:10px;aspect-ratio:210/297;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:8px;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+        .pg-page-label{text-align:center;margin-top:8px;font-size:13px}
+        .pg-cell{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0;border:1px dashed rgba(0,0,0,.15);border-radius:8px;overflow:hidden;background:#f5f5f5}
+        .pg-cell img{flex:1;min-height:0;width:100%;object-fit:contain;background:#fff}
+        .pg-cell .pg-cap{font-size:11px;line-height:1.4;color:#333;text-align:center;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fff}
+        .pg-cell .pg-no{position:absolute;left:6px;top:6px;z-index:1;background:rgba(0,0,0,.65);color:#fff;font-size:11px;line-height:1;border-radius:999px;padding:4px 7px}
+        .pg-cell .pg-del{position:absolute;right:6px;top:6px;z-index:1;width:22px;height:22px;border:0;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;font-size:14px;line-height:22px;cursor:pointer;padding:0}
+        .pg-cell.empty{opacity:.35}
+        .uploadfile.dragover{outline:2px dashed currentColor;outline-offset:-6px}
+        .pg-select,.pg-input{width:100%;padding:10px 14px;border:1px solid rgba(128,128,128,.35);border-radius:12px;background:transparent;color:inherit;font:inherit}
+        .pg-select option{color:#111}
+        .pg-check{display:flex;align-items:center;gap:10px;cursor:pointer}
+        .pg-check input{width:16px;height:16px;margin:0}
+        .pg-hint{font-size:12px;margin-top:8px}
+        .tf-button[aria-disabled="true"]{opacity:.5;pointer-events:none}
+    </style>
+</head>
+
+<body>
+
+    <!-- #wrapper -->
+    <div id="wrapper">
+        <!-- #page -->
+        <div id="page" class="">
+            <!-- layout-wrap -->
+            <div class="layout-wrap">
+                <!-- section-menu-left -->
+                <div class="overplay-menu d-lg-none"></div>
+                <div class="section-menu-left">
+                    <div class="box-logo">
+                        <a href="index.html" id="site-logo-inner">
+                            <img class="" id="logo_header" alt="Megahouse" src="images/logo/logo.svg" data-dark="images/logo/logo.svg" data-light="images/logo/logo-white.svg" >
+                        </a>
+                        <div class="button-show-hide">
+                            <i class="icon-CaretLeft"></i>
+                        </div>
+                    </div>
+                    <div class="section-menu-left-wrap">
+                        <div class="center">
+                            <div class="center-item">
+                                <div class="center-heading">Megahouse Tools</div>
+                                <ul>
+                                    <li class="menu-item active">
+                                        <a href="index.html" class="">
+                                            <div class="icon">
+                                                <i class="icon-image"></i>
+                                            </div>
+                                            <div class="text">사진 → 엑셀 2×3</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="bot">
+                            <div class=" text-Secondary">©2026 Megahouse · Y-Systems</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /section-menu-left -->
+                <!-- section-content-right -->
+                <div class="section-content-right">
+                    <!-- header-dashboard -->
+                    <div class="header-dashboard">
+                        <div class="header-left">
+                            <div class="button-show-hide">
+                                <i class="icon-CaretLeft"></i>
+                            </div>
+                        </div>
+                        <div class="header-grid">
+                            <div class="flex gap12">
+                                <div class="header-item button-dark-light">
+                                    <i class="icon-Sun"></i>
+                                </div>
+                            </div>
+                            <div class="divider"></div>
+                            <div class="popup-wrap user type-header">
+                                <div class="header-user">
+                                    <img src="images/avatar/user-1.png" alt="user">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /header-dashboard -->
+                    <!-- main-content -->
+                    <div class="main-content">
+                        <div class="main-content-inner">
+                            <div class="main-content-wrap flex">
+                                <div class="flex-grow-1 relative">
+                                    <div class="left text-to-image-wrap">
+                                        <div class="heading">
+                                            <h4 class="mb-12">사진 → 엑셀 2×3 배열</h4>
+                                            <p class="text-Secondary">1.jpg, 2.jpg … 순서대로 사진을 올리면 A4 한 페이지에 2×3으로 배열된 엑셀 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.</p>
+                                        </div>
+                                        <div class="text-to-image-content">
+                                            <div class="mb-16 flex items-center justify-content-between flex-wrap gap16">
+                                                <h5>미리보기: <span id="pg-summary" class="text-Secondary">사진 없음</span></h5>
+                                                <div class="result-action">
+                                                    <a href="#" id="pg-clear" title="전부 지우기"><i class="icon icon-ArrowsClockwise"></i></a>
+                                                </div>
+                                            </div>
+                                            <div id="pg-pages" class="pg-pages"></div>
+                                            <div class="flex items-center flex-wrap gap16">
+                                                <a href="#" class="tf-button" id="pg-download" aria-disabled="true">
+                                                    <i class="icon icon-DownloadSimple"></i>
+                                                    엑셀 다운로드
+                                                </a>
+                                                <span id="pg-status" class="text-Secondary"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form action="#" class="sidebar-right" id="pg-form">
+                                    <div class="sidebar-btn-close sidebar-close">
+                                        <i class="icon-Export"></i>
+                                    </div>
+                                    <h5 class="title">설정</h5>
+                                    <div class="flex-grow-1 relative">
+                                        <div class="sidebar-content">
+                                            <fieldset class="">
+                                                <label class="text-Secondary mb-8" >사진 업로드 (여러 장)</label>
+                                                <div class="">
+                                                    <label class="uploadfile" for="pg-files" id="pg-drop">
+                                                        <span class="icon">
+                                                            <i class="icon-CloudArrowUp"></i>
+                                                        </span>
+                                                        <span class="">여기에 사진을 끌어다 놓거나 <br> <span class="text-Primary">클릭해서 선택</span></span>
+                                                        <input type="file" id="pg-files" name="photos" multiple accept="image/*">
+                                                    </label>
+                                                </div>
+                                                <p class="text-Secondary pg-hint">1.jpg, 2.jpg, 10.jpg … 파일명의 숫자 순으로 배열됩니다. 여러 번 나눠 올려도 합쳐집니다.</p>
+                                            </fieldset>
+                                            <div class="d-grid gap16">
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" >캡션</label>
+                                                    <label class="pg-check"><input type="checkbox" id="pg-caption" checked> 사진 아래 파일명 표시</label>
+                                                </fieldset>
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" for="pg-maxpx">이미지 최대 크기 (긴 변)</label>
+                                                    <select id="pg-maxpx" class="pg-select">
+                                                        <option value="1200">1200px — 가벼움</option>
+                                                        <option value="1600" selected>1600px — 권장 (인쇄 충분)</option>
+                                                        <option value="2400">2400px — 고화질</option>
+                                                        <option value="0">원본 그대로 (jpg·png·gif)</option>
+                                                    </select>
+                                                </fieldset>
+                                                <fieldset class="">
+                                                    <label class="text-Secondary mb-8" for="pg-filename">파일 이름</label>
+                                                    <input type="text" id="pg-filename" class="pg-input" placeholder="photos-2x3.xlsx">
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="tf-button w-full">
+                                        엑셀 생성 · 다운로드
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /main-content -->
+                </div>
+                <!-- /section-content-right -->
+            </div>
+            <!-- /layout-wrap -->
+        </div>
+        <!-- /#page -->
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Javascript -->
+    <script src="js/dark-light.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-select.min.js"></script>
+    <script src="js/nice-select.min.js"></script>
+    <script src="js/main.js"></script>
+    <!-- 앱: ExcelJS(CDN, 버전 고정) + 핵심 로직 + DOM -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js" crossorigin="anonymous"></script>
+    <script src="js/photo-grid.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
