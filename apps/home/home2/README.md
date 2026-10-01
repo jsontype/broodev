@@ -2,7 +2,7 @@
 
 > **기술 스택:** 순수 정적 HTML · Bootstrap 3.3.6 · jQuery 2.2.1 · Font Awesome · Owl Carousel · SCSS(Compass, 수동 컴파일). React·Babel·i18n·터미널 테마·AdSense **없음**.
 
-`home2.broodev.com` — **양동화(@jsontype) 업적 포트폴리오.** `home1`(구 `dev`, dev.broodev.com)의 다음 버전 홈.
+`home.broodev.com/home2/`(루트 활성은 home3 — 스위치는 [`../README.md`](../README.md)) — **양동화(@jsontype) 업적 포트폴리오.** `home1`(구 `dev`)의 다음 버전 홈이고, `home3`(Davies 템플릿)가 그 다음 버전.
 
 구 `jsontype/y-systems` 레포 `home/html/`(Photollax 템플릿)을 2026-10-01 통합한 뒤 **텍스트만 전부 교체**했다. 사진·이미지는 템플릿 원본 그대로(추후 비슷한 사진으로 교체 예정). 템플릿 설명서 `home/documentation/`과 `wrangler.toml`은 가져오지 않았다.
 
@@ -43,4 +43,4 @@
 
 ## 배포
 
-Cloudflare Pages 프로젝트 `broodev-home2` — Root directory `apps/home2`, 빌드 없음, output `.`. 절차는 [`docs/deploy-cloudflare.md`](../../docs/deploy-cloudflare.md) §2-B.
+`apps/home` 전체가 Pages 프로젝트 `broodev-home` 하나로 배포된다(Root `apps/home`). 이 폴더는 `/home2/` 로 미리보기되고, 루트(/)에 띄우려면 `../functions/_middleware.js` 의 `ACTIVE` 를 `'home2'` 로. 절차는 [`docs/deploy-cloudflare.md`](../../../docs/deploy-cloudflare.md) §2-B.
