@@ -99,7 +99,9 @@ broodev/
 │     └─ README.md
 ├─ scripts/
 │  ├─ gen_coin.py           코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화, §5)
-│  └─ coins.json            코인 14종 데이터(id·Binance 심볼·13언어 코인명)
+│  ├─ coins.json            코인 14종 데이터(id·Binance 심볼·13언어 코인명)
+│  ├─ og/gen_og.mjs         공유 썸네일(og-image.png 1200×630) 생성기 — SITES 에 18개 사이트 설정 내장, Edge/Chrome 헤드리스 스크린샷
+│  └─ cdp-shot.mjs          실제 시간 렌더 검증 하니스(헤드리스 + DevTools 프로토콜 · --mobile · --net slow · --ls · --eval) — docs/new-app.md §8
 ├─ docs/
 │  ├─ new-app.md            설계 총정리 + 신규 앱 체크리스트(Part 1/2)
 │  └─ deploy-cloudflare.md  Cloudflare Pages 배포 절차(앱별·AdSense 루트 전환 §1-B 포함)
