@@ -1,7 +1,7 @@
 /* home3 i18n 런타임 — 13개 언어 (사전은 i18n-data.js 의 window.HOME3_I18N)
    감지: localStorage(home:lang) → ?lang= → navigator.languages 순서대로 첫 매치 → en
    마크업: data-i18n="key"(textContent) · data-i18n-html="key"(innerHTML — 사전 문자열만) · data-i18n-aria-label="key"
-           data-lang-current(현재 언어명) · [data-lang="xx"](풀다운 항목, 클릭 → 저장 → 새로고침)
+           data-i18n-alt="key"(img alt — 기존 feat*_name·tes*_name·field_* 키 재사용) · data-lang-current(현재 언어명) · [data-lang="xx"](풀다운 항목, 클릭 → 저장 → 새로고침)
    ⚠ 이 파일은 jquery 다음, carousel.js(slick/swiper 초기화)·gsapAnimation.js(SplitText) 보다 먼저 실행돼야 한다 —
      슬라이더가 슬라이드를 복제하고 GSAP 이 글자를 쪼개기 전에 텍스트를 바꿔야 하므로. 언어 변경은 새로고침으로 처리한다. */
 (function (root) {
@@ -50,6 +50,7 @@
     each('[data-i18n]', function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
     each('[data-i18n-html]', function (el) { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
     each('[data-i18n-aria-label]', function (el) { el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria-label'))); });
+    each('[data-i18n-alt]', function (el) { el.setAttribute('alt', t(el.getAttribute('data-i18n-alt'))); });
     each('[data-lang-current]', function (el) { el.textContent = NAMES[cur]; });
     each('[data-lang]', function (el) { el.classList.toggle('active', el.getAttribute('data-lang') === cur); });
   }
