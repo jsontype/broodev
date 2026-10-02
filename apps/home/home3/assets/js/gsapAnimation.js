@@ -293,6 +293,20 @@
         }
     };
 
+    /* 프리로더 — broodev 수정(2026-10-02):
+     *  템플릿 원본은 window.load 뒤에만 바 애니메이션을 시작하고, 그 애니메이션(GSAP·rAF)이 끝나야 프리로더를 지웠다.
+     *  모바일에서는 히어로 영상(수 MB)이 load 를 수 초~수십 초 지연시키고, 백그라운드 탭·절전 모드에선 rAF 가 멈춰
+     *  검은 프리로더(JSONTYPE)만 남는 사고가 났다. → DOM 준비 즉시 시작 + 2초 워치독으로 무조건 끝낸다.
+     *  finish() 는 멱등: 프리로더 제거 → 애니메이션 초기화(단계별 try/catch) → 'home3:ready' 이벤트(영상 지연 로드가 듣는다). */
+    var animationsStarted = false;
+    var finishPreloader = function () {
+        if (animationsStarted) return;
+        animationsStarted = true;
+        $(".preloader").remove();
+        runAnimations();
+        try { document.dispatchEvent(new CustomEvent("home3:ready")); } catch (e) { /* 구형 브라우저 */ }
+    };
+
     var loader = function () {
         if ($(".preloader").length) {
             var innerBars = document.querySelectorAll(".inner-bar");
@@ -323,10 +337,7 @@
                         animateBars();
                     } else {
                         var preloaderTL = gsap.timeline({
-                            onComplete: () => {
-                                $(".preloader").remove();
-                                runAnimations();
-                            },
+                            onComplete: finishPreloader,
                         });
 
                         preloaderTL.to(".preloader", {
@@ -338,11 +349,11 @@
                 });
             }
 
-            $(window).on("load", function () {
-                animateBars();
-            });
+            // 원본: $(window).on("load", animateBars) — load 를 기다리지 않는다(위 주석 참고)
+            animateBars();
+            setTimeout(finishPreloader, 2000); // 워치독: GSAP/rAF 가 멈춰도 2초 뒤엔 반드시 화면을 연다
         } else {
-            runAnimations();
+            finishPreloader();
         }
     };
 
@@ -679,15 +690,10 @@
     };
 
     var runAnimations = () => {
-        serviceScroll();
-        stackElement();
-        scrollSmooth();
-        stackElement2();
-        gsapA2();
-        changetext();
-        scrollEffectFade();
-        mouseHover();
-        animateBox();
+        // 한 단계가 예외를 던져도(모바일·구형 브라우저) 뒤의 scrollEffectFade 까지는 반드시 돈다 — 안 그러면 .effectFade 가 전부 숨은 채 남는다
+        [serviceScroll, stackElement, scrollSmooth, stackElement2, gsapA2, changetext, scrollEffectFade, mouseHover, animateBox].forEach(function (step) {
+            try { step(); } catch (e) { if (window.console) console.error("home3 animation step failed:", step.name, e); }
+        });
     };
 
     $(function () {
