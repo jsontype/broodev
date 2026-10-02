@@ -31,9 +31,10 @@
 
 ## i18n · 로고
 
-- **언어 감지**: `localStorage(mh:lang)` → `?lang=` → `navigator.language`(일본어→ja, 한국어→ko, 그 외→en). 헤더 우측 🌐 풀다운으로 바꾸면 저장된다.
+- **언어 감지**: `localStorage(mh:lang)` → `?lang=` → `navigator.language`(일본어→ja, 한국어→ko, 그 외→en). 헤더 우측 🌐 풀다운(순서 **日本語 · 한국어 · English**)으로 바꾸면 저장된다.
 - 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(드롭존처럼 태그 포함) · `data-i18n-title/placeholder/aria-label`(속성). 동적 문구(요약·페이지 라벨·버튼·상태)는 `app.js` 가 `MH_I18N.t()` 로 그리고, 언어가 바뀌면 `mh:lang` 이벤트로 다시 그린다. 세 사전의 키는 동일해야 한다(검증 스크립트가 확인).
 - **로고**: 템플릿의 Aizox 로고를 **Y Systems** 텍스트 워드마크로 교체(2026-10-02 Y 마크 아이콘 제거, 텍스트만). 텍스트라 dark/light 는 CSS 변수(`--OnSurface`)로 자동 — `dark-light.js` 의 `#logo_header` 이미지 스왑은 요소가 없어 no-op. `images/logo/*.svg` 도 Y Systems 워드마크로 바꿔 둠(현재 미사용). `images/favicon.png` 와 CSS/SCSS 상단 템플릿 크레딧 주석은 그대로.
+- **공유 썸네일(OG)**: head 에 `og:title/description/url/image` + `twitter:card=summary_large_image`. `og-image.png`(1200×630) 은 [`scripts/og/gen_og.mjs`](../../scripts/og/gen_og.mjs) 의 `utils` 설정으로 생성(`node scripts/og/gen_og.mjs utils`). 카카오톡 캐시는 https://developers.kakao.com/tool/clear/og 에서 지운다.
 - **사이드바 그룹명**(`tools_heading`): 유틸 / ユーティリティ / Utils — 2026-10-02 'Megahouse Tools' 에서 사이트명(utils)에 맞춰 변경. 도구를 추가할 때는 `menu_app` 처럼 메뉴 항목 키를 하나씩 늘린다.
 - **생성·다운로드 버튼은 오른쪽 설정 패널의 submit 하나뿐.** 미리보기 아래에 있던 `{fmt} 다운로드` 중복 버튼과 i18n `download` 키는 2026-10-02 제거(헷갈린다는 피드백).
 
