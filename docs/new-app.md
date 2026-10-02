@@ -108,6 +108,7 @@
 - ⚠️ **헤드리스 Edge는 이 앱의 React를 렌더 못 함**(CDN React/Babel 미실행). `--dump-dom`은 인라인 스크립트 **소스**만 잡힘 → 렌더 검증 무효.
 - **대안**:
   - CSS/레이아웃: **정적 HTML 하니스**(앱과 동일 CSS + 실제 텍스트)를 만들어 `--headless --screenshot` → 이미지 확인(13언어 오버플로 등).
+  - **실제 시간 렌더 검증 → [`scripts/cdp-shot.mjs`](../scripts/cdp-shot.mjs)** (2026-10-02): Edge/Chrome 헤드리스를 DevTools 프로토콜로 붙여 진짜 시간으로 기다린 뒤 스크린샷 + JSON 진단(JS 예외·콘솔 에러·load 시각·video 상태·요소 가시성). `--mobile`(iPhone UA·390×844·터치) `--net slow|3g`(회선 에뮬레이션) `--ls key=value`(localStorage 선주입, 언어 고정) `--eval "expr"`(추가 진단). 가상 시간 `--virtual-time-budget` 으로는 못 잡는 "폰에서만 프리로더가 안 사라짐" 류를 이걸로 재현했다(home3). 로컬 서버: `python -m http.server 8766 --directory .` → `--url http://127.0.0.1:8766/apps/<app>/index.html`.
   - 구조화 데이터: JSON-LD 추출 후 `ConvertFrom-Json` 파싱 검증.
   - 라이브/배포: `Invoke-WebRequest`로 HTTP 200·Content-Type·헤더·정적 콘텐츠·robots 확인.
   - JS 문법: 인라인 문자열 **이스케이프 안 된 따옴표** 정적 스캔(`[a-z]'[a-z]`).
@@ -141,6 +142,7 @@
 - ■ 모든 텍스트 13언어 번역(밴드/조언/FAQ/UI). 새 문자열 추가 시 13개 동시.
 - ■ **긴 언어 오버플로 시각 검증**(정적 하니스 스크린샷). de/fr/nl/ru 주의.
 - □ 공유 OG 현지화 → `functions/_middleware.js`(HTMLRewriter) + 언어별 OG 이미지.
+- ■ **공유 썸네일 `og-image.png`(1200×630)** — 카카오톡·LINE·X 는 `og:image` 가 없으면 빈 카드가 뜬다. [`scripts/og/gen_og.mjs`](../scripts/og/gen_og.mjs) 의 `SITES` 에 앱 설정(배경·액센트·배지·제목·태그) 추가 → `node scripts/og/gen_og.mjs <id>` → head 에 `og:image`(절대 URL) + `og:image:width/height/alt` + `twitter:card=summary_large_image` + `twitter:image`. 카카오 캐시는 https://developers.kakao.com/tool/clear/og 에서 지운다.
 
 ### D. SEO
 - ■ `<title>`(키워드) / `meta description`(120~155자) / keywords / `robots: index,follow` / `canonical` / OG.

@@ -43,7 +43,9 @@ broodev/
 │  └─ ui-terminal/   공통 "터미널/해킹" 테마(theme.css) — 모든 앱이 같은 룩 공유
 ├─ scripts/
 │  ├─ gen_coin.py    코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화)
-│  └─ coins.json     코인 14종 데이터(id·심볼·13언어 코인명)
+│  ├─ coins.json     코인 14종 데이터(id·심볼·13언어 코인명)
+│  ├─ og/gen_og.mjs  공유 썸네일(og-image.png 1200×630) 생성기 — 18개 사이트 설정 내장
+│  └─ cdp-shot.mjs   실제 시간 렌더 검증 하니스(헤드리스 + DevTools 프로토콜 · 모바일/느린 회선 에뮬레이션)
 └─ .github/workflows/   배포 파이프라인
 ```
 
@@ -59,7 +61,7 @@ broodev/
 | [home](apps/home/) | **home.broodev.com** | **홈 3종을 한 프로젝트로** — `functions/_middleware.js` 의 `ACTIVE` 가 루트(/)에 띄울 홈을 고른다(현재 `home3`). `/home1/` `/home2/` `/home3/` 로 각각 미리보기(noindex) | Pages Function 1개 + 정적 | 🟡 배포 대기 |
 | ├ [home1](apps/home/home1/) | home.broodev.com/home1/ | 개발자 소개 + 유용한 앱들 포털 (구 `dev` 내용) | React 18(CDN) · 정적 | — |
 | ├ [home2](apps/home/home2/) | home.broodev.com/home2/ | 양동화 업적 포트폴리오 — Photollax 템플릿 (텍스트 교체 완료, 사진은 템플릿 원본) — 구 y-systems 레포 `home/` | 정적 HTML · Bootstrap 3 · jQuery | — |
-| └ [home3](apps/home/home3/) | home.broodev.com (루트 = 현재 활성) | 양동화 업적 포트폴리오 v3 — Davies 템플릿 (텍스트 교체 완료, 사진·영상은 템플릿 원본) | 정적 HTML · Bootstrap 5 · GSAP · Swiper | — |
+| └ [home3](apps/home/home3/) | home.broodev.com (루트 = 현재 활성) | 양동화 업적 포트폴리오 v3 — Davies 템플릿 (텍스트 교체 완료, 사진·영상은 템플릿 원본) | 정적 HTML · Bootstrap 5 · GSAP · Swiper · **13개 언어 i18n** · OG 썸네일 | — |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 | [samurai](games/samurai/) | samurai.broodev.com | 사무라이 택틱스 2 — 한 줄 전장 턴제 검술 로그라이크 (구 `apps/games/st2`, 2026-10-02 `games/samurai` 로 이동) | 자기완결형 · 13개국어 | 🟢 라이브 |
 | [utils](apps/utils/) | utils.broodev.com | **업무 유틸 모음**(구 `megahouse`, 2026-10-02 개명 — 일에 필요한 도구를 계속 추가). 현재 도구: 사진 업로드 → 용지(A4·A3·A5·B4·B5·Letter·Legal)·세로/가로·가로×세로 각 1~5 격자로 배열한 엑셀(.xlsx) / 파워포인트(.pptx) 다운로드 (브라우저 내 처리) — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS·PptxGenJS(CDN) · ko·ja·en | 🟡 배포 대기 |
