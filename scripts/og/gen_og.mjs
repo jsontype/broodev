@@ -33,7 +33,7 @@ export const SITES = [
     tags: ['XLSX', 'PPTX', 'A4 · A3 · B4 · Letter', 'ko · ja · en'], deco: 'grid' },
   { id: 'home3', out: 'apps/home/home3/og-image.png', domain: 'home.broodev.com',
     theme: { bg: '#000000', glow: '#07C42C', accent: '#07C42C', text: '#FFFFFF', dim: '#A6A6A6', font: 'sans' },
-    badge: 'Y-SYSTEMS · BROODEV · PORTFOLIO', title: 'JSONTYPE<b>_</b>', titleSize: 150,
+    badge: 'Y-SYSTEMS · PORTFOLIO', title: 'BROODEV<b>_</b>', titleSize: 150,
     sub: '양동화 (@jsontype) — Frontend · Full-cycle Engineer · Tokyo',
     tags: ['15 projects', '15 web apps', '13 languages', '10 developers trained'], deco: 'none' },
   { id: 'home1', out: 'apps/home/home1/og-image.png', domain: 'home.broodev.com/home1/',

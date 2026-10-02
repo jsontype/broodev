@@ -10,7 +10,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 | 섹션 | 내용 | 출처 |
 |---|---|---|
-| 히어로 | `JSONTYPE_` · 역할 3줄 · 한 줄 소개 · OPEN FOR COLLABORATION | home1 `WHOAMI_TEXT` |
+| 히어로 | `BROODEV_`(프리로더 사이트명도 BROODEV) · 역할 3줄 · 한 줄 소개 · OPEN FOR COLLABORATION | home1 `WHOAMI_TEXT` |
 | SELECTED WORKS (slick) | 대표 업적 3건 — Z사 AI 채용 · N사 결제 부정이용 방지 · C사 AI 교과서 | 스킬시트 |
 | 업적 전체 (swiper 카드) | **15건** — 회사(익명)·분야·공헌도·연도 | home2 `blog.html` |
 | 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE + 세부 5줄씩 | home1 `SERVICES` |
@@ -37,7 +37,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 ## 모바일 — 프리로더 · 영상 (2026-10-02 수정)
 
-**증상:** PC 는 정상인데 폰에서는 검은 화면(JSONTYPE 프리로더)만 보였다.
+**증상:** PC 는 정상인데 폰에서는 검은 화면(프리로더 사이트명만)만 보였다.
 **원인(헤드리스 Edge + DevTools 프로토콜로 재현):** 템플릿 원본은 `window.load` 뒤에 GSAP 바 애니메이션을 돌리고 그 끝에야 프리로더를 지웠다. ① 히어로 `corridor.webm`(4 MB)·소개 `davies-video.mp4`(1.5 MB)가 `load` 를 수 초~수십 초 지연(1.5 Mbps 에뮬레이션에서 12초 뒤에도 DOM 파싱조차 미완), ② 캐시가 따뜻하면 반대로 jQuery ready 콜백보다 `load` 가 먼저 떠 핸들러가 영영 안 불림, ③ 백그라운드 탭·절전 모드에선 rAF 가 멈춰 GSAP 이 진행 안 됨.
 **수정:**
 - `gsapAnimation.js` `loader()`: DOM 준비 즉시 바 애니메이션 시작 + **2초 워치독**(`finishPreloader`, 멱등)으로 무조건 프리로더 제거 → `runAnimations()`(단계별 try/catch — 한 단계가 죽어도 `.effectFade` 표시 단계는 돈다) → `home3:ready` 이벤트.

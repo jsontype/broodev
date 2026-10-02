@@ -186,7 +186,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 
 ### 6.5b home3 — `home.broodev.com` (현재 활성 · `apps/home/home3`)
 - **업적 포트폴리오 v3 — home2 의 다음 버전.** Davies 템플릿(themesflat · Bootstrap 5 · GSAP ScrollTrigger/SplitText · Swiper · Slick · Odometer)을 2026-10-02 통합한 뒤 **텍스트 전부 교체**. 사진·영상은 템플릿 원본(교체 예정). 블로그·랜딩·version-2 등 템플릿 부속 페이지는 가져오지 않음.
-- 원페이지: 히어로(JSONTYPE_) · SELECTED WORKS 3건(slick) · 업적 전체 15건(swiper 카드, 회사 익명화) · 하는 일 3종 · 일하는 방식 3단계 · ABOUT + 경력 · TECH STACK · 분야별 건수 · IMPACT HIGHLIGHTS(성과 인용 4건, 템플릿 testimonial 재활용) · 숫자(15·15·10) · broodev 앱 15개(템플릿 pricing 재활용) · FAQ 5 · 연락. 상세 [`apps/home/home3/README.md`](apps/home/home3/README.md).
+- 원페이지: 히어로(BROODEV_) · SELECTED WORKS 3건(slick) · 업적 전체 15건(swiper 카드, 회사 익명화) · 하는 일 3종 · 일하는 방식 3단계 · ABOUT + 경력 · TECH STACK · 분야별 건수 · IMPACT HIGHLIGHTS(성과 인용 4건, 템플릿 testimonial 재활용) · 숫자(15·15·10) · broodev 앱 15개(템플릿 pricing 재활용) · FAQ 5 · 연락. 상세 [`apps/home/home3/README.md`](apps/home/home3/README.md).
 - **13개 언어 i18n(2026-10-02)**: 사전 `assets/js/i18n-data.js`(160키 × 13) + 런타임 `assets/js/i18n.js`, 마크업 `data-i18n`/`data-i18n-html`. 감지 localStorage → `?lang` → 브라우저 언어 → en. 헤더 🌐 풀다운 순서 English · 日本語 · 한국어 · (btc 와 같은 10개). 슬라이더 복제·SplitText 전에 적용해야 하므로 jquery 직후 실행, 언어 변경은 새로고침. hreflang 13개.
 - **모바일 블랙아웃 수정(2026-10-02)**: 템플릿 프리로더가 `window.load`+GSAP 에 묶여 폰에서 검은 화면만 남던 문제 — `gsapAnimation.js` 가 DOM 준비 즉시 시작 + 2초 워치독으로 프리로더를 반드시 제거, 영상은 `preload="none"` + `data-src` 로 프리로더 뒤/뷰포트 근접 시 로드, 히어로는 H.264 `corridor.mp4` 우선(Safari). 상세 [`apps/home/home3/README.md`](apps/home/home3/README.md).
 - React·테마·AdSense **없음**. 연락 폼은 백엔드 없이 **mailto** 로 연다. 404 는 같은 셸의 `404.html`. 공유 썸네일 `og-image.png` 는 `scripts/og/gen_og.mjs` 생성.
