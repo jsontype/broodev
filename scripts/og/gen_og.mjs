@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // OG 공유 썸네일(1200×630 PNG) 생성기 — 카카오톡·LINE·X 미리보기용
 //   node scripts/og/gen_og.mjs            # 전부
-//   node scripts/og/gen_og.mjs utils home3 # 일부
+//   node scripts/og/gen_og.mjs utils dev3  # 일부
 //   node scripts/og/gen_og.mjs --list
 // 방식: 아래 SITES 설정 → 템플릿 HTML(renderHtml) → Edge/Chrome 헤드리스 --screenshot → <app>/og-image.png
 // 외부 의존성 없음(설치된 Edge 또는 Chrome 필요). 폰트는 Google Fonts(Inter·JetBrains Mono) + 시스템 한글(Malgun Gothic) 폴백.
@@ -31,26 +31,29 @@ export const SITES = [
     badge: 'Y SYSTEMS · UTILS', title: '사진 → <b>엑셀 · PPT</b><br>격자 배열',
     sub: 'Photos → Excel · PowerPoint grid — 용지 7종 · 세로/가로 · 가로×세로 1~5 · 브라우저에서만 처리',
     tags: ['XLSX', 'PPTX', 'A4 · A3 · B4 · Letter', 'ko · ja · en'], deco: 'grid' },
-  { id: 'home3', out: 'apps/home/home3/og-image.png', domain: 'home.broodev.com',
+  // 포털(broodev.com 루트 · AIXOR 템플릿) — 2026-10-03 신설
+  { id: 'home', out: 'apps/home/og-image.png', domain: 'broodev.com',
+    theme: { bg: '#000000', glow: '#ffffff', accent: '#FFFFFF', text: '#FFFFFF', dim: '#999999', font: 'sans' },
+    badge: 'BROODEV · APP PORTAL', titleSize: 170,
+    title: '<i style="font-family:Georgia,\'Times New Roman\',serif;font-weight:400;font-style:italic;letter-spacing:-.03em">broo</i><b>dev</b><span style="color:#666">.</span>',
+    sub: '쓸모 있는 웹앱 포털 — 코인 시그널 15 · 생활 인포패널 12 · 학습 · 업무 도구 · 게임 · 설치 없이, 13개 언어로',
+    tags: ['33 apps', '6 categories', '13 languages', 'no install'], deco: 'none' }, // 앱 수는 apps/home/assets/js/catalog.js 와 맞출 것
+  // 개발자 소개 사이트 3종 (2026-10-03 apps/home/home1~3 → apps/dev/dev1~3)
+  { id: 'dev3', out: 'apps/dev/dev3/og-image.png', domain: 'dev.broodev.com',
     theme: { bg: '#000000', glow: '#07C42C', accent: '#07C42C', text: '#FFFFFF', dim: '#A6A6A6', font: 'sans' },
     badge: 'Y-SYSTEMS · PORTFOLIO', title: 'JSONTYPE<b>_</b>', titleSize: 150,
     sub: '양동화 (@jsontype) — Frontend · Full-cycle Engineer · Tokyo',
     tags: ['15 projects', '15 web apps', '13 languages', '10 developers trained'], deco: 'none' },
-  { id: 'home1', out: 'apps/home/home1/og-image.png', domain: 'home.broodev.com/home1/',
+  { id: 'dev1', out: 'apps/dev/dev1/og-image.png', domain: 'dev.broodev.com/dev1/',
     theme: TERM('#050807', '#00ff88'),
     badge: '>_ COSMIC COMPILER', title: 'Yang Donghwa<br><b>@jsontype</b>',
     sub: '도쿄의 프론트엔드 개발자 · broodev 우주 — 15개 무료 웹앱 · 13개 언어 · 스크롤 = 엔터키',
     tags: ['React', '13 languages', 'Tokyo'], deco: 'ring', glyph: '>_' },
-  { id: 'home2', out: 'apps/home/home2/og-image.png', domain: 'home.broodev.com/home2/',
+  { id: 'dev2', out: 'apps/dev/dev2/og-image.png', domain: 'dev.broodev.com/dev2/',
     theme: { bg: '#141414', glow: '#8a8a8a', accent: '#FFFFFF', text: '#FFFFFF', dim: '#B0B0B0', font: 'sans' },
     badge: 'Y-SYSTEMS · PORTFOLIO v2', title: '양동화 <b>(@jsontype)</b><br>업적 포트폴리오',
     sub: '핀테크·AI·에듀테크·리걸테크·통신 15건 · broodev 웹앱 15개 · 개발자 10명 배출',
     tags: ['Tokyo', 'Full-cycle', '2019 –'], deco: 'none' },
-  { id: 'dev', out: 'apps/dev/og-image.png', domain: 'dev.broodev.com',
-    theme: TERM('#05080a', '#00ff9c'),
-    badge: '>_ BROODEV · DEV', title: '공사중<br><b>UNDER CONSTRUCTION</b>', titleSize: 64,
-    sub: 'dev.broodev.com 은 새 홈을 준비하는 중입니다 — home.broodev.com 으로 오세요',
-    tags: ['compiling universe… 62%'], deco: 'ring', glyph: '🚧' },
   { id: 'samurai', out: 'games/samurai/og-image.png', domain: 'samurai.broodev.com',
     theme: { bg: '#12100d', glow: '#c9432f', accent: '#d9a441', text: '#e8ddc8', dim: '#8f8474', font: 'sans' },
     badge: '⚔ BROODEV GAMES', title: '사무라이 택틱스 <b>2</b>',
