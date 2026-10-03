@@ -64,7 +64,7 @@ const PROJECTS = [
     url: 'https://samurai.broodev.com', link: 'samurai.broodev.com' },
   { hash: 'a3f9c21', name: 'BTC_SIGNAL', status: 'live', statusLabel: 'LIVE', cat: 'crypto',
     desc: '15종 코인의 공포·탐욕 지수와 지표 합성 매수 타이밍 점수(0~100) · 13개 언어 · 코인별 전용 도메인(eth·ltc 등 14개 서브도메인).',
-    url: 'https://broodev.com', link: 'broodev.com' },
+    url: 'https://btc.broodev.com', link: 'btc.broodev.com' },
   { hash: '7be02d4', name: 'VOCA_DECK', status: 'live', statusLabel: 'LIVE', cat: 'learn',
     desc: '깜빡이 단어암기장 — CSV 임포트·3초 자동 반복·TTS. 설치 없이 링크 하나로.',
     url: 'https://voca.broodev.com', link: 'voca.broodev.com' },

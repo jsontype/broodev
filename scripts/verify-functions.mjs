@@ -19,7 +19,7 @@ for (const app of ['btc', 'voca']) {
   const { onRequest } = await import(`${repo}/apps/${app}/functions/_middleware.js`);
 
   // 1) 커스텀 도메인 → 헤더 없음
-  let res = await onRequest({ request: new Request('https://broodev.com/'), next: async () => htmlRes() });
+  let res = await onRequest({ request: new Request('https://btc.broodev.com/'), next: async () => htmlRes() });
   ok('custom domain: no X-Robots-Tag', res.headers.get('x-robots-tag') === null);
 
   // 2) pages.dev → noindex
@@ -39,7 +39,7 @@ for (const app of ['btc', 'voca']) {
   ok('lang rewrite + noindex both applied', res.headers.get('x-robots-tag') === 'noindex, nofollow');
 
   // 5) 커스텀 도메인 + lang 변환 → 헤더 없음
-  res = await onRequest({ request: new Request('https://broodev.com/?lang=ja'), next: async () => htmlRes() });
+  res = await onRequest({ request: new Request('https://btc.broodev.com/?lang=ja'), next: async () => htmlRes() });
   ok('custom domain + lang: no header', res.headers.get('x-robots-tag') === null);
 }
 

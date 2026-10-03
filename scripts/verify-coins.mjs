@@ -28,8 +28,9 @@ for (const c of COINS) {
   ok(label + ' 레지스트리 보호(btc 슬롯·비트코인 라벨)', idx.includes("slug: 'btc'") && idx.includes("ko: '비트코인'"))
   ok(label + ' COIN_NAMES 보호', idx.includes("var COIN_NAMES = {") && idx.includes("['이더리움', 'ETH']"))
   ok(label + ' 푸터: 자기 코인 스팬', idx.includes(`<span class="cur" data-coin="${sub}"`))
-  ok(label + ' 푸터: btc 링크', idx.includes('<a data-coin="btc" href="https://broodev.com/">비트코인</a>'))
-  ok(label + ' 자기참조 잔존(btc 도메인) 없음', !idx.includes('https://broodev.com/og-image') && !idx.includes(`canonical" href="https://broodev.com/`))
+  ok(label + ' 푸터: btc 링크', idx.includes('<a data-coin="btc" href="https://btc.broodev.com/">비트코인</a>'))
+  ok(label + ' 자기참조 잔존(btc 도메인) 없음', !idx.includes('https://btc.broodev.com/og-image') && !idx.includes(`canonical" href="https://btc.broodev.com/`) && !idx.includes(`canonical" href="https://broodev.com/`))
+  ok(label + ' 비트코인 앱 링크 보호(코인 선택 JS)', idx.includes("btcLink.href = 'https://btc.broodev.com/'") && idx.includes("v === 'btc' ? 'https://btc.broodev.com/'"))
   ok(label + ' 호스트 인식 헬퍼', idx.includes('window.__SUBCOIN'))
 
   ok(label + ' _redirects 404 폴백(301 스텁 제거)', readFileSync(`${dir}/_redirects`, 'utf8').trim() === '/*  /404.html  404')

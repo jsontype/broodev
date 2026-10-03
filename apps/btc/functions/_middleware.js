@@ -3,7 +3,7 @@
 // 응답 직전에 OG 메타(title/description/locale/image)를 해당 언어로 갈아끼운다.
 // 기본(ko) 또는 미지원 lang → 원본 HTML 그대로(한국어).
 
-const IMG = 'https://broodev.com';
+const IMG = 'https://btc.broodev.com';
 const M = {
   en: { t: 'Bitcoin Fear & Greed Index · Buy-Timing Score | BTC_SIGNAL', d: 'Real-time Bitcoin Fear & Greed Index plus RSI, MACD, Mayer Multiple and more — 8 indicators in one 0–100 buy-timing score. Free, no install.', l: 'en_US', img: IMG + '/og-en.png' },
   ja: { t: 'ビットコイン 恐怖・強欲指数 · 買い時スコア | BTC_SIGNAL', d: 'ビットコインの恐怖・強欲指数にRSI・MACD・マイヤー倍率など8指標を合成し、買い時を0〜100で示す無料ダッシュボード。インストール不要。', l: 'ja_JP', img: IMG + '/og-ja.png' },
@@ -32,7 +32,7 @@ class TextSetter { constructor(v) { this.v = v; } element(el) { el.setInnerConte
 class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('lang', this.v); } }
 
 export async function onRequest(context) {
-  // 2026-08-31 원복: 루트(broodev.com)가 비트코인 정본. btc.broodev.com 은 같은 앱을 서빙하되
+  // 2026-10-03: btc.broodev.com 이 비트코인 정본(루트 broodev.com 은 포털). 2026-08-31 원복 때는 루트가 정본이었고 btc.broodev.com 은 같은 앱을 서빙하되
   // canonical 이 루트를 가리켜 중복 색인 없음 — 호스트 분기 리다이렉트는 두지 않는다.
   const res = await ogRewrite(context);
   // *.pages.dev(프리뷰/기본 도메인)는 broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단

@@ -4,7 +4,8 @@
 실제 코인 앱을 채운다. (v1은 broodev.com 루트 시절 앵커라 폐기)
 
 현행 템플릿 전제:
- - 자기참조 도메인이 https://broodev.com (루트 = 비트코인, 2026-08-31 원복)
+ - 자기참조 도메인이 https://btc.broodev.com (2026-10-03: 루트 broodev.com 은 포털(apps/home),
+   비트코인 정본은 btc.broodev.com 으로 이전)
  - 런타임 코인 레지스트리(const COINS)·호스트 인식(window.__SUBCOIN)·
    서브도메인 푸터 내비·미들웨어 COIN_HOSTS 가 존재한다.
 
@@ -15,7 +16,9 @@
 원칙: 블라인드 치환 금지.
  - 보호구역(푸터 내비·COINS 레지스트리·COIN_NAMES·COIN_HOSTS)은 플레이스홀더로
    빼놓고 치환 후 복원한다 — 코인명 목록이 깨지면 안 된다.
- - 자기참조 URL 만 <sub>.broodev.com 으로. 비트코인 전용 해설 페이지(BTC_ONLY)는
+ - 자기참조 호스트(btc.broodev.com)만 <sub>.broodev.com 으로. 포털(https://broodev.com/)·
+   dev.broodev.com 링크는 그대로. 비트코인 앱으로 가는 링크(푸터 '비트코인'·코인 선택 JS)는
+   보호구역으로 빼서 btc.broodev.com 을 유지한다. 비트코인 전용 해설 페이지(BTC_ONLY)는
    복제하지 않으며, 코인 앱 sitemap 은 핵심 3 URL 로 재생성한다.
  - _redirects 는 표준 404 폴백으로 덮어쓴다(과거 301 스텁 제거 — 이게 핵심).
 """
@@ -43,8 +46,18 @@ PROTECT_INDEX = [
     ("FOOTNAV", r'<nav class="foot-fam".*?</nav>'),
     ("REGISTRY", r'const COINS = \[.*?\]'),
     ("COINNAMES", r'var COIN_NAMES = \{.*?\};'),
+    # 비트코인 앱으로 가는 링크 — 코인 호스트로 바뀌면 안 됨
+    ("BTCLINK1", r"btcLink\.href = 'https://btc\.broodev\.com/'"),
+    ("BTCLINK2", r"v === 'btc' \? 'https://btc\.broodev\.com/'"),
 ]
 PROTECT_MW = [("COINHOSTS", r'const COIN_HOSTS = \{.*?\};')]
+
+SRC_HOST = "btc.broodev.com"
+
+
+def rehost(text, c):
+    """자기참조 호스트 치환 — https:// 유무와 무관하게(본문 표기 포함)."""
+    return text.replace(SRC_HOST, f"{c['sub']}.broodev.com")
 
 
 def apply_names(text, names):
@@ -76,9 +89,9 @@ def brand(text, c):
 
 
 def transform_index(html, c):
-    sub, base, names = c["sub"], f"https://{c['sub']}.broodev.com", c["names"]
+    sub, names = c["sub"], c["names"]
     html, saved = protect(html, PROTECT_INDEX)
-    html = html.replace("https://broodev.com", base)   # 자기참조 전부
+    html = rehost(html, c)   # 자기참조 전부
     html = brand(html, c)
     html = apply_names(html, names)
     html = html.replace("bitcoin fear and greed index",
@@ -86,7 +99,7 @@ def transform_index(html, c):
     html = restore(html, saved)
     # 푸터 내비 현재 마커: btc 스팬 → 링크, 자기 코인 링크 → 스팬
     html = html.replace('<span class="cur" data-coin="btc" aria-current="page">비트코인</span>',
-                        '<a data-coin="btc" href="https://broodev.com/">비트코인</a>')
+                        '<a data-coin="btc" href="https://btc.broodev.com/">비트코인</a>')
     own = re.search(rf'<a data-coin="{sub}" href="https://{re.escape(sub)}\.broodev\.com/">(.*?)</a>', html)
     if not own:
         raise SystemExit(f"푸터 자기 코인 링크 앵커 실패: {sub}")
@@ -97,20 +110,20 @@ def transform_index(html, c):
 
 def transform_middleware(js, c):
     js, saved = protect(js, PROTECT_MW)
-    js = js.replace("https://broodev.com", f"https://{c['sub']}.broodev.com")
+    js = rehost(js, c)
     js = brand(js, c)
     js = apply_names(js, c["names"])
     return restore(js, saved)
 
 
 def transform_generic(text, c):
-    text = text.replace("https://broodev.com", f"https://{c['sub']}.broodev.com")
+    text = rehost(text, c)
     text = brand(text, c)
     return apply_names(text, c["names"])
 
 
 def transform_url_only(text, c):
-    return text.replace("https://broodev.com", f"https://{c['sub']}.broodev.com")
+    return rehost(text, c)
 
 
 TRANSFORMS = {

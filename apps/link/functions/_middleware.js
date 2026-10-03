@@ -32,7 +32,7 @@ class TextSetter { constructor(v) { this.v = v; } element(el) { el.setInnerConte
 class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('lang', this.v); } }
 
 export async function onRequest(context) {
-  // 2026-08-31 원복: 루트(broodev.com)가 체인링크 정본. btc.broodev.com 은 같은 앱을 서빙하되
+  // 2026-10-03: link.broodev.com 이 체인링크 정본(루트 broodev.com 은 포털). 2026-08-31 원복 때는 루트가 정본이었고 link.broodev.com 은 같은 앱을 서빙하되
   // canonical 이 루트를 가리켜 중복 색인 없음 — 호스트 분기 리다이렉트는 두지 않는다.
   const res = await ogRewrite(context);
   // *.pages.dev(프리뷰/기본 도메인)는 broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단
