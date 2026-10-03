@@ -1,11 +1,14 @@
 /* Utils (구 Megahouse) — DOM 연결. 로직은 photo-grid.js (PhotoGrid), 문구는 i18n.js (MH_I18N) 에 있다.
    출력 형식은 페이지가 정한다: index.html <body data-page="xlsx"> → Excel, pptx.html <body data-page="pptx"> → PowerPoint
-   (2026-10-03 「写真ならべ」 시리즈로 앱 분리 — 포맷 select 는 없어짐. 그 외 설정은 두 페이지가 localStorage mh:settings 를 공유) */
+   (2026-10-03 「写真ならべ」 시리즈로 앱 분리 — 포맷 select 는 없어짐. 그 외 설정은 두 페이지가 localStorage mh:settings 를 공유)
+   프리미엄(2026-10-04): PowerPoint·Illustrator·Photoshop 출력은 유료(js/license.js). 라이선스가 없으면 미리보기까지는 되고
+   생성·다운로드 버튼이 「프리미엄 — 요금 보기」로 바뀌어 pricing.html 로 보낸다. Excel 은 항상 무료·전 기능 */
 (function () {
   'use strict';
-  var PG = window.PhotoGrid, I = window.MH_I18N;
+  var PG = window.PhotoGrid, I = window.MH_I18N, LIC = window.MH_LICENSE;
   var t = I.t;
   var FORMAT = document.body.getAttribute('data-page') === 'pptx' ? 'pptx' : 'xlsx';
+  var LOCKED = !!(LIC && LIC.isPremiumFormat(FORMAT) && !LIC.active());  // 프리미엄 형식인데 라이선스 없음 → 다운로드 잠금
   var $files = document.getElementById('pg-files');
   var $drop = document.getElementById('pg-drop');
   var $pages = document.getElementById('pg-pages');
@@ -17,6 +20,8 @@
   var $name = document.getElementById('pg-filename');
   var $form = document.getElementById('pg-form');
   var $clear = document.getElementById('pg-clear');
+  var $submit = $form.querySelector('button[type="submit"]');
+  var $premNote = document.getElementById('pg-prem-note');   // pptx.html 에만 있음 — 잠금 상태 안내(요금 링크)
 
   var MIME = {
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -78,8 +83,12 @@
   }
 
   // 격자에 따라 바뀌는 문구: 파일 이름 placeholder (다운로드 버튼은 설정 패널의 submit 하나뿐)
+  // 잠금 상태면 버튼 문구를 「프리미엄 — 요금 보기」로 (i18n apply() 가 generate 로 되돌리므로 언어 전환 때마다 다시)
   function updateLabels() {
     $name.placeholder = defaultName();
+    if (LOCKED && $submit) { $submit.textContent = t('generate_locked'); $submit.classList.add('pg-locked'); }
+    if ($premNote) $premNote.hidden = !LOCKED;
+    document.body.classList.toggle('pg-is-locked', LOCKED);
   }
 
   function render() {
@@ -138,6 +147,7 @@
 
   function generate() {
     if (busy) return;
+    if (LOCKED) { location.href = 'pricing.html'; return; }   // 프리미엄 형식 · 라이선스 없음 → 요금 페이지
     if (!files.length) { setStatus('st_need', null, true); return; }
     var fmt = S.format, FMT = fmt.toUpperCase();
     var lib = fmt === 'pptx' ? window.PptxGenJS : window.ExcelJS;
@@ -221,10 +231,18 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'), function (el) {
     el.addEventListener('click', function (e) { e.preventDefault(); I.set(el.getAttribute('data-lang')); closeLang(); });
   });
+  // broodev.com 법적 문서 링크에 현재 언어를 실어 보냄 — legal.js 가 ?lang= 을 읽어 같은 언어로 연다(ja·ko·en 외는 en 본문 + 그 언어 안내)
+  function carryLang(lang) {
+    Array.prototype.forEach.call(document.querySelectorAll('a[href^="https://broodev.com/"]'), function (a) {
+      try { var u = new URL(a.href); u.searchParams.set('lang', lang); a.href = u.toString(); } catch (e) { /* 구형 브라우저 */ }
+    });
+  }
+
   // 언어가 바뀌면 동적으로 그린 부분(요약·페이지 라벨·제외 버튼·버튼 문구·상태 문구)도 다시 번역
   document.addEventListener('mh:lang', function () {
     updateLabels();
     render();
+    carryLang(I.lang());
     if (lastStatus) setStatus(lastStatus.key, lastStatus.vars, lastStatus.isError);
   });
 

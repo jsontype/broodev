@@ -61,13 +61,23 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 | `pricing.html` | 요금(무료 / 프리미엄 年額 / 買い切り, 税込) · 「ご購入前にご確認ください」(特商法 2022 최종확인화면 항목: 지불 시기·제공 시기·자동 갱신·해지·환불 — 링크는 전부 `https://broodev.com/legal/…`) · 기능 비교표 · FAQ. 구매 버튼은 `PLANS.*.checkout`(Payment Link) 이 비어 있으면 「準備中」 비활성 |
 
 - **세 언어가 한 파일 안에** `<article data-lang-block="ja|ko|en">` 로 들어 있고 `js/site.js` 가 현재 언어 블록만 보인다. **일본어가 正文**. JS 없이도 ja 블록은 보인다.
-- **사업자 정보·금액은 `js/biz.js`**(`window.BIZ`, `window.PLANS`) — 페이지는 `[data-biz="키"]`·`[data-price="yearly|lifetime"]`·`[data-price-monthly]`·`[data-plan="free_limits.photos"]`·`[data-checkout]`·`[data-portal]` 로 읽는다. **정본은 `apps/home/legal/biz.js`**(BIZ + `PLANS.utils`) — 屋号 `Y Systems`(하이픈 없음)·소재지·메일·금액을 두 파일과 Stripe Price 세 곳에서 같게 유지한다. **운영자 氏名·주소·전화는 어디에도 싣지 않는다**(「個人事業主 — 請求があれば遅滞なく開示」).
+- **사업자 정보·금액은 `js/biz.js`**(`window.BIZ`, `window.PLANS`) — 페이지는 `[data-biz="키"]`·`[data-price="yearly|lifetime"]`·`[data-price-monthly]`·`[data-checkout]`·`[data-portal]` 로 읽는다. **정본은 `apps/home/legal/biz.js`**(BIZ + `PLANS.utils`) — 屋号 `Y Systems`(하이픈 없음)·소재지·메일·금액을 두 파일과 Stripe Price 세 곳에서 같게 유지한다. **운영자 氏名·주소·전화는 어디에도 싣지 않는다**(「個人事業主 — 請求があれば遅滞なく開示」).
 - 모든 페이지(index·404 포함) 하단에 `.pg-foot` 법적 링크 6개(요금 → 로컬 `pricing.html`, 特商法·약관·개인정보·환불 → `broodev.com/legal/*`, 문의 → 로컬 `contact.html`). 사이드바 메뉴에 「料金 · プレミアム」·「お問い合わせ · ご提案」. 공통 CSS 는 `css/site.css`(index 의 인라인 로고·언어 풀다운·`.pg-select/.pg-input` CSS 도 여기로 이동).
 
 ## 문의 · 제안 폼 — `contact.html` (2026-10-03)
 
 사이드바 「기타」 그룹의 ✉ 「문의 · 제안」(「요금」 아래) → 종류(버그 신고 / 개선 제안 / 기타 문의) · 이름(선택) · 이메일(선택) · 내용 → **EmailJS** 로 운영자 메일(`jsontyper@gmail.com`)에 전달. 포털·dev3·voca 와 **같은 서비스·템플릿·변수 규격**(`broodev_service` / `broodev_template`, 정본 [`docs/emailjs-template.md`](../../docs/emailjs-template.md)) — `kind: 'utils (utils.broodev.com) · 버그 신고'` 식, 제목은 `BROODEV에서 사용자 문의가 왔습니다. — 🚨 utils 버그 신고 · 이름`, `env` 끝에 UI 언어. 이메일이 유효하면 `reply_to` 로 넣어 Gmail 에서 바로 답장. SDK 미로드(광고 차단기)면 `mailto:` 폴백. 내용이 비면 `ct_need_msg`, 성공 `is-ok`/실패 `is-err` 상태 문구는 i18n. 페이지는 `noindex`(검색 유입 불필요). EmailJS 대시보드에서 도메인 허용 목록을 쓰는 경우 `utils.broodev.com` 추가 필요.
-- 무료/프리미엄 기능 분리(무료: 1회 20장 · A4·Letter · 3×3 · 1600px)는 **페이지에만 적혀 있고 앱에는 아직 미적용** — 판매 개시 시점에 `app.js` 에 제한 + 라이선스 확인(Pages Functions + KV)을 넣는다.
+## 무료 / 프리미엄 경계 = 출력 형식 (2026-10-04)
+
+- **무료: Excel(.xlsx) 출력 — 전 기능, 제한 없음**(장수·용지 7종·격자 5×5·원본 화질). 예전의 「1회 20장 · A4·Letter · 3×3 · 1600px」 식 상한은 **폐기**(`PLANS.free_limits` 삭제).
+- **프리미엄: PowerPoint(.pptx) 출력**(지금) + **Illustrator(.ai) · Photoshop(.psd) 출력**(준비 중 — 공개 시 추가 요금 없음). `js/biz.js` `PLANS.free_formats=['xlsx']` · `PLANS.premium_formats=['pptx','ai','psd']`.
+- 앱 게이팅(`js/license.js` + `js/app.js`): `MH_LICENSE.active()`(localStorage `mh:license` = `{key, exp|null, at}`) 가 거짓이고 `isPremiumFormat(FORMAT)` 이면 `LOCKED` — pptx 페이지는 **미리보기까지 무료**, 생성 버튼이 금빛 「프리미엄 — 요금 보기」(`generate_locked`) 로 바뀌어 `pricing.html` 로 이동, 제목 아래 `#pg-prem-note` 안내(`prem_note`·`prem_cta`) 표시, `body.pg-is-locked`. index(Excel) 는 영향 없음. **라이선스 발급·검증 백엔드(Pages Functions + KV, Stripe webhook)는 아직 없음** — 지금은 `MH_LICENSE.set(key, exp)` 를 호출하는 쪽이 없어 전원 잠김 상태가 정상.
+- **PREMIUM 배지 `.pg-prem`**(금빛 그라디언트 + 글로우 애니메이션, `prefers-reduced-motion` 이면 정지): 사이드바 PowerPoint · Illustrator · Photoshop 항목(준비 중 항목은 `.pg-tags` 로 「준비 중」과 세로로 쌓음), pptx 제목 옆, 잠금 안내, 요금 카드·비교표. 배지 문구 「Premium」은 번역하지 않는다.
+- `pricing.html` 3언어 본문·비교표·FAQ(9문답)·JSON-LD FAQ·meta/og, `pptx.html` JSON-LD(`isAccessibleForFree:false` + Offer 2개)·meta, `apps/home/premium.html` 카드가 모두 이 모델로 적혀 있다 — 모델을 바꾸면 이 네 곳 + `js/i18n.js` 의 `desc_pptx`·`prem_*` 를 같이 고친다.
+
+## 캐시 버스터 `?v=` (2026-10-04)
+
+Cloudflare 는 js/css 를 `Cache-Control: public, max-age=14400`(4시간, 존 Browser Cache TTL) 로 내려 보낸다. 10-03 배포 직후 **HTML 은 새것, `app.js`·`i18n.js` 는 4시간 묵은 것**이 섞여 「언어 풀다운 먹통(옛 app.js 가 사라진 `#pg-format` 을 찾다 TypeError → 핸들러 미바인딩)」·「문의 페이지에 `ct_heading`·`MENU_MORE` 원시 키 노출(옛 i18n.js 에 키 없음)」이 났다. 그래서 **5개 페이지의 우리 JS/CSS 참조에 `?v=20261004`** 를 붙였다 — `js/*.js`·`css/site.css` 를 고치면 **5개 페이지의 토큰을 같이 올린다**(템플릿 자산·CDN 은 제외). 존 설정도 Caching → Configuration → **Browser Cache TTL = Respect Existing Headers** 로 두는 것을 권장.
 
 ## 파일
 
@@ -78,22 +88,23 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 | `404.html` | 같은 셸의 404 페이지(ko/en/ja 정적, 사이드바도 정적) |
 | `pricing.html` | 프리미엄 요금·판매 페이지(위 표) — 같은 셸, `js/site.js` 로 언어 전환. 법적 문서는 broodev.com/legal/ |
 | `contact.html` | 문의·제안 폼(위 절) — 같은 셸 + `js/contact.js` + EmailJS SDK(CDN) |
-| `js/i18n.js` | 13개 언어 사전(77키 × 13) + 감지 + `apply()`(`data-page` 별 title/meta 포함)/`set()` + 풀다운 항목 생성 (`window.MH_I18N`) |
+| `js/i18n.js` | 13개 언어 사전(80키 × 13) + 감지 + `apply()`(`data-page` 별 title/meta 포함)/`set()` + 풀다운 항목 생성 (`window.MH_I18N`) |
+| `js/license.js` | 프리미엄 라이선스 **클라이언트 스텁** `window.MH_LICENSE`(`active/set/clear/read/isPremiumFormat`, localStorage `mh:license`) — 서버 검증은 추후 Pages Functions |
 | `robots.txt`, `sitemap.xml` | 크롤러용 실제 파일 — sitemap 은 `/` · `/pptx` · `/pricing` 세 URL 에 13개 `xhtml:link hreflang` 변형(`?lang=`) 포함, contact 는 `noindex` 라 제외 |
 | `js/biz.js` | 이 앱의 사업자 정보·요금(`BIZ` · `PLANS`) — 정본 `apps/home/legal/biz.js` 와 값 일치. `PLANS.*.checkout` 에 Payment Link 를 넣으면 구매 버튼 활성 |
 | `js/site.js` | pricing·contact 공통: 언어 풀다운 · `data-lang-block` 전환 · `data-biz`/`data-price`/`data-checkout` 채움 (title/meta 는 i18n.js 가) |
 | `js/contact.js` | 문의 폼 송신(EmailJS → 운영자 메일, mailto 폴백, i18n 상태 문구) |
 | `js/photo-grid.js` | **핵심 로직** — `PAPERS`·`layout`·`pageCount`·`naturalCompare`·`buildWorkbook`·`buildPptx`(DOM 무관, Node 에서도 동작)·`readImage`(브라우저). UMD 라 `require()` 가능 |
-| `js/app.js` | DOM 연결(설정·업로드·미리보기·생성·다운로드·언어 풀다운) — index·pptx 공용, 형식은 `body[data-page]` 로 고정 |
-| `css/site.css` | 공통(로고 워드마크 · 언어 풀다운 · 사이드바 형식 배지 `.pg-fmt-*`/준비 중 `.menu-item.soon`·`.pg-soon-tag` · 폼 컨트롤 `.pg-select/.pg-input` · 문의 폼 `.pg-form` · `.pg-foot` · `.pg-doc` 문서 레이아웃 · 요금 카드 · 비교표 · FAQ) — 템플릿 CSS 변수만 써서 dark/light 자동 |
+| `js/app.js` | DOM 연결(설정·업로드·미리보기·생성·다운로드·언어 풀다운·프리미엄 잠금) — index·pptx 공용, 형식은 `body[data-page]` 로 고정. broodev.com 법적 링크에 `?lang=` 을 실어 보냄(`carryLang`, site.js 도 동일) |
+| `css/site.css` | 공통(로고 워드마크 · 언어 풀다운 · 사이드바 형식 배지 `.pg-fmt-*`/준비 중 `.menu-item.soon`·`.pg-soon-tag` · **PREMIUM 배지 `.pg-prem`** · 잠금 안내 `.pg-prem-note`/`.tf-button.pg-locked` · 폼 컨트롤 `.pg-select/.pg-input` · 문의 폼 `.pg-form` · `.pg-foot` · `.pg-doc` 문서 레이아웃 · 요금 카드 · 비교표 · FAQ) — 템플릿 CSS 변수만 써서 dark/light 자동 |
 | `css/`, `scss/`, `font/`, `icon/`, `images/`, `js/*.min.js` `main.js` `dark-light.js` | AIZOX 템플릿 자산 |
 
 ## SEO (2026-10-03) — 화면에는 안 보이는 신호만
 
 숨긴 텍스트 블록(display:none 키워드)은 Google 스팸 정책 위반이라 쓰지 않는다. 대신 전부 `<head>`·실제 파일로:
 
-- `index.html`(Excel) · `pptx.html`(PowerPoint) head: `<title>`·`meta description`(i18n 이 언어별·페이지별 키로 교체) · `robots`(index,follow,max-image-preview) · `keywords`(한·일·영, 형식별) · `canonical`(`/` · `/pptx`) · **hreflang 13개 + x-default**(`?lang=xx`, pptx 는 `/pptx?lang=xx`) · OG(`og:locale` + alternate 12개) · Twitter 카드 · **JSON-LD `WebApplication`**(페이지별 name/description, 무료 Offer ¥0 · `featureList` 7개 · `inLanguage` 13 · publisher Y Systems · isPartOf broodev · `isRelatedTo` 로 서로 연결).
-- `pricing.html` head: robots · canonical `/pricing` · hreflang 13 · **JSON-LD `FAQPage`**(화면의 일본어 FAQ 8문답과 같은 텍스트 — 본문을 고치면 같이 고친다).
+- `index.html`(Excel) · `pptx.html`(PowerPoint) head: `<title>`·`meta description`(i18n 이 언어별·페이지별 키로 교체) · `robots`(index,follow,max-image-preview) · `keywords`(한·일·영, 형식별) · `canonical`(`/` · `/pptx`) · **hreflang 13개 + x-default**(`?lang=xx`, pptx 는 `/pptx?lang=xx`) · OG(`og:locale` + alternate 12개) · Twitter 카드 · **JSON-LD `WebApplication`**(페이지별 name/description · `featureList` 7개 · `inLanguage` 13 · publisher Y Systems · isPartOf broodev · `isRelatedTo` 로 서로 연결; index 는 무료 Offer ¥0, **pptx 는 `isAccessibleForFree:false` + Utils Premium Offer 2개**(¥2,500/년 · ¥5,000)).
+- `pricing.html` head: robots · canonical `/pricing` · hreflang 13 · **JSON-LD `FAQPage`**(화면의 일본어 FAQ 9문답과 같은 텍스트 — 본문을 고치면 같이 고친다).
 - `contact.html`: `noindex, follow` (검색 유입 불필요).
 - `robots.txt`(Allow all + Sitemap) · `sitemap.xml`(위 표). 공개 URL 은 확장자 없이(`/pricing`).
 - 본문 자체가 크롤 가능한 HTML(React 없음)이라 별도 SEO 섹션은 두지 않는다. Googlebot 은 보통 `en-US` 로 렌더하므로 영어 사전이 색인 기준, `?lang=` 변형이 hreflang 으로 묶인다.

@@ -3,7 +3,8 @@
    - <title>·meta description 은 i18n.js apply() 가 <body data-page> 에 맞춰 title_* / desc_* 키로 교체 (여기서는 안 함)
    - 언어별 본문 <article data-lang-block="ja|ko|en"> 중 현재 언어만 표시 — 그 외 10개 언어는 en 블록 (JS 없을 땐 HTML 에 ja 가 보이는 상태)
    - [data-biz="키"] ← BIZ (언어별 변형 키 '_ko' '_en' 이 있으면 우선) · [data-biz-href="email"] ← mailto:
-   - [data-price="yearly|lifetime"] ← PLANS 금액(¥2,500 형식) · [data-plan="free_limits.photos"] ← PLANS 경로값
+   - [data-price="yearly|lifetime"] ← PLANS 금액(¥2,500 형식) · [data-plan="경로"] ← PLANS 경로값(범용)
+   - 법적 문서 링크(https://broodev.com/…)에 ?lang=현재언어 를 실어 보냄 (legal.js 가 같은 언어로 연다)
    - 등록번호(BIZ.invoice_no)가 자리표시자(T000…)면 [data-biz-row="invoice_no"] 행을 숨김
    index.html 은 app.js 가 같은 역할을 하므로 이 파일을 넣지 않는다. */
 (function () {
@@ -78,6 +79,13 @@
     el.addEventListener('click', function (e) { e.preventDefault(); I.set(el.getAttribute('data-lang')); closeLang(); });
   });
 
+  // broodev.com 법적 문서 링크에 현재 언어를 실어 보냄 — legal.js 가 ?lang= 을 읽어 같은 언어로 연다(ja·ko·en 외는 en 본문 + 그 언어 안내)
+  function carryLang(lang) {
+    each('a[href^="https://broodev.com/"]', function (a) {
+      try { var u = new URL(a.href); u.searchParams.set('lang', lang); a.href = u.toString(); } catch (e) { /* 구형 브라우저 */ }
+    });
+  }
+
   document.addEventListener('mh:lang', function () {
     var lang = I.lang();
     // 긴 본문은 ja·ko·en 블록만 있다 — 그 외 10개 언어는 en 블록(메뉴·푸터·title 은 사전으로 번역됨)
@@ -86,6 +94,7 @@
     var show = have[lang] ? lang : (have.en ? 'en' : 'ja');
     each('[data-lang-block]', function (el) { el.hidden = el.getAttribute('data-lang-block') !== show; });
     fill(lang);
+    carryLang(lang);
   });
 
   I.apply();

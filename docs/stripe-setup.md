@@ -31,7 +31,7 @@ Stripe 는 **사이트를 열어 보고** 심사한다. 라이브에 올라가 �
    - 앱별 가격·판매 URL 은 `PLANS.utils = { name, url, yearly, lifetime }`. 앱이 늘면 여기 한 줄 + `premium.html` 카드 1장.
 2. [`apps/utils/js/biz.js`](../apps/utils/js/biz.js) 의 `BIZ`(屋号·소재지·메일)와 `PLANS.yearly.price` / `PLANS.lifetime.price` 를 정본과 **같은 값**으로(Stripe 의 Price 와도 **반드시 같은 금액**).
 3. 결정 사항(페이지에 이미 그렇게 적혀 있음 — 바꾸려면 법적 문서 4종 + premium.html + pricing.html × 3언어 문구를 같이 고친다)
-   - 무료 플랜 제한(utils): 1회 20장 · A4·Letter · 3×3 · 1600px (`PLANS.free_limits`)
+   - **무료/프리미엄 경계 = 출력 형식**(2026-10-04 변경): 무료 = Excel(.xlsx) 전 기능·제한 없음 / 프리미엄 = PowerPoint(.pptx) 출력 + 준비 중인 Illustrator(.ai)·Photoshop(.psd) 출력(공개 시 추가 요금 없음). `PLANS.free_formats` · `PLANS.premium_formats`(utils biz.js). 예전 「20장 · A4·Letter · 3×3 · 1600px」 상한(`free_limits`)은 폐기 — 페이지·앱·문서 어디에도 남기지 않는다
    - 라이선스 1개 = 본인 기기 **3대**
    - 서비스 종료 시: 90일 전 고지 · 買い切り 는 구매 12개월 이내면 잔여 기간 환불
    - 갱신 후 14일 이내 · 미사용이면 갱신분 환불(운용)
@@ -71,10 +71,11 @@ Stripe 는 **사이트를 열어 보고** 심사한다. 라이브에 올라가 �
 **商品・サービスの説明 (복붙용 · 日本語)**
 ```
 broodev.com (https://broodev.com/) で、ブラウザ上で動作するウェブアプリ(業務ユーティリティ、暗号資産の市場指標、
-学習ツールなど)を無料で公開しています。一部のアプリで、無料版の上限を解除し追加機能を使える「プレミアム」を、
+学習ツールなど)を無料で公開しています。一部のアプリで、追加機能を使える「プレミアム」を、
 年額サブスクリプション(税込・自動更新)と買い切り(税込)の 2 種類でオンライン販売します。
-最初の対象は業務ユーティリティ「Utils」(https://utils.broodev.com/ — 写真を Excel・PowerPoint の用紙にグリッド配置する「写真ならべ」)で、
-年額 2,500 円・買い切り 5,000 円(いずれも税込)です。決済完了後すぐにライセンス情報をメールで送付し、物品の配送はありません。
+最初の対象は業務ユーティリティ「Utils」(https://utils.broodev.com/ — 写真を用紙 1 枚にグリッド配置する「写真ならべ」)で、
+Excel 出力は無料のまま、PowerPoint(.pptx)出力(今後 Illustrator・Photoshop 出力も追加予定)をプレミアムとして
+年額 2,500 円・買い切り 5,000 円(いずれも税込)で提供します。決済完了後すぐにライセンス情報をメールで送付し、物品の配送はありません。
 料金一覧: https://broodev.com/premium / 特定商取引法に基づく表記: https://broodev.com/legal/tokushoho
 ```
 
@@ -148,7 +149,7 @@ https://dashboard.stripe.com/products → 「商品を追加」 (**본番 환경
 | | 商品 1 | 商品 2 |
 |---|---|---|
 | 名前 | `Utils Premium — 年額` | `Utils Premium — 買い切り` |
-| 説明(영수증에 표시) | `写真ならべ（Excel · PowerPoint）— 枚数・用紙・解像度の上限解除、1 年間（自動更新）` | `写真ならべ（Excel · PowerPoint）— 枚数・用紙・解像度の上限解除、買い切り（永久ライセンス）` |
+| 説明(영수증에 표시) | `写真ならべ — PowerPoint（.pptx）出力（Illustrator・Photoshop 出力は公開後に追加）、1 年間（自動更新）` | `写真ならべ — PowerPoint（.pptx）出力（Illustrator・Photoshop 出力は公開後に追加）、買い切り（永久ライセンス）` |
 | 価格 | **¥2,500 · 継続(サブスクリプション) · 年ごと** | **¥5,000 · 一括(1 回限り)** |
 | 税 | 税込(inclusive) · 税コード SaaS/Digital | 동일 |
 | 画像 | `apps/utils/og-image.png` 또는 아이콘 | 동일 |
@@ -207,7 +208,7 @@ lifetime: { price: 5000, checkout: 'https://buy.stripe.com/YYYY' },
 | KV 네임스페이스 `UTILS_LICENSES` | 키: 라이선스 키 → `{ email, plan, status, expires, devices[] }`. Pages 프로젝트 **Settings → Bindings → KV namespace** 에 Production/Preview 모두 바인딩 (https://developers.cloudflare.com/pages/functions/bindings/) |
 | Secrets | Pages 프로젝트 **Settings → Variables and Secrets**: `STRIPE_SECRET_KEY`(본番 `sk_live_…`, Preview 에는 `sk_test_…`) · `STRIPE_WEBHOOK_SECRET`(`whsec_…`) · 메일 발송 API 키. **레포에 절대 넣지 않는다** |
 | 메일 발송 | 서버에서 보내야 하므로 EmailJS(브라우저용) 대신 **Resend**(무료 월 3,000통, `broodev.com` 도메인 인증) 또는 Cloudflare Email Workers. 내용: 라이선스 키 + 활성화 방법 + 포털 링크 + 영수증은 Stripe 가 따로 보냄 |
-| 앱 변경 `js/app.js` | 무료 제한(20장 · A4·Letter · 3×3 · 1600px) 적용 + 「ライセンスキーを入力」 UI + `localStorage(mh:license)` + 주기적 `verify` |
+| 앱 변경 `js/app.js` · `js/license.js` | 형식 게이팅은 **이미 있음**(2026-10-04: `MH_LICENSE.active()` 가 거짓이면 pptx 다운로드 잠금 → 요금 페이지; Excel 은 항상 무료). 남은 것: 「ライセンスキーを入力」 UI → `verify` 호출 → 유효하면 `MH_LICENSE.set(key, exp)`(`localStorage mh:license`) + 주기적 재검증 |
 | Stripe 쪽 | https://dashboard.stripe.com/webhooks → 「エンドポイントを追加」 `https://utils.broodev.com/api/stripe/webhook` · 위 이벤트 선택 → 서명 시크릿을 Secrets 에 |
 
 Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 도메인 `/api/*`). `functions/` 폴더가 생기면 Pages 가 자동 인식.

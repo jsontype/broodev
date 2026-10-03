@@ -19,12 +19,18 @@ window.BIZ = {
   updated_ja: '2026年10月3日',
 };
 
-/* 요금 — 세금 포함(総額表示). 통화 JPY(0 소수). Stripe 의 Price · apps/home/legal/biz.js 의 PLANS.utils 와 같은 금액으로 */
+/* 요금 — 세금 포함(総額表示). 통화 JPY(0 소수). Stripe 의 Price · apps/home/legal/biz.js 의 PLANS.utils 와 같은 금액으로
+
+   ★ 무료/프리미엄의 경계는 「출력 형식」(2026-10-04 결정) — 장수·용지·격자·화질 제한은 없다
+     - 무료      : Excel (.xlsx) — 항상 무료, 전 기능
+     - 프리미엄  : PowerPoint (.pptx) 지금 · Illustrator (.ai) · Photoshop (.psd) 는 출시되는 대로(추가 요금 없음)
+     app.js 는 premium_formats 에 든 형식의 페이지에서 라이선스(js/license.js)가 없으면 다운로드를 잠그고 요금 페이지로 보낸다 */
 window.PLANS = {
   currency: 'JPY',
   yearly:   { price: 2500, interval: 'year', checkout: '' },  // 年額(자동 갱신)
   lifetime: { price: 5000, checkout: '' },                    // 買い切り(1회 결제 · 서비스 제공 기간 중 유효)
   // checkout: Stripe Payment Link URL(https://buy.stripe.com/…) 을 넣으면 요금 페이지 버튼이 「購入する」로 활성화된다. 빈 문자열이면 「準備中」(비활성)
-  free_limits: { photos: 20, grid: '3×3', papers: 'A4 · Letter', maxpx: 1600 }, // 무료 플랜 제한(프리미엄 판매 개시와 함께 적용)
+  free_formats: ['xlsx'],
+  premium_formats: ['pptx', 'ai', 'psd'],
   portal: '',  // Stripe 고객 포털(구독 해지·카드 변경) 링크 https://billing.stripe.com/p/login/… — 비어 있으면 메일 안내만
 };
