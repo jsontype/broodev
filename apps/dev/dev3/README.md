@@ -13,11 +13,11 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 | 프리로더 | 사이트명 `JSONTYPE`(2026-10-03, BROODEV 에서 변경) + 진행 바 | — |
 | 히어로 | `JSONTYPE_`(2026-10-03 · R 없음 — GitHub 핸들 `jsontype`, R 은 이메일에만) · 역할 3줄 · 한 줄 소개 · OPEN FOR COLLABORATION · 연락하기 + GITHUB 버튼 | dev1 `WHOAMI_TEXT` |
 | SELECTED WORKS (slick) | 대표 업적 3건 — Z사 AI 채용 · N사 결제 부정이용 방지 · C사 AI 교과서 | 스킬시트 |
-| 업적 전체 (swiper 카드) | **15건** — 회사(익명)·분야·공헌도·연도 | home2 `blog.html` |
-| 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE + 세부 5줄씩 | home1 `SERVICES` |
-| 일하는 방식 | 설계 → 풀사이클 구현 → 배포·운영 3단계 | home2 `blog-detail.html`(N사 상세) |
-| ABOUT ME | 소개 + 경력 6줄 | home2 |
-| TECH STACK | React·Next / Vue·Nuxt / TypeScript / GraphQL·Node / Cloud·CI/CD | home1 `ORBITS` |
+| 업적 전체 (swiper 카드) | **15건** — 회사(익명)·분야·공헌도 (연도는 2026-10-03 제거) | dev2 `blog.html` |
+| 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE + 세부 5줄씩 | dev1 `SERVICES` |
+| 일하는 방식 | 설계 → 풀사이클 구현 → 배포·운영 3단계 | dev2 `blog-detail.html`(N사 상세) |
+| ABOUT ME | 본인 흑백 초상(`about-portrait.jpg`, 느린 줌) + 소개 + 경력 6줄(연도 없음) | dev2 |
+| TECH STACK | React·Next / Vue·Nuxt / TypeScript / GraphQL·Node / Cloud·CI/CD | dev1 `ORBITS` |
 | FIELDS | 분야별 건수 (AI 5 · 핀테크 2 · 교육·공공 3 · 리걸 2 · HR 2 · 통신·모빌리티 2) | 업적 15건 집계 |
 | IMPACT HIGHLIGHTS | 성과 인용 4건 (템플릿 testimonial 재활용 — 추천사 아님) | 스킬시트 |
 | 숫자 | 프로젝트 15 · 웹앱 15 · 배출 개발자 10 | — |
@@ -31,7 +31,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 - 언어: `en · ja · ko · zh · zh-Hant · th · es · fr · de · it · pt · ru · nl` (btc 앱과 동일). 헤더 우측 🌐 풀다운 순서는 **English · 日本語 · 한국어**, 그 아래 10개.
 - 감지: `localStorage(home:lang)` → `?lang=` → `navigator.languages`(첫 매치, `zh-TW/HK` → zh-Hant) → **en**. `<link hreflang>` 13개는 head 에.
-- 사전 [`assets/js/i18n-data.js`](assets/js/i18n-data.js)(`window.HOME3_I18N`, 언어당 **160키**, 세 언어 이상에서 키·`<br>`·`{name}` 자리표시자가 같아야 함) + 런타임 [`assets/js/i18n.js`](assets/js/i18n.js). 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(`<br>` 포함 9개) · `data-i18n-aria-label` · `data-i18n-alt`(img alt — 새 키 없이 `feat*_name`·`tes*_name`·`field_*` 재사용). HTML 의 한국어 원문 = `ko` 사전값(폴백).
+- 사전 [`assets/js/i18n-data.js`](assets/js/i18n-data.js)(`window.HOME3_I18N`, 언어당 **164키**(2026-10-03 `form_sending`·`form_sent`·`form_fail`·`about_portrait_alt` 추가), 세 언어 이상에서 키·`<br>`·`{name}`/`{mail}` 자리표시자가 같아야 함) + 런타임 [`assets/js/i18n.js`](assets/js/i18n.js). 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(`<br>` 포함 9개) · `data-i18n-aria-label` · `data-i18n-alt`(img alt — 새 키 없이 `feat*_name`·`tes*_name`·`field_*` 재사용). HTML 의 한국어 원문 = `ko` 사전값(폴백).
 - **스크립트 순서가 중요**: `i18n.js` 는 jquery 바로 다음, `carousel.js`(slick/swiper 가 슬라이드를 복제)·`gsapAnimation.js`(SplitText 가 글자를 쪼갬) **보다 먼저** 실행된다. 그래서 언어 변경은 저장 후 `?lang=` 으로 **새로고침**한다(동적 교체 아님).
 - 영어 대문자 디자인 라벨(SELECTED WORKS · ABOUT ME · TECH STACK · OPEN FOR COLLABORATION · MENU 등)과 브랜드·연도는 번역하지 않는다.
 - 검증: `node -e` 로 키 동일성(13개 언어 × 163) + HTML 의 `data-i18n` 키가 전부 사전에 있는지 — 커밋 `feat(home3): 13개 언어 i18n` 메시지의 명령 참고.
@@ -66,8 +66,13 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 | IMPACT HIGHLIGHTS | `tes-1~4.jpg` | 874×656 | = `feature-2`(N사)·`1`(Z사)·`13`(A사)·`6`(인재 교육). 4번째 슬라이드가 `tes-2` 를 재사용하던 것을 `tes-4` 로 분리 |
 | 하는 일 | `service-1~3.jpg` · `service-mini-1~2.jpg` | 636×795 · 424×530 (4:5) | 워크스테이션 · 지구본 · 마이크/화이트보드. mini 는 **다음 카드의 미리보기**(gsapAnimation 이 mini 를 다음 메인으로 확대) → mini-1 = service-2, mini-2 = service-3 |
 | FIELDS 플립 스트립 | `award-1~6.jpg` | 600×600 | 분야 순서대로 AI · 핀테크 · 교육·공공 · 리걸 · HR · 통신·모빌리티 |
+| ABOUT ME 초상 | `about-portrait.jpg` | 864×1152 (3:4) | **본인 사진 2장 + 템플릿 영상 프레임을 참조해 생성한 흑백 프로필**(검정 터틀넥 · 시계 보는 포즈 · 안경). 템플릿의 `davies-video.mp4`(백인 모델, 1.5 MB) 를 대체 — 영상 생성은 불가해 정지 이미지 + CSS 켄 번즈(16초 1→1.08 줌, `prefers-reduced-motion` 시 정지). 사전 키 `about_portrait_alt` 추가(164 키) |
 
-`alt` 는 한국어 원문 + `data-i18n-alt` 로 13개 언어 적용(새 사전 키 없음). 다시 만들 때는 같은 스타일 문구로 생성한 뒤 위 크기로 크롭하면 된다.
+`alt` 는 한국어 원문 + `data-i18n-alt` 로 13개 언어 적용. 다시 만들 때는 같은 스타일 문구로 생성한 뒤 위 크기로 크롭하면 된다.
+
+## 2026-10-03 (b) — 코딩카페 정리 · 연도 제거
+- **YouTube CodingCafe1 전부 삭제**(코딩카페 폐업). 교육은 계속하므로 문구는 **"코딩 레슨 · 코딩 티처"** 로 — 하는 일 3(`svc3_desc`·`svc3_li1`) · IMPACT 4(`tes4_text`) · 숫자 3(`ind3_sub`) · FAQ 5(`faq5_a`) 13개 언어 재작성, 오프캔버스 `MENTOR · CODING LESSONS`, `404.html` 푸터·오프캔버스도 index 와 같이 GitHub 만.
+- **실적 일람의 시기·연도 제거**: SELECTED WORKS 태그(`tag_z2`·`tag_c2` 의 연도, N사 `2023 – 2026` 버튼) · 업적 15건 카드의 연도(`.price` 블록 삭제) · IMPACT HIGHLIGHTS duty 앞의 기간(`tes1~4_duty`) · 경력 6줄의 `exp_year` · TECH STACK `SPA · SSR · 2019 –`. 소개문의 "2019년부터"(경력 길이)는 남김. dev1·dev2 도 동일 적용(dev2 는 `시기:` 항목·`fa-calendar` 메타·`연도별` 위젯 제거).
 
 ## 공유 썸네일 (OG)
 
@@ -80,7 +85,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 | `index.html` | 원페이지 (상단 `<style>` 에 템플릿 보정 + 언어 풀다운 CSS + 폼 상태 + `fx-fallback`; 하단 인라인 스크립트에 EmailJS 폼(mailto 폴백) · 영상 지연 로드 · 자가 치유) |
 | `404.html` | 같은 셸의 404 (Pages 커스텀 404 · dev 스위치가 404 로 반환) |
 | `og-image.png` | 공유 썸네일 (생성: `scripts/og/gen_og.mjs`) |
-| `assets/js/i18n-data.js`, `assets/js/i18n.js` | 13개 언어 사전(160키) · 감지/적용/풀다운 런타임 |
+| `assets/js/i18n-data.js`, `assets/js/i18n.js` | 13개 언어 사전(164키) · 감지/적용/풀다운 런타임 |
 | `assets/css/` | bootstrap · swiper · slick · animate · odometer · `styles.css`(템플릿, 원본 `assets/scss/`) |
 | `assets/js/` | jquery · bootstrap · swiper · slick · gsap 계열 · `carousel.js`(슬라이더 초기화) · `gsapAnimation.js`(프리로더 수정 포함) · `main.js`(시계·커서·카운터) |
 | `assets/images/section/` | 작품·업적·하는 일·분야·하이라이트 사진 — **AI 생성(2026-10-03)**. `bg-service-1~3.jpg` 와 `blog-*`·`work-4~6`·`service-4~6`·`tes-v2-*`·`app-*`·`davies-main`·`hero-v2` 는 템플릿 잔여(미참조 다수) |

@@ -12,10 +12,10 @@
 |---|---|---|
 | 히어로 슬라이드 0 | 인사 + 한 줄 소개 | dev1(dev) |
 | 슬라이드 1–12 | **업적 12건**(최신순, 제목만) — 회사·분야·시기 / 공헌도·임팩트·키워드 | 스킬시트 |
-| `#about-me` 소개 | 자기소개 2문단 | home1(dev) `WHOAMI_TEXT` + 스킬시트 |
-| `#services` 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE | home1(dev) `SERVICES` |
-| `#pricing` broodev 앱 | 15개 앱 링크 3카드(id는 템플릿 CSS 때문에 `pricing` 유지) | home1(dev) `PROJECTS` |
-| `#contact` 연락 | 이메일 · GitHub · X · YouTube · LinkedIn | home1(dev) `LINKS` |
+| `#about-me` 소개 | 자기소개 2문단 | dev1(dev) `WHOAMI_TEXT` + 스킬시트 |
+| `#services` 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE | dev1(dev) `SERVICES` |
+| `#pricing` broodev 앱 | 15개 앱 링크 3카드(id는 템플릿 CSS 때문에 `pricing` 유지) | dev1(dev) `PROJECTS` |
+| `#contact` 연락 | 이메일 · GitHub · X · LinkedIn | dev1(dev) `LINKS` |
 | `blog.html` (Blog 모달) | **업적 전체 15건** 목록 + 연도별 앵커 | 스킬시트 |
 | `blog-detail.html` | N사 프로젝트 상세(가장 긴 서술) | 스킬시트 |
 

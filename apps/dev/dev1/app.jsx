@@ -15,7 +15,6 @@ const { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useRedu
 const EMAIL = 'jsontyper@gmail.com';
 const LINKS = {
   github: 'https://github.com/jsontype',
-  youtube: 'https://www.youtube.com/c/CodingCafe1',
   linkedin: 'https://www.linkedin.com/in/donghwa-yang-b73a57216/',
   x: 'https://x.com/jsontype',
   old: 'https://jsontype.github.io/home',
@@ -113,7 +112,7 @@ const CATS = [
 const SERVICES = [
   { no: '01', name: 'WEB BUILD', desc: 'React·Next·Vue·Nuxt 풀사이클 — 기획에서 배포·운영까지. 도쿄 프로덕션 현장에서 검증된 프론트엔드 아키텍처로 만듭니다.' },
   { no: '02', name: 'GLOBAL SHIP', desc: '13개 언어 다국어·현지화 운영 노하우. 국가별 생활 데이터 서비스 설계 — 국경 없는 웹앱을 만듭니다.' },
-  { no: '03', name: 'TEACH & SHARE', desc: 'YouTube CodingCafe1 운영. 코딩 강의·멘토링 — 만드는 법과 함께 "왜"를 가르칩니다.' },
+  { no: '03', name: 'TEACH & SHARE', desc: '코딩 레슨·멘토링 — 만드는 법과 함께 "왜"를 가르칩니다.' },
 ];
 
 const WHOAMI_TEXT = `$ cat ./about.md
@@ -667,7 +666,6 @@ function Finale({ reduce }) {
               <button className="pf-btn primary" onClick={copyEmail}>{copied ? 'COPIED ✓' : 'COPY EMAIL — ' + EMAIL}</button>
               <a className="pf-btn" href={LINKS.github} target="_blank" rel="noopener">GITHUB</a>
               <a className="pf-btn" href={LINKS.linkedin} target="_blank" rel="noopener">LINKEDIN</a>
-              <a className="pf-btn" href={LINKS.youtube} target="_blank" rel="noopener">YOUTUBE</a>
             </div>
             <div className="pf-status"><span className="dot" />status: open for collaboration — tokyo · seoul · remote</div>
             <div className="pf-constellation" aria-hidden="true">
@@ -795,7 +793,7 @@ function StaticApp() {
       {PROJECTS.map(pr => <p key={pr.hash}><b>{pr.name}</b> — {pr.desc} {pr.url && <a href={pr.url}>{pr.link}</a>}</p>)}
       <h2>Services</h2>
       {SERVICES.map(s => <p key={s.no}><b>{s.name}</b> — {s.desc}</p>)}
-      <p><a href={'mailto:' + EMAIL}>{EMAIL}</a> · <a href={LINKS.github}>GitHub</a> · <a href={LINKS.youtube}>YouTube</a> · <a href={LINKS.linkedin}>LinkedIn</a></p>
+      <p><a href={'mailto:' + EMAIL}>{EMAIL}</a> · <a href={LINKS.github}>GitHub</a> · <a href={LINKS.linkedin}>LinkedIn</a></p>
     </main>
   );
 }
