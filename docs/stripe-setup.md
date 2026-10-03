@@ -13,7 +13,7 @@
 | **본인확인 서류** | 在留カード · 運転免許証 · マイナンバーカード 중 하나(스마트폰 촬영 업로드). 이름 표기가 아래 두 줄과 같아야 한다 |
 | **입금 은행 계좌** | 일본 국내 은행 · **口座名義 = 본인 이름**(屋号 계좌도 이름이 포함되면 OK). 통장/앱 화면 캡처 준비 |
 | **적격청구서 등록번호** | `T` + 13자리. [국세청 공표 사이트](https://www.invoice-kohyo.nta.go.jp/)에서 본인 번호·공표 이름 확인 |
-| **住民票 표기 이름** | 特商法 표기(`broodev.com/legal/tokushoho.html`)의 氏名 과 Stripe 의 氏名 을 이것에 맞춘다(屋号 "Y Systems" 만으로는 불가 — [소비자청 Q&A](https://www.no-trouble.caa.go.jp/what/mailorder/)) |
+| **住民票 표기 이름** | 特商法 표기(`broodev.com/legal/tokushoho`)의 氏名 과 Stripe 의 氏名 을 이것에 맞춘다(屋号 "Y Systems" 만으로는 불가 — [소비자청 Q&A](https://www.no-trouble.caa.go.jp/what/mailorder/)) |
 | **연락용 메일** | 현재 `jsontyper@gmail.com`. 권장: Cloudflare **Email Routing**(무료)으로 `support@broodev.com` → Gmail 전달을 만들어 그 주소를 쓰면 심사·고객 신뢰 모두 좋다 → [Email Routing 문서](https://developers.cloudflare.com/email-service/) (만들면 `legal/biz.js` 의 `email` 과 연락 폼의 `To` 는 그대로 두고 Stripe 쪽만 바꿔도 되고, 전부 바꿔도 된다) |
 | **전화번호** | Stripe 계정용(비공개). 사이트에는 싣지 않는다(「請求があれば遅滞なく開示」) |
 | 사업 설명문 | 아래 §3 에 복붙용 문장 있음 |
@@ -36,7 +36,7 @@ Stripe 는 **사이트를 열어 보고** 심사한다. 라이브에 올라가 �
    - 라이선스 1개 = 본인 기기 **3대**
    - 서비스 종료 시: 90일 전 고지 · 買い切り 는 구매 12개월 이내면 잔여 기간 환불
    - 갱신 후 14일 이내 · 미사용이면 갱신분 환불(운용)
-4. 로컬 확인 → **커밋 · push** → 2~3분 뒤 https://broodev.com/premium.html · `/legal/tokushoho.html` · `/legal/terms.html` · `/legal/privacy.html` · `/legal/refund.html` 과 https://utils.broodev.com/pricing.html 이 열리고, 포털 푸터·utils 하단의 법적 링크가 모두 동작하는지 확인.
+4. 로컬 확인 → **커밋 · push** → 2~3분 뒤 https://broodev.com/premium · `/legal/tokushoho` · `/legal/terms` · `/legal/privacy` · `/legal/refund` 과 https://utils.broodev.com/pricing 이 열리고, 포털 푸터·utils 하단의 법적 링크가 모두 동작하는지 확인. (Cloudflare Pages 는 `/x.html` 을 `/x` 로 **308** 리다이렉트한다 — Stripe 에 적는 URL·canonical·sitemap 은 확장자 없는 쪽. 2026-10-03 push 후 6개 URL 전부 200 확인.)
 5. (선택) [카카오 OG 캐시](https://developers.kakao.com/tool/clear/og) 는 OG 를 바꾼 게 아니라 불필요.
 
 **심사관 체크리스트(Stripe 공식 "Website checklist")** → https://docs.stripe.com/get-started/checklist/website
@@ -62,7 +62,7 @@ Stripe 는 **사이트를 열어 보고** 심사한다. 라이브에 올라가 �
 | 事業の種類 | **個人事業主** |
 | 事業の所在地 | 일본 · 주소(住民票 주소) |
 | 業種 (MCC) | 「ソフトウェア」 계열 — **Software as a service (SaaS)** 또는 **デジタル商品 / ソフトウェア** |
-| 事業のウェブサイト | **`https://broodev.com/`** (포털 — 프리미엄 총람 `/premium.html` 과 법적 문서 `/legal/` 이 여기 있다. 앱이 늘어도 이 URL 은 그대로) |
+| 事業のウェブサイト | **`https://broodev.com/`** (포털 — 프리미엄 총람 `/premium` 과 법적 문서 `/legal/…` 이 여기 있다. 앱이 늘어도 이 URL 은 그대로) |
 | 商品・サービスの説明 | 아래 복붙 |
 | 屋号(店舗名) / Business name | `Y Systems` (하이픈 없음) |
 | 氏名 · 生年月日 · 住所 · 電話 | 본인확인 서류와 동일하게 |
@@ -76,7 +76,7 @@ broodev.com (https://broodev.com/) で、ブラウザ上で動作するウェブ
 年額サブスクリプション(税込・自動更新)と買い切り(税込)の 2 種類でオンライン販売します。
 最初の対象は業務ユーティリティ「Utils」(https://utils.broodev.com/ — 写真を Excel・PowerPoint の用紙に自動配置)で、
 年額 3,980 円・買い切り 9,800 円(いずれも税込)です。決済完了後すぐにライセンス情報をメールで送付し、物品の配送はありません。
-料金一覧: https://broodev.com/premium.html / 特定商取引法に基づく表記: https://broodev.com/legal/tokushoho.html
+料金一覧: https://broodev.com/premium / 特定商取引法に基づく表記: https://broodev.com/legal/tokushoho
 ```
 
 **(English, 필요 시)**
@@ -86,7 +86,7 @@ indicators, learning tools). Some apps offer "Premium" — lifted limits and ext
 subscription (tax included, auto-renewing) or a one-time lifetime license (tax included). The first is Utils
 (https://utils.broodev.com/, photos laid out on Excel / PowerPoint pages): JPY 3,980 / year or JPY 9,800 one-time.
 License details are emailed immediately after payment. No physical goods are shipped.
-Pricing: https://broodev.com/premium.html / Legal notice: https://broodev.com/legal/tokushoho.html
+Pricing: https://broodev.com/premium / Legal notice: https://broodev.com/legal/tokushoho
 ```
 
 ---
@@ -100,7 +100,7 @@ Pricing: https://broodev.com/premium.html / Legal notice: https://broodev.com/le
    - **明細書表記(ステートメント記述子)**: `BROODEV UTILS` (영문 5~22자, 고객 카드 명세서에 찍힘 → 차지백 예방 핵심) · 短縮表記 `BROODEV`
      규칙: https://docs.stripe.com/get-started/account/statement-descriptors
    - サポートメール: `jsontyper@gmail.com`(또는 `support@broodev.com`) · サポート電話: 입력하되 「明細書に表示しない」
-   - サポートURL: `https://broodev.com/legal/tokushoho.html` · **利用規約 URL** `https://broodev.com/legal/terms.html` · **プライバシーポリシー URL** `https://broodev.com/legal/privacy.html` (→ §8 의 "약관 동의 체크박스"에 쓰임 — 전 앱 공통이라 앱이 늘어도 바꾸지 않는다)
+   - サポートURL: `https://broodev.com/legal/tokushoho` · **利用規約 URL** `https://broodev.com/legal/terms` · **プライバシーポリシー URL** `https://broodev.com/legal/privacy` (→ §8 의 "약관 동의 체크박스"에 쓰임 — 전 앱 공통이라 앱이 늘어도 바꾸지 않는다)
 3. **銀行口座** — https://dashboard.stripe.com/settings/payouts : 은행 · 지점 · 계좌번호 · **口座名義(カタカナ)**. 명의가 본인 이름과 다르면 심사가 멈춘다. 입금 주기는 기본 **주 1회**(나중에 월 1회로 바꿔도 됨).
 4. **セキュリティ・チェックリストに基づく対策処置状況申告書** (일본 전용, 2024-04~ 신규 가맹점 필수): 폼 안에 체크 항목이 나온다. 우리 구성은 전부 "해당/대응": 카드 정보 비보유(Stripe Checkout 사용) · 사이트 HTTPS(Cloudflare) · 관리 계정 2FA · 소프트웨어 최신(정적 사이트) · 부정 로그인 대책(관리 화면 없음). 참고: [日本クレジット協会 セキュリティ対策](https://www.j-credit.or.jp/security/)
 5. 제출 → **審査**. 보통 수 분~2영업일. 메일로 추가 요청이 오면(開業届 사본 · 確定申告書 · 사이트 캡처 · 사업 설명 보강) 48시간 안에 답하면 된다. 대시보드 상단 배너/「要対応」 에서 진행 상황 확인.
@@ -167,8 +167,8 @@ https://dashboard.stripe.com/payment-links → 「新規」 → 상품 선택. �
 - **顧客情報の収集**: メール(필수, 기본) · **請求先住所: 必須**(Stripe Tax 국가 판정) · 電話 OFF
 - **利用規約への同意を必須にする 체크** — §4 에서 넣은 利用規約 URL 이 Checkout 에 동의 체크박스로 뜬다 (문서: https://docs.stripe.com/payments/checkout/custom-components)
 - **カスタムテキスト(送信ボタンの上)** — 特商法 2022 개정 "最終確認画面" 요건(분량·지불시기·제공시기·해지조건·자동갱신)을 Checkout 화면에 올리는 자리. 복붙:
-  - 年額: `年額プランは 1 年ごとに自動更新され、更新日に ¥3,980（税込）が請求されます。解約はいつでも可能で、次回更新日以降は請求されません（日割り返金なし）。ライセンスは決済完了後すぐにメールでお送りします。返金・解約ポリシー: https://broodev.com/legal/refund.html`
-  - 買い切り: `1 回限りのお支払いです（自動更新・追加請求なし）。ライセンスは決済完了後すぐにメールでお送りします。デジタルサービスのため決済後の返金は原則承っておりません。返金ポリシー: https://broodev.com/legal/refund.html`
+  - 年額: `年額プランは 1 年ごとに自動更新され、更新日に ¥3,980（税込）が請求されます。解約はいつでも可能で、次回更新日以降は請求されません（日割り返金なし）。ライセンスは決済完了後すぐにメールでお送りします。返金・解約ポリシー: https://broodev.com/legal/refund`
+  - 買い切り: `1 回限りのお支払いです（自動更新・追加請求なし）。ライセンスは決済完了後すぐにメールでお送りします。デジタルサービスのため決済後の返金は原則承っておりません。返金ポリシー: https://broodev.com/legal/refund`
 - **決済後**: 「確認ページを表示」 + 메시지 `ご購入ありがとうございます。ライセンス情報を {メール} 宛にお送りしました。届かない場合は jsontyper@gmail.com までご連絡ください。` (라이선스 자동 발급 §10 을 만들면 「リダイレクト」 로 활성화 페이지로 보냄)
 - 買い切り 링크만: **「決済後に請求書を作成」(invoice_creation) ON** → 一括 결제도 T번호 들어간 적격청구서 PDF 가 자동 발행
 - 年額 링크만: 「お客様がプロモーションコードを使用できる」 는 필요 시 · 「無料トライアル」 는 쓰지 않음(환불 정책과 충돌)
@@ -240,10 +240,10 @@ Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 �
 | 항목 | 값 |
 |---|---|
 | 사이트(Website) | `https://broodev.com/` |
-| 프리미엄 총람 | `https://broodev.com/premium.html` |
-| 앱별 판매 페이지 | utils: `https://utils.broodev.com/pricing.html` |
-| 特商法 | `https://broodev.com/legal/tokushoho.html` |
-| 利用規約 / プライバシー / 返金 | `https://broodev.com/legal/terms.html` · `/legal/privacy.html` · `/legal/refund.html` |
+| 프리미엄 총람 | `https://broodev.com/premium` |
+| 앱별 판매 페이지 | utils: `https://utils.broodev.com/pricing` |
+| 特商法 | `https://broodev.com/legal/tokushoho` |
+| 利用規約 / プライバシー / 返金 | `https://broodev.com/legal/terms` · `https://broodev.com/legal/privacy` · `https://broodev.com/legal/refund` |
 | 屋号 / Business name | `Y Systems` |
 | 明細書表記 / 短縮 | `BROODEV UTILS` / `BROODEV` |
 | サポートメール | `jsontyper@gmail.com` (또는 `support@broodev.com`) |

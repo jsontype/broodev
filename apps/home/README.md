@@ -43,6 +43,7 @@
 - Stripe 계정의 **Business name = `Y Systems`(하이픈 없음) · Website = `https://broodev.com/`**. 포털이 사업 사이트이므로 심사가 보는 것(상품·税込 가격·特商法·약관·개인정보·환불·연락처)은 전부 여기 — `premium.html` + `legal/*` + 푸터 `.footer-legal`(사업자명·메일·법적 링크 5개). 헤더·사이드바에 「Premium」 메뉴. 절차는 [`docs/stripe-setup.md`](../../docs/stripe-setup.md).
 - 앱에 프리미엄을 추가할 때(btc 등): Stripe 에 Product/Payment Link 추가 → `legal/biz.js` `PLANS` 에 항목 → `premium.html` 카드 → 해당 앱의 요금 페이지는 법적 링크를 `https://broodev.com/legal/…` 로. 계정·심사는 다시 하지 않는다.
 - 표기 통일: 포털 전체 `Y Systems`(JSON-LD publisher 포함). 코인 앱·voca 공통 푸터의 `made by Y-Systems` 는 아직 옛 표기(별도 일괄 수정 대상).
+- URL: Cloudflare Pages 가 `/premium.html` → `/premium` 으로 308 하므로 **canonical · og:url · sitemap · 외부에 적는 URL 은 확장자 없이**(`https://broodev.com/premium`, `/legal/tokushoho` …). 사이트 안 상대 링크는 로컬 서버(python http.server)에서도 열리게 `.html` 그대로 둔다(라이브에선 한 번 308).
 
 ## 연락 폼 — EmailJS
 `portal.js` 하단. 설정값은 voca·dev3 와 동일(public key `u-DIwFmmMVFWrxJMX` · service `broodev_service` · template `broodev_template`). 전송 파라미터 `{ subject, kind: '포털 (broodev.com)', name, email, reply_to, message, page, time, env, ua, shots }` — 제목은 `BROODEV에서 사용자 문의가 왔습니다. — 포털 · <이름>`, `env` 는 OS·브라우저·화면 요약(2026-10-03). **메일 레이아웃은 EmailJS 대시보드 템플릿이 정하며 정본은 [`docs/emailjs-template.md`](../../docs/emailjs-template.md)**. SDK 로드 실패 시 `mailto:jsontyper@gmail.com` 으로 폴백. 상태는 `#result` 에 `is-sending / is-ok / is-err`.

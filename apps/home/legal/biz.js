@@ -23,5 +23,5 @@ window.BIZ = {
 
 /* 프리미엄을 파는 앱과 税込 가격 — 특상법 販売価格 행 · premium.html 표에 쓰인다. 앱이 늘면 항목 추가 */
 window.PLANS = {
-  utils: { name: 'Utils Premium', url: 'https://utils.broodev.com/pricing.html', yearly: 3980, lifetime: 9800 },
+  utils: { name: 'Utils Premium', url: 'https://utils.broodev.com/pricing', yearly: 3980, lifetime: 9800 },
 };
