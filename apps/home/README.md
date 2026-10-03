@@ -29,7 +29,7 @@
 | `assets/css/portal.css` | 템플릿 위에 얹는 포털 전용 스타일(워드마크 `.brand-mark` · `.nav-apps` · 모달 · 카드 · 페이지네이션 · 폼 상태) |
 | `assets/js/main.js` | 템플릿 JS(프리로더 · 커서 · 사이드바 · GSAP 리빌). web3forms 문의 블록만 제거 |
 | `assets/css/style.css` `responsive.css` | 템플릿 원본 CSS(수정 없음) |
-| `assets/images/featured-*.png` | 대표 앱 3종 카드(각 앱 og-image 1200×630) |
+| `assets/images/featured-*.png` | 대표 앱 3종 카드(각 앱 og-image 1200×630 복사본): `btc` · `utils`(2026-10-03 사무라이 택틱스 2 → 업무 도구 모음으로 교체) · `voca` |
 | `assets/images/service1-4.png` `contact.png` | 템플릿 원본 비주얼 — 확장자는 .png 지만 **AVIF 컨테이너**(브라우저 렌더 정상, 일부 도구는 못 읽음) |
 | `404.html` | 템플릿 error-page 레이아웃 · "전체 앱 보기" → `/#apps` |
 | `favicon.svg/.ico` `favicon-96x96.png` `apple-touch-icon.png` | 검정 라운드 사각 + 이탤릭 세리프 "b" |

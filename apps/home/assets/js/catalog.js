@@ -94,12 +94,12 @@
       desc: '깜빡이 단어암기장을 10단계로 따라 하는 인터랙티브 튜토리얼.' },
 
     // ── 업무 도구
-    { id: 'utils', cat: 'work', name: '유틸 — 사진 → 엑셀·PPT 격자', en: 'UTILS', status: 'live',
+    { id: 'utils', cat: 'work', name: '업무 도구 모음 — 사진 → 엑셀·PPT 격자', en: 'UTILS', status: 'live', featured: true,
       url: 'https://utils.broodev.com/',
       desc: '사진을 올리면 용지(A4·A3·B4·Letter…)와 가로×세로 격자에 맞춰 배열한 .xlsx / .pptx 를 내려받는다. 브라우저 안에서만 처리.' },
 
     // ── 게임
-    { id: 'samurai', cat: 'game', name: '사무라이 택틱스 2', en: 'SAMURAI_TACTICS_2', status: 'live', featured: true,
+    { id: 'samurai', cat: 'game', name: '사무라이 택틱스 2', en: 'SAMURAI_TACTICS_2', status: 'live',
       url: 'https://samurai.broodev.com/',
       desc: '한 줄 전장 턴제 검술 로그라이크 — 기술패를 쌓고 한 호흡에 발동한다. 4단계 난이도·업적 30종·13개 언어.' },
 
