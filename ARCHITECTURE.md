@@ -11,7 +11,7 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
-- 현재 **22개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(홈 3종 `home1·home2·home3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 home3, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 현재 도구: 사진→엑셀·PPT 격자). home2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, home3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). `dev` 의 포털 내용은 2026-10-01 `home1`로 이동했고 `apps/dev` 는 **공사중 페이지**(`index.html`) + `404.html` 만 남겨 dev.broodev.com 이 공사중 안내를 서빙한다.
+- 현재 **22개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(**broodev.com 루트 = 앱 포털**, AIXOR 템플릿 · 전체 앱 카테고리 모달 · 2026-10-03, §6.3) + `dev`(개발자 소개 3종 `dev1·dev2·dev3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 dev3 · 구 `home1·2·3`, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 현재 도구: 사진→엑셀·PPT 격자). dev2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, dev3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). **2026-10-03 부터 `btc` 의 정본 호스트는 `btc.broodev.com`**(루트는 포털) — 코인 14종도 그 기준으로 재생성됨.
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
@@ -78,14 +78,16 @@ broodev/
 │  │                        ← 코인 14종. btc 복제(gen_coin.py 생성). member/·adsense/ 없음.
 │  ├─ voca/                 깜빡이 단어암기장 (자기완결형·13개국어·CSV·모바일 대응)
 │  ├─ voca-tutorial/        voca 사용법 10단계 튜토리얼 (자기완결형·복제 아님·미니 데모)
-│  ├─ dev/                  공사중 페이지(index.html) + 404.html + 파비콘 (dev.broodev.com, Pages broodev-dev 유지용)
-│  ├─ home/                 home.broodev.com — 홈 3종 + 스위치 (Pages 프로젝트 1개 broodev-home, §6.3)
-│  │  ├─ functions/_middleware.js   ACTIVE('home3') 가 루트(/)를 /<ACTIVE>/ 로 내부 재작성 · /homeN/ 직접 접근은 noindex · 404 는 활성 홈의 404.html
-│  │  ├─ home1/             개발자 소개 + 전체 앱 포털 (구 dev 내용 · 2026-10 이동 · 분리형: index.html + app.jsx)
+│  ├─ home/                 broodev.com 루트 = 앱 포털 (순수 정적 · AIXOR 템플릿 · 2026-10-03 · §6.3) — Pages broodev-web Root 를 apps/btc → apps/home 으로
+│  │  ├─ index.html  404.html  README.md  ads.txt  robots.txt  sitemap.xml  og-image.png  파비콘
+│  │  └─ assets/js/catalog.js(앱 카탈로그 = 유일한 데이터 소스) · portal.js(전체화면 카테고리 모달 · 5개+페이지네이션) · css/portal.css
+│  ├─ dev/                  dev.broodev.com — 개발자 소개 3종 + 스위치 (Pages broodev-dev, Root apps/dev 그대로 · §6.3) — 구 apps/home/home1·2·3 (2026-10-03 이동)
+│  │  ├─ functions/_middleware.js   ACTIVE('dev3') 가 루트(/)를 /<ACTIVE>/ 로 내부 재작성 · /devN/ 직접 접근은 noindex · 404 는 활성 홈의 404.html · env DEV_ACTIVE
+│  │  ├─ dev1/              개발자 소개 + 앱 목록 (구 dev → home1 · 분리형: index.html + app.jsx · 터미널 테마)
 │  │  │  ├─ index.html  app.jsx  styles.css  assets/(webm)  robots.txt  파비콘
-│  │  ├─ home2/             업적 포트폴리오 (순수 정적 · Photollax 템플릿 · Bootstrap 3 · jQuery) — 구 y-systems 레포 home/html
+│  │  ├─ dev2/              업적 포트폴리오 (순수 정적 · Photollax 템플릿 · Bootstrap 3 · jQuery) — 구 y-systems 레포 home/html
 │  │  │  ├─ index.html  blog.html(업적 전체)  blog-detail.html(N사 상세)  assets/(bootstrap·css·fonts·img·js·scss·php)
-│  │  └─ home3/             업적 포트폴리오 v3 (순수 정적 · Davies 템플릿 · Bootstrap 5 · GSAP · Swiper · Slick · 자체 13개 언어 i18n · og-image.png) — 현재 활성
+│  │  └─ dev3/              업적 포트폴리오 v3 (순수 정적 · Davies 템플릿 · Bootstrap 5 · GSAP · Swiper · Slick · 자체 13개 언어 i18n · EmailJS 연락 폼 · og-image.png) — 현재 활성
 │  │     ├─ index.html  404.html  assets/(css·js·images·fonts·icon·scss)
 │  ├─ admin/                운영 관리자 콘솔 (분리형, noindex, Google SSO, 광고 없음)
 │  │  ├─ index.html  app.jsx  theme.css  i18n.js  robots.txt(Disallow: /)
@@ -168,28 +170,30 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 `eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana`.
 공포·탐욕 지수는 시장 전체값이라 코인별 차별화는 **가격 기반 5개 지표**가 담당.
 
-### 6.3 home — `home.broodev.com` (home1 · home2 · home3 + 스위치) · `apps/dev` = 공사중 스텁
-- **홈 3종을 Pages 프로젝트 하나(`broodev-home`, Root `apps/home`)로 배포.** `apps/home/functions/_middleware.js` 의 `ACTIVE`(현재 `'home3'`)가 루트(/)에 띄울 홈을 고른다 — `/`·하위 경로를 `/<ACTIVE>/…` 로 내부 재작성(주소창 URL 그대로), `/home1/`·`/home2/`·`/home3/` 직접 접근은 미리보기용으로 그대로 서빙하되 `X-Robots-Tag: noindex`, 없는 경로는 활성 홈의 `404.html`(404 유지), 디렉터리 리다이렉트의 Location 은 접두어를 벗김. 커밋 없이 바꾸려면 Pages 환경변수 `HOME_ACTIVE`. 상세 [`apps/home/README.md`](apps/home/README.md).
-- **home1** = 개발자 소개 + 전체 앱 포털(`apps/web` → `apps/dev` → 2026-10-01 `apps/home1` → 2026-10-02 `apps/home/home1`). 분리형(사이드바 SPA · 해시 라우팅). `app.jsx`의 `PROJECTS` 배열이 15종 앱 카탈로그. `#/about #/apps #/privacy #/terms` 등 라우트. ⚠ 정책 페이지는 **React 라우트**(`#/privacy`)이지 정적 파일이 아님(코인 앱과 다름).
-- **home2** = §6.5, **home3** = §6.5b.
-- `apps/dev` 에는 **공사중 페이지**(`index.html`, 200) + `404.html` 만 남겨 dev.broodev.com(Pages `broodev-dev`, Root `apps/dev`)이 공사중 안내를 서빙한다 — 프로젝트 설정은 건드리지 않는다. 코인 앱·voca 공통 푸터(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`, 41개 파일)가 dev.broodev.com 을 가리키므로 공사중 페이지에 home.broodev.com·broodev.com·voca·samurai 바로가기를 둠(§8). 각 앱 404: home1·dev = 터미널 테마, home2 = Photollax 룩, home3 = Davies 셸, utils = AIZOX 셸.
+### 6.3 home — `broodev.com` 루트 = 앱 포털 (`apps/home`) · dev — `dev.broodev.com` = 개발자 소개 (`apps/dev` = dev1 · dev2 · dev3 + 스위치)
+- **2026-10-03 역할 교대.** `broodev.com` 은 **포털**("포탈을 여는 느낌"), `dev.broodev.com` 은 **개발자 소개 사이트**. 구 `apps/home/home1·2·3` 은 `apps/dev/dev1·2·3` 로 이동(폴더명만 바뀜 — JS 전역·`home3:ready` 이벤트·`localStorage(home:lang)` 키 등 내부 식별자는 유지), 구 `apps/dev` 공사중 페이지는 삭제, home.broodev.com 은 폐기.
+- **포털(`apps/home`)**: AIXOR V1.0 템플릿(다크 · Arapey 이탤릭 세리프 + Urbanist · GSAP/AOS/jarallax · 히어로 영상)을 디자인 그대로 유지하고, 헤더 **Apps (N)** 등 `[data-open-apps]` 를 누르면 **화면 전체를 덮는 모달**에 `apps/` 의 모든 공개 앱이 **카테고리별 카드(앱 5개 + 페이지네이션, 1페이지짜리도 비활성 페이지네이션 표시)** 로 나온다. 데이터는 `assets/js/catalog.js` 하나(6 카테고리 · 33 앱 · admin 제외), 렌더·모달·해시 딥링크(`#apps`, `#apps=crypto`)·EmailJS 연락 폼은 `assets/js/portal.js`. 섹션: 히어로 · 소개(숫자) · 카테고리 · 대표 앱 3(btc·samurai·voca) · 원칙 · 연락 · 푸터. 루트 보조 파일(`ads.txt`·robots·sitemap·og-image·파비콘) 포함. 상세 [`apps/home/README.md`](apps/home/README.md).
+- **개발자 소개(`apps/dev`)**: 홈 3종을 Pages 프로젝트 하나(`broodev-dev`, Root `apps/dev` — 변경 없음)로 배포. `apps/dev/functions/_middleware.js` 의 `ACTIVE`(현재 `'dev3'`)가 루트(/)에 띄울 홈을 고른다 — `/`·하위 경로를 `/<ACTIVE>/…` 로 내부 재작성(주소창 URL 그대로), `/dev1/`·`/dev2/`·`/dev3/` 직접 접근은 미리보기용으로 그대로 서빙하되 `X-Robots-Tag: noindex`, 없는 경로는 활성 홈의 `404.html`(404 유지), 디렉터리 리다이렉트의 Location 은 접두어를 벗김. 커밋 없이 바꾸려면 Pages 환경변수 `DEV_ACTIVE`. 상세 [`apps/dev/README.md`](apps/dev/README.md).
+- **dev1** = 개발자 소개 + 앱 목록(`apps/web` → `apps/dev` → 2026-10-01 `apps/home1` → 10-02 `apps/home/home1` → 10-03 `apps/dev/dev1`). 분리형(사이드바 SPA · 해시 라우팅). `app.jsx`의 `PROJECTS` 배열이 앱 카탈로그(BTC 는 btc.broodev.com). `#/about #/apps #/privacy #/terms` 등 라우트. ⚠ 정책 페이지는 **React 라우트**(`#/privacy`)이지 정적 파일이 아님(코인 앱과 다름).
+- **dev2** = §6.5, **dev3** = §6.5b.
+- 코인 앱·voca 공통 푸터(`made by Y-Systems ↗`·`◈ dev`·`다른 앱`, 41개 파일)가 dev.broodev.com 을 가리킨다 → 이제 개발자 소개(dev3)로 간다. 각 앱 404: dev1 = 터미널 테마, dev2 = Photollax 룩, dev3 = Davies 셸, home(포털) = AIXOR 셸, utils = AIZOX 셸.
 
 ### 6.4 admin — `admin.broodev.com`
 - 운영 관리자 콘솔. **`noindex`**(robots `Disallow: /`), 광고 **없음**, **Google SSO**(운영자만).
 - 분리형. 실제 데이터 수집/보안은 백엔드 필요(현재 클라이언트측 임시 보호).
 - **자매 푸터/AdSense 태그를 넣지 않는다.**
 
-### 6.5 home2 — `home.broodev.com/home2/` (`apps/home/home2`)
-- **양동화(@jsontype) 업적 포트폴리오 — home1의 다음 버전 홈.** 구 `jsontype/y-systems` 레포 `home/html/`(Photollax 템플릿) 이전(2026-10-01, 원본 커밋 `ed62fc6`) 후 **텍스트 전부 교체**. 사진은 템플릿 원본(교체 예정).
+### 6.5 dev2 (구 home2) — `dev.broodev.com/dev2/` (`apps/dev/dev2`)
+- **양동화(@jsontype) 업적 포트폴리오 — dev1의 다음 버전 홈.** 구 `jsontype/y-systems` 레포 `home/html/`(Photollax 템플릿) 이전(2026-10-01, 원본 커밋 `ed62fc6`) 후 **텍스트 전부 교체**. 사진은 템플릿 원본(교체 예정).
 - 슬라이드 12장 = 업적 12건(스킬시트, 회사명 익명화 N사·Z사 …) · `blog.html` = 업적 전체 15건 · `blog-detail.html` = N사 상세. home1의 소개·서비스·앱 15개 링크·연락처 포함.
 - React·i18n·테마·AdSense **없음**. 문의 폼은 `assets/php/email.php` 로 POST → Pages 에서 **미동작**(교체 필요).
 
-### 6.5b home3 — `home.broodev.com` (현재 활성 · `apps/home/home3`)
-- **업적 포트폴리오 v3 — home2 의 다음 버전.** Davies 템플릿(themesflat · Bootstrap 5 · GSAP ScrollTrigger/SplitText · Swiper · Slick · Odometer)을 2026-10-02 통합한 뒤 **텍스트 전부 교체**. 사진·영상은 템플릿 원본(교체 예정). 블로그·랜딩·version-2 등 템플릿 부속 페이지는 가져오지 않음.
-- 원페이지: 히어로(BROODEV_) · SELECTED WORKS 3건(slick) · 업적 전체 15건(swiper 카드, 회사 익명화) · 하는 일 3종 · 일하는 방식 3단계 · ABOUT + 경력 · TECH STACK · 분야별 건수 · IMPACT HIGHLIGHTS(성과 인용 4건, 템플릿 testimonial 재활용) · 숫자(15·15·10) · broodev 앱 15개(템플릿 pricing 재활용) · FAQ 5 · 연락. 상세 [`apps/home/home3/README.md`](apps/home/home3/README.md).
-- **13개 언어 i18n(2026-10-02)**: 사전 `assets/js/i18n-data.js`(160키 × 13) + 런타임 `assets/js/i18n.js`, 마크업 `data-i18n`/`data-i18n-html`. 감지 localStorage → `?lang` → 브라우저 언어 → en. 헤더 🌐 풀다운 순서 English · 日本語 · 한국어 · (btc 와 같은 10개). 슬라이더 복제·SplitText 전에 적용해야 하므로 jquery 직후 실행, 언어 변경은 새로고침. hreflang 13개.
-- **모바일 블랙아웃 수정(2026-10-02)**: 템플릿 프리로더가 `window.load`+GSAP 에 묶여 폰에서 검은 화면만 남던 문제 — `gsapAnimation.js` 가 DOM 준비 즉시 시작 + 2초 워치독으로 프리로더를 반드시 제거, 영상은 `preload="none"` + `data-src` 로 프리로더 뒤/뷰포트 근접 시 로드, 히어로는 H.264 `corridor.mp4` 우선(Safari). 상세 [`apps/home/home3/README.md`](apps/home/home3/README.md).
-- React·테마·AdSense **없음**. 연락 폼은 백엔드 없이 **mailto** 로 연다. 404 는 같은 셸의 `404.html`. 공유 썸네일 `og-image.png` 는 `scripts/og/gen_og.mjs` 생성.
+### 6.5b dev3 (구 home3) — `dev.broodev.com` (현재 활성 · `apps/dev/dev3`)
+- **업적 포트폴리오 v3 — dev2 의 다음 버전.** Davies 템플릿(themesflat · Bootstrap 5 · GSAP ScrollTrigger/SplitText · Swiper · Slick · Odometer)을 2026-10-02 통합한 뒤 **텍스트 전부 교체**. 사진·영상은 템플릿 원본(교체 예정). 블로그·랜딩·version-2 등 템플릿 부속 페이지는 가져오지 않음.
+- 원페이지: 프리로더·히어로(JSONTYPE_ · 2026-10-03 BROODEV → JSONTYPE) · SELECTED WORKS 3건(slick) · 업적 전체 15건(swiper 카드, 회사 익명화) · 하는 일 3종 · 일하는 방식 3단계 · ABOUT + 경력 · TECH STACK · 분야별 건수 · IMPACT HIGHLIGHTS(성과 인용 4건, 템플릿 testimonial 재활용) · 숫자(15·15·10) · broodev 앱(템플릿 pricing 재활용) · FAQ 5 · 연락(EmailJS · GitHub 버튼). 사진은 2026-10-03 AI 생성 이미지로 교체(ABOUT 의 템플릿 영상도 본인 사진 기반 흑백 초상 + CSS 줌으로 교체), 소셜은 GitHub 만. **2026-10-03 (b)**: YouTube CodingCafe1 전부 삭제(교육 문구는 "코딩 레슨 · 코딩 티처") · 실적 일람(SELECTED WORKS 태그 · 업적 15건 · IMPACT duty · 경력 · TECH STACK)의 시기·연도 제거 — dev1·dev2 동일. 상세 [`apps/dev/dev3/README.md`](apps/dev/dev3/README.md).
+- **13개 언어 i18n(2026-10-02)**: 사전 `assets/js/i18n-data.js`(164키 × 13) + 런타임 `assets/js/i18n.js`, 마크업 `data-i18n`/`data-i18n-html`. 감지 localStorage → `?lang` → 브라우저 언어 → en. 헤더 🌐 풀다운 순서 English · 日本語 · 한국어 · (btc 와 같은 10개). 슬라이더 복제·SplitText 전에 적용해야 하므로 jquery 직후 실행, 언어 변경은 새로고침. hreflang 13개.
+- **모바일 블랙아웃 수정(2026-10-02)**: 템플릿 프리로더가 `window.load`+GSAP 에 묶여 폰에서 검은 화면만 남던 문제 — `gsapAnimation.js` 가 DOM 준비 즉시 시작 + 2초 워치독으로 프리로더를 반드시 제거, 영상은 `preload="none"` + `data-src` 로 프리로더 뒤/뷰포트 근접 시 로드, 히어로는 H.264 `corridor.mp4` 우선(Safari). 상세 [`apps/dev/dev3/README.md`](apps/dev/dev3/README.md).
+- React·테마·AdSense **없음**. 연락 폼은 **EmailJS**(voca 와 같은 service/template, `kind: 'portfolio'`) 로 지메일 수신, SDK 미로드 시 mailto 폴백(2026-10-03). 404 는 같은 셸의 `404.html`. 공유 썸네일 `og-image.png` 는 `scripts/og/gen_og.mjs dev3` 생성.
 
 ### 6.6 utils (구 megahouse) — `utils.broodev.com`
 - **업무 유틸 모음.** 일에 필요한 도구를 계속 추가하는 사이트 — 2026-10-02 `megahouse` 에서 개명(사이드바 그룹 "유틸" + 도구별 메뉴 항목). 현재 도구 1개 = 아래.
@@ -236,7 +240,8 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - pub ID **`ca-pub-5511225478572825`** 일관 사용.
 - 광고 도메인 3종 연결: 인증 메타 + `ads.txt`(루트) + Auto Ads 스크립트.
 - **AdSense는 도메인(broodev.com) 승인이 서브도메인까지 커버** → 코인별 재심사 불필요.
-- **이력**: `broodev.com` 루트가 “가치 없는 콘텐츠”로 미충족 → **루트를 얇은 포털에서 btc 앱으로 전환** + 정적 `privacy.html`/`terms.html` + 게시자 푸터 추가. 재심사 대기.
+- **이력**: `broodev.com` 루트가 “가치 없는 콘텐츠”로 미충족 → **루트를 얇은 포털에서 btc 앱으로 전환** + 정적 `privacy.html`/`terms.html` + 게시자 푸터 추가 → 재반려 → 2026-08-31 AdSense 추진 중단(`docs/adsense-compliance.md` §0-E).
+- **2026-10-03**: 루트를 다시 **포털(`apps/home`, 콘텐츠형)** 로, btc 는 `btc.broodev.com` 으로. `ads.txt` 는 루트 포털에 유지. 재심사를 재개하면 "루트=포털" 이력을 감안할 것.
 - 🚫 금지: 광고 자동 새로고침·강제 시청 게이팅·스팸 앱 양산.
 
 ---
@@ -248,10 +253,10 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 
 | Pages 프로젝트 | Root | 도메인 | 상태 |
 | --- | --- | --- | --- |
-| `broodev` (구 broodev-web) | `apps/btc` | **broodev.com** | 라이브(루트=btc로 전환됨) |
-| `broodev-btc` | `apps/btc` | btc.broodev.com | 라이브 |
-| `broodev-dev` | `apps/dev` | dev.broodev.com | 라이브 — **공사중 페이지**(포털은 home/home1) |
-| `broodev-home` | `apps/home` | home.broodev.com | **미생성 — 수동 추가 필요** (home1·home2·home3 + 스위치 Function · 구 broodev-home1/home2·y-systems-home 계획 대체) |
+| `broodev` (구 broodev-web) | **`apps/home`** (2026-10-03 · 구 `apps/btc`) | **broodev.com** | 라이브 — **Root directory 를 `apps/home` 으로 바꿔야 포털이 뜸** (`docs/deploy-cloudflare.md` §1-D) |
+| `broodev-btc` | `apps/btc` | btc.broodev.com | 라이브 — 2026-10-03 부터 **유일한 btc 배포**(canonical 도 btc.broodev.com). `broodev-web` 의 커스텀 도메인으로 붙어 있었다면 별도 프로젝트로 분리 필요 |
+| `broodev-dev` | `apps/dev` | dev.broodev.com | 라이브 — **dev1·dev2·dev3 + 스위치 Function**(활성 dev3 · 구 apps/home/home1·2·3) · Root 변경 없음 |
+| ~~`broodev-home`~~ | ~~`apps/home`~~ | ~~home.broodev.com~~ | **2026-10-03 폐기** — 있으면 삭제(또는 dev.broodev.com 으로 301). 두면 포털 복제본이 된다 |
 | `broodev-admin` | `apps/admin` | admin.broodev.com | 라이브 |
 | `broodev-voca` | `apps/voca` | voca.broodev.com | 라이브 |
 | `broodev-voca-tutorial` | `apps/voca-tutorial` | voca-tutorial.broodev.com | **미생성 — 수동 추가 필요** |
@@ -276,7 +281,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 5. **SEO**: `#root` 바깥 `<section class="seo">`(단어암기 키워드+FAQ), head 메타·canonical(`https://<slug>.broodev.com/`)·JSON-LD(`WebApplication`)·`sitemap.xml`·`robots.txt`·파비콘 4종.
 6. **AdSense**: 인증 메타 + `ads.txt` + Auto Ads(광고 앱일 때). 정적 `privacy.html`·`terms.html`.
 7. **공통 푸터**: 현재 푸터는 코인 전용(`foot-fam`) → 비코인 앱이 생기므로 **푸터를 “코인 시그널 / 도구·학습” 구획으로 확장**할지 먼저 정한다. 정하면 btc 템플릿+`foot-i18n.js` 수정 후 `gen_coin.py all` 재생성으로 전 앱 반영.
-8. **dev 포털 등록**: `apps/home/home1/app.jsx`의 `PROJECTS` 배열 + 정적 폴백 목록에 새 앱 추가(내부링크 = SEO 권위).
+8. **포털 등록**: `apps/home/assets/js/catalog.js` 의 `APPS` 배열에 한 줄 추가(카테고리·도메인·한 줄 설명 — 헤더 카운트·모달·카테고리 섹션이 자동 반영, OG 태그의 앱 수는 `scripts/og/gen_og.mjs` 수동). 개발자 소개 `apps/dev/dev1/app.jsx` 의 `PROJECTS` 도 갱신(내부링크 = SEO 권위).
 9. **배포**: Cloudflare Pages 프로젝트 `broodev-<slug>`(Root `apps/<slug>`) + 커스텀 도메인 `<slug>.broodev.com`.
 10. 커밋(사용자 지시 시 푸시). master 머지 = 자동 배포.
 
@@ -303,7 +308,8 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - 코인 추가/데이터 → `scripts/coins.json` + `scripts/gen_coin.py`
 - OG 공유 현지화 → `apps/<app>/functions/_middleware.js`
 - 공유 썸네일(OG) → `scripts/og/gen_og.mjs` (SITES 설정 + 생성) · 렌더 검증 → `scripts/cdp-shot.mjs`
-- 포털 앱 목록 → `apps/home/home1/app.jsx` (`PROJECTS` 배열)
+- 포털(broodev.com) 앱 목록 → `apps/home/assets/js/catalog.js` (`APPS`·`CATEGORIES`) · 모달/페이지네이션 → `apps/home/assets/js/portal.js`
+- 개발자 소개(dev.broodev.com) 앱 목록 → `apps/dev/dev1/app.jsx` (`PROJECTS` 배열) · 활성 홈 전환 → `apps/dev/functions/_middleware.js` `ACTIVE`
 - 공통 테마 → `packages/ui-terminal/theme.css`
 - 배포 절차 → `docs/deploy-cloudflare.md`
 - 설계 배경·체크리스트 → `docs/new-app.md`

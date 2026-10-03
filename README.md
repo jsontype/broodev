@@ -2,7 +2,7 @@
 
 > **broodev는 Google AdSense 수익화를 목표로, 실제로 쓸모 있는 웹앱들을 한 도메인 아래 모아 운영하는 앱 포트폴리오 회사입니다.** (운영: **Y-Systems**)
 >
-> 각 앱은 `xxx.broodev.com` 서브도메인으로 배포되고, 부모 도메인 **broodev.com** 루트는 대표 앱(코인 시그널)을 서빙합니다.
+> 각 앱은 `xxx.broodev.com` 서브도메인으로 배포되고, 부모 도메인 **broodev.com** 루트는 **전체 앱 포털**(`apps/home`)을 서빙합니다. 대표 앱(코인 시그널)은 **btc.broodev.com**, 개발자 소개는 **dev.broodev.com** (2026-10-03 전환 — [docs/deploy-cloudflare.md §1-D](docs/deploy-cloudflare.md)).
 > **"양보다 질" — 이 원칙을 실제로 지킬 것.** 코인 15종을 템플릿 복제해 서브도메인에 뿌린 것이 AdSense 탈락의 직접 원인이었습니다.
 > **같은 앱을 파라미터만 바꿔 복제하지 마세요.** 변형은 **한 앱 안의 옵션**(`?coin=`)으로 처리하고, 새 앱은 **본질적으로 다른 기능**일 때만 추가합니다.
 
@@ -27,14 +27,13 @@
 ```text
 broodev/
 ├─ apps/
-│  ├─ btc/        →  broodev.com (+ btc.broodev.com)  비트코인 매수 타이밍 시그널 (루트=대표앱)
-│  ├─ <coin>/     →  (통합됨) broodev.com/?coin=<coin>  14종 복제본 — noindex·광고제거, 301 예정
-│  │                                                  (btc 복제 — scripts/gen_coin.py 로 생성)
-│  ├─ dev/        →  dev.broodev.com                  공사중 페이지 + 404 (포털 내용은 home/home1 로 이동)
-│  ├─ home/       →  home.broodev.com                 홈 3종을 Pages 프로젝트 하나로 — functions/_middleware.js 의 ACTIVE 가 루트에 띄울 홈 선택 (현재 home3)
-│  │  ├─ home1/                                      개발자 소개 + 전체 앱 포털 (구 dev 내용 · 터미널 테마)
-│  │  ├─ home2/                                      업적 포트폴리오 (Photollax 템플릿 · 구 y-systems 레포 home/)
-│  │  └─ home3/                                      업적 포트폴리오 v3 (Davies 템플릿) ← 현재 활성
+│  ├─ home/       →  broodev.com (루트)              전체 앱 포털 — AIXOR 템플릿 · 헤더 Apps → 전체화면 카테고리 모달(5개+페이지네이션) · assets/js/catalog.js 가 앱 목록 (2026-10-03)
+│  ├─ btc/        →  btc.broodev.com                  비트코인 매수 타이밍 시그널 (대표앱 · 2026-10-03 루트에서 이전)
+│  ├─ <coin>/     →  <coin>.broodev.com               14종 코인 앱 (btc 복제 — scripts/gen_coin.py 로 생성 · 직접 수정 금지)
+│  ├─ dev/        →  dev.broodev.com                  개발자 소개 3종을 Pages 프로젝트 하나로 — functions/_middleware.js 의 ACTIVE 가 루트에 띄울 홈 선택 (현재 dev3 · 구 home/home1·2·3)
+│  │  ├─ dev1/                                       개발자 소개 + 앱 목록 (구 dev → home1 · 터미널 테마)
+│  │  ├─ dev2/                                       업적 포트폴리오 (Photollax 템플릿 · 구 y-systems 레포 home/)
+│  │  └─ dev3/                                       업적 포트폴리오 v3 (Davies 템플릿 · 13개 언어 · EmailJS) ← 현재 활성
 │  ├─ admin/      →  admin.broodev.com                관리자(데이터 수집·운영) — Google SSO 단독 접근
 │  └─ utils/      →  utils.broodev.com                업무 유틸 모음 (구 megahouse) — 현재: 사진 → 엑셀·PPT 격자 배열 다운로드 (구 y-systems 레포 apps/megahouse/)
 ├─ games/
@@ -53,15 +52,15 @@ broodev/
 
 | 앱 | 도메인 | 설명 | 스택 | 상태 |
 | --- | --- | --- | --- | --- |
-| [btc](apps/btc/) | **broodev.com** (+ btc.broodev.com) | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 (대표앱) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
+| [home](apps/home/) | **broodev.com** (루트) | **전체 앱 포털** — 히어로·소개·카테고리·대표 앱·원칙·연락 + 헤더 `Apps (N)` → 전체화면 카테고리 모달(카테고리마다 앱 5개 + 페이지네이션). 앱 목록은 `assets/js/catalog.js` | 정적 HTML · AIXOR 템플릿 · jQuery · Bootstrap 5 · GSAP · AOS · EmailJS | 🟡 Root directory 전환 대기 |
+| [btc](apps/btc/) | **btc.broodev.com** (2026-10-03 루트에서 이전) | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 (대표앱) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
 | 코인 14종 | ~~`<coin>.broodev.com`~~ → **`broodev.com/?coin=<coin>`** | eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana — **루트 앱으로 통합됨**(코인 선택기). 서브도메인 복제본은 noindex·광고 제거 상태로 잔존, 301 예정 | React 18 (CDN) · 무빌드 | ⚪ 통합됨 |
 | [voca](apps/voca/) | voca.broodev.com | 깜빡이 단어암기장 (CSV 자동 반복 암기·13개국어) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
 | [voca-tutorial](apps/voca-tutorial/) | voca-tutorial.broodev.com | 깜빡이 사용법 10단계 인터랙티브 튜토리얼 | React 18 (CDN) · 무빌드 | 🟡 배포 대기 |
-| [dev](apps/dev/) | dev.broodev.com | **공사중 페이지**(index.html) + 404 — 포털 내용은 home/home1 로 이동, Pages 프로젝트 `broodev-dev` 는 그대로 | 정적 HTML 2장 | 🟢 라이브(공사중) |
-| [home](apps/home/) | **home.broodev.com** | **홈 3종을 한 프로젝트로** — `functions/_middleware.js` 의 `ACTIVE` 가 루트(/)에 띄울 홈을 고른다(현재 `home3`). `/home1/` `/home2/` `/home3/` 로 각각 미리보기(noindex) | Pages Function 1개 + 정적 | 🟡 배포 대기 |
-| ├ [home1](apps/home/home1/) | home.broodev.com/home1/ | 개발자 소개 + 유용한 앱들 포털 (구 `dev` 내용) | React 18(CDN) · 정적 | — |
-| ├ [home2](apps/home/home2/) | home.broodev.com/home2/ | 양동화 업적 포트폴리오 — Photollax 템플릿 (텍스트 교체 완료, 사진은 템플릿 원본) — 구 y-systems 레포 `home/` | 정적 HTML · Bootstrap 3 · jQuery | — |
-| └ [home3](apps/home/home3/) | home.broodev.com (루트 = 현재 활성) | 양동화 업적 포트폴리오 v3 — Davies 템플릿 (텍스트 교체 완료, 사진·영상은 템플릿 원본) | 정적 HTML · Bootstrap 5 · GSAP · Swiper · **13개 언어 i18n** · OG 썸네일 | — |
+| [dev](apps/dev/) | **dev.broodev.com** | **개발자 소개 3종을 한 프로젝트로** — `functions/_middleware.js` 의 `ACTIVE` 가 루트(/)에 띄울 홈을 고른다(현재 `dev3`). `/dev1/` `/dev2/` `/dev3/` 로 각각 미리보기(noindex). 구 `apps/home/home1·2·3`(2026-10-03 이동, home.broodev.com 폐기) | Pages Function 1개 + 정적 | 🟢 라이브(푸시 시 전환) |
+| ├ [dev1](apps/dev/dev1/) | dev.broodev.com/dev1/ | 개발자 소개 + 앱 목록 (구 `dev` → `home1`) | React 18(CDN) · 정적 | — |
+| ├ [dev2](apps/dev/dev2/) | dev.broodev.com/dev2/ | 양동화 업적 포트폴리오 — Photollax 템플릿 (텍스트 교체 완료, 사진은 템플릿 원본) — 구 y-systems 레포 `home/` | 정적 HTML · Bootstrap 3 · jQuery | — |
+| └ [dev3](apps/dev/dev3/) | dev.broodev.com (루트 = 현재 활성) | 양동화 업적 포트폴리오 v3 — Davies 템플릿 (텍스트 교체 완료, 사진은 AI 생성, 프리로더·히어로 JSONTYPE, GitHub 버튼) | 정적 HTML · Bootstrap 5 · GSAP · Swiper · **13개 언어 i18n** · EmailJS · OG 썸네일 | — |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 | [samurai](games/samurai/) | samurai.broodev.com | 사무라이 택틱스 2 — 한 줄 전장 턴제 검술 로그라이크 (구 `apps/games/st2`, 2026-10-02 `games/samurai` 로 이동) | 자기완결형 · 13개국어 | 🟢 라이브 |
 | [utils](apps/utils/) | utils.broodev.com | **업무 유틸 모음**(구 `megahouse`, 2026-10-02 개명 — 일에 필요한 도구를 계속 추가). 현재 도구: 사진 업로드 → 용지(A4·A3·A5·B4·B5·Letter·Legal)·세로/가로·가로×세로 각 1~5 격자로 배열한 엑셀(.xlsx) / 파워포인트(.pptx) 다운로드 (브라우저 내 처리) — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS·PptxGenJS(CDN) · ko·ja·en | 🟡 배포 대기 |
@@ -84,13 +83,13 @@ python3 scripts/gen_coin.py all          # 전체(14종)
 
 | Pages 프로젝트 | Root directory | 도메인 |
 | --- | --- | --- |
-| broodev (구 broodev-web) | `apps/btc` ⭐(전환) | broodev.com |
-| broodev-btc | `apps/btc` | btc.broodev.com |
+| broodev (구 broodev-web) | **`apps/home`** ⭐(2026-10-03 포털로 전환 — 대시보드에서 Root directory 변경 필요) | broodev.com |
+| broodev-btc | `apps/btc` (유일한 btc 배포) | btc.broodev.com |
 | broodev-`<coin>` | `apps/<coin>` | `<coin>.broodev.com` (14종) |
 | broodev-voca | `apps/voca` | voca.broodev.com |
 | broodev-voca-tutorial | `apps/voca-tutorial` | voca-tutorial.broodev.com |
-| broodev-dev | `apps/dev` (공사중 페이지) | dev.broodev.com |
-| broodev-home | `apps/home` (home1·home2·home3 + 스위치 Function) | home.broodev.com |
+| broodev-dev | `apps/dev` (dev1·dev2·dev3 + 스위치 Function) | dev.broodev.com |
+| ~~broodev-home~~ | ~~`apps/home`~~ | ~~home.broodev.com~~ 2026-10-03 폐기(삭제 또는 dev 로 301) |
 | broodev-admin | `apps/admin` | admin.broodev.com |
 | broodev-utils | `apps/utils` | utils.broodev.com |
 
