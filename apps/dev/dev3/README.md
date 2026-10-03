@@ -1,6 +1,6 @@
 # dev3 (구 home3)
 
-> **기술 스택:** 순수 정적 HTML · Bootstrap 5 · jQuery · GSAP(ScrollTrigger · SplitText · ScrollSmoother) · Swiper · Slick · Odometer · SCSS(수동 컴파일) · **자체 i18n 13개 언어**(`assets/js/i18n-data.js` + `i18n.js`). React·Babel·터미널 테마·AdSense **없음**.
+> **기술 스택:** 순수 정적 HTML · Bootstrap 5 · jQuery · GSAP(ScrollTrigger · SplitText · ScrollSmoother) · Swiper · Slick · Odometer · SCSS(수동 컴파일) · **자체 i18n 13개 언어**(`assets/js/i18n-data.js` + `i18n.js`) · **EmailJS**(연락 폼 송신, CDN). React·Babel·터미널 테마·AdSense **없음**.
 
 `dev.broodev.com` (루트 = 현재 활성 사이트, 스위치는 [`../README.md`](../README.md)) — **양동화(@jsontype) 업적 포트폴리오 v3.** `dev2`(Photollax)의 다음 버전. 2026-10-03 `apps/home/home3` → `apps/dev/dev3` 로 이동(폴더·도메인만 바뀜 — JS 전역 `HOME3_I18N`·`HOME3_T`, 이벤트 `home3:ready`, `localStorage(home:lang)` 키는 호환을 위해 그대로).
 
@@ -10,7 +10,8 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 | 섹션 | 내용 | 출처 |
 |---|---|---|
-| 히어로 | `JSONTYPE_`(2026-10-03, 프리로더 사이트명은 BROODEV 유지 · R 없음 — GitHub/X 핸들 `jsontype`, R 은 이메일에만) · 역할 3줄 · 한 줄 소개 · OPEN FOR COLLABORATION · 연락하기 + GITHUB 버튼 | home1 `WHOAMI_TEXT` |
+| 프리로더 | 사이트명 `JSONTYPE`(2026-10-03, BROODEV 에서 변경) + 진행 바 | — |
+| 히어로 | `JSONTYPE_`(2026-10-03 · R 없음 — GitHub 핸들 `jsontype`, R 은 이메일에만) · 역할 3줄 · 한 줄 소개 · OPEN FOR COLLABORATION · 연락하기 + GITHUB 버튼 | dev1 `WHOAMI_TEXT` |
 | SELECTED WORKS (slick) | 대표 업적 3건 — Z사 AI 채용 · N사 결제 부정이용 방지 · C사 AI 교과서 | 스킬시트 |
 | 업적 전체 (swiper 카드) | **15건** — 회사(익명)·분야·공헌도·연도 | home2 `blog.html` |
 | 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE + 세부 5줄씩 | home1 `SERVICES` |
@@ -22,7 +23,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 | 숫자 | 프로젝트 15 · 웹앱 15 · 배출 개발자 10 | — |
 | broodev 앱 | 15개 링크 3카드 (템플릿 pricing 재활용) | dev2 `#pricing` |
 | FAQ | 5문항 | — |
-| 연락 | 이름·이메일·메시지 → **mailto** · 소셜 4종 | home1 `LINKS` |
+| 연락 | 이름·이메일·메시지 → **EmailJS 송신**(2026-10-03, 아래 [연락 폼](#연락-폼--emailjs-2026-10-03)) · 소셜은 **GitHub 하나**(X·YouTube·LinkedIn 은 2026-10-03 제거 — 푸터·오프캔버스 모두) | dev1 `LINKS` |
 
 **익명화 규칙:** dev2 와 동일 — 회사명은 이니셜 + 사(N사·Z사·S사 …), 같은 이니셜은 업종으로 구분. 회사를 특정하는 제품명·납품처 실명은 기능 설명으로 대체. Miidas·동료 개인사·연봉은 **제외**.
 
@@ -33,7 +34,16 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 - 사전 [`assets/js/i18n-data.js`](assets/js/i18n-data.js)(`window.HOME3_I18N`, 언어당 **160키**, 세 언어 이상에서 키·`<br>`·`{name}` 자리표시자가 같아야 함) + 런타임 [`assets/js/i18n.js`](assets/js/i18n.js). 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(`<br>` 포함 9개) · `data-i18n-aria-label` · `data-i18n-alt`(img alt — 새 키 없이 `feat*_name`·`tes*_name`·`field_*` 재사용). HTML 의 한국어 원문 = `ko` 사전값(폴백).
 - **스크립트 순서가 중요**: `i18n.js` 는 jquery 바로 다음, `carousel.js`(slick/swiper 가 슬라이드를 복제)·`gsapAnimation.js`(SplitText 가 글자를 쪼갬) **보다 먼저** 실행된다. 그래서 언어 변경은 저장 후 `?lang=` 으로 **새로고침**한다(동적 교체 아님).
 - 영어 대문자 디자인 라벨(SELECTED WORKS · ABOUT ME · TECH STACK · OPEN FOR COLLABORATION · MENU 등)과 브랜드·연도는 번역하지 않는다.
-- 검증: `node -e` 로 키 동일성(13개 언어 × 160) + HTML 의 `data-i18n` 키가 전부 사전에 있는지 — 커밋 `feat(home3): 13개 언어 i18n` 메시지의 명령 참고.
+- 검증: `node -e` 로 키 동일성(13개 언어 × 163) + HTML 의 `data-i18n` 키가 전부 사전에 있는지 — 커밋 `feat(home3): 13개 언어 i18n` 메시지의 명령 참고.
+
+## 연락 폼 — EmailJS (2026-10-03)
+
+[`apps/voca/contact.html`](../../voca/contact.html) 과 **같은 EmailJS 계정·서비스·템플릿**을 쓴다(공개키 `u-DIwFmmMVFWrxJMX` · 서비스 `broodev_service` · 템플릿 `broodev_template` → 수신 `jsontyper@gmail.com`). SDK 는 `https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js`(index.html 하단, `main.js` 다음).
+
+- 템플릿 파라미터는 voca 와 동일 키: `subject`(`mail_subject` 번역) · `kind`(`portfolio`) · `name` · `email` · `message` · `page` · `ua` · `shots`(`(없음)`).
+- 송신 중 버튼 비활성 + `#form-status` 에 `form_sending` → 성공 `form_sent`(폼 리셋) / 실패 `form_fail`(폴백 주소 안내). 세 문구 모두 13개 언어.
+- SDK 가 로드되지 않으면(광고 차단기·오프라인) 이전 방식대로 **mailto** 로 메일 앱을 연다.
+- EmailJS 무료 플랜은 월 200통. 키는 공개키라 노출돼도 되지만, 남용되면 EmailJS 대시보드에서 도메인 허용 목록(dev.broodev.com · voca.broodev.com)을 켜면 된다.
 
 ## 모바일 — 프리로더 · 영상 (2026-10-02 수정)
 
@@ -67,8 +77,8 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 | 경로 | 설명 |
 |---|---|
-| `index.html` | 원페이지 (상단 `<style>` 에 템플릿 보정 + 언어 풀다운 CSS + `fx-fallback`; 하단 인라인 스크립트에 mailto 폼 · 영상 지연 로드 · 자가 치유) |
-| `404.html` | 같은 셸의 404 (Pages 커스텀 404 · home 스위치가 404 로 반환) |
+| `index.html` | 원페이지 (상단 `<style>` 에 템플릿 보정 + 언어 풀다운 CSS + 폼 상태 + `fx-fallback`; 하단 인라인 스크립트에 EmailJS 폼(mailto 폴백) · 영상 지연 로드 · 자가 치유) |
+| `404.html` | 같은 셸의 404 (Pages 커스텀 404 · dev 스위치가 404 로 반환) |
 | `og-image.png` | 공유 썸네일 (생성: `scripts/og/gen_og.mjs`) |
 | `assets/js/i18n-data.js`, `assets/js/i18n.js` | 13개 언어 사전(160키) · 감지/적용/풀다운 런타임 |
 | `assets/css/` | bootstrap · swiper · slick · animate · odometer · `styles.css`(템플릿, 원본 `assets/scss/`) |
@@ -79,7 +89,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 ## 알려진 문제
 
-- 연락 폼은 백엔드가 없어 **mailto 링크를 여는 방식**(브라우저 기본 메일 앱). 실제 수신 폼이 필요하면 Pages Function 또는 외부 폼 서비스.
+- 연락 폼은 EmailJS(외부 서비스) 에 의존 — 월 200통 한도, SDK 차단 시 mailto 폴백.
 - 히어로·소개 영상과 "하는 일" 배경 3장(운동화)은 템플릿 원본(사진은 교체 완료). **Cloudflare Pages 는 파일당 25 MiB 제한** — 히어로 원본(1600×900 VP8 26 MB)은 1280w VP9 3.9 MB webm + H.264 2.5 MB mp4 로 재인코딩했고, 미참조 영상 `wave-bg.mp4`(67 MB)·`nexbot.mp4`(29 MB)는 삭제. 25 MiB 를 넘는 자산을 넣으면 배포가 실패한다.
 - 템플릿 디스플레이 폰트에 한글(및 일본어·태국어 등) 글리프가 없어 시스템 폰트로 폴백된다(`word-break: keep-all` 로 어절 단위 줄바꿈).
 - 로고는 템플릿 아이콘 대신 인라인 SVG 텍스트 `Y`. 파비콘은 템플릿 것.

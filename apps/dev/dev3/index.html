@@ -54,6 +54,13 @@
         /* 히어로 버튼 2개(연락하기 · GITHUB) 가로 배치 */
         .section-hero-v1 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
         .section-hero-v1 .hero-actions .icon { font-size: 10px; }
+        /* 연락 폼 송신 상태(EmailJS) — 비어 있으면 숨김 */
+        .form-cta .form-status { margin-top: 16px; min-height: 0; }
+        .form-cta .form-status:empty { display: none; }
+        .form-cta .form-status.is-ok { color: var(--primary); }
+        .form-cta .form-status.is-err { color: #ff6b6b; }
+        .form-cta .form-status.is-sending { opacity: .7; }
+        .form-cta button[disabled] { opacity: .6; pointer-events: none; }
         body { word-break: keep-all; overflow-wrap: anywhere; }
         .benefit-list a { color: inherit; text-decoration: none; }
         .benefit-list a:hover { color: var(--primary); }
@@ -88,7 +95,7 @@
 
     <!-- Preload -->
     <div class="preloader overflow-hidden">
-        <div class="site-name"><span>BROODEV</span></div>
+        <div class="site-name"><span>JSONTYPE</span></div>
         <div class="preloader-gutters">
             <div class="bar">
                 <div class="inner-bar"></div>
@@ -1843,13 +1850,14 @@
                                 </fieldset>
                             </div>
                             <div class="form-action">
-                                <button type="submit" class="tf-btn">
+                                <button type="submit" class="tf-btn" id="form-submit">
                                     <span class="text-caption" data-i18n="form_submit">메일로 보내기</span>
                                 </button>
                                 <p class="text-body-1">
                                     Tokyo · Seoul · Remote — <a href="mailto:jsontyper@gmail.com" class="text-primary">jsontyper@gmail.com</a>
                                 </p>
                             </div>
+                            <p class="text-body-1 form-status" id="form-status" role="status" aria-live="polite"></p>
                         </form>
                     </div>
                 </div>
@@ -1891,9 +1899,6 @@
                         <div class="col-6 col-sm-4 col-md-3">
                             <ul class="footer-menu-list mb-0">
                                 <li><a href="https://github.com/jsontype" target="_blank" rel="noopener" class="link letter-space--2 h5">GitHub</a></li>
-                                <li><a href="https://x.com/jsontype" target="_blank" rel="noopener" class="link letter-space--2 h5">X</a></li>
-                                <li><a href="https://www.youtube.com/c/CodingCafe1" target="_blank" rel="noopener" class="link letter-space--2 h5">YouTube</a></li>
-                                <li><a href="https://www.linkedin.com/in/donghwa-yang-b73a57216/" target="_blank" rel="noopener" class="link letter-space--2 h5">LinkedIn</a></li>
                             </ul>
                         </div>
                     </div>
@@ -2003,18 +2008,6 @@
                                 <i class="icon icon-arrow-top-right"></i>
                                 GITHUB
                             </a>
-                            <a href="https://x.com/jsontype" target="_blank" rel="noopener" class="tf-link-icon text-caption link">
-                                <i class="icon icon-arrow-top-right"></i>
-                                X
-                            </a>
-                            <a href="https://www.youtube.com/c/CodingCafe1" target="_blank" rel="noopener" class="tf-link-icon text-caption link">
-                                <i class="icon icon-arrow-top-right"></i>
-                                YOUTUBE
-                            </a>
-                            <a href="https://www.linkedin.com/in/donghwa-yang-b73a57216/" target="_blank" rel="noopener" class="tf-link-icon text-caption link">
-                                <i class="icon icon-arrow-top-right"></i>
-                                LINKEDIN
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -2044,16 +2037,53 @@
     <script src="assets/js/gsapAnimation.js"></script>
 
     <script src="assets/js/main.js"></script>
+    <!-- 연락 폼 송신 — EmailJS (voca/contact.html 과 같은 서비스·템플릿). SDK 로드 실패 시 mailto 로 폴백 -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
-        // 연락 폼 — 백엔드 없이 메일 앱(mailto)으로 연다. 실제 수신 폼이 필요하면 Pages Function 으로 교체.
-        document.getElementById('form-contact').addEventListener('submit', function (e) {
-            e.preventDefault();
-            var f = e.target;
-            var name = f.name.value.trim(), email = f.email.value.trim(), msg = f.message.value.trim();
-            var subject = window.HOME3_T ? HOME3_T('mail_subject', { name: name }) : '[home.broodev.com] ' + name + ' 님의 메시지';
-            var body = msg + '\n\n— ' + name + ' <' + email + '>';
-            location.href = 'mailto:jsontyper@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-        });
+        // 연락 폼 — EmailJS 로 jsontyper@gmail.com 에 바로 송신. SDK 가 없으면(차단·오프라인) 메일 앱(mailto)으로 연다.
+        (function () {
+            var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
+            var EMAILJS_SERVICE_ID = 'broodev_service';
+            var EMAILJS_TEMPLATE_ID = 'broodev_template';
+            var FALLBACK_MAIL = 'jsontyper@gmail.com';
+            var configured = !!(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
+            if (configured) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+            var form = document.getElementById('form-contact');
+            var btn = document.getElementById('form-submit');
+            var statusEl = document.getElementById('form-status');
+            function t(key, vars, fallback) { return window.HOME3_T ? HOME3_T(key, vars) : fallback; }
+            function setStatus(kind, text) { statusEl.className = 'text-body-1 form-status' + (kind ? ' is-' + kind : ''); statusEl.textContent = text || ''; }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var name = form.name.value.trim(), email = form.email.value.trim(), msg = form.message.value.trim();
+                var subject = t('mail_subject', { name: name }, '[dev.broodev.com] ' + name + ' 님의 메시지');
+                if (!configured) {
+                    var body = msg + '\n\n— ' + name + ' <' + email + '>';
+                    location.href = 'mailto:' + FALLBACK_MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+                    return;
+                }
+                btn.disabled = true;
+                setStatus('sending', t('form_sending', null, '보내는 중…'));
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                    subject: subject,
+                    kind: 'portfolio',
+                    name: name || '(무기명)',
+                    email: email || '(회신 주소 없음)',
+                    message: msg,
+                    page: location.href,
+                    ua: navigator.userAgent,
+                    shots: '(없음)'
+                }).then(function () {
+                    setStatus('ok', t('form_sent', null, '보냈습니다. 곧 답장드릴게요.'));
+                    form.reset();
+                }).catch(function (err) {
+                    if (window.console) console.warn('dev3: emailjs failed', err);
+                    setStatus('err', t('form_fail', { mail: FALLBACK_MAIL }, '송신에 실패했습니다. ' + FALLBACK_MAIL + ' 로 직접 보내주세요.'));
+                }).then(function () { btn.disabled = false; });
+            });
+        })();
 
         // ── 모바일 하드닝 (2026-10-02) ───────────────────────────────────────────────
         // 1) 영상 지연 로드: <source data-src> 를 프리로더가 끝난 뒤(home3:ready)에만 채운다. 이벤트가 안 와도 2.5초 뒤 시작.
