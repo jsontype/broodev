@@ -72,7 +72,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 ## 2026-10-03 (b) — 코딩카페 정리 · 연도 제거
 - **YouTube CodingCafe1 전부 삭제**(코딩카페 폐업). 교육은 계속하므로 문구는 **"코딩 레슨 · 코딩 티처"** 로 — 하는 일 3(`svc3_desc`·`svc3_li1`) · IMPACT 4(`tes4_text`) · 숫자 3(`ind3_sub`) · FAQ 5(`faq5_a`) 13개 언어 재작성, 오프캔버스 `MENTOR · CODING LESSONS`, `404.html` 푸터·오프캔버스도 index 와 같이 GitHub 만.
-- **실적 일람의 시기·연도 제거**: SELECTED WORKS 태그(`tag_z2`·`tag_c2` 의 연도, N사 `2023 – 2026` 버튼) · 업적 15건 카드의 연도(`.price` 블록 삭제) · IMPACT HIGHLIGHTS duty 앞의 기간(`tes1~4_duty`) · 경력 6줄의 `exp_year` · TECH STACK `SPA · SSR · 2019 –`. 소개문의 "2019년부터"(경력 길이)는 남김. dev1·dev2 도 동일 적용(dev2 는 `시기:` 항목·`fa-calendar` 메타·`연도별` 위젯 제거).
+- **실적 일람의 시기·연도 제거**: SELECTED WORKS 태그(`tag_z2`·`tag_c2` 의 연도, N사 `2023 – 2026` 버튼) · 업적 15건 카드의 연도(`.price` 블록 삭제) · IMPACT HIGHLIGHTS duty 앞의 기간(`tes1~4_duty`) · 경력 6줄의 `exp_year` · TECH STACK `SPA · SSR · 2019 –`. 소개문(`about_desc`)·분야 소개(`fields_desc`)·지표(`ind1_sub`)·FAQ(`faq2_a`)의 "2019년부터"도 13개 언어에서 제거(`ind1_sub` 는 `— 일본 현장` 으로 대체). "4년"·"1년 넘게" 같은 기간 길이 표현은 남김. dev1·dev2 도 동일 적용(dev2 는 `시기:` 항목·`fa-calendar` 메타·`연도별` 위젯 제거).
 
 ## 공유 썸네일 (OG)
 

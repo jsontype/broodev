@@ -53,7 +53,7 @@ export const SITES = [
     theme: { bg: '#141414', glow: '#8a8a8a', accent: '#FFFFFF', text: '#FFFFFF', dim: '#B0B0B0', font: 'sans' },
     badge: 'Y-SYSTEMS · PORTFOLIO v2', title: '양동화 <b>(@jsontype)</b><br>업적 포트폴리오',
     sub: '핀테크·AI·에듀테크·리걸테크·통신 15건 · broodev 웹앱 15개 · 개발자 10명 배출',
-    tags: ['Tokyo', 'Full-cycle', '2019 –'], deco: 'none' },
+    tags: ['Tokyo', 'Full-cycle', '15 projects'], deco: 'none' },
   { id: 'samurai', out: 'games/samurai/og-image.png', domain: 'samurai.broodev.com',
     theme: { bg: '#12100d', glow: '#c9432f', accent: '#d9a441', text: '#e8ddc8', dim: '#8f8474', font: 'sans' },
     badge: '⚔ BROODEV GAMES', title: '사무라이 택틱스 <b>2</b>',
