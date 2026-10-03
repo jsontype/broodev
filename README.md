@@ -43,7 +43,7 @@ broodev/
 ├─ scripts/
 │  ├─ gen_coin.py    코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화)
 │  ├─ coins.json     코인 14종 데이터(id·심볼·13언어 코인명)
-│  ├─ og/gen_og.mjs  공유 썸네일(og-image.png 1200×630) 생성기 — 18개 사이트 설정 내장
+│  ├─ og/gen_og.mjs  공유 썸네일(og-image.png 1200×630) 생성기 — 19개 사이트 설정 내장
 │  └─ cdp-shot.mjs   실제 시간 렌더 검증 하니스(헤드리스 + DevTools 프로토콜 · 모바일/느린 회선 에뮬레이션)
 └─ .github/workflows/   배포 파이프라인
 ```

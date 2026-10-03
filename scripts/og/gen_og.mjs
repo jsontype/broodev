@@ -59,6 +59,14 @@ export const SITES = [
     badge: '⚔ BROODEV GAMES', title: '사무라이 택틱스 <b>2</b>',
     sub: '턴제 검술 로그라이크 — 기술패를 쌓고, 한 호흡에 발동한다. 적의 예고를 읽는 한 줄 전장 두뇌 싸움.',
     tags: ['턴제', '로그라이크', '한 줄 전장', '업적 30종'], deco: 'ring', glyph: '⚔' },
+  // 깜빡이 단어암기장 — 2026-10-03 앱 기본 테마가 BROODEV(흑백 모노톤)로 바뀌며 OG 도 같은 팔레트로 재생성.
+  // layout:'card' = 예전 외부 제작 OG(남색·노랑 VOCA_DECK 카드)의 구성(모서리 브래킷·워드마크·가로줄·'> 태그' 한 줄)을 그대로 두고 색만 바꾼 전용 레이아웃.
+  // 포털 Start here 카드(apps/home/assets/images/featured-voca.png)는 이 파일의 복사본 — 재생성 뒤 같이 복사할 것.
+  { id: 'voca', out: 'apps/voca/og-image.png', domain: 'voca.broodev.com', layout: 'card',
+    theme: { bg: '#000000', glow: '#ffffff', accent: '#FFFFFF', text: '#FFFFFF', dim: '#999999', font: 'mono' },
+    badge: '◐ BROODEV', title: 'VOCA_DECK', titleSize: 118,
+    sub: '깜빡이 단어암기장 · CSV 자동 반복', sub2: 'Blink-style Vocabulary Memorizer',
+    tags: ['free', 'no install', 'CSV', 'TTS', '13 languages'] },
   // ── 생활 인포패널 12종 (각 앱의 팔레트)
   { id: 'africa', out: 'apps/africa/og-image.png', domain: 'africa.broodev.com', theme: TERM('#140f08', '#ffb648'),
     badge: '▎AFRICA DAILY UTILITY', title: 'Africa Daily <b>Utility</b>',
@@ -112,10 +120,54 @@ export const SITES = [
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-export function renderHtml(c) {
+const SANS = "'Inter', 'Segoe UI', 'Malgun Gothic', 'Yu Gothic UI', 'Meiryo', 'Segoe UI Emoji', sans-serif";
+const MONO = "'JetBrains Mono', 'Consolas', 'Malgun Gothic', 'Yu Gothic UI', 'Segoe UI Emoji', monospace";
+
+// layout:'card' — 모서리 브래킷 4개 + 모노 워드마크 + 한글 부제 + 영문 부제 + 가로줄 + '> a · b · c' 한 줄 + 도메인(좌하단). 배지는 우상단(선택)
+function renderCard(c) {
   const t = c.theme;
-  const sans = "'Inter', 'Segoe UI', 'Malgun Gothic', 'Yu Gothic UI', 'Meiryo', 'Segoe UI Emoji', sans-serif";
-  const mono = "'JetBrains Mono', 'Consolas', 'Malgun Gothic', 'Yu Gothic UI', 'Segoe UI Emoji', monospace";
+  const titleSize = c.titleSize || 118;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap');
+*{margin:0;box-sizing:border-box}
+html,body{width:1200px;height:630px;overflow:hidden}
+body{background:${t.bg};color:${t.text};font-family:${MONO};position:relative}
+.glow{position:absolute;inset:0;background:radial-gradient(760px 520px at 80% 30%, ${t.glow}14 0%, transparent 62%)}
+.corner{position:absolute;width:52px;height:52px;border:0 solid ${t.accent}}
+.tl{left:16px;top:16px;border-left-width:5px;border-top-width:5px}
+.tr{right:16px;top:16px;border-right-width:5px;border-top-width:5px}
+.bl{left:16px;bottom:16px;border-left-width:5px;border-bottom-width:5px}
+.br{right:16px;bottom:16px;border-right-width:5px;border-bottom-width:5px}
+.badge{position:absolute;right:76px;top:58px;font-size:20px;font-weight:700;letter-spacing:1px;color:${t.dim};border:1px solid ${t.accent}55;border-radius:8px;padding:7px 14px}
+.wrap{position:absolute;left:90px;right:90px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;padding-bottom:28px}
+.title{font-size:${titleSize}px;font-weight:800;line-height:1;letter-spacing:-.02em;color:${t.accent};text-shadow:0 0 30px ${t.accent}40;word-break:keep-all}
+.sub{font-family:${SANS};font-size:38px;line-height:1.3;color:${t.text};margin-top:22px;word-break:keep-all}
+.sub2{font-size:26px;color:${t.dim};margin-top:10px;letter-spacing:.5px}
+.rule{height:1px;background:${t.accent}66;margin:30px -90px 0}
+.tags{font-size:26px;font-weight:700;color:${t.accent};margin-top:36px;white-space:nowrap}
+.tags i{font-style:normal;color:${t.dim};padding:0 14px}
+.domain{font-size:24px;color:${t.dim};margin-top:34px;letter-spacing:.5px}
+</style></head><body>
+<div class="glow"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+${c.badge ? `<div class="badge">${esc(c.badge)}</div>` : ''}
+<div class="wrap">
+  <div class="title">${c.title}</div>
+  <div class="sub">${esc(c.sub)}</div>
+  ${c.sub2 ? `<div class="sub2">${esc(c.sub2)}</div>` : ''}
+  <div class="rule"></div>
+  <div class="tags">&gt; ${(c.tags || []).map(esc).join('<i>·</i>')}</div>
+  <div class="domain">${esc(c.domain)}</div>
+</div>
+</body></html>`;
+}
+
+export function renderHtml(c) {
+  if (c.layout === 'card') return renderCard(c);
+  const t = c.theme;
+  const sans = SANS;
+  const mono = MONO;
   const font = t.font === 'mono' ? mono : sans;
   const titleSize = c.titleSize || 76;
   const deco = c.deco === 'ring'

@@ -78,7 +78,8 @@ broodev/
 │  │                        ← 코인 14종. btc 복제(gen_coin.py 생성). member/·adsense/ 없음.
 │  ├─ voca/                 깜빡이 단어암기장 (자기완결형·13개국어·CSV·모바일 대응)
 │  │  ├─ theme.js           테마 초기화(2026-10-03): localStorage voca:theme → html[data-theme] 를 CSS 보다 먼저 지정. BROODEV(기본, 포털 흑백) / ORIGINAL(남색+노랑·Win95 패널). 헤더 ◐ 풀다운(언어 풀다운 왼쪽)이 전환
-│  │  └─ content.css        콘텐츠 페이지 공용 스타일 — index.html 과 같은 html[data-theme] 변수 블록(:root=BROODEV · [data-theme=original])
+│  │  ├─ content.css        콘텐츠 페이지 공용 스타일 — index.html 과 같은 html[data-theme] 변수 블록(:root=BROODEV · [data-theme=original])
+│  │  └─ og-image.png       공유 썸네일 — `scripts/og/gen_og.mjs voca`(layout:'card' · BROODEV 흑백, 2026-10-03). 포털 Start here 의 featured-voca.png 가 이 복사본
 │  ├─ voca-tutorial/        voca 사용법 10단계 튜토리얼 (자기완결형·복제 아님·미니 데모)
 │  ├─ home/                 broodev.com 루트 = 앱 포털 (순수 정적 · AIXOR 템플릿 · 2026-10-03 · §6.3) — Pages broodev-web Root 를 apps/btc → apps/home 으로
 │  │  ├─ index.html  404.html  README.md  ads.txt  robots.txt  sitemap.xml  og-image.png  파비콘
@@ -104,7 +105,7 @@ broodev/
 ├─ scripts/
 │  ├─ gen_coin.py           코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화, §5)
 │  ├─ coins.json            코인 14종 데이터(id·Binance 심볼·13언어 코인명)
-│  ├─ og/gen_og.mjs         공유 썸네일(og-image.png 1200×630) 생성기 — SITES 에 18개 사이트 설정 내장, Edge/Chrome 헤드리스 스크린샷
+│  ├─ og/gen_og.mjs         공유 썸네일(og-image.png 1200×630) 생성기 — SITES 에 19개 사이트 설정 내장(기본 레이아웃 + voca 용 layout:'card'), Edge/Chrome 헤드리스 스크린샷
 │  └─ cdp-shot.mjs          실제 시간 렌더 검증 하니스(헤드리스 + DevTools 프로토콜 · --mobile · --net slow · --ls · --eval) — docs/new-app.md §8
 ├─ docs/
 │  ├─ new-app.md            설계 총정리 + 신규 앱 체크리스트(Part 1/2)
