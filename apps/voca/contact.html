@@ -123,6 +123,7 @@
         pepe: 'https://pepe.broodev.com/', mana: 'https://mana.broodev.com/', ltc: 'https://ltc.broodev.com/',
         link: 'https://link.broodev.com/', grt: 'https://grt.broodev.com/', dot: 'https://dot.broodev.com/',
         doge: 'https://doge.broodev.com/', bch: 'https://bch.broodev.com/', avax: 'https://avax.broodev.com/',
+        utils: 'https://utils.broodev.com/',
       };
       var qs = new URLSearchParams(location.search);
       var APP = APPS[qs.get('app')] ? qs.get('app') : 'voca';
@@ -391,6 +392,18 @@
       var configured = EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs;
       if (configured) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
+      /* 운영자 메일 제목·변수는 포털(apps/home/assets/js/portal.js)·dev3 와 같은 규격 — 레이아웃은 EmailJS 템플릿(docs/emailjs-template.md) */
+      var MAIL_SUBJECT = 'BROODEV에서 사용자 문의가 왔습니다.';
+      function envSummary() {
+        var ua = navigator.userAgent, m;
+        var os = /Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /CrOS/.test(ua) ? 'ChromeOS' : /Linux/.test(ua) ? 'Linux' : 'OS?';
+        var br = (m = /Edg\/(\d+)/.exec(ua)) ? 'Edge ' + m[1] : (m = /OPR\/(\d+)/.exec(ua)) ? 'Opera ' + m[1] : (m = /SamsungBrowser\/(\d+)/.exec(ua)) ? 'Samsung ' + m[1]
+          : (m = /(?:Chrome|CriOS)\/(\d+)/.exec(ua)) ? 'Chrome ' + m[1] : (m = /(?:Firefox|FxiOS)\/(\d+)/.exec(ua)) ? 'Firefox ' + m[1] : (m = /Version\/(\d+).*Safari/.exec(ua)) ? 'Safari ' + m[1] : '브라우저?';
+        var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+        return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · ' + navigator.language;
+      }
+      function nowJST() { try { return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Tokyo', hour12: false }) + ' (JST)'; } catch (e) { return String(new Date()); } }
+
       var form = document.getElementById('contact-form');
       var btn = document.getElementById('f-send');
       /* ⚠ 'status'는 window.status(문자열 전용 전역)와 충돌 — DOM 할당이 무시되므로 다른 이름 필수 */
@@ -519,13 +532,10 @@
         var message = document.getElementById('f-msg').value.trim();
         if (!message) return;
         var kindTag = '[' + APP + '] ' + kind;
-        /* 메일 제목: 카테고리별 아이콘 + "OO앱에서 OO이 들어왔습니다" — 템플릿 Subject는 {{subject}} 하나만 사용 */
-        var SUBJ = {
-          '버그 신고': ['🚨 버그 신고', '버그 신고가'],
-          '개선 제안': ['💡 개선 제안', '개선 제안이'],
-          '일반 문의': ['💬 문의', '문의가'],
-        }[kind];
-        var subject = '[' + SUBJ[0] + '] broodev-' + APP + '에서 ' + SUBJ[1] + ' 들어왔습니다.';
+        /* 운영자 메일 제목: 공통 문구 + "— 앱 구분 · 이름" (같은 제목이면 Gmail 이 한 스레드로 묶어 새 문의가 묻히므로 뒤를 다르게) */
+        var ICON = { '버그 신고': '🚨', '개선 제안': '💡', '일반 문의': '💬' }[kind] || '💬';
+        var subject = MAIL_SUBJECT + ' — ' + ICON + ' ' + APP + ' ' + kind + ' · ' + (name || '무기명');
+        var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
         if (!configured) {
           /* 키 미설정 시 폴백: 메일 앱을 열어 내용을 채워줌 */
@@ -544,8 +554,9 @@
           ? shots.map(function (s, i) { return '스크린샷 ' + (i + 1) + ': ' + s.url; }).join('\n')
           : t.noShot;
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          subject: subject, kind: kindTag, name: name || '(무기명)', email: email || '(회신 주소 없음)', message: message,
-          page: location.href, ua: navigator.userAgent,
+          subject: subject, kind: APP + ' (' + APPS[APP].replace(/^https?:\/\/|\/$/g, '') + ') · ' + kind,
+          name: name || '(무기명)', email: email || '(회신 주소 없음)', reply_to: validEmail ? email : '', message: message,
+          page: location.href, time: nowJST(), env: envSummary(), ua: navigator.userAgent,
           shots: shotLinks,
         }).then(function () {
           statusEl.className = 'status ok';

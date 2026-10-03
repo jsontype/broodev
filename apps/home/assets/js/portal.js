@@ -217,11 +217,24 @@
   window.addEventListener('hashchange', hashOpen);
   window.addEventListener('load', function () { setTimeout(hashOpen, 900); });
 
-  /* ── 연락 폼: EmailJS (voca·dev3 과 같은 서비스·템플릿) · SDK 없으면 mailto ── */
+  /* ── 연락 폼: EmailJS (voca·dev3 과 같은 서비스·템플릿) · SDK 없으면 mailto ──
+     운영자 메일 레이아웃은 EmailJS 템플릿(docs/emailjs-template.md)이 정하고, 여기서는 변수만 보낸다.
+     변수: subject · kind(출처) · name · email · reply_to · message · page · time · env · ua · shots */
   var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
   var EMAILJS_SERVICE_ID = 'broodev_service';
   var EMAILJS_TEMPLATE_ID = 'broodev_template';
   var FALLBACK_MAIL = 'jsontyper@gmail.com';
+  var MAIL_SUBJECT = 'BROODEV에서 사용자 문의가 왔습니다.'; // 뒤에 "— 출처 · 이름" 을 붙인다(같은 제목이면 Gmail 이 한 스레드로 묶어 새 문의가 묻힘)
+  /* 운영자용 환경 요약(OS · 브라우저 · 입력 방식 · 화면/창 · 언어). 전체 UA 는 ua 로 따로 */
+  function envSummary() {
+    var ua = navigator.userAgent, m;
+    var os = /Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /CrOS/.test(ua) ? 'ChromeOS' : /Linux/.test(ua) ? 'Linux' : 'OS?';
+    var br = (m = /Edg\/(\d+)/.exec(ua)) ? 'Edge ' + m[1] : (m = /OPR\/(\d+)/.exec(ua)) ? 'Opera ' + m[1] : (m = /SamsungBrowser\/(\d+)/.exec(ua)) ? 'Samsung ' + m[1]
+      : (m = /(?:Chrome|CriOS)\/(\d+)/.exec(ua)) ? 'Chrome ' + m[1] : (m = /(?:Firefox|FxiOS)\/(\d+)/.exec(ua)) ? 'Firefox ' + m[1] : (m = /Version\/(\d+).*Safari/.exec(ua)) ? 'Safari ' + m[1] : '브라우저?';
+    var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+    return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · ' + navigator.language;
+  }
+  function nowJST() { try { return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Tokyo', hour12: false }) + ' (JST)'; } catch (e) { return String(new Date()); } }
   var form = document.getElementById('contactForm');
   var result = document.getElementById('result');
   if (form && result) {
@@ -232,16 +245,18 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var name = form.name.value.trim(), email = form.email.value.trim(), msg = form.message.value.trim();
-      var subject = '[broodev.com] ' + (name || '방문자') + ' 님의 메시지';
+      var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       if (!configured) {
+        var subject = '[broodev.com] ' + (name || '방문자') + ' 님의 메시지'; // 메일 앱 폴백 — 보내는 사람 시점의 제목
         location.href = 'mailto:' + FALLBACK_MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(msg + '\n\n— ' + name + ' <' + email + '>');
         return;
       }
       if (btn) btn.disabled = true;
       status('sending', '보내는 중…');
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        subject: subject, kind: 'portal', name: name || '(무기명)', email: email || '(회신 주소 없음)',
-        message: msg, page: location.href, ua: navigator.userAgent, shots: '(없음)'
+        subject: MAIL_SUBJECT + ' — 포털 · ' + (name || '무기명'),
+        kind: '포털 (broodev.com)', name: name || '(무기명)', email: email || '(회신 주소 없음)', reply_to: validEmail ? email : '',
+        message: msg, page: location.href, time: nowJST(), env: envSummary(), ua: navigator.userAgent, shots: '(없음)'
       }).then(function () {
         status('ok', '보냈습니다. 곧 답장드릴게요.');
         form.reset();

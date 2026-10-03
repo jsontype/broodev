@@ -1992,6 +1992,17 @@
             var EMAILJS_SERVICE_ID = 'broodev_service';
             var EMAILJS_TEMPLATE_ID = 'broodev_template';
             var FALLBACK_MAIL = 'jsontyper@gmail.com';
+            /* 운영자 메일 제목·변수는 포털(apps/home/assets/js/portal.js)·voca(contact.html)와 같은 규격 — 레이아웃은 EmailJS 템플릿(docs/emailjs-template.md) */
+            var MAIL_SUBJECT = 'BROODEV에서 사용자 문의가 왔습니다.';
+            function envSummary() {
+                var ua = navigator.userAgent, m;
+                var os = /Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /CrOS/.test(ua) ? 'ChromeOS' : /Linux/.test(ua) ? 'Linux' : 'OS?';
+                var br = (m = /Edg\/(\d+)/.exec(ua)) ? 'Edge ' + m[1] : (m = /OPR\/(\d+)/.exec(ua)) ? 'Opera ' + m[1] : (m = /SamsungBrowser\/(\d+)/.exec(ua)) ? 'Samsung ' + m[1]
+                    : (m = /(?:Chrome|CriOS)\/(\d+)/.exec(ua)) ? 'Chrome ' + m[1] : (m = /(?:Firefox|FxiOS)\/(\d+)/.exec(ua)) ? 'Firefox ' + m[1] : (m = /Version\/(\d+).*Safari/.exec(ua)) ? 'Safari ' + m[1] : '브라우저?';
+                var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+                return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · ' + navigator.language;
+            }
+            function nowJST() { try { return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Tokyo', hour12: false }) + ' (JST)'; } catch (e) { return String(new Date()); } }
             var configured = !!(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
             if (configured) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
@@ -2004,8 +2015,9 @@
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
                 var name = form.name.value.trim(), email = form.email.value.trim(), msg = form.message.value.trim();
-                var subject = t('mail_subject', { name: name }, '[dev.broodev.com] ' + name + ' 님의 메시지');
+                var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
                 if (!configured) {
+                    var subject = t('mail_subject', { name: name }, '[dev.broodev.com] ' + name + ' 님의 메시지'); // 메일 앱 폴백 — 보내는 사람 언어·시점의 제목
                     var body = msg + '\n\n— ' + name + ' <' + email + '>';
                     location.href = 'mailto:' + FALLBACK_MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
                     return;
@@ -2013,12 +2025,15 @@
                 btn.disabled = true;
                 setStatus('sending', t('form_sending', null, '보내는 중…'));
                 emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                    subject: subject,
-                    kind: 'portfolio',
+                    subject: MAIL_SUBJECT + ' — 개발자 소개 · ' + (name || '무기명'),
+                    kind: '개발자 소개 (dev.broodev.com)',
                     name: name || '(무기명)',
                     email: email || '(회신 주소 없음)',
+                    reply_to: validEmail ? email : '',
                     message: msg,
                     page: location.href,
+                    time: nowJST(),
+                    env: envSummary(),
                     ua: navigator.userAgent,
                     shots: '(없음)'
                 }).then(function () {
