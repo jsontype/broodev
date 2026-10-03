@@ -1,4 +1,4 @@
-/* home3 i18n 사전 — 13개 언어 (en · ja · ko · zh · zh-Hant · th · es · fr · de · it · pt · ru · nl)
+/* dev3 i18n 사전 — 13개 언어 (en · ja · ko · zh · zh-Hant · th · es · fr · de · it · pt · ru · nl)
    - 키는 모든 언어에서 동일해야 한다(검증: node scripts/check_home3_i18n.mjs).
    - 값 안의 <br class="d-none d-sm-block"> / <br> 는 data-i18n-html 키에만 쓰이며 그대로 유지한다.
    - {name} 같은 자리표시자는 그대로 둔다.
@@ -164,7 +164,7 @@ window.HOME3_I18N = {
     mb_works: 'View works',
     mb_about: 'View about',
     mb_services: 'View services',
-    mail_subject: '[home.broodev.com] Message from {name}'
+    mail_subject: '[dev.broodev.com] Message from {name}'
   },
   ko: {
     meta_title: '양동화 (@jsontype) — 포트폴리오 · Y-Systems',
@@ -326,7 +326,7 @@ window.HOME3_I18N = {
     mb_works: '업적 보기',
     mb_about: '소개 보기',
     mb_services: '하는 일 보기',
-    mail_subject: '[home.broodev.com] {name} 님의 메시지'
+    mail_subject: '[dev.broodev.com] {name} 님의 메시지'
   },
   // ja
   ja: {
@@ -489,7 +489,7 @@ window.HOME3_I18N = {
     mb_works: '実績を見る',
     mb_about: '自己紹介を見る',
     mb_services: 'サービスを見る',
-    mail_subject: '[home.broodev.com] {name} さんからのメッセージ'
+    mail_subject: '[dev.broodev.com] {name} さんからのメッセージ'
   },
   // zh
   zh: {
@@ -652,7 +652,7 @@ window.HOME3_I18N = {
     mb_works: '查看作品',
     mb_about: '查看关于',
     mb_services: '查看服务',
-    mail_subject: '[home.broodev.com] 来自 {name} 的留言'
+    mail_subject: '[dev.broodev.com] 来自 {name} 的留言'
   },
   // zh-Hant
   'zh-Hant': {
@@ -815,7 +815,7 @@ window.HOME3_I18N = {
     mb_works: '查看作品',
     mb_about: '查看關於',
     mb_services: '查看服務',
-    mail_subject: '[home.broodev.com] 來自 {name} 的訊息'
+    mail_subject: '[dev.broodev.com] 來自 {name} 的訊息'
   },
   // th
   th: {
@@ -978,7 +978,7 @@ window.HOME3_I18N = {
     mb_works: 'ดูผลงาน',
     mb_about: 'ดูเกี่ยวกับ',
     mb_services: 'ดูบริการ',
-    mail_subject: '[home.broodev.com] ข้อความจาก {name}'
+    mail_subject: '[dev.broodev.com] ข้อความจาก {name}'
   },
   // es
   es: {
@@ -1141,7 +1141,7 @@ window.HOME3_I18N = {
     mb_works: 'Ver proyectos',
     mb_about: 'Ver sobre mí',
     mb_services: 'Ver servicios',
-    mail_subject: '[home.broodev.com] Mensaje de {name}'
+    mail_subject: '[dev.broodev.com] Mensaje de {name}'
   },
   // fr
   fr: {
@@ -1304,7 +1304,7 @@ window.HOME3_I18N = {
     mb_works: 'Voir les projets',
     mb_about: 'Voir à propos',
     mb_services: 'Voir les services',
-    mail_subject: '[home.broodev.com] Message de {name}'
+    mail_subject: '[dev.broodev.com] Message de {name}'
   },
   // de
   de: {
@@ -1467,7 +1467,7 @@ window.HOME3_I18N = {
     mb_works: 'Projekte ansehen',
     mb_about: 'Über mich ansehen',
     mb_services: 'Leistungen ansehen',
-    mail_subject: '[home.broodev.com] Nachricht von {name}'
+    mail_subject: '[dev.broodev.com] Nachricht von {name}'
   },
   // it
   it: {
@@ -1630,7 +1630,7 @@ window.HOME3_I18N = {
     mb_works: 'Vedi i progetti',
     mb_about: 'Vedi chi sono',
     mb_services: 'Vedi i servizi',
-    mail_subject: '[home.broodev.com] Messaggio da {name}'
+    mail_subject: '[dev.broodev.com] Messaggio da {name}'
   },
   // pt
   pt: {
@@ -1793,7 +1793,7 @@ window.HOME3_I18N = {
     mb_works: 'Ver projetos',
     mb_about: 'Ver sobre mim',
     mb_services: 'Ver serviços',
-    mail_subject: '[home.broodev.com] Mensagem de {name}'
+    mail_subject: '[dev.broodev.com] Mensagem de {name}'
   },
   // ru
   ru: {
@@ -1956,7 +1956,7 @@ window.HOME3_I18N = {
     mb_works: 'Смотреть проекты',
     mb_about: 'Смотреть обо мне',
     mb_services: 'Смотреть услуги',
-    mail_subject: '[home.broodev.com] Сообщение от {name}'
+    mail_subject: '[dev.broodev.com] Сообщение от {name}'
   },
   // nl
   nl: {
@@ -2119,6 +2119,6 @@ window.HOME3_I18N = {
     mb_works: 'Bekijk werk',
     mb_about: 'Bekijk over mij',
     mb_services: 'Bekijk diensten',
-    mail_subject: '[home.broodev.com] Bericht van {name}'
+    mail_subject: '[dev.broodev.com] Bericht van {name}'
   }
 };

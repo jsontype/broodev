@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 실제 시간 기준 렌더 검증 하니스 — Edge/Chrome 헤드리스 + DevTools 프로토콜(CDP)
-//   node scripts/cdp-shot.mjs --url http://127.0.0.1:8766/apps/home/home3/index.html --out shot.png
+//   node scripts/cdp-shot.mjs --url http://127.0.0.1:8766/apps/dev/dev3/index.html --out shot.png
 //        [--mobile] [--net slow|3g] [--wait 8000] [--w 1440 --h 900] [--ls home:lang=ja] [--eval "expr"]
 // 왜 이게 필요한가: `msedge --headless --screenshot --virtual-time-budget` 은 가상 시간이라 window.load·rAF·CDN React/Babel 이
 //   끝나기 전에 찍히는 경우가 많다(docs/new-app.md §8). 이 하니스는 진짜 시간으로 기다리며 콘솔 에러·JS 예외·video 상태·

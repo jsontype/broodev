@@ -1,8 +1,8 @@
-# home2
+# dev2
 
 > **기술 스택:** 순수 정적 HTML · Bootstrap 3.3.6 · jQuery 2.2.1 · Font Awesome · Owl Carousel · SCSS(Compass, 수동 컴파일). React·Babel·i18n·터미널 테마·AdSense **없음**.
 
-`home.broodev.com/home2/`(루트 활성은 home3 — 스위치는 [`../README.md`](../README.md)) — **양동화(@jsontype) 업적 포트폴리오.** `home1`(구 `dev`)의 다음 버전 홈이고, `home3`(Davies 템플릿)가 그 다음 버전.
+`dev.broodev.com/dev2/`(루트 활성은 dev3 — 스위치는 [`../README.md`](../README.md)) — **양동화(@jsontype) 업적 포트폴리오.** `dev1`(구 `dev`)의 다음 버전 홈이고, `dev3`(Davies 템플릿)가 그 다음 버전.
 
 구 `jsontype/y-systems` 레포 `home/html/`(Photollax 템플릿)을 2026-10-01 통합한 뒤 **텍스트만 전부 교체**했다. 사진·이미지는 템플릿 원본 그대로(추후 비슷한 사진으로 교체 예정). 템플릿 설명서 `home/documentation/`과 `wrangler.toml`은 가져오지 않았다.
 
@@ -10,7 +10,7 @@
 
 | 섹션 | 내용 | 출처 |
 |---|---|---|
-| 히어로 슬라이드 0 | 인사 + 한 줄 소개 | home1(dev) |
+| 히어로 슬라이드 0 | 인사 + 한 줄 소개 | dev1(dev) |
 | 슬라이드 1–12 | **업적 12건**(최신순, 제목만) — 회사·분야·시기 / 공헌도·임팩트·키워드 | 스킬시트 |
 | `#about-me` 소개 | 자기소개 2문단 | home1(dev) `WHOAMI_TEXT` + 스킬시트 |
 | `#services` 하는 일 | WEB BUILD · GLOBAL SHIP · TEACH & SHARE | home1(dev) `SERVICES` |
@@ -43,4 +43,4 @@
 
 ## 배포
 
-`apps/home` 전체가 Pages 프로젝트 `broodev-home` 하나로 배포된다(Root `apps/home`). 이 폴더는 `/home2/` 로 미리보기되고, 루트(/)에 띄우려면 `../functions/_middleware.js` 의 `ACTIVE` 를 `'home2'` 로. 절차는 [`docs/deploy-cloudflare.md`](../../../docs/deploy-cloudflare.md) §2-B.
+`apps/dev` 전체가 Pages 프로젝트 `broodev-dev` 하나로 배포된다(Root `apps/dev`). 이 폴더는 `/dev2/` 로 미리보기되고, 루트(/)에 띄우려면 `../functions/_middleware.js` 의 `ACTIVE` 를 `'dev2'` 로. 절차는 [`docs/deploy-cloudflare.md`](../../../docs/deploy-cloudflare.md) §2-B.

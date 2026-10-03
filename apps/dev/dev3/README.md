@@ -1,8 +1,8 @@
-# home3
+# dev3 (구 home3)
 
 > **기술 스택:** 순수 정적 HTML · Bootstrap 5 · jQuery · GSAP(ScrollTrigger · SplitText · ScrollSmoother) · Swiper · Slick · Odometer · SCSS(수동 컴파일) · **자체 i18n 13개 언어**(`assets/js/i18n-data.js` + `i18n.js`). React·Babel·터미널 테마·AdSense **없음**.
 
-`home.broodev.com` (루트 = 현재 활성 홈, 스위치는 [`../README.md`](../README.md)) — **양동화(@jsontype) 업적 포트폴리오 v3.** `home2`(Photollax)의 다음 버전.
+`dev.broodev.com` (루트 = 현재 활성 사이트, 스위치는 [`../README.md`](../README.md)) — **양동화(@jsontype) 업적 포트폴리오 v3.** `dev2`(Photollax)의 다음 버전. 2026-10-03 `apps/home/home3` → `apps/dev/dev3` 로 이동(폴더·도메인만 바뀜 — JS 전역 `HOME3_I18N`·`HOME3_T`, 이벤트 `home3:ready`, `localStorage(home:lang)` 키는 호환을 위해 그대로).
 
 Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **텍스트를 전부 교체**했고, 2026-10-03 에 작품·업적·하는 일·분야·하이라이트 **사진 24종을 AI 생성 이미지로 교체**했다(아래 [사진](#사진-2026-10-03)). 히어로·소개 영상과 "하는 일" 배경 3장(`bg-service-*.jpg`, 운동화)은 아직 템플릿 원본. 템플릿의 `documentation/`, 블로그 4종, `landing.html`, `version-2.html`, 아이콘 데모, `images/{blog,demo}` 는 가져오지 않았다.
 
@@ -20,11 +20,11 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 | FIELDS | 분야별 건수 (AI 5 · 핀테크 2 · 교육·공공 3 · 리걸 2 · HR 2 · 통신·모빌리티 2) | 업적 15건 집계 |
 | IMPACT HIGHLIGHTS | 성과 인용 4건 (템플릿 testimonial 재활용 — 추천사 아님) | 스킬시트 |
 | 숫자 | 프로젝트 15 · 웹앱 15 · 배출 개발자 10 | — |
-| broodev 앱 | 15개 링크 3카드 (템플릿 pricing 재활용) | home2 `#pricing` |
+| broodev 앱 | 15개 링크 3카드 (템플릿 pricing 재활용) | dev2 `#pricing` |
 | FAQ | 5문항 | — |
 | 연락 | 이름·이메일·메시지 → **mailto** · 소셜 4종 | home1 `LINKS` |
 
-**익명화 규칙:** home2 와 동일 — 회사명은 이니셜 + 사(N사·Z사·S사 …), 같은 이니셜은 업종으로 구분. 회사를 특정하는 제품명·납품처 실명은 기능 설명으로 대체. Miidas·동료 개인사·연봉은 **제외**.
+**익명화 규칙:** dev2 와 동일 — 회사명은 이니셜 + 사(N사·Z사·S사 …), 같은 이니셜은 업종으로 구분. 회사를 특정하는 제품명·납품처 실명은 기능 설명으로 대체. Miidas·동료 개인사·연봉은 **제외**.
 
 ## i18n — 13개 언어 (2026-10-02)
 
@@ -61,7 +61,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 ## 공유 썸네일 (OG)
 
-`og-image.png`(1200×630) 은 [`scripts/og/gen_og.mjs`](../../../scripts/og/gen_og.mjs) 가 생성(`node scripts/og/gen_og.mjs home3`). 메타태그는 `og:image` = `https://home.broodev.com/og-image.png`(루트 재작성으로 `/home3/og-image.png` 가 서빙됨) + `twitter:card=summary_large_image`. 카카오톡은 캐시가 오래가므로 갱신 뒤 https://developers.kakao.com/tool/clear/og 에서 지운다.
+`og-image.png`(1200×630) 은 [`scripts/og/gen_og.mjs`](../../../scripts/og/gen_og.mjs) 가 생성(`node scripts/og/gen_og.mjs dev3`). 메타태그는 `og:image` = `https://dev.broodev.com/og-image.png`(루트 재작성으로 `/dev3/og-image.png` 가 서빙됨) + `twitter:card=summary_large_image`. 카카오톡은 캐시가 오래가므로 갱신 뒤 https://developers.kakao.com/tool/clear/og 에서 지운다.
 
 ## 파일
 
@@ -87,4 +87,4 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 ## 배포
 
-`apps/home` 전체가 Pages 프로젝트 `broodev-home` 하나로 배포된다(Root `apps/home`). 이 폴더는 `/home3/` 로 미리보기되고, 현재 루트(/)에 떠 있다. 절차는 [`docs/deploy-cloudflare.md`](../../../docs/deploy-cloudflare.md) §2-B.
+`apps/dev` 전체가 Pages 프로젝트 `broodev-dev` 하나로 배포된다(Root `apps/dev`). 이 폴더는 `/dev3/` 로 미리보기되고, 현재 루트(/)에 떠 있다. 절차는 [`docs/deploy-cloudflare.md`](../../../docs/deploy-cloudflare.md) §2-B.

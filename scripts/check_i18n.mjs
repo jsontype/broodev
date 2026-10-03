@@ -89,14 +89,14 @@ function compareLangs(label, bundles, refLang = 'ko') {
   compareLangs('contact C', evalObj(extractObject(src, 'var C = {')))
 }
 
-/* ── dev 포털 (home1) — 현재 home1 은 한국어 단일(i18n 없음)이라 번들이 있을 때만 검사 ── */
-if (existsSync('apps/home/home1/i18n.js')) {
-  const core = readFileSync('apps/home/home1/i18n.js', 'utf8')
+/* ── 개발자 소개 (dev1 · 구 home1) — 현재 dev1 은 한국어 단일(i18n 없음)이라 번들이 있을 때만 검사 ── */
+if (existsSync('apps/dev/dev1/i18n.js')) {
+  const core = readFileSync('apps/dev/dev1/i18n.js', 'utf8')
   const bundles = { ko: evalObj(extractObject(core, 'var KO = {')) }
-  for (const f of readdirSync('apps/home/home1/i18n')) {
+  for (const f of readdirSync('apps/dev/dev1/i18n')) {
     const lang = f.replace(/\.js$/, '')
     const win = { __WEB: {} }
-    new Function('window', readFileSync('apps/home/home1/i18n/' + f, 'utf8'))(win)
+    new Function('window', readFileSync('apps/dev/dev1/i18n/' + f, 'utf8'))(win)
     bundles[lang] = win.__WEB[lang]
     if (!bundles[lang]) { console.log(`✖ dev i18n/${f}: window.__WEB['${lang}'] 등록 안 됨`); failures++ }
   }
