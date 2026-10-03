@@ -5,7 +5,7 @@
 > **broodev.com 루트 = 이 포털.** 2026-10-03 부터 루트는 비트코인 앱(`apps/btc`)이 아니라 이 폴더를 서빙한다(Pages `broodev-web` Root directory → `apps/home`). 비트코인 정본은 **btc.broodev.com** 으로 이전. 개발자 소개 사이트(구 `apps/home/home1·2·3`)는 **`apps/dev`(dev.broodev.com)** 로 이동.
 
 ## 무엇인가
-- `apps/` 안의 **모든 공개 앱을 카테고리별로 나열**하는 관문. 히어로·소개·카테고리·대표 앱·원칙·연락 섹션으로 구성된 원페이지.
+- `apps/` 안의 **모든 공개 앱을 카테고리별로 나열**하는 관문. 히어로·소개·카테고리·대표 앱·사이트맵(전체 앱)·연락 섹션으로 구성된 원페이지.
 - 헤더의 **Apps (N)** · 사이드바 "전체 앱" · 히어로 "모든 앱 보기" · 카테고리 행 · 푸터 Apps 링크 등 `[data-open-apps]` 요소를 누르면 **화면 전체를 덮는 모달**(`#apps-modal`)이 열리고, 카테고리 카드가 격자로 나온다.
 - 카테고리 카드 1장 = **앱 5개 + 페이지네이션**. 앱이 5개 이하라 1페이지로 끝나는 카테고리도 페이지네이션을 **비활성 상태로 표시**(`.is-single`, 버튼 전부 `disabled`) — 앱이 늘어나도 카드 높이가 흔들리지 않게 빈 행(`li.is-empty`)으로 5행을 채운다.
 - 해시 딥링크: `/#apps` 전체 모달, `/#apps=crypto` 해당 카테고리로 스크롤·강조. 닫기: ✕ · Esc · 배경 클릭. 열려 있는 동안 포커스 트랩 + `body.apps-modal-open`(스크롤 잠금).
@@ -23,14 +23,14 @@
 ## 파일
 | 경로 | 역할 |
 | --- | --- |
-| `index.html` | 원페이지 전체(히어로 · #about · #categories · #featured · #principles · #contact · 푸터 · 모달 마크업) · JSON-LD WebSite |
+| `index.html` | 원페이지 전체(히어로 · #about · #categories · #featured · #sitemap · #contact · 푸터 · 모달 마크업) · JSON-LD WebSite. `#sitemap` 은 2026-10-03 "원칙 4종"(템플릿 service 레이아웃) 섹션을 대체 — `portal.js` 가 카탈로그를 카테고리별로 **전부** 펼쳐 그린다(모달과 달리 페이지네이션 없음, CSS 3단 다단) |
 | `assets/js/catalog.js` | `window.BROODEV_CATALOG = { categories, apps, total, languages, featured }` — **유일한 데이터 소스** |
-| `assets/js/portal.js` | 카운터 채우기 · 카테고리 리스트 렌더 · 모달 빌드/페이지네이션(`PER_PAGE = 5`) · 열기/닫기/포커스 트랩 · 해시 라우팅 · EmailJS 연락 폼 |
+| `assets/js/portal.js` | 카운터 채우기 · 카테고리 리스트 렌더 · 사이트맵 섹션 렌더(`#sitemap-list`) · 모달 빌드/페이지네이션(`PER_PAGE = 5`) · 열기/닫기/포커스 트랩 · 해시 라우팅 · EmailJS 연락 폼 |
 | `assets/css/portal.css` | 템플릿 위에 얹는 포털 전용 스타일(워드마크 `.brand-mark` · `.nav-apps` · 모달 · 카드 · 페이지네이션 · 폼 상태) |
 | `assets/js/main.js` | 템플릿 JS(프리로더 · 커서 · 사이드바 · GSAP 리빌). web3forms 문의 블록만 제거 |
 | `assets/css/style.css` `responsive.css` | 템플릿 원본 CSS(수정 없음) |
 | `assets/images/featured-*.png` | 대표 앱 3종 카드(각 앱 og-image 1200×630 복사본): `btc` · `utils`(2026-10-03 사무라이 택틱스 2 → 업무 도구 모음으로 교체) · `voca` |
-| `assets/images/service1-4.png` `contact.png` | 템플릿 원본 비주얼 — 확장자는 .png 지만 **AVIF 컨테이너**(브라우저 렌더 정상, 일부 도구는 못 읽음) |
+| `assets/images/contact.png` | 템플릿 원본 비주얼 — 확장자는 .png 지만 **AVIF 컨테이너**(브라우저 렌더 정상, 일부 도구는 못 읽음). `service1-4.png`·`service-icon1-4.svg`·`arrow-down.svg` 는 원칙 섹션과 함께 제거 |
 | `404.html` | 템플릿 error-page 레이아웃 · "전체 앱 보기" → `/#apps` |
 | `favicon.svg/.ico` `favicon-96x96.png` `apple-touch-icon.png` | 검정 라운드 사각 + 이탤릭 세리프 "b" |
 | `robots.txt` `sitemap.xml` `og-image.png` `ads.txt` | 루트 도메인 보조 파일. `ads.txt` 는 **루트 도메인에만 의미가 있어** 여기(루트)에 둔다(btc 것과 동일 pub ID) |
@@ -50,4 +50,4 @@ node scripts/og/gen_og.mjs home
 2026-10-03 헤드리스 확인: 데스크톱·모바일 히어로 렌더, 모달 6카드(코인 15개 → 3페이지 · 인포패널 12개 → 3페이지 · 나머지 1페이지 비활성 페이지네이션), JS 예외 0.
 
 ## AdSense 메모
-루트가 "얇은 포털"이라 2026-07 "가치 없는 콘텐츠" 판정을 받았던 이력이 있다(`docs/adsense-compliance.md`). 2026-08-31 AdSense 추진은 중단 상태라 당장 심사 영향은 없지만, 재심사를 하게 되면 **루트가 다시 포털**이라는 점을 감안할 것 — 이 포털은 그때와 달리 소개·원칙·카테고리·대표 앱·연락 섹션과 앱 33종 목록을 갖춘 콘텐츠형 페이지로 만들었다.
+루트가 "얇은 포털"이라 2026-07 "가치 없는 콘텐츠" 판정을 받았던 이력이 있다(`docs/adsense-compliance.md`). 2026-08-31 AdSense 추진은 중단 상태라 당장 심사 영향은 없지만, 재심사를 하게 되면 **루트가 다시 포털**이라는 점을 감안할 것 — 이 포털은 그때와 달리 소개·카테고리·대표 앱·사이트맵(앱 33종 전체 링크)·연락 섹션을 갖춘 콘텐츠형 페이지로 만들었다.

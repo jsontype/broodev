@@ -58,6 +58,31 @@
     });
   }
 
+  /* ── 사이트맵 섹션(#sitemap-list): 전체 앱을 카테고리별로 전부 펼친다 — 모달과 달리 페이지네이션 없음 ── */
+  var sitemap = document.getElementById('sitemap-list');
+  if (sitemap) {
+    C.categories.forEach(function (cat) {
+      var list = h('ul', { class: 'sitemap-list' });
+      cat.apps.forEach(function (a) {
+        var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: '준비 중' }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
+        list.appendChild(h('li', null, [
+          h('a', { href: a.url, target: '_blank', rel: 'noopener', title: a.desc }, [
+            h('span', { class: 'name' }, [document.createTextNode(a.name), badge]),
+            h('span', { class: 'host', text: host(a.url) })
+          ])
+        ]));
+      });
+      sitemap.appendChild(h('section', { class: 'sitemap-cat', 'data-cat': cat.id, 'aria-labelledby': 'sitemap-cat-' + cat.id }, [
+        h('header', { class: 'sitemap-cat-head' }, [
+          h('span', { class: 'numeral', text: cat.numeral }),
+          h('h4', { id: 'sitemap-cat-' + cat.id }, [document.createTextNode(cat.name), h('small', { text: cat.count + ' apps' })]),
+          h('span', { class: 'en', text: cat.en })
+        ]),
+        list
+      ]));
+    });
+  }
+
   /* ── 모달 ── */
   var modal = document.getElementById('apps-modal');
   var grid = modal && modal.querySelector('.apps-grid');
