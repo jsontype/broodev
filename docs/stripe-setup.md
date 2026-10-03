@@ -262,6 +262,6 @@ Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 �
 | 법적 문서 본문(3언어) | `apps/home/legal/{tokushoho,terms,privacy,refund}.html` 의 `<article data-lang-block>` (전환 `legal/legal.js`, 스타일 `legal/legal.css`) |
 | 프리미엄 총람 | `apps/home/premium.html` (앱 카드 · 공통 조건 · FAQ) |
 | 포털 푸터 법적 링크 | `apps/home/index.html` `.footer-legal` · `404.html` |
-| utils 가격 · Payment Link · 포털 링크 · 무료 제한 | `apps/utils/js/biz.js` → `PLANS` (BIZ 는 정본 사본) |
+| utils 가격 · Payment Link · 포털 링크 · 무료/프리미엄 출력 형식(`free_formats`·`premium_formats`) | `apps/utils/js/biz.js` → `PLANS` (BIZ 는 정본 사본) |
 | utils 판매 페이지 본문(3언어) · 메뉴·푸터·title 번역 | `apps/utils/pricing.html` · `apps/utils/js/i18n.js` (`menu_pricing` · `foot_*` · `title_pricing` · `desc_pricing`) |
 | Stripe 비밀키·웹훅 시크릿 | **레포 밖** — Cloudflare Pages 프로젝트(`broodev-utils` 등 앱별) → Settings → Variables and Secrets |
