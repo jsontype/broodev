@@ -15,7 +15,7 @@
       meta_desc: '사진을 올리면 파일명 순서대로 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx)를 바로 내려받습니다. 브라우저에서만 처리, 서버 전송 없음.',
       tools_heading: '유틸',
       menu_app: '사진 → 엑셀 · PPT',
-      footer: '©2026 Utils · Y-Systems',
+      footer: '©2026 Utils · Y Systems',
       heading: '사진 → 엑셀 · PPT 격자 배열',
       intro: '사진을 올리면 파일명 순서대로, 선택한 용지 한 페이지에 가로×세로 개수대로 배열된 엑셀(.xlsx) 또는 파워포인트(.pptx) 파일을 바로 내려받습니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.',
       preview: '미리보기:',
@@ -53,14 +53,25 @@
       st_building: '{fmt} 생성 중…',
       st_done: '완료 — {name} ({n}장 · {p}페이지 · {c}×{r})',
       st_fail: '실패: {msg}',
-      err_decode: '이미지를 열 수 없습니다: {name}'
+      err_decode: '이미지를 열 수 없습니다: {name}',
+      // 사이드바 · 하단 법적 링크 · 안내 페이지 제목(5개 페이지 공통 키 — site.js 가 적용)
+      menu_pricing: '요금 · 프리미엄',
+      soon: '준비 중',
+      foot_pricing: '요금',
+      foot_tokushoho: '특정상거래법 표기',
+      foot_terms: '이용약관',
+      foot_privacy: '개인정보 처리방침',
+      foot_refund: '환불·해지 정책',
+      foot_contact: '문의',
+      title_pricing: '요금 · 프리미엄 — Utils',
+      desc_pricing: 'Utils 프리미엄 요금 안내 (세금 포함 표시). 1회 결제 평생 이용권과 연간 구독 중 선택. 무료 플랜과의 기능 비교, 결제·해지 FAQ.'
     },
     ja: {
       title: 'Utils — 写真 → Excel · PPT グリッド配置',
       meta_desc: '写真をアップロードすると、ファイル名順に用紙 1 ページへ横×縦の枚数どおりに配置した Excel(.xlsx) または PowerPoint(.pptx) をすぐにダウンロードできます。処理はブラウザ内のみ、サーバー送信なし。',
       tools_heading: 'ユーティリティ',
       menu_app: '写真 → Excel · PPT',
-      footer: '©2026 Utils · Y-Systems',
+      footer: '©2026 Utils · Y Systems',
       heading: '写真 → Excel · PPT グリッド配置',
       intro: '写真をアップロードすると、ファイル名順に、選んだ用紙 1 ページへ横×縦の枚数どおりに配置した Excel(.xlsx) または PowerPoint(.pptx) ファイルをすぐにダウンロードできます。処理はすべてブラウザ内で完結し、写真はサーバーに送信されません。',
       preview: 'プレビュー:',
@@ -98,14 +109,24 @@
       st_building: '{fmt} を生成中…',
       st_done: '完了 — {name}（{n}枚 · {p}ページ · {c}×{r}）',
       st_fail: '失敗: {msg}',
-      err_decode: '画像を開けません: {name}'
+      err_decode: '画像を開けません: {name}',
+      menu_pricing: '料金 · プレミアム',
+      soon: '準備中',
+      foot_pricing: '料金',
+      foot_tokushoho: '特定商取引法に基づく表記',
+      foot_terms: '利用規約',
+      foot_privacy: 'プライバシーポリシー',
+      foot_refund: '返金・解約ポリシー',
+      foot_contact: 'お問い合わせ',
+      title_pricing: '料金 · プレミアム — Utils',
+      desc_pricing: 'Utils プレミアムの料金（税込表示）。買い切りの永久ライセンスと年額サブスクリプションから選択。無料プランとの機能比較、決済・解約の FAQ。'
     },
     en: {
       title: 'Utils — Photos → Excel · PPT Grid',
       meta_desc: 'Upload photos and download an Excel (.xlsx) or PowerPoint (.pptx) file with them laid out in a columns × rows grid per page, ordered by file name. Runs entirely in your browser — nothing is uploaded.',
       tools_heading: 'Utils',
       menu_app: 'Photos → Excel · PPT',
-      footer: '©2026 Utils · Y-Systems',
+      footer: '©2026 Utils · Y Systems',
       heading: 'Photos → Excel · PPT grid',
       intro: 'Upload photos and download an Excel (.xlsx) or PowerPoint (.pptx) file with them laid out in your chosen columns × rows per page, on the paper size you pick, ordered by file name. Everything runs in your browser — nothing is sent to a server.',
       preview: 'Preview:',
@@ -143,7 +164,17 @@
       st_building: 'Building {fmt}…',
       st_done: 'Done — {name} ({n} photos · {p} page(s) · {c}×{r})',
       st_fail: 'Failed: {msg}',
-      err_decode: 'Cannot open image: {name}'
+      err_decode: 'Cannot open image: {name}',
+      menu_pricing: 'Pricing · Premium',
+      soon: 'Coming soon',
+      foot_pricing: 'Pricing',
+      foot_tokushoho: 'Legal notice (特定商取引法)',
+      foot_terms: 'Terms of Service',
+      foot_privacy: 'Privacy Policy',
+      foot_refund: 'Refund & Cancellation',
+      foot_contact: 'Contact',
+      title_pricing: 'Pricing · Premium — Utils',
+      desc_pricing: 'Utils Premium pricing (tax included). Choose a one-time lifetime license or a yearly subscription. Free vs. Premium comparison and billing / cancellation FAQ.'
     }
   };
 

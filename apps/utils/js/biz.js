@@ -1,0 +1,32 @@
+/* Utils — 사업자 정보 · 요금 (이 앱의 단일 소스)
+   pricing.html 이 [data-biz="키"] · [data-price="플랜"] · [data-checkout] 로 이 값을 읽어 채운다(site.js).
+
+   ★ 법적 문서(特商法 · 利用規約 · プライバシー · 返金)는 broodev.com 에 하나만 둔다 → apps/home/legal/*.html
+     사업자 정보의 정본은 apps/home/legal/biz.js. 여기의 BIZ 는 그 사본(屋号·대표자·메일)이며, 두 파일의 값을 같게 유지할 것.
+   ★ 금액은 apps/home/legal/biz.js 의 PLANS.utils 와 Stripe 의 Price 와 세 곳이 반드시 같아야 한다(税込 総額). */
+window.BIZ = {
+  trade_name: 'Y Systems',                         // 屋号(상호) — Stripe 계정의 Business name 과 동일(하이픈 없음)
+  owner_name: 'Yang Donghwa（ヤン・ドンファ）',       // 販売業者・運営責任者 — 住民票 표기와 일치시킬 것
+  owner_name_ko: '양동화 (Yang Donghwa)',
+  owner_name_en: 'Donghwa Yang',
+  location: '東京都',                              // 소재지(도도부현). 상세 주소·전화는 「請求があれば遅滞なく開示」 방식
+  location_ko: '일본 도쿄도',
+  location_en: 'Tokyo, Japan',
+  email: 'jsontyper@gmail.com',                    // 문의·개시 요청·Stripe 서포트 메일
+  invoice_no: 'T0000000000000',                    // 적격청구서 등록번호(T+13자리) — 표시는 broodev.com/legal/tokushoho.html 에서만
+  site: 'https://broodev.com/',                    // 사업 웹사이트(Stripe 에 등록한 URL). 이 앱의 주소는 https://utils.broodev.com/
+  legal: 'https://broodev.com/legal/',             // 법적 문서 루트
+  product: 'Utils Premium',                        // 판매 상품명(Stripe Product 이름과 동일)
+  updated: '2026-10-03',                           // 요금 페이지 "최종 개정일"
+  updated_ja: '2026年10月3日',
+};
+
+/* 요금 — 세금 포함(総額表示). 통화 JPY(0 소수). Stripe 의 Price · apps/home/legal/biz.js 의 PLANS.utils 와 같은 금액으로 */
+window.PLANS = {
+  currency: 'JPY',
+  yearly:   { price: 3980, interval: 'year', checkout: '' },  // 年額(자동 갱신)
+  lifetime: { price: 9800, checkout: '' },                    // 買い切り(1회 결제 · 서비스 제공 기간 중 유효)
+  // checkout: Stripe Payment Link URL(https://buy.stripe.com/…) 을 넣으면 요금 페이지 버튼이 「購入する」로 활성화된다. 빈 문자열이면 「準備中」(비활성)
+  free_limits: { photos: 20, grid: '3×3', papers: 'A4 · Letter', maxpx: 1600 }, // 무료 플랜 제한(프리미엄 판매 개시와 함께 적용)
+  portal: '',  // Stripe 고객 포털(구독 해지·카드 변경) 링크 https://billing.stripe.com/p/login/… — 비어 있으면 메일 안내만
+};

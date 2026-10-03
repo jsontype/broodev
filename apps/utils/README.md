@@ -33,10 +33,24 @@
 
 - **언어 감지**: `localStorage(mh:lang)` → `?lang=` → `navigator.language`(일본어→ja, 한국어→ko, 그 외→en). 헤더 우측 🌐 풀다운(순서 **日本語 · 한국어 · English**)으로 바꾸면 저장된다.
 - 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(드롭존처럼 태그 포함) · `data-i18n-title/placeholder/aria-label`(속성). 동적 문구(요약·페이지 라벨·버튼·상태)는 `app.js` 가 `MH_I18N.t()` 로 그리고, 언어가 바뀌면 `mh:lang` 이벤트로 다시 그린다. 세 사전의 키는 동일해야 한다(검증 스크립트가 확인).
+- **긴 문서(요금 페이지 본문)는 사전 키가 아니라 언어별 `<article data-lang-block>`** 로 두고 `site.js` 가 전환한다(사전은 메뉴·푸터·`<title>`·meta description 용 `menu_pricing`·`foot_*`·`title_pricing`·`desc_pricing` 키만).
 - **로고**: 템플릿의 Aizox 로고를 **Y Systems** 텍스트 워드마크로 교체(2026-10-02 Y 마크 아이콘 제거, 텍스트만). 텍스트라 dark/light 는 CSS 변수(`--OnSurface`)로 자동 — `dark-light.js` 의 `#logo_header` 이미지 스왑은 요소가 없어 no-op. `images/logo/*.svg` 도 Y Systems 워드마크로 바꿔 둠(현재 미사용). `images/favicon.png` 와 CSS/SCSS 상단 템플릿 크레딧 주석은 그대로.
 - **공유 썸네일(OG)**: head 에 `og:title/description/url/image` + `twitter:card=summary_large_image`. `og-image.png`(1200×630) 은 [`scripts/og/gen_og.mjs`](../../scripts/og/gen_og.mjs) 의 `utils` 설정으로 생성(`node scripts/og/gen_og.mjs utils`). 카카오톡 캐시는 https://developers.kakao.com/tool/clear/og 에서 지운다.
 - **사이드바 그룹명**(`tools_heading`): 유틸 / ユーティリティ / Utils — 2026-10-02 'Megahouse Tools' 에서 사이트명(utils)에 맞춰 변경. 도구를 추가할 때는 `menu_app` 처럼 메뉴 항목 키를 하나씩 늘린다.
 - **생성·다운로드 버튼은 오른쪽 설정 패널의 submit 하나뿐.** 미리보기 아래에 있던 `{fmt} 다운로드` 중복 버튼과 i18n `download` 키는 2026-10-02 제거(헷갈린다는 피드백).
+
+## 프리미엄 판매(Stripe) — 2026-10-03
+
+Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법적 문서(特定商取引法に基づく表記·利用規約·プライバシーポリシー·返金ポリシー)와 전 앱 프리미엄 총람은 **[`apps/home/legal/`](../home/legal/) · [`apps/home/premium.html`](../home/premium.html)** 에 한 벌만 두고, 이 앱에는 **판매 페이지 `pricing.html` 만** 있다(utils 안에 있던 4개 법적 페이지는 같은 날 broodev.com 으로 이전·삭제). 절차·링크는 [`docs/stripe-setup.md`](../../docs/stripe-setup.md).
+
+| 페이지 | 내용 |
+|---|---|
+| `pricing.html` | 요금(무료 / 프리미엄 年額 / 買い切り, 税込) · 「ご購入前にご確認ください」(特商法 2022 최종확인화면 항목: 지불 시기·제공 시기·자동 갱신·해지·환불 — 링크는 전부 `https://broodev.com/legal/…`) · 기능 비교표 · FAQ. 구매 버튼은 `PLANS.*.checkout`(Payment Link) 이 비어 있으면 「準備中」 비활성 |
+
+- **세 언어가 한 파일 안에** `<article data-lang-block="ja|ko|en">` 로 들어 있고 `js/site.js` 가 현재 언어 블록만 보인다. **일본어가 正文**. JS 없이도 ja 블록은 보인다.
+- **사업자 정보·금액은 `js/biz.js`**(`window.BIZ`, `window.PLANS`) — 페이지는 `[data-biz="키"]`·`[data-price="yearly|lifetime"]`·`[data-price-monthly]`·`[data-plan="free_limits.photos"]`·`[data-checkout]`·`[data-portal]` 로 읽는다. **정본은 `apps/home/legal/biz.js`**(BIZ + `PLANS.utils`) — 屋号 `Y Systems`(하이픈 없음)·대표자·메일·금액을 두 파일과 Stripe Price 세 곳에서 같게 유지한다.
+- 모든 페이지(index·404 포함) 하단에 `.pg-foot` 법적 링크 6개(요금 → 로컬 `pricing.html`, 特商法·약관·개인정보·환불 → `broodev.com/legal/*`, 문의 mailto). 사이드바 메뉴에 「料金 · プレミアム」. 공통 CSS 는 `css/site.css`(index 의 인라인 로고·언어 풀다운 CSS 도 여기로 이동).
+- 무료/프리미엄 기능 분리(무료: 1회 20장 · A4·Letter · 3×3 · 1600px)는 **페이지에만 적혀 있고 앱에는 아직 미적용** — 판매 개시 시점에 `app.js` 에 제한 + 라이선스 확인(Pages Functions + KV)을 넣는다.
 
 ## 파일
 
@@ -44,9 +58,13 @@
 |---|---|
 | `index.html` | 화면(템플릿 셸 + 앱 마크업 + 앱 전용 `<style>`) |
 | `404.html` | 같은 셸의 404 페이지(ko/en/ja 정적) |
-| `js/i18n.js` | ko·ja·en 사전(44키) + 감지 + `apply()`/`set()` (`window.MH_I18N`) |
+| `pricing.html` | 프리미엄 요금·판매 페이지(위 표) — 같은 셸, `js/site.js` 로 언어 전환. 법적 문서는 broodev.com/legal/ |
+| `js/i18n.js` | ko·ja·en 사전(53키) + 감지 + `apply()`/`set()` (`window.MH_I18N`) |
+| `js/biz.js` | 이 앱의 사업자 정보·요금(`BIZ` · `PLANS`) — 정본 `apps/home/legal/biz.js` 와 값 일치. `PLANS.*.checkout` 에 Payment Link 를 넣으면 구매 버튼 활성 |
+| `js/site.js` | 요금 페이지: 언어 풀다운 · `title_*`/`desc_*` 적용 · `data-lang-block` 전환 · `data-biz`/`data-price`/`data-checkout` 채움 |
 | `js/photo-grid.js` | **핵심 로직** — `PAPERS`·`layout`·`pageCount`·`naturalCompare`·`buildWorkbook`·`buildPptx`(DOM 무관, Node 에서도 동작)·`readImage`(브라우저). UMD 라 `require()` 가능 |
 | `js/app.js` | DOM 연결(설정·업로드·미리보기·생성·다운로드·언어 풀다운) |
+| `css/site.css` | 공통(로고 워드마크 · 언어 풀다운 · `.pg-foot` · `.pg-doc` 문서 레이아웃 · 요금 카드 · 비교표 · FAQ) — 템플릿 CSS 변수만 써서 dark/light 자동 |
 | `css/`, `scss/`, `font/`, `icon/`, `images/`, `js/*.min.js` `main.js` `dark-light.js` | AIZOX 템플릿 자산 |
 
 ## 검증

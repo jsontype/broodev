@@ -88,7 +88,7 @@
   function buildWorkbook(ExcelJS, images, opts) {
     var L = layout(opts);
     var wb = new ExcelJS.Workbook();
-    wb.creator = 'Y-Systems';
+    wb.creator = 'Y Systems';
     var ws = wb.addWorksheet(L.sheetName || 'Photos', {
       pageSetup: {
         paperSize: L.excelPaper, orientation: L.orientation, horizontalCentered: true,
@@ -155,8 +155,8 @@
     var lname = 'MH_' + L.paper + '_' + L.orientation;
     pptx.defineLayout({ name: lname, width: Math.round(L.pageWin * 10000) / 10000, height: Math.round(L.pageHin * 10000) / 10000 });
     pptx.layout = lname;
-    pptx.author = 'Y-Systems';
-    pptx.company = 'Y-Systems';
+    pptx.author = 'Y Systems';
+    pptx.company = 'Y Systems';
     pptx.title = L.cols + 'x' + L.rows + ' photo grid';
 
     var offX = (L.pageW - L.usedW) / 2, offY = L.marginPx;

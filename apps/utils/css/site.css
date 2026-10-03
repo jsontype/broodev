@@ -1,0 +1,92 @@
+/* Utils 공통 — 로고 워드마크 · 헤더 언어 풀다운 · 하단 법적 링크 · 문서 페이지(pricing / tokushoho / terms / privacy / refund)
+   템플릿 변수(--Primary --OnSurface --Secondary --Surface --DarkSurface --Line)만 쓰므로 dark/light 자동 */
+
+/* 로고: 텍스트 워드마크만 */
+.pg-logo{display:inline-flex;align-items:center;gap:10px;color:var(--OnSurface);text-decoration:none}
+.pg-logo:hover{color:var(--OnSurface)}
+.pg-logo-text{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1;white-space:nowrap}
+
+/* 헤더 언어 풀다운 (index: app.js · 그 외: site.js 가 토글) */
+.pg-lang{position:relative}
+.pg-lang-toggle{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px 0 12px;border-radius:22px;border:1px solid var(--Line);background:transparent;color:var(--OnSurface);font:inherit;font-size:14px;cursor:pointer}
+.pg-lang-caret{display:inline-block;font-size:16px;transform:rotate(-90deg);transition:transform .15s}
+.pg-lang.open .pg-lang-caret{transform:rotate(90deg)}
+.pg-lang-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:150px;margin:0;padding:6px;list-style:none;background:var(--Surface);border:1px solid var(--Line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;z-index:50}
+.pg-lang.open .pg-lang-menu{display:block}
+.pg-lang-menu a{display:block;padding:9px 12px;border-radius:8px;color:var(--OnSurface);text-decoration:none;font-size:14px;white-space:nowrap}
+.pg-lang-menu a:hover,.pg-lang-menu a.active{background:rgba(49,248,163,.12);color:var(--Primary)}
+
+/* 하단 법적 링크 (모든 페이지) — Stripe 심사·特商法: 운영자·표기·약관·개인정보·환불·문의가 어느 페이지에서나 1클릭 */
+.pg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:auto;padding:22px 0 4px;border-top:1px solid var(--Line);font-size:13px;color:var(--Secondary)}
+.pg-foot a{color:var(--Secondary);text-decoration:none}
+.pg-foot a:hover{color:var(--Primary)}
+.pg-foot .sep{opacity:.4}
+
+/* 문서 페이지 컨테이너 (일반 흐름 — 긴 글이라 페이지 전체가 스크롤) */
+.pg-doc{display:flex;flex-direction:column;min-height:100%;padding:40px;color:var(--OnSurface)}
+.pg-doc article{max-width:860px}
+.pg-doc article[hidden]{display:none}
+.pg-doc h4{margin-bottom:10px}
+.pg-doc h5{margin:34px 0 10px;font-size:18px}
+.pg-doc h6{margin:22px 0 6px;font-size:15px;font-weight:700}
+.pg-doc p,.pg-doc li,.pg-doc td,.pg-doc th,.pg-doc dd,.pg-doc dt{font-size:15px;line-height:1.8}
+.pg-doc p{margin:0 0 12px}
+.pg-doc ul,.pg-doc ol{margin:0 0 14px 22px;padding:0}
+.pg-doc ul{list-style:disc}
+.pg-doc ol{list-style:decimal}
+.pg-doc li{margin:3px 0}
+.pg-doc a{color:var(--Primary)}
+.pg-doc a.tf-button,.pg-doc a.tf-button:hover{color:#0E0E14}  /* 템플릿 버튼 글자색 복원(.pg-doc a 가 덮어쓰지 않게) */
+.pg-doc .lead{font-size:16px;color:var(--Secondary)}
+.pg-doc .meta{font-size:13px;color:var(--Secondary);margin-bottom:28px}
+.pg-doc .note{padding:14px 18px;border:1px solid var(--Line);border-left:4px solid var(--Primary);border-radius:10px;background:var(--DarkSurface);margin:18px 0}
+.pg-doc .toc{display:flex;flex-wrap:wrap;gap:6px 16px;padding:12px 16px;border:1px solid var(--Line);border-radius:12px;font-size:13px;margin-bottom:8px}
+.pg-doc .toc a{color:var(--Secondary)}
+.pg-doc .toc a:hover{color:var(--Primary)}
+
+/* 特商法 표 · 비교표 */
+.pg-table{width:100%;border-collapse:collapse;margin:14px 0 20px}
+.pg-table th,.pg-table td{padding:12px 14px;border-bottom:1px solid var(--Line);vertical-align:top;text-align:left}
+.pg-table th{width:220px;color:var(--Secondary);font-weight:600;white-space:nowrap}
+.pg-table td,.pg-table th,.pg-doc p,.pg-doc li{overflow-wrap:anywhere}  /* 긴 URL·메일이 모바일에서 가로 넘침 방지 */
+.pg-table thead th,.pg-table.compare th{width:auto;white-space:normal}
+.pg-table.compare thead th{color:var(--OnSurface);border-bottom:2px solid var(--Line)}
+.pg-table.compare td{text-align:center}
+.pg-table.compare td:first-child{text-align:left}
+.pg-table .ok{color:var(--Primary);font-weight:700}
+.pg-table .no{color:var(--Secondary)}
+.pg-table .hl{color:var(--Primary);font-weight:700}
+@media (max-width:640px){
+  .pg-doc{padding:24px 18px}
+  .pg-table{table-layout:fixed}
+  .pg-table th{width:110px;white-space:normal}
+  .pg-table thead th{width:auto}
+  .pg-table th,.pg-table td{padding:10px 8px;font-size:14px}
+}
+
+/* 요금 카드 (템플릿 .pricing-box 위에 덧씀) */
+.pg-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin:22px 0 10px}
+.pg-plans .pricing-box{display:flex;flex-direction:column;gap:14px;padding:28px}
+.pg-plans .pricing-box.featured{border-color:var(--Primary);box-shadow:0 0 0 1px var(--Primary) inset}
+.pg-plans .plan-name{font-size:14px;font-weight:700;letter-spacing:.4px;color:var(--Secondary);text-transform:uppercase}
+.pg-plans .price{font-size:40px;line-height:1.1}
+.pg-plans .price small{display:block;font-size:14px;font-weight:500;color:var(--Secondary);line-height:1.4}
+.pg-plans .per{font-size:13px;color:var(--Secondary);margin:0}
+.pg-plans ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.pg-plans ul li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.55}
+.pg-plans ul li i{color:var(--Primary);margin-top:4px}
+.pg-plans .tf-button{margin-top:auto;justify-content:center}
+.pg-plans .tf-button[aria-disabled="true"]{opacity:.55;pointer-events:none}
+.pg-badge{display:inline-block;padding:3px 10px;border-radius:99px;background:rgba(49,248,163,.14);color:var(--Primary);font-size:12px;font-weight:700;letter-spacing:.3px}
+.pg-soon{font-size:12px;color:var(--Secondary);text-align:center;margin:0}
+
+/* FAQ */
+.pg-faq details{border:1px solid var(--Line);border-radius:12px;padding:0 18px;margin-bottom:10px;background:var(--DarkSurface)}
+.pg-faq summary{padding:14px 0;cursor:pointer;font-weight:600;font-size:15px;list-style:none}
+.pg-faq summary::-webkit-details-marker{display:none}
+.pg-faq summary::before{content:"+";display:inline-block;width:18px;color:var(--Primary);font-weight:700}
+.pg-faq details[open] summary::before{content:"–"}
+.pg-faq details p{padding:0 0 14px 18px;margin:0;color:var(--Secondary)}
+
+/* 사이드바 메뉴의 '곧 출시' 뱃지 */
+.menu-item .text .pg-badge{margin-left:8px;padding:1px 7px;font-size:10px;vertical-align:middle}
