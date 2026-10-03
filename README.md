@@ -35,7 +35,7 @@ broodev/
 │  │  ├─ dev2/                                       업적 포트폴리오 (Photollax 템플릿 · 구 y-systems 레포 home/)
 │  │  └─ dev3/                                       업적 포트폴리오 v3 (Davies 템플릿 · 13개 언어 · EmailJS) ← 현재 활성
 │  ├─ admin/      →  admin.broodev.com                관리자(데이터 수집·운영) — Google SSO 단독 접근
-│  └─ utils/      →  utils.broodev.com                업무 유틸 모음 (구 megahouse) — 현재: 사진 → 엑셀·PPT 격자 배열 다운로드 (구 y-systems 레포 apps/megahouse/)
+│  └─ utils/      →  utils.broodev.com                업무 유틸 모음 (구 megahouse) — 「写真ならべ / 사진 나란히」 Excel 앱(/) · PowerPoint 앱(/pptx) (구 y-systems 레포 apps/megahouse/)
 ├─ games/
 │  └─ samurai/    →  samurai.broodev.com              사무라이 택틱스 2 (구 apps/games/st2 · 2026-10-02 이동 — Pages Root 는 games/samurai)
 ├─ packages/
@@ -63,7 +63,7 @@ broodev/
 | └ [dev3](apps/dev/dev3/) | dev.broodev.com (루트 = 현재 활성) | 양동화 업적 포트폴리오 v3 — Davies 템플릿 (텍스트 교체 완료, 사진은 AI 생성, 프리로더·히어로 JSONTYPE, GitHub 버튼) | 정적 HTML · Bootstrap 5 · GSAP · Swiper · **13개 언어 i18n** · EmailJS · OG 썸네일 | — |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 | [samurai](games/samurai/) | samurai.broodev.com | 사무라이 택틱스 2 — 한 줄 전장 턴제 검술 로그라이크 (구 `apps/games/st2`, 2026-10-02 `games/samurai` 로 이동) | 자기완결형 · 13개국어 | 🟢 라이브 |
-| [utils](apps/utils/) | utils.broodev.com | **업무 유틸 모음**(구 `megahouse`, 2026-10-02 개명 — 일에 필요한 도구를 계속 추가). 현재 도구: 사진 업로드 → 용지(A4·A3·A5·B4·B5·Letter·Legal)·세로/가로·가로×세로 각 1~5 격자로 배열한 엑셀(.xlsx) / 파워포인트(.pptx) 다운로드 (브라우저 내 처리) — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS·PptxGenJS(CDN) · ko·ja·en | 🟡 배포 대기 |
+| [utils](apps/utils/) | utils.broodev.com | **업무 유틸 모음**(구 `megahouse`, 2026-10-02 개명 — 일에 필요한 도구를 계속 추가). **「写真ならべ / 사진 나란히 / Photo Layout」 시리즈**(2026-10-03 형식별 앱 분리): 사진 업로드 → 용지(A4·A3·A5·B4·B5·Letter·Legal)·세로/가로·가로×세로 각 1~5 격자로 배열 — **Excel 앱**(`/`, .xlsx) · **PowerPoint 앱**(`/pptx`, .pptx), Illustrator·Photoshop 은 준비 중(프리미엄 예정). 브라우저 내 처리 — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS / PptxGenJS(CDN, 페이지별) · 자체 13개 언어 i18n · EmailJS 문의 폼 | 🟢 라이브 |
 
 ### 🪙 코인 시그널 패밀리 (15종) — `scripts/gen_coin.py`
 btc를 템플릿으로 **동일 구조·기능**의 코인 앱을 찍어낸다. 코인 추가/재생성:

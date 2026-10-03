@@ -11,7 +11,7 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
-- 현재 **22개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(**broodev.com 루트 = 앱 포털**, AIXOR 템플릿 · 전체 앱 카테고리 모달 · 2026-10-03, §6.3) + `dev`(개발자 소개 3종 `dev1·dev2·dev3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 dev3 · 구 `home1·2·3`, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 현재 도구: 사진→엑셀·PPT 격자). dev2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, dev3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). **2026-10-03 부터 `btc` 의 정본 호스트는 `btc.broodev.com`**(루트는 포털) — 코인 14종도 그 기준으로 재생성됨.
+- 현재 **22개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(**broodev.com 루트 = 앱 포털**, AIXOR 템플릿 · 전체 앱 카테고리 모달 · 2026-10-03, §6.3) + `dev`(개발자 소개 3종 `dev1·dev2·dev3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 dev3 · 구 `home1·2·3`, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 「写真ならべ / 사진 나란히」 시리즈: Excel 앱 `/` · PowerPoint 앱 `/pptx`, Illustrator·Photoshop 준비 중). dev2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, dev3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). **2026-10-03 부터 `btc` 의 정본 호스트는 `btc.broodev.com`**(루트는 포털) — 코인 14종도 그 기준으로 재생성됨.
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
@@ -96,8 +96,9 @@ broodev/
 │  │     ├─ index.html  404.html  assets/(css·js·images·fonts·icon·scss)
 │  ├─ admin/                운영 관리자 콘솔 (분리형, noindex, Google SSO, 광고 없음)
 │  │  ├─ index.html  app.jsx  theme.css  i18n.js  robots.txt(Disallow: /)
-│  └─ utils/                업무 유틸 모음 (구 megahouse) — 현재: 사진 → 엑셀·PPT 격자 배열 (순수 정적 · AIZOX 템플릿 · Bootstrap 5 · ExcelJS·PptxGenJS CDN) — 구 y-systems 레포 apps/megahouse
+│  └─ utils/                업무 유틸 모음 (구 megahouse) — 「写真ならべ」 시리즈: index.html = Excel 앱, pptx.html = PowerPoint 앱 (순수 정적 · AIZOX 템플릿 · Bootstrap 5 · ExcelJS / PptxGenJS CDN) — 구 y-systems 레포 apps/megahouse
 │     ├─ pricing.html       프리미엄 요금·판매 페이지(ja 正文 + ko·en, js/site.js 전환) — 법적 문서는 broodev.com/legal/ 로 링크
+│     ├─ contact.html       문의·제안 폼(사이드바 ✉) → EmailJS 운영자 메일 (js/contact.js · docs/emailjs-template.md)
 │     └─ js/biz.js          이 앱의 가격·Payment Link (정본은 apps/home/legal/biz.js → docs/stripe-setup.md)
 │     ├─ index.html  js/photo-grid.js(핵심)  js/app.js(DOM)  css/  scss/  font/  icon/  images/
 ├─ games/                   apps 와 형제 — 게임은 여기 (2026-10-02 apps/games 에서 이동)
@@ -129,7 +130,7 @@ broodev/
 | **자기완결형** | `btc`, 코인 14종 | 단일 `index.html`에 스타일·i18n·로직 전부 인라인 | 단일 파일로 충분한 앱 |
 | **분리형** | `dev`, `admin` | `index.html` + `app.jsx` + `theme.css` + `i18n.js` + `i18n/<lang>.js` | 규모 커지거나 다중 페이지 |
 | **생성형** | 코인 14종 | 자기완결형 btc를 `gen_coin.py`가 복제·치환 | 동일 구조 반복(코인) |
-| **순수 정적** | `home2`, `home3`, `utils` | 템플릿 기반 HTML/CSS/JS(jQuery·Bootstrap). React·Babel·btc 식 i18n 체계·터미널 테마·AdSense **없음**(utils 는 자체 ja·ko·en 3개 언어, home3 는 자체 13개 언어 `assets/js/i18n-data.js` + `data-i18n` 마크업) | 외부 레포·템플릿에서 통합한 사이트. broodev 규칙(SEO·테마)은 적용 대상 아님 |
+| **순수 정적** | `home2`, `home3`, `utils` | 템플릿 기반 HTML/CSS/JS(jQuery·Bootstrap). React·Babel·btc 식 i18n 체계·터미널 테마·AdSense **없음**(utils 는 자체 13개 언어 `js/i18n.js` 사전 + `data-i18n` 마크업 — 2026-10-03 ja·ko·en 에서 확장, home3 는 자체 13개 언어 `assets/js/i18n-data.js` + `data-i18n` 마크업) | 외부 레포·템플릿에서 통합한 사이트. broodev 규칙(테마)은 적용 대상 아님 — SEO(head·hreflang·JSON-LD·sitemap·robots)는 utils 도 적용 |
 
 **새 앱(비코인)은 보통 자기완결형 또는 분리형 중 선택**한다. 코인이 아니면 생성기를 쓰지 않는다.
 
@@ -180,7 +181,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 ### 6.3 home — `broodev.com` 루트 = 앱 포털 (`apps/home`) · dev — `dev.broodev.com` = 개발자 소개 (`apps/dev` = dev1 · dev2 · dev3 + 스위치)
 - **2026-10-03 역할 교대.** `broodev.com` 은 **포털**("포탈을 여는 느낌"), `dev.broodev.com` 은 **개발자 소개 사이트**. 구 `apps/home/home1·2·3` 은 `apps/dev/dev1·2·3` 로 이동(폴더명만 바뀜 — JS 전역·`home3:ready` 이벤트·`localStorage(home:lang)` 키 등 내부 식별자는 유지), 구 `apps/dev` 공사중 페이지는 삭제, home.broodev.com 은 폐기.
 - **포털(`apps/home`)**: AIXOR V1.0 템플릿(다크 · Arapey 이탤릭 세리프 + Urbanist · GSAP/AOS/jarallax · 히어로 영상)을 디자인 그대로 유지하고, 헤더 **Apps (N)** 등 `[data-open-apps]` 를 누르면 **화면 전체를 덮는 모달**에 `apps/` 의 모든 공개 앱이 **카테고리별 카드(앱 5개 + 페이지네이션, 1페이지짜리도 비활성 페이지네이션 표시)** 로 나온다. 데이터는 `assets/js/catalog.js` 하나(6 카테고리 · 33 앱 · admin 제외), 렌더·모달·해시 딥링크(`#apps`, `#apps=crypto`)·EmailJS 연락 폼은 `assets/js/portal.js`. 섹션: 히어로 · 소개(숫자) · 카테고리 · 대표 앱 3(btc·samurai·voca) · 원칙 · 연락 · 푸터. 루트 보조 파일(`ads.txt`·robots·sitemap·og-image·파비콘) 포함. 상세 [`apps/home/README.md`](apps/home/README.md).
-- **사업 사이트 = broodev.com(2026-10-03, Stripe)**: 운영자 **Y Systems**(하이픈 없음)의 Stripe 계정에 등록하는 Website 는 `https://broodev.com/`. 심사가 보는 것은 전부 포털에 — `premium.html`(전 앱 프리미엄 총람 · 税込 · 자동 갱신/해지 · 3대) + `legal/{tokushoho,terms,privacy,refund}.html`(ja 正文 + ko·en, `legal/legal.js` 전환, 값은 **`legal/biz.js` 정본** `BIZ`·`PLANS.{app}`) + 푸터 `.footer-legal`(사업자명·메일·법적 링크 5개) + 헤더 「Premium」. 개별 앱(utils 등)은 자기 요금 페이지만 갖고 법적 문서는 여기로 링크. 새 앱에 프리미엄을 붙일 땐 Stripe 에 Product/Payment Link 추가 + `legal/biz.js` `PLANS` 한 줄 + `premium.html` 카드 — 계정·심사는 1회. 절차 `docs/stripe-setup.md`.
+- **사업 사이트 = broodev.com(2026-10-03, Stripe)**: 운영자 **Y Systems**(하이픈 없음)의 Stripe 계정에 등록하는 Website 는 `https://broodev.com/`. 심사가 보는 것은 전부 포털에 — `premium.html`(전 앱 프리미엄 총람 · 税込 · 자동 갱신/해지 · 3대) + `legal/{tokushoho,terms,privacy,refund}.html`(ja 正文 + ko·en, `legal/legal.js` 전환, 값은 **`legal/biz.js` 정본** `BIZ`·`PLANS.{app}`) + 푸터 `.footer-legal`(사업자명·메일·법적 링크 5개) + 헤더 「Premium」. **운영자 개인정보(氏名·주소·전화)는 레포·사이트에 싣지 않는다**(2026-10-03) — 사업자 표기는 屋号 `Y Systems` + 都道府県 + 메일, 特商法 페이지의 氏名·주소·전화 행은 「個人事業主のため掲載を省略 — 請求があれば遅滞なく開示」(개시 청구 메일에는 지체 없이 회신할 것). 개별 앱(utils 등)은 자기 요금 페이지만 갖고 법적 문서는 여기로 링크. 새 앱에 프리미엄을 붙일 땐 Stripe 에 Product/Payment Link 추가 + `legal/biz.js` `PLANS` 한 줄 + `premium.html` 카드 — 계정·심사는 1회. 절차 `docs/stripe-setup.md`.
 - **개발자 소개(`apps/dev`)**: 홈 3종을 Pages 프로젝트 하나(`broodev-dev`, Root `apps/dev` — 변경 없음)로 배포. `apps/dev/functions/_middleware.js` 의 `ACTIVE`(현재 `'dev3'`)가 루트(/)에 띄울 홈을 고른다 — `/`·하위 경로를 `/<ACTIVE>/…` 로 내부 재작성(주소창 URL 그대로), `/dev1/`·`/dev2/`·`/dev3/` 직접 접근은 미리보기용으로 그대로 서빙하되 `X-Robots-Tag: noindex`, 없는 경로는 활성 홈의 `404.html`(404 유지), 디렉터리 리다이렉트의 Location 은 접두어를 벗김. 커밋 없이 바꾸려면 Pages 환경변수 `DEV_ACTIVE`. 상세 [`apps/dev/README.md`](apps/dev/README.md).
 - **dev1** = 개발자 소개 + 앱 목록(`apps/web` → `apps/dev` → 2026-10-01 `apps/home1` → 10-02 `apps/home/home1` → 10-03 `apps/dev/dev1`). 분리형(사이드바 SPA · 해시 라우팅). `app.jsx`의 `PROJECTS` 배열이 앱 카탈로그(BTC 는 btc.broodev.com). `#/about #/apps #/privacy #/terms` 등 라우트. ⚠ 정책 페이지는 **React 라우트**(`#/privacy`)이지 정적 파일이 아님(코인 앱과 다름).
 - **dev2** = §6.5, **dev3** = §6.5b.
@@ -204,11 +205,13 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - React·테마·AdSense **없음**. 연락 폼은 **EmailJS**(voca 와 같은 service/template, `kind: 'portfolio'`) 로 지메일 수신, SDK 미로드 시 mailto 폴백(2026-10-03). 404 는 같은 셸의 `404.html`. 공유 썸네일 `og-image.png` 는 `scripts/og/gen_og.mjs dev3` 생성.
 
 ### 6.6 utils (구 megahouse) — `utils.broodev.com`
-- **업무 유틸 모음.** 일에 필요한 도구를 계속 추가하는 사이트 — 2026-10-02 `megahouse` 에서 개명(사이드바 그룹 "유틸" + 도구별 메뉴 항목). 현재 도구 1개 = 아래.
-- **사진 → 엑셀·PPT 격자 배열.** 1.jpg, 2.jpg … 를 올리면 파일명 순(숫자 인식)으로 선택한 용지(A4·A3·A5·B4·B5·Letter·Legal)·방향(세로/가로)·가로×세로(각 1~5) 격자로 배열한 `.xlsx`(ExcelJS 4.4.0) 또는 `.pptx`(PptxGenJS 4.0.1)를 바로 내려받는다. CDN 버전 고정, 전부 브라우저 내 처리, 서버 전송 없음. 공통 `layout()` 을 두 빌더가 공유하고, Excel 행 높이 상한(409.5pt)은 이미지 행 서브행 분할로 대응.
-- `js/photo-grid.js` = 핵심(레이아웃·정렬·워크북 생성 — DOM 무관, Node 에서도 동작해 검증에 재사용) / `js/app.js` = DOM / `js/i18n.js` = **자체 i18n ko·ja·en**(브라우저 언어 → 일본어 ja·한국어 ko·그 외 en, 헤더 🌐 풀다운으로 전환·localStorage 저장). 셸은 AIZOX 템플릿(구 y-systems 레포 `apps/megahouse/`), 로고는 Y Systems 로 교체.
-- React·broodev 13개국어 체계·테마·AdSense **없음**.
+- **업무 유틸 모음.** 일에 필요한 도구를 계속 추가하는 사이트 — 2026-10-02 `megahouse` 에서 개명.
+- **「写真ならべ」 시리즈(2026-10-03 앱 분리)** — ja 写真ならべ / ko 사진 나란히 / en Photo Layout(13개 언어 시리즈명 = i18n `series`). **출력 형식 1개 = 앱 1개 = 페이지 1개**: `index.html` = **Excel**(`/`, `<body data-page="xlsx">`, ExcelJS 4.4.0 만 로드) · `pptx.html` = **PowerPoint**(`/pptx`, `data-page="pptx"`, PptxGenJS 4.0.1 만 로드, index 의 복제 — 차이는 data-page·title/meta/OG/canonical/hreflang·JSON-LD·heading/intro 키·스크립트·active) · Illustrator / Photoshop = 사이드바에 「準備中」 비활성 항목(프리미엄 예정). 사이드바 = 시리즈 그룹(형식명 Excel·PowerPoint·Illustrator·Photoshop — 번역 없음, 글자 배지 `.pg-fmt-*`) + 「その他」 그룹(요금 · 문의). `app.js` 가 `data-page` 로 `FORMAT` 고정(포맷 select 제거), 그 외 설정은 `localStorage(mh:settings)` 공유. `<title>`/meta 는 `i18n.js apply()` 가 `title_{data-page}`/`desc_{data-page}` 로.
+- **동작.** 1.jpg, 2.jpg … 를 올리면 파일명 순(숫자 인식)으로 선택한 용지(A4·A3·A5·B4·B5·Letter·Legal)·방향(세로/가로)·가로×세로(각 1~5) 격자로 배열한 `.xlsx` 또는 `.pptx` 를 바로 내려받는다. CDN 버전 고정, 전부 브라우저 내 처리, 서버 전송 없음. 공통 `layout()` 을 두 빌더가 공유하고, Excel 행 높이 상한(409.5pt)은 이미지 행 서브행 분할로 대응.
+- `js/photo-grid.js` = 핵심(레이아웃·정렬·워크북 생성 — DOM 무관, Node 에서도 동작해 검증에 재사용) / `js/app.js` = DOM / `js/i18n.js` = **자체 i18n 13개 언어**(§9 의 공통 집합, 2026-10-03 ko·ja·en 에서 확장 — 77키 × 13, 풀다운 순서 English · 日本語 · 한국어 · 그 외 인터넷 사용자 수 순, 감지 localStorage → `?lang=` → `navigator.languages` → en, 풀다운 항목은 `LANGS` 로 생성). 긴 문서(pricing 본문)는 ja·ko·en 블록만 있고 나머지 언어는 en 블록. 셸은 AIZOX 템플릿(구 y-systems 레포 `apps/megahouse/`), 로고는 Y Systems 로 교체.
+- React·btc 식 i18n 런타임·테마·AdSense **없음**. **SEO(2026-10-03)**: head 에 robots·keywords·canonical·hreflang 13·OG locale·JSON-LD(`WebApplication` 페이지별 / pricing 은 `FAQPage`), `robots.txt`·`sitemap.xml`(`/` · `/pptx` · `/pricing`, xhtml:link 변형) 실제 파일, contact 는 noindex — 숨긴 텍스트 블록은 두지 않음(§10 의 `<section class="seo">` 는 React 앱용).
 - **프리미엄 판매 준비(Stripe · 2026-10-03)**: 판매 페이지 `pricing.html`(税込 요금 · 最終確認画面 항목 · 비교표 · FAQ, 세 언어를 한 파일에 `<article data-lang-block>` 로 · 일본어 正文) + `js/biz.js`(가격·Payment Link — 비어 있으면 「準備中」) + 공통 `js/site.js` · `css/site.css`, 모든 페이지 하단 `.pg-foot` 법적 링크. **법적 문서(特商法·약관·개인정보·환불)는 utils 에 두지 않고 broodev.com(`apps/home/legal/`)의 한 벌로 링크** — Stripe 계정의 사업 사이트가 broodev.com 이기 때문(§6.3). 결제 자체(Checkout·웹훅·라이선스 KV)는 아직 없음 — 절차는 `docs/stripe-setup.md`.
+- **문의·제안 폼 `contact.html`(2026-10-03)**: 사이드바 「その他」 그룹의 ✉ 「お問い合わせ · ご提案」(요금 아래) → 종류(버그/제안/기타)·이름·이메일·내용 → **EmailJS**(포털·dev3·voca 와 같은 `broodev_service`/`broodev_template`, `kind: 'utils (utils.broodev.com) · 버그 신고'`) 로 운영자 메일. `js/contact.js`, 상태 문구·라벨은 i18n `ct_*`, SDK 미로드 시 mailto 폴백, `noindex`. `.pg-foot` 의 「문의」도 mailto 대신 이 페이지로.
 
 ---
 
@@ -322,5 +325,5 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - 공통 테마 → `packages/ui-terminal/theme.css`
 - 배포 절차 → `docs/deploy-cloudflare.md`
 - 설계 배경·체크리스트 → `docs/new-app.md`
-- 연락 폼 운영자 메일(EmailJS 템플릿 `broodev_template` 정본 · 변수 규격) → `docs/emailjs-template.md` (보내는 쪽: `apps/home/assets/js/portal.js` · `apps/dev/dev3/index.html` · `apps/voca/contact.html`)
+- 연락 폼 운영자 메일(EmailJS 템플릿 `broodev_template` 정본 · 변수 규격) → `docs/emailjs-template.md` (보내는 쪽: `apps/home/assets/js/portal.js` · `apps/dev/dev3/index.html` · `apps/voca/contact.html` · `apps/utils/js/contact.js`)
 - 프리미엄 판매(Stripe) — 계정 개설부터 판매 개시까지(심사 입력값 · 税 ID(JP TRN) · Stripe Tax · Payment Links · 포털 · 웹훅/KV · 세무) → `docs/stripe-setup.md`. 사업자 정보·앱별 가격 정본 → `apps/home/legal/biz.js` · 법적 문서 → `apps/home/legal/*.html` · 전 앱 프리미엄 총람 → `apps/home/premium.html` · 앱별 판매 페이지 → `apps/utils/pricing.html`(+`js/biz.js` Payment Link)

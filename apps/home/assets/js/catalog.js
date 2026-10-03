@@ -94,9 +94,9 @@
       desc: '깜빡이 단어암기장을 10단계로 따라 하는 인터랙티브 튜토리얼.' },
 
     // ── 업무 도구
-    { id: 'utils', cat: 'work', name: '업무 도구 모음 — 사진 → 엑셀·PPT 격자', en: 'UTILS', status: 'live', featured: true,
+    { id: 'utils', cat: 'work', name: '업무 도구 모음 — 사진 나란히 (写真ならべ) Excel · PowerPoint', en: 'UTILS', status: 'live', featured: true,
       url: 'https://utils.broodev.com/',
-      desc: '사진을 올리면 용지(A4·A3·B4·Letter…)와 가로×세로 격자에 맞춰 배열한 .xlsx / .pptx 를 내려받는다. 브라우저 안에서만 처리.' },
+      desc: '사진을 올리면 용지(A4·A3·B4·Letter…)와 가로×세로 격자에 맞춰 배열한 .xlsx(Excel 앱) / .pptx(PowerPoint 앱, /pptx)를 내려받는다. 브라우저 안에서만 처리. Illustrator · Photoshop 출력은 준비 중.' },
 
     // ── 게임
     { id: 'samurai', cat: 'game', name: '사무라이 택틱스 2', en: 'SAMURAI_TACTICS_2', status: 'live',

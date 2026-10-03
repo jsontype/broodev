@@ -2,7 +2,7 @@
    - 언어: ?lang= → localStorage(broodev:legal-lang) → 브라우저 언어(ja/ko, 그 외 en). .legal-lang 의 [data-lang] 클릭으로 전환·저장
    - <article data-lang-block="ja|ko|en"> 중 현재 언어만 표시(HTML 기본은 ja 가 보이는 상태 → JS 없이도 正文은 보임)
    - <title>·meta description 은 각 article 의 data-title / data-desc 로 교체
-   - [data-biz="키"] ← BIZ(언어별 '_ko' '_en' 변형 우선) · [data-biz-href="email"] ← mailto: · [data-price="utils.yearly"] ← PLANS 경로(¥3,980) · [data-price-monthly] ← 연액 ÷ 12 반올림 · [data-plan-url] ← href
+   - [data-biz="키"] ← BIZ(언어별 '_ko' '_en' 변형 우선) · [data-biz-href="email"] ← mailto: · [data-price="utils.yearly"] ← PLANS 경로(¥2,500) · [data-price-monthly] ← 연액 ÷ 12 반올림 · [data-plan-url] ← href
    - BIZ.invoice_no 가 자리표시자(T000…)면 [data-biz-row="invoice_no"] 숨김 */
 (function () {
   'use strict';

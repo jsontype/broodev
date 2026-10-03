@@ -1,12 +1,13 @@
 # EmailJS 템플릿 `broodev_template` — 운영자 수신 메일 (2026-10-03)
 
-연락 폼 3곳이 **같은** EmailJS 서비스 `broodev_service` · 템플릿 `broodev_template`(공개키 `u-DIwFmmMVFWrxJMX`) 으로 보내고, `jsontyper@gmail.com` 이 받는다.
+연락 폼 4곳이 **같은** EmailJS 서비스 `broodev_service` · 템플릿 `broodev_template`(공개키 `u-DIwFmmMVFWrxJMX`) 으로 보내고, `jsontyper@gmail.com` 이 받는다.
 
 | 폼 | 코드 | `kind`(출처) 값 |
 |---|---|---|
 | 포털 broodev.com | `apps/home/assets/js/portal.js` | `포털 (broodev.com)` |
 | 개발자 소개 dev.broodev.com | `apps/dev/dev3/index.html` | `개발자 소개 (dev.broodev.com)` |
 | voca 문의·버그 신고(`?app=` 로 다른 앱도) | `apps/voca/contact.html` | `voca (voca.broodev.com) · 버그 신고` 등 |
+| utils 문의·제안(사이드바 ✉ 「문의 · 제안」, 2026-10-03) | `apps/utils/contact.html` + `js/contact.js` | `utils (utils.broodev.com) · 버그 신고 / 개선 제안 / 기타 문의` (제목에는 🚨/💡/💬 아이콘 + 종류) |
 
 **메일의 제목·레이아웃은 EmailJS 대시보드의 템플릿이 정한다(레포 밖).** 코드는 변수만 보낸다. 이 문서가 템플릿의 정본이므로 바꿀 때는 대시보드와 이 파일을 같이 갱신한다.
 
@@ -92,7 +93,7 @@
   </tr>
   <tr>
     <td style="padding:12px 22px;background:#f9fafb;border-top:1px solid #e5e7eb;border-radius:0 0 10px 10px;font-size:11px;line-height:1.5;color:#9ca3af;">
-      broodev.com · dev.broodev.com · voca.broodev.com 연락 폼 → EmailJS. 보낸 사람이 이메일을 남겼으면 이 메일에 그대로 답장하면 됩니다(Reply-To).
+      broodev.com · dev.broodev.com · voca.broodev.com · utils.broodev.com 연락 폼 → EmailJS. 보낸 사람이 이메일을 남겼으면 이 메일에 그대로 답장하면 됩니다(Reply-To).
     </td>
   </tr>
 </table>
@@ -101,6 +102,7 @@
 
 ## 4. 참고
 
-- EmailJS 무료 플랜 월 200통. 남용되면 대시보드에서 도메인 허용 목록(broodev.com · dev.broodev.com · voca.broodev.com)을 켠다.
-- SDK 로드 실패(광고 차단기·오프라인) 시 세 폼 모두 `mailto:` 폴백 — 그 제목은 보내는 사람 시점(`[broodev.com] OO 님의 메시지` 등)으로 유지한다.
-- 변수 이름을 바꾸면 세 폼의 코드와 이 템플릿을 같이 바꿔야 한다. 템플릿에 없는 변수는 무시되고, 코드가 안 보내는 변수는 빈칸으로 나온다.
+- EmailJS 무료 플랜 월 200통. 남용되면 대시보드에서 도메인 허용 목록(broodev.com · dev.broodev.com · voca.broodev.com · **utils.broodev.com**)을 켠다 — 허용 목록을 켠 상태라면 utils 를 꼭 추가해야 utils 폼이 403 이 안 난다.
+- SDK 로드 실패(광고 차단기·오프라인) 시 네 폼 모두 `mailto:` 폴백 — 그 제목은 보내는 사람 시점(`[broodev.com] OO 님의 메시지`, `[utils.broodev.com] 버그 신고 — OO` 등)으로 유지한다.
+- 변수 이름을 바꾸면 네 폼의 코드와 이 템플릿을 같이 바꿔야 한다. 템플릿에 없는 변수는 무시되고, 코드가 안 보내는 변수는 빈칸으로 나온다.
+- utils 폼의 `env` 끝에는 `· UI <언어코드>`(사용자가 보던 UI 언어 — 13개 중 하나, 예 `UI fr`)가 붙는다 — 답장 언어를 고를 때 참고.

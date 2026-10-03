@@ -11,12 +11,32 @@
 .pg-lang-toggle{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px 0 12px;border-radius:22px;border:1px solid var(--Line);background:transparent;color:var(--OnSurface);font:inherit;font-size:14px;cursor:pointer}
 .pg-lang-caret{display:inline-block;font-size:16px;transform:rotate(-90deg);transition:transform .15s}
 .pg-lang.open .pg-lang-caret{transform:rotate(90deg)}
-.pg-lang-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:150px;margin:0;padding:6px;list-style:none;background:var(--Surface);border:1px solid var(--Line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;z-index:50}
+.pg-lang-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:150px;max-height:min(80vh,600px);overflow-y:auto;margin:0;padding:6px;list-style:none;background:var(--Surface);border:1px solid var(--Line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;z-index:50;scrollbar-width:thin}  /* 13개 언어 — 작은 화면에서는 스크롤 */
 .pg-lang.open .pg-lang-menu{display:block}
-.pg-lang-menu a{display:block;padding:9px 12px;border-radius:8px;color:var(--OnSurface);text-decoration:none;font-size:14px;white-space:nowrap}
+.pg-lang-menu li{margin:0}
+.pg-lang-menu a{display:block;padding:7px 12px;border-radius:8px;color:var(--OnSurface);text-decoration:none;font-size:14px;line-height:22px;white-space:nowrap}
 .pg-lang-menu a:hover,.pg-lang-menu a.active{background:rgba(49,248,163,.12);color:var(--Primary)}
 
 /* 하단 법적 링크 (모든 페이지) — Stripe 심사·特商法: 운영자·표기·약관·개인정보·환불·문의가 어느 페이지에서나 1클릭 */
+/* 폼 컨트롤(index 설정 패널 · contact 문의 폼 공통) — 템플릿 변수만 써서 dark/light 자동 */
+.pg-select,.pg-input{width:100%;padding:10px 14px;border:1px solid rgba(128,128,128,.35);border-radius:12px;background:transparent;color:inherit;font:inherit}
+.pg-select option{color:#111}
+.pg-textarea{min-height:180px;resize:vertical;line-height:1.6}
+.pg-input:focus,.pg-select:focus{outline:none;border-color:var(--Primary)}
+/* 문의 폼(contact.html) */
+.pg-form{display:grid;gap:18px;max-width:720px;margin-top:22px}
+.pg-form .pg-field label{display:block;margin-bottom:6px;font-size:13px;color:var(--Secondary)}
+.pg-row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pg-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.pg-result:empty{display:none}
+.pg-result{font-size:14px}
+.pg-result.is-sending{color:var(--Secondary)}
+.pg-result.is-ok{color:var(--Primary)}
+.pg-result.is-err{color:#ff7b7b}
+.pg-form button[disabled]{opacity:.6;pointer-events:none}
+.pg-privacy{font-size:12px;line-height:1.7;color:var(--Secondary);margin:0}
+.pg-privacy a{color:var(--Secondary);text-decoration:underline}
+@media (max-width:640px){.pg-row2{grid-template-columns:1fr}}
 .pg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:auto;padding:22px 0 4px;border-top:1px solid var(--Line);font-size:13px;color:var(--Secondary)}
 .pg-foot a{color:var(--Secondary);text-decoration:none}
 .pg-foot a:hover{color:var(--Primary)}
@@ -90,3 +110,12 @@
 
 /* 사이드바 메뉴의 '곧 출시' 뱃지 */
 .menu-item .text .pg-badge{margin-left:8px;padding:1px 7px;font-size:10px;vertical-align:middle}
+
+/* 사이드바 「写真ならべ」 시리즈 — 출력 형식 아이콘(아이콘 폰트에 Excel·PPT 가 없어 글자 배지) + 준비 중 항목 */
+.pg-fmt{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-size:11px;font-weight:800;line-height:1;letter-spacing:-.02em;color:#fff;user-select:none}
+.pg-fmt-xlsx{background:#1d6f42}
+.pg-fmt-pptx{background:#c43e1c}
+.pg-fmt-ai{background:#ff9a00;color:#300}
+.pg-fmt-psd{background:#31a8ff;color:#001e36}
+.menu-item.soon a{opacity:.55;pointer-events:none;cursor:default}
+.pg-soon-tag{margin-left:auto;padding:2px 7px;border:1px solid var(--Line);border-radius:99px;font-size:10px;line-height:14px;font-weight:600;color:var(--Secondary);white-space:nowrap}

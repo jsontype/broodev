@@ -28,9 +28,9 @@ export const SITES = [
   // ── 홈 · 유틸 · 공사중 · 게임
   { id: 'utils', out: 'apps/utils/og-image.png', domain: 'utils.broodev.com',
     theme: { bg: '#0E0E14', glow: '#31F8A3', accent: '#31F8A3', text: '#FFFFFF', dim: '#A3A8B8', font: 'sans' },
-    badge: 'Y SYSTEMS · UTILS', title: '사진 → <b>엑셀 · PPT</b><br>격자 배열',
-    sub: 'Photos → Excel · PowerPoint grid — 용지 7종 · 세로/가로 · 가로×세로 1~5 · 브라우저에서만 처리',
-    tags: ['XLSX', 'PPTX', 'A4 · A3 · B4 · Letter', 'ko · ja · en'], deco: 'grid' },
+    badge: 'Y SYSTEMS · UTILS', title: '사진 나란히<br><b>Excel · PowerPoint</b>',   // 写真ならべ 시리즈 (index = Excel, /pptx = PowerPoint — 썸네일은 공용)
+    sub: '写真ならべ / Photo Layout — 사진을 용지 한 장에 가로×세로 격자로 자동 배열 · 용지 7종 · 1~5 × 1~5 · 브라우저에서만 처리',
+    tags: ['XLSX', 'PPTX', 'A4 · A3 · B4 · Letter', '13 languages'], deco: 'grid' },
   // 포털(broodev.com 루트 · AIXOR 템플릿) — 2026-10-03 신설
   { id: 'home', out: 'apps/home/og-image.png', domain: 'broodev.com',
     theme: { bg: '#000000', glow: '#ffffff', accent: '#FFFFFF', text: '#FFFFFF', dim: '#999999', font: 'sans' },

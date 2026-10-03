@@ -1,16 +1,15 @@
-/* Utils — 안내 페이지 공통 (pricing.html — 법적 문서는 broodev.com/legal/ 로 통합되어 이 앱에는 요금 페이지만 있다)
+/* Utils — 안내 페이지 공통 (pricing.html · contact.html — 법적 문서는 broodev.com/legal/ 로 통합)
    - 헤더 언어 풀다운(#pg-lang) 토글 + [data-lang] 클릭 → MH_I18N.set
-   - <body data-page="pricing"> 에 맞춰 <title>·meta description 을 title_* / desc_* 키로 교체
-   - 언어별 본문 <article data-lang-block="ja|ko|en"> 중 현재 언어만 표시 (JS 없을 땐 HTML 에 ja 가 보이는 상태)
+   - <title>·meta description 은 i18n.js apply() 가 <body data-page> 에 맞춰 title_* / desc_* 키로 교체 (여기서는 안 함)
+   - 언어별 본문 <article data-lang-block="ja|ko|en"> 중 현재 언어만 표시 — 그 외 10개 언어는 en 블록 (JS 없을 땐 HTML 에 ja 가 보이는 상태)
    - [data-biz="키"] ← BIZ (언어별 변형 키 '_ko' '_en' 이 있으면 우선) · [data-biz-href="email"] ← mailto:
-   - [data-price="yearly|lifetime"] ← PLANS 금액(¥3,980 형식) · [data-plan="free_limits.photos"] ← PLANS 경로값
+   - [data-price="yearly|lifetime"] ← PLANS 금액(¥2,500 형식) · [data-plan="free_limits.photos"] ← PLANS 경로값
    - 등록번호(BIZ.invoice_no)가 자리표시자(T000…)면 [data-biz-row="invoice_no"] 행을 숨김
    index.html 은 app.js 가 같은 역할을 하므로 이 파일을 넣지 않는다. */
 (function () {
   'use strict';
   var I = window.MH_I18N, BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
   if (!I) return;
-  var page = document.body.getAttribute('data-page') || '';
 
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
   function yen(n) { return '¥' + Number(n).toLocaleString('en-US'); }
@@ -20,7 +19,8 @@
   function fill(lang) {
     each('[data-biz]', function (el) {
       var k = el.getAttribute('data-biz');
-      var v = BIZ[k + '_' + lang] != null ? BIZ[k + '_' + lang] : BIZ[k];
+      // 언어별 변형(_ko/_en)이 있으면 그것, ja 외 언어인데 변형이 없으면 _en, 그래도 없으면 기본(일본어 正文)
+      var v = BIZ[k + '_' + lang] != null ? BIZ[k + '_' + lang] : (lang !== 'ja' && BIZ[k + '_en'] != null ? BIZ[k + '_en'] : BIZ[k]);
       if (v != null) el.textContent = v;
     });
     each('[data-biz-href]', function (el) {
@@ -80,12 +80,11 @@
 
   document.addEventListener('mh:lang', function () {
     var lang = I.lang();
-    if (page) {
-      document.title = I.t('title_' + page);
-      var md = document.querySelector('meta[name="description"]');
-      if (md) md.setAttribute('content', I.t('desc_' + page));
-    }
-    each('[data-lang-block]', function (el) { el.hidden = el.getAttribute('data-lang-block') !== lang; });
+    // 긴 본문은 ja·ko·en 블록만 있다 — 그 외 10개 언어는 en 블록(메뉴·푸터·title 은 사전으로 번역됨)
+    var have = {};
+    each('[data-lang-block]', function (el) { have[el.getAttribute('data-lang-block')] = true; });
+    var show = have[lang] ? lang : (have.en ? 'en' : 'ja');
+    each('[data-lang-block]', function (el) { el.hidden = el.getAttribute('data-lang-block') !== show; });
     fill(lang);
   });
 

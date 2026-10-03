@@ -1,14 +1,16 @@
-/* Utils (구 Megahouse) — DOM 연결. 로직은 photo-grid.js (PhotoGrid), 문구는 i18n.js (MH_I18N) 에 있다. */
+/* Utils (구 Megahouse) — DOM 연결. 로직은 photo-grid.js (PhotoGrid), 문구는 i18n.js (MH_I18N) 에 있다.
+   출력 형식은 페이지가 정한다: index.html <body data-page="xlsx"> → Excel, pptx.html <body data-page="pptx"> → PowerPoint
+   (2026-10-03 「写真ならべ」 시리즈로 앱 분리 — 포맷 select 는 없어짐. 그 외 설정은 두 페이지가 localStorage mh:settings 를 공유) */
 (function () {
   'use strict';
   var PG = window.PhotoGrid, I = window.MH_I18N;
   var t = I.t;
+  var FORMAT = document.body.getAttribute('data-page') === 'pptx' ? 'pptx' : 'xlsx';
   var $files = document.getElementById('pg-files');
   var $drop = document.getElementById('pg-drop');
   var $pages = document.getElementById('pg-pages');
   var $summary = document.getElementById('pg-summary');
   var $status = document.getElementById('pg-status');
-  var $format = document.getElementById('pg-format');
   var $paper = document.getElementById('pg-paper');
   var $caption = document.getElementById('pg-caption');
   var $maxPx = document.getElementById('pg-maxpx');
@@ -21,15 +23,14 @@
     pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
   };
 
-  // 설정 (localStorage 에 저장) — 포맷·용지·방향·가로×세로·캡션·최대 크기
-  var DEFAULTS = { format: 'xlsx', paper: 'A4', orientation: 'portrait', cols: 2, rows: 3, caption: true, maxPx: 1600 };
+  // 설정 (localStorage 에 저장, Excel·PowerPoint 페이지 공유) — 용지·방향·가로×세로·캡션·최대 크기. format 은 페이지 고정(FORMAT)
+  var DEFAULTS = { paper: 'A4', orientation: 'portrait', cols: 2, rows: 3, caption: true, maxPx: 1600 };
   var S = loadSettings();
   function loadSettings() {
     var s = {};
     try { s = JSON.parse(localStorage.getItem('mh:settings') || '{}') || {}; } catch (e) { s = {}; }
-    var o = {};
+    var o = { format: FORMAT };
     for (var k in DEFAULTS) o[k] = s[k] != null ? s[k] : DEFAULTS[k];
-    if (o.format !== 'pptx') o.format = 'xlsx';
     if (!PG.PAPERS[o.paper]) o.paper = 'A4';
     if (o.orientation !== 'landscape') o.orientation = 'portrait';
     o.cols = clamp(o.cols); o.rows = clamp(o.rows);
@@ -64,7 +65,6 @@
 
   // 설정 → 컨트롤 표시 동기화 (칩 active, select value, checkbox)
   function syncControls() {
-    $format.value = S.format;
     $paper.value = S.paper;
     $caption.checked = S.caption;
     $maxPx.value = String(S.maxPx);
@@ -77,7 +77,7 @@
     updateLabels();
   }
 
-  // 포맷/격자에 따라 바뀌는 문구: 파일 이름 placeholder (다운로드 버튼은 설정 패널의 submit 하나뿐)
+  // 격자에 따라 바뀌는 문구: 파일 이름 placeholder (다운로드 버튼은 설정 패널의 submit 하나뿐)
   function updateLabels() {
     $name.placeholder = defaultName();
   }
@@ -189,7 +189,6 @@
   $form.addEventListener('submit', function (e) { e.preventDefault(); generate(); });
 
   // 설정 컨트롤 → S → 저장 + 미리보기 갱신
-  $format.addEventListener('change', function () { S.format = $format.value === 'pptx' ? 'pptx' : 'xlsx'; saveSettings(); updateLabels(); });
   $paper.addEventListener('change', function () { S.paper = PG.PAPERS[$paper.value] ? $paper.value : 'A4'; saveSettings(); render(); });
   $caption.addEventListener('change', function () { S.caption = $caption.checked; saveSettings(); render(); });
   $maxPx.addEventListener('change', function () { S.maxPx = parseInt($maxPx.value, 10) || 0; saveSettings(); });
