@@ -27,7 +27,7 @@ window.BIZ = {
      app.js 는 premium_formats 에 든 형식의 페이지에서 라이선스(js/license.js)가 없으면 다운로드를 잠그고 요금 페이지로 보낸다 */
 window.PLANS = {
   currency: 'JPY',
-  yearly:   { price: 2500, interval: 'year', checkout: '' },  // 年額(자동 갱신)
+  yearly:   { price: 2500, interval: 'year', checkout: 'https://buy.stripe.com/14A6oJ3Ao8LybQi4sW4wM00' },  // 年額(자동 갱신) — Payment Link 2026-10-05
   lifetime: { price: 5000, checkout: '' },                    // 買い切り(1회 결제 · 서비스 제공 기간 중 유효)
   // checkout: Stripe Payment Link URL(https://buy.stripe.com/…) 을 넣으면 요금 페이지 버튼이 「購入する」로 활성화된다. 빈 문자열이면 「準備中」(비활성)
   free_formats: ['xlsx'],
