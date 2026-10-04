@@ -32,5 +32,5 @@ window.PLANS = {
   // checkout: Stripe Payment Link URL(https://buy.stripe.com/…) 을 넣으면 요금 페이지 버튼이 「購入する」로 활성화된다. 빈 문자열이면 「準備中」(비활성)
   free_formats: ['xlsx'],
   premium_formats: ['pptx', 'ai', 'psd'],
-  portal: '',  // Stripe 고객 포털(구독 해지·카드 변경) 링크 https://billing.stripe.com/p/login/… — 비어 있으면 메일 안내만
+  portal: 'https://billing.stripe.com/p/login/14A6oJ3Ao8LybQi4sW4wM00',  // Stripe 고객 포털(구독 해지·카드 변경) — 2026-10-05 활성화(계정당 1개, 다른 앱도 같은 링크). 비어 있으면 메일 안내만
 };
