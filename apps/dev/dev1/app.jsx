@@ -12,7 +12,7 @@ const M = window.Motion;
 if (!M) document.documentElement.classList.add('static-fallback');
 const { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useReducedMotion } = M || {};
 
-const EMAIL = 'support@broodev.com';
+const EMAIL = 'jsontype@broodev.com';
 const LINKS = {
   github: 'https://github.com/jsontype',
   linkedin: 'https://www.linkedin.com/in/donghwa-yang-b73a57216/',

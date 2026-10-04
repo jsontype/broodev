@@ -1,6 +1,6 @@
 # EmailJS 템플릿 `broodev_template` — 운영자 수신 메일 (2026-10-03)
 
-연락 폼 4곳이 **같은** EmailJS 서비스 `broodev_service` · 템플릿 `broodev_template`(공개키 `u-DIwFmmMVFWrxJMX`) 으로 보내고, `support@broodev.com`(Cloudflare Email Routing → `jsontyper@gmail.com` 전달, 2026-10-04) 이 받는다. 사이트의 `mailto:` 폴백도 같은 주소.
+연락 폼 4곳이 **같은** EmailJS 서비스 `broodev_service` · 템플릿 `broodev_template`(공개키 `u-DIwFmmMVFWrxJMX`) 으로 보내고, `support@broodev.com`(Cloudflare Email Routing → `jsontyper@gmail.com` 전달, 2026-10-04) 이 받는다. 사이트의 `mailto:` 폴백도 같은 주소 — 단 **개발자 소개 사이트(dev.broodev.com = `apps/dev/*`)의 연락처·폴백은 `jsontype@broodev.com`**(개발자 개인 주소, 역시 Email Routing → Gmail).
 
 | 폼 | 코드 | `kind`(출처) 값 |
 |---|---|---|

@@ -14,7 +14,7 @@
 | **입금 은행 계좌** | 일본 국내 은행 · **口座名義 = 본인 이름**(屋号 계좌도 이름이 포함되면 OK). 통장/앱 화면 캡처 준비 |
 | **적격청구서 등록번호** | `T` + 13자리. [국세청 공표 사이트](https://www.invoice-kohyo.nta.go.jp/)에서 본인 번호·공표 이름 확인 |
 | **개인정보 방침** | **운영자 氏名·주소·전화는 사이트·레포에 싣지 않는다**(2026-10-03 결정). 사이트에는 屋号 `Y Systems` + 都道府県 + 메일만, 特商法 페이지의 氏名·주소·전화 행은 「個人事業主のため掲載を省略 — 請求があれば遅滞なく開示」. 본인 정보는 Stripe 대시보드(비공개)에만 입력. ⚠ 소비자청 Q&A 는 個人事業主 의 氏名 표기를 원칙으로 보고([통신판매 Q&A](https://www.no-trouble.caa.go.jp/what/mailorder/)), Stripe 심사에서 「氏名を記載してください」 가 올 수 있다 — 그때 다시 판단(개시 청구가 오면 메일로 지체 없이 알려 주는 운용은 반드시 지킬 것) |
-| **연락용 메일** | **`support@broodev.com`**(2026-10-04 — Cloudflare **Email Routing**(무료) `support@broodev.com → jsontyper@gmail.com` 전달. 사이트·법적 문서·`legal/biz.js`·`apps/utils/js/biz.js`·연락 폼 mailto 폴백·JSON-LD 전부 이 주소로 통일; Gmail 계정 자체는 Admin 의 Google SSO 신원으로만 남음). Gmail 에서 이 주소 이름으로 답장하려면 Gmail → 설정 → 계정 및 가져오기 → 「다른 주소에서 메일 보내기」에 `support@broodev.com` 추가(smtp.gmail.com:587 · 앱 비밀번호) + DNS SPF `v=spf1 include:_spf.mx.cloudflare.net include:_spf.google.com ~all` |
+| **연락용 메일** | **`support@broodev.com`**(2026-10-04 — Cloudflare **Email Routing**(무료) `support@broodev.com → jsontyper@gmail.com` 전달. 사이트·법적 문서·`legal/biz.js`·`apps/utils/js/biz.js`·연락 폼 mailto 폴백·JSON-LD 전부 이 주소로 통일; Gmail 계정 자체는 Admin 의 Google SSO 신원으로만 남음. 개발자 소개 사이트 `apps/dev/*`(dev.broodev.com)와 JSON-LD `founder`(Person)만 개발자 주소 `jsontype@broodev.com` — 2026-10-05). Gmail 에서 이 주소 이름으로 답장하려면 Gmail → 설정 → 계정 및 가져오기 → 「다른 주소에서 메일 보내기」에 `support@broodev.com` 추가(smtp.gmail.com:587 · 앱 비밀번호) + DNS SPF `v=spf1 include:_spf.mx.cloudflare.net include:_spf.google.com ~all` |
 | **전화번호** | Stripe 계정용(비공개). 사이트에는 싣지 않는다(「請求があれば遅滞なく開示」) |
 | 사업 설명문 | 아래 §3 에 복붙용 문장 있음 |
 
