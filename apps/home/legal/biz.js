@@ -13,7 +13,7 @@ window.BIZ = {
   location: '東京都',                               // 소재지(도도부현). 상세 주소·전화·氏名은 「請求があれば遅滞なく開示」
   location_ko: '일본 도쿄도',
   location_en: 'Tokyo, Japan',
-  email: 'jsontyper@gmail.com',
+  email: 'support@broodev.com',
   invoice_no: 'T5810420183858',                     // 適格請求書発行事業者 登録番号(2026-10-04 기입) — Stripe 의 Account tax ID(JP TRN)와 동일
   site: 'https://broodev.com/',
   updated: '2026-10-03',

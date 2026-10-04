@@ -14,7 +14,7 @@
 (function () {
   'use strict';
   var BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
-  var V = '20261004d';
+  var V = '20261004e';
   var LANGS = ['en', 'ja', 'ko', 'zh', 'es', 'pt', 'fr', 'ru', 'de', 'it', 'th', 'zh-Hant', 'nl'];
   var NAMES = { en: 'English', ja: '日本語', ko: '한국어', zh: '简体中文', es: 'Español', pt: 'Português', fr: 'Français', ru: 'Русский', de: 'Deutsch', it: 'Italiano', th: 'ไทย', 'zh-Hant': '繁體中文', nl: 'Nederlands' };
   var HTML_LANG = { zh: 'zh-Hans' };

@@ -66,7 +66,7 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 
 ## 문의 · 제안 폼 — `contact.html` (2026-10-03)
 
-사이드바 「기타」 그룹의 ✉ 「문의 · 제안」(「요금」 아래) → 종류(버그 신고 / 개선 제안 / 기타 문의) · 이름(선택) · 이메일(선택) · 내용 → **EmailJS** 로 운영자 메일(`jsontyper@gmail.com`)에 전달. 포털·dev3·voca 와 **같은 서비스·템플릿·변수 규격**(`broodev_service` / `broodev_template`, 정본 [`docs/emailjs-template.md`](../../docs/emailjs-template.md)) — `kind: 'utils (utils.broodev.com) · 버그 신고'` 식, 제목은 `BROODEV에서 사용자 문의가 왔습니다. — 🚨 utils 버그 신고 · 이름`, `env` 끝에 UI 언어. 이메일이 유효하면 `reply_to` 로 넣어 Gmail 에서 바로 답장. SDK 미로드(광고 차단기)면 `mailto:` 폴백. 내용이 비면 `ct_need_msg`, 성공 `is-ok`/실패 `is-err` 상태 문구는 i18n. 페이지는 `noindex`(검색 유입 불필요). EmailJS 대시보드에서 도메인 허용 목록을 쓰는 경우 `utils.broodev.com` 추가 필요.
+사이드바 「기타」 그룹의 ✉ 「문의 · 제안」(「요금」 아래) → 종류(버그 신고 / 개선 제안 / 기타 문의) · 이름(선택) · 이메일(선택) · 내용 → **EmailJS** 로 운영자 메일(`support@broodev.com`)에 전달. 포털·dev3·voca 와 **같은 서비스·템플릿·변수 규격**(`broodev_service` / `broodev_template`, 정본 [`docs/emailjs-template.md`](../../docs/emailjs-template.md)) — `kind: 'utils (utils.broodev.com) · 버그 신고'` 식, 제목은 `BROODEV에서 사용자 문의가 왔습니다. — 🚨 utils 버그 신고 · 이름`, `env` 끝에 UI 언어. 이메일이 유효하면 `reply_to` 로 넣어 Gmail 에서 바로 답장. SDK 미로드(광고 차단기)면 `mailto:` 폴백. 내용이 비면 `ct_need_msg`, 성공 `is-ok`/실패 `is-err` 상태 문구는 i18n. 페이지는 `noindex`(검색 유입 불필요). EmailJS 대시보드에서 도메인 허용 목록을 쓰는 경우 `utils.broodev.com` 추가 필요.
 ## 무료 / 프리미엄 경계 = 출력 형식 (2026-10-04)
 
 - **무료: Excel(.xlsx) 출력 — 전 기능, 제한 없음**(장수·용지 7종·격자 5×5·원본 화질). 예전의 「1회 20장 · A4·Letter · 3×3 · 1600px」 식 상한은 **폐기**(`PLANS.free_limits` 삭제).

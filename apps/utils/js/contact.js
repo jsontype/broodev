@@ -8,7 +8,7 @@
   var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
   var EMAILJS_SERVICE_ID = 'broodev_service';
   var EMAILJS_TEMPLATE_ID = 'broodev_template';
-  var FALLBACK_MAIL = BIZ.email || 'jsontyper@gmail.com';
+  var FALLBACK_MAIL = BIZ.email || 'support@broodev.com';
   var MAIL_SUBJECT = 'BROODEV에서 사용자 문의가 왔습니다.'; // 뒤에 "— 출처 · 이름" (같은 제목이면 Gmail 이 한 스레드로 묶음)
   var APP = 'utils', HOST = 'utils.broodev.com';
   var KIND_KO = { bug: '버그 신고', idea: '개선 제안', other: '기타 문의' }; // 운영자(한국어) 메일의 출처 구분

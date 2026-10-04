@@ -232,7 +232,7 @@ function SettingsPage({ t }) {
       <form className="panel" style={{ maxWidth: 560 }} onSubmit={save}>
         <div className="panel-label">{s.general}</div>
         <div className="field"><label>{s.siteName}</label><input defaultValue="broodev" /></div>
-        <div className="field"><label>{s.opEmail}</label><input defaultValue="jsontyper@gmail.com" /></div>
+        <div className="field"><label>{s.opEmail}</label><input defaultValue="support@broodev.com" /></div>
         <hr className="divider" />
         <div className="panel-label">{s.integ}</div>
         {/* ***! TODO: 키는 백엔드 비밀저장소에 보관, 프런트 노출 금지 */}

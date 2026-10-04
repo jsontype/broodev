@@ -10,7 +10,7 @@ window.BIZ = {
   location: '東京都',                              // 소재지(도도부현). 상세 주소·전화·氏名은 「請求があれば遅滞なく開示」 방식
   location_ko: '일본 도쿄도',
   location_en: 'Tokyo, Japan',
-  email: 'jsontyper@gmail.com',                    // 문의·개시 요청·Stripe 서포트 메일
+  email: 'support@broodev.com',                    // 문의·개시 요청·Stripe 서포트 메일
   invoice_no: 'T5810420183858',                    // 적격청구서 등록번호(T+13자리, 정본 apps/home/legal/biz.js 와 동일) — 표시는 broodev.com/legal/tokushoho.html 에서만
   site: 'https://broodev.com/',                    // 사업 웹사이트(Stripe 에 등록한 URL). 이 앱의 주소는 https://utils.broodev.com/
   legal: 'https://broodev.com/legal/',             // 법적 문서 루트

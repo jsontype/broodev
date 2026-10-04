@@ -313,7 +313,7 @@ Googlebot 과 **일반 신규 방문자는 동일한 페이지**를 본다 → �
 | --- | --- | --- |
 | **개인정보처리방침** (쿠키·AdSense 고지 포함) | ✅ | `/privacy.html` — 모든 광고 게재 페이지의 **탐색 메뉴/푸터에서 도달 가능**. Google 광고 쿠키·맞춤광고 해제 링크 포함 |
 | **이용약관** | ✅ | `/terms.html` |
-| **연락처 / 운영주체** | ✅ | Y-Systems · jsontyper@gmail.com — 푸터 명시 |
+| **연락처 / 운영주체** | ✅ | Y-Systems · support@broodev.com — 푸터 명시 |
 | **`ads.txt`** | ✅ | 루트에 `google.com, pub-5511225478572825, DIRECT, f08c47fec0942fa0` |
 | **`sitemap.xml`** | ✅ | 루트 7 URL (noindex 페이지 미등재) |
 | **YMYL(금융) 면책** | ✅ | 전 코인 페이지·전 콘텐츠 글에 "투자 자문 아님 / 원금 전액 손실 가능 / DYOR" 고지 |

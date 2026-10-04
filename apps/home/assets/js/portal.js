@@ -242,7 +242,7 @@
   var EMAILJS_PUBLIC_KEY = 'u-DIwFmmMVFWrxJMX';
   var EMAILJS_SERVICE_ID = 'broodev_service';
   var EMAILJS_TEMPLATE_ID = 'broodev_template';
-  var FALLBACK_MAIL = 'jsontyper@gmail.com';
+  var FALLBACK_MAIL = 'support@broodev.com';
   var MAIL_SUBJECT = 'BROODEV에서 사용자 문의가 왔습니다.'; // 뒤에 "— 출처 · 이름" 을 붙인다(같은 제목이면 Gmail 이 한 스레드로 묶어 새 문의가 묻힘)
   /* 운영자용 환경 요약(OS · 브라우저 · 입력 방식 · 화면/창 · 언어). 전체 UA 는 ua 로 따로 */
   function envSummary() {

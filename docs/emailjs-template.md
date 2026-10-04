@@ -1,6 +1,6 @@
 # EmailJS 템플릿 `broodev_template` — 운영자 수신 메일 (2026-10-03)
 
-연락 폼 4곳이 **같은** EmailJS 서비스 `broodev_service` · 템플릿 `broodev_template`(공개키 `u-DIwFmmMVFWrxJMX`) 으로 보내고, `jsontyper@gmail.com` 이 받는다.
+연락 폼 4곳이 **같은** EmailJS 서비스 `broodev_service` · 템플릿 `broodev_template`(공개키 `u-DIwFmmMVFWrxJMX`) 으로 보내고, `support@broodev.com`(Cloudflare Email Routing → `jsontyper@gmail.com` 전달, 2026-10-04) 이 받는다. 사이트의 `mailto:` 폴백도 같은 주소.
 
 | 폼 | 코드 | `kind`(출처) 값 |
 |---|---|---|
@@ -20,7 +20,7 @@
 | Subject | `{{subject}}` |
 | From Name | `BROODEV 문의` |
 | Reply To | `{{reply_to}}` (보낸 사람이 유효한 이메일을 남겼을 때만 값이 들어온다 — 비어 있으면 Reply-To 없음) |
-| To Email | `jsontyper@gmail.com` |
+| To Email | `support@broodev.com` (EmailJS 대시보드에서 직접 바꿔야 함 — 코드에는 없음. 바꾸기 전까지는 `jsontyper@gmail.com` 직수신) |
 
 **Content 탭** → `Edit Content` → 코드 편집(`</>`) → 기존 내용을 지우고 §3 의 HTML 전체를 붙여넣기 → Save.
 

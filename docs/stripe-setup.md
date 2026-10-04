@@ -14,7 +14,7 @@
 | **입금 은행 계좌** | 일본 국내 은행 · **口座名義 = 본인 이름**(屋号 계좌도 이름이 포함되면 OK). 통장/앱 화면 캡처 준비 |
 | **적격청구서 등록번호** | `T` + 13자리. [국세청 공표 사이트](https://www.invoice-kohyo.nta.go.jp/)에서 본인 번호·공표 이름 확인 |
 | **개인정보 방침** | **운영자 氏名·주소·전화는 사이트·레포에 싣지 않는다**(2026-10-03 결정). 사이트에는 屋号 `Y Systems` + 都道府県 + 메일만, 特商法 페이지의 氏名·주소·전화 행은 「個人事業主のため掲載を省略 — 請求があれば遅滞なく開示」. 본인 정보는 Stripe 대시보드(비공개)에만 입력. ⚠ 소비자청 Q&A 는 個人事業主 의 氏名 표기를 원칙으로 보고([통신판매 Q&A](https://www.no-trouble.caa.go.jp/what/mailorder/)), Stripe 심사에서 「氏名を記載してください」 가 올 수 있다 — 그때 다시 판단(개시 청구가 오면 메일로 지체 없이 알려 주는 운용은 반드시 지킬 것) |
-| **연락용 메일** | 현재 `jsontyper@gmail.com`. 권장: Cloudflare **Email Routing**(무료)으로 `support@broodev.com` → Gmail 전달을 만들어 그 주소를 쓰면 심사·고객 신뢰 모두 좋다 → [Email Routing 문서](https://developers.cloudflare.com/email-service/) (만들면 `legal/biz.js` 의 `email` 과 연락 폼의 `To` 는 그대로 두고 Stripe 쪽만 바꿔도 되고, 전부 바꿔도 된다) |
+| **연락용 메일** | **`support@broodev.com`**(2026-10-04 — Cloudflare **Email Routing**(무료) `support@broodev.com → jsontyper@gmail.com` 전달. 사이트·법적 문서·`legal/biz.js`·`apps/utils/js/biz.js`·연락 폼 mailto 폴백·JSON-LD 전부 이 주소로 통일; Gmail 계정 자체는 Admin 의 Google SSO 신원으로만 남음). Gmail 에서 이 주소 이름으로 답장하려면 Gmail → 설정 → 계정 및 가져오기 → 「다른 주소에서 메일 보내기」에 `support@broodev.com` 추가(smtp.gmail.com:587 · 앱 비밀번호) + DNS SPF `v=spf1 include:_spf.mx.cloudflare.net include:_spf.google.com ~all` |
 | **전화번호** | Stripe 계정용(비공개). 사이트에는 싣지 않는다(「請求があれば遅滞なく開示」) |
 | 사업 설명문 | 아래 §3 에 복붙용 문장 있음 |
 
@@ -101,7 +101,7 @@ Pricing: https://broodev.com/premium / Legal notice: https://broodev.com/legal/t
      - Store / Service name: 漢字(전각) `ブルーデブ ユーティルズ` · カナ(반각) `ﾌﾞﾙｰﾃﾞﾌﾞ ﾕｰﾃｨﾙｽﾞ` · ローマ字 `BROODEV UTILS`
      - Shortened descriptor: `ブルーデブ` · `ﾌﾞﾙｰﾃﾞﾌﾞ` · `BROODEV` (상품별 동적 표기의 접두어 — 다른 앱은 `BROODEV* <APP>`)
      규칙: https://docs.stripe.com/get-started/account/statement-descriptors
-   - サポートメール: `jsontyper@gmail.com`(또는 `support@broodev.com`) · サポート電話: 입력하되 「明細書に表示しない」
+   - サポートメール: `support@broodev.com` · サポート電話: 입력하되 「明細書に表示しない」
    - サポートURL: `https://broodev.com/legal/tokushoho` · **利用規約 URL** `https://broodev.com/legal/terms` · **プライバシーポリシー URL** `https://broodev.com/legal/privacy` (→ §8 의 "약관 동의 체크박스"에 쓰임 — 전 앱 공통이라 앱이 늘어도 바꾸지 않는다)
 3. **銀行口座** — https://dashboard.stripe.com/settings/payouts : 은행 · 지점 · 계좌번호 · **口座名義(カタカナ)**. 명의가 본인 이름과 다르면 심사가 멈춘다. 입금 주기는 기본 **주 1회**(나중에 월 1회로 바꿔도 됨).
 4. **セキュリティ・チェックリストに基づく対策処置状況申告書** (일본 전용, 2024-04~ 신규 가맹점 필수): 폼 안에 체크 항목이 나온다. 우리 구성은 전부 "해당/대응": 카드 정보 비보유(Stripe Checkout 사용) · 사이트 HTTPS(Cloudflare) · 관리 계정 2FA · 소프트웨어 최신(정적 사이트) · 부정 로그인 대책(관리 화면 없음). 참고: [日本クレジット協会 セキュリティ対策](https://www.j-credit.or.jp/security/)
@@ -171,7 +171,7 @@ https://dashboard.stripe.com/payment-links → 「新規」 → 상품 선택. �
 - **カスタムテキスト(送信ボタンの上)** — 特商法 2022 개정 "最終確認画面" 요건(분량·지불시기·제공시기·해지조건·자동갱신)을 Checkout 화면에 올리는 자리. 복붙:
   - 年額: `年額プランは 1 年ごとに自動更新され、更新日に ¥2,500（税込）が請求されます。解約はいつでも可能で、次回更新日以降は請求されません（日割り返金なし）。ライセンスは決済完了後すぐにメールでお送りします。返金・解約ポリシー: https://broodev.com/legal/refund`
   - 買い切り: `1 回限りのお支払いです（自動更新・追加請求なし）。ライセンスは決済完了後すぐにメールでお送りします。デジタルサービスのため決済後の返金は原則承っておりません。返金ポリシー: https://broodev.com/legal/refund`
-- **決済後**: 「確認ページを表示」 + 메시지 `ご購入ありがとうございます。ライセンス情報を {メール} 宛にお送りしました。届かない場合は jsontyper@gmail.com までご連絡ください。` (라이선스 자동 발급 §10 을 만들면 「リダイレクト」 로 활성화 페이지로 보냄)
+- **決済後**: 「確認ページを表示」 + 메시지 `ご購入ありがとうございます。ライセンス情報を {メール} 宛にお送りしました。届かない場合は support@broodev.com までご連絡ください。` (라이선스 자동 발급 §10 을 만들면 「リダイレクト」 로 활성화 페이지로 보냄)
 - 買い切り 링크만: **「決済後に請求書を作成」(invoice_creation) ON** → 一括 결제도 T번호 들어간 적격청구서 PDF 가 자동 발행
 - 年額 링크만: 「お客様がプロモーションコードを使用できる」 는 필요 시 · 「無料トライアル」 는 쓰지 않음(환불 정책과 충돌)
 - **税 ID の収集(tax_id_collection) ON** — 법인 고객이 자기 T번호를 넣을 수 있게(선택)
@@ -248,7 +248,7 @@ Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 �
 | 利用規約 / プライバシー / 返金 | `https://broodev.com/legal/terms` · `https://broodev.com/legal/privacy` · `https://broodev.com/legal/refund` |
 | 屋号 / Business name | `Y Systems` |
 | 明細書表記 / 短縮 | `BROODEV UTILS` / `BROODEV` |
-| サポートメール | `jsontyper@gmail.com` (또는 `support@broodev.com`) |
+| サポートメール | `support@broodev.com` |
 | 상품 · 가격 | `Utils Premium — 年額` ¥2,500/年 税込 · `Utils Premium — 買い切り` ¥5,000 税込 |
 | 税 ID 종류 | `JP TRN` (T + 13자리) |
 | 웹훅 URL(§10) | `https://utils.broodev.com/api/stripe/webhook` |

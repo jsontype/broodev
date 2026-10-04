@@ -38,7 +38,7 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 
 ## 연락 폼 — EmailJS (2026-10-03)
 
-[`apps/voca/contact.html`](../../voca/contact.html) 과 **같은 EmailJS 계정·서비스·템플릿**을 쓴다(공개키 `u-DIwFmmMVFWrxJMX` · 서비스 `broodev_service` · 템플릿 `broodev_template` → 수신 `jsontyper@gmail.com`). SDK 는 `https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js`(index.html 하단, `main.js` 다음).
+[`apps/voca/contact.html`](../../voca/contact.html) 과 **같은 EmailJS 계정·서비스·템플릿**을 쓴다(공개키 `u-DIwFmmMVFWrxJMX` · 서비스 `broodev_service` · 템플릿 `broodev_template` → 수신 `support@broodev.com`). SDK 는 `https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js`(index.html 하단, `main.js` 다음).
 
 - 템플릿 파라미터는 포털·voca 와 동일 키: `subject`(`BROODEV에서 사용자 문의가 왔습니다. — 개발자 소개 · <이름>`, 한국어 고정 — 운영자용) · `kind`(`개발자 소개 (dev.broodev.com)`) · `name` · `email` · `reply_to` · `message` · `page` · `time`(JST) · `env`(OS·브라우저·화면 요약) · `ua` · `shots`(`(없음)`). `mail_subject` 번역은 mailto 폴백 제목에만 쓴다. 메일 레이아웃(템플릿 HTML)의 정본은 [`docs/emailjs-template.md`](../../../docs/emailjs-template.md).
 - 송신 중 버튼 비활성 + `#form-status` 에 `form_sending` → 성공 `form_sent`(폼 리셋) / 실패 `form_fail`(폴백 주소 안내). 세 문구 모두 13개 언어.
