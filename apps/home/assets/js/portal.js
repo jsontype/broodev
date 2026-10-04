@@ -1,5 +1,6 @@
 /* broodev 포털 런타임 — 카탈로그(catalog.js) → 전체화면 앱 모달(카테고리별 5개 + 페이지네이션) · 카테고리 섹션 · 숫자 · 연락 폼
-   의존: window.BROODEV_CATALOG (catalog.js 먼저 로드). jQuery/GSAP 불필요. */
+   의존: window.BROODEV_CATALOG (catalog.js 먼저 로드). jQuery/GSAP 불필요.
+   i18n: window.BROODEV_T (assets/js/i18n.js — 없으면 catalog.js 의 한국어 원문·아래 ko 기본 문구) 로 카테고리/앱 이름·설명·UI 문구를 꺼낸다. */
 (function () {
   'use strict';
   var C = window.BROODEV_CATALOG;
@@ -7,6 +8,24 @@
 
   var PER_PAGE = 5;
   var ARROW = 'assets/images/btn-arrow.svg';
+
+  /* ── i18n 도우미: T(key, vars, fallback) · 카탈로그 이름/설명은 사전 키(cat_{id}_name · app_{id}_name/desc · 코인 패턴) → 없으면 한국어 원문 ── */
+  var T = window.BROODEV_T || function (key, vars, fallback) {
+    var s = fallback != null ? fallback : key;
+    if (vars) s = String(s).replace(/\{(\w+)\}/g, function (_, k) { return vars[k] != null ? vars[k] : ''; });
+    return s;
+  };
+  function kid(id) { return String(id).replace(/-/g, '_'); }
+  function catName(cat) { return T('cat_' + kid(cat.id) + '_name', null, cat.name); }
+  function appName(a) {
+    if (a.ticker && a.coin) return T('coin_name', { coin: T('coin_' + kid(a.id), null, a.coin) }, a.name);
+    return T('app_' + kid(a.id) + '_name', null, a.name);
+  }
+  function appDesc(a) {
+    if (a.ticker && a.coin) return T('coin_desc', { coin: T('coin_' + kid(a.id), null, a.coin), ticker: a.ticker }, a.desc);
+    return T('app_' + kid(a.id) + '_desc', null, a.desc);
+  }
+  function nApps(n) { return T('n_apps', { n: n }, '앱 ' + n + '개'); }
 
   function h(tag, attrs, children) {
     var el = document.createElement(tag);
@@ -37,13 +56,13 @@
   if (catList) {
     C.categories.forEach(function (cat, i) {
       var box = h('div', { class: 'awards-box' + (i === 0 ? ' active' : ''), role: 'button', tabindex: '0', 'data-cat': cat.id,
-        'aria-label': cat.name + ' — 앱 ' + cat.count + '개 보기' }, [
+        'aria-label': T('cat_aria_open', { name: catName(cat), n: cat.count }, catName(cat) + ' — 앱 ' + cat.count + '개 보기') }, [
         h('div', { class: 'awards-inner' }, [
           h('div', { class: 'cat-meta' }, [
-            h('h4', { text: cat.numeral + '. ' + cat.name }),
-            h('span', { class: 'cat-count', text: cat.count + ' apps' })
+            h('h4', { text: cat.numeral + '. ' + catName(cat) }),
+            h('span', { class: 'cat-count', text: nApps(cat.count) })
           ]),
-          h('span', { class: 'cat-open' }, [document.createTextNode('목록 열기 '), h('img', { src: ARROW, alt: '' })])
+          h('span', { class: 'cat-open' }, [document.createTextNode(T('cat_open', null, '목록 열기') + ' '), h('img', { src: ARROW, alt: '' })])
         ]),
         h('div', { class: 'overlay' })
       ]);
@@ -64,10 +83,10 @@
     C.categories.forEach(function (cat) {
       var list = h('ul', { class: 'sitemap-list' });
       cat.apps.forEach(function (a) {
-        var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: '준비 중' }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
+        var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
         list.appendChild(h('li', null, [
-          h('a', { href: a.url, target: '_blank', rel: 'noopener', title: a.desc }, [
-            h('span', { class: 'name' }, [document.createTextNode(a.name), badge]),
+          h('a', { href: a.url, target: '_blank', rel: 'noopener', title: appDesc(a) }, [
+            h('span', { class: 'name' }, [document.createTextNode(appName(a)), badge]),
             h('span', { class: 'host', text: host(a.url) })
           ])
         ]));
@@ -75,7 +94,7 @@
       sitemap.appendChild(h('section', { class: 'sitemap-cat', 'data-cat': cat.id, 'aria-labelledby': 'sitemap-cat-' + cat.id }, [
         h('header', { class: 'sitemap-cat-head' }, [
           h('span', { class: 'numeral', text: cat.numeral }),
-          h('h4', { id: 'sitemap-cat-' + cat.id }, [document.createTextNode(cat.name), h('small', { text: cat.count + ' apps' })]),
+          h('h4', { id: 'sitemap-cat-' + cat.id }, [document.createTextNode(catName(cat)), h('small', { text: nApps(cat.count) })]),
           h('span', { class: 'en', text: cat.en })
         ]),
         list
@@ -97,12 +116,12 @@
     listEl.innerHTML = '';
     var slice = cat.apps.slice(p * PER_PAGE, p * PER_PAGE + PER_PAGE);
     slice.forEach(function (a) {
-      var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: '준비 중' }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
+      var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
       listEl.appendChild(h('li', null, [
-        h('a', { href: a.url, target: '_blank', rel: 'noopener', 'aria-label': a.name + ' — ' + host(a.url) }, [
+        h('a', { href: a.url, target: '_blank', rel: 'noopener', 'aria-label': appName(a) + ' — ' + host(a.url) }, [
           h('div', { class: 'app-main' }, [
-            h('span', { class: 'app-name' }, [document.createTextNode(a.name), badge]),
-            h('span', { class: 'app-desc', text: a.desc })
+            h('span', { class: 'app-name' }, [document.createTextNode(appName(a)), badge]),
+            h('span', { class: 'app-desc', text: appDesc(a) })
           ]),
           h('span', { class: 'app-host' }, [document.createTextNode(host(a.url)), h('img', { src: ARROW, alt: '' })])
         ])
@@ -113,14 +132,14 @@
     // 페이지네이션 — 1페이지뿐이어도 비활성 상태로 표시한다(요구사항)
     pagerEl.innerHTML = '';
     pagerEl.className = 'apps-pager' + (pageCount === 1 ? ' is-single' : '');
-    var prev = h('button', { type: 'button', 'aria-label': '이전 페이지', html: '&lsaquo;', onclick: function () { go(cat, p - 1); } });
-    var next = h('button', { type: 'button', 'aria-label': '다음 페이지', html: '&rsaquo;', onclick: function () { go(cat, p + 1); } });
+    var prev = h('button', { type: 'button', 'aria-label': T('pager_prev', null, '이전 페이지'), html: '&lsaquo;', onclick: function () { go(cat, p - 1); } });
+    var next = h('button', { type: 'button', 'aria-label': T('pager_next', null, '다음 페이지'), html: '&rsaquo;', onclick: function () { go(cat, p + 1); } });
     if (p === 0) prev.disabled = true;
     if (p >= pageCount - 1) next.disabled = true;
     var nums = h('div', { class: 'pager-pages' });
     for (var n = 0; n < pageCount; n++) {
       (function (n) {
-        var b = h('button', { type: 'button', text: String(n + 1), 'aria-label': (n + 1) + '페이지', onclick: function () { go(cat, n); } });
+        var b = h('button', { type: 'button', text: String(n + 1), 'aria-label': T('pager_page', { n: n + 1 }, (n + 1) + '페이지'), onclick: function () { go(cat, n); } });
         if (n === p) { b.classList.add('is-current'); b.setAttribute('aria-current', 'page'); }
         if (pageCount === 1) b.disabled = true;
         nums.appendChild(b);
@@ -141,15 +160,15 @@
     if (!grid || grid.childElementCount) return;
     C.categories.forEach(function (cat) {
       var list = h('ul', { class: 'apps-list' });
-      var pager = h('nav', { class: 'apps-pager', 'aria-label': cat.name + ' 페이지' });
+      var pager = h('nav', { class: 'apps-pager', 'aria-label': T('pager_aria', { name: catName(cat) }, catName(cat) + ' 페이지') });
       var card = h('section', { class: 'apps-cat', 'data-cat': cat.id, 'aria-labelledby': 'apps-cat-' + cat.id }, [
         h('header', { class: 'apps-cat-head' }, [
           h('div', null, [
             h('span', { class: 'numeral', text: cat.numeral }),
-            h('h3', { id: 'apps-cat-' + cat.id, text: cat.name }),
+            h('h3', { id: 'apps-cat-' + cat.id, text: catName(cat) }),
             h('span', { class: 'en', text: cat.en })
           ]),
-          h('span', { class: 'count', html: '<b>' + cat.count + '</b> apps' })
+          h('span', { class: 'count', html: T('n_apps_html', { n: cat.count }, '앱 <b>' + cat.count + '</b>개') })
         ]),
         list, pager
       ]);
@@ -157,7 +176,7 @@
       renderList(cat, list, pager);
     });
     var totalEl = modal.querySelector('[data-modal-total]');
-    if (totalEl) totalEl.textContent = C.total + ' apps · ' + C.categories.length + ' categories';
+    if (totalEl) totalEl.textContent = T('modal_total', { total: C.total, cats: C.categories.length }, '앱 ' + C.total + '개 · 카테고리 ' + C.categories.length + '개');
   }
 
   function openModal(catId) {
@@ -247,22 +266,23 @@
       var name = form.name.value.trim(), email = form.email.value.trim(), msg = form.message.value.trim();
       var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       if (!configured) {
-        var subject = '[broodev.com] ' + (name || '방문자') + ' 님의 메시지'; // 메일 앱 폴백 — 보내는 사람 시점의 제목
+        // 메일 앱 폴백 — 보내는 사람 시점의 제목(방문자 언어)
+        var subject = T('contact_mail_subject', { name: name || T('contact_visitor', null, '방문자') }, '[broodev.com] ' + (name || '방문자') + ' 님의 메시지');
         location.href = 'mailto:' + FALLBACK_MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(msg + '\n\n— ' + name + ' <' + email + '>');
         return;
       }
       if (btn) btn.disabled = true;
-      status('sending', '보내는 중…');
+      status('sending', T('contact_sending', null, '보내는 중…'));
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         subject: MAIL_SUBJECT + ' — 포털 · ' + (name || '무기명'),
         kind: '포털 (broodev.com)', name: name || '(무기명)', email: email || '(회신 주소 없음)', reply_to: validEmail ? email : '',
         message: msg, page: location.href, time: nowJST(), env: envSummary(), ua: navigator.userAgent, shots: '(없음)'
       }).then(function () {
-        status('ok', '보냈습니다. 곧 답장드릴게요.');
+        status('ok', T('contact_ok', null, '보냈습니다. 곧 답장드릴게요.'));
         form.reset();
       }).catch(function (err) {
         if (window.console) console.warn('portal: emailjs failed', err);
-        status('err', '송신에 실패했습니다. ' + FALLBACK_MAIL + ' 로 직접 보내주세요.');
+        status('err', T('contact_err', { mail: FALLBACK_MAIL }, '송신에 실패했습니다. ' + FALLBACK_MAIL + ' 로 직접 보내주세요.'));
       }).then(function () { if (btn) btn.disabled = false; });
     });
   }

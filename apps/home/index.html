@@ -1,13 +1,29 @@
 <!doctype html>
 <html lang="ko">
 <head>
-    <!-- broodev 포털 (broodev.com) — AIXOR 템플릿 기반. 앱 목록은 assets/js/catalog.js, 모달·숫자·폼은 assets/js/portal.js -->
+    <!-- broodev 포털 (broodev.com) — AIXOR 템플릿 기반. 앱 목록은 assets/js/catalog.js, 모달·숫자·폼은 assets/js/portal.js
+         13개 언어: 마크업의 기본 텍스트는 한국어(원문), assets/js/i18n-data.js 사전 + assets/js/i18n.js 가 data-i18n* 로 교체(main.js 의 SplitType 보다 먼저). 언어 변경 = 새로고침 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>broodev — 쓸모 있는 웹앱 포털 | 코인 시그널 · 생활 인포패널 · 학습 · 업무 도구 · 게임</title>
     <meta name="description" content="broodev 는 실제로 쓸모 있는 무료 웹앱을 한 도메인 아래 모아 운영하는 앱 포털입니다. 코인 매수 타이밍 시그널 15종, 나라별 생활 인포패널 12종, 깜빡이 단어암기장, 업무 유틸, 턴제 검술 게임 — 설치 없이, 13개 언어로.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://broodev.com/">
+    <!-- 13개 언어 변형(?lang=) — 실제 전환은 assets/js/i18n.js (localStorage broodev:lang · ?lang= · navigator.languages) -->
+    <link rel="alternate" hreflang="en" href="https://broodev.com/?lang=en">
+    <link rel="alternate" hreflang="ja" href="https://broodev.com/?lang=ja">
+    <link rel="alternate" hreflang="ko" href="https://broodev.com/?lang=ko">
+    <link rel="alternate" hreflang="zh-Hans" href="https://broodev.com/?lang=zh">
+    <link rel="alternate" hreflang="es" href="https://broodev.com/?lang=es">
+    <link rel="alternate" hreflang="pt" href="https://broodev.com/?lang=pt">
+    <link rel="alternate" hreflang="fr" href="https://broodev.com/?lang=fr">
+    <link rel="alternate" hreflang="ru" href="https://broodev.com/?lang=ru">
+    <link rel="alternate" hreflang="de" href="https://broodev.com/?lang=de">
+    <link rel="alternate" hreflang="it" href="https://broodev.com/?lang=it">
+    <link rel="alternate" hreflang="th" href="https://broodev.com/?lang=th">
+    <link rel="alternate" hreflang="zh-Hant" href="https://broodev.com/?lang=zh-Hant">
+    <link rel="alternate" hreflang="nl" href="https://broodev.com/?lang=nl">
+    <link rel="alternate" hreflang="x-default" href="https://broodev.com/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="broodev">
     <meta property="og:locale" content="ko_KR">
@@ -40,7 +56,7 @@
     <link rel="stylesheet" href="assets/css/aos.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/portal.css">
+    <link rel="stylesheet" href="assets/css/portal.css?v=20261004c"><!-- ?v= 캐시 버스터: 우리 js/css 를 고치면 index·404 토큰을 같이 올릴 것 -->
 
     <script type="application/ld+json">
     {
@@ -57,7 +73,7 @@
 </head>
 <body>
     <div class="scroll-to-show-menu">
-        <span class="hamburg-menu" role="button" aria-label="메뉴 열기" tabindex="0">
+        <span class="hamburg-menu" role="button" aria-label="메뉴 열기" data-i18n-aria-label="a_menu_open" tabindex="0">
             <span></span>
             <span></span>
             <span></span>
@@ -81,37 +97,43 @@
         <!-- ===== Header Sidebar (햄버거 메뉴 · 스크롤 100px 뒤 표시) ===== -->
         <div class="header-sidebar-wrap">
             <div class="header-sidebar-content">
-                <span class="close-header-sidebar" role="button" aria-label="메뉴 닫기" tabindex="0"><i class="las la-times"></i></span>
+                <span class="close-header-sidebar" role="button" aria-label="메뉴 닫기" data-i18n-aria-label="a_menu_close" tabindex="0"><i class="las la-times"></i></span>
                 <img src="assets/images/sidebarbg.avif" alt="" class="sidebar-shape">
 
                 <div class="header-sidebar-top">
                     <ul>
-                        <li><span>Based in Tokyo,</span>
+                        <li><span data-i18n="side_based">Based in Tokyo,</span>
                             <a href="mailto:jsontyper@gmail.com">E: jsontyper@gmail.com</a>
                         </li>
-                        <li><span>Japan · Korea · Remote</span>
+                        <li><span data-i18n="side_remote">Japan · Korea · Remote</span>
                             <a href="https://dev.broodev.com/" target="_blank" rel="noopener">dev.broodev.com</a>
                         </li>
                     </ul>
+                    <div class="portal-lang">
+                        <button type="button" class="portal-lang-toggle" aria-haspopup="listbox" aria-expanded="false" data-i18n-aria-label="lang_label" aria-label="언어">
+                            <span aria-hidden="true">🌐</span><span data-lang-current>한국어</span><span class="portal-lang-caret" aria-hidden="true">▼</span>
+                        </button>
+                        <ul class="portal-lang-menu" role="listbox"></ul><!-- 13개 항목은 assets/js/i18n.js 가 채움 -->
+                    </div>
                 </div>
 
-                <nav class="sidebar-menu" aria-label="사이드 메뉴">
+                <nav class="sidebar-menu" aria-label="사이드 메뉴" data-i18n-aria-label="a_side_nav">
                     <ul class="menu" id="sidebar-menu-id">
-                        <li><a href="#apps" data-open-apps>전체 앱</a></li>
-                        <li><a href="#categories">카테고리</a></li>
-                        <li><a href="#featured">대표 앱</a></li>
-                        <li><a href="premium.html">프리미엄 · 요금</a></li>
-                        <li><a href="#about">소개</a></li>
-                        <li><a href="#sitemap">사이트맵</a></li>
-                        <li><a href="#contact">연락</a></li>
+                        <li><a href="#apps" data-open-apps data-i18n="nav_apps">전체 앱</a></li>
+                        <li><a href="#categories" data-i18n="nav_categories">카테고리</a></li>
+                        <li><a href="#featured" data-i18n="nav_featured">대표 앱</a></li>
+                        <li><a href="premium.html" data-i18n="foot_premium">프리미엄 · 요금</a></li>
+                        <li><a href="#about" data-i18n="nav_about">소개</a></li>
+                        <li><a href="#sitemap" data-i18n="nav_sitemap">사이트맵</a></li>
+                        <li><a href="#contact" data-i18n="nav_contact">연락</a></li>
                     </ul>
                 </nav>
 
                 <div class="header-sidebar-bottom">
                     <ul>
                         <li><a target="_blank" rel="noopener" href="https://github.com/jsontype" aria-label="GitHub"><i class="lab la-github"></i></a></li>
-                        <li><a target="_blank" rel="noopener" href="https://dev.broodev.com/" aria-label="개발자 사이트"><i class="las la-user"></i></a></li>
-                        <li><a href="mailto:jsontyper@gmail.com" aria-label="이메일"><i class="las la-envelope"></i></a></li>
+                        <li><a target="_blank" rel="noopener" href="https://dev.broodev.com/" aria-label="개발자 사이트" data-i18n-aria-label="a_dev_site"><i class="las la-user"></i></a></li>
+                        <li><a href="mailto:jsontyper@gmail.com" aria-label="이메일" data-i18n-aria-label="a_email"><i class="las la-envelope"></i></a></li>
                     </ul>
                 </div>
             </div>
@@ -121,26 +143,26 @@
         <header class="header-menu-wrap">
             <div class="custom-container">
                 <div class="custom-row">
-                    <a href="https://broodev.com/" class="logo brand-mark" aria-label="broodev 홈"><span class="serif">broo</span><span class="sans">dev</span><span class="dot">.</span></a>
-                    <nav class="navbar" aria-label="주 메뉴">
+                    <a href="https://broodev.com/" class="logo brand-mark" aria-label="broodev 홈" data-i18n-aria-label="a_home"><span class="serif">broo</span><span class="sans">dev</span><span class="dot">.</span></a>
+                    <nav class="navbar" aria-label="주 메뉴" data-i18n-aria-label="a_main_nav">
                         <ul class="menu">
                             <li class="nav-apps">
-                                <a href="#apps" data-open-apps aria-haspopup="dialog" aria-controls="apps-modal">Apps <span>(<span data-count="total">0</span>)</span></a>
+                                <a href="#apps" data-open-apps aria-haspopup="dialog" aria-controls="apps-modal"><span class="nav-label" data-i18n="nav_apps">Apps</span> <span>(<span data-count="total">0</span>)</span></a>
                             </li>
                             <li>
-                                <a href="#categories">Categories <span>(<span data-count="categories">0</span>)</span></a>
+                                <a href="#categories"><span class="nav-label" data-i18n="nav_categories">Categories</span> <span>(<span data-count="categories">0</span>)</span></a>
                             </li>
                             <li>
-                                <a href="#featured">Featured <span></span></a>
+                                <a href="#featured"><span class="nav-label" data-i18n="nav_featured">Featured</span> <span></span></a>
                             </li>
                             <li>
-                                <a href="premium.html">Premium <span></span></a>
+                                <a href="premium.html"><span class="nav-label" data-i18n="nav_premium">Premium</span> <span></span></a>
                             </li>
                             <li>
-                                <a href="#about">About <span></span></a>
+                                <a href="#about"><span class="nav-label" data-i18n="nav_about">About</span> <span></span></a>
                             </li>
                             <li>
-                                <a href="#contact">Contact <span></span></a>
+                                <a href="#contact"><span class="nav-label" data-i18n="nav_contact">Contact</span> <span></span></a>
                             </li>
                         </ul>
                     </nav>
@@ -149,6 +171,12 @@
                         <a href="https://github.com/jsontype" target="_blank" rel="noopener" aria-label="GitHub">
                             <i class="lab la-github"></i>
                         </a>
+                        <div class="portal-lang">
+                            <button type="button" class="portal-lang-toggle" aria-haspopup="listbox" aria-expanded="false" data-i18n-aria-label="lang_label" aria-label="언어">
+                                <span aria-hidden="true">🌐</span><span data-lang-current>한국어</span><span class="portal-lang-caret" aria-hidden="true">▼</span>
+                            </button>
+                            <ul class="portal-lang-menu" role="listbox"></ul><!-- 13개 항목은 assets/js/i18n.js 가 채움 -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,25 +192,25 @@
 
                     <div class="hero-top">
                         <div class="hero-top-desc">
-                            <p>“ broodev 는 실제로 쓸모 있는 웹앱을 한 도메인 아래 모아 운영하는 앱 포털입니다.
+                            <p data-i18n-html="hero_quote1_html">“ broodev 는 실제로 쓸모 있는 웹앱을 한 도메인 아래 모아 운영하는 앱 포털입니다.
                             설치 없이, 링크 하나로, 13개 언어로 — 코인 매수 타이밍 시그널부터 나라별 생활 인포패널,
                             암기장, 업무 유틸, 게임까지.</p>
-                            <p>같은 앱을 파라미터만 바꿔 복제하지 않습니다. 본질적으로 다른 기능일 때만 새 앱을 만듭니다.
+                            <p data-i18n-html="hero_quote2_html">같은 앱을 파라미터만 바꿔 복제하지 않습니다. 본질적으로 다른 기능일 때만 새 앱을 만듭니다.
                             지금 <span data-count="total">0</span>개, 계속 늘어납니다. ”</p>
                         </div>
                         <div class="author-info">
                             <h4>BROODEV</h4>
-                            <span>by Y Systems · @jsontype · Tokyo</span>
+                            <span data-i18n="hero_by">by Y Systems · @jsontype · Tokyo</span>
                         </div>
                     </div>
 
                     <div class="hero-bottom">
                         <div class="left">
-                            <h2>Useful apps,</h2>
-                            <h2>no install, no borders.</h2>
+                            <h2 data-i18n="hero_h1">Useful apps,</h2>
+                            <h2 data-i18n="hero_h2">no install, no borders.</h2>
                         </div>
                         <a href="#apps" class="theme-btn" data-open-apps>
-                            모든 앱 보기
+                            <span data-i18n="hero_cta">모든 앱 보기</span>
                             <img src="assets/images/btn-arrow.svg" alt="">
                         </a>
                     </div>
@@ -195,9 +223,9 @@
             <div class="custom-container">
                 <div class="section-header">
                     <span class="section-subtitle">
-                        <img src="assets/images/Union.svg" alt=""> About broodev
+                        <img src="assets/images/Union.svg" alt=""> <span data-i18n="about_sub">About broodev</span>
                     </span>
-                    <h3 class="section-title reveal-type">
+                    <h3 class="section-title reveal-type" data-i18n="about_title">
                         모든 앱의 데이터는 서버로 보내지 않고 브라우저 안에서만 처리합니다. 서버에 남는 것이 없으니 새어 나갈 것도 없는, 완결된 보안 체계입니다. 하나의 도메인(broodev.com) 아래 서브도메인 하나가 앱 하나입니다.
                     </h3>
                 </div>
@@ -205,7 +233,7 @@
                 <div class="funfacts-wrap">
                     <div data-aos="fade-up" class="funfact-box active">
                         <span class="overlay" aria-hidden="true"></span>
-                        <div class="funfact-header"><span class="title">앱</span></div>
+                        <div class="funfact-header"><span class="title" data-i18n="fact_apps">앱</span></div>
                         <div class="funfact-footer">
                             <span class="number"><span data-count="total">0</span><span>+</span></span>
                             <img src="assets/images/angle-icon-1.svg" alt="">
@@ -213,7 +241,7 @@
                     </div>
                     <div data-aos="fade-up" data-aos-delay="200" class="funfact-box">
                         <span class="overlay" aria-hidden="true"></span>
-                        <div class="funfact-header"><span class="title">카테고리</span></div>
+                        <div class="funfact-header"><span class="title" data-i18n="fact_categories">카테고리</span></div>
                         <div class="funfact-footer">
                             <span class="number"><span data-count="categories">0</span></span>
                             <img src="assets/images/angle-icon-1.svg" alt="">
@@ -221,7 +249,7 @@
                     </div>
                     <div data-aos="fade-up" data-aos-delay="400" class="funfact-box">
                         <span class="overlay" aria-hidden="true"></span>
-                        <div class="funfact-header"><span class="title">지원 언어</span></div>
+                        <div class="funfact-header"><span class="title" data-i18n="fact_languages">지원 언어</span></div>
                         <div class="funfact-footer">
                             <span class="number"><span data-count="languages">13</span></span>
                             <img src="assets/images/angle-icon-1.svg" alt="">
@@ -229,7 +257,7 @@
                     </div>
                     <div data-aos="fade-up" data-aos-delay="600" class="funfact-box">
                         <span class="overlay" aria-hidden="true"></span>
-                        <div class="funfact-header"><span class="title">설치 · 회원가입</span></div>
+                        <div class="funfact-header"><span class="title" data-i18n="fact_zero">설치 · 회원가입</span></div>
                         <div class="funfact-footer">
                             <span class="number">0</span>
                             <img src="assets/images/angle-icon-1.svg" alt="">
@@ -244,7 +272,7 @@
             <div class="section-header">
                 <span class="section-subtitle">
                     <img src="assets/images/Union.svg" alt="">
-                    CATEGORIES — 누르면 전체 목록이 열립니다
+                    <span data-i18n="cats_sub">CATEGORIES — 누르면 전체 목록이 열립니다</span>
                 </span>
             </div>
             <div class="awards-list" id="category-list"></div>
@@ -256,12 +284,12 @@
                 <div class="section-header section-header2">
                     <span class="section-subtitle">
                         <img src="assets/images/Union.svg" alt="">
-                        Featured apps
+                        <span data-i18n="feat_sub">Featured apps</span>
                     </span>
-                    <h2 class="section-title section-title2">
+                    <h2 class="section-title section-title2" data-i18n-html="feat_title_html">
                         Start <span>here</span>
                     </h2>
-                    <p class="section-desc">
+                    <p class="section-desc" data-i18n-html="feat_desc_html">
                         처음이라면 이 세 개부터. 각각 다른 카테고리의 대표 앱입니다. <br>
                         나머지는 상단 <b>Apps</b> 메뉴 — 카테고리별로 5개씩 넘겨 보는 전체 목록이 열립니다.
                     </p>
@@ -270,26 +298,26 @@
                 <div class="feature-project-lists">
                     <div class="feature-project">
                         <div class="hover_mouse">
-                            <a href="https://btc.broodev.com/" target="_blank" rel="noopener">Open</a>
+                            <a href="https://btc.broodev.com/" target="_blank" rel="noopener" data-i18n="feat_open">Open</a>
                         </div>
                         <div class="img-box">
-                            <img src="assets/images/featured-btc.png" alt="BTC_SIGNAL — 비트코인 공포·탐욕 지수 · 매수 타이밍 점수" loading="lazy">
+                            <img src="assets/images/featured-btc.png" alt="BTC_SIGNAL — 비트코인 공포·탐욕 지수 · 매수 타이밍 점수" data-i18n-alt="feat_btc_alt" loading="lazy">
                         </div>
                         <div class="feature-project-infos">
                             <div class="feature-project-info-box">
-                                <span class="title">App</span>
+                                <span class="title" data-i18n="lbl_app">App</span>
                                 <a href="https://btc.broodev.com/" target="_blank" rel="noopener"><span class="subtitle">BTC_SIGNAL</span></a>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">설명</span>
-                                <span class="subtitle">공포·탐욕 지수에 RSI·MACD·마이어 배수 등 8개 지표를 합성한<br>0~100 매수 타이밍 점수. 15종 코인 · 지표 해설 · 용어집.</span>
+                                <span class="title" data-i18n="lbl_desc">설명</span>
+                                <span class="subtitle" data-i18n-html="feat_btc_desc_html">공포·탐욕 지수에 RSI·MACD·마이어 배수 등 8개 지표를 합성한<br>0~100 매수 타이밍 점수. 15종 코인 · 지표 해설 · 용어집.</span>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">카테고리</span>
-                                <span class="subtitle">코인 시그널</span>
+                                <span class="title" data-i18n="lbl_cat">카테고리</span>
+                                <span class="subtitle" data-i18n="cat_crypto_name">코인 시그널</span>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">주소</span>
+                                <span class="title" data-i18n="lbl_url">주소</span>
                                 <span class="subtitle">btc.broodev.com</span>
                             </div>
                         </div>
@@ -298,26 +326,26 @@
                     <!-- 2026-10-03: 대표 앱 2번째 카드 사무라이 택틱스 2 → 업무 도구 모음(utils.broodev.com) -->
                     <div class="feature-project">
                         <div class="hover_mouse">
-                            <a href="https://utils.broodev.com/" target="_blank" rel="noopener">Open</a>
+                            <a href="https://utils.broodev.com/" target="_blank" rel="noopener" data-i18n="feat_open">Open</a>
                         </div>
                         <div class="img-box">
-                            <img src="assets/images/featured-utils.png" alt="업무 도구 모음 — 사진 나란히 (写真ならべ) Excel · PowerPoint" loading="lazy">
+                            <img src="assets/images/featured-utils.png" alt="업무 도구 모음 — 사진 나란히 (写真ならべ) Excel · PowerPoint" data-i18n-alt="feat_utils_alt" loading="lazy">
                         </div>
                         <div class="feature-project-infos">
                             <div class="feature-project-info-box">
-                                <span class="title">App</span>
+                                <span class="title" data-i18n="lbl_app">App</span>
                                 <a href="https://utils.broodev.com/" target="_blank" rel="noopener"><span class="subtitle">UTILS</span></a>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">설명</span>
-                                <span class="subtitle">일에 필요한 도구를 계속 더하는 업무 도구 모음. 사진을 올리면 용지(A4·A3·B4·Letter…)와<br>가로×세로 격자에 맞춰 배열한 .xlsx / .pptx 를 바로 내려받는다 — 브라우저 안에서만 처리.</span>
+                                <span class="title" data-i18n="lbl_desc">설명</span>
+                                <span class="subtitle" data-i18n-html="feat_utils_desc_html">일에 필요한 도구를 계속 더하는 업무 도구 모음. 사진을 올리면 용지(A4·A3·B4·Letter…)와<br>가로×세로 격자에 맞춰 배열한 .xlsx / .pptx 를 바로 내려받는다 — 브라우저 안에서만 처리.</span>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">카테고리</span>
-                                <span class="subtitle">업무 도구</span>
+                                <span class="title" data-i18n="lbl_cat">카테고리</span>
+                                <span class="subtitle" data-i18n="cat_work_name">업무 도구</span>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">주소</span>
+                                <span class="title" data-i18n="lbl_url">주소</span>
                                 <span class="subtitle">utils.broodev.com</span>
                             </div>
                         </div>
@@ -325,26 +353,26 @@
 
                     <div class="feature-project">
                         <div class="hover_mouse">
-                            <a href="https://voca.broodev.com/" target="_blank" rel="noopener">Open</a>
+                            <a href="https://voca.broodev.com/" target="_blank" rel="noopener" data-i18n="feat_open">Open</a>
                         </div>
                         <div class="img-box">
-                            <img src="assets/images/featured-voca.png" alt="깜빡이 단어암기장 — CSV 자동 반복 암기" loading="lazy">
+                            <img src="assets/images/featured-voca.png" alt="깜빡이 단어암기장 — CSV 자동 반복 암기" data-i18n-alt="feat_voca_alt" loading="lazy">
                         </div>
                         <div class="feature-project-infos">
                             <div class="feature-project-info-box">
-                                <span class="title">App</span>
+                                <span class="title" data-i18n="lbl_app">App</span>
                                 <a href="https://voca.broodev.com/" target="_blank" rel="noopener"><span class="subtitle">VOCA_DECK</span></a>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">설명</span>
-                                <span class="subtitle">CSV 를 올리면 3초마다 넘어가는 깜빡이 암기장.<br>TTS · 즐겨찾기 · 13개 언어 · 설치 없이 링크 하나로.</span>
+                                <span class="title" data-i18n="lbl_desc">설명</span>
+                                <span class="subtitle" data-i18n-html="feat_voca_desc_html">CSV 를 올리면 3초마다 넘어가는 깜빡이 암기장.<br>TTS · 즐겨찾기 · 13개 언어 · 설치 없이 링크 하나로.</span>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">카테고리</span>
-                                <span class="subtitle">학습</span>
+                                <span class="title" data-i18n="lbl_cat">카테고리</span>
+                                <span class="subtitle" data-i18n="cat_learn_name">학습</span>
                             </div>
                             <div class="feature-project-info-box">
-                                <span class="title">주소</span>
+                                <span class="title" data-i18n="lbl_url">주소</span>
                                 <span class="subtitle">voca.broodev.com</span>
                             </div>
                         </div>
@@ -353,7 +381,7 @@
 
                 <div class="feature-more-btn-wrap">
                     <a href="#apps" class="theme-btn" data-open-apps>
-                        전체 <span data-count="total">0</span>개 앱 보기
+                        <span data-i18n-html="feat_more_html">전체 <span data-count="total">0</span>개 앱 보기</span>
                     </a>
                 </div>
             </div>
@@ -365,13 +393,13 @@
                 <div class="section-header">
                     <span class="section-subtitle">
                         <img src="assets/images/Union.svg" alt="">
-                        Sitemap · <span data-count="total">0</span> apps
+                        <span data-i18n-html="sitemap_sub_html">Sitemap · <span data-count="total">0</span> apps</span>
                     </span>
-                    <h3 class="section-title reveal-type">
+                    <h3 class="section-title reveal-type" data-i18n="sitemap_title">
                         broodev.com 아래 모든 앱을 카테고리별로 한 번에. 서브도메인 하나가 앱 하나이고, 전부 여기서 바로 열립니다.
                     </h3>
                 </div>
-                <nav class="sitemap-grid" id="sitemap-list" aria-label="전체 앱 사이트맵">
+                <nav class="sitemap-grid" id="sitemap-list" aria-label="전체 앱 사이트맵" data-i18n-aria-label="sitemap_aria">
                     <noscript><p style="color:#999">앱 전체 목록은 JavaScript 가 켜져 있어야 표시됩니다. <a href="sitemap.xml" style="color:#fff">sitemap.xml</a></p></noscript>
                 </nav>
             </div>
@@ -382,28 +410,28 @@
             <div class="custom-row">
                 <div class="left">
                     <div class="contact-content">
-                        <h3 data-aos="fade-up">Let’s <span>talk</span></h3>
-                        <p>
+                        <h3 data-aos="fade-up" data-i18n-html="contact_title_html">Let’s <span>talk</span></h3>
+                        <p data-i18n-html="contact_desc_html">
                             <span class="required">*</span> 앱 제안, 버그 제보, 협업 문의 — 무엇이든 보내주세요. <br> jsontyper@gmail.com 으로 바로 전달됩니다.
                         </p>
                         <form id="contactForm" class="contact-form" novalidate="">
                             <div class="input-group">
-                                <input type="text" name="name" placeholder="이름" required autocomplete="name">
+                                <input type="text" name="name" placeholder="이름" data-i18n-placeholder="ph_name" required autocomplete="name">
                             </div>
                             <div class="col-2">
                                 <div class="input-group">
-                                    <input type="email" name="email" placeholder="이메일" required autocomplete="email">
+                                    <input type="email" name="email" placeholder="이메일" data-i18n-placeholder="ph_email" required autocomplete="email">
                                 </div>
                                 <div class="input-group">
-                                    <input type="text" name="topic" placeholder="주제 (선택)">
+                                    <input type="text" name="topic" placeholder="주제 (선택)" data-i18n-placeholder="ph_topic">
                                 </div>
                             </div>
                             <div class="input-group">
-                                <textarea name="message" id="message" placeholder="메시지" required></textarea>
+                                <textarea name="message" id="message" placeholder="메시지" data-i18n-placeholder="ph_message" required></textarea>
                             </div>
                             <div class="input-group">
                                 <button type="submit" class="theme-btn">
-                                    메일로 보내기
+                                    <span data-i18n="contact_send">메일로 보내기</span>
                                     <img src="assets/images/btn-arrow.svg" alt="">
                                 </button>
                             </div>
@@ -428,10 +456,10 @@
                             <div class="footer-widget-top">
                                 <h4>BROODEV</h4>
                                 <ul>
-                                    <li><a class="with-border" href="#apps" data-open-apps><img src="assets/images/btn-arrow.svg" alt=""> 전체 앱</a></li>
-                                    <li><a class="with-border" href="#categories"><img src="assets/images/btn-arrow.svg" alt=""> 카테고리</a></li>
-                                    <li><a class="with-border" href="#featured"><img src="assets/images/btn-arrow.svg" alt=""> 대표 앱</a></li>
-                                    <li><a class="with-border" href="#sitemap"><img src="assets/images/btn-arrow.svg" alt=""> 사이트맵</a></li>
+                                    <li><a class="with-border" href="#apps" data-open-apps><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="nav_apps">전체 앱</span></a></li>
+                                    <li><a class="with-border" href="#categories"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="nav_categories">카테고리</span></a></li>
+                                    <li><a class="with-border" href="#featured"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="nav_featured">대표 앱</span></a></li>
+                                    <li><a class="with-border" href="#sitemap"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="nav_sitemap">사이트맵</span></a></li>
                                 </ul>
                             </div>
                             <div class="copyright">
@@ -443,18 +471,18 @@
                         <div class="footer-widget footer-link">
                             <div class="footer-contact-infos">
                                 <div class="footer-widget-top">
-                                    <h4>REACH OUT</h4>
+                                    <h4 data-i18n="foot_reach">REACH OUT</h4>
                                     <div class="links">
                                         <div class="split-text-anim">
                                             <a data-aos="slide-up" data-aos-duration="700" href="mailto:jsontyper@gmail.com" class="with-border">jsontyper@gmail.com</a>
                                         </div>
                                         <div class="split-text-anim">
-                                            <a data-aos="slide-up" data-aos-duration="700" href="https://dev.broodev.com/" target="_blank" rel="noopener" class="with-border">dev.broodev.com — 개발자 소개</a>
+                                            <a data-aos="slide-up" data-aos-duration="700" href="https://dev.broodev.com/" target="_blank" rel="noopener" class="with-border" data-i18n="foot_dev">dev.broodev.com — 개발자 소개</a>
                                         </div>
                                     </div>
                                 </div>
                                 <a href="#contact" class="theme-btn">
-                                    연락하기
+                                    <span data-i18n="foot_contact_btn">연락하기</span>
                                     <img src="assets/images/btn-arrow.svg" alt="">
                                 </a>
                             </div>
@@ -463,28 +491,28 @@
                     <div class="col-md-3">
                         <div class="footer-widget footer-link">
                             <div class="footer-widget-top">
-                                <h4>Apps</h4>
+                                <h4 data-i18n="nav_apps">Apps</h4>
                                 <ul>
-                                    <li><a class="with-border" href="#apps=crypto" data-open-apps="crypto"><img src="assets/images/btn-arrow.svg" alt=""> 코인 시그널</a></li>
-                                    <li><a class="with-border" href="#apps=panel" data-open-apps="panel"><img src="assets/images/btn-arrow.svg" alt=""> 생활 인포패널</a></li>
-                                    <li><a class="with-border" href="#apps=learn" data-open-apps="learn"><img src="assets/images/btn-arrow.svg" alt=""> 학습 · 업무 도구</a></li>
-                                    <li><a class="with-border" href="#apps=game" data-open-apps="game"><img src="assets/images/btn-arrow.svg" alt=""> 게임 · 개발자</a></li>
+                                    <li><a class="with-border" href="#apps=crypto" data-open-apps="crypto"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="cat_crypto_name">코인 시그널</span></a></li>
+                                    <li><a class="with-border" href="#apps=panel" data-open-apps="panel"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="cat_panel_name">생활 인포패널</span></a></li>
+                                    <li><a class="with-border" href="#apps=learn" data-open-apps="learn"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="foot_learn_work">학습 · 업무 도구</span></a></li>
+                                    <li><a class="with-border" href="#apps=game" data-open-apps="game"><img src="assets/images/btn-arrow.svg" alt=""> <span data-i18n="foot_game_dev">게임 · 개발자</span></a></li>
                                 </ul>
                             </div>
                             <div class="copyright">
-                                <a class="with-border" href="https://github.com/jsontype/broodev" target="_blank" rel="noopener" style="color:inherit">GITHUB</a> · <a class="with-border" href="legal/privacy.html" style="color:inherit">PRIVACY</a>
+                                <a class="with-border" href="https://github.com/jsontype/broodev" target="_blank" rel="noopener" style="color:inherit">GITHUB</a> · <a class="with-border" href="legal/privacy.html" style="color:inherit" data-i18n="privacy_short">PRIVACY</a>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- 사업자·법적 고지 (Stripe 심사 · 特定商取引法) — 본문은 /legal/*, 값은 legal/biz.js -->
                 <nav class="footer-legal" aria-label="사업자 정보 · 법적 고지">
-                    <span class="footer-legal-biz">Y Systems · Tokyo · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a></span>
-                    <a href="premium.html">프리미엄 · 요금 <small>Premium</small></a>
-                    <a href="legal/tokushoho.html">특정상거래법 표기 <small>特定商取引法に基づく表記</small></a>
-                    <a href="legal/terms.html">이용약관 <small>Terms</small></a>
-                    <a href="legal/privacy.html">개인정보 처리방침 <small>Privacy</small></a>
-                    <a href="legal/refund.html">환불·해지 <small>Refunds</small></a>
+                    <span class="footer-legal-biz"><span data-i18n="biz_line">Y Systems · Tokyo</span> · <a href="mailto:jsontyper@gmail.com">jsontyper@gmail.com</a></span>
+                    <a href="premium.html" data-i18n="foot_premium">프리미엄 · 요금</a>
+                    <a href="legal/tokushoho.html"><span data-i18n="foot_tokushoho">특정상거래법 표기</span> <small>特定商取引法に基づく表記</small></a>
+                    <a href="legal/terms.html" data-i18n="foot_terms">이용약관</a>
+                    <a href="legal/privacy.html" data-i18n="foot_privacy">개인정보 처리방침</a>
+                    <a href="legal/refund.html" data-i18n="foot_refund">환불·해지</a>
                 </nav>
             </div>
             <div class="footer-bottom">
@@ -501,16 +529,16 @@
         <div class="apps-modal-inner">
             <div class="apps-modal-head">
                 <div class="apps-modal-title">
-                    <span class="section-subtitle"><img src="assets/images/Union.svg" alt=""> ALL APPS</span>
-                    <h2 id="apps-modal-heading">Every <b>app</b></h2>
+                    <span class="section-subtitle"><img src="assets/images/Union.svg" alt=""> <span data-i18n="modal_sub">ALL APPS</span></span>
+                    <h2 id="apps-modal-heading" data-i18n-html="modal_title_html">Every <b>app</b></h2>
                     <span class="apps-total" data-modal-total></span>
                 </div>
-                <button type="button" class="apps-modal-close" data-close-apps aria-label="닫기"><i class="las la-times"></i></button>
+                <button type="button" class="apps-modal-close" data-close-apps aria-label="닫기" data-i18n-aria-label="a_close"><i class="las la-times"></i></button>
             </div>
             <div class="apps-grid"></div>
             <div class="apps-modal-foot">
-                <span>카테고리당 5개씩 · 페이지를 넘겨 보세요 · Esc 로 닫기</span>
-                <span>새 앱 제안은 <a href="#contact" data-close-apps>연락</a> · 소스는 <a href="https://github.com/jsontype/broodev" target="_blank" rel="noopener">GitHub</a></span>
+                <span data-i18n="modal_hint">카테고리당 5개씩 · 페이지를 넘겨 보세요 · Esc 로 닫기</span>
+                <span data-i18n-html="modal_suggest_html">새 앱 제안은 <a href="#contact" data-close-apps>연락</a> · 소스는 <a href="https://github.com/jsontype/broodev" target="_blank" rel="noopener">GitHub</a></span>
             </div>
         </div>
     </div>
@@ -524,9 +552,11 @@
     <script src="assets/js/aos.js"></script>
     <script src="assets/js/jarallax.js"></script>
     <script src="assets/js/jarallax-element.min.js"></script>
+    <script src="assets/js/i18n-data.js?v=20261004c"></script><!-- 13개 언어 사전 -->
+    <script src="assets/js/i18n.js?v=20261004c"></script><!-- main.js(SplitType) 보다 먼저 -->
     <script src="assets/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script src="assets/js/catalog.js"></script>
-    <script src="assets/js/portal.js"></script>
+    <script src="assets/js/catalog.js?v=20261004c"></script>
+    <script src="assets/js/portal.js?v=20261004c"></script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 /* broodev 포털 — 앱 카탈로그 (단일 진실 공급원)
    - 새 앱을 만들면 여기에 한 줄 추가한다. 카테고리는 CATEGORIES 순서대로 모달·카테고리 섹션·푸터에 나온다.
+   - name/desc 는 한국어 원문. 화면 표시는 portal.js 가 i18n 사전(assets/js/i18n-data.js)의 cat_{id}_name · app_{id}_name/desc
+     (코인 14종은 coin_{id} + coin_name/coin_desc 패턴, id 의 '-' 는 '_') 로 바꿔 보여 준다 — 새 앱을 넣으면 13개 사전에도 키를 추가할 것(없으면 한국어 원문 표시).
    - 모달은 카테고리당 5개씩 페이지네이션(portal.js PER_PAGE). 100개가 넘어도 구조는 그대로.
    - url 은 반드시 절대 URL(서브도메인). status: 'live' | 'beta' | 'soon' (soon 은 링크는 살리되 "준비 중" 표시).
    - 관리자(admin.broodev.com)는 Google SSO 전용이라 포털에 싣지 않는다. */
@@ -24,7 +26,8 @@
   var coin = function (sub, ko, ticker, en) {
     return { id: sub, cat: 'crypto', name: ko + ' 시그널', en: ticker + '_SIGNAL', status: 'live',
       url: 'https://' + sub + '.broodev.com/',
-      desc: en + '(' + ticker + ') 공포·탐욕 지수 · 8개 지표 합성 매수 타이밍 점수' };
+      desc: en + '(' + ticker + ') 공포·탐욕 지수 · 8개 지표 합성 매수 타이밍 점수',
+      ticker: ticker, coin: en };   // i18n: coin_name/coin_desc 패턴용 (portal.js)
   };
 
   var APPS = [

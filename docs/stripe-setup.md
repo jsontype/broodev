@@ -259,7 +259,8 @@ Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 �
 |---|---|
 | 사업자 정보(屋号·소재지(都道府県)·메일·T번호·개정일 — 氏名·주소·전화는 두지 않음) — **정본** | `apps/home/legal/biz.js` → `BIZ` |
 | 앱별 가격·판매 URL(프리미엄 총람·特商法 표기용) | `apps/home/legal/biz.js` → `PLANS.{utils,…}` |
-| 법적 문서 본문(3언어) | `apps/home/legal/{tokushoho,terms,privacy,refund}.html` 의 `<article data-lang-block>` (전환 `legal/legal.js`, 스타일 `legal/legal.css`) |
+| 법적 문서 본문(13언어) | ja·ko·en: `apps/home/legal/{tokushoho,terms,privacy,refund}.html` 의 `<article data-lang-block>` · 그 외 10개 언어: `apps/home/legal/i18n/{doc}.{lang}.html` 조각(영어판과 같은 구조 — 영어를 고치면 10개도 같이) (전환 `legal/legal.js`, 스타일 `legal/legal.css`) |
+| utils 요금 페이지 본문(13언어) | ja·ko·en: `apps/utils/pricing.html` 의 `<article data-lang-block>` · 그 외 10개 언어: `apps/utils/i18n/pricing.{lang}.html` 조각(영어판과 같은 구조) (전환 `js/site.js`) — 가격·플랜 문구를 바꾸면 3블록 + 조각 10개 + JSON-LD FAQ 를 같이 |
 | 프리미엄 총람 | `apps/home/premium.html` (앱 카드 · 공통 조건 · FAQ) |
 | 포털 푸터 법적 링크 | `apps/home/index.html` `.footer-legal` · `404.html` |
 | utils 가격 · Payment Link · 포털 링크 · 무료/프리미엄 출력 형식(`free_formats`·`premium_formats`) | `apps/utils/js/biz.js` → `PLANS` (BIZ 는 정본 사본) |

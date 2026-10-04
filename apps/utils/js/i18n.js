@@ -4,9 +4,10 @@
    마크업: data-i18n="key"(textContent) · data-i18n-html="key"(innerHTML, 사전에 있는 내 문자열만) ·
            data-i18n-title / data-i18n-placeholder / data-i18n-aria-label(속성) · data-lang-current(현재 언어명)
    헤더 풀다운 <ul id="pg-lang-menu"> 는 비워 두면 이 파일이 LANGS 순서로 채운다(네 페이지에 13개를 중복 기재하지 않기 위해).
-   <title>·meta description 은 apply() 가 <body data-page="xlsx|pptx|pricing|contact"> 에 맞는 title_{page} · desc_{page} 키로(없으면 공통 title/meta_desc).
+   <title>·meta description 은 apply() 가 <body data-page="xlsx|pptx|pricing|contact|404"> 에 맞는 title_{page} · desc_{page} 키로(없으면 공통 title/meta_desc).
    2026-10-03 앱 분리: 사이드바 = 시리즈명(series: 写真ならべ / 사진 나란히 / Photo Layout …) 그룹(Excel · PowerPoint · Illustrator · Photoshop — 형식명은 번역 없음) + 기타(menu_more) 그룹.
-   13개 사전의 키는 동일해야 한다(검증: %TEMP% 의 i18n-keys 스크립트 — README 참고). 긴 문서(pricing 본문)는 ja·ko·en 만 있고 그 외 언어는 site.js 가 en 블록을 보여 준다. */
+   13개 사전의 키는 동일해야 한다(검증: %TEMP% 의 i18n-keys 스크립트 — README 참고).
+   긴 문서(pricing 본문)는 HTML 에 ja·ko·en 블록만 있고, 그 외 10개 언어는 site.js 가 i18n/pricing.{lang}.html 조각을 받아 끼운다(13개 언어 전부 번역). */
 (function (root) {
   'use strict';
 
@@ -78,6 +79,10 @@
       foot_privacy: '개인정보 처리방침',
       foot_refund: '환불·해지 정책',
       foot_contact: '문의',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — 페이지를 찾을 수 없습니다 | Utils',
+      nf_heading: '페이지를 찾을 수 없습니다',
+      nf_text: '찾으시는 페이지가 없거나 이동했습니다.',
       title_pricing: '요금 · 프리미엄 — Utils',
       desc_pricing: 'Utils 프리미엄 요금 안내 (세금 포함 표시). 1회 결제 평생 이용권과 연간 구독 중 선택. 무료 플랜과의 기능 비교, 결제·해지 FAQ.',
       // 문의 · 제안 (contact.html — EmailJS 로 운영자 메일에 전달)
@@ -161,6 +166,10 @@
       foot_privacy: 'プライバシーポリシー',
       foot_refund: '返金・解約ポリシー',
       foot_contact: 'お問い合わせ',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — ページが見つかりません | Utils',
+      nf_heading: 'ページが見つかりません',
+      nf_text: 'お探しのページは存在しないか、移動しました。',
       title_pricing: '料金 · プレミアム — Utils',
       desc_pricing: 'Utils プレミアムの料金（税込表示）。買い切りの永久ライセンスと年額サブスクリプションから選択。無料プランとの機能比較、決済・解約の FAQ。',
       menu_contact: 'お問い合わせ · ご提案',
@@ -243,6 +252,10 @@
       foot_privacy: 'Privacy Policy',
       foot_refund: 'Refund & Cancellation',
       foot_contact: 'Contact',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Page not found | Utils',
+      nf_heading: 'Page not found',
+      nf_text: 'The page you’re looking for doesn’t exist or has moved.',
       title_pricing: 'Pricing · Premium — Utils',
       desc_pricing: 'Utils Premium pricing (tax included). Choose a one-time lifetime license or a yearly subscription. Free vs. Premium comparison and billing / cancellation FAQ.',
       menu_contact: 'Contact · Suggest',
@@ -325,6 +338,10 @@
       foot_privacy: '隐私政策',
       foot_refund: '退款与取消政策',
       foot_contact: '联系我们',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — 页面未找到 | Utils',
+      nf_heading: '页面未找到',
+      nf_text: '您要访问的页面不存在或已被移动。',
       title_pricing: '价格 · 高级版 — Utils',
       desc_pricing: 'Utils 高级版价格（含税）。可选一次性买断的终身许可或年度订阅。免费版与高级版功能对比，以及付款·取消常见问题。',
       menu_contact: '联系 · 建议',
@@ -407,6 +424,10 @@
       foot_privacy: 'Política de privacidad',
       foot_refund: 'Reembolsos y cancelación',
       foot_contact: 'Contacto',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Página no encontrada | Utils',
+      nf_heading: 'Página no encontrada',
+      nf_text: 'La página que busca no existe o se ha movido.',
       title_pricing: 'Precios · Premium — Utils',
       desc_pricing: 'Precios de Utils Premium (impuestos incluidos). Elige una licencia de por vida de pago único o una suscripción anual. Comparativa Gratis vs. Premium y preguntas frecuentes sobre pago y cancelación.',
       menu_contact: 'Contacto · Sugerencias',
@@ -489,6 +510,10 @@
       foot_privacy: 'Política de privacidade',
       foot_refund: 'Reembolsos e cancelamento',
       foot_contact: 'Contato',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Página não encontrada | Utils',
+      nf_heading: 'Página não encontrada',
+      nf_text: 'A página que você procura não existe ou foi movida.',
       title_pricing: 'Preços · Premium — Utils',
       desc_pricing: 'Preços do Utils Premium (impostos incluídos). Escolha uma licença vitalícia de pagamento único ou uma assinatura anual. Comparação Grátis vs. Premium e perguntas frequentes sobre pagamento e cancelamento.',
       menu_contact: 'Contato · Sugestões',
@@ -571,6 +596,10 @@
       foot_privacy: 'Politique de confidentialité',
       foot_refund: 'Remboursement et résiliation',
       foot_contact: 'Contact',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Page introuvable | Utils',
+      nf_heading: 'Page introuvable',
+      nf_text: 'La page que vous recherchez n’existe pas ou a été déplacée.',
       title_pricing: 'Tarifs · Premium — Utils',
       desc_pricing: 'Tarifs d’Utils Premium (taxes comprises). Au choix : licence à vie en un seul paiement ou abonnement annuel. Comparatif Gratuit / Premium et FAQ sur le paiement et la résiliation.',
       menu_contact: 'Contact · Suggestions',
@@ -653,6 +682,10 @@
       foot_privacy: 'Политика конфиденциальности',
       foot_refund: 'Возврат и отмена',
       foot_contact: 'Контакты',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Страница не найдена | Utils',
+      nf_heading: 'Страница не найдена',
+      nf_text: 'Страница, которую вы ищете, не существует или была перемещена.',
       title_pricing: 'Цены · Премиум — Utils',
       desc_pricing: 'Цены на Utils Премиум (с учётом налога). На выбор: пожизненная лицензия с разовой оплатой или годовая подписка. Сравнение Бесплатно / Премиум и ответы на вопросы об оплате и отмене.',
       menu_contact: 'Связь · Предложения',
@@ -735,6 +768,10 @@
       foot_privacy: 'Datenschutzerklärung',
       foot_refund: 'Rückerstattung & Kündigung',
       foot_contact: 'Kontakt',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Seite nicht gefunden | Utils',
+      nf_heading: 'Seite nicht gefunden',
+      nf_text: 'Die gesuchte Seite existiert nicht oder wurde verschoben.',
       title_pricing: 'Preise · Premium — Utils',
       desc_pricing: 'Preise für Utils Premium (inkl. Steuern). Wahlweise lebenslange Lizenz gegen Einmalzahlung oder Jahresabo. Vergleich Kostenlos / Premium sowie FAQ zu Zahlung und Kündigung.',
       menu_contact: 'Kontakt · Vorschläge',
@@ -817,6 +854,10 @@
       foot_privacy: 'Informativa sulla privacy',
       foot_refund: 'Rimborsi e disdetta',
       foot_contact: 'Contatti',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Pagina non trovata | Utils',
+      nf_heading: 'Pagina non trovata',
+      nf_text: 'La pagina cercata non esiste o è stata spostata.',
       title_pricing: 'Prezzi · Premium — Utils',
       desc_pricing: 'Prezzi di Utils Premium (tasse incluse). Scegli tra licenza a vita con pagamento unico o abbonamento annuale. Confronto Gratis / Premium e FAQ su pagamento e disdetta.',
       menu_contact: 'Contatti · Suggerimenti',
@@ -899,6 +940,10 @@
       foot_privacy: 'นโยบายความเป็นส่วนตัว',
       foot_refund: 'นโยบายคืนเงินและยกเลิก',
       foot_contact: 'ติดต่อ',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — ไม่พบหน้าที่ต้องการ | Utils',
+      nf_heading: 'ไม่พบหน้าที่ต้องการ',
+      nf_text: 'หน้าที่คุณกำลังค้นหาไม่มีอยู่หรือถูกย้ายไปแล้ว',
       title_pricing: 'ราคา · พรีเมียม — Utils',
       desc_pricing: 'ราคา Utils พรีเมียม (รวมภาษี) เลือกได้ระหว่างไลเซนส์ตลอดชีพแบบจ่ายครั้งเดียวหรือสมัครสมาชิกรายปี เปรียบเทียบฟีเจอร์ฟรีกับพรีเมียม และคำถามที่พบบ่อยเรื่องการชำระเงิน·ยกเลิก',
       menu_contact: 'ติดต่อ · เสนอแนะ',
@@ -981,6 +1026,10 @@
       foot_privacy: '隱私權政策',
       foot_refund: '退款與取消政策',
       foot_contact: '聯絡我們',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — 找不到頁面 | Utils',
+      nf_heading: '找不到頁面',
+      nf_text: '您要瀏覽的頁面不存在或已被移動。',
       title_pricing: '價格 · 進階版 — Utils',
       desc_pricing: 'Utils 進階版價格（含稅）。可選一次買斷的終身授權或年度訂閱。免費版與進階版功能比較，以及付款·取消常見問題。',
       menu_contact: '聯絡 · 建議',
@@ -1063,6 +1112,10 @@
       foot_privacy: 'Privacybeleid',
       foot_refund: 'Terugbetaling & opzegging',
       foot_contact: 'Contact',
+      // 404.html (data-page="404" → title_404; 본문 nf_*)
+      title_404: '404 — Pagina niet gevonden | Utils',
+      nf_heading: 'Pagina niet gevonden',
+      nf_text: 'De pagina die u zoekt bestaat niet of is verplaatst.',
       title_pricing: 'Prijzen · Premium — Utils',
       desc_pricing: 'Prijzen van Utils Premium (inclusief belasting). Kies een levenslange licentie met eenmalige betaling of een jaarabonnement. Vergelijking Gratis / Premium en veelgestelde vragen over betalen en opzeggen.',
       menu_contact: 'Contact · Suggesties',
@@ -1123,7 +1176,7 @@
 
   function apply() {
     document.documentElement.lang = HTML_LANG[cur] || cur;
-    // <title>·meta description: <body data-page="xlsx|pptx|pricing|contact"> 가 있고 title_*/desc_* 키가 있으면 그것, 없으면 공통 title/meta_desc
+    // <title>·meta description: <body data-page="xlsx|pptx|pricing|contact|404"> 가 있고 title_*/desc_* 키가 있으면 그것, 없으면 공통 title/meta_desc
     var page = document.body ? document.body.getAttribute('data-page') : null;
     document.title = t(page && D.en['title_' + page] != null ? 'title_' + page : 'title');
     var md = document.querySelector('meta[name="description"]');

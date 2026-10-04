@@ -46,7 +46,7 @@
 - **언어 감지**: `localStorage(mh:lang)` → `?lang=`(`zh-TW`/`zh-HK`/`zh-Hant-*` → zh-Hant, `pt-BR` → pt) → `navigator.languages` 첫 매치 → **en**. 헤더 우측 🌐 풀다운으로 바꾸면 저장된다. `<html lang>` 은 zh 만 `zh-Hans` 로.
 - 마크업은 `data-i18n="key"`(텍스트) · `data-i18n-html`(드롭존처럼 태그 포함) · `data-i18n-title/placeholder/aria-label`(속성). 동적 문구(요약·페이지 라벨·버튼·상태)는 `app.js` 가 `MH_I18N.t()` 로 그리고, 언어가 바뀌면 `mh:lang` 이벤트로 다시 그린다. **13개 사전의 키(77개)는 동일**해야 하고 `{n}` 같은 자리표시자·`_html` 키의 태그도 같아야 한다 — 검증은 임시 스크립트(사전을 vm 으로 평가해 키 집합·토큰·태그 비교 + HTML 의 `data-i18n*` 키가 전부 사전에 있는지)로, 새 문자열은 **13개 언어 동시 작성**.
 - **`<title>`·meta description 은 `i18n.js apply()` 가 `<body data-page>` 로 고른다**: `title_xlsx/desc_xlsx`(index) · `title_pptx/desc_pptx`(pptx) · `title_pricing/desc_pricing` · `title_contact/desc_contact`, 없으면 공통 `title`/`meta_desc`. h4·소개문도 페이지별 키(`heading_xlsx/intro_xlsx`, `heading_pptx/intro_pptx`).
-- **긴 문서(요금 페이지 본문)는 사전 키가 아니라 언어별 `<article data-lang-block="ja|ko|en">`** 로 두고 `site.js` 가 전환한다 — **그 외 10개 언어는 en 블록**을 보여 주고 메뉴·푸터·`<title>`·meta description 만 번역된다(`menu_pricing`·`menu_contact`·`foot_*`·`title_*`·`desc_*`). `[data-biz]` 값도 ja 외 언어는 `_en` 변형으로. 문의 폼(`contact.html`)은 짧은 라벨뿐이라 반대로 **전부 사전 키(`ct_*`)** 로 — placeholder 는 `data-i18n-placeholder`, 개인정보 안내문은 링크가 있어 `data-i18n-html`.
+- **긴 문서(요금 페이지 본문)는 사전 키가 아니라 언어별 `<article data-lang-block>`** 로 둔다 — 페이지 HTML 에는 `ja|ko|en` 3개(일본어 正文, JS 없이도 ja 표시), **그 외 10개 언어(zh·es·pt·fr·ru·de·it·th·zh-Hant·nl)는 `i18n/pricing.{lang}.html` 조각**(영어 블록과 태그 구조가 같은 `<article>` 1개)을 `site.js` 가 선택 시 fetch 해 끼워 넣는다(13개를 한 파일에 넣으면 10배 무거워지므로; 조각을 못 받으면 en 블록). 메뉴·푸터·`<title>`·meta description 은 사전 키(`menu_pricing`·`menu_contact`·`foot_*`·`title_*`·`desc_*`). 영어 블록을 고치면 **조각 10개도 같이** 고치고(구조 검증 스크립트는 `%TEMP%\voca-resp\pricing-frag-check.mjs` 식 — 태그 시퀀스·href·보호 요소 텍스트 비교) `site.js` 의 `V` 와 5개 페이지 `?v=` 를 올린다. `[data-biz]` 값도 ja 외 언어는 `_en` 변형으로. 문의 폼(`contact.html`)은 짧은 라벨뿐이라 반대로 **전부 사전 키(`ct_*`)** 로 — placeholder 는 `data-i18n-placeholder`, 개인정보 안내문은 링크가 있어 `data-i18n-html`.
 - **로고**: 템플릿의 Aizox 로고를 **Y Systems** 텍스트 워드마크로 교체(2026-10-02 Y 마크 아이콘 제거, 텍스트만). 텍스트라 dark/light 는 CSS 변수(`--OnSurface`)로 자동 — `dark-light.js` 의 `#logo_header` 이미지 스왑은 요소가 없어 no-op. `images/logo/*.svg` 도 Y Systems 워드마크로 바꿔 둠(현재 미사용). `images/favicon.png` 와 CSS/SCSS 상단 템플릿 크레딧 주석은 그대로.
 - **공유 썸네일(OG)**: head 에 `og:title/description/url/image` + `twitter:card=summary_large_image`. `og-image.png`(1200×630) 은 [`scripts/og/gen_og.mjs`](../../scripts/og/gen_og.mjs) 의 `utils` 설정으로 생성(`node scripts/og/gen_og.mjs utils`). 카카오톡 캐시는 https://developers.kakao.com/tool/clear/og 에서 지운다.
 - **사이드바 그룹명**: 첫 그룹 = 시리즈명 `series`(写真ならべ / 사진 나란히 / Photo Layout …), 둘째 = `menu_more`(その他 / 기타 / More …). 2026-10-02 의 「유틸」(`tools_heading`)·「사진 → 엑셀 · PPT」(`menu_app`) 키는 2026-10-03 앱 분리 때 제거. 새 출력 형식을 추가할 때는 `pptx.html` 처럼 페이지 복제 + `title_/desc_/heading_/intro_{fmt}` 키 4개 × 13 + 사이드바 항목(5개 HTML 모두) + sitemap/hreflang.
@@ -60,7 +60,7 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 |---|---|
 | `pricing.html` | 요금(무료 / 프리미엄 年額 / 買い切り, 税込) · 「ご購入前にご確認ください」(特商法 2022 최종확인화면 항목: 지불 시기·제공 시기·자동 갱신·해지·환불 — 링크는 전부 `https://broodev.com/legal/…`) · 기능 비교표 · FAQ. 구매 버튼은 `PLANS.*.checkout`(Payment Link) 이 비어 있으면 「準備中」 비활성 |
 
-- **세 언어가 한 파일 안에** `<article data-lang-block="ja|ko|en">` 로 들어 있고 `js/site.js` 가 현재 언어 블록만 보인다. **일본어가 正文**. JS 없이도 ja 블록은 보인다.
+- **ja·ko·en 세 언어가 한 파일 안에** `<article data-lang-block="ja|ko|en">` 로 들어 있고, 그 외 10개 언어는 `i18n/pricing.{lang}.html` 조각(위 절). `js/site.js` 가 현재 언어 블록만 보인다. **일본어가 正文**. JS 없이도 ja 블록은 보인다.
 - **사업자 정보·금액은 `js/biz.js`**(`window.BIZ`, `window.PLANS`) — 페이지는 `[data-biz="키"]`·`[data-price="yearly|lifetime"]`·`[data-price-monthly]`·`[data-checkout]`·`[data-portal]` 로 읽는다. **정본은 `apps/home/legal/biz.js`**(BIZ + `PLANS.utils`) — 屋号 `Y Systems`(하이픈 없음)·소재지·메일·금액을 두 파일과 Stripe Price 세 곳에서 같게 유지한다. **운영자 氏名·주소·전화는 어디에도 싣지 않는다**(「個人事業主 — 請求があれば遅滞なく開示」).
 - 모든 페이지(index·404 포함) 하단에 `.pg-foot` 법적 링크 6개(요금 → 로컬 `pricing.html`, 特商法·약관·개인정보·환불 → `broodev.com/legal/*`, 문의 → 로컬 `contact.html`). 사이드바 메뉴에 「料金 · プレミアム」·「お問い合わせ · ご提案」. 공통 CSS 는 `css/site.css`(index 의 인라인 로고·언어 풀다운·`.pg-select/.pg-input` CSS 도 여기로 이동).
 
@@ -77,7 +77,7 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 
 ## 캐시 버스터 `?v=` (2026-10-04)
 
-Cloudflare 는 js/css 를 `Cache-Control: public, max-age=14400`(4시간, 존 Browser Cache TTL) 로 내려 보낸다. 10-03 배포 직후 **HTML 은 새것, `app.js`·`i18n.js` 는 4시간 묵은 것**이 섞여 「언어 풀다운 먹통(옛 app.js 가 사라진 `#pg-format` 을 찾다 TypeError → 핸들러 미바인딩)」·「문의 페이지에 `ct_heading`·`MENU_MORE` 원시 키 노출(옛 i18n.js 에 키 없음)」이 났다. 그래서 **5개 페이지의 우리 JS/CSS 참조에 `?v=20261004`** 를 붙였다 — `js/*.js`·`css/site.css` 를 고치면 **5개 페이지의 토큰을 같이 올린다**(템플릿 자산·CDN 은 제외). 존 설정도 Caching → Configuration → **Browser Cache TTL = Respect Existing Headers** 로 두는 것을 권장.
+Cloudflare 는 js/css 를 `Cache-Control: public, max-age=14400`(4시간, 존 Browser Cache TTL) 로 내려 보낸다. 10-03 배포 직후 **HTML 은 새것, `app.js`·`i18n.js` 는 4시간 묵은 것**이 섞여 「언어 풀다운 먹통(옛 app.js 가 사라진 `#pg-format` 을 찾다 TypeError → 핸들러 미바인딩)」·「문의 페이지에 `ct_heading`·`MENU_MORE` 원시 키 노출(옛 i18n.js 에 키 없음)」이 났다. 그래서 **5개 페이지의 우리 JS/CSS 참조에 `?v=20261004`**(현재 `20261004b`) 를 붙였다 — `js/*.js`·`css/site.css`·`i18n/*.html` 조각을 고치면 **5개 페이지의 토큰과 `site.js` 의 `V`(조각 fetch URL 에 붙음)를 같이 올린다**(템플릿 자산·CDN 은 제외). 존 설정도 Caching → Configuration → **Browser Cache TTL = Respect Existing Headers** 로 두는 것을 권장.
 
 ## 파일
 
@@ -85,14 +85,15 @@ Cloudflare 는 js/css 를 `Cache-Control: public, max-age=14400`(4시간, 존 Br
 |---|---|
 | `index.html` | **写真ならべ Excel** 앱(`data-page="xlsx"`, ExcelJS) — 템플릿 셸 + 앱 마크업 + 앱 전용 `<style>` |
 | `pptx.html` | **写真ならべ PowerPoint** 앱(`data-page="pptx"`, PptxGenJS) — index 의 복제(차이는 위 절) |
-| `404.html` | 같은 셸의 404 페이지(ko/en/ja 정적, 사이드바도 정적) |
-| `pricing.html` | 프리미엄 요금·판매 페이지(위 표) — 같은 셸, `js/site.js` 로 언어 전환. 법적 문서는 broodev.com/legal/ |
+| `404.html` | 같은 셸의 404 페이지(`data-page="404"` → `title_404`·`nf_heading`·`nf_text`, 사이드바·푸터도 `data-i18n` 13개 언어, 언어 풀다운 포함). **자산·링크 경로는 전부 절대(`/css/…` `/js/…` `/pricing.html`)** — Pages 가 어느 깊이의 미존재 URL 에도 이 파일을 내보내므로 |
+| `pricing.html` | 프리미엄 요금·판매 페이지(위 표) — 같은 셸, `js/site.js` 로 언어 전환(ja·ko·en 블록 + `i18n/pricing.{lang}.html` 조각 10개). 법적 문서는 broodev.com/legal/ |
+| `i18n/pricing.{zh,es,pt,fr,ru,de,it,th,zh-Hant,nl}.html` | 요금 페이지 본문 번역 조각 10개 — 각각 영어 블록과 같은 구조의 `<article data-lang-block="xx" lang="xx" hidden>` 하나. `data-price`·`data-biz`·`.pg-prem` 등 보호 요소의 텍스트와 href 는 영어와 동일해야 한다 |
 | `contact.html` | 문의·제안 폼(위 절) — 같은 셸 + `js/contact.js` + EmailJS SDK(CDN) |
-| `js/i18n.js` | 13개 언어 사전(80키 × 13) + 감지 + `apply()`(`data-page` 별 title/meta 포함)/`set()` + 풀다운 항목 생성 (`window.MH_I18N`) |
+| `js/i18n.js` | 13개 언어 사전(83키 × 13) + 감지 + `apply()`(`data-page` 별 title/meta 포함)/`set()` + 풀다운 항목 생성 (`window.MH_I18N`) |
 | `js/license.js` | 프리미엄 라이선스 **클라이언트 스텁** `window.MH_LICENSE`(`active/set/clear/read/isPremiumFormat`, localStorage `mh:license`) — 서버 검증은 추후 Pages Functions |
 | `robots.txt`, `sitemap.xml` | 크롤러용 실제 파일 — sitemap 은 `/` · `/pptx` · `/pricing` 세 URL 에 13개 `xhtml:link hreflang` 변형(`?lang=`) 포함, contact 는 `noindex` 라 제외 |
 | `js/biz.js` | 이 앱의 사업자 정보·요금(`BIZ` · `PLANS`) — 정본 `apps/home/legal/biz.js` 와 값 일치. `PLANS.*.checkout` 에 Payment Link 를 넣으면 구매 버튼 활성 |
-| `js/site.js` | pricing·contact 공통: 언어 풀다운 · `data-lang-block` 전환 · `data-biz`/`data-price`/`data-checkout` 채움 (title/meta 는 i18n.js 가) |
+| `js/site.js` | pricing·contact·404 공통: 언어 풀다운 · `data-lang-block` 전환(없는 언어는 `i18n/{data-page}.{lang}.html?v=V` 조각 fetch → 삽입, 실패 시 en) · `data-biz`/`data-price`/`data-checkout` 채움 (title/meta 는 i18n.js 가) |
 | `js/contact.js` | 문의 폼 송신(EmailJS → 운영자 메일, mailto 폴백, i18n 상태 문구) |
 | `js/photo-grid.js` | **핵심 로직** — `PAPERS`·`layout`·`pageCount`·`naturalCompare`·`buildWorkbook`·`buildPptx`(DOM 무관, Node 에서도 동작)·`readImage`(브라우저). UMD 라 `require()` 가능 |
 | `js/app.js` | DOM 연결(설정·업로드·미리보기·생성·다운로드·언어 풀다운·프리미엄 잠금) — index·pptx 공용, 형식은 `body[data-page]` 로 고정. broodev.com 법적 링크에 `?lang=` 을 실어 보냄(`carryLang`, site.js 도 동일) |
