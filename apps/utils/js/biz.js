@@ -28,7 +28,7 @@ window.BIZ = {
 window.PLANS = {
   currency: 'JPY',
   yearly:   { price: 2500, interval: 'year', checkout: 'https://buy.stripe.com/14A6oJ3Ao8LybQi4sW4wM00' },  // 年額(자동 갱신) — Payment Link 2026-10-05
-  lifetime: { price: 5000, checkout: '' },                    // 買い切り(1회 결제 · 서비스 제공 기간 중 유효)
+  lifetime: { price: 5000, checkout: 'https://buy.stripe.com/28E28tdaYe5S1bEaRk4wM01' },  // 買い切り(1회 결제 · 서비스 제공 기간 중 유효) — Payment Link 2026-10-05, 인보이스 PDF ON
   // checkout: Stripe Payment Link URL(https://buy.stripe.com/…) 을 넣으면 요금 페이지 버튼이 「購入する」로 활성화된다. 빈 문자열이면 「準備中」(비활성)
   free_formats: ['xlsx'],
   premium_formats: ['pptx', 'ai', 'psd'],
