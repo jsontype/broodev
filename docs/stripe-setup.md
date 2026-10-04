@@ -184,6 +184,8 @@ lifetime: { price: 5000, checkout: 'https://buy.stripe.com/YYYY' },
 ```
 에 넣으면 요금 페이지 버튼이 「準備中」 → 「購入する」 로 바뀐다(새 탭으로 Checkout). **테스트 링크(`buy.stripe.com/test_…`)를 넣지 않도록 주의.**
 
+> **2026-10-05 완료**: 링크 2개 모두 `biz.js` 에 들어가 버튼 활성 상태. 영어 대시보드 기준 실제로 쓴 설정 — Collect customer names ON · Collect customer addresses ON(Billing only · 買い切り는 미설정) · Allow business customers to provide tax IDs ON(Require… 는 OFF) · Require customers to accept your terms of service ON · Enable Managed Payments OFF(+3.5%) · 買い切り만 After payment → **Create an invoice PDF ON**(0.4% · 상한 $2 — 적격청구서) · 확인 페이지는 기본 문구. 커스텀 텍스트 항목은 영어 대시보드 UI 에 없어 생략(特商法 요건은 요금 페이지 本文 + Checkout 의 자동갱신 표시 + 약관 동의로 충족).
+
 ---
 
 ## 9. 구독 운영 설정 (해지·갱신 알림·실패 처리)
@@ -197,21 +199,61 @@ lifetime: { price: 5000, checkout: 'https://buy.stripe.com/YYYY' },
 
 ---
 
-## 10. 라이선스 자동 발급 (코딩 단계 — 심사와 무관, 판매 개시 전에)
+## 10. 라이선스 자동 발급 (코드 완료 2026-10-05 — 켜려면 아래 A·B·C 설정)
 
-지금 페이지에는 "決済完了後、ライセンス情報をメールで送付" 라고 적혀 있다. 초기에는 **수동**(Stripe 대시보드 결제 알림 → 손으로 메일)도 가능하지만, 자고 있을 때 결제가 오면 "直ちに" 약속을 못 지키므로 자동화 권장. 구성(모두 `apps/utils` 안, Pages 프로젝트 `broodev-utils` 설정):
+결제 → 웹훅 → 키 생성(KV) → 메일 → 고객이 요금 페이지에 키 입력(또는 메일 링크) → pptx 다운로드 해제. 코드는 전부 `apps/utils` 안이라 Pages 프로젝트 `broodev-utils` 가 자동 인식(빌드 없음 · SDK 없음 · fetch + Web Crypto 만). **DNS·도메인은 손댈 것 없음**(Functions 는 같은 도메인 `/api/*`).
 
-| 구성 요소 | 내용 |
+| 파일 | 역할 |
 |---|---|
-| `apps/utils/functions/api/stripe/webhook.js` | Stripe → Cloudflare Pages Functions. `checkout.session.completed`(발급) · `customer.subscription.updated/deleted`(만료) · `invoice.paid`(갱신) · `charge.refunded`(무효화). **서명 검증 필수**(`Stripe-Signature`, 문서 https://docs.stripe.com/webhooks) |
-| `apps/utils/functions/api/license/verify.js` | 앱이 라이선스 키 + 기기 ID 로 호출 → KV 조회 → 유효/기기 수(3대) 응답 |
-| KV 네임스페이스 `UTILS_LICENSES` | 키: 라이선스 키 → `{ email, plan, status, expires, devices[] }`. Pages 프로젝트 **Settings → Bindings → KV namespace** 에 Production/Preview 모두 바인딩 (https://developers.cloudflare.com/pages/functions/bindings/) |
-| Secrets | Pages 프로젝트 **Settings → Variables and Secrets**: `STRIPE_SECRET_KEY`(본番 `sk_live_…`, Preview 에는 `sk_test_…`) · `STRIPE_WEBHOOK_SECRET`(`whsec_…`) · 메일 발송 API 키. **레포에 절대 넣지 않는다** |
-| 메일 발송 | 서버에서 보내야 하므로 EmailJS(브라우저용) 대신 **Resend**(무료 월 3,000통, `broodev.com` 도메인 인증) 또는 Cloudflare Email Workers. 내용: 라이선스 키 + 활성화 방법 + 포털 링크 + 영수증은 Stripe 가 따로 보냄 |
-| 앱 변경 `js/app.js` · `js/license.js` | 형식 게이팅은 **이미 있음**(2026-10-04: `MH_LICENSE.active()` 가 거짓이면 pptx 다운로드 잠금 → 요금 페이지; Excel 은 항상 무료). 남은 것: 「ライセンスキーを入力」 UI → `verify` 호출 → 유효하면 `MH_LICENSE.set(key, exp)`(`localStorage mh:license`) + 주기적 재검증 |
-| Stripe 쪽 | https://dashboard.stripe.com/webhooks → 「エンドポイントを追加」 `https://utils.broodev.com/api/stripe/webhook` · 위 이벤트 선택 → 서명 시크릿을 Secrets 에 |
+| `functions/api/stripe/webhook.js` | Stripe 웹훅. **서명 검증**(`Stripe-Signature` HMAC-SHA256 · 5분 허용 · 시크릿 없으면 500 으로 닫힘) → `checkout.session.completed` / `async_payment_succeeded` 발급(키 생성 · KV · 메일) · `invoice.paid` 年額 연장 · `customer.subscription.updated/deleted` 해지 반영 · `charge.refunded`(전액) · `charge.dispute.created` 무효화. 멱등(`evt:` 7일 · `sess:`). **Utils 상품이 아닌 세션은 무시** → 다른 앱이 같은 Stripe 계정을 써도 안전 |
+| `functions/api/license/verify.js` | 앱 → `{key, device, name}` → 유효성 + 기기 등록(3대). 404 invalid · 403 expired/canceled/refunded/disputed/revoked/device_limit |
+| `functions/api/license/deactivate.js` | 이 기기 해제(한도에서 자리 비움) |
+| `functions/api/license/resend.js` | 구매 메일 주소로 키 재송(존재 여부 비노출 · 메일당 10분 · IP당 30초) |
+| `functions/api/license/admin.js` | 운영자 API(`Authorization: Bearer <LICENSE_ADMIN_TOKEN>`): `lookup` · `issue`(수동 발급) · `resend` · `revoke` · `restore` · `extend` · `reset_devices` — 파일 머리에 PowerShell 예 |
+| `functions/_lib/` | `stripe.js`(서명 · REST · 신구 API 필드 흡수) · `store.js`(KV 스키마) · `mail.js`(Resend · ja/ko/en 템플릿 — Checkout 의 locale/청구지 국가로 선택) · `keys.js`(`UTILS-XXXX-XXXX-XXXX-XXXX` 32자 알파벳 80bit) · `http.js` |
+| `_routes.json` | `/api/*` 만 Functions 로(정적 파일은 Functions 호출 수를 쓰지 않음 — 무료 한도 10만/일) |
+| `js/license.js` · `js/site.js` · `pricing.html#pg-license` · `css/site.css` | 브라우저: 활성화 폼 · 메일 링크 `pricing?license=KEY` 자동 활성화 · 24시간마다 재검증(해지·환불 반영) · 이 기기 해제 · 재송 폼. 기기 ID 는 `localStorage mh:device`. `js/app.js` 가 `mh:license` 이벤트로 잠금을 다시 계산. `pptx.html` 잠금 안내에 「購入済み」 링크 |
 
-Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 도메인 `/api/*`). `functions/` 폴더가 생기면 Pages 가 자동 인식.
+KV 키: `lic:<KEY>` 본체 `{email, name, plan, status, expires, devices[], customer, subscription, payment_intent, session, mail_sent|mail_error …}` · `sub:` `pi:` `cus:` `sess:` `email:` 인덱스 · `evt:` 멱등 · `rl:` 레이트리밋. 年額 만료 = Stripe 기간 종료 **+ 3일 유예**(결제 재시도 중에도 유지 → 재시도 전부 실패 시 §9-3 설정으로 구독 취소 → 웹훅이 종료). 買い切り 는 `expires: null`.
+
+### 설정 절차 (순서대로 · 한 번만)
+
+**A. Cloudflare — KV + 변수** (https://dash.cloudflare.com → Workers & Pages)
+1. **Storage & Databases → KV → Create** 이름 `utils-licenses`
+2. Pages 프로젝트 **broodev-utils → Settings → Bindings → Add → KV namespace**: Variable name `UTILS_LICENSES` · KV namespace `utils-licenses` (Production 과 Preview 둘 다)
+3. 같은 Settings → **Variables and Secrets → Add** (Type **Secret** · Production):
+
+   | 이름 | 값 | 어디서 |
+   |---|---|---|
+   | `STRIPE_WEBHOOK_SECRET` | `whsec_…` | B-2 |
+   | `STRIPE_SECRET_KEY` | `rk_live_…`(제한 키) | B-3 |
+   | `RESEND_API_KEY` | `re_…` | C-3 |
+   | `LICENSE_ADMIN_TOKEN` | 48자 이상 난수 — PowerShell: `-join ((48..57)+(65..90)+(97..122) \| Get-Random -Count 48 \| ForEach-Object {[char]$_})` | 직접 |
+
+   선택(Type Text): `MAIL_FROM`(기본 `Y Systems Support <support@broodev.com>`) · `PORTAL_URL`(기본 = biz.js 의 포털 링크) · `PRODUCT_MAP`(상품명에 Utils/年額/買い切り 가 없을 때만 `{"prod_…":"yearly","prod_…":"lifetime"}`)
+4. **Deployments → 최신 배포 → ⋯ → Retry deployment**(또는 다음 push) — 바인딩·변수는 재배포 뒤에 적용
+
+**B. Stripe**
+1. https://dashboard.stripe.com/webhooks → **+ Add destination** → Events from **Your account** → 이벤트 7개 선택: `checkout.session.completed` · `checkout.session.async_payment_succeeded` · `invoice.paid` · `customer.subscription.updated` · `customer.subscription.deleted` · `charge.refunded` · `charge.dispute.created` → Destination **Webhook endpoint** → Endpoint URL `https://utils.broodev.com/api/stripe/webhook` → Create
+2. 만든 destination → **Signing secret → Reveal** → `whsec_…` → A-3
+3. https://dashboard.stripe.com/apikeys → **+ Create restricted key** → 이름 `utils-license` → 권한: **Checkout Sessions Read · Subscriptions Read · Charges Read · Products Read · Prices Read**, 나머지 None → `rk_live_…` → A-3 (없어도 발급은 되지만 플랜을 mode 로만 추정하고 年額 만료를 지금+1년으로 잡음)
+
+**C. Resend — 메일** https://resend.com (무료 월 3,000통 · 일 100통)
+1. 가입 → **Domains → + Add Domain** `broodev.com` → 표시되는 DNS 레코드(DKIM TXT `resend._domainkey` · `send.broodev.com` 의 MX/TXT)를 Cloudflare DNS 에 그대로 추가 → **Verify**. Email Routing 의 MX(루트)와 충돌하지 않는다(Resend 는 `send` 서브도메인)
+2. 발신 주소 `support@broodev.com` 은 도메인 인증만 되면 바로 사용 가능(받는 건 Email Routing → Gmail)
+3. **API Keys → + Create API Key** 이름 `utils-license` · Permission **Sending access** · Domain `broodev.com` → `re_…` → A-3
+
+**D. 확인**
+- 브라우저로 `https://utils.broodev.com/api/license/verify` 열기 → `{"ok":false,"error":"method-not-allowed"}` 면 Functions 배포 OK (`{"error":"kv-not-bound"}` 면 A-2/A-4 다시)
+- Stripe 웹훅 destination → **Send test event** → `checkout.session.completed` → 응답 200(`skipped: unpaid` 또는 `not-utils-product` — 테스트 이벤트는 가짜라 발급되지 않음 · 서명·KV 연결 확인용)
+- §11 실결제 1건 → 라이선스 메일 도착 → 요금 페이지 「ライセンスを有効化」 → pptx 다운로드 → 대시보드 환불 → 웹훅이 무효화 → 요금 페이지 새로고침(재검증) 시 잠금 복귀
+
+### 운영
+- 메일이 안 간 발급(KV `lic:` 의 `mail_error`): admin `resend`, 또는 Stripe 웹훅 화면에서 이벤트 **Resend**(멱등이라 중복 발급 없음)
+- 고객 PC 교체로 3대 한도: admin `reset_devices` · 고객 스스로는 요금 페이지 「この端末の有効化を解除」
+- 환불: Stripe 전액 환불 → 자동 무효화. **年額 환불은 구독도 취소**(안 하면 다음 해 또 청구)
+- Stripe 밖 판매(은행 송금 등): admin `issue`
+- 로컬 테스트 스크립트(레포 밖): `%TEMP%\voca-resp\license-test.mjs`(가짜 KV · 서명 · 핸들러 15건) · `verify-license-ui.mjs`(헤드리스 UI)
 
 ---
 
@@ -265,4 +307,6 @@ Cloudflare 에서 **DNS·도메인은 손댈 것 없음**(Functions 는 같은 �
 | 포털 푸터 법적 링크 | `apps/home/index.html` `.footer-legal` · `404.html` |
 | utils 가격 · Payment Link · 포털 링크 · 무료/프리미엄 출력 형식(`free_formats`·`premium_formats`) | `apps/utils/js/biz.js` → `PLANS` (BIZ 는 정본 사본) |
 | utils 판매 페이지 본문(3언어) · 메뉴·푸터·title 번역 | `apps/utils/pricing.html` · `apps/utils/js/i18n.js` (`menu_pricing` · `foot_*` · `title_pricing` · `desc_pricing`) |
-| Stripe 비밀키·웹훅 시크릿 | **레포 밖** — Cloudflare Pages 프로젝트(`broodev-utils` 등 앱별) → Settings → Variables and Secrets |
+| Stripe 비밀키·웹훅 시크릿·Resend 키·관리자 토큰 | **레포 밖** — Cloudflare Pages 프로젝트(`broodev-utils` 등 앱별) → Settings → Variables and Secrets (§10-A) |
+| 라이선스 서버(웹훅 · verify · resend · admin) · 메일 템플릿 | `apps/utils/functions/` (§10) · 데이터는 KV `UTILS_LICENSES`(Cloudflare) |
+| 라이선스 브라우저 쪽(활성화 폼 · 재검증 · 기기 ID) | `apps/utils/js/license.js` · `js/site.js`(UI) · `pricing.html#pg-license` · 문구 `js/i18n.js` `lic_*` |

@@ -71,7 +71,11 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 
 - **무료: Excel(.xlsx) 출력 — 전 기능, 제한 없음**(장수·용지 7종·격자 5×5·원본 화질). 예전의 「1회 20장 · A4·Letter · 3×3 · 1600px」 식 상한은 **폐기**(`PLANS.free_limits` 삭제).
 - **프리미엄: PowerPoint(.pptx) 출력**(지금) + **Illustrator(.ai) · Photoshop(.psd) 출력**(준비 중 — 공개 시 추가 요금 없음). `js/biz.js` `PLANS.free_formats=['xlsx']` · `PLANS.premium_formats=['pptx','ai','psd']`.
-- 앱 게이팅(`js/license.js` + `js/app.js`): `MH_LICENSE.active()`(localStorage `mh:license` = `{key, exp|null, at}`) 가 거짓이고 `isPremiumFormat(FORMAT)` 이면 `LOCKED` — pptx 페이지는 **미리보기까지 무료**, 생성 버튼이 금빛 「프리미엄 — 요금 보기」(`generate_locked`) 로 바뀌어 `pricing.html` 로 이동, 제목 아래 `#pg-prem-note` 안내(`prem_note`·`prem_cta`) 표시, `body.pg-is-locked`. index(Excel) 는 영향 없음. **라이선스 발급·검증 백엔드(Pages Functions + KV, Stripe webhook)는 아직 없음** — 지금은 `MH_LICENSE.set(key, exp)` 를 호출하는 쪽이 없어 전원 잠김 상태가 정상.
+- 앱 게이팅(`js/license.js` + `js/app.js`): `MH_LICENSE.active()`(localStorage `mh:license` = `{key, exp|null, plan, devices, max, checked …}`) 가 거짓이고 `isPremiumFormat(FORMAT)` 이면 `LOCKED` — pptx 페이지는 **미리보기까지 무료**, 생성 버튼이 금빛 「프리미엄 — 요금 보기」(`generate_locked`) 로 바뀌어 `pricing.html` 로 이동, 제목 아래 `#pg-prem-note` 안내(`prem_note`·`prem_cta` + 「購入済み」 링크 `prem_have_key` → `pricing.html#pg-license`) 표시, `body.pg-is-locked`. index(Excel) 는 영향 없음. 라이선스가 바뀌면(`mh:license` 이벤트) 잠금을 다시 계산한다.
+
+## 라이선스 발급·검증 백엔드 (2026-10-05) — `functions/` (Cloudflare Pages Functions + KV)
+
+결제(Stripe Payment Link) → **웹훅** `functions/api/stripe/webhook.js`(서명 검증 · 멱등) → 키 `UTILS-XXXX-XXXX-XXXX-XXXX` 생성 → KV `UTILS_LICENSES` → **Resend** 로 메일(ja/ko/en, `functions/_lib/mail.js`) → 고객이 `pricing.html#pg-license` 에 키 입력(또는 메일 링크 `pricing?license=KEY`) → `js/license.js` 가 `/api/license/verify` 로 검증·기기 등록(3대, 기기 ID `localStorage mh:device`) → 저장 → pptx 다운로드 해제. 24시간마다 조용히 재검증해 해지·환불(年額은 `invoice.paid` 로 만료 연장, Stripe 기간 종료 + 3일 유예)을 반영. 그 밖에 `/api/license/deactivate`(이 기기 해제) · `/api/license/resend`(구매 메일로 재송, 레이트리밋) · `/api/license/admin`(Bearer 토큰 — lookup/issue/resend/revoke/restore/extend/reset_devices). `_routes.json` 으로 `/api/*` 만 Functions 를 탄다. **비밀값(웹훅 시크릿 · Stripe 제한 키 · Resend 키 · 관리자 토큰)은 Pages 의 Variables and Secrets 에만** — 설정 절차·KV 스키마·운영은 [`docs/stripe-setup.md` §10](../../docs/stripe-setup.md). 테스트는 레포 밖 `%TEMP%\voca-resp\license-test.mjs`(가짜 KV 로 서명·발급·갱신·해지·환불·verify·admin 15건) · `verify-license-ui.mjs`(헤드리스 UI).
 - **PREMIUM 배지 `.pg-prem`**(금빛 그라디언트 + 글로우 애니메이션, `prefers-reduced-motion` 이면 정지): 사이드바 PowerPoint · Illustrator · Photoshop 항목(준비 중 항목은 `.pg-tags` 로 「준비 중」과 세로로 쌓음), pptx 제목 옆, 잠금 안내, 요금 카드·비교표. 배지 문구 「Premium」은 번역하지 않는다.
 - `pricing.html` 3언어 본문·비교표·FAQ(9문답)·JSON-LD FAQ·meta/og, `pptx.html` JSON-LD(`isAccessibleForFree:false` + Offer 2개)·meta, `apps/home/premium.html` 카드가 모두 이 모델로 적혀 있다 — 모델을 바꾸면 이 네 곳 + `js/i18n.js` 의 `desc_pptx`·`prem_*` 를 같이 고친다.
 
@@ -89,8 +93,9 @@ Cloudflare 는 js/css 를 `Cache-Control: public, max-age=14400`(4시간, 존 Br
 | `pricing.html` | 프리미엄 요금·판매 페이지(위 표) — 같은 셸, `js/site.js` 로 언어 전환(ja·ko·en 블록 + `i18n/pricing.{lang}.html` 조각 10개). 법적 문서는 broodev.com/legal/ |
 | `i18n/pricing.{zh,es,pt,fr,ru,de,it,th,zh-Hant,nl}.html` | 요금 페이지 본문 번역 조각 10개 — 각각 영어 블록과 같은 구조의 `<article data-lang-block="xx" lang="xx" hidden>` 하나. `data-price`·`data-biz`·`.pg-prem` 등 보호 요소의 텍스트와 href 는 영어와 동일해야 한다 |
 | `contact.html` | 문의·제안 폼(위 절) — 같은 셸 + `js/contact.js` + EmailJS SDK(CDN) |
-| `js/i18n.js` | 13개 언어 사전(83키 × 13) + 감지 + `apply()`(`data-page` 별 title/meta 포함)/`set()` + 풀다운 항목 생성 (`window.MH_I18N`) |
-| `js/license.js` | 프리미엄 라이선스 **클라이언트 스텁** `window.MH_LICENSE`(`active/set/clear/read/isPremiumFormat`, localStorage `mh:license`) — 서버 검증은 추후 Pages Functions |
+| `js/i18n.js` | 13개 언어 사전(105키 × 13) + 감지 + `apply()`(`data-page` 별 title/meta 포함)/`set()` + 풀다운 항목 생성 (`window.MH_I18N`) |
+| `js/license.js` | 프리미엄 라이선스 클라이언트 `window.MH_LICENSE`(`active/read/set/clear/isPremiumFormat/normalize/activate/deactivate/refresh/resend/device`, localStorage `mh:license`·`mh:device`) — `/api/license/*` 와 통신, 로드 시 24시간 재검증 |
+| `functions/api/stripe/webhook.js` · `functions/api/license/{verify,deactivate,resend,admin}.js` · `functions/_lib/{http,keys,stripe,store,mail}.js` · `_routes.json` | 라이선스 서버(위 절) |
 | `robots.txt`, `sitemap.xml` | 크롤러용 실제 파일 — sitemap 은 `/` · `/pptx` · `/pricing` 세 URL 에 13개 `xhtml:link hreflang` 변형(`?lang=`) 포함, contact 는 `noindex` 라 제외 |
 | `js/biz.js` | 이 앱의 사업자 정보·요금(`BIZ` · `PLANS`) — 정본 `apps/home/legal/biz.js` 와 값 일치. `PLANS.*.checkout` 에 Payment Link 를 넣으면 구매 버튼 활성 |
 | `js/site.js` | pricing·contact·404 공통: 언어 풀다운 · `data-lang-block` 전환(없는 언어는 `i18n/{data-page}.{lang}.html?v=V` 조각 fetch → 삽입, 실패 시 en) · `data-biz`/`data-price`/`data-checkout` 채움 (title/meta 는 i18n.js 가) |

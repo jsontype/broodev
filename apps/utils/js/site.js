@@ -13,7 +13,7 @@
   'use strict';
   var I = window.MH_I18N, BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
   if (!I) return;
-  var V = '20261005c';
+  var V = '20261005d';
   var DOC = document.body ? document.body.getAttribute('data-page') : null;
 
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
@@ -129,6 +129,78 @@
     each('[data-lang-block]', function (el) { el.hidden = true; });   // 받는 동안 영어판이 잠깐 비치지 않게
     ensureBlock(lang, function () { if (my !== seq) return; showBlock(lang); fill(lang); carryLang(lang); });
   });
+
+  // ── 라이선스 활성화 UI (pricing.html #pg-license · 문구는 i18n lic_*) — js/license.js 가 서버(/api/license/*)와 통신 ──
+  var LIC = window.MH_LICENSE, $lf = document.getElementById('pg-license-form');
+  if (LIC && $lf) {
+    var $key = document.getElementById('pg-license-key'), $lbtn = $lf.querySelector('button');
+    var $lst = document.getElementById('pg-license-status'), $act = document.getElementById('pg-license-active');
+    var $line = document.getElementById('pg-license-line'), $exp = document.getElementById('pg-license-exp'), $dev = document.getElementById('pg-license-dev');
+    var $deact = document.getElementById('pg-license-deactivate');
+    var $rsLink = document.getElementById('pg-license-resend-link'), $rsForm = document.getElementById('pg-license-resend-form'), $rsEmail = document.getElementById('pg-license-resend-email');
+    var lastMsg = null;
+    var ERR = { invalid: 'lic_err_invalid', expired: 'lic_err_expired', canceled: 'lic_err_canceled', refunded: 'lic_err_canceled', disputed: 'lic_err_canceled', revoked: 'lic_err_canceled', device_limit: 'lic_err_device_limit' };
+
+    function planLabel(p) { return I.t(p === 'yearly' ? 'lic_plan_yearly' : 'lic_plan_lifetime'); }
+    function fmtDate(iso) {
+      if (!iso) return '';
+      var d = new Date(iso); if (isNaN(d)) return String(iso).slice(0, 10);
+      try { return d.toLocaleDateString(I.lang() === 'zh-Hant' ? 'zh-TW' : I.lang(), { year: 'numeric', month: 'long', day: 'numeric' }); } catch (e) { return d.toISOString().slice(0, 10); }
+    }
+    function msg(key, vars, isErr) {
+      lastMsg = key ? { key: key, vars: vars, isErr: !!isErr } : null;
+      if (!key) { $lst.hidden = true; return; }
+      $lst.hidden = false; $lst.textContent = I.t(key, vars); $lst.classList.toggle('is-error', !!isErr);
+    }
+    function renderState() {
+      var L = LIC.read(), on = LIC.active();
+      $act.hidden = !on; $lf.hidden = on;
+      if (!on) return;
+      $line.textContent = I.t('lic_active_line', { plan: planLabel(L.plan) });
+      $exp.textContent = L.exp ? I.t('lic_expires', { date: fmtDate(L.exp) }) : '';
+      $dev.textContent = L.devices != null ? I.t('lic_devices', { n: L.devices, max: L.max || 3 }) : '';
+    }
+    $lf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var k = LIC.normalize($key.value);
+      if (!k) { msg('lic_need_key', null, true); return; }
+      $lbtn.disabled = true; msg('lic_checking');
+      LIC.activate(k, function (err) {
+        $lbtn.disabled = false;
+        if (err) { msg(ERR[err] || 'lic_err_network', { max: 3 }, true); return; }
+        $key.value = ''; msg('lic_done'); renderState();
+      });
+    });
+    if ($deact) $deact.addEventListener('click', function (e) {
+      e.preventDefault(); $deact.disabled = true;
+      LIC.deactivate(function () { $deact.disabled = false; msg(null); renderState(); });
+    });
+    if ($rsLink && $rsForm) {
+      $rsLink.addEventListener('click', function (e) { e.preventDefault(); $rsForm.hidden = !$rsForm.hidden; if (!$rsForm.hidden && $rsEmail) $rsEmail.focus(); });
+      $rsForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var em = ($rsEmail.value || '').trim(); if (!em) return;
+        var b = $rsForm.querySelector('button'); b.disabled = true;
+        var lang = I.lang(); lang = lang === 'ja' || lang === 'ko' ? lang : 'en';
+        LIC.resend(em, lang, function (err) { b.disabled = false; $rsForm.hidden = true; msg(err ? 'lic_err_network' : 'lic_resend_ok', null, !!err); });
+      });
+    }
+    // 메일의 링크 pricing?license=KEY → 자동 활성화(주소창에서는 키를 지움)
+    var qm = /[?&]license=([^&#]+)/.exec(location.search);
+    if (qm) {
+      var k0 = LIC.normalize(decodeURIComponent(qm[1]));
+      try { var u = new URL(location.href); u.searchParams.delete('license'); history.replaceState(null, '', u.toString()); } catch (e) { /* 무시 */ }
+      if (k0) {
+        $key.value = k0;
+        var cur = LIC.read();
+        if (!(LIC.active() && cur && cur.key === k0)) setTimeout(function () { $lf.dispatchEvent(new Event('submit', { cancelable: true })); }, 0);
+      }
+      setTimeout(function () { var sec = document.getElementById('pg-license'); if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: 'start' }); }, 50);
+    }
+    document.addEventListener('mh:lang', function () { renderState(); if (lastMsg) msg(lastMsg.key, lastMsg.vars, lastMsg.isErr); });
+    document.addEventListener('mh:license', renderState);
+    renderState();
+  }
 
   I.apply();
 }());

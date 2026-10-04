@@ -8,7 +8,8 @@
   var PG = window.PhotoGrid, I = window.MH_I18N, LIC = window.MH_LICENSE;
   var t = I.t;
   var FORMAT = document.body.getAttribute('data-page') === 'pptx' ? 'pptx' : 'xlsx';
-  var LOCKED = !!(LIC && LIC.isPremiumFormat(FORMAT) && !LIC.active());  // 프리미엄 형식인데 라이선스 없음 → 다운로드 잠금
+  function computeLocked() { return !!(LIC && LIC.isPremiumFormat(FORMAT) && !LIC.active()); }  // 프리미엄 형식인데 라이선스 없음 → 다운로드 잠금
+  var LOCKED = computeLocked();
   var $files = document.getElementById('pg-files');
   var $drop = document.getElementById('pg-drop');
   var $pages = document.getElementById('pg-pages');
@@ -86,10 +87,15 @@
   // 잠금 상태면 버튼 문구를 「프리미엄 — 요금 보기」로 (i18n apply() 가 generate 로 되돌리므로 언어 전환 때마다 다시)
   function updateLabels() {
     $name.placeholder = defaultName();
-    if (LOCKED && $submit) { $submit.textContent = t('generate_locked'); $submit.classList.add('pg-locked'); }
+    if ($submit) {
+      if (LOCKED) { $submit.textContent = t('generate_locked'); $submit.classList.add('pg-locked'); }
+      else { $submit.textContent = t('generate'); $submit.classList.remove('pg-locked'); }
+    }
     if ($premNote) $premNote.hidden = !LOCKED;
     document.body.classList.toggle('pg-is-locked', LOCKED);
   }
+  // 라이선스 상태가 바뀌면(요금 페이지에서 활성화 뒤 돌아옴 · 24시간 재검증에서 해지/환불 확인) 잠금을 다시 계산
+  document.addEventListener('mh:license', function () { LOCKED = computeLocked(); updateLabels(); });
 
   function render() {
     urls.forEach(function (u) { URL.revokeObjectURL(u); }); urls = [];
