@@ -40,7 +40,7 @@
 | `assets/css/portal.css` | 템플릿 위에 얹는 포털 전용 스타일(워드마크 `.brand-mark` · `.nav-apps` · 모달 · 카드 · 페이지네이션 · 폼 상태 · 푸터 `.footer-legal` · 언어 풀다운 `.portal-lang*`(legal.css 의 `.legal-lang*` 과 같은 룩, 좁은 화면은 아이콘만) · 404 문단 수정) |
 | `assets/js/main.js` | 템플릿 JS(프리로더 · 커서 · 사이드바 · GSAP 리빌). web3forms 문의 블록만 제거 |
 | `assets/css/style.css` `responsive.css` | 템플릿 원본 CSS(수정 없음) |
-| `assets/images/featured-*.png` | 대표 앱 3종 카드(각 앱 og-image 1200×630 복사본): `btc` · `utils`(2026-10-03 사무라이 택틱스 2 → 업무 도구 모음으로 교체) · `voca`(2026-10-03 앱 기본 테마 BROODEV 에 맞춘 흑백 OG 로 교체 — `node scripts/og/gen_og.mjs voca` 뒤 복사) |
+| `assets/images/featured-*.png` | 대표 앱 3종 카드(각 앱 og-image 1200×630 복사본): `btc` · `utils`(2026-10-03 사무라이 택틱스 2 → 업무 도구 모음으로 교체) · `voca`(앱 기본 테마 BROODEV 와 같은 팔레트 — 2026-10-05 btc 계열 네온 그린으로 재생성, `node scripts/og/gen_og.mjs voca` 뒤 복사) |
 | `assets/images/contact.png` | 템플릿 원본 비주얼 — 확장자는 .png 지만 **AVIF 컨테이너**(브라우저 렌더 정상, 일부 도구는 못 읽음). `service1-4.png`·`service-icon1-4.svg`·`arrow-down.svg` 는 원칙 섹션과 함께 제거 |
 | `404.html` | 템플릿 error-page 레이아웃 · 13개 언어(`<body data-i18n-page="404">`, `nf_*` 키 · 헤더 메뉴·푸터 라벨도 `data-i18n`) · "전체 앱 보기" → `/#apps` · 하단 `.footer-legal` 법적 링크. **경로는 전부 절대(`/assets/…`)** — Pages 는 어느 깊이의 미존재 URL 에도 이 파일을 그대로 내보내므로 상대 경로면 CSS/JS 가 깨진다(2026-10-04) |
 | `premium.html` | **전 앱 프리미엄 총람**(Stripe 심사용 판매 페이지) — 앱별 카드(`.plan-grid`, 가격은 `legal/biz.js` `PLANS.*` 에서 `data-price="utils.yearly"` 식으로 채움, 「準備中」 카드 `.soon`) · 공통 조건(税込 · 자동 갱신/해지 · 3대 · Stripe) · 「ご購入前にご確認ください」 · FAQ. ja/ko/en 3개 `<article data-lang-block>` |

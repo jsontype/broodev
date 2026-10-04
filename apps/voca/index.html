@@ -13,7 +13,7 @@
     />
     <meta name="author" content="VOCA DECK" />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#000000" /> <!-- 기본 테마 BROODEV. theme.js 가 저장된 테마에 맞춰 갱신(ORIGINAL = #000040) -->
+    <meta name="theme-color" content="#05080a" /> <!-- 기본 테마 BROODEV(btc 계열 네온 그린). theme.js 가 저장된 테마에 맞춰 갱신(ORIGINAL = #000040) -->
 
     <!-- 최초 방문 1회만 튜토리얼로 리다이렉트 (React 로드 전 실행 → 깜빡임 없음).
          voca:visited 영구 플래그로 재발 방지. 기존 사용자(저장값 보유)·봇·운영 외 도메인은 제외. -->
@@ -34,7 +34,7 @@
       })()
     </script>
     <!-- 테마(BROODEV 기본 / ORIGINAL) — CSS 보다 먼저 html[data-theme] 지정. 로직·마이그레이션은 theme.js(콘텐츠 페이지와 공용) -->
-    <script src="theme.js?v=20261003"></script>
+    <script src="theme.js?v=20261005"></script>
     <!-- 검색엔진 소유확인: 각 도구에서 발급한 토큰으로 교체 후 주석 해제 -->
     <!-- <meta name="google-site-verification" content="GOOGLE_TOKEN" /> -->
     <meta name="naver-site-verification" content="71ec011b9f547d4c358c955aee2979e8a43fee00" />
@@ -154,35 +154,37 @@
       /* ===== 테마 (2026-10-03) =====
          색은 전부 변수로만 쓴다(--panel-… · --led-… 는 원래 있던 이름, --t-… 는 테마용으로 추가. 주석 안에 별표+슬래시를 쓰면 주석이 닫히니 주의). 테마 추가 = 변수 블록 하나 더.
          html[data-theme] 는 theme.js 가 CSS 보다 먼저 지정(localStorage voca:theme, 기본 broodev), 헤더 ◐ 풀다운이 바꾼다(새로고침 없음).
-         - BROODEV(기본, :root): broodev.com 포털의 흑백 모노톤 — 검정 #000 · 흰색 · 회색 #999/#666 · 1px 반투명 테두리 · 둥근 모서리 · 흰 LED
+         - BROODEV(기본, :root): btc.broodev.com 계열(코인 시그널 15종)의 네온 그린 터미널 팔레트 — 바탕 #05080a(거의 검정) · 글자 민트 #c8ffe6 · 강조 네온 #00ff9c ·
+           보조 #4f7a6c · 패널 #0a1014 · 1px 녹색 반투명 테두리 rgba(0,255,156,.18) · 둥근 모서리 · 네온 LED. (2026-10-05 — 처음(10-03)엔 포털의 흑백 모노톤으로 잘못 잡았던 것을 교정.
+           「BROODEV 컬러 컨셉」= btc 의 검정 바탕 + 녹색 글자)
          - ORIGINAL: 원래의 남색 #000040 + 노란 글자 · Win95 회색(#d4d0c8) 베벨 제어판 · 초록 LED · 네온 로고
          표시 영역(단어 글자색·배경)은 사용자 설정(cfg.bg/fontColor)이 null 이면 테마 기본색 — JS 의 THEMES 가 담당 */
       :root {
         color-scheme: dark;
         --ui-font: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Dotum', sans-serif;
-        --navy: #000000;
-        --panel-gray: #141414;                                 /* 제어판·팝오버·모달·게시판 패널 면 */
-        --panel-dark: rgba(255,255,255,.16);                   /* 베벨 두 색을 같게 → 평면 1px 테두리 */
-        --panel-light: rgba(255,255,255,.16);
-        --led-on: #ffffff; --led-off: #333333; --t-led-hi: #4a4a4a; --t-led-on-hi: #ffffff; --t-led-line: #111111; --t-led-glow: rgba(255,255,255,.7);
+        --navy: #05080a;
+        --panel-gray: #0a1014;                                 /* 제어판·팝오버·모달·게시판 패널 면 */
+        --panel-dark: rgba(0,255,156,.18);                     /* 베벨 두 색을 같게 → 평면 1px 테두리 */
+        --panel-light: rgba(0,255,156,.18);
+        --led-on: #00ff9c; --led-off: #1a3a2e; --t-led-hi: #2a5a48; --t-led-on-hi: #b6ffe0; --t-led-line: #06201a; --t-led-glow: rgba(0,255,156,.7);
         --t-bevel-w: 1px; --t-radius: 6px;
-        --t-body-bg: #000000; --t-page-bg: #000000;
-        --t-fg: #ffffff; --t-muted: #999999; --t-accent: #ffffff; --t-on-accent: #000000; --t-link: #ffffff;
-        --t-nav-bg: #000000; --t-nav-line: rgba(255,255,255,.12); --t-nav-accent: #ffffff; --t-nav-link: #999999; --t-nav-opt-bg: #1a1a1a; --t-nav-opt-fg: #ffffff;
-        --t-hdr-bg: #000000; --t-hdr-line: rgba(255,255,255,.1); --t-logo: #ffffff; --t-logo-glow: transparent; --t-hdr-dim: #4d4d4d; --t-hdr-border: rgba(255,255,255,.18); --t-hdr-btn-bg: #1a1a1a;
-        --t-inset-border: 1px solid rgba(255,255,255,.14); --t-pane-line: rgba(255,255,255,.25); --t-group-border: 1px solid rgba(255,255,255,.14);
-        --t-panel-fg: #e6e6e6; --t-panel-fg2: #cccccc; --t-panel-dim: #999999; --t-panel-dim2: #888888; --t-panel-top: 1px solid rgba(255,255,255,.12);
-        --t-btn-bg: #222222; --t-btn-active-bg: #2e2e2e; --t-sub-bg: #1f1f1f; --t-sub-bg2: #1a1a1a; --t-input-bg: #000000; --t-disabled: #555555;
-        --t-quit-bg: #ffffff; --t-quit-fg: #000000; --t-quit-line: #ffffff; --t-next-bg: #ffffff; --t-next-fg: #000000; --t-next-line: #ffffff;
-        --t-lbl-on-bg: #2a2a2a; --t-lbl-on-line: #777777; --t-focus: #ffffff; --t-check: #ffffff;
-        --t-shadow: 0 8px 24px rgba(0,0,0,.6); --t-shadow-lg: 0 12px 40px rgba(0,0,0,.7); --t-overlay: rgba(0,0,0,.7); --t-toast-fg: #ffffff;
-        --t-jump-bg: rgba(26,26,26,.85); --t-jump-bg-fixed: rgba(26,26,26,.95); --t-jump-line: rgba(255,255,255,.3); --t-jump-fg: #cccccc;
-        --t-tab-bg: #0d0d0d; --t-tab-fg: #999999;
-        --t-table-fg: #e6e6e6; --t-table-dim: #777777; --t-th-bg: #1a1a1a; --t-th-line: rgba(255,255,255,.14); --t-row-line: rgba(255,255,255,.08); --t-row-hover: #161616; --t-row-applied: #1c1c1c;
-        --t-ok: #ffffff; --t-bad: #ff7676; --t-err-bg: #3a1414; --t-hl: rgba(255,255,255,.12);
-        --t-prm-bg: #1a1a1a; --t-prm-line: rgba(255,255,255,.3); --t-badge-fg: #000000; --t-badge-line: #ffffff;
-        --t-code-bg: #1a1a1a; --t-foot-line: rgba(255,255,255,.1); --t-foot-fg: #666666;
-        --t-empty-top: #777777; --t-empty-bot: #555555;
+        --t-body-bg: #05080a; --t-page-bg: #05080a;
+        --t-fg: #c8ffe6; --t-muted: #4f7a6c; --t-accent: #00ff9c; --t-on-accent: #04110c; --t-link: #00ff9c;
+        --t-nav-bg: #05080a; --t-nav-line: rgba(0,255,156,.18); --t-nav-accent: #00ff9c; --t-nav-link: #8fb3a6; --t-nav-opt-bg: #0a1014; --t-nav-opt-fg: #c8ffe6;
+        --t-hdr-bg: #05080a; --t-hdr-line: rgba(0,255,156,.18); --t-logo: #00ff9c; --t-logo-glow: rgba(0,255,156,.45); --t-hdr-dim: #2f4a40; --t-hdr-border: rgba(0,255,156,.3); --t-hdr-btn-bg: #0a1014;
+        --t-inset-border: 1px solid rgba(0,255,156,.2); --t-pane-line: rgba(0,255,156,.3); --t-group-border: 1px solid rgba(0,255,156,.2);
+        --t-panel-fg: #c8ffe6; --t-panel-fg2: #a9d9c4; --t-panel-dim: #4f7a6c; --t-panel-dim2: #3f6a5c; --t-panel-top: 1px solid rgba(0,255,156,.18);
+        --t-btn-bg: #0d1a16; --t-btn-active-bg: #12241c; --t-sub-bg: #0d1a16; --t-sub-bg2: #0a1410; --t-input-bg: #000000; --t-disabled: #2f4a40;
+        --t-quit-bg: #ff3b5c; --t-quit-fg: #ffffff; --t-quit-line: #ff3b5c; --t-next-bg: #00ff9c; --t-next-fg: #04110c; --t-next-line: #00ff9c;
+        --t-lbl-on-bg: #0d1f17; --t-lbl-on-line: #00ff9c; --t-focus: #00ff9c; --t-check: #00ff9c;
+        --t-shadow: 0 8px 24px rgba(0,0,0,.6); --t-shadow-lg: 0 12px 40px rgba(0,0,0,.7); --t-overlay: rgba(0,0,0,.7); --t-toast-fg: #00ff9c;
+        --t-jump-bg: rgba(10,16,20,.85); --t-jump-bg-fixed: rgba(10,16,20,.95); --t-jump-line: rgba(0,255,156,.3); --t-jump-fg: #8fb3a6;
+        --t-tab-bg: #070c0f; --t-tab-fg: #8fb3a6;
+        --t-table-fg: #c8ffe6; --t-table-dim: #4f7a6c; --t-th-bg: #0a1a14; --t-th-line: rgba(0,255,156,.18); --t-row-line: rgba(0,255,156,.08); --t-row-hover: #0a1410; --t-row-applied: #0d1f17;
+        --t-ok: #00ff9c; --t-bad: #ff3b5c; --t-err-bg: #3a1414; --t-hl: rgba(0,255,156,.12);
+        --t-prm-bg: #0a1a14; --t-prm-line: rgba(0,255,156,.35); --t-badge-fg: #04110c; --t-badge-line: #00ff9c;
+        --t-code-bg: #0a1014; --t-foot-line: rgba(0,255,156,.12); --t-foot-fg: #4f7a6c;
+        --t-empty-top: #4f7a6c; --t-empty-bot: #2f4a40;
       }
       html[data-theme="original"] {
         color-scheme: light;
@@ -599,7 +601,7 @@
           var th = tsel.value;
           document.documentElement.setAttribute('data-theme', th);
           try { localStorage.setItem('voca:theme', JSON.stringify(th)); } catch (e) {}
-          var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', th === 'original' ? '#000040' : '#000000');
+          var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', th === 'original' ? '#000040' : '#05080a');
           try { window.dispatchEvent(new CustomEvent('voca:theme', { detail: th })); } catch (e) {}
         });
         toggle.addEventListener('click', function () {
@@ -1603,7 +1605,7 @@
       }
       /* 테마별 표시 영역 기본색 + 스와치 프리셋. 나머지 UI 색은 CSS 변수(html[data-theme])가 담당 — 진실은 html[data-theme] 속성(theme.js · 헤더 풀다운) */
       const THEMES = {
-        broodev:  { bg: '#000000', fg: '#ffffff', bgPresets: ['#000000', '#111111', '#1f1f1f', '#000040', '#0a1a0a'], fgPresets: ['#ffffff', '#cccccc', '#999999', '#ffff00', '#66ccff'] },
+        broodev:  { bg: '#000000', fg: '#00ff9c', bgPresets: ['#000000', '#05080a', '#0a1014', '#000040', '#111111'], fgPresets: ['#00ff9c', '#c8ffe6', '#ffffff', '#ffff00', '#66ccff'] },   // btc 계열: 검정 바탕 + 네온 그린 글자
         original: { bg: '#000040', fg: '#ffff00', bgPresets: ['#000040', '#000000', '#000066', '#0a1a0a', '#1a0a0a'], fgPresets: ['#ffff00', '#ffffff', '#66ff66', '#66ccff', '#ffb000'] },
       }
       const readTheme = () => { const v = document.documentElement.getAttribute('data-theme'); return THEMES[v] ? v : 'broodev' }

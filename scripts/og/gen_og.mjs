@@ -59,11 +59,11 @@ export const SITES = [
     badge: '⚔ BROODEV GAMES', title: '사무라이 택틱스 <b>2</b>',
     sub: '턴제 검술 로그라이크 — 기술패를 쌓고, 한 호흡에 발동한다. 적의 예고를 읽는 한 줄 전장 두뇌 싸움.',
     tags: ['턴제', '로그라이크', '한 줄 전장', '업적 30종'], deco: 'ring', glyph: '⚔' },
-  // 깜빡이 단어암기장 — 2026-10-03 앱 기본 테마가 BROODEV(흑백 모노톤)로 바뀌며 OG 도 같은 팔레트로 재생성.
+  // 깜빡이 단어암기장 — 앱 기본 테마 BROODEV 와 같은 팔레트. 2026-10-05 btc 계열 네온 그린(바탕 #05080a · 민트 #c8ffe6 · 네온 #00ff9c)으로 교정(10-03 의 흑백 모노톤은 오해였음).
   // layout:'card' = 예전 외부 제작 OG(남색·노랑 VOCA_DECK 카드)의 구성(모서리 브래킷·워드마크·가로줄·'> 태그' 한 줄)을 그대로 두고 색만 바꾼 전용 레이아웃.
   // 포털 Start here 카드(apps/home/assets/images/featured-voca.png)는 이 파일의 복사본 — 재생성 뒤 같이 복사할 것.
   { id: 'voca', out: 'apps/voca/og-image.png', domain: 'voca.broodev.com', layout: 'card',
-    theme: { bg: '#000000', glow: '#ffffff', accent: '#FFFFFF', text: '#FFFFFF', dim: '#999999', font: 'mono' },
+    theme: { bg: '#05080a', glow: '#00ff9c', accent: '#00ff9c', text: '#c8ffe6', dim: '#4f7a6c', font: 'mono' },
     badge: '◐ BROODEV', title: 'VOCA_DECK', titleSize: 118,
     sub: '깜빡이 단어암기장 · CSV 자동 반복', sub2: 'Blink-style Vocabulary Memorizer',
     tags: ['free', 'no install', 'CSV', 'TTS', '13 languages'] },

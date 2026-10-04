@@ -77,9 +77,9 @@ broodev/
 │  ├─ eth/ xrp/ doge/ bch/ link/ xlm/ ltc/ avax/ shib/ dot/ pepe/ grt/ sand/ mana/
 │  │                        ← 코인 14종. btc 복제(gen_coin.py 생성). member/·adsense/ 없음.
 │  ├─ voca/                 깜빡이 단어암기장 (자기완결형·13개국어·CSV·모바일 대응)
-│  │  ├─ theme.js           테마 초기화(2026-10-03): localStorage voca:theme → html[data-theme] 를 CSS 보다 먼저 지정. BROODEV(기본, 포털 흑백) / ORIGINAL(남색+노랑·Win95 패널). 헤더 ◐ 풀다운(언어 풀다운 왼쪽)이 전환
+│  │  ├─ theme.js           테마 초기화(2026-10-03): localStorage voca:theme → html[data-theme] 를 CSS 보다 먼저 지정. BROODEV(기본 — btc 계열 네온 그린 터미널: 바탕 #05080a · 민트 #c8ffe6 · 네온 #00ff9c, 2026-10-05 흑백 모노톤에서 교정) / ORIGINAL(남색+노랑·Win95 패널). 헤더 ◐ 풀다운(언어 풀다운 왼쪽)이 전환
 │  │  ├─ content.css        콘텐츠 페이지 공용 스타일 — index.html 과 같은 html[data-theme] 변수 블록(:root=BROODEV · [data-theme=original])
-│  │  └─ og-image.png       공유 썸네일 — `scripts/og/gen_og.mjs voca`(layout:'card' · BROODEV 흑백, 2026-10-03). 포털 Start here 의 featured-voca.png 가 이 복사본
+│  │  └─ og-image.png       공유 썸네일 — `scripts/og/gen_og.mjs voca`(layout:'card' · BROODEV 네온 그린, 2026-10-05). 포털 Start here 의 featured-voca.png 가 이 복사본
 │  ├─ voca-tutorial/        voca 사용법 10단계 튜토리얼 (자기완결형·복제 아님·미니 데모)
 │  ├─ home/                 broodev.com 루트 = 앱 포털 (순수 정적 · AIXOR 템플릿 · 2026-10-03 · §6.3) — Pages broodev-web Root 를 apps/btc → apps/home 으로
 │  │  ├─ index.html  404.html  README.md  ads.txt  robots.txt  sitemap.xml  og-image.png  파비콘
