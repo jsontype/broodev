@@ -71,8 +71,8 @@
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": false,
       "offers": [
-        { "@type": "Offer", "name": "Utils Premium — Yearly", "price": "2500", "priceCurrency": "JPY", "availability": "https://schema.org/PreOrder", "url": "https://utils.broodev.com/pricing" },
-        { "@type": "Offer", "name": "Utils Premium — Lifetime", "price": "5000", "priceCurrency": "JPY", "availability": "https://schema.org/PreOrder", "url": "https://utils.broodev.com/pricing" }
+        { "@type": "Offer", "name": "Utils Premium — Yearly", "price": "2500", "priceCurrency": "JPY", "availability": "https://schema.org/InStock", "url": "https://utils.broodev.com/pricing" },
+        { "@type": "Offer", "name": "Utils Premium — Lifetime", "price": "5000", "priceCurrency": "JPY", "availability": "https://schema.org/InStock", "url": "https://utils.broodev.com/pricing" }
       ],
       "inLanguage": ["en", "ja", "ko", "zh-Hans", "es", "pt", "fr", "ru", "de", "it", "th", "zh-Hant", "nl"],
       "image": "https://utils.broodev.com/og-image.png",
@@ -88,7 +88,11 @@
       ],
       "publisher": { "@type": "Organization", "name": "Y Systems", "url": "https://broodev.com/", "email": "support@broodev.com" },
       "isPartOf": { "@type": "WebSite", "name": "broodev", "url": "https://broodev.com/" },
-      "isRelatedTo": { "@type": "WebApplication", "name": "Photo Layout for Excel — Utils", "url": "https://utils.broodev.com/" }
+      "isRelatedTo": [
+        { "@type": "WebApplication", "name": "Photo Layout for Excel — Utils", "url": "https://utils.broodev.com/" },
+        { "@type": "WebApplication", "name": "Photo Layout for Illustrator — Utils", "url": "https://utils.broodev.com/ai" },
+        { "@type": "WebApplication", "name": "Photo Layout for Photoshop — Utils", "url": "https://utils.broodev.com/psd" }
+      ]
     }
     </script>
 
@@ -109,9 +113,9 @@
     <link rel="shortcut icon" href="images/favicon.png">
     <link rel="apple-touch-icon-precomposed" href="images/favicon.png">
 
-    <!-- 공통(로고 워드마크 · 언어 풀다운 · 하단 법적 링크 · 안내 페이지). ?v= 는 캐시 버스터 — 우리가 고치는 js/css 를 바꾸면 5개 페이지의 토큰을 같이 올릴 것
+    <!-- 공통(로고 워드마크 · 언어 풀다운 · 하단 법적 링크 · 안내 페이지). ?v= 는 캐시 버스터 — 우리가 고치는 js/css 를 바꾸면 7개 페이지의 토큰을 같이 올릴 것
          (Cloudflare 가 브라우저에 4시간 캐시를 주므로, 새 HTML + 옛 JS 조합이 생기면 풀다운·번역이 깨진다 — 2026-10-04 실제 발생) -->
-    <link rel="stylesheet" href="css/site.css?v=20261005d">
+    <link rel="stylesheet" href="css/site.css?v=20261005f">
 
     <!-- 앱 전용 스타일 (템플릿 CSS 위에 덧씀) -->
     <style>
@@ -170,7 +174,7 @@
                     <div class="section-menu-left-wrap">
                         <div class="center">
                             <!-- 「写真ならべ」 시리즈: 출력 형식별로 앱 1개 = 페이지 1개. Excel(index) 은 항상 무료, PowerPoint(pptx) 는 프리미엄(PREMIUM 배지 · 라이선스 없으면 다운로드 잠금),
-                                 Illustrator · Photoshop 은 프리미엄 예정(준비 중). 형식명(Excel 등)은 고유명사라 번역 안 함 — 시리즈명·「기타」·「준비 중」만 data-i18n -->
+                                 Illustrator(ai.html) · Photoshop(psd.html) 도 프리미엄(2026-10-05 공개). 형식명(Excel 등)은 고유명사라 번역 안 함 — 시리즈명·「기타」만 data-i18n -->
                             <div class="center-item">
                                 <div class="center-heading" data-i18n="series">사진 나란히</div>
                                 <ul>
@@ -187,18 +191,18 @@
                                             <span class="pg-prem" title="Premium">Premium</span>
                                         </a>
                                     </li>
-                                    <li class="menu-item soon">
-                                        <a class="" aria-disabled="true">
+                                    <li class="menu-item">
+                                        <a href="ai.html" class="">
                                             <div class="icon"><span class="pg-fmt pg-fmt-ai" aria-hidden="true">Ai</span></div>
                                             <div class="text">Illustrator</div>
-                                            <span class="pg-tags"><span class="pg-prem">Premium</span><span class="pg-soon-tag" data-i18n="soon">준비 중</span></span>
+                                            <span class="pg-prem" title="Premium">Premium</span>
                                         </a>
                                     </li>
-                                    <li class="menu-item soon">
-                                        <a class="" aria-disabled="true">
+                                    <li class="menu-item">
+                                        <a href="psd.html" class="">
                                             <div class="icon"><span class="pg-fmt pg-fmt-psd" aria-hidden="true">Ps</span></div>
                                             <div class="text">Photoshop</div>
-                                            <span class="pg-tags"><span class="pg-prem">Premium</span><span class="pg-soon-tag" data-i18n="soon">준비 중</span></span>
+                                            <span class="pg-prem" title="Premium">Premium</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -409,10 +413,10 @@
     <script src="js/main.js"></script>
     <!-- 앱: PptxGenJS (CDN, 버전 고정 — 이 페이지는 PowerPoint 전용, ExcelJS 는 index.html 에만) + i18n + 라이선스(프리미엄 잠금) + 핵심 로직 + DOM -->
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js" crossorigin="anonymous"></script>
-    <script src="js/i18n.js?v=20261005d"></script>
-    <script src="js/license.js?v=20261005d"></script>
-    <script src="js/photo-grid.js?v=20261005d"></script>
-    <script src="js/app.js?v=20261005d"></script>
+    <script src="js/i18n.js?v=20261005f"></script>
+    <script src="js/license.js?v=20261005f"></script>
+    <script src="js/photo-grid.js?v=20261005f"></script>
+    <script src="js/app.js?v=20261005f"></script>
 
 </body>
 

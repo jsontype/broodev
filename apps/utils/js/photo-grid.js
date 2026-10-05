@@ -1,8 +1,8 @@
-/* Utils (구 Megahouse) — 사진 → 엑셀 / PPT 격자 배열
+/* Utils (구 Megahouse) — 사진 → 엑셀 / PPT / Illustrator / Photoshop 격자 배열
    공통 레이아웃(용지·방향·가로×세로 개수 → 셀 좌표, px@96dpi) 위에
-   xlsx 빌더(ExcelJS)와 pptx 빌더(PptxGenJS)가 같은 좌표를 쓴다.
-   DOM 의존이 없는 부분(PAPERS·layout·naturalCompare·buildWorkbook·buildPptx)은
-   Node 에서도 그대로 돌아가므로 검증 스크립트에 재사용한다. 브라우저 전용은 readImage() 뿐. */
+   xlsx 빌더(ExcelJS) · pptx 빌더(PptxGenJS) · pdf 빌더(pdf-lib → .ai, 2026-10-05) · psd 빌더(ag-psd, 2026-10-05)가 같은 좌표를 쓴다.
+   DOM 의존이 없는 부분(PAPERS·layout·naturalCompare·build*)은 Node 에서도 그대로 돌아가므로 검증 스크립트에 재사용한다
+   (buildPsd 는 캔버스 팩토리를 env 로 받는다). 브라우저 전용은 readImage()·decodeImage() 뿐. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PhotoGrid = factory();
@@ -185,12 +185,195 @@
     return pptx;
   }
 
+  /* ---------- 공통: 캡션 래스터 · dataURL ---------- */
+  var CAP_FONT_PX = 12;   // 9pt @96dpi — xlsx/pptx 캡션(Calibri 9)과 같은 크기
+  var CAP_FAMILY = 'system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Yu Gothic UI", "Malgun Gothic", "Noto Sans CJK JP", sans-serif';
+  var CAP_COLOR = '#444444';
+
+  // 폰트가 설정된 2D 컨텍스트 기준으로 maxW 에 맞게 말줄임
+  function ellipsize(ctx, text, maxW) {
+    if (ctx.measureText(text).width <= maxW) return text;
+    var s = text;
+    while (s.length > 1) { s = s.slice(0, -1); if (ctx.measureText(s + '…').width <= maxW) return s + '…'; }
+    return '…';
+  }
+  // 투명 캔버스(w×h px)에 캡션을 가운데 그린다 — PSD 캡션 레이어 · PDF 의 비(非)WinAnsi 캡션 폴백 공통. scale = 글자 크기 배율(dpi/96 등)
+  function drawCaption(canvas, text, scale) {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = Math.round(CAP_FONT_PX * scale) + 'px ' + CAP_FAMILY;
+    ctx.fillStyle = CAP_COLOR; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(ellipsize(ctx, text, canvas.width - 6 * scale), canvas.width / 2, canvas.height / 2);
+    return canvas;
+  }
+  // data:…;base64,… → Uint8Array (브라우저 atob · Node Buffer)
+  function dataUrlBytes(dataUrl) {
+    var i = dataUrl.indexOf(','), b64 = i >= 0 ? dataUrl.slice(i + 1) : dataUrl;
+    if (typeof atob === 'function') {
+      var bin = atob(b64), out = new Uint8Array(bin.length);
+      for (var j = 0; j < bin.length; j++) out[j] = bin.charCodeAt(j);
+      return out;
+    }
+    return new Uint8Array(Buffer.from(b64, 'base64'));
+  }
+
+  /* ---------- pdf → .ai (Illustrator) ---------- */
+  /** Illustrator 의 네이티브 .ai 는 PDF 기반 — 페이지 = 아트보드인 PDF 를 만들어 .ai 로 내려준다
+   *  (Illustrator 가 그대로 열고, 사진은 각각 배치된 이미지 오브젝트 · 캡션은 텍스트. 여러 페이지는 아트보드 여러 장).
+   *  images: readImage() 결과 [{ name, base64, extension('jpeg'|'png'), width, height }] — gif 는 PDF 에 못 넣으므로 호출 쪽이 PDF_PASSTHROUGH 로 readImage 해 jpeg 로 바꿔 둔다
+   *  opts: layout 옵션 + { renderCaption(text, wPx, hPx) → PNG dataURL | null } — 표준 Helvetica(WinAnsi)로 못 쓰는 캡션(일본어·한국어 등)을 캔버스로 그려 넣기 위한 훅. 없으면 그 캡션은 생략
+   *  반환: Promise<Uint8Array> */
+  var PDF_PASSTHROUGH = /^image\/(jpeg|png)$/;
+  function buildPdf(PDFLib, images, opts) {
+    var L = layout(opts);
+    var PT = 72 / DPI;                                   // px@96 → pt
+    var pageWpt = L.pageWin * 72, pageHpt = L.pageHin * 72;
+    var renderCaption = opts && typeof opts.renderCaption === 'function' ? opts.renderCaption : null;
+    var CAP_PT = 9, GRAY = PDFLib.rgb(0.267, 0.267, 0.267);
+    var offX = (L.pageW - L.usedW) / 2, offY = L.marginPx;
+    var pages = pageCount(images.length, L);
+    var doc, font;
+    return PDFLib.PDFDocument.create().then(function (d) {
+      doc = d;
+      doc.setTitle(L.cols + 'x' + L.rows + ' photo grid'); doc.setAuthor('Y Systems');
+      doc.setCreator('Y Systems Utils (utils.broodev.com)'); doc.setProducer('pdf-lib');
+      return doc.embedFont(PDFLib.StandardFonts.Helvetica);
+    }).then(function (f) {
+      font = f;
+      var chain = Promise.resolve();
+      for (var p = 0; p < pages; p++) chain = chain.then(pageStep(p));
+      return chain;
+    }).then(function () { return doc.save(); });
+
+    function pageStep(p) {
+      return function () {
+        var page = doc.addPage([pageWpt, pageHpt]);
+        var seq = Promise.resolve();
+        for (var r = 0; r < L.rows; r++) for (var c = 0; c < L.cols; c++) {
+          var idx = p * L.perPage + r * L.cols + c;
+          if (idx < images.length) seq = seq.then(cellStep(page, images[idx], r, c));
+        }
+        return seq;
+      };
+    }
+    function cellStep(page, im, r, c) {
+      return function () {
+        var sz = fit(im.width, im.height, L.cellW, L.imgH);
+        var cx = offX + c * (L.cellW + L.gap), cy = offY + r * (L.cellH + L.gap);
+        var bytes = dataUrlBytes(im.base64);
+        var embed = im.extension === 'png' ? doc.embedPng(bytes) : doc.embedJpg(bytes);
+        return embed.then(function (img) {
+          var x = (cx + (L.cellW - sz.w) / 2) * PT, yTop = (cy + (L.imgH - sz.h) / 2) * PT;
+          page.drawImage(img, { x: x, y: pageHpt - yTop - sz.h * PT, width: sz.w * PT, height: sz.h * PT });
+          if (L.caption) return caption(page, im.name, cx, cy + L.imgH, L.cellW, L.capH);
+        });
+      };
+    }
+    // 캡션: Helvetica 로 쓸 수 있으면 텍스트(편집 가능), 아니면 renderCaption 훅의 PNG
+    function caption(page, text, xPx, yPx, wPx, hPx) {
+      var x = xPx * PT, w = wPx * PT, h = hPx * PT, yTop = pageHpt - yPx * PT;
+      var s = fitText(text, w - 4);
+      if (s != null) {
+        var tw = font.widthOfTextAtSize(s, CAP_PT);
+        page.drawText(s, { x: x + (w - tw) / 2, y: yTop - h / 2 - CAP_PT * 0.35, size: CAP_PT, font: font, color: GRAY });
+        return;
+      }
+      if (!renderCaption) return;
+      return Promise.resolve(renderCaption(text, wPx, hPx)).then(function (png) {
+        if (!png) return;
+        return doc.embedPng(dataUrlBytes(png)).then(function (img) { page.drawImage(img, { x: x, y: yTop - h, width: w, height: h }); });
+      });
+    }
+    // Helvetica(WinAnsi) 로 쓸 수 있으면 폭에 맞춰 말줄임한 문자열, 못 쓰는 글자가 있으면(인코딩 예외) null
+    function fitText(text, maxW) {
+      try {
+        if (font.widthOfTextAtSize(text, CAP_PT) <= maxW) return text;
+        var s = text;
+        while (s.length > 1) { s = s.slice(0, -1); if (font.widthOfTextAtSize(s + '…', CAP_PT) <= maxW) return s + '…'; }
+        return '…';
+      } catch (e) { return null; }
+    }
+  }
+
+  /* ---------- psd (Photoshop) ---------- */
+  /** Photoshop 은 페이지 개념이 없어 페이지마다 PSD 1개(여러 장이면 호출 쪽이 ZIP). 문서 픽셀 = 용지 × dpi.
+   *  맨 아래 흰 「Background」, 그 위에 사진마다 그룹 「01 파일명」(캡션 래스터 레이어 + 사진 레이어).
+   *  캡션을 텍스트 레이어로 쓰면 Photoshop 이 열 때마다 「텍스트 레이어 업데이트」 경고를 띄우므로(ag-psd 제약) 래스터로 넣는다.
+   *  images: [{ name, load() → Promise<drawable(ImageBitmap·Image·Canvas)>, release(drawable)? }]
+   *          — 문서 해상도에 맞춰 다시 그려야 하므로 base64 가 아니라 그릴 수 있는 원본을 셀마다 느리게 받아 메모리를 아낀다
+   *  env: { createCanvas(w, h), dpi(기본 300), thumbnail(기본 false — 브라우저에서 true), onPage(i, n) }
+   *  반환: Promise<ArrayBuffer[]> (페이지 순) */
+  function buildPsd(agPsd, images, opts, env) {
+    env = env || {};
+    var L = layout(opts);
+    var dpi = env.dpi || 300, k = dpi / DPI;
+    var W = Math.round(L.pageWin * dpi), H = Math.round(L.pageHin * dpi);   // 용지 치수(인치)에서 바로 — A4 300dpi = 2480×3508
+    var create = env.createCanvas;
+    var offX = (W / k - L.usedW) / 2, offY = L.marginPx;                    // 가로 중앙(px@96 단위 · 셀 좌표계)
+    var pages = pageCount(images.length, L);
+    var out = [];
+    var chain = Promise.resolve();
+    for (var p = 0; p < pages; p++) chain = chain.then(pageStep(p));
+    return chain.then(function () { return out; });
+
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+    function imageData(canvas) { return canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height); }
+    function white(w, h) { var cv = create(w, h), ctx = cv.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h); return cv; }
+    function pageStep(p) {
+      return function () {
+        if (env.onPage) env.onPage(p + 1, pages);
+        var comp = white(W, H), cctx = comp.getContext('2d');
+        var groups = [];
+        var seq = Promise.resolve();
+        for (var r = 0; r < L.rows; r++) for (var c = 0; c < L.cols; c++) {
+          var idx = p * L.perPage + r * L.cols + c;
+          if (idx < images.length) seq = seq.then(cellStep(images[idx], idx, r, c, cctx, groups));
+        }
+        return seq.then(function () {
+          groups.push({ name: 'Background', left: 0, top: 0, imageData: imageData(white(W, H)) });
+          var psd = {
+            width: W, height: H, channels: 3, bitsPerChannel: 8, colorMode: 3,
+            imageResources: { resolutionInfo: { horizontalResolution: dpi, horizontalResolutionUnit: 'PPI', widthUnit: 'Centimeters', verticalResolution: dpi, verticalResolutionUnit: 'PPI', heightUnit: 'Centimeters' } },
+            children: groups   // 위→아래 순 (ag-psd): 01 그룹이 맨 위, Background 가 맨 아래
+          };
+          if (env.thumbnail) psd.canvas = comp; else psd.imageData = imageData(comp);
+          out.push(agPsd.writePsd(psd, { generateThumbnail: !!env.thumbnail }));
+        });
+      };
+    }
+    function cellStep(im, idx, r, c, cctx, groups) {
+      return function () {
+        return Promise.resolve(im.load()).then(function (src) {
+          var w0 = src.naturalWidth || src.width, h0 = src.naturalHeight || src.height;
+          var sz = fit(w0, h0, L.cellW, L.imgH);
+          var cx = offX + c * (L.cellW + L.gap), cy = offY + r * (L.cellH + L.gap);
+          var x = Math.round((cx + (L.cellW - sz.w) / 2) * k), y = Math.round((cy + (L.imgH - sz.h) / 2) * k);
+          var w = Math.max(1, Math.round(sz.w * k)), h = Math.max(1, Math.round(sz.h * k));
+          var cv = create(w, h), ctx = cv.getContext('2d');
+          ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(src, 0, 0, w, h);
+          if (im.release) im.release(src);
+          cctx.drawImage(cv, x, y);
+          var children = [];
+          if (L.caption) {
+            var capW = Math.round(L.cellW * k), capH = Math.round(L.capH * k), capX = Math.round(cx * k), capY = Math.round((cy + L.imgH) * k);
+            var cap = drawCaption(create(capW, capH), im.name, k);
+            cctx.drawImage(cap, capX, capY);
+            children.push({ name: 'caption', left: capX, top: capY, imageData: imageData(cap) });
+          }
+          children.push({ name: im.name, left: x, top: y, imageData: imageData(cv) });
+          groups.push({ name: pad2(idx + 1) + ' ' + im.name, opened: false, children: children });
+        });
+      };
+    }
+  }
+
   /* ---------- 브라우저 전용 ---------- */
 
-  // File → { name, base64, extension, width, height }. maxPx=0 이면 원본 바이트 그대로(jpeg/png/gif 한정).
-  function readImage(file, maxPx) {
+  // File → { name, base64, extension, width, height }. maxPx=0 이면 원본 바이트 그대로(passRe 에 맞는 형식만 · 기본 jpeg/png/gif, PDF 는 PDF_PASSTHROUGH).
+  function readImage(file, maxPx, passRe) {
     var type = (file.type || '').toLowerCase();
-    var passthrough = maxPx === 0 && /^image\/(jpeg|png|gif)$/.test(type);
+    var passthrough = maxPx === 0 && (passRe || /^image\/(jpeg|png|gif)$/).test(type);
     return decode(file).then(function (bmp) {
       var w = bmp.width, h = bmp.height;
       if (passthrough) {
@@ -242,8 +425,10 @@
   }
 
   return {
-    PAPERS: PAPERS, PAPER_ORDER: PAPER_ORDER, MIN_N: MIN_N, MAX_N: MAX_N,
+    PAPERS: PAPERS, PAPER_ORDER: PAPER_ORDER, MIN_N: MIN_N, MAX_N: MAX_N, PDF_PASSTHROUGH: PDF_PASSTHROUGH,
     layout: layout, pageCount: pageCount, naturalCompare: naturalCompare, fit: fit,
-    buildWorkbook: buildWorkbook, buildPptx: buildPptx, readImage: readImage
+    buildWorkbook: buildWorkbook, buildPptx: buildPptx, buildPdf: buildPdf, buildPsd: buildPsd,
+    drawCaption: drawCaption, ellipsize: ellipsize, dataUrlBytes: dataUrlBytes,
+    readImage: readImage, decodeImage: decode, releaseImage: release
   };
 }));
