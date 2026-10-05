@@ -481,6 +481,10 @@
       .bottom-answer.no .bottom-answer-a { color: var(--text); }
       .bottom-answer.na .bottom-answer-a { color: var(--dim); font-size: 16px; }
       .bottom-answer-why { flex-basis: 100%; color: var(--dim); font-size: 11.5px; }
+      .mosaic-hit { display: inline-flex; align-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+      .mosaic-bar { display: inline-block; width: min(280px, 52vw); height: 22px; border-radius: 3px; background-image: linear-gradient(90deg, rgba(0,0,0,.55) 1px, transparent 1px), linear-gradient(rgba(0,0,0,.55) 1px, transparent 1px), linear-gradient(135deg, #6a7a72, #c5d4cc 40%, #3d4c45 70%, #9aaea4); background-size: 8px 8px, 8px 8px, 100% 100%; }
+      .duo-lock { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+      .duo-mosaic { height: clamp(200px, 34vw, 300px); border: 1px solid var(--line); border-radius: 4px; background-image: linear-gradient(90deg, rgba(0,0,0,.5) 1px, transparent 1px), linear-gradient(rgba(0,0,0,.5) 1px, transparent 1px), linear-gradient(180deg, #24362c, #0b120e 45%, #1c2b24); background-size: 12px 12px, 12px 12px, 100% 100%; }
       /* 바닥 경고 — 시가총액(흰선) < 평균 매수원가(파란선), 즉 MVRV<1 일 때만 표시 */
       .bottom-alert { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--crit); border-radius: 6px; background: rgba(255, 70, 70, 0.1); box-shadow: 0 0 18px rgba(255, 70, 70, 0.18); }
       .bottom-alert-title { color: var(--crit); font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
@@ -2191,7 +2195,7 @@
               <div className="panel-label">// {oc.bottom.title} — {oc.bottom.q}</div>
               <div className={`bottom-answer ${verdict}`} role="status">
                 <span className="bottom-answer-q">{oc.bottom.q}</span>
-                <span className="bottom-answer-a">{ans[verdict]}</span>
+                {premium ? <span className="bottom-answer-a">{ans[verdict]}</span> : <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>}
                 {why && (premium ? <span className="bottom-answer-why">{why}</span> : <button type="button" className="chip" onClick={onPremium}>PREMIUM</button>)}
               </div>
               <div className="bottom-score-row">
@@ -2200,13 +2204,15 @@
                 <span className="bottom-verdict" style={{ color }}>{bandTx.label}</span>
               </div>
               <div className="bottom-advice">{bandTx.advice}</div>
-              {B.hasOnchain && (
+              {premium && B.hasOnchain && (
                 <div className="bottom-stats">
                   {B.mvrv != null && <span>MVRV <b>{B.mvrv.toFixed(2)}×</b> · z <b>{B.mvrvZ.toFixed(2)}</b></span>}
                   {B.thermZ != null && <span>Thermocap z <b>{B.thermZ.toFixed(2)}</b></span>}
                 </div>
               )}
-              {B.hasOnchain && B.underCost ? (
+              {!premium ? (
+                <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium" style={{ marginTop: 8 }}><span className="mosaic-bar" /></button>
+              ) : B.hasOnchain && B.underCost ? (
                 /* 흰선(시가총액)이 파란선(평균 매수원가) 아래 = MVRV<1 → 빨간 바닥 경고 */
                 <div className="bottom-alert" role="alert">
                   <div className="bottom-alert-title">{oc.bottom.underCostTitle || ONCHAIN_I18N.ko.bottom.underCostTitle}</div>
@@ -2229,7 +2235,11 @@
                   </span>
                   <span className="duo-src">coinmetrics{chain.thermZ != null ? ' · blockchain.info' : ''}</span>
                 </div>
-                <DuoLogChart chart={chain.chart} oc={oc} />
+                {premium ? <DuoLogChart chart={chain.chart} oc={oc} /> : (
+                  <div className="duo-lock" onClick={onPremium} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPremium() } }}>
+                    <div className="duo-mosaic" />
+                  </div>
+                )}
               </>
             )}
             <div className="bottom-note">{oc.bottom.note}</div>
@@ -2242,7 +2252,7 @@
        * ========================================================= */
       const SHOW_MAP = { rsi: 'RSI', macd: 'MACD', fng: 'FNG', mayer: 'Mayer', dd: 'DD', cross: 'GC_DC', mvrv: 'MVRV', therm: 'THERM' }
       function Terminal({ ctx }) {
-        const { t } = useI18n()
+        const { t, lang } = useI18n()
         const tt = t.term
         const [lines, setLines] = useState([tt.welcome])
         const [input, setInput] = useState(''); const [hist, setHist] = useState([]); const [hi, setHi] = useState(-1)
@@ -2269,7 +2279,7 @@
                     tt.scoreCoverage(a.short.online, Math.round(a.short.coverage * 100)))
               break
             case 'why': {
-              if (!ctx.premium) { print('  PREMIUM — yearly ¥2,500 / lifetime ¥5,000 (tax in). Reference only, not investment advice.'); break }
+              if (!ctx.premium) { print('  ' + (PREM_UI[lang] || PREM_UI.en).body); break }
               if (!a || a.short.score == null) { print(tt.needData); break }
               const contribs = Object.keys(WEIGHTS_MOM).map((k) => ({ k, v: a.parts[k].sShort, w: WEIGHTS_MOM[k] })).filter((c) => c.v != null)
               const wsum = contribs.reduce((s, c) => s + c.w, 0)
@@ -2911,6 +2921,22 @@
         },
       }
       const getOnchain = (lang) => ONCHAIN_I18N[lang] || ONCHAIN_I18N.en
+      const PREM_UI = {
+        ko: { label: 'PREMIUM · 연 ¥2,500 · 평생 ¥5,000 (세금 포함)', body: '오늘의 점수는 무료입니다. why, 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간 ¥2,500', life: '평생 ¥5,000', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)' },
+        en: { label: 'PREMIUM · ¥2,500/year · ¥5,000 lifetime (tax included)', body: "Today's score is free. why, history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly ¥2,500', life: 'Lifetime ¥5,000', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)' },
+        ja: { label: 'PREMIUM · ¥2,500/年 · ¥5,000 買い切り（税込）', body: '今日のスコアは無料。why・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額 ¥2,500', life: '買い切り ¥5,000', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）' },
+        zh: { label: 'PREMIUM · 年付 ¥2,500 · 买断 ¥5,000（含税）', body: '今日评分免费。why、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付 ¥2,500', life: '买断 ¥5,000', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）' },
+        'zh-Hant': { label: 'PREMIUM · 年付 ¥2,500 · 買斷 ¥5,000（含稅）', body: '今日評分免費。why、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付 ¥2,500', life: '買斷 ¥5,000', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）' },
+        th: { label: 'PREMIUM · รายปี ¥2,500 · ตลอดชีพ ¥5,000 (รวมภาษี)', body: 'คะแนนวันนี้ฟรี why แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี ¥2,500', life: 'ตลอดชีพ ¥5,000', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)' },
+        es: { label: 'PREMIUM · ¥2,500/año · ¥5,000 de por vida (IVA incl.)', body: 'La puntuación de hoy es gratis. why, el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual ¥2,500', life: 'De por vida ¥5,000', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)' },
+        fr: { label: 'PREMIUM · ¥2,500/an · ¥5,000 à vie (taxes incl.)', body: 'Le score du jour est gratuit. why, l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel ¥2,500', life: 'À vie ¥5,000', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)' },
+        de: { label: 'PREMIUM · ¥2,500/Jahr · ¥5,000 lebenslang (inkl. Steuer)', body: 'Der heutige Score ist kostenlos. why, Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich ¥2,500', life: 'Lebenslang ¥5,000', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)' },
+        it: { label: 'PREMIUM · ¥2,500/anno · ¥5,000 a vita (tasse incl.)', body: 'Il punteggio di oggi è gratis. why, lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale ¥2,500', life: 'A vita ¥5,000', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)' },
+        pt: { label: 'PREMIUM · ¥2,500/ano · ¥5,000 vitalício (impostos incl.)', body: 'A pontuação de hoje é grátis. why, o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual ¥2,500', life: 'Vitalício ¥5,000', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)' },
+        ru: { label: 'PREMIUM · ¥2,500/год · ¥5,000 навсегда (с налогом)', body: 'Сегодняшний балл бесплатный. why, история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год ¥2,500', life: 'Навсегда ¥5,000', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)' },
+        nl: { label: 'PREMIUM · ¥2,500/jaar · ¥5,000 levenslang (incl. btw)', body: 'De score van vandaag is gratis. why, verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks ¥2,500', life: 'Levenslang ¥5,000', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)' },
+      }
+      const premUi = (lang) => PREM_UI[lang] || PREM_UI.en
       // BOTTOM RADAR 한 줄 결론 — "지금이 바닥인가?" 에 예/아니오로 답한다 (판정 = MVRV<1 · 온체인 미지원 코인은 보류). 13개 언어 키 동일.
       const BOTTOM_ANSWER = {
         ko: { yes: '예 — 지금은 바닥입니다', no: '아니오 — 지금은 바닥이 아닙니다', na: '판정 보류 — 온체인 데이터 없음', why: '기준: 시가총액 ÷ 평균 매수원가 = MVRV {mvrv}× (1 미만이면 바닥)', whyNa: '이 코인은 온체인(CoinMetrics) 미지원 — 위 점수만 참고' },
@@ -3212,7 +3238,7 @@
                   fetch(licApi + '/api/alerts/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key: row.key, email: alertEmail, lang }) })
                     .then((r) => r.json()).then((d) => { if (d && d.ok) setAlertEmail('') })
                 }}>
-                  <span>恐怖・強欲が極端な日だけメール（投資助言ではありません）</span>
+                  <span>{premUi(lang).mail}</span>
                   <input value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} placeholder="email" style={{ background: 'transparent', color: 'inherit', border: '1px solid var(--line)', padding: '4px 8px' }} />
                   <button className="chip" type="submit">OK</button>
                 </form>
@@ -3220,17 +3246,17 @@
               {showPrm && (
                 <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowPrm(false)}>
                   <div className="panel" style={{ padding: 18, maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
-                    <div className="panel-label">// PREMIUM · ¥2,500/年 · ¥5,000 買い切り（税込）</div>
-                    <p style={{ fontSize: 13, lineHeight: 1.5 }}>今日のスコアは無料。why・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。</p>
-                    <p style={{ fontSize: 13 }}>購入後のメールに届くキーを貼り付けてください。</p>
+                    <div className="panel-label">// {premUi(lang).label}</div>
+                    <p style={{ fontSize: 13, lineHeight: 1.5 }}>{premUi(lang).body}</p>
+                    <p style={{ fontSize: 13 }}>{premUi(lang).key}</p>
                     <p style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '8px 0' }}>
-                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/dRmfZjb2QaTGbQi9Ng4wM04', '_blank', 'noopener')}>年額 ¥2,500</button>
-                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/cNi5kFdaY2naf2u7F84wM05', '_blank', 'noopener')}>買い切り ¥5,000</button>
+                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/dRmfZjb2QaTGbQi9Ng4wM04', '_blank', 'noopener')}>{premUi(lang).yearly}</button>
+                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/cNi5kFdaY2naf2u7F84wM05', '_blank', 'noopener')}>{premUi(lang).life}</button>
                     </p>
                     <form onSubmit={(e) => { e.preventDefault(); activateLic(e.target.elements.key.value) }}>
                       <input name="key" placeholder={'B' + 'TC-XXXX-XXXX-XXXX-XXXX'} style={{ width: '100%', margin: '8px 0', padding: 8, background: '#000', color: 'var(--text)', border: '1px solid var(--line)' }} />
-                      <button className="chip" type="submit">Activate</button>
-                      <button className="chip" type="button" onClick={() => setShowPrm(false)}>Close</button>
+                      <button className="chip" type="submit">{premUi(lang).activate}</button>
+                      <button className="chip" type="button" onClick={() => setShowPrm(false)}>{premUi(lang).close}</button>
                     </form>
                   </div>
                 </div>

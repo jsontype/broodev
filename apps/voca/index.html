@@ -129,7 +129,7 @@
               {
                 "@type": "Question",
                 "name": "VOCA DECK은 무료인가요? 데이터는 어디에 저장되나요?",
-                "acceptedAnswer": { "@type": "Answer", "text": "기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 샘플 암기장·CSV 편집기·마이 보카덱·광고 제거 등 고급 기능은 프리미엄으로 제공됩니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다." }
+                "acceptedAnswer": { "@type": "Answer", "text": "기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 첫 샘플 이후의 샘플 암기장·20행을 넘는 CSV 편집·추가 마이 보카덱·오늘 카드는 프리미엄입니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다." }
               },
               {
                 "@type": "Question",
@@ -429,6 +429,9 @@
       .prm-chip:hover { border-color: var(--t-accent); }
       .prm-chip-sm { display: none; } /* 체험 잔여일 축약형 — 모바일 전용 */
       .prm-badge { margin-left: 10px; font-size: 10.5px; font-weight: 800; color: var(--t-badge-fg); background: var(--t-accent); border: 1px solid var(--t-badge-line); padding: 1px 7px; cursor: pointer; vertical-align: 2px; font-family: var(--ui-font); }
+      .pg-prem { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; padding: 2px 7px 2px 6px; border: 0; border-radius: 99px; background: linear-gradient(135deg, #ffe29a 0%, #f7b733 45%, #ff8a3d 100%); color: #2a1600; font-family: var(--ui-font); font-size: 9.5px; line-height: 14px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; vertical-align: middle; box-shadow: 0 0 0 1px rgba(255,190,70,.35), 0 0 10px rgba(255,170,50,.45); cursor: pointer; }
+      .pg-prem::before { content: "✦"; font-size: 9px; line-height: 1; }
+      .pg-prem:hover { filter: brightness(1.06); }
       .prm-cover { text-align: center; padding: 36px 16px; border: 2px dashed var(--panel-dark); border-radius: var(--t-radius); background: var(--t-sub-bg2); }
       .prm-cover-ic { font-size: 40px; line-height: 1; }
       .prm-cover p { margin: 12px 0 16px; font-weight: 800; font-size: 13px; }
@@ -695,7 +698,7 @@
         <dt>자동 재생 간격을 바꿀 수 있나요?</dt>
         <dd>네. 제어판의 지연시간(초)에서 간격을 조절할 수 있으며 기본값은 3초입니다. 수동 모드에서는 스페이스바나 다음 버튼으로 한 단계씩 진행합니다.</dd>
         <dt>VOCA DECK은 무료인가요? 데이터는 어디에 저장되나요?</dt>
-        <dd>기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 샘플 암기장·CSV 편집기·마이 보카덱·광고 제거 등 고급 기능은 프리미엄으로 제공됩니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다.</dd>
+        <dd>기본 기능은 무료입니다. 나만의 CSV 암기장을 열어 암기하는 핵심 기능은 설치·회원가입 없이 무료로 사용할 수 있고, 첫 샘플 이후의 샘플 암기장·20행을 넘는 CSV 편집·추가 마이 보카덱·오늘 카드는 프리미엄입니다. 열어둔 암기장과 암기 표시는 사용 중인 브라우저의 localStorage에만 저장되며 서버로 전송되지 않습니다.</dd>
         <dt>단어장을 직접 만들 수 있나요?</dt>
         <dd>네. 앱 하단의 CSV 편집기(프리미엄)에서 엑셀처럼 2열 시트로 단어장을 만들고, CSV로 내려받거나 마이 보카덱에 저장해 언제든 다시 쓸 수 있습니다. 마이 보카덱도 브라우저에만 저장됩니다.</dd>
         <dt>스마트폰에서도 쓸 수 있나요?</dt>
@@ -2047,6 +2050,12 @@
         )
       }
 
+      function PremChip({ onClick }) {
+        return (
+          <button type="button" className="pg-prem" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClick() }}>Premium</button>
+        )
+      }
+
       /* =========================================================
        *  샘플 암기장 게시판 (앱 화면 아래) — 현재 UI 언어 탭은 숨김
        * ========================================================= */
@@ -2071,7 +2080,7 @@
         return (
           <section className="samples" id="samples" aria-label={t.samples}>
             <div className="samples-panel">
-              <h2 className="samples-title">📚 {t.samples}{!unlocked && <button className="prm-badge" onClick={onLocked}>PREMIUM</button>}</h2>
+              <h2 className="samples-title">📚 {t.samples}{!unlocked && <PremChip onClick={onLocked} />}</h2>
               <p className="samples-sub">{t.samplesSub}</p>
               <div className="tabs" role="tablist">
                 {targets.map((c) => (
@@ -2091,6 +2100,8 @@
                       <td className="act">
                         {!src ? (
                           <span className="soon-mark">{t.soon}</span>
+                        ) : locked ? (
+                          <PremChip onClick={onLocked} />
                         ) : appliedId === d.id ? (
                           <span className="act-btns">
                             <span className="applied"><span className="led-dot" /> {t.appliedMark}</span>
@@ -2279,7 +2290,7 @@
         return (
           <section className="samples" id="editor" aria-label={t.edTitle}>
             <div className="samples-panel">
-              <h2 className="samples-title">📝 {t.edTitle}</h2>
+              <h2 className="samples-title">📝 {t.edTitle}{rowCap ? <PremChip onClick={onLocked} /> : null}</h2>
               <p className="samples-sub">{t.edSub}</p>
               <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={loadFile} />
               <div className="editor-grid">
@@ -2318,12 +2329,12 @@
       /* =========================================================
        *  마이 보카덱 (CSV 편집기 아래) — localStorage 보관·적용·관리
        * ========================================================= */
-      function MyDecks({ t, decks, onApply, onEdit, onDownload, onDelete }) {
+      function MyDecks({ t, decks, onApply, onEdit, onDownload, onDelete, unlocked, onLocked }) {
         const usageKb = Math.ceil(JSON.stringify(decks).length / 1024)
         return (
           <section className="samples" id="mydecks" aria-label={t.myTitle}>
             <div className="samples-panel">
-              <h2 className="samples-title">⭐ {t.myTitle}</h2>
+              <h2 className="samples-title">⭐ {t.myTitle}{!unlocked && <PremChip onClick={onLocked} />}</h2>
               <p className="samples-sub">{t.mySub}</p>
               {decks.length === 0 ? (
                 <p className="my-empty">{t.myEmpty}</p>
@@ -2333,22 +2344,27 @@
                     <tr><th className="no">#</th><th>{t.myThName}</th><th className="cnt">{t.myThCount}</th><th className="cnt">{t.myThDate}</th><th className="act my-act">{t.myThAct}</th></tr>
                   </thead>
                   <tbody>
-                    {decks.map((d, i) => (
+                    {decks.map((d, i) => {
+                      const locked = !unlocked && i > 0
+                      return (
                       <tr key={d.id}>
                         <td className="no">{i + 1}</td>
-                        <td className="title">{d.name}</td>
+                        <td className="title">{d.name}{locked && <PremChip onClick={onLocked} />}</td>
                         <td className="cnt">{d.rows.length}</td>
                         <td className="cnt">{d.savedAt}</td>
                         <td className="act my-act">
+                          {locked ? <PremChip onClick={onLocked} /> : (
                           <span className="act-btns">
                             <button className="apply-btn" onClick={() => onApply(d)}><span className="tri">▶</span> {t.myApplyBtn}</button>
                             <button className="apply-btn dl" onClick={() => onEdit(d)}>✎ {t.myEditBtn}</button>
                             <button className="apply-btn dl" onClick={() => onDownload(d)}>⬇ CSV</button>
                             <button className="apply-btn dl" title={t.myDelTitle} onClick={() => onDelete(d)}>🗑</button>
                           </span>
+                          )}
                         </td>
                       </tr>
-                    ))}
+                      )
+                    })}
                   </tbody>
                 </table>
               )}
@@ -2384,17 +2400,10 @@
                     <li>📚 {t.samples}</li>
                     <li>📝 {t.edTitle}</li>
                     <li>⭐ {t.myTitle}</li>
-                    <li>🚫 {t.prmNoAds}</li>
+                    <li>📅 {(PLAN_LBL[lang] || PLAN_LBL.en).due}</li>
                   </ul>
                   <p className="adv-note">{(PLAN_LBL[lang] || PLAN_LBL.en).note}</p>
                   <div className="prm-actions">
-                    {trialActive ? (
-                      <span className="prm-active">⏱ {t.prmTrialLeft(trialLeft)}</span>
-                    ) : trialUsed ? (
-                      <span className="adv-note" style={{ alignSelf: 'center' }}>{t.prmTrialUsed}</span>
-                    ) : (
-                      <button className="apply-btn" onClick={onStartTrial}>⏱ {t.prmTrialBtn(PREMIUM.trialDays)}</button>
-                    )}
                     <button className="apply-btn prm-buy" onClick={() => onBuy('yearly')}>{(PLAN_LBL[lang] || PLAN_LBL.en).y}</button>
                     <button className="apply-btn prm-buy" onClick={() => onBuy('lifetime')}>{(PLAN_LBL[lang] || PLAN_LBL.en).l}</button>
                   </div>
@@ -2490,7 +2499,7 @@
         const isPremium = !!(lic && lic.key && (!lic.exp || Date.parse(lic.exp) >= Date.now()))
         const trialLeft = trial ? Math.ceil((trial.start + PREMIUM.trialDays * 864e5 - Date.now()) / 864e5) : 0
         const trialActive = !!trial && trialLeft > 0
-        const unlocked = !gateOn || isPremium || trialActive
+        const unlocked = !gateOn || isPremium
         const openPremium = () => setShowPrm(true)
         const startTrial = () => {
           if (trial) return
@@ -2716,7 +2725,13 @@
             return text
           })
         }
+        const sampleLocked = (d, target) => {
+          if (unlocked) return false
+          const list = SAMPLE_DECKS[target] || []
+          return !list.length || list[0].id !== d.id
+        }
         const applySample = (d, target) => {
+          if (sampleLocked(d, target)) { openPremium(); return }
           const src = deckSrc(d)
           if (!src) return
           fetchMatrix(src.file).then((text) => {
@@ -2732,6 +2747,7 @@
         }
         /* ---- CSV 편집기에서 만든 내용을 덱으로 적용 ---- */
         const applyEditorRows = (pairs) => {
+          if (!unlocked && pairs.length > PREMIUM.freeRows) { openPremium(); return }
           const rows = pairs.map((p) => ({ a: p[0], b: p[1], mem: false }))
           if (!rows.length) { showToast(t.noRows); return }
           if (deck.length && !window.confirm(t.confirmReplace)) return
@@ -2765,6 +2781,7 @@
         const editMyDeck = (d) => setEditorSeed({ name: d.name, rows: d.rows, nonce: Date.now() })
 
         const downloadSample = (d, target) => {
+          if (sampleLocked(d, target)) { openPremium(); return }
           const src = deckSrc(d)
           if (!src) return
           fetchMatrix(src.file).then((text) => {
@@ -2887,6 +2904,9 @@
         const displayBot = emptyMsg ? t.emptyBot : (phase === 'ab' ? (voiceOnly && tts ? '' : botText) : '')
 
         const setCfgK = (patch) => setCfg((c) => ({ ...DEFAULT_CFG, ...c, ...patch }))
+        useEffect(() => {
+          if (!unlocked && range === 'due') setCfg((c) => ({ ...DEFAULT_CFG, ...c, range: 'unmem' }))
+        }, [unlocked, range])
 
         const onWheel = (e) => {
           const now = Date.now()
@@ -2999,7 +3019,7 @@
                   <LedRadio name="range" checked={range === 'unmem'} onChange={() => setCfgK({ range: 'unmem' })} label={t.unmem} />
                   <LedRadio name="range" checked={range === 'mem'} onChange={() => setCfgK({ range: 'mem' })} label={t.memOnly} />
                   <LedRadio name="range" checked={range === 'all'} onChange={() => setCfgK({ range: 'all' })} label={t.all} />
-                  <LedRadio name="range" checked={range === 'due'} onChange={() => { if (!unlocked) { openPremium(); return } setCfgK({ range: 'due' }) }} label={(PLAN_LBL[lang] || PLAN_LBL.en).due + (unlocked ? '' : ' ★')} />
+                  <LedRadio name="range" checked={range === 'due'} onChange={() => { if (!unlocked) { openPremium(); return } setCfgK({ range: 'due' }) }} label={<React.Fragment>{(PLAN_LBL[lang] || PLAN_LBL.en).due}{!unlocked && <PremChip onClick={openPremium} />}</React.Fragment>} />
                 </div>
                 <div className="inline-field spin-field">
                   <span>{t.delay}</span>
@@ -3036,9 +3056,8 @@
               {streak > 0 && <span className="prm-chip" title="streak">🔥 {streak}</span>}
               {gateOn && (
                 <button className="prm-chip" onClick={openPremium} title={t.prmTitle}>
-                  {trialActive ? '⏱' : isPremium ? '★' : '☆'}
-                  <span className="prm-chip-lbl"> {trialActive ? t.prmTrialLeft(trialLeft) : 'PREMIUM'}</span>
-                  {trialActive && <span className="prm-chip-sm"> {trialLeft}</span>}
+                  {isPremium ? '★' : '☆'}
+                  <span className="prm-chip-lbl"> PREMIUM</span>
                 </button>
               )}
               <a className="tut-link" href={'https://voca-tutorial.broodev.com/?lang=' + lang}>📖 {t.tutorialLink}</a>
@@ -3061,7 +3080,8 @@
           <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast}
             rowCap={unlocked ? 0 : PREMIUM.freeRows} onLocked={openPremium} />
           <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
-            onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
+            onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck}
+            unlocked={unlocked} onLocked={openPremium} />
           {showPrm && (
             <PremiumModal t={t} lang={lang} onClose={() => setShowPrm(false)} isPremium={isPremium}
               trialActive={trialActive} trialLeft={trialLeft} trialUsed={!!trial && !trialActive}
