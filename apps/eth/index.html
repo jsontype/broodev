@@ -48,10 +48,68 @@
         var __h = String(location.hostname || '').split('.')[0];
         if (['eth', 'xrp', 'doge', 'bch', 'link', 'xlm', 'ltc', 'avax', 'shib', 'dot', 'pepe', 'grt', 'sand', 'mana'].indexOf(__h) >= 0) window.__SUBCOIN = __h;
       } catch (e) {}
+      /* 코인 15곳은 호스트가 달라 localStorage 가 안 보인다. 기기 번호·키는 .broodev.com 쿠키로 공유해서
+         한 곳에 활성화하면 나머지도 같은 자리(서버 한도 3)로 통과한다. */
+      window.__csSeat = (function () {
+        var DEV = 'cs_dev', LIC = 'cs_lic';
+        function domain() {
+          var h = String(location.hostname || '');
+          if (h === 'broodev.com' || h.slice(-12) === '.broodev.com') return '.broodev.com';
+          return '';
+        }
+        function read(name) {
+          var parts = document.cookie ? document.cookie.split('; ') : [];
+          for (var i = 0; i < parts.length; i++) {
+            var eq = parts[i].indexOf('=');
+            if (eq > 0 && parts[i].slice(0, eq) === name) {
+              try { return decodeURIComponent(parts[i].slice(eq + 1)); } catch (e) { return ''; }
+            }
+          }
+          return '';
+        }
+        function write(name, value, age) {
+          var d = domain();
+          document.cookie = name + '=' + encodeURIComponent(value) + '; Path=/; Max-Age=' + age + '; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '') + (d ? '; Domain=' + d : '');
+        }
+        function valid(L) { return !!(L && L.key && (!L.exp || Date.parse(L.exp) >= Date.now())); }
+        function readLic() {
+          var raw = read(LIC);
+          if (!raw) { try { raw = localStorage.getItem('btc:license') || ''; } catch (e) { raw = ''; } }
+          try {
+            var L = JSON.parse(raw);
+            if (!valid(L)) return null;
+            try { localStorage.setItem('btc:license', JSON.stringify(L)); } catch (e2) {}
+            if (!read(LIC)) write(LIC, JSON.stringify(L), 315360000);
+            return L;
+          } catch (e3) { return null; }
+        }
+        function writeLic(row) {
+          var s = JSON.stringify(row);
+          write(LIC, s, 315360000);
+          try { localStorage.setItem('btc:license', s); } catch (e) {}
+        }
+        function clearLic() {
+          write(LIC, '', 0);
+          document.cookie = LIC + '=; Path=/; Max-Age=0; SameSite=Lax';
+          try { localStorage.removeItem('btc:license'); } catch (e) {}
+        }
+        function device() {
+          var id = read(DEV);
+          if (!id) { try { id = localStorage.getItem('btc:device') || ''; } catch (e) { id = ''; } }
+          if (!id || !/^[A-Za-z0-9_-]{8,64}$/.test(id)) {
+            id = (window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now())).replace(/-/g, '');
+          }
+          write(DEV, id, 315360000);
+          try { localStorage.setItem('btc:device', id); } catch (e2) {}
+          return id;
+        }
+        return { readLic: readLic, writeLic: writeLic, clearLic: clearLic, device: device };
+      })();
       (function () {
         var coin;
         try { coin = window.__SUBCOIN || (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { coin = 'btc'; }
         if (coin !== 'btc') return; // 비-ETH → 광고 로더·계정 메타 주입 안 함
+        try { if (window.__csSeat && window.__csSeat.readLic()) return; } catch (e2) {}
         var m = document.createElement('meta');
         m.name = 'google-adsense-account'; m.content = 'ca-pub-5511225478572825';
         document.head.appendChild(m);
@@ -2114,7 +2172,7 @@
           </div>
         )
       }
-      function BottomRadar({ analysis, chain }) {
+      function BottomRadar({ analysis, chain, premium, onPremium }) {
         const { lang } = useI18n()
         const oc = getOnchain(lang)
         const B = analysis && analysis.bottom
@@ -2134,7 +2192,7 @@
               <div className={`bottom-answer ${verdict}`} role="status">
                 <span className="bottom-answer-q">{oc.bottom.q}</span>
                 <span className="bottom-answer-a">{ans[verdict]}</span>
-                {why && <span className="bottom-answer-why">{why}</span>}
+                {why && (premium ? <span className="bottom-answer-why">{why}</span> : <button type="button" className="chip" onClick={onPremium}>PREMIUM</button>)}
               </div>
               <div className="bottom-score-row">
                 <span className="bottom-score" style={{ color }}>{B.score.toFixed(0)}</span>
@@ -2211,6 +2269,7 @@
                     tt.scoreCoverage(a.short.online, Math.round(a.short.coverage * 100)))
               break
             case 'why': {
+              if (!ctx.premium) { print('  PREMIUM — yearly ¥2,500 / lifetime ¥5,000 (tax in). Reference only, not investment advice.'); break }
               if (!a || a.short.score == null) { print(tt.needData); break }
               const contribs = Object.keys(WEIGHTS_MOM).map((k) => ({ k, v: a.parts[k].sShort, w: WEIGHTS_MOM[k] })).filter((c) => c.v != null)
               const wsum = contribs.reduce((s, c) => s + c.w, 0)
@@ -2996,7 +3055,34 @@
         // STALE이면 상태 배지로만 알린다. 예전엔 여기서 점수를 다시 잠가 게이트를
         // 재통과시켰는데(= 광고 반복 노출), 게이트와 함께 제거했다.
 
-        const ctx = { analysisRef, price, klines, fng, chain, api }
+        const [premium, setPremium] = useState(() => !!(window.__csSeat && window.__csSeat.readLic()))
+        const [showPrm, setShowPrm] = useState(false)
+        const [alertEmail, setAlertEmail] = useState('')
+        const licApi = (location.hostname.split('.')[0] === 'btc' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? '' : ('https://' + 'btc.' + 'broodev.com')
+        const activateLic = (raw) => {
+          const key = String(raw || '').trim()
+          if (!key) return
+          const device = window.__csSeat.device()
+          fetch(licApi + '/api/license/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key, device, name: 'btc' }) })
+            .then((r) => r.json()).then((d) => {
+              if (!d || !d.ok) {
+                if (d && ['device_limit', 'expired', 'canceled', 'refunded', 'disputed', 'revoked', 'invalid'].indexOf(d.error) >= 0) {
+                  window.__csSeat.clearLic(); setPremium(false); setShowPrm(true)
+                }
+                return
+              }
+              window.__csSeat.writeLic({ key, exp: d.expires || null, plan: d.plan || null })
+              setPremium(true); setShowPrm(false)
+            }).catch(() => {})
+        }
+        const ctx = { analysisRef, price, klines, fng, chain, api, premium }
+        useEffect(() => {
+          const q = new URLSearchParams(location.search).get('license')
+          if (q) { activateLic(q); return }
+          const row = window.__csSeat.readLic()
+          if (row) activateLic(row.key)
+        }, [])
+        const histShown = premium ? scoreHist : scoreHist.slice(-7)
 
         return (
           <I18nContext.Provider value={{ lang, t }}>
@@ -3009,7 +3095,7 @@
                 <div className="brand">
                   <span className="logo">{COIN.sym}▰▱</span>
                   <div>
-                    <h1 className="title">{COIN.ticker}_SIGNAL <span className="dim">// {t.tagline}</span></h1>
+                    <h1 className="title">{COIN.ticker}_SIGNAL <span className="dim">// {t.tagline}</span> <button type="button" className="chip" onClick={() => setShowPrm(true)}>{premium ? 'PREMIUM ★' : 'PREMIUM'}</button></h1>
                     <p className="subtitle">{t.subtitle}</p>
                   </div>
                 </div>
@@ -3104,13 +3190,13 @@
                     {klines?.closes?.length ? <Sparkline data={klines.closes.slice(-120)} times={klines.times?.slice(-120)} color={accent} height={64} fmt={fmtUsd} /> : <div className="spark-empty">{t.histLoading}</div>}
                   </div>
                   <div className="spark-wrap">
-                    <div className="spark-title"><span>{t.scoreTrend}</span><span>{scoreHist.length}p</span></div>
-                    {scoreHist.length > 1 ? <Sparkline data={scoreHist.map((h) => h.s)} times={scoreHist.map((h) => h.t)} color={gaugeColor} height={48} baseline={0} fmt={(v) => String(Math.round(v))} refLines={[{ v: 65, color: 'rgba(0,255,156,.25)' }, { v: 45, color: 'rgba(255,176,0,.25)' }]} /> : <div className="spark-empty spark-sm">{t.trendAccrues}</div>}
+                    <div className="spark-title"><span>{t.scoreTrend}</span><span>{histShown.length}p{!premium && scoreHist.length > 7 ? ' · PREMIUM' : ''}</span></div>
+                    {histShown.length > 1 ? <Sparkline data={histShown.map((h) => h.s)} times={histShown.map((h) => h.t)} color={gaugeColor} height={48} baseline={0} fmt={(v) => String(Math.round(v))} refLines={[{ v: 65, color: 'rgba(0,255,156,.25)' }, { v: 45, color: 'rgba(255,176,0,.25)' }]} /> : <div className="spark-empty spark-sm">{t.trendAccrues}</div>}
                   </div>
                 </div>
               </section>
 
-              <BottomRadar analysis={analysis} chain={chain && (chain.status === 'live' || chain.status === 'cached') ? chain : null} />
+              <BottomRadar analysis={analysis} chain={chain && (chain.status === 'live' || chain.status === 'cached') ? chain : null} premium={premium} onPremium={() => setShowPrm(true)} />
 
               <section className="ind-grid">
                 {INDICATOR_META.map((m) => <IndicatorCard key={m.key} meta={m} part={analysis?.parts?.[m.key]} mode={mode} xm={xm} />)}
@@ -3118,6 +3204,37 @@
 
               <Terminal ctx={ctx} />
 
+              {premium && (
+                <form className="footer" onSubmit={(e) => {
+                  e.preventDefault()
+                  const row = window.__csSeat.readLic()
+                  if (!row || !alertEmail) return
+                  fetch(licApi + '/api/alerts/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key: row.key, email: alertEmail, lang }) })
+                    .then((r) => r.json()).then((d) => { if (d && d.ok) setAlertEmail('') })
+                }}>
+                  <span>恐怖・強欲が極端な日だけメール（投資助言ではありません）</span>
+                  <input value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} placeholder="email" style={{ background: 'transparent', color: 'inherit', border: '1px solid var(--line)', padding: '4px 8px' }} />
+                  <button className="chip" type="submit">OK</button>
+                </form>
+              )}
+              {showPrm && (
+                <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowPrm(false)}>
+                  <div className="panel" style={{ padding: 18, maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+                    <div className="panel-label">// PREMIUM · ¥2,500/年 · ¥5,000 買い切り（税込）</div>
+                    <p style={{ fontSize: 13, lineHeight: 1.5 }}>今日のスコアは無料。why・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。</p>
+                    <p style={{ fontSize: 13 }}>購入後のメールに届くキーを貼り付けてください。</p>
+                    <p style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '8px 0' }}>
+                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/dRmfZjb2QaTGbQi9Ng4wM04', '_blank', 'noopener')}>年額 ¥2,500</button>
+                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/cNi5kFdaY2naf2u7F84wM05', '_blank', 'noopener')}>買い切り ¥5,000</button>
+                    </p>
+                    <form onSubmit={(e) => { e.preventDefault(); activateLic(e.target.elements.key.value) }}>
+                      <input name="key" placeholder={'B' + 'TC-XXXX-XXXX-XXXX-XXXX'} style={{ width: '100%', margin: '8px 0', padding: 8, background: '#000', color: 'var(--text)', border: '1px solid var(--line)' }} />
+                      <button className="chip" type="submit">Activate</button>
+                      <button className="chip" type="button" onClick={() => setShowPrm(false)}>Close</button>
+                    </form>
+                  </div>
+                </div>
+              )}
               <footer className="footer">
                 <span>{t.footer} {t.dataLabel} CoinGecko · Binance · Alternative.me · CoinMetrics</span>
                 <span className="footer-cmds">

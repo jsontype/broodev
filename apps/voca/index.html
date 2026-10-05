@@ -39,8 +39,20 @@
     <!-- <meta name="google-site-verification" content="GOOGLE_TOKEN" /> -->
     <meta name="naver-site-verification" content="71ec011b9f547d4c358c955aee2979e8a43fee00" />
 
-    <!-- Google AdSense (Auto ads) — 사이트 승인 후 자동 게재 -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825" crossorigin="anonymous"></script>
+    <!-- Google AdSense — 유효한 라이선스가 있으면 광고 스크립트를 넣지 않는다 -->
+    <script>
+      (function () {
+        try {
+          var L = JSON.parse(localStorage.getItem('voca:license') || 'null');
+          if (L && L.key && (!L.exp || Date.parse(L.exp) >= Date.now())) return;
+        } catch (e) {}
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5511225478572825';
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      })();
+    </script>
 
     <link rel="canonical" href="https://voca.broodev.com/" />
     <link rel="alternate" hreflang="x-default" href="https://voca.broodev.com/" />
@@ -812,10 +824,16 @@
        *  hreflang(?lang=)과 짝 맞춤. 하단 SEO 본문은 seo-i18n.js가 담당.
        * ========================================================= */
       const PREMIUM = {
-        launch: false, // ***!
-        price: '¥6,990',
-        checkoutUrl: '',
+        launch: true,
+        yearlyUrl: 'https://buy.stripe.com/5kQ8wR5Iw9PC8E6e3w4wM02',
+        lifetimeUrl: 'https://buy.stripe.com/4gMaEZ6MA2nag6y3oS4wM03',
         trialDays: 3,
+        freeRows: 20,
+      }
+      const PLAN_LBL = {
+        ja: { y: '年額 ¥2,500', l: '買い切り ¥5,000', due: '今日のカード', note: '税込。自分のCSVの暗記は無料のまま。' },
+        ko: { y: '연간 ¥2,500', l: '평생 ¥5,000', due: '오늘 카드', note: '세금 포함. 내 CSV 암기는 계속 무료.' },
+        en: { y: 'Yearly ¥2,500', l: 'Lifetime ¥5,000', due: 'Due today', note: 'Tax included. Your own CSV stays free.' },
       }
 
       const LANGS = [
@@ -2032,10 +2050,9 @@
       /* =========================================================
        *  샘플 암기장 게시판 (앱 화면 아래) — 현재 UI 언어 탭은 숨김
        * ========================================================= */
-      function SamplesBoard({ uiLang, t, appliedId, onApply, onDownload, locked, onLocked }) {
-        /* 잠금 시 목록은 그대로 보여주되(뭘 얻는지 보이게) 적용/다운로드만 프리미엄 모달로 유도 */
-        const gApply = locked ? onLocked : onApply
-        const gDownload = locked ? onLocked : onDownload
+      function SamplesBoard({ uiLang, t, appliedId, onApply, onDownload, unlocked, onLocked }) {
+        /* 각 언어 탭의 첫 덱만 무료. 나머지는 목록은 보이고 적용·다운로드만 잠금 */
+        const rowLocked = (i) => !unlocked && i !== 0
         const targets = SAMPLE_TARGETS.filter((c) => c !== uiLang)
         const [tab, setTab] = useState(targets[0])
         const cur = targets.includes(tab) ? tab : targets[0] // UI 언어 변경으로 현재 탭이 숨겨진 경우 보정
@@ -2054,7 +2071,7 @@
         return (
           <section className="samples" id="samples" aria-label={t.samples}>
             <div className="samples-panel">
-              <h2 className="samples-title">📚 {t.samples}{locked && <button className="prm-badge" onClick={onLocked}>PREMIUM</button>}</h2>
+              <h2 className="samples-title">📚 {t.samples}{!unlocked && <button className="prm-badge" onClick={onLocked}>PREMIUM</button>}</h2>
               <p className="samples-sub">{t.samplesSub}</p>
               <div className="tabs" role="tablist">
                 {targets.map((c) => (
@@ -2066,7 +2083,7 @@
                   <tr><th className="no">#</th><th>{t.thTitle}</th><th className="cnt">{t.thCount}</th><th className="act">{t.thAct}</th></tr>
                 </thead>
                 <tbody>
-                  {decks.map((d, i) => { const src = deckSrc(d); return (
+                  {decks.map((d, i) => { const src = deckSrc(d); const locked = rowLocked(i); const gApply = locked ? onLocked : onApply; const gDownload = locked ? onLocked : onDownload; return (
                     <tr key={d.id} className={appliedId === d.id ? 'row-applied' : ''}>
                       <td className="no">{i + 1}</td>
                       <td className="title">{d.name(t)}</td>
@@ -2110,7 +2127,7 @@
         a.click()
         URL.revokeObjectURL(url)
       }
-      function CsvEditor({ t, deck, onApplyRows, onSaveMy, seed, showToast }) {
+      function CsvEditor({ t, deck, onApplyRows, onSaveMy, seed, showToast, rowCap, onLocked }) {
         const BLANK = () => [['', ''], ['', ''], ['', ''], ['', ''], ['', '']]
         const [rows, setRows] = useState(BLANK)                 // 시트 미러 (검증·버튼 활성화용)
         const [name, setName] = useState('')
@@ -2254,9 +2271,10 @@
           sync()
         }
         const trimmed = () => validRows.map((r) => [r[0].trim(), r[1].trim()])
-        const saveCsv = () => { if (canSave) downloadCsvPairs(trimmed(), name.trim()) }
-        const saveMy = () => { if (canSave) onSaveMy(name.trim() || t.edNamePh, trimmed()) }
-        const applyNow = () => { if (canSave) onApplyRows(trimmed()) }
+        const overCap = () => rowCap && trimmed().length > rowCap
+        const saveCsv = () => { if (!canSave) return; if (overCap()) { onLocked(); return } downloadCsvPairs(trimmed(), name.trim()) }
+        const saveMy = () => { if (!canSave) return; if (overCap()) { onLocked(); return } onSaveMy(name.trim() || t.edNamePh, trimmed()) }
+        const applyNow = () => { if (!canSave) return; if (overCap()) { onLocked(); return } onApplyRows(trimmed()) }
 
         return (
           <section className="samples" id="editor" aria-label={t.edTitle}>
@@ -2343,7 +2361,7 @@
       /* =========================================================
        *  프리미엄 — 모달 + 잠금 섹션
        * ========================================================= */
-      function PremiumModal({ t, onClose, isPremium, trialActive, trialLeft, trialUsed, onStartTrial, onBuy, onActivate }) {
+      function PremiumModal({ t, lang, onClose, isPremium, trialActive, trialLeft, trialUsed, onStartTrial, onBuy, onActivate }) {
         const [key, setKey] = useState('')
         const [busy, setBusy] = useState(false)
         const [err, setErr] = useState(false)
@@ -2368,8 +2386,7 @@
                     <li>⭐ {t.myTitle}</li>
                     <li>🚫 {t.prmNoAds}</li>
                   </ul>
-                  <div className="prm-price">{PREMIUM.price}<span className="prm-price-sub">{t.prmPriceNote}</span></div>
-                  <p className="adv-note">※ {t.prmDevices}</p>
+                  <p className="adv-note">{(PLAN_LBL[lang] || PLAN_LBL.en).note}</p>
                   <div className="prm-actions">
                     {trialActive ? (
                       <span className="prm-active">⏱ {t.prmTrialLeft(trialLeft)}</span>
@@ -2378,7 +2395,8 @@
                     ) : (
                       <button className="apply-btn" onClick={onStartTrial}>⏱ {t.prmTrialBtn(PREMIUM.trialDays)}</button>
                     )}
-                    <button className="apply-btn prm-buy" onClick={onBuy}>★ {t.prmBuyBtn}</button>
+                    <button className="apply-btn prm-buy" onClick={() => onBuy('yearly')}>{(PLAN_LBL[lang] || PLAN_LBL.en).y}</button>
+                    <button className="apply-btn prm-buy" onClick={() => onBuy('lifetime')}>{(PLAN_LBL[lang] || PLAN_LBL.en).l}</button>
                   </div>
                   <div className="adv-sec">🔑 {t.prmKeySec}</div>
                   <div className="prm-keyrow">
@@ -2424,8 +2442,9 @@
         const [deckLang, setDeckLang] = useLocalStorage('voca:deckLang', DEFAULT_DECK_LANG) // TTS 로케일 (샘플 적용 시 갱신)
         const [sampleId, setSampleId] = useLocalStorage('voca:sampleId', null)              // 게시판 "적용됨" 표시용
         const [myDecks, setMyDecks] = useLocalStorage('voca:mydecks', [])                   // 마이 보카덱 [{id,name,rows,savedAt}]
-        const [prm, setPrm] = useLocalStorage('voca:premium', null)
+        const [lic, setLic] = useLocalStorage('voca:license', null)
         const [trial, setTrial] = useLocalStorage('voca:trial', null)
+        const [streak, setStreak] = useState(() => { try { return (JSON.parse(localStorage.getItem('voca:streak') || 'null') || {}).n || 0 } catch (e) { return 0 } })
         const [showPrm, setShowPrm] = useState(false)
         const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 보카덱 → 편집기 로드 요청
         const [showJump, setShowJump] = useState(false)                                     // "⬆ 암기장으로" 고정 버튼 표시 여부
@@ -2468,7 +2487,7 @@
           } catch {}
           return PREMIUM.launch
         })()
-        const isPremium = !!(prm && prm.token)
+        const isPremium = !!(lic && lic.key && (!lic.exp || Date.parse(lic.exp) >= Date.now()))
         const trialLeft = trial ? Math.ceil((trial.start + PREMIUM.trialDays * 864e5 - Date.now()) / 864e5) : 0
         const trialActive = !!trial && trialLeft > 0
         const unlocked = !gateOn || isPremium || trialActive
@@ -2479,21 +2498,37 @@
           setShowPrm(false)
           showToast(t.prmTrialStarted(PREMIUM.trialDays))
         }
-        const buyPremium = () => {
-          if (PREMIUM.checkoutUrl) window.open(PREMIUM.checkoutUrl, '_blank', 'noopener')
+        const buyPremium = (plan) => {
+          const url = plan === 'lifetime' ? PREMIUM.lifetimeUrl : PREMIUM.yearlyUrl
+          if (url) window.open(url, '_blank', 'noopener')
           else showToast(t.soon)
         }
-        /* 라이선스 키 활성화 */
-        const activateKey = (key) =>
-          fetch('/api/license/activate', {
+        /* 라이선스 키 — /api/license/verify (Cloudflare KV). 메일의 ?license= 도 여기로 온다 */
+        const activateKey = (key) => {
+          let device = null
+          try { device = localStorage.getItem('voca:device') } catch (e) {}
+          if (!device || !/^[A-Za-z0-9_-]{8,64}$/.test(device)) {
+            device = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())).replace(/-/g, '')
+            try { localStorage.setItem('voca:device', device) } catch (e) {}
+          }
+          return fetch('/api/license/verify', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key }),
-          }).then((r) => (r.ok ? r.json() : Promise.reject())).then((d) => {
-            if (!d || !d.token) return Promise.reject()
-            setPrm({ keyMask: key.slice(0, 4) + '…', token: d.token, activatedAt: Date.now() })
+            body: JSON.stringify({ key, device, name: (navigator.userAgent || '').slice(0, 60) }),
+          }).then((r) => r.json()).then((d) => {
+            if (!d || !d.ok) return Promise.reject()
+            setLic({ key: String(key).trim(), exp: d.expires || null, plan: d.plan || null, checked: Date.now() })
             setShowPrm(false)
             showToast(t.prmActivated)
           })
+        }
+
+        const licFromUrl = useRef(false)
+        useEffect(() => {
+          if (licFromUrl.current) return
+          licFromUrl.current = true
+          const q = new URLSearchParams(window.location.search).get('license')
+          if (q) activateKey(q).catch(() => setShowPrm(true))
+        }, [])
 
         /* URL ?lang= 이 저장값보다 우선 (hreflang 진입 대응) */
         useEffect(() => {
@@ -2534,6 +2569,7 @@
           if (!c) return false
           if (range === 'unmem') return !c.mem
           if (range === 'mem') return c.mem
+          if (range === 'due') return !c.due || c.due <= Date.now()
           return true
         }, [deck, range])
 
@@ -2708,6 +2744,7 @@
         /* ---- 마이 보카덱 (localStorage 보관) ---- */
         const saveMyDeck = (name, pairs) => {
           const exists = myDecks.find((d) => d.name === name)
+          if (!unlocked && !exists && myDecks.length >= 1) { openPremium(); return }
           if (exists && !window.confirm(t.myConfirmOverwrite(name))) return
           const entry = {
             id: exists ? exists.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -2746,7 +2783,23 @@
         /* ---- 암기 표시 ---- */
         const toggleMem = (checked) => {
           if (!card) return
-          setDeck((prev) => prev.map((c, i) => (i === pos ? { ...c, mem: checked } : c)))
+          setDeck((prev) => prev.map((c, i) => {
+            if (i !== pos) return c
+            if (!checked) return { ...c, mem: false, due: Date.now() }
+            const iv = c.iv || 1
+            return { ...c, mem: true, iv: Math.min(60, iv * 2), due: Date.now() + iv * 864e5 }
+          }))
+          try {
+            const day = new Date().toISOString().slice(0, 10)
+            const st = JSON.parse(localStorage.getItem('voca:streak') || 'null') || { last: '', n: 0 }
+            if (st.last !== day) {
+              const y = new Date(Date.now() - 864e5).toISOString().slice(0, 10)
+              st.n = st.last === y ? (st.n || 0) + 1 : 1
+              st.last = day
+              localStorage.setItem('voca:streak', JSON.stringify(st))
+              setStreak(st.n)
+            }
+          } catch (e) {}
         }
         const resetMem = () => {
           if (!total) return
@@ -2778,7 +2831,7 @@
               const d = JSON.parse(reader.result)
               const rows = (Array.isArray(d.deck) ? d.deck : [])
                 .filter((c) => c && typeof c.a === 'string' && typeof c.b === 'string')
-                .map((c) => ({ a: c.a, b: c.b, mem: !!c.mem }))
+                .map((c) => ({ a: c.a, b: c.b, mem: !!c.mem, due: c.due || null, iv: c.iv || 1 }))
               if (!rows.length) throw new Error('empty')
               if (deck.length && !window.confirm(t.confirmReplace)) return
               setDeck(rows); setPos(0); setPhase('a'); setSampleId(null)
@@ -2946,6 +2999,7 @@
                   <LedRadio name="range" checked={range === 'unmem'} onChange={() => setCfgK({ range: 'unmem' })} label={t.unmem} />
                   <LedRadio name="range" checked={range === 'mem'} onChange={() => setCfgK({ range: 'mem' })} label={t.memOnly} />
                   <LedRadio name="range" checked={range === 'all'} onChange={() => setCfgK({ range: 'all' })} label={t.all} />
+                  <LedRadio name="range" checked={range === 'due'} onChange={() => { if (!unlocked) { openPremium(); return } setCfgK({ range: 'due' }) }} label={(PLAN_LBL[lang] || PLAN_LBL.en).due + (unlocked ? '' : ' ★')} />
                 </div>
                 <div className="inline-field spin-field">
                   <span>{t.delay}</span>
@@ -2979,6 +3033,7 @@
               </a>
               <span className="app-name">VOCA DECK<span className="dot">·</span><span className="full">{t.appName}</span></span>
               <span className="tb-spacer" />
+              {streak > 0 && <span className="prm-chip" title="streak">🔥 {streak}</span>}
               {gateOn && (
                 <button className="prm-chip" onClick={openPremium} title={t.prmTitle}>
                   {trialActive ? '⏱' : isPremium ? '★' : '☆'}
@@ -3002,20 +3057,13 @@
             {toast && <div className="toast">{toast}</div>}
           </div>
           <SamplesBoard uiLang={lang} t={t} appliedId={sampleId} onApply={applySample} onDownload={downloadSample}
-            locked={!unlocked} onLocked={openPremium} />
-          {unlocked ? (
-            <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast} />
-          ) : (
-            <LockedSection icon="📝" title={t.edTitle} sectionId="editor" t={t} onOpen={openPremium} />
-          )}
-          {unlocked ? (
-            <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
-              onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
-          ) : (
-            <LockedSection icon="⭐" title={t.myTitle} sectionId="mydecks" t={t} onOpen={openPremium} />
-          )}
+            unlocked={unlocked} onLocked={openPremium} />
+          <CsvEditor t={t} deck={deck} onApplyRows={applyEditorRows} onSaveMy={saveMyDeck} seed={editorSeed} showToast={showToast}
+            rowCap={unlocked ? 0 : PREMIUM.freeRows} onLocked={openPremium} />
+          <MyDecks t={t} decks={myDecks} onApply={(d) => applyEditorRows(d.rows)} onEdit={editMyDeck}
+            onDownload={(d) => downloadCsvPairs(d.rows, d.name)} onDelete={deleteMyDeck} />
           {showPrm && (
-            <PremiumModal t={t} onClose={() => setShowPrm(false)} isPremium={isPremium}
+            <PremiumModal t={t} lang={lang} onClose={() => setShowPrm(false)} isPremium={isPremium}
               trialActive={trialActive} trialLeft={trialLeft} trialUsed={!!trial && !trialActive}
               onStartTrial={startTrial} onBuy={buyPremium} onActivate={activateKey} />
           )}
