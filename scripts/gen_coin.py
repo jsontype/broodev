@@ -166,8 +166,8 @@ def gen(c):
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n'
                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                 f'  <url><loc>{base}/</loc></url>\n'
-                f'  <url><loc>{base}/privacy.html</loc></url>\n'
-                f'  <url><loc>{base}/terms.html</loc></url>\n'
+                f'  <url><loc>{base}/privacy</loc></url>\n'
+                f'  <url><loc>{base}/terms</loc></url>\n'
                 '</urlset>\n')
     # 과거 301 스텁 제거 — 표준 404 폴백으로
     with open(os.path.join(dst, "_redirects"), "w", encoding="utf-8", newline="") as f:
