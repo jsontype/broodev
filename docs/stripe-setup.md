@@ -279,6 +279,37 @@ KV 키: `lic:<KEY>` 본체 `{email, name, plan, status, expires, devices[], cust
 
 ---
 
+## 13. 가격 표시 — 평생(買い切り) 플랜 「発売記念 50% OFF」 (2026-10-07)
+
+세 앱(utils · btc+코인 14종 · voca)과 포털 총람에서 평생 플랜을 **정가 ¥10,000 → 発売記念価格 ¥5,000(-50%)** 로 표시한다. **실제 결제 금액·Stripe Price·特商法 販売価格 는 ¥5,000 그대로** — 바뀐 것은 표시뿐이다.
+
+| 표시 요소 | 내용 |
+|---|---|
+| 태그 | `-50%`(액센트 색 · 맥동) + 「発売記念価格 · 期間限定」(종료일을 넣으면 「あと N 日」) |
+| 가격 | ~~¥10,000~~(취소선 · 툴팁 ja 「期間終了後の価格」 / ko 「정가」 / en 「Regular price」) → **¥5,000** |
+| 설득 줄 | 「¥5,000 お得 · 年額 2 年分の価格で、ずっと」 |
+| 小字 | ja 「発売記念期間の終了後は ¥10,000 になります」 / ko 「특가 종료 후 정가 ¥10,000」 / en 「¥10,000 after the launch period」 |
+| 노출 위치 | utils: `pricing.html` 평생 카드(13언어) · pptx/ai/psd 잠금 안내 · 사이드바 「料金」 메뉴 배지 / btc(코인 14종 포함)·voca: PREMIUM 모달의 플랜 카드 2장 + **사이트 내비·타이틀의 금색 `✦ Premium -50%` 배지 + 상단 안내 스트립**(비프리미엄만, × 로 세션 숨김) + 잠긴 요소 배지 + 모달 하단 판매자·特商法·返金·利用規約 링크(`PREM_LEGAL` 13언어 — 販売 URL 로 지정된 화면이므로) / 포털: `premium.html`(utils·코인·voca 카드 → 「앱 열고 구매」 는 `#premium` 딥링크로 모달 직행) |
+
+**값이 사는 곳(네 군데를 같이 바꾼다)** — 할인을 끝내려면 `list`(포털은 `lifetime_list`) 를 `null` 로(세 앱은 promo.js/dealVars 가, 포털은 legal.js 가 `.deal-row.deal-off` 로 태그·취소선·小字를 숨겨 할인 전 상태로 돌아감), 정가로 올리려면 `price` 도 10000 으로 + Stripe Price 교체(§12 페이지 갱신 규칙).
+
+| 앱 | 설정 | 문구 |
+|---|---|---|
+| utils | `apps/utils/js/biz.js` `PLANS.lifetime.list`(정가) · `PLANS.promo.until`(종료일) → `js/promo.js` 가 `[data-deal]`·`[data-price-list]`·`[data-promo]` 를 채움 | `js/i18n.js` `promo_*` 9키 × 13언어 |
+| btc (→ `gen_coin.py all`) | `apps/btc/index.html` `PREM_PLANS.lifetime.list` · `PREM_PLANS.until` | 같은 파일 `PREM_DEAL`(13언어) — `/* @deal-i18n */` 마커 사이 |
+| voca | `apps/voca/index.html` `PREMIUM.plans.lifetime.list` · `PREMIUM.until` | 같은 파일 `PLAN_DEAL`(13언어) · `PLAN_LBL`(플랜 이름 13언어) |
+| 포털 | `apps/home/legal/biz.js` `PLANS.{utils,btc,voca}.lifetime_list`(null → legal.js 가 `deal-off`) · `BIZ.updated` | `premium.html` 각 언어 블록·`legal/i18n/premium.*.html`(정적 문구, `<!-- @deal:x -->` 마커 · btc·voca 카드는 `<!-- @plan-cards -->`) · 特商法 販売価格 행 `data-tk-append`·販売 URL 행 `data-tk-urls` |
+
+> 13언어 문구의 **단일 소스는 [`scripts/deal/deal-i18n.json`](../scripts/deal/deal-i18n.json)** — `node scripts/deal/deal-gen.js` 가 위 타깃(utils `i18n.js`·pricing 13블록 / premium 13블록의 utils 할인 행 + btc·voca 카드 / tokushoho 13블록 / btc `PREM_DEAL` / voca `PLAN_LBL`·`PLAN_DEAL`)을 마커 기준으로 멱등 재생성하고, `node scripts/deal/deal-verify.js` 가 13언어·키·앵커·금액·카드 간 플랜 이름 통일·ja 「通常価格」 부재·JST 오프셋을 검사한다. btc 가 바뀌면 `python scripts/gen_coin.py all`. 문구는 JSON 을 고치고 다시 생성한다(마커 안을 직접 고치면 다음 생성 때 덮인다). 포털·utils 의 CSS/조각을 고치면 캐시 버스터(`legal.js` `V` + 5개 페이지 `?v=` / utils `site.js` `V` + 7개 페이지)를 같이 올린다.
+
+**⚠ 景品表示法(二重価格表示) — 반드시 지킬 것**
+- 「通常価格 ¥10,000」 은 실제로 그 가격에 판 적이 없으므로, 현재 표기는 **将来の販売価格(발매 기념 기간이 끝난 뒤 실제로 받을 가격)** 을 비교 대조 가격으로 쓰는 형태다. 소비자청 가이드라인상 이것이 허용되려면 **기간이 끝나면 정말로 ¥10,000 으로 판매해야** 한다(막연히 계속 연장하면 有利誤認·不当表示가 된다). 그래서 小字에 「発売記念期間の終了後は ¥10,000 になります」 를 넣어 두었다. **일본어 문구에는 「通常価格」 를 쓰지 않는다** — 消費者庁 가이드라인에서 通常価格 는 「最近相当期間 실제로 판 가격」 으로 읽히므로, 판 적 없는 ¥10,000 은 「期間終了後の価格」(将来の販売価格) 로만 부른다(2026-10-07 리뷰 반영 · ko 「정가」·en 「Regular price」 는 그대로).
+- 운용 권장: `until` 에 **실제 종료일**(예: 발매 후 4~8주)을 넣어 카운트다운을 켜고, 그날 ① Stripe 에서 ¥10,000 Price 를 만들어 Payment Link 를 교체(옛 Price 는 アーカイブ) ② 네 곳의 `price`/`list`(포털 `lifetime`/`lifetime_list`) 를 10000/null 로 — 포털 카드는 legal.js 가 자동으로 할인 전 표시로 돌아간다 ③ 特商法 販売価格 행·`BIZ.updated` 를 갱신하고 legal.js `V` 와 5개 페이지 `?v=` 토큰을 올린다(안 올리면 최대 4시간 옛 CSS·조각이 나간다). 할인을 계속하고 싶으면 「세일 재개」 전에 통상가로 판 기간이 있어야 한다.
+- **가짜 마감(리셋되는 타이머)·근거 없는 「残り N 名」 는 넣지 않는다** — 코드에도 없다(`until` 이 null 이면 「期間限定」 만). `until` 은 일본 시간 23:59 기준(`+09:00` 으로 파싱 — 보는 사람의 시간대와 무관).
+- Stripe Checkout 화면·영수증·特商法 販売価格 행은 할인 전후 모두 **실제 금액(¥5,000)만** 표시한다 — 비교 가격을 쓰지 않는다.
+
+---
+
 ## 부록 A. 입력값 요약 (복사용)
 
 | 항목 | 값 |
@@ -306,6 +337,7 @@ KV 키: `lic:<KEY>` 본체 `{email, name, plan, status, expires, devices[], cust
 | 프리미엄 총람 | `apps/home/premium.html` (앱 카드 · 공통 조건 · FAQ) |
 | 포털 푸터 법적 링크 | `apps/home/index.html` `.footer-legal` · `404.html` |
 | utils 가격 · Payment Link · 포털 링크 · 무료/프리미엄 출력 형식(`free_formats`·`premium_formats`) | `apps/utils/js/biz.js` → `PLANS` (BIZ 는 정본 사본) |
+| 평생 플랜 할인 표시(정가 `list` · 종료일 `until`) — utils / btc·코인 / voca / 포털 | `apps/utils/js/biz.js` `PLANS.lifetime.list`·`PLANS.promo` + `js/promo.js` / `apps/btc/index.html` `PREM_PLANS`·`PREM_DEAL` / `apps/voca/index.html` `PREMIUM.plans`·`PLAN_DEAL` / `apps/home/legal/biz.js` `PLANS.*.lifetime_list` (§13) |
 | utils 판매 페이지 본문(3언어) · 메뉴·푸터·title 번역 | `apps/utils/pricing.html` · `apps/utils/js/i18n.js` (`menu_pricing` · `foot_*` · `title_pricing` · `desc_pricing`) |
 | Stripe 비밀키·웹훅 시크릿·Resend 키·관리자 토큰 | **레포 밖** — Cloudflare Pages 프로젝트(`broodev-utils` 등 앱별) → Settings → Variables and Secrets (§10-A) |
 | 라이선스 서버(웹훅 · verify · resend · admin) · 메일 템플릿 | `apps/utils/functions/` (§10) · 데이터는 KV `UTILS_LICENSES`(Cloudflare) |

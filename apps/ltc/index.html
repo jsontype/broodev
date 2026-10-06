@@ -268,7 +268,7 @@
       .boot-skip { margin-top: 28px; color: var(--dim); font-size: 12px; letter-spacing: 1px; }
       .cursor-blink { animation: blink 1s steps(2) infinite; }
       @keyframes blink { 50% { opacity: 0; } }
-      .app { position: relative; z-index: 2; min-height: 100vh; }
+      .app { position: relative; z-index: 3; min-height: 100vh; overflow-x: clip; }   /* z 3 > 사이트 내비(2): 프리미엄 모달 오버레이(.app 안)가 내비 위에 그려진다 · overflow-x clip: 숨은 용어 툴팁(absolute · min-width 200px)이 폰에서 레이아웃 뷰포트를 421px 로 넓혀 모달이 비뚤게 가운데 잡히던 것 방지 */
       .shell { max-width: 1180px; margin: 0 auto; padding: 26px 20px 60px; position: relative; z-index: 2; }
       .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
       .brand { display: flex; gap: 14px; align-items: center; flex: 1 1 auto; min-width: 0; }
@@ -396,6 +396,58 @@
       .chip { font-family: var(--font); font-size: 11px; color: var(--dim); background: var(--bg-soft); border: 1px solid var(--line); border-radius: 3px; padding: 5px 10px; cursor: pointer; transition: .15s; }
       .chip:hover { color: var(--neon); border-color: var(--neon); }
 
+      /* 프리미엄 모달 플랜 카드 — 평생(買い切り) 플랜 할인 표시(PREM_PLANS.lifetime.list): 정가 취소선 · -50% 태그 · 발매 기념 · 절약액 */
+      .prm-panel { max-width: 480px; width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow: auto; background: #070d10; box-shadow: 0 0 70px -14px rgba(0,255,156,.45), 0 24px 60px rgba(0,0,0,.7); }   /* .panel 의 반투명 배경이면 뒤 화면이 비쳐 글자가 겹쳐 보임 → 불투명 */
+      .prm-plans { display: grid; grid-template-columns: 1fr 1.3fr; gap: 10px; margin: 10px 0 12px; }
+      .prm-plan { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 14px 12px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-soft); }
+      .prm-plan.best { border-color: var(--neon); box-shadow: 0 0 0 1px rgba(0,255,156,.22) inset, 0 0 28px -8px var(--neon); }
+      .prm-plan-name { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); }
+      .prm-ribbon { position: absolute; top: -9px; right: 10px; font-size: 9.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #04110c; background: var(--neon); padding: 2px 8px; border-radius: 2px; }
+      .prm-deal { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 10.5px; color: var(--neon); }
+      .prm-tag { font-weight: 800; font-size: 12px; color: #04110c; background: var(--neon); padding: 2px 6px; border-radius: 3px; animation: prmPulse 1.6s ease-in-out infinite; }
+      .prm-deal-limited { color: var(--warn); }
+      .prm-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+      .prm-was { color: var(--dim); font-size: 13px; text-decoration: line-through; text-decoration-color: var(--crit); text-decoration-thickness: 2px; }
+      .prm-price { font-size: 26px; font-weight: 800; line-height: 1; color: var(--text); }
+      .best .prm-price { color: var(--neon); text-shadow: 0 0 14px rgba(0,255,156,.45); }
+      .prm-unit { font-size: 11px; color: var(--dim); }
+      .prm-save { font-size: 11px; color: var(--neon); }
+      .prm-cta { margin-top: auto; width: 100%; text-align: center; }
+      .prm-cta-best { color: #04110c; background: var(--neon); border-color: var(--neon); font-weight: 800; }
+      .prm-cta-best:hover { color: #04110c; background: #5fffbd; }
+      .prm-fine { font-size: 10px; color: var(--dim); }
+      .prm-legal { margin: 2px 0 10px; font-size: 10px; color: var(--dim); line-height: 1.6; }
+      .prm-legal a { color: var(--dim); text-decoration: underline; }
+      .prm-legal a:hover { color: var(--neon); }
+      @keyframes prmPulse { 50% { box-shadow: 0 0 10px rgba(0,255,156,.8); } }
+      @media (prefers-reduced-motion: reduce) { .prm-tag { animation: none; } }
+      @media (max-width: 480px) { .prm-plans { grid-template-columns: 1fr; } }
+      /* 프리미엄 존재 알림 — 금색 ✦ Premium 배지(utils 와 같은 룩: 사이트 내비 · 타이틀 · 잠긴 요소) + 상단 안내 스트립 */
+      .pg-prem { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 8px; border: 0; border-radius: 99px; background: linear-gradient(135deg, #ffe29a 0%, #f7b733 45%, #ff8a3d 100%); color: #2a1600; font-family: var(--font); font-size: 10px; line-height: 14px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; vertical-align: middle; box-shadow: 0 0 0 1px rgba(255,190,70,.35), 0 0 10px rgba(255,170,50,.45); cursor: pointer; text-decoration: none; }
+      .pg-prem::before { content: "✦"; font-size: 9px; line-height: 1; }
+      .pg-prem:hover { filter: brightness(1.08); }
+      .pg-prem .pg-prem-off { margin-left: 2px; padding: 0 5px; border-radius: 99px; background: #2a1600; color: #ffd27a; letter-spacing: 0; }
+      .pg-prem .pg-prem-off[hidden] { display: none; }
+      .site-nav-links a.pg-prem { color: #2a1600; font-size: 10px; padding: 3px 9px 3px 8px; border-bottom: 0; }
+      .site-nav-links a.pg-prem:hover { color: #2a1600; border-bottom: 0; }
+      .title .pg-prem { font-size: 11px; vertical-align: 5px; }
+      .title .chip.prm-on { color: var(--neon); border-color: var(--neon); }
+      .prem-strip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; padding: 10px 14px; border: 1px solid rgba(255,190,70,.55); border-radius: 6px; background: linear-gradient(90deg, rgba(255,170,50,.14), rgba(255,170,50,.03)); color: var(--text); font-family: var(--font); font-size: 12px; cursor: pointer; box-shadow: 0 0 24px -12px rgba(255,170,50,.8); }
+      .prem-strip:hover { border-color: #ffb648; }
+      .prem-strip .ps-body { flex: 1 1 320px; min-width: 0; line-height: 1.5; }
+      .prem-strip .ps-deal { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+      .prem-strip .ps-was { color: var(--dim); text-decoration: line-through; text-decoration-color: var(--crit); }
+      .prem-strip .ps-now { color: #ffd27a; font-weight: 800; font-size: 15px; }
+      .prem-strip .ps-label { color: #ffd27a; }
+      .prem-strip .ps-cta { color: #04110c; background: var(--neon); border: 1px solid var(--neon); border-radius: 3px; padding: 5px 12px; font-weight: 800; white-space: nowrap; }
+      .prem-strip .ps-x { background: none; border: 0; color: var(--dim); font-size: 18px; line-height: 1; padding: 0 2px; cursor: pointer; }
+      .prem-strip .ps-x:hover { color: var(--text); }
+      .prem-strip { position: relative; padding-right: 34px; }   /* × 는 항상 오른쪽 위 모서리(긴 언어에서 줄바꿈으로 떨어져 나가지 않게) */
+      .prem-strip .ps-x { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); }
+      @media (max-width: 560px) { .prem-strip .ps-body { flex-basis: 100%; } .prem-strip .ps-x { top: 8px; transform: none; } }
+      .duo-lock { position: relative; }
+      .duo-lock-badge { position: absolute; top: 10px; left: 10px; }
+
       /* ===== 반응형 (태블릿 → 휴대폰) ===== */
       @media (max-width: 820px) {
         .shell { padding: 20px 14px 48px; }
@@ -516,7 +568,7 @@
       .seo dt { color: var(--text); font-weight: 700; margin-top: 12px; }
       .seo dd { margin: 3px 0 0; }
       /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 언어 선택 · 모바일 햄버거) ===== */
-      .site-nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: rgba(4,8,10,.92); border-bottom: 1px solid var(--line); }
+      .site-nav { position: relative; z-index: 2; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: rgba(4,8,10,.92); border-bottom: 1px solid var(--line); }
       .site-nav-brand { color: var(--neon); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none; text-shadow: 0 0 10px rgba(0,255,156,.4); white-space: nowrap; }
       .site-nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid var(--line); color: var(--neon); font-size: 18px; line-height: 1; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
       .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
@@ -534,6 +586,7 @@
         .site-nav-links { order: 4; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; display: none; }
         .site-nav.nav-open .site-nav-links { display: flex; }
         .site-nav-links a { padding: 8px 0; font-size: 14px; width: 100%; }
+        .site-nav-links a.pg-prem { width: auto; align-self: flex-start; margin: 6px 0 2px; padding: 3px 9px 3px 8px; font-size: 10px; }   /* 햄버거 메뉴 안에서도 배지 모양 유지 */
       }
       .seo-disclaimer { margin-top: 24px; color: var(--warn); font-size: 12px; }
       .seo-guides { margin: 10px 0 0; padding-left: 18px; }
@@ -557,6 +610,7 @@
         <a href="/guide-fear-greed" data-nk="3">공포지수 활용법</a>
         <a href="/glossary" data-nk="4">용어집</a>
         <a href="/about" data-nk="5">운영자 소개</a>
+        <a class="pg-prem" href="#premium" data-prem-link data-nk="-1">Premium<span class="pg-prem-off" data-prem-off>-50%</span></a><!-- #premium → 앱이 PREMIUM 모달을 연다(hashchange). -50% 는 App 이 PREM_PLANS 로 동기화 -->
       </div>
       <label class="site-nav-lang">
         <span class="globe" aria-hidden="true">🌐</span>
@@ -2196,7 +2250,7 @@
               <div className={`bottom-answer ${verdict}`} role="status">
                 <span className="bottom-answer-q">{oc.bottom.q}</span>
                 {premium ? <span className="bottom-answer-a">{ans[verdict]}</span> : <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>}
-                {why && (premium ? <span className="bottom-answer-why">{why}</span> : <button type="button" className="chip" onClick={onPremium}>PREMIUM</button>)}
+                {why && (premium ? <span className="bottom-answer-why">{why}</span> : <button type="button" className="pg-prem" onClick={onPremium}>Premium</button>)}
               </div>
               <div className="bottom-score-row">
                 <span className="bottom-score" style={{ color }}>{B.score.toFixed(0)}</span>
@@ -2211,7 +2265,10 @@
                 </div>
               )}
               {!premium ? (
-                <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium" style={{ marginTop: 8 }}><span className="mosaic-bar" /></button>
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>
+                  <button type="button" className="pg-prem" onClick={onPremium}>Premium</button>
+                </div>
               ) : B.hasOnchain && B.underCost ? (
                 /* 흰선(시가총액)이 파란선(평균 매수원가) 아래 = MVRV<1 → 빨간 바닥 경고 */
                 <div className="bottom-alert" role="alert">
@@ -2238,6 +2295,7 @@
                 {premium ? <DuoLogChart chart={chain.chart} oc={oc} /> : (
                   <div className="duo-lock" onClick={onPremium} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPremium() } }}>
                     <div className="duo-mosaic" />
+                    <span className="pg-prem duo-lock-badge">Premium</span>
                   </div>
                 )}
               </>
@@ -2937,6 +2995,97 @@
         nl: { label: 'PREMIUM · ¥2,500/jaar · ¥5,000 levenslang (incl. btw)', body: 'De score van vandaag is gratis. why, verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks ¥2,500', life: 'Levenslang ¥5,000', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)' },
       }
       const premUi = (lang) => PREM_UI[lang] || PREM_UI.en
+      /* 요금 플랜 — 평생(買い切り)은 정가 list 대비 할인 표시(발매 기념가). list 를 null 로 두면 할인 표시가 사라진다.
+         until: 'YYYY-MM-DD'(일본 시간 23:59 까지) 를 넣으면 「N일 남음」 카운트다운(실제 종료일만 — 가짜 마감 금지). 실제 결제 금액은 Stripe Price(¥5,000) 그대로.
+         ⚠ 景品表示法: list 는 종료 후 실제로 적용할 「将来の販売価格」 여야 한다 — docs/stripe-setup.md §13. 코인 14종은 gen_coin.py 가 그대로 복제 */
+      const PREM_PLANS = {
+        yearly:   { price: 2500, url: 'https://buy.stripe.com/dRmfZjb2QaTGbQi9Ng4wM04' },
+        lifetime: { price: 5000, list: 10000, url: 'https://buy.stripe.com/cNi5kFdaY2naf2u7F84wM05' },
+        until: null,
+      }
+      /* @deal-i18n — 13개 언어 할인 문구(단일 소스: 생성 스크립트가 채움. 키 동일: label limited was save best two after days buy peryear once tax) */
+      const PREM_DEAL = {
+        en: { label: "Launch offer", limited: "Limited time", was: "Regular price", save: "Save {save}", best: "Best value", two: "2 years of Yearly — yours forever", after: "{list} after the launch period", days: "{d} days left", buy: "Buy now", peryear: "/ year", once: "one-time", tax: "tax included" },
+        ja: { label: "発売記念価格", limited: "期間限定", was: "期間終了後の価格", save: "{save} お得", best: "いちばんお得", two: "年額 2 年分の価格で、ずっと", after: "発売記念期間の終了後は {list} になります", days: "あと {d} 日", buy: "今すぐ購入", peryear: "/ 年", once: "1 回のみ", tax: "税込" },
+        ko: { label: "발매 기념 특가", limited: "기간 한정", was: "정가", save: "{save} 절약", best: "최고 가성비", two: "연간 2년치 가격으로 평생", after: "특가 종료 후 정가 {list}", days: "{d}일 남음", buy: "지금 구매", peryear: "/ 년", once: "1회 결제", tax: "세금 포함" },
+        zh: { label: "首发特惠", limited: "限时", was: "原价", save: "立省 {save}", best: "最划算", two: "两年年费的价格，永久使用", after: "活动结束后价格为 {list}", days: "仅剩 {d} 天", buy: "立即购买", peryear: "/ 年", once: "一次性付费", tax: "含税" },
+        "zh-Hant": { label: "首發優惠", limited: "限時", was: "原價", save: "現省 {save}", best: "最划算", two: "兩年年費的價格，永久使用", after: "活動結束後價格為 {list}", days: "僅剩 {d} 天", buy: "立即購買", peryear: "/ 年", once: "單次付費", tax: "含稅" },
+        th: { label: "โปรเปิดตัว", limited: "จำกัดเวลา", was: "ราคาปกติ", save: "ประหยัด {save}", best: "คุ้มที่สุด", two: "จ่ายเท่ารายปี 2 ปี ใช้ได้ตลอดไป", after: "หลังช่วงเปิดตัว ราคาจะเป็น {list}", days: "เหลืออีก {d} วัน", buy: "ซื้อเลย", peryear: "/ ปี", once: "จ่ายครั้งเดียว", tax: "รวมภาษี" },
+        es: { label: "Oferta de lanzamiento", limited: "Tiempo limitado", was: "Precio normal", save: "Ahorras {save}", best: "Más ahorro", two: "Por el precio de 2 años, tuyo para siempre", after: "Después del periodo de lanzamiento: {list}", days: "Quedan {d} días", buy: "Comprar ahora", peryear: "/ año", once: "pago único", tax: "IVA incl." },
+        fr: { label: "Offre de lancement", limited: "Durée limitée", was: "Prix normal", save: "Économisez {save}", best: "Le plus avantageux", two: "Pour le prix de 2 ans, à vous pour toujours", after: "Après la période de lancement : {list}", days: "Plus que {d} jours", buy: "Acheter", peryear: "/ an", once: "paiement unique", tax: "TTC" },
+        de: { label: "Einführungsangebot", limited: "Nur für kurze Zeit", was: "Normalpreis", save: "Sie sparen {save}", best: "Bestes Angebot", two: "Zum Preis von 2 Jahren – für immer nutzen", after: "Nach dem Aktionszeitraum: {list}", days: "Noch {d} Tage", buy: "Jetzt kaufen", peryear: "/ Jahr", once: "einmalig", tax: "inkl. MwSt." },
+        it: { label: "Offerta di lancio", limited: "A tempo limitato", was: "Prezzo pieno", save: "Risparmi {save}", best: "Più conveniente", two: "Al prezzo di 2 anni, tuo per sempre", after: "Dopo il periodo di lancio: {list}", days: "Ancora {d} giorni", buy: "Acquista ora", peryear: "/ anno", once: "una tantum", tax: "IVA incl." },
+        pt: { label: "Oferta de lançamento", limited: "Por tempo limitado", was: "Preço normal", save: "Poupe {save}", best: "Mais vantajoso", two: "Pelo preço de 2 anos, seu para sempre", after: "Após o período de lançamento: {list}", days: "Faltam {d} dias", buy: "Comprar agora", peryear: "/ ano", once: "pagamento único", tax: "IVA incl." },
+        ru: { label: "Скидка на старте", limited: "Время ограничено", was: "Обычная цена", save: "Экономия {save}", best: "Самое выгодное", two: "По цене 2 лет подписки — навсегда", after: "После окончания акции: {list}", days: "Осталось {d} дн.", buy: "Купить", peryear: "/ год", once: "единоразово", tax: "с учётом налога" },
+        nl: { label: "Introductieaanbieding", limited: "Tijdelijke actie", was: "Normale prijs", save: "Bespaar {save}", best: "Beste deal", two: "2 jaar betalen, voor altijd gebruiken", after: "Na de introductieperiode: {list}", days: "Nog {d} dagen", buy: "Nu kopen", peryear: "/ jaar", once: "eenmalig", tax: "incl. btw" },
+      }
+      /* @/deal-i18n */
+      /* @prem-legal — 프리미엄 모달 하단의 판매자·법적 링크(13개 언어 · 생성 스크립트가 채움). 特商法: 販売 URL 로 지정된 화면에 사업자·表記 링크가 있어야 한다 */
+      const PREM_LEGAL = {
+        en: { seller: "Sold by Y Systems", tokushoho: "Legal notice", refund: "Refund & Cancellation", terms: "Terms of Service" },
+        ja: { seller: "販売者: Y Systems", tokushoho: "特定商取引法に基づく表記", refund: "返金・解約ポリシー", terms: "利用規約" },
+        ko: { seller: "판매자: Y Systems", tokushoho: "특정상거래법 표기", refund: "환불·해지 정책", terms: "이용약관" },
+        zh: { seller: "销售方: Y Systems", tokushoho: "特定商取引法声明", refund: "退款与取消政策", terms: "服务条款" },
+        "zh-Hant": { seller: "販售者: Y Systems", tokushoho: "特定商取引法標示", refund: "退款與取消政策", terms: "服務條款" },
+        th: { seller: "ผู้ขาย: Y Systems", tokushoho: "ประกาศทางกฎหมาย (特定商取引法)", refund: "นโยบายคืนเงินและยกเลิก", terms: "ข้อกำหนดการใช้งาน" },
+        es: { seller: "Vendido por Y Systems", tokushoho: "Aviso legal", refund: "Reembolsos y cancelación", terms: "Términos del servicio" },
+        fr: { seller: "Vendu par Y Systems", tokushoho: "Mentions légales", refund: "Remboursement et résiliation", terms: "Conditions d’utilisation" },
+        de: { seller: "Verkäufer: Y Systems", tokushoho: "Impressum", refund: "Rückerstattung & Kündigung", terms: "Nutzungsbedingungen" },
+        it: { seller: "Venditore: Y Systems", tokushoho: "Note legali", refund: "Rimborsi e disdetta", terms: "Termini di servizio" },
+        pt: { seller: "Vendido por Y Systems", tokushoho: "Aviso legal", refund: "Reembolsos e cancelamento", terms: "Termos de serviço" },
+        ru: { seller: "Продавец: Y Systems", tokushoho: "Юридическая информация", refund: "Возврат и отмена", terms: "Условия использования" },
+        nl: { seller: "Verkoper: Y Systems", tokushoho: "Wettelijke vermelding", refund: "Terugbetaling & opzegging", terms: "Gebruiksvoorwaarden" },
+      }
+      /* @/prem-legal */
+      const yenFmt = (n) => '¥' + Number(n).toLocaleString('en-US')
+      const dealVars = () => {
+        const L = PREM_PLANS.lifetime, list = L.list != null && L.list > L.price ? L.list : null
+        const off = list ? Math.round((1 - L.price / list) * 100) : 0
+        let days = null
+        if (list && PREM_PLANS.until) { const d = Math.ceil((Date.parse(PREM_PLANS.until + 'T23:59:59+09:00') - Date.now()) / 864e5); days = d > 0 ? d : null }
+        return { on: !!list, list, off, save: list ? list - L.price : 0, days, price: L.price }
+      }
+      const dealT = (lang, key, v) => ((PREM_DEAL[lang] || PREM_DEAL.en)[key] || '').replace(/\{(\w+)\}/g, (_, k) => (k === 'list' || k === 'save' || k === 'price') ? (v[k] != null ? yenFmt(v[k]) : '') : (v[k] != null ? String(v[k]) : ''))
+      const planName = (s) => String(s || '').replace(/\s*¥[\d,]+\s*/g, ' ').replace(/\s+/g, ' ').trim()
+      function PremPlans({ lang }) {
+        const u = premUi(lang), v = dealVars(), on = v.on
+        const open = (url) => window.open(url, '_blank', 'noopener')
+        return (
+          <div className="prm-plans">
+            <div className="prm-plan">
+              <div className="prm-plan-name">{planName(u.yearly)}</div>
+              <div className="prm-price-row"><span className="prm-price">{yenFmt(PREM_PLANS.yearly.price)}</span><span className="prm-unit">{dealT(lang, 'peryear', v)} · {dealT(lang, 'tax', v)}</span></div>
+              <button type="button" className="chip prm-cta" onClick={() => open(PREM_PLANS.yearly.url)}>{dealT(lang, 'buy', v)}</button>
+            </div>
+            <div className="prm-plan best">
+              <div className="prm-ribbon">{dealT(lang, 'best', v)}</div>
+              <div className="prm-plan-name">{planName(u.life)}</div>
+              {on && (
+                <div className="prm-deal">
+                  <span className="prm-tag">-{v.off}%</span>
+                  <span className="prm-deal-label">{dealT(lang, 'label', v)}</span>
+                  <span className="prm-deal-limited">{v.days != null ? dealT(lang, 'days', v) : dealT(lang, 'limited', v)}</span>
+                </div>
+              )}
+              <div className="prm-price-row">
+                {on && <s className="prm-was" title={dealT(lang, 'was', v)}>{yenFmt(v.list)}</s>}
+                <span className="prm-price">{yenFmt(PREM_PLANS.lifetime.price)}</span>
+                <span className="prm-unit">{dealT(lang, 'once', v)} · {dealT(lang, 'tax', v)}</span>
+              </div>
+              {on && <div className="prm-save">{dealT(lang, 'save', v)} · {dealT(lang, 'two', v)}</div>}
+              <button type="button" className="chip prm-cta prm-cta-best" onClick={() => open(PREM_PLANS.lifetime.url)}>{dealT(lang, 'buy', v)} →</button>
+              {on && <div className="prm-fine">{dealT(lang, 'after', v)}</div>}
+            </div>
+          </div>
+        )
+      }
+      const legalT = (lang, k) => ((PREM_LEGAL[lang] || PREM_LEGAL.en)[k] || '')
+      function PremLegal({ lang }) {
+        const L = (p) => 'https://broodev.com/legal/' + p + '?lang=' + encodeURIComponent(lang)
+        return (
+          <div className="prm-legal">{legalT(lang, 'seller')} · <a href={L('tokushoho')} target="_blank" rel="noopener">{legalT(lang, 'tokushoho')}</a> · <a href={L('refund')} target="_blank" rel="noopener">{legalT(lang, 'refund')}</a> · <a href={L('terms')} target="_blank" rel="noopener">{legalT(lang, 'terms')}</a></div>
+        )
+      }
       // BOTTOM RADAR 한 줄 결론 — "지금이 바닥인가?" 에 예/아니오로 답한다 (판정 = MVRV<1 · 온체인 미지원 코인은 보류). 13개 언어 키 동일.
       const BOTTOM_ANSWER = {
         ko: { yes: '예 — 지금은 바닥입니다', no: '아니오 — 지금은 바닥이 아닙니다', na: '판정 보류 — 온체인 데이터 없음', why: '기준: 시가총액 ÷ 평균 매수원가 = MVRV {mvrv}× (1 미만이면 바닥)', whyNa: '이 코인은 온체인(CoinMetrics) 미지원 — 위 점수만 참고' },
@@ -3084,6 +3233,24 @@
         const [premium, setPremium] = useState(() => !!(window.__csSeat && window.__csSeat.readLic()))
         const [showPrm, setShowPrm] = useState(false)
         const [alertEmail, setAlertEmail] = useState('')
+        const [stripOff, setStripOff] = useState(() => { try { return sessionStorage.getItem('btc:stripOff') === '1' } catch (e) { return false } })   // 프리미엄 안내 스트립 × (이 세션만)
+        const hideStrip = () => { setStripOff(true); try { sessionStorage.setItem('btc:stripOff', '1') } catch (e) { /* 무시 */ } }
+        /* #premium (사이트 내비의 ✦ Premium 링크 · 포털 premium.html 의 「앱 열고 구매」) → PREMIUM 모달. 해시는 지워서 다시 클릭해도 열리게 */
+        useEffect(() => {
+          const fromHash = () => {
+            if (window.location.hash !== '#premium') return
+            setShowPrm(true)
+            try { window.history.replaceState(null, '', window.location.pathname + window.location.search) } catch (e) { /* 무시 */ }
+          }
+          fromHash()
+          window.addEventListener('hashchange', fromHash)
+          return () => window.removeEventListener('hashchange', fromHash)
+        }, [])
+        /* 정적 내비 배지의 -50% 를 PREM_PLANS 와 동기화 — 할인이 끝났거나(list null) 이미 프리미엄이면 숨김 */
+        useEffect(() => {
+          const v = dealVars()
+          Array.prototype.forEach.call(document.querySelectorAll('[data-prem-off]'), (el) => { el.hidden = !v.on || premium; if (v.on) el.textContent = '-' + v.off + '%' })
+        }, [premium])
         const licApi = (location.hostname.split('.')[0] === 'btc' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? '' : ('https://' + 'btc.' + 'broodev.com')
         const activateLic = (raw) => {
           const key = String(raw || '').trim()
@@ -3121,7 +3288,9 @@
                 <div className="brand">
                   <span className="logo">{COIN.sym}▰▱</span>
                   <div>
-                    <h1 className="title">{COIN.ticker}_SIGNAL <span className="dim">// {t.tagline}</span> <button type="button" className="chip" onClick={() => setShowPrm(true)}>{premium ? 'PREMIUM ★' : 'PREMIUM'}</button></h1>
+                    <h1 className="title">{COIN.ticker}_SIGNAL <span className="dim">// {t.tagline}</span> {premium
+                      ? <button type="button" className="chip prm-on" onClick={() => setShowPrm(true)}>PREMIUM ★</button>
+                      : <button type="button" className="pg-prem" onClick={() => setShowPrm(true)}>Premium{dealVars().on && <span className="pg-prem-off">-{dealVars().off}%</span>}</button>}</h1>
                     <p className="subtitle">{t.subtitle}</p>
                   </div>
                 </div>
@@ -3160,6 +3329,19 @@
                 <span className="dz-icon">⚠</span>
                 <span>{t.banner.p1} <strong>{t.banner.s1}</strong> {t.banner.p2} <strong>{t.banner.s2}</strong> {t.banner.p3}</span>
               </div>
+
+              {!premium && !stripOff && (
+                /* 프리미엄 안내 스트립 — 비프리미엄 사용자에게만(utils 의 잠금 안내 박스와 같은 역할). × 로 이 세션 동안 숨김. 클릭 = PREMIUM 모달 */
+                <div className="prem-strip" role="button" tabIndex={0} onClick={() => setShowPrm(true)} onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPrm(true) } }}>
+                  <span className="pg-prem">Premium</span>
+                  <span className="ps-body">{premUi(lang).body}</span>
+                  {dealVars().on && (
+                    <span className="ps-deal"><span className="ps-was">{yenFmt(dealVars().list)}</span><span className="ps-now">{yenFmt(PREM_PLANS.lifetime.price)}</span><span className="prm-tag">-{dealVars().off}%</span><span className="ps-label">{dealT(lang, 'label', dealVars())}</span></span>
+                  )}
+                  <span className="ps-cta">{dealT(lang, 'buy', dealVars())} →</span>
+                  <button type="button" className="ps-x" aria-label="close" onClick={(e) => { e.stopPropagation(); hideStrip() }}>×</button>
+                </div>
+              )}
 
               <section className="hero">
                 <div className={`panel gauge-panel status-${scoreRevealed ? sysColor : 'ok'}`} style={{ '--accent': gaugeColor }}>
@@ -3245,14 +3427,12 @@
               )}
               {showPrm && (
                 <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowPrm(false)}>
-                  <div className="panel" style={{ padding: 18, maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+                  <div className="panel prm-panel" style={{ padding: 18 }} onClick={(e) => e.stopPropagation()}>
                     <div className="panel-label">// {premUi(lang).label}</div>
                     <p style={{ fontSize: 13, lineHeight: 1.5 }}>{premUi(lang).body}</p>
+                    <PremPlans lang={lang} />
+                    <PremLegal lang={lang} />
                     <p style={{ fontSize: 13 }}>{premUi(lang).key}</p>
-                    <p style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '8px 0' }}>
-                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/dRmfZjb2QaTGbQi9Ng4wM04', '_blank', 'noopener')}>{premUi(lang).yearly}</button>
-                      <button type="button" className="chip" onClick={() => window.open('https://buy.stripe.com/cNi5kFdaY2naf2u7F84wM05', '_blank', 'noopener')}>{premUi(lang).life}</button>
-                    </p>
                     <form onSubmit={(e) => { e.preventDefault(); activateLic(e.target.elements.key.value) }}>
                       <input name="key" placeholder={'B' + 'TC-XXXX-XXXX-XXXX-XXXX'} style={{ width: '100%', margin: '8px 0', padding: 8, background: '#000', color: 'var(--text)', border: '1px solid var(--line)' }} />
                       <button className="chip" type="submit">{premUi(lang).activate}</button>

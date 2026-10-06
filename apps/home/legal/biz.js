@@ -16,11 +16,16 @@ window.BIZ = {
   email: 'support@broodev.com',
   invoice_no: 'T5810420183858',                     // 適格請求書発行事業者 登録番号(2026-10-04 기입) — Stripe 의 Account tax ID(JP TRN)와 동일
   site: 'https://broodev.com/',
-  updated: '2026-10-03',
-  updated_ja: '2026年10月3日',
+  updated: '2026-10-07',
+  updated_ja: '2026年10月7日',
 };
 
-/* 프리미엄을 파는 앱과 税込 가격 — 특상법 販売価格 행 · premium.html 표에 쓰인다. 앱이 늘면 항목 추가 */
+/* 프리미엄을 파는 앱과 税込 가격 — 특상법 販売価格 행 · premium.html 표에 쓰인다. 앱이 늘면 항목 추가
+   lifetime_list: 평생(買い切り) 플랜의 「通常価格」(정가). premium.html 이 <s data-price="x.lifetime_list"> 로 취소선 표시 + 「-50% · 発売記念」.
+   각 앱의 할인 설정(utils: js/biz.js PLANS.lifetime.list · btc: index.html PREM_PLANS · voca: index.html PREMIUM.plans)과 같은 값으로.
+   ⚠ 景品表示法(二重価格表示): 정가는 발매 기념 기간이 끝난 뒤 실제로 받을 가격이어야 한다 — docs/stripe-setup.md §13. 할인을 끝내면 세 앱 + 여기를 같이 지운다 */
 window.PLANS = {
-  utils: { name: 'Utils Premium', url: 'https://utils.broodev.com/pricing', yearly: 2500, lifetime: 5000 },
+  utils: { name: 'Utils Premium',          url: 'https://utils.broodev.com/pricing', yearly: 2500, lifetime: 5000, lifetime_list: 10000 },
+  btc:   { name: 'Crypto Signals Premium', url: 'https://btc.broodev.com/#premium',  yearly: 2500, lifetime: 5000, lifetime_list: 10000 },  // 코인 사이트 15개 공통 라이선스 — #premium 이면 앱이 PREMIUM 모달을 바로 연다
+  voca:  { name: 'VOCA DECK Premium',      url: 'https://voca.broodev.com/#premium', yearly: 2500, lifetime: 5000, lifetime_list: 10000 },  // #premium → 앱의 프리미엄 모달
 };

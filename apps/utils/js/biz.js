@@ -28,7 +28,10 @@ window.BIZ = {
 window.PLANS = {
   currency: 'JPY',
   yearly:   { price: 2500, interval: 'year', checkout: 'https://buy.stripe.com/14A6oJ3Ao8LybQi4sW4wM00' },  // 年額(자동 갱신) — Payment Link 2026-10-05
-  lifetime: { price: 5000, checkout: 'https://buy.stripe.com/28E28tdaYe5S1bEaRk4wM01' },  // 買い切り(1회 결제 · 서비스 제공 기간 중 유효) — Payment Link 2026-10-05, 인보이스 PDF ON
+  lifetime: { price: 5000, list: 10000, checkout: 'https://buy.stripe.com/28E28tdaYe5S1bEaRk4wM01' },  // 買い切り(1회 결제 · 서비스 제공 기간 중 유효) — Payment Link 2026-10-05, 인보이스 PDF ON
+  // list: 평생 플랜의 「通常価格」(정가, 税込). price 보다 크면 요금 페이지·잠금 안내·메뉴에 「정가 취소선 → 판매가 · -50% · 발매 기념 · 기간 한정」 할인 표시(js/promo.js).
+  //       null 로 두면 할인 표시가 전부 사라진다. 실제 결제 금액은 Stripe Price = price. ⚠ 景品表示法: list 는 발매 기념 기간이 끝난 뒤 실제로 받을 가격이어야 한다(docs/stripe-setup.md §13)
+  promo: { until: null },   // 발매 기념가 종료일 'YYYY-MM-DD'(일본 시간 23:59 까지). 넣으면 「N일 남음」 카운트다운, null 이면 「기간 한정」. 가짜 마감 금지
   // checkout: Stripe Payment Link URL(https://buy.stripe.com/…) 을 넣으면 요금 페이지 버튼이 「購入する」로 활성화된다. 빈 문자열이면 「準備中」(비활성)
   free_formats: ['xlsx'],
   premium_formats: ['pptx', 'ai', 'psd'],

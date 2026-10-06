@@ -63,3 +63,17 @@
   .legal-table thead th{width:auto}
   .legal-table th,.legal-table td{padding:10px 8px;font-size:14px}
 }
+
+/* ── 프리미엄 총람(premium.html) — 평생 플랜 할인 표시: 정가 취소선 · -50% 태그 · 発売記念 (값은 legal/biz.js PLANS.*.lifetime_list) ── */
+/* .plan-card .prices span(0,2,1) 보다 특이성을 높여 둔다 — 안 그러면 태그가 회색 15px 로 덮여 읽히지 않는다. 태그는 flex:none·nowrap(「-50」/「%」 두 줄 방지) */
+.plan-card .prices .deal{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12px;font-weight:700;color:#00ff9c;letter-spacing:.02em}
+.plan-card .prices .deal-tag{flex:none;white-space:nowrap;overflow-wrap:normal;display:inline-block;padding:2px 8px;border-radius:5px;background:#00ff9c;color:#04110c;font-size:12px;font-weight:800;animation:dealPulse 1.6s ease-in-out infinite}
+/* 할인 종료(legal/biz.js lifetime_list: null) — legal.js 가 .deal-row 에 deal-off 를 붙이면 태그·취소선·小字를 숨기고 판매가를 보통 굵기로 */
+.plan-card .deal-row.deal-off .deal,.plan-card .deal-row.deal-off .was,.plan-card .deal-row.deal-off .fine,.plan-card .deal-row.deal-off>br{display:none}
+.plan-card .deal-row.deal-off b.now{color:#fff;font-size:18px}
+.plan-card .was{color:var(--secondary);font-size:15px;text-decoration:line-through;text-decoration-color:#ff5a5a;text-decoration-thickness:2px}
+.plan-card .prices b.now{color:#00ff9c;font-size:22px}
+.plan-card .fine{display:block;font-size:12px;color:var(--secondary);margin-top:2px}
+.legal-table .deal-note{font-size:13px;color:var(--secondary)}
+@keyframes dealPulse{50%{box-shadow:0 0 12px rgba(0,255,156,.7)}}
+@media (prefers-reduced-motion:reduce){.plan-card .deal-tag{animation:none}}

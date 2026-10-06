@@ -1,0 +1,130 @@
+{
+  "_readme": "평생(買い切り) 플랜 할인 표시 문구 13개 언어 — 단일 소스(생성: node scripts/deal/deal-gen.js · 검증: node scripts/deal/deal-verify.js). {list}=정가(¥10,000) {price}=판매가(¥5,000) {save}=차액 {off}=할인율 {d}=남은 일수. deal 은 btc·voca·utils·포털 공통, vocaPlan 은 voca PLAN_LBL, premiumCards 는 broodev.com/premium 의 btc·voca 카드(플랜 이름은 같은 페이지 utils 카드와 같은 말로), tokushohoAppend 는 特商法 販売価格 행에 덧붙이는 문장. ⚠ ja 의 was/after 는 「通常価格」를 쓰지 않는다(景表法: 판 적 없는 가격은 将来の販売価格 로만) — docs/stripe-setup.md §13",
+  "deal": {
+    "en": {"label":"Launch offer","limited":"Limited time","was":"Regular price","save":"Save {save}","best":"Best value","two":"2 years of Yearly — yours forever","after":"{list} after the launch period","days":"{d} days left","buy":"Buy now","peryear":"/ year","once":"one-time","tax":"tax included"},
+    "ja": {"label":"発売記念価格","limited":"期間限定","was":"期間終了後の価格","save":"{save} お得","best":"いちばんお得","two":"年額 2 年分の価格で、ずっと","after":"発売記念期間の終了後は {list} になります","days":"あと {d} 日","buy":"今すぐ購入","peryear":"/ 年","once":"1 回のみ","tax":"税込"},
+    "ko": {"label":"발매 기념 특가","limited":"기간 한정","was":"정가","save":"{save} 절약","best":"최고 가성비","two":"연간 2년치 가격으로 평생","after":"특가 종료 후 정가 {list}","days":"{d}일 남음","buy":"지금 구매","peryear":"/ 년","once":"1회 결제","tax":"세금 포함"},
+    "zh": {"label":"首发特惠","limited":"限时","was":"原价","save":"立省 {save}","best":"最划算","two":"两年年费的价格，永久使用","after":"活动结束后价格为 {list}","days":"仅剩 {d} 天","buy":"立即购买","peryear":"/ 年","once":"一次性付费","tax":"含税"},
+    "zh-Hant": {"label":"首發優惠","limited":"限時","was":"原價","save":"現省 {save}","best":"最划算","two":"兩年年費的價格，永久使用","after":"活動結束後價格為 {list}","days":"僅剩 {d} 天","buy":"立即購買","peryear":"/ 年","once":"單次付費","tax":"含稅"},
+    "th": {"label":"โปรเปิดตัว","limited":"จำกัดเวลา","was":"ราคาปกติ","save":"ประหยัด {save}","best":"คุ้มที่สุด","two":"จ่ายเท่ารายปี 2 ปี ใช้ได้ตลอดไป","after":"หลังช่วงเปิดตัว ราคาจะเป็น {list}","days":"เหลืออีก {d} วัน","buy":"ซื้อเลย","peryear":"/ ปี","once":"จ่ายครั้งเดียว","tax":"รวมภาษี"},
+    "es": {"label":"Oferta de lanzamiento","limited":"Tiempo limitado","was":"Precio normal","save":"Ahorras {save}","best":"Más ahorro","two":"Por el precio de 2 años, tuyo para siempre","after":"Después del periodo de lanzamiento: {list}","days":"Quedan {d} días","buy":"Comprar ahora","peryear":"/ año","once":"pago único","tax":"IVA incl."},
+    "fr": {"label":"Offre de lancement","limited":"Durée limitée","was":"Prix normal","save":"Économisez {save}","best":"Le plus avantageux","two":"Pour le prix de 2 ans, à vous pour toujours","after":"Après la période de lancement : {list}","days":"Plus que {d} jours","buy":"Acheter","peryear":"/ an","once":"paiement unique","tax":"TTC"},
+    "de": {"label":"Einführungsangebot","limited":"Nur für kurze Zeit","was":"Normalpreis","save":"Sie sparen {save}","best":"Bestes Angebot","two":"Zum Preis von 2 Jahren – für immer nutzen","after":"Nach dem Aktionszeitraum: {list}","days":"Noch {d} Tage","buy":"Jetzt kaufen","peryear":"/ Jahr","once":"einmalig","tax":"inkl. MwSt."},
+    "it": {"label":"Offerta di lancio","limited":"A tempo limitato","was":"Prezzo pieno","save":"Risparmi {save}","best":"Più conveniente","two":"Al prezzo di 2 anni, tuo per sempre","after":"Dopo il periodo di lancio: {list}","days":"Ancora {d} giorni","buy":"Acquista ora","peryear":"/ anno","once":"una tantum","tax":"IVA incl."},
+    "pt": {"label":"Oferta de lançamento","limited":"Por tempo limitado","was":"Preço normal","save":"Poupe {save}","best":"Mais vantajoso","two":"Pelo preço de 2 anos, seu para sempre","after":"Após o período de lançamento: {list}","days":"Faltam {d} dias","buy":"Comprar agora","peryear":"/ ano","once":"pagamento único","tax":"IVA incl."},
+    "ru": {"label":"Скидка на старте","limited":"Время ограничено","was":"Обычная цена","save":"Экономия {save}","best":"Самое выгодное","two":"По цене 2 лет подписки — навсегда","after":"После окончания акции: {list}","days":"Осталось {d} дн.","buy":"Купить","peryear":"/ год","once":"единоразово","tax":"с учётом налога"},
+    "nl": {"label":"Introductieaanbieding","limited":"Tijdelijke actie","was":"Normale prijs","save":"Bespaar {save}","best":"Beste deal","two":"2 jaar betalen, voor altijd gebruiken","after":"Na de introductieperiode: {list}","days":"Nog {d} dagen","buy":"Nu kopen","peryear":"/ jaar","once":"eenmalig","tax":"incl. btw"}
+  },
+  "vocaPlan": {
+    "en": {"y":"Yearly","l":"Lifetime","due":"Due today","note":"Tax included. Your own CSV stays free."},
+    "ja": {"y":"年額","l":"買い切り","due":"今日のカード","note":"税込。自分のCSVの暗記は無料のまま。"},
+    "ko": {"y":"연간","l":"평생","due":"오늘 카드","note":"세금 포함. 내 CSV 암기는 계속 무료."},
+    "zh": {"y":"年付","l":"买断","due":"今日复习","note":"含税。用自己的 CSV 背单词依然免费。"},
+    "zh-Hant": {"y":"年繳","l":"買斷","due":"今日複習","note":"含稅。用自己的 CSV 背單字依然免費。"},
+    "th": {"y":"รายปี","l":"ตลอดชีพ","due":"การ์ดวันนี้","note":"รวมภาษี ท่องศัพท์จาก CSV ของคุณเองยังฟรีเหมือนเดิม"},
+    "es": {"y":"Anual","l":"De por vida","due":"Tarjetas de hoy","note":"IVA incluido. Memorizar tu propio CSV sigue siendo gratis."},
+    "fr": {"y":"Annuel","l":"À vie","due":"Cartes du jour","note":"Prix TTC. Mémoriser votre propre CSV reste gratuit."},
+    "de": {"y":"Jährlich","l":"Lebenslang","due":"Heute fällig","note":"Inkl. MwSt. Das Lernen mit eigener CSV bleibt kostenlos."},
+    "it": {"y":"Annuale","l":"A vita","due":"Carte di oggi","note":"IVA inclusa. Memorizzare il tuo CSV resta gratis."},
+    "pt": {"y":"Anual","l":"Vitalício","due":"Cartões de hoje","note":"IVA incluído. Memorizar o seu próprio CSV continua grátis."},
+    "ru": {"y":"Годовой","l":"Навсегда","due":"Карточки на сегодня","note":"С учётом налога. Учить свой CSV по-прежнему бесплатно."},
+    "nl": {"y":"Jaarlijks","l":"Levenslang","due":"Kaarten van vandaag","note":"Incl. btw. Je eigen CSV leren blijft gratis."}
+  },
+  "premiumCards": {
+    "en": {
+      "btc": {"app":"btc.broodev.com + 14 coin sites","name":"Crypto Signals Premium","desc":"Today's buy-timing score is free. Premium unlocks why (the reasoning behind the verdict), history beyond 7 days, ad-free use and email alerts on extreme fear/greed days. One license works on all 15 coin sites.","yearly":"Yearly","lifetime":"Lifetime","btn":"Open the app & buy"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Flash-card vocabulary trainer. Premium unlocks the sample decks, the CSV editor, My Voca Decks, \"due today\" review and ad-free use; a free 3-day trial is included. Memorizing your own CSV stays free.","yearly":"Yearly","lifetime":"Lifetime","btn":"Open the app & buy"},
+      "common": {"yearly_unit":"/ year (tax incl.)","lifetime_unit":"(tax incl. · one-time · no renewal)"}
+    },
+    "ja": {
+      "btc": {"app":"btc.broodev.com + コインサイト 14","name":"コイン・シグナル Premium","desc":"今日の買い時スコアは無料。why（判定の根拠）・7 日を超える推移・広告なし・恐怖/強欲が極端な日のメール通知がプレミアム。ライセンス 1 つで 15 のコインサイト共通。","yearly":"年額プラン","lifetime":"買い切りプラン","btn":"アプリを開いて購入"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"点滅式単語帳。サンプル単語帳・CSV エディタ・マイ単語帳・「今日のカード」復習・広告なしがプレミアム（3 日間の無料体験つき）。自分の CSV の暗記は無料のまま。","yearly":"年額プラン","lifetime":"買い切りプラン","btn":"アプリを開いて購入"},
+      "common": {"yearly_unit":"/ 年（税込）","lifetime_unit":"（税込 · 1 回限り · 更新なし）"}
+    },
+    "ko": {
+      "btc": {"app":"btc.broodev.com + 코인 사이트 14개","name":"코인 시그널 Premium","desc":"오늘의 매수 타이밍 점수는 무료. why(판정 근거) · 7일을 넘는 추이 · 광고 제거 · 공포/탐욕이 극단적인 날의 메일 알림이 프리미엄. 라이선스 하나로 코인 사이트 15개 공통.","yearly":"연간 플랜","lifetime":"평생 플랜","btn":"앱 열고 구매"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"깜빡이 단어암기장. 샘플 암기장 · CSV 편집기 · 마이 보카덱 · 「오늘 카드」 복습 · 광고 제거가 프리미엄(3일 무료 체험 포함). 내 CSV 암기는 계속 무료.","yearly":"연간 플랜","lifetime":"평생 플랜","btn":"앱 열고 구매"},
+      "common": {"yearly_unit":"/ 년 (세금 포함)","lifetime_unit":"(세금 포함 · 1회 결제 · 갱신 없음)"}
+    },
+    "zh": {
+      "btc": {"app":"btc.broodev.com + 14 个币种站点","name":"加密货币信号 Premium","desc":"今日买入时机评分免费。Premium 解锁 why（判定依据）、7 天以上的历史走势、无广告使用，以及恐惧/贪婪指数极端当日的邮件提醒。一份许可证通用于全部 15 个币种站点。","yearly":"年度套餐","lifetime":"买断套餐","btn":"打开应用购买"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"闪卡背单词工具。Premium 解锁示例单词本、CSV 编辑器、我的单词本、“今日复习”模式和无广告使用，含 3 天免费试用。用自己的 CSV 背单词依然免费。","yearly":"年度套餐","lifetime":"买断套餐","btn":"打开应用购买"},
+      "common": {"yearly_unit":"/ 年（含税）","lifetime_unit":"（含税 · 一次性付费 · 无需续费）"}
+    },
+    "zh-Hant": {
+      "btc": {"app":"btc.broodev.com + 14 個幣種網站","name":"加密貨幣訊號 Premium","desc":"今日買入時機評分免費。Premium 解鎖 why（判定依據）、7 天以上的歷史走勢、無廣告使用，以及恐懼/貪婪指數極端當日的電子郵件通知。一組授權可在全部 15 個幣種網站通用。","yearly":"年繳方案","lifetime":"買斷方案","btn":"開啟應用程式購買"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"字卡式背單字工具。Premium 解鎖範例單字本、CSV 編輯器、我的單字本、「今日複習」模式和無廣告使用，含 3 天免費試用。用自己的 CSV 背單字依然免費。","yearly":"年繳方案","lifetime":"買斷方案","btn":"開啟應用程式購買"},
+      "common": {"yearly_unit":"/ 年（含稅）","lifetime_unit":"（含稅 · 單次付費 · 無需續費）"}
+    },
+    "th": {
+      "btc": {"app":"btc.broodev.com + เว็บไซต์เหรียญอีก 14 แห่ง","name":"Crypto Signals Premium","desc":"คะแนนจังหวะซื้อของวันนี้ใช้ฟรี Premium ปลดล็อก why (เหตุผลเบื้องหลังผลตัดสิน), ประวัติย้อนหลังเกิน 7 วัน, การใช้งานแบบไม่มีโฆษณา และการแจ้งเตือนทางอีเมลในวันที่ดัชนีความกลัว/ความโลภสุดขั้ว ไลเซนส์เดียวใช้ได้กับเว็บไซต์เหรียญทั้ง 15 แห่ง","yearly":"แผนรายปี","lifetime":"แผนตลอดชีพ","btn":"เปิดแอปแล้วซื้อ"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"แอปท่องศัพท์แบบแฟลชการ์ด Premium ปลดล็อกชุดคำศัพท์ตัวอย่าง, ตัวแก้ไข CSV, ชุดคำศัพท์ของฉัน, โหมดทบทวน “การ์ดวันนี้” และการใช้งานแบบไม่มีโฆษณา พร้อมทดลองใช้ฟรี 3 วัน ท่องศัพท์จาก CSV ของคุณเองยังฟรีเหมือนเดิม","yearly":"แผนรายปี","lifetime":"แผนตลอดชีพ","btn":"เปิดแอปแล้วซื้อ"},
+      "common": {"yearly_unit":"/ ปี (รวมภาษี)","lifetime_unit":"(รวมภาษี · จ่ายครั้งเดียว · ไม่ต้องต่ออายุ)"}
+    },
+    "es": {
+      "btc": {"app":"btc.broodev.com + 14 sitios de criptomonedas","name":"Crypto Signals Premium","desc":"La puntuación diaria del momento de compra es gratis. Premium desbloquea why (el razonamiento detrás del veredicto), el historial de más de 7 días, el uso sin anuncios y las alertas por correo en los días de miedo/codicia extremos. Una sola licencia funciona en los 15 sitios de criptomonedas.","yearly":"Anual","lifetime":"Vitalicio","btn":"Abrir la app y comprar"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Entrenador de vocabulario con flashcards. Premium desbloquea los mazos de ejemplo, el editor de CSV, Mis mazos, el repaso «Tarjetas de hoy» y el uso sin anuncios; incluye una prueba gratuita de 3 días. Memorizar tu propio CSV sigue siendo gratis.","yearly":"Anual","lifetime":"Vitalicio","btn":"Abrir la app y comprar"},
+      "common": {"yearly_unit":"/ año (IVA incl.)","lifetime_unit":"(IVA incl. · pago único · sin renovación)"}
+    },
+    "fr": {
+      "btc": {"app":"btc.broodev.com + 14 sites crypto","name":"Crypto Signals Premium","desc":"Le score de timing d’achat du jour est gratuit. Premium débloque why (le raisonnement derrière le verdict), l’historique au-delà de 7 jours, l’utilisation sans publicité et les alertes e-mail les jours de peur/cupidité extrêmes. Une seule licence fonctionne sur les 15 sites crypto.","yearly":"Formule annuelle","lifetime":"Formule à vie","btn":"Ouvrir l’app et acheter"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Entraîneur de vocabulaire avec flashcards. Premium débloque les paquets d’exemple, l’éditeur CSV, Mes paquets, la révision « Cartes du jour » et l’utilisation sans publicité ; un essai gratuit de 3 jours est inclus. Mémoriser votre propre CSV reste gratuit.","yearly":"Formule annuelle","lifetime":"Formule à vie","btn":"Ouvrir l’app et acheter"},
+      "common": {"yearly_unit":"/ an (TTC)","lifetime_unit":"(TTC · paiement unique · sans renouvellement)"}
+    },
+    "de": {
+      "btc": {"app":"btc.broodev.com + 14 Coin-Seiten","name":"Crypto Signals Premium","desc":"Der heutige Kauf-Timing-Score ist kostenlos. Premium schaltet why (die Begründung hinter dem Urteil), den Verlauf über 7 Tage hinaus, werbefreie Nutzung und E-Mail-Benachrichtigungen an Tagen extremer Angst/Gier frei. Eine Lizenz gilt für alle 15 Coin-Seiten.","yearly":"Jahresplan","lifetime":"Lifetime-Plan","btn":"App öffnen & kaufen"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Vokabeltrainer mit Karteikarten. Premium schaltet die Beispiel-Decks, den CSV-Editor, Meine Decks, die Wiederholung „Heute fällig“ und werbefreie Nutzung frei; eine kostenlose 3-Tage-Testphase ist inklusive. Das Lernen mit eigener CSV bleibt kostenlos.","yearly":"Jahresplan","lifetime":"Lifetime-Plan","btn":"App öffnen & kaufen"},
+      "common": {"yearly_unit":"/ Jahr (inkl. MwSt.)","lifetime_unit":"(inkl. MwSt. · einmalig · keine Verlängerung)"}
+    },
+    "it": {
+      "btc": {"app":"btc.broodev.com + 14 siti crypto","name":"Crypto Signals Premium","desc":"Il punteggio di oggi sul timing d’acquisto è gratis. Premium sblocca why (il ragionamento dietro il verdetto), lo storico oltre i 7 giorni, l’uso senza pubblicità e gli avvisi e-mail nei giorni di paura/avidità estreme. Una sola licenza vale per tutti i 15 siti crypto.","yearly":"Piano annuale","lifetime":"Piano a vita","btn":"Apri l’app e acquista"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Trainer di vocaboli con flashcard. Premium sblocca i mazzi di esempio, l’editor CSV, I miei mazzi, il ripasso “Carte di oggi” e l’uso senza pubblicità; è inclusa una prova gratuita di 3 giorni. Memorizzare il tuo CSV resta gratis.","yearly":"Piano annuale","lifetime":"Piano a vita","btn":"Apri l’app e acquista"},
+      "common": {"yearly_unit":"/ anno (IVA incl.)","lifetime_unit":"(IVA incl. · una tantum · senza rinnovo)"}
+    },
+    "pt": {
+      "btc": {"app":"btc.broodev.com + 14 sites de criptomoedas","name":"Crypto Signals Premium","desc":"A pontuação diária do momento de compra é grátis. O Premium desbloqueia o why (o raciocínio por trás do veredicto), o histórico além de 7 dias, a utilização sem anúncios e os alertas por e-mail nos dias de medo/ganância extremos. Uma única licença funciona nos 15 sites de criptomoedas.","yearly":"Plano Anual","lifetime":"Plano Vitalício","btn":"Abrir a app e comprar"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Treinador de vocabulário com flashcards. O Premium desbloqueia os baralhos de exemplo, o editor de CSV, Os meus baralhos, a revisão «Cartões de hoje» e a utilização sem anúncios; inclui um teste gratuito de 3 dias. Memorizar o seu próprio CSV continua grátis.","yearly":"Plano Anual","lifetime":"Plano Vitalício","btn":"Abrir a app e comprar"},
+      "common": {"yearly_unit":"/ ano (IVA incl.)","lifetime_unit":"(IVA incl. · pagamento único · sem renovação)"}
+    },
+    "ru": {
+      "btc": {"app":"btc.broodev.com + 14 сайтов других монет","name":"Crypto Signals Premium","desc":"Сегодняшняя оценка момента для покупки — бесплатно. Premium открывает why (обоснование вердикта), историю дольше 7 дней, использование без рекламы и уведомления по e-mail в дни экстремального страха/жадности. Одна лицензия действует на всех 15 сайтах монет.","yearly":"Годовой план","lifetime":"Бессрочный план","btn":"Открыть приложение и купить"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Тренажёр для заучивания слов по карточкам. Premium открывает примеры колод, редактор CSV, Мои колоды, режим повторения «Карточки на сегодня» и использование без рекламы; включён бесплатный пробный период на 3 дня. Учить свой CSV по-прежнему бесплатно.","yearly":"Годовой план","lifetime":"Бессрочный план","btn":"Открыть приложение и купить"},
+      "common": {"yearly_unit":"/ год (с учётом налога)","lifetime_unit":"(с учётом налога · единоразово · без продления)"}
+    },
+    "nl": {
+      "btc": {"app":"btc.broodev.com + 14 cryptosites","name":"Crypto Signals Premium","desc":"De kooptiming-score van vandaag is gratis. Premium ontgrendelt why (de redenering achter het oordeel), de geschiedenis van meer dan 7 dagen, advertentievrij gebruik en e-mailmeldingen op dagen van extreme angst/hebzucht. Eén licentie werkt op alle 15 cryptosites.","yearly":"Jaarabonnement","lifetime":"Lifetime-plan","btn":"App openen & kopen"},
+      "voca": {"app":"voca.broodev.com","name":"VOCA DECK Premium","desc":"Woordjestrainer met flashcards. Premium ontgrendelt de voorbeelddecks, de CSV-editor, Mijn decks, de herhaling ‘Kaarten van vandaag’ en advertentievrij gebruik; een gratis proefperiode van 3 dagen is inbegrepen. Je eigen CSV leren blijft gratis.","yearly":"Jaarabonnement","lifetime":"Lifetime-plan","btn":"App openen & kopen"},
+      "common": {"yearly_unit":"/ jaar (incl. btw)","lifetime_unit":"(incl. btw · eenmalig · geen verlenging)"}
+    }
+  },
+  "tokushohoAppend": {
+    "en": "Crypto Signals Premium (btc.broodev.com and 14 coin sites) and VOCA DECK Premium (voca.broodev.com): same prices — Yearly {yearly} / year, Lifetime {lifetime} (tax incl.).",
+    "ja": "コイン・シグナル Premium（btc.broodev.com ほかコインサイト 14）・VOCA DECK Premium（voca.broodev.com）も同額：年額 {yearly} / 年・買い切り {lifetime}（税込）。",
+    "ko": "코인 시그널 Premium(btc.broodev.com 외 코인 사이트 14개) · VOCA DECK Premium(voca.broodev.com)도 같은 금액: 연간 {yearly} / 년 · 평생 {lifetime} (세금 포함).",
+    "zh": "加密货币信号 Premium（btc.broodev.com 及 14 个币种站点）与 VOCA DECK Premium（voca.broodev.com）价格相同：年度套餐 {yearly} / 年，买断套餐 {lifetime}（含税）。",
+    "zh-Hant": "加密貨幣訊號 Premium（btc.broodev.com 及 14 個幣種網站）與 VOCA DECK Premium（voca.broodev.com）價格相同：年繳方案 {yearly} / 年，買斷方案 {lifetime}（含稅）。",
+    "th": "Crypto Signals Premium (btc.broodev.com และเว็บไซต์เหรียญอีก 14 แห่ง) และ VOCA DECK Premium (voca.broodev.com) ราคาเท่ากัน: แผนรายปี {yearly} / ปี, แผนตลอดชีพ {lifetime} (รวมภาษี)",
+    "es": "Crypto Signals Premium (btc.broodev.com y 14 sitios de criptomonedas) y VOCA DECK Premium (voca.broodev.com): mismos precios — plan anual {yearly} / año, plan vitalicio {lifetime} (impuestos incl.).",
+    "fr": "Crypto Signals Premium (btc.broodev.com et 14 sites crypto) et VOCA DECK Premium (voca.broodev.com) : mêmes tarifs — formule annuelle {yearly} / an, formule à vie {lifetime} (taxes incluses).",
+    "de": "Crypto Signals Premium (btc.broodev.com und 14 Coin-Seiten) und VOCA DECK Premium (voca.broodev.com): gleiche Preise – Jahresplan {yearly} / Jahr, Lifetime-Plan {lifetime} (inkl. Steuern).",
+    "it": "Crypto Signals Premium (btc.broodev.com e 14 siti crypto) e VOCA DECK Premium (voca.broodev.com): stessi prezzi — Piano annuale {yearly} / anno, Piano a vita {lifetime} (imposte incl.).",
+    "pt": "Crypto Signals Premium (btc.broodev.com e 14 sites de criptomoedas) e VOCA DECK Premium (voca.broodev.com): mesmos preços — Plano Anual {yearly} / ano, Plano Vitalício {lifetime} (imposto incluído).",
+    "ru": "Crypto Signals Premium (btc.broodev.com и 14 сайтов других монет) и VOCA DECK Premium (voca.broodev.com): те же цены — Годовой план {yearly} / год, Бессрочный план {lifetime} (с учётом налога).",
+    "nl": "Crypto Signals Premium (btc.broodev.com en 14 cryptosites) en VOCA DECK Premium (voca.broodev.com): dezelfde prijzen – Jaarabonnement {yearly} / jaar, Lifetime-plan {lifetime} (incl. belasting)."
+  },
+  "legal": {
+    "en": {"seller":"Sold by Y Systems","tokushoho":"Legal notice","refund":"Refund & Cancellation","terms":"Terms of Service"},
+    "ja": {"seller":"販売者: Y Systems","tokushoho":"特定商取引法に基づく表記","refund":"返金・解約ポリシー","terms":"利用規約"},
+    "ko": {"seller":"판매자: Y Systems","tokushoho":"특정상거래법 표기","refund":"환불·해지 정책","terms":"이용약관"},
+    "zh": {"seller":"销售方: Y Systems","tokushoho":"特定商取引法声明","refund":"退款与取消政策","terms":"服务条款"},
+    "zh-Hant": {"seller":"販售者: Y Systems","tokushoho":"特定商取引法標示","refund":"退款與取消政策","terms":"服務條款"},
+    "th": {"seller":"ผู้ขาย: Y Systems","tokushoho":"ประกาศทางกฎหมาย (特定商取引法)","refund":"นโยบายคืนเงินและยกเลิก","terms":"ข้อกำหนดการใช้งาน"},
+    "es": {"seller":"Vendido por Y Systems","tokushoho":"Aviso legal","refund":"Reembolsos y cancelación","terms":"Términos del servicio"},
+    "fr": {"seller":"Vendu par Y Systems","tokushoho":"Mentions légales","refund":"Remboursement et résiliation","terms":"Conditions d’utilisation"},
+    "de": {"seller":"Verkäufer: Y Systems","tokushoho":"Impressum","refund":"Rückerstattung & Kündigung","terms":"Nutzungsbedingungen"},
+    "it": {"seller":"Venditore: Y Systems","tokushoho":"Note legali","refund":"Rimborsi e disdetta","terms":"Termini di servizio"},
+    "pt": {"seller":"Vendido por Y Systems","tokushoho":"Aviso legal","refund":"Reembolsos e cancelamento","terms":"Termos de serviço"},
+    "ru": {"seller":"Продавец: Y Systems","tokushoho":"Юридическая информация","refund":"Возврат и отмена","terms":"Условия использования"},
+    "nl": {"seller":"Verkoper: Y Systems","tokushoho":"Wettelijke vermelding","refund":"Terugbetaling & opzegging","terms":"Gebruiksvoorwaarden"}
+  }
+}

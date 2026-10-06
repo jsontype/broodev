@@ -30,6 +30,16 @@
 
 설정은 `localStorage(mh:settings)` 에 저장된다(키 접두어 `mh:` 는 개명 전 그대로 — 저장된 설정·언어 호환). 예전에 저장된 `format` 값은 무시된다(페이지가 형식을 정함).
 
+## 평생 플랜 할인 표시 (2026-10-07)
+
+평생(買い切り) 플랜을 **정가 ¥10,000 → 発売記念価格 ¥5,000(-50%)** 로 보여 준다 — 요금 페이지 카드(13언어) · pptx/ai/psd 잠금 안내 · 사이드바 「요금 · 프리미엄」 메뉴의 `-50%` 배지. 실제 결제 금액·Stripe Price 는 ¥5,000 그대로.
+
+- 설정: `js/biz.js` `PLANS.lifetime.list`(정가, `null` 이면 할인 표시 전부 숨김) · `PLANS.promo.until`(종료일 `'YYYY-MM-DD'` — 넣으면 「N일 남음」, 없으면 「기간 한정」; 가짜 마감 금지)
+- 라이트 테마에서는 민트 글자가 흰 카드 위에서 안 보여 `site.css` 가 진한 녹색/주황으로 바꾼다(`.light-theme`)
+- 로직: [`js/promo.js`](js/promo.js) — `[data-deal]`(블록) · `[data-price-list]`(정가 취소선) · `[data-promo="키"]`(i18n `promo_*` 9키 × 13언어, `tag` 는 `-50%`) 를 채우고 `mh:lang` 에 다시 채움. 로드 순서 i18n.js → biz.js → promo.js → (site.js | app.js)
+- 마크업: 요금 페이지의 ja·ko·en 블록과 `i18n/pricing.*.html` 조각 10개에 같은 구조(`pg-deal` · `pg-was` · `pg-save` · `pg-fine`). 문구의 단일 소스는 `scripts/deal/deal-i18n.json`(`node scripts/deal/deal-gen.js` 로 재생성 · `deal-verify.js` 로 검증)
+- ⚠ 景品表示法: 정가 ¥10,000 은 발매 기념 기간이 끝난 뒤 실제로 받을 가격이어야 한다 — [`docs/stripe-setup.md`](../../docs/stripe-setup.md) §13. 일본어는 「通常価格」 대신 「期間終了後の価格」(판 적 없는 가격을 과거 판매가처럼 부르지 않기 위해)
+
 구 `jsontype/y-systems` 레포 `apps/megahouse/`(AIZOX 템플릿의 AI Image Enhancer 화면)를 2026-10-01 통합한 뒤, 셸(사이드바·헤더·다크/라이트)만 남기고 본문을 이 앱으로 교체했다. 원래 있던 `wrangler.toml` 은 broodev 관례(Pages 대시보드 Root directory)에 맞춰 제거.
 
 ## 동작

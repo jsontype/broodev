@@ -14,7 +14,7 @@
 (function () {
   'use strict';
   var BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
-  var V = '20261004e';
+  var V = '20261007a';
   var LANGS = ['en', 'ja', 'ko', 'zh', 'es', 'pt', 'fr', 'ru', 'de', 'it', 'th', 'zh-Hant', 'nl'];
   var NAMES = { en: 'English', ja: '日本語', ko: '한국어', zh: '简体中文', es: 'Español', pt: 'Português', fr: 'Français', ru: 'Русский', de: 'Deutsch', it: 'Italiano', th: 'ไทย', 'zh-Hant': '繁體中文', nl: 'Nederlands' };
   var HTML_LANG = { zh: 'zh-Hans' };
@@ -165,6 +165,11 @@
     each('[data-price]', function (el) { var v = path(PLANS, el.getAttribute('data-price')); if (v != null) el.textContent = yen(v); });
     each('[data-price-monthly]', function (el) { var v = path(PLANS, el.getAttribute('data-price-monthly')); if (v != null) el.textContent = yen(Math.round(v / 12)); });
     each('[data-plan-url]', function (el) { var v = path(PLANS, el.getAttribute('data-plan-url')); if (v) el.setAttribute('href', v); });
+    // 평생 플랜 할인 표시(premium.html .deal-row): PLANS.<app>.lifetime_list 가 null 이면 deal-off → 태그·취소선·小字 숨김(legal.css)
+    each('[data-price$=".lifetime_list"]', function (el) {
+      var on = path(PLANS, el.getAttribute('data-price')) != null, row = el.closest ? el.closest('.deal-row') : null;
+      if (row) row.classList.toggle('deal-off', !on);
+    });
     var placeholder = !BIZ.invoice_no || /^T0{13}$/.test(BIZ.invoice_no);
     each('[data-biz-row="invoice_no"]', function (el) { el.hidden = placeholder; });
     document.documentElement.setAttribute('data-legal-ready', lang);

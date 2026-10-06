@@ -13,7 +13,7 @@
   'use strict';
   var I = window.MH_I18N, BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
   if (!I) return;
-  var V = '20261005f';
+  var V = '20261007a';
   var DOC = document.body ? document.body.getAttribute('data-page') : null;
 
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
@@ -127,7 +127,7 @@
     var my = ++seq;
     document.documentElement.removeAttribute('data-block-ready');
     each('[data-lang-block]', function (el) { el.hidden = true; });   // 받는 동안 영어판이 잠깐 비치지 않게
-    ensureBlock(lang, function () { if (my !== seq) return; showBlock(lang); fill(lang); carryLang(lang); });
+    ensureBlock(lang, function () { if (my !== seq) return; showBlock(lang); fill(lang); carryLang(lang); if (window.MH_PROMO) window.MH_PROMO.apply(); });   // 조각을 끼운 뒤 할인 표시(promo.js)도 다시
   });
 
   // ── 라이선스 활성화 UI (pricing.html #pg-license · 문구는 i18n lic_*) — js/license.js 가 서버(/api/license/*)와 통신 ──

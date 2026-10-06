@@ -99,7 +99,7 @@
     // ── 업무 도구
     { id: 'utils', cat: 'work', name: '업무 도구 모음 — 사진 나란히 (写真ならべ) Excel · PowerPoint', en: 'UTILS', status: 'live', featured: true,
       url: 'https://utils.broodev.com/',
-      desc: '사진을 올리면 용지(A4·A3·B4·Letter…)와 가로×세로 격자에 맞춰 배열한 .xlsx(Excel 앱) / .pptx(PowerPoint 앱, /pptx)를 내려받는다. 브라우저 안에서만 처리. Illustrator · Photoshop 출력은 준비 중.' },
+      desc: '사진을 올리면 용지(A4·A3·B4·Letter…)와 가로×세로 격자에 맞춰 배열한 .xlsx(Excel 앱) / .pptx(PowerPoint 앱, /pptx)를 내려받는다. 브라우저 안에서만 처리. Illustrator(.ai) · Photoshop(.psd) 출력도 있다 — PowerPoint 와 함께 프리미엄(Excel 은 무료).' },
 
     // ── 게임
     { id: 'samurai', cat: 'game', name: '사무라이 택틱스 2', en: 'SAMURAI_TACTICS_2', status: 'live',

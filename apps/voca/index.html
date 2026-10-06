@@ -432,6 +432,9 @@
       .pg-prem { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; padding: 2px 7px 2px 6px; border: 0; border-radius: 99px; background: linear-gradient(135deg, #ffe29a 0%, #f7b733 45%, #ff8a3d 100%); color: #2a1600; font-family: var(--ui-font); font-size: 9.5px; line-height: 14px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; vertical-align: middle; box-shadow: 0 0 0 1px rgba(255,190,70,.35), 0 0 10px rgba(255,170,50,.45); cursor: pointer; }
       .pg-prem::before { content: "✦"; font-size: 9px; line-height: 1; }
       .pg-prem:hover { filter: brightness(1.06); }
+      .prm-legal { margin: 2px 0 8px; font-size: 10px; color: var(--t-muted); line-height: 1.6; }
+      .prm-legal a { color: var(--t-muted); text-decoration: underline; }
+      .prm-legal a:hover { color: var(--t-fg); }
       .prm-cover { text-align: center; padding: 36px 16px; border: 2px dashed var(--panel-dark); border-radius: var(--t-radius); background: var(--t-sub-bg2); }
       .prm-cover-ic { font-size: 40px; line-height: 1; }
       .prm-cover p { margin: 12px 0 16px; font-weight: 800; font-size: 13px; }
@@ -445,6 +448,46 @@
       .prm-active { font-weight: 800; color: var(--t-ok); }
       .prm-keyrow { display: flex; gap: 6px; align-items: center; }
       .prm-keyrow input { flex: 1; min-width: 0; }
+      /* 프리미엄 모달 플랜 카드 — 평생 플랜 할인 표시(PREMIUM.plans.lifetime.list). 테마 토큰만 사용(BROODEV 네온 / ORIGINAL Win95 베벨 둘 다) */
+      .prm-plans { display: grid; grid-template-columns: 1fr 1.3fr; gap: 8px; margin: 2px 0 10px; }
+      .prm-plan { position: relative; display: flex; flex-direction: column; gap: 5px; padding: 12px 10px 10px; background: var(--t-sub-bg2); border: var(--t-bevel-w) solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); border-radius: var(--t-radius); }
+      .prm-plan.best { border-color: var(--t-accent); box-shadow: 0 0 0 1px var(--t-accent) inset, 0 0 18px -6px var(--t-accent); }
+      .prm-plan-name { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--t-panel-dim); }
+      .prm-ribbon { position: absolute; top: -8px; right: 8px; font-family: var(--ui-font); font-size: 9.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--t-on-accent); background: var(--t-accent); padding: 1px 7px; border: 1px solid var(--t-badge-line); }
+      .prm-deal { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; font-weight: 800; color: var(--t-panel-fg); }
+      .prm-tag { font-size: 12px; font-weight: 900; color: var(--t-on-accent); background: var(--t-accent); padding: 1px 6px; border-radius: var(--t-radius); animation: prmPulse 1.6s ease-in-out infinite; }
+      .prm-deal-limited { color: var(--t-bad); }
+      .prm-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+      .prm-was { font-size: 13px; color: var(--t-panel-fg2); text-decoration: line-through; text-decoration-color: var(--t-bad); text-decoration-thickness: 2px; }
+      .prm-plan .prm-price { font-size: 24px; font-weight: 900; line-height: 1; margin: 0; color: var(--t-panel-fg); }
+      .prm-unit { font-size: 11px; color: var(--t-panel-fg2); }
+      .prm-save { font-size: 11px; font-weight: 800; color: var(--t-ok); }
+      .prm-plan .prm-buy { margin-top: auto; width: 100%; }
+      .prm-buy-best { box-shadow: 0 0 12px -2px var(--t-accent); }
+      .prm-fine { font-size: 10.5px; color: var(--t-panel-dim); }
+      @keyframes prmPulse { 50% { box-shadow: 0 0 8px var(--t-accent); } }
+      @media (prefers-reduced-motion: reduce) { .prm-tag { animation: none; } }
+      @media (max-width: 480px) { .prm-plans { grid-template-columns: 1fr; } }
+      /* 프리미엄 존재 알림 — 헤더·사이트 내비의 금색 ✦ Premium 배지(+할인율) · 헤더 아래 안내 스트립 */
+      .pg-prem .pg-prem-off { margin-left: 2px; padding: 0 5px; border-radius: 99px; background: #2a1600; color: #ffd27a; letter-spacing: 0; }
+      .pg-prem .pg-prem-off[hidden] { display: none; }
+      .app-header .hdr-prem { margin-left: 0; font-size: 10px; padding: 3px 9px 3px 8px; }
+      @media (max-width: 560px) { .app-header .hdr-prem { font-size: 0; gap: 2px; padding: 3px 7px 3px 6px; } .app-header .hdr-prem::before { display: none; } .app-header .hdr-prem .pg-prem-off { font-size: 10px; margin-left: 0; } }   /* 폰: 「✦ -50%」 만 — 앱 제목이 잘리지 않게 */
+      .site-nav-links a.pg-prem { color: #2a1600; font-size: 10px; padding: 2px 9px 2px 8px; border-bottom: 0; }
+      .site-nav-links a.pg-prem:hover { color: #2a1600; border-bottom: 0; }
+      .prem-strip { flex-shrink: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid rgba(255,190,70,.5); background: linear-gradient(90deg, rgba(255,170,50,.16), rgba(255,170,50,.03)); color: var(--t-fg); font-family: var(--ui-font); font-size: 12px; font-weight: 700; cursor: pointer; }
+      .prem-strip:hover { background: linear-gradient(90deg, rgba(255,170,50,.24), rgba(255,170,50,.05)); }
+      .prem-strip .ps-body { flex: 1 1 280px; min-width: 0; }
+      .prem-strip .ps-deal { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+      .prem-strip .ps-was { color: var(--t-muted); font-weight: 400; text-decoration: line-through; text-decoration-color: var(--t-bad); }
+      .prem-strip .ps-now { color: #ffd27a; font-weight: 900; font-size: 15px; }
+      .prem-strip .ps-label { color: #ffd27a; }
+      .prem-strip .ps-cta { color: var(--t-on-accent); background: var(--t-accent); border: 1px solid var(--t-accent); border-radius: var(--t-radius); padding: 4px 12px; font-weight: 800; white-space: nowrap; }
+      .prem-strip .ps-x { background: none; border: 0; color: var(--t-muted); font-size: 18px; line-height: 1; padding: 0 2px; cursor: pointer; }
+      .prem-strip .ps-x:hover { color: var(--t-fg); }
+      .prem-strip { position: relative; padding-right: 34px; }   /* × 는 항상 오른쪽 위 모서리(긴 언어에서 줄바꿈으로 떨어져 나가지 않게) */
+      .prem-strip .ps-x { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); }
+      @media (max-width: 560px) { .prem-strip .ps-body { flex-basis: 100%; } .prem-strip .ps-x { top: 8px; transform: none; } }
       .ed-name { width: 100%; font-family: var(--ui-font); font-size: 13px; padding: 6px 8px; border: var(--t-inset-border); background: var(--t-input-bg); color: var(--t-panel-fg); margin-bottom: 10px; }
       .ed-stat { font-size: 12px; color: var(--t-panel-fg2); margin: 8px 0 0; }
       .ed-stat b.ok { color: var(--t-ok); }
@@ -518,6 +561,7 @@
         .site-nav-links { order: 4; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; display: none; }
         .site-nav.nav-open .site-nav-links { display: flex; }
         .site-nav-links a { padding: 8px 0; font-size: 14px; width: 100%; }
+        .site-nav-links a.pg-prem { width: auto; align-self: flex-start; margin: 6px 0 2px; padding: 2px 9px 2px 8px; font-size: 10px; }   /* 햄버거 메뉴 안에서도 배지 모양 유지 */
       }
       @media (max-width: 720px) {
         .site-nav { gap: 10px; padding: 8px 12px; }
@@ -553,6 +597,7 @@
         <a href="/spaced-repetition" data-nk="4">간격 반복</a>
         <a href="/about" data-nk="5">소개</a>
         <a href="https://dev.broodev.com/#apps" data-nk="6">다른 앱</a>
+        <a class="pg-prem" href="#premium" data-prem-link data-nk="-1">Premium<span class="pg-prem-off" data-prem-off>-50%</span></a><!-- #premium → 앱이 프리미엄 모달을 연다(hashchange). -50% 는 App 이 PREMIUM.plans 로 동기화 -->
       </div>
       <label class="site-nav-theme" title="Theme / 테마">
         <span class="globe" aria-hidden="true">◐</span>
@@ -832,11 +877,110 @@
         lifetimeUrl: 'https://buy.stripe.com/4gMaEZ6MA2nag6y3oS4wM03',
         trialDays: 3,
         freeRows: 20,
+        /* 요금(税込). 평생(買い切り)은 정가 list 대비 할인 표시(발매 기념가) — list 를 null 로 두면 할인 표시가 사라진다. 실제 결제 금액은 Stripe Price(¥5,000) 그대로.
+           until: 'YYYY-MM-DD'(일본 시간 23:59 까지) 를 넣으면 「N일 남음」 카운트다운(실제 종료일만 — 가짜 마감 금지). ⚠ 景品表示法: list 는 종료 후 실제로 적용할 가격이어야 한다 — docs/stripe-setup.md §13 */
+        plans: { yearly: { price: 2500 }, lifetime: { price: 5000, list: 10000 } },
+        until: null,
       }
+      /* @plan-lbl — 13개 언어 플랜 이름(가격은 PREMIUM.plans 에서 렌더). 생성 스크립트가 채움 */
       const PLAN_LBL = {
-        ja: { y: '年額 ¥2,500', l: '買い切り ¥5,000', due: '今日のカード', note: '税込。自分のCSVの暗記は無料のまま。' },
-        ko: { y: '연간 ¥2,500', l: '평생 ¥5,000', due: '오늘 카드', note: '세금 포함. 내 CSV 암기는 계속 무료.' },
-        en: { y: 'Yearly ¥2,500', l: 'Lifetime ¥5,000', due: 'Due today', note: 'Tax included. Your own CSV stays free.' },
+        en: { y: "Yearly", l: "Lifetime", due: "Due today", note: "Tax included. Your own CSV stays free." },
+        ja: { y: "年額", l: "買い切り", due: "今日のカード", note: "税込。自分のCSVの暗記は無料のまま。" },
+        ko: { y: "연간", l: "평생", due: "오늘 카드", note: "세금 포함. 내 CSV 암기는 계속 무료." },
+        zh: { y: "年付", l: "买断", due: "今日复习", note: "含税。用自己的 CSV 背单词依然免费。" },
+        "zh-Hant": { y: "年繳", l: "買斷", due: "今日複習", note: "含稅。用自己的 CSV 背單字依然免費。" },
+        th: { y: "รายปี", l: "ตลอดชีพ", due: "การ์ดวันนี้", note: "รวมภาษี ท่องศัพท์จาก CSV ของคุณเองยังฟรีเหมือนเดิม" },
+        es: { y: "Anual", l: "De por vida", due: "Tarjetas de hoy", note: "IVA incluido. Memorizar tu propio CSV sigue siendo gratis." },
+        fr: { y: "Annuel", l: "À vie", due: "Cartes du jour", note: "Prix TTC. Mémoriser votre propre CSV reste gratuit." },
+        de: { y: "Jährlich", l: "Lebenslang", due: "Heute fällig", note: "Inkl. MwSt. Das Lernen mit eigener CSV bleibt kostenlos." },
+        it: { y: "Annuale", l: "A vita", due: "Carte di oggi", note: "IVA inclusa. Memorizzare il tuo CSV resta gratis." },
+        pt: { y: "Anual", l: "Vitalício", due: "Cartões de hoje", note: "IVA incluído. Memorizar o seu próprio CSV continua grátis." },
+        ru: { y: "Годовой", l: "Навсегда", due: "Карточки на сегодня", note: "С учётом налога. Учить свой CSV по-прежнему бесплатно." },
+        nl: { y: "Jaarlijks", l: "Levenslang", due: "Kaarten van vandaag", note: "Incl. btw. Je eigen CSV leren blijft gratis." },
+      }
+      /* @/plan-lbl */
+      /* @deal-i18n — 13개 언어 할인 문구(단일 소스: 생성 스크립트가 채움. 키 동일: label limited was save best two after days buy peryear once tax) */
+      const PLAN_DEAL = {
+        en: { label: "Launch offer", limited: "Limited time", was: "Regular price", save: "Save {save}", best: "Best value", two: "2 years of Yearly — yours forever", after: "{list} after the launch period", days: "{d} days left", buy: "Buy now", peryear: "/ year", once: "one-time", tax: "tax included" },
+        ja: { label: "発売記念価格", limited: "期間限定", was: "期間終了後の価格", save: "{save} お得", best: "いちばんお得", two: "年額 2 年分の価格で、ずっと", after: "発売記念期間の終了後は {list} になります", days: "あと {d} 日", buy: "今すぐ購入", peryear: "/ 年", once: "1 回のみ", tax: "税込" },
+        ko: { label: "발매 기념 특가", limited: "기간 한정", was: "정가", save: "{save} 절약", best: "최고 가성비", two: "연간 2년치 가격으로 평생", after: "특가 종료 후 정가 {list}", days: "{d}일 남음", buy: "지금 구매", peryear: "/ 년", once: "1회 결제", tax: "세금 포함" },
+        zh: { label: "首发特惠", limited: "限时", was: "原价", save: "立省 {save}", best: "最划算", two: "两年年费的价格，永久使用", after: "活动结束后价格为 {list}", days: "仅剩 {d} 天", buy: "立即购买", peryear: "/ 年", once: "一次性付费", tax: "含税" },
+        "zh-Hant": { label: "首發優惠", limited: "限時", was: "原價", save: "現省 {save}", best: "最划算", two: "兩年年費的價格，永久使用", after: "活動結束後價格為 {list}", days: "僅剩 {d} 天", buy: "立即購買", peryear: "/ 年", once: "單次付費", tax: "含稅" },
+        th: { label: "โปรเปิดตัว", limited: "จำกัดเวลา", was: "ราคาปกติ", save: "ประหยัด {save}", best: "คุ้มที่สุด", two: "จ่ายเท่ารายปี 2 ปี ใช้ได้ตลอดไป", after: "หลังช่วงเปิดตัว ราคาจะเป็น {list}", days: "เหลืออีก {d} วัน", buy: "ซื้อเลย", peryear: "/ ปี", once: "จ่ายครั้งเดียว", tax: "รวมภาษี" },
+        es: { label: "Oferta de lanzamiento", limited: "Tiempo limitado", was: "Precio normal", save: "Ahorras {save}", best: "Más ahorro", two: "Por el precio de 2 años, tuyo para siempre", after: "Después del periodo de lanzamiento: {list}", days: "Quedan {d} días", buy: "Comprar ahora", peryear: "/ año", once: "pago único", tax: "IVA incl." },
+        fr: { label: "Offre de lancement", limited: "Durée limitée", was: "Prix normal", save: "Économisez {save}", best: "Le plus avantageux", two: "Pour le prix de 2 ans, à vous pour toujours", after: "Après la période de lancement : {list}", days: "Plus que {d} jours", buy: "Acheter", peryear: "/ an", once: "paiement unique", tax: "TTC" },
+        de: { label: "Einführungsangebot", limited: "Nur für kurze Zeit", was: "Normalpreis", save: "Sie sparen {save}", best: "Bestes Angebot", two: "Zum Preis von 2 Jahren – für immer nutzen", after: "Nach dem Aktionszeitraum: {list}", days: "Noch {d} Tage", buy: "Jetzt kaufen", peryear: "/ Jahr", once: "einmalig", tax: "inkl. MwSt." },
+        it: { label: "Offerta di lancio", limited: "A tempo limitato", was: "Prezzo pieno", save: "Risparmi {save}", best: "Più conveniente", two: "Al prezzo di 2 anni, tuo per sempre", after: "Dopo il periodo di lancio: {list}", days: "Ancora {d} giorni", buy: "Acquista ora", peryear: "/ anno", once: "una tantum", tax: "IVA incl." },
+        pt: { label: "Oferta de lançamento", limited: "Por tempo limitado", was: "Preço normal", save: "Poupe {save}", best: "Mais vantajoso", two: "Pelo preço de 2 anos, seu para sempre", after: "Após o período de lançamento: {list}", days: "Faltam {d} dias", buy: "Comprar agora", peryear: "/ ano", once: "pagamento único", tax: "IVA incl." },
+        ru: { label: "Скидка на старте", limited: "Время ограничено", was: "Обычная цена", save: "Экономия {save}", best: "Самое выгодное", two: "По цене 2 лет подписки — навсегда", after: "После окончания акции: {list}", days: "Осталось {d} дн.", buy: "Купить", peryear: "/ год", once: "единоразово", tax: "с учётом налога" },
+        nl: { label: "Introductieaanbieding", limited: "Tijdelijke actie", was: "Normale prijs", save: "Bespaar {save}", best: "Beste deal", two: "2 jaar betalen, voor altijd gebruiken", after: "Na de introductieperiode: {list}", days: "Nog {d} dagen", buy: "Nu kopen", peryear: "/ jaar", once: "eenmalig", tax: "incl. btw" },
+      }
+      /* @/deal-i18n */
+      /* @prem-legal — 프리미엄 모달 하단의 판매자·법적 링크(13개 언어 · 생성 스크립트가 채움). 特商法: 販売 URL 로 지정된 화면에 사업자·表記 링크가 있어야 한다 */
+      const PREM_LEGAL = {
+        en: { seller: "Sold by Y Systems", tokushoho: "Legal notice", refund: "Refund & Cancellation", terms: "Terms of Service" },
+        ja: { seller: "販売者: Y Systems", tokushoho: "特定商取引法に基づく表記", refund: "返金・解約ポリシー", terms: "利用規約" },
+        ko: { seller: "판매자: Y Systems", tokushoho: "특정상거래법 표기", refund: "환불·해지 정책", terms: "이용약관" },
+        zh: { seller: "销售方: Y Systems", tokushoho: "特定商取引法声明", refund: "退款与取消政策", terms: "服务条款" },
+        "zh-Hant": { seller: "販售者: Y Systems", tokushoho: "特定商取引法標示", refund: "退款與取消政策", terms: "服務條款" },
+        th: { seller: "ผู้ขาย: Y Systems", tokushoho: "ประกาศทางกฎหมาย (特定商取引法)", refund: "นโยบายคืนเงินและยกเลิก", terms: "ข้อกำหนดการใช้งาน" },
+        es: { seller: "Vendido por Y Systems", tokushoho: "Aviso legal", refund: "Reembolsos y cancelación", terms: "Términos del servicio" },
+        fr: { seller: "Vendu par Y Systems", tokushoho: "Mentions légales", refund: "Remboursement et résiliation", terms: "Conditions d’utilisation" },
+        de: { seller: "Verkäufer: Y Systems", tokushoho: "Impressum", refund: "Rückerstattung & Kündigung", terms: "Nutzungsbedingungen" },
+        it: { seller: "Venditore: Y Systems", tokushoho: "Note legali", refund: "Rimborsi e disdetta", terms: "Termini di servizio" },
+        pt: { seller: "Vendido por Y Systems", tokushoho: "Aviso legal", refund: "Reembolsos e cancelamento", terms: "Termos de serviço" },
+        ru: { seller: "Продавец: Y Systems", tokushoho: "Юридическая информация", refund: "Возврат и отмена", terms: "Условия использования" },
+        nl: { seller: "Verkoper: Y Systems", tokushoho: "Wettelijke vermelding", refund: "Terugbetaling & opzegging", terms: "Gebruiksvoorwaarden" },
+      }
+      /* @/prem-legal */
+      const yenFmt = (n) => '¥' + Number(n).toLocaleString('en-US')
+      const dealVars = () => {
+        const L = PREMIUM.plans.lifetime, list = L.list != null && L.list > L.price ? L.list : null
+        const off = list ? Math.round((1 - L.price / list) * 100) : 0
+        let days = null
+        if (list && PREMIUM.until) { const d = Math.ceil((Date.parse(PREMIUM.until + 'T23:59:59+09:00') - Date.now()) / 864e5); days = d > 0 ? d : null }
+        return { on: !!list, list, off, save: list ? list - L.price : 0, days, price: L.price }
+      }
+      const dealT = (lang, key, v) => ((PLAN_DEAL[lang] || PLAN_DEAL.en)[key] || '').replace(/\{(\w+)\}/g, (_, k) => (k === 'list' || k === 'save' || k === 'price') ? (v[k] != null ? yenFmt(v[k]) : '') : (v[k] != null ? String(v[k]) : ''))
+      /* 프리미엄 모달의 플랜 카드 2장 — 평생 플랜에 정가 취소선 · -50% 태그 · 발매 기념 · 절약액 */
+      function PremPlans({ lang, onBuy }) {
+        const P = PLAN_LBL[lang] || PLAN_LBL.en, v = dealVars(), on = v.on
+        return (
+          <div className="prm-plans">
+            <div className="prm-plan">
+              <div className="prm-plan-name">{P.y}</div>
+              <div className="prm-price-row"><span className="prm-price">{yenFmt(PREMIUM.plans.yearly.price)}</span><span className="prm-unit">{dealT(lang, 'peryear', v)} · {dealT(lang, 'tax', v)}</span></div>
+              <button className="apply-btn prm-buy" onClick={() => onBuy('yearly')}>{dealT(lang, 'buy', v)}</button>
+            </div>
+            <div className="prm-plan best">
+              <div className="prm-ribbon">{dealT(lang, 'best', v)}</div>
+              <div className="prm-plan-name">{P.l}</div>
+              {on && (
+                <div className="prm-deal">
+                  <span className="prm-tag">-{v.off}%</span>
+                  <span className="prm-deal-label">{dealT(lang, 'label', v)}</span>
+                  <span className="prm-deal-limited">{v.days != null ? dealT(lang, 'days', v) : dealT(lang, 'limited', v)}</span>
+                </div>
+              )}
+              <div className="prm-price-row">
+                {on && <s className="prm-was" title={dealT(lang, 'was', v)}>{yenFmt(v.list)}</s>}
+                <span className="prm-price">{yenFmt(PREMIUM.plans.lifetime.price)}</span>
+                <span className="prm-unit">{dealT(lang, 'once', v)} · {dealT(lang, 'tax', v)}</span>
+              </div>
+              {on && <div className="prm-save">{dealT(lang, 'save', v)} · {dealT(lang, 'two', v)}</div>}
+              <button className="apply-btn prm-buy prm-buy-best" onClick={() => onBuy('lifetime')}>★ {dealT(lang, 'buy', v)}</button>
+              {on && <div className="prm-fine">{dealT(lang, 'after', v)}</div>}
+            </div>
+          </div>
+        )
+      }
+
+      const legalT = (lang, k) => ((PREM_LEGAL[lang] || PREM_LEGAL.en)[k] || '')
+      function PremLegal({ lang }) {
+        const L = (p) => 'https://broodev.com/legal/' + p + '?lang=' + encodeURIComponent(lang)
+        return (
+          <div className="prm-legal">{legalT(lang, 'seller')} · <a href={L('tokushoho')} target="_blank" rel="noopener">{legalT(lang, 'tokushoho')}</a> · <a href={L('refund')} target="_blank" rel="noopener">{legalT(lang, 'refund')}</a> · <a href={L('terms')} target="_blank" rel="noopener">{legalT(lang, 'terms')}</a></div>
+        )
       }
 
       const LANGS = [
@@ -2402,11 +2546,9 @@
                     <li>⭐ {t.myTitle}</li>
                     <li>📅 {(PLAN_LBL[lang] || PLAN_LBL.en).due}</li>
                   </ul>
+                  <PremPlans lang={lang} onBuy={onBuy} />
+                  <PremLegal lang={lang} />
                   <p className="adv-note">{(PLAN_LBL[lang] || PLAN_LBL.en).note}</p>
-                  <div className="prm-actions">
-                    <button className="apply-btn prm-buy" onClick={() => onBuy('yearly')}>{(PLAN_LBL[lang] || PLAN_LBL.en).y}</button>
-                    <button className="apply-btn prm-buy" onClick={() => onBuy('lifetime')}>{(PLAN_LBL[lang] || PLAN_LBL.en).l}</button>
-                  </div>
                   <div className="adv-sec">🔑 {t.prmKeySec}</div>
                   <div className="prm-keyrow">
                     <input className="ed-name" value={key} placeholder={t.prmKeyPh} disabled={busy}
@@ -2455,6 +2597,19 @@
         const [trial, setTrial] = useLocalStorage('voca:trial', null)
         const [streak, setStreak] = useState(() => { try { return (JSON.parse(localStorage.getItem('voca:streak') || 'null') || {}).n || 0 } catch (e) { return 0 } })
         const [showPrm, setShowPrm] = useState(false)
+        const [stripOff, setStripOff] = useState(() => { try { return sessionStorage.getItem('voca:stripOff') === '1' } catch (e) { return false } })   // 프리미엄 안내 스트립 × (이 세션만)
+        const hideStrip = () => { setStripOff(true); try { sessionStorage.setItem('voca:stripOff', '1') } catch (e) { /* 무시 */ } }
+        /* #premium (사이트 내비의 ✦ Premium 링크 · 포털 premium.html 의 「앱 열고 구매」) → 프리미엄 모달. 해시는 지워서 다시 클릭해도 열리게 */
+        useEffect(() => {
+          const fromHash = () => {
+            if (window.location.hash !== '#premium') return
+            setShowPrm(true)
+            try { window.history.replaceState(null, '', window.location.pathname + window.location.search) } catch (e) { /* 무시 */ }
+          }
+          fromHash()
+          window.addEventListener('hashchange', fromHash)
+          return () => window.removeEventListener('hashchange', fromHash)
+        }, [])
         const [editorSeed, setEditorSeed] = useState(null)                                  // 마이 보카덱 → 편집기 로드 요청
         const [showJump, setShowJump] = useState(false)                                     // "⬆ 암기장으로" 고정 버튼 표시 여부
         const matrixCache = useRef({})                                                      // 덱 파일 fetch 캐시 (키 고정 → 무한 누적 없음)
@@ -2497,6 +2652,11 @@
           return PREMIUM.launch
         })()
         const isPremium = !!(lic && lic.key && (!lic.exp || Date.parse(lic.exp) >= Date.now()))
+        /* 정적 내비 배지의 -50% 를 PREMIUM.plans 와 동기화 — 할인이 끝났거나(list null) 이미 프리미엄이면 숨김 */
+        useEffect(() => {
+          const v = dealVars()
+          Array.prototype.forEach.call(document.querySelectorAll('[data-prem-off]'), (el) => { el.hidden = !v.on || isPremium; if (v.on) el.textContent = '-' + v.off + '%' })
+        }, [isPremium])
         const trialLeft = trial ? Math.ceil((trial.start + PREMIUM.trialDays * 864e5 - Date.now()) / 864e5) : 0
         const trialActive = !!trial && trialLeft > 0
         const unlocked = !gateOn || isPremium
@@ -3054,15 +3214,27 @@
               <span className="app-name">VOCA DECK<span className="dot">·</span><span className="full">{t.appName}</span></span>
               <span className="tb-spacer" />
               {streak > 0 && <span className="prm-chip" title="streak">🔥 {streak}</span>}
-              {gateOn && (
-                <button className="prm-chip" onClick={openPremium} title={t.prmTitle}>
-                  {isPremium ? '★' : '☆'}
-                  <span className="prm-chip-lbl"> PREMIUM</span>
-                </button>
-              )}
+              {gateOn && (isPremium ? (
+                <button className="prm-chip" onClick={openPremium} title={t.prmTitle}>★<span className="prm-chip-lbl"> PREMIUM</span></button>
+              ) : (
+                /* 프리미엄 존재를 첫 화면에서 알리는 금색 배지(utils 와 같은 룩) + 할인율 */
+                <button className="pg-prem hdr-prem" onClick={openPremium} title={t.prmTitle}>Premium{dealVars().on && <span className="pg-prem-off">-{dealVars().off}%</span>}</button>
+              ))}
               <a className="tut-link" href={'https://voca-tutorial.broodev.com/?lang=' + lang}>📖 {t.tutorialLink}</a>
               <LangSelect lang={lang} onChange={setLang} t={t} />
             </header>
+            {gateOn && !isPremium && !stripOff && (
+              /* 프리미엄 안내 스트립 — 비프리미엄 사용자에게만, × 로 이 세션 동안 숨김. 클릭 = 프리미엄 모달 */
+              <div className="prem-strip" role="button" tabIndex={0} onClick={openPremium} onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPremium() } }}>
+                <span className="pg-prem">Premium</span>
+                <span className="ps-body">{t.prmDesc} — {t.samples} · {t.edTitle} · {t.myTitle} · {(PLAN_LBL[lang] || PLAN_LBL.en).due} · {t.prmNoAds}</span>
+                {dealVars().on && (
+                  <span className="ps-deal"><span className="ps-was">{yenFmt(dealVars().list)}</span><span className="ps-now">{yenFmt(PREMIUM.plans.lifetime.price)}</span><span className="prm-tag">-{dealVars().off}%</span><span className="ps-label">{dealT(lang, 'label', dealVars())}</span></span>
+                )}
+                <span className="ps-cta">{dealT(lang, 'buy', dealVars())} →</span>
+                <button type="button" className="ps-x" aria-label="close" onClick={(e) => { e.stopPropagation(); hideStrip() }}>×</button>
+              </div>
+            )}
             <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" style={{ display: 'none' }} onChange={openFile} />
             <input ref={importRef} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={importBackup} />
             <div className="display" style={{ background: displayBg }} onClick={onDisplayClick} onWheel={onWheel}
