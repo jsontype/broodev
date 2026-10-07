@@ -4,7 +4,9 @@
 //       apps/home/premium.html + legal/i18n/premium.{lang}.html (utils 카드 할인 행 + btc/voca 카드) ·
 //       apps/home/legal/tokushoho.html + i18n (販売価格 행 덧붙임 · 販売 URL 행의 앱 내 구매 URL) ·
 //       apps/btc/index.html (PREM_DEAL · PREM_LEGAL) · apps/voca/index.html (PLAN_LBL · PLAN_DEAL · PREM_LEGAL)
-// 금액(정가 10000 · 판매가 5000)은 각 앱 설정(utils biz.js · btc PREM_PLANS · voca PREMIUM.plans · 포털 legal/biz.js)이 정본이고, 여기서는 정적 문구에 찍는 값만 맞춘다
+// 금액은 각 앱 설정(utils biz.js · btc PREM_PLANS · voca PREMIUM.plans · 포털 legal/biz.js)이 정본이고, 여기서는 정적 문구에 찍는 값만 맞춘다.
+// 비교 가격(정가)은 포털 legal/biz.js 의 lifetime_list 를 읽는다 — null 이면(2026-10-07 결정: 영구 ¥5,000, 가공 정가는 景表法 有利誤認) 할인 장치를 넣지 않고
+// 사실 기반 가치 문구(deal.value: 年額 2 年分で、ずっと · 3 年目から実質無料)만 항상 보이게 넣는다. 숫자면(실제로 판 기간이 있는 정가) 할인 표시를 함께 생성한다
 const fs = require('fs');
 const path = require('path');
 const R = path.resolve(__dirname, '..', '..').replace(/\\/g, '/') + '/';
@@ -20,9 +22,11 @@ const tkAppend = (l) => D.tokushohoAppend[l];
 const legal = (l) => D.legal[l];
 
 const yen = (n) => '¥' + Number(n).toLocaleString('en-US');
-const LIST = 10000, PRICE = 5000, YEARLY = 2500, SAVE = LIST - PRICE, OFF = Math.round((1 - PRICE / LIST) * 100);
+const LIST = (() => { const m = /lifetime_list: (\d+|null)/.exec(fs.readFileSync(R + 'apps/home/legal/biz.js', 'utf8')); if (!m) throw new Error('legal/biz.js: lifetime_list 를 못 찾음'); return m[1] === 'null' ? null : +m[1]; })();
+const DEAL = LIST != null;   // false = 비교 가격 없음(현재)
+const PRICE = 5000, YEARLY = 2500, SAVE = DEAL ? LIST - PRICE : 0, OFF = DEAL ? Math.round((1 - PRICE / LIST) * 100) : 0;
 const sub = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] != null ? v[k] : '');
-const V = { list: yen(LIST), price: yen(PRICE), save: yen(SAVE), off: OFF };
+const V = { list: DEAL ? yen(LIST) : '', price: yen(PRICE), save: yen(SAVE), off: OFF };
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const jsStr = (s) => JSON.stringify(String(s));
 const eolOf = (s) => (s.includes('\r\n') ? '\r\n' : '\n');
@@ -73,19 +77,21 @@ function patchPricingBlock(html, lang) {
   html = html.replace(/[ \t]*<div class="pg-deal" data-deal="lifetime"[^>]*>[\s\S]*?<\/div>\r?\n/g, '')
     .replace(/<s class="pg-was" data-price-list="lifetime"[^>]*>[^<]*<\/s>/g, '')
     .replace(/[ \t]*<p class="pg-save" data-promo="promo_save"[^>]*>[^<]*<\/p>\r?\n/g, '')
+    .replace(/[ \t]*<p class="pg-value">[^<]*<\/p>\r?\n/g, '')
     .replace(/[ \t]*<p class="pg-fine" data-promo="promo_after"[^>]*>[^<]*<\/p>\r?\n/g, '');
   const eol = eolOf(html);
   const re = /(<div class="pricing-box featured">\r?\n)([ \t]*)(<div class="plan-name">[^\n]*<\/div>\r?\n)([ \t]*<div class="price">)(<span data-price="lifetime">[^<]*<\/span>[^\n]*\r?\n)/;
   const m = re.exec(html);
   if (!m) throw new Error('pricing block anchor failed: ' + lang);
   const ind = /[ \t]*/.exec(m[4])[0] || m[2];
-  const dealDiv = `${ind}<div class="pg-deal" data-deal="lifetime" hidden><span class="pg-deal-tag" data-promo="tag">-${OFF}%</span><span data-promo="promo_label">${esc(d.label)}</span><span class="pg-deal-limited" data-promo="promo_limited">${esc(d.limited)}</span></div>${eol}`;
-  const was = `<s class="pg-was" data-price-list="lifetime" hidden>${yen(LIST)}</s>`;
-  const save = `${ind}<p class="pg-save" data-promo="promo_save" hidden>${esc(sub(d.save, V))}</p>${eol}`;
-  html = html.replace(re, (all, open, _i, name, priceOpen, priceRest) => open + ind + name + dealDiv + priceOpen + was + priceRest + save);
+  const dealDiv = DEAL ? `${ind}<div class="pg-deal" data-deal="lifetime" hidden><span class="pg-deal-tag" data-promo="tag">-${OFF}%</span><span data-promo="promo_label">${esc(d.label)}</span><span class="pg-deal-limited" data-promo="promo_limited">${esc(d.limited)}</span></div>${eol}` : '';
+  const was = DEAL ? `<s class="pg-was" data-price-list="lifetime" hidden>${yen(LIST)}</s>` : '';
+  const save = DEAL ? `${ind}<p class="pg-save" data-promo="promo_save" hidden>${esc(sub(d.save, V))}</p>${eol}` : '';
+  const value = `${ind}<p class="pg-value">${esc(d.value)}</p>${eol}`;   // 항상: 사실 기반 가치 문구(年額 2 年分で、ずっと · 3 年目から実質無料)
+  html = html.replace(re, (all, open, _i, name, priceOpen, priceRest) => open + ind + name + dealDiv + priceOpen + was + priceRest + save + value);
   const re2 = /(data-checkout="lifetime"[^\n]*\r?\n)([ \t]*)(<p class="pg-soon">[^\n]*<\/p>\r?\n)/;
   if (!re2.test(html)) throw new Error('pricing pg-soon anchor failed: ' + lang);
-  html = html.replace(re2, (all, a, ind2, soon) => a + ind2 + soon + `${ind2}<p class="pg-fine" data-promo="promo_after" hidden>${esc(sub(d.after, V))}</p>${eol}`);
+  if (DEAL) html = html.replace(re2, (all, a, ind2, soon) => a + ind2 + soon + `${ind2}<p class="pg-fine" data-promo="promo_after" hidden>${esc(sub(d.after, V))}</p>${eol}`);
   return html;
 }
 perLang(R + 'apps/utils/pricing.html', (l) => R + 'apps/utils/i18n/pricing.' + l + '.html', patchPricingBlock);
@@ -94,13 +100,17 @@ perLang(R + 'apps/utils/pricing.html', (l) => R + 'apps/utils/i18n/pricing.' + l
 //    legal.js 가 lifetime_list 가 null 이면 .deal-row 에 deal-off 를 붙여 태그·취소선·小字를 숨긴다(할인 종료 시 biz.js 만 고치면 됨)
 function dealRow(lang, app, prefixText, suffixText) {
   const d = deal(lang);
+  if (!DEAL) return `<!-- @deal:${app} --><span class="deal-row"><span>${prefixText}<b class="now" data-price="${app}.lifetime">${yen(PRICE)}</b>${suffixText}</span><br><small class="value">${esc(d.value)}</small></span><!-- @/deal -->`;
   return `<!-- @deal:${app} --><span class="deal-row"><span class="deal"><span class="deal-tag">-${OFF}%</span>${esc(d.label)} · ${esc(d.limited)}</span><br>${prefixText}<s class="was" title="${esc(d.was)}" data-price="${app}.lifetime_list">${yen(LIST)}</s> <b class="now" data-price="${app}.lifetime">${yen(PRICE)}</b>${suffixText}<br><small class="fine">${esc(sub(d.save, V))} · ${esc(sub(d.after, V))}</small></span><!-- @/deal -->`;
 }
 function patchPremiumBlock(html, lang) {
   const eol = eolOf(html), c = cards(lang);
-  html = html.replace(/<!-- @deal:utils -->[\s\S]*?<!-- @\/deal -->/, (blk) => {
-    const m = /<br>([\s\S]*?)<s class="was"[^>]*>[^<]*<\/s> <b class="now" data-price="utils\.lifetime">[^<]*<\/b>([\s\S]*?)<br>/.exec(blk);
-    return `<span>${m[1]}<b data-price="utils.lifetime">${yen(PRICE)}</b>${m[2]}</span>`;
+  html = html.replace(/<!-- @deal:utils -->[\s\S]*?<!-- @\/deal -->/, (blk) => {   // 할인/비할인 마크업 모두 원문 한 줄로 되돌린다
+    const now = /<b class="now" data-price="utils\.lifetime">[^<]*<\/b>([^<]*)</.exec(blk);
+    if (!now) throw new Error('premium utils marker block: ' + lang);
+    const anchor = blk.indexOf('<s class="was"') >= 0 ? blk.indexOf('<s class="was"') : now.index;
+    const before = blk.slice(0, anchor), prefix = before.slice(before.lastIndexOf('>') + 1);
+    return `<span>${prefix}<b data-price="utils.lifetime">${yen(PRICE)}</b>${now[1]}</span>`;
   });
   const re = /<span>([^<]*)<b data-price="utils\.lifetime">[^<]*<\/b>([^<]*)<\/span>/;
   const m = re.exec(html); if (!m) throw new Error('premium utils lifetime line: ' + lang);
@@ -162,7 +172,7 @@ function patchMarkers(file, name, keys, obj, marker) {
   const body = objLines(name, obj, keys, indent).split('\n').join(eol);
   write(file, src.replace(re, (a, open, _b, close) => open + body + close), src);
 }
-const DEAL_KEYS = ['label', 'limited', 'was', 'save', 'best', 'two', 'after', 'days', 'buy', 'peryear', 'once', 'tax'];
+const DEAL_KEYS = ['label', 'limited', 'was', 'save', 'best', 'two', 'after', 'days', 'buy', 'peryear', 'once', 'tax', 'value'];
 patchMarkers(R + 'apps/btc/index.html', 'PREM_DEAL', DEAL_KEYS, deal, 'deal-i18n');
 patchMarkers(R + 'apps/voca/index.html', 'PLAN_DEAL', DEAL_KEYS, deal, 'deal-i18n');
 patchMarkers(R + 'apps/voca/index.html', 'PLAN_LBL', ['y', 'l', 'due', 'note'], vplan, 'plan-lbl');

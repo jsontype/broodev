@@ -6,6 +6,7 @@ const path = require('path');
 const R = path.resolve(__dirname, '..', '..').replace(/\\/g, '/') + '/';
 const LANGS = ['en', 'ja', 'ko', 'zh', 'zh-Hant', 'th', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl'];
 const CORE = ['en', 'ja', 'ko'];
+const DEAL = (() => { const m = /lifetime_list: (\d+|null)/.exec(fs.readFileSync(path.resolve(__dirname, '..', '..', 'apps/home/legal/biz.js'), 'utf8')); return !!(m && m[1] !== 'null'); })();   // 비교 가격 표시 중인가(현재 false)
 let bad = 0;
 const fail = (m) => { bad++; console.log('FAIL', m); };
 const read = (f) => fs.readFileSync(R + f, 'utf8');
@@ -30,7 +31,7 @@ const read = (f) => fs.readFileSync(R + f, 'utf8');
   console.log('utils i18n promo_* ok for', LANGS.length, 'langs');
 }
 // btc / voca 객체
-for (const [f, name, keys] of [['apps/btc/index.html', 'PREM_DEAL', 12], ['apps/voca/index.html', 'PLAN_DEAL', 12], ['apps/voca/index.html', 'PLAN_LBL', 4], ['apps/btc/index.html', 'PREM_LEGAL', 4], ['apps/voca/index.html', 'PREM_LEGAL', 4]]) {
+for (const [f, name, keys] of [['apps/btc/index.html', 'PREM_DEAL', 13], ['apps/voca/index.html', 'PLAN_DEAL', 13], ['apps/voca/index.html', 'PLAN_LBL', 4], ['apps/btc/index.html', 'PREM_LEGAL', 4], ['apps/voca/index.html', 'PREM_LEGAL', 4]]) {
   const s = read(f);
   const m = new RegExp('const ' + name + ' = \\{\\n([\\s\\S]*?)\\n\\s*\\}').exec(s);
   if (!m) { fail(name + ' not found in ' + f); continue; }
@@ -40,7 +41,7 @@ for (const [f, name, keys] of [['apps/btc/index.html', 'PREM_DEAL', 12], ['apps/
   const obj = new Function(m[0] + '; return ' + name)();
   for (const l of LANGS) if (!obj[l]) fail(name + ' missing ' + l);
   if (name !== 'PLAN_LBL' && name !== 'PREM_LEGAL') {
-    for (const l of LANGS) { if (!/\{save\}/.test(obj[l].save) || !/\{list\}/.test(obj[l].after) || !/\{d\}/.test(obj[l].days)) fail(name + ' placeholders ' + l); }
+    for (const l of LANGS) { if (!/\{save\}/.test(obj[l].save) || !/\{list\}/.test(obj[l].after) || !/\{d\}/.test(obj[l].days) || !obj[l].value) fail(name + ' placeholders/value ' + l); }
     if (/通常価格/.test(obj.ja.was + obj.ja.after)) fail(name + ' ja 에 「通常価格」');
   }
   console.log(f, name, 'ok (13 langs)');
@@ -58,14 +59,16 @@ for (const l of LANGS) {
   const core = CORE.includes(l);
   const n = core ? 3 : 1;
   const pf = core ? 'apps/utils/pricing.html' : 'apps/utils/i18n/pricing.' + l + '.html';
-  checkFile(pf, [['deal', /data-deal="lifetime"/g, n], ['was', /data-price-list="lifetime"/g, n], ['save', /data-promo="promo_save"/g, n], ['fine', /data-promo="promo_after"/g, n], ['tag', /data-promo="tag"/g, n + (core ? 1 : 0)]]);
+  const dn = DEAL ? n : 0;
+  checkFile(pf, [['deal', /data-deal="lifetime"/g, dn], ['was', /data-price-list="lifetime"/g, dn], ['save', /data-promo="promo_save"/g, dn], ['fine', /data-promo="promo_after"/g, dn], ['tag', /data-promo="tag"/g, dn + (core ? 1 : 0)], ['value', /<p class="pg-value">/g, n]]);
   const prf = core ? 'apps/home/premium.html' : 'apps/home/legal/i18n/premium.' + l + '.html';
-  const ps = checkFile(prf, [['utils deal', /@deal:utils/g, n], ['btc', /data-price="btc\.lifetime"/g, n], ['voca', /data-price="voca\.lifetime"/g, n], ['soon card gone', /plan-card soon/g, 0], ['list', /lifetime_list/g, n * 3], ['deep link', /href="https:\/\/(btc|voca)\.broodev\.com\/#premium"/g, n * 2], ['space before 全角 paren', / （/g, 0]]);
+  const ps = checkFile(prf, [['utils deal', /@deal:utils/g, n], ['btc', /data-price="btc\.lifetime"/g, n], ['voca', /data-price="voca\.lifetime"/g, n], ['soon card gone', /plan-card soon/g, 0], ['list', /lifetime_list/g, DEAL ? n * 3 : 0], ['value', /<small class="value">/g, n * 3], ['-50% text', /-50%/g, DEAL ? n * 3 : 0], ['deep link', /href="https:\/\/(btc|voca)\.broodev\.com\/#premium"/g, n * 2], ['space before 全角 paren', / （/g, 0]]);
   // 같은 블록 안에서 utils 카드와 btc/voca 카드의 플랜 이름이 같은지(언어 블록 단위로 비교)
   const blocks = ps.split(/(?=<article data-lang-block=)/).filter(b => /<article data-lang-block=/.test(b));
   for (const b of blocks) {
     const yU = textBefore(b, '<b data-price="utils.yearly">'), yB = textBefore(b, '<b data-price="btc.yearly">'), yV = textBefore(b, '<b data-price="voca.yearly">');
-    const lU = textBefore(b, '<s class="was" title'), seg = b.split('<!-- @deal:btc -->')[1] || '', lB = textBefore(seg, '<s class="was" title');
+    const mk = (app) => DEAL ? '<s class="was" title' : '<b class="now" data-price="' + app + '.lifetime">';
+    const lU = textBefore(b, mk('utils')), seg = b.split('<!-- @deal:btc -->')[1] || '', lB = textBefore(seg, mk('btc'));
     if (yU !== yB || yU !== yV) fail(prf + ' yearly term differs: utils「' + yU + '」 btc「' + yB + '」 voca「' + yV + '」');
     if (lU !== lB) fail(prf + ' lifetime term differs: utils「' + lU + '」 btc「' + lB + '」');
   }
@@ -81,10 +84,16 @@ for (const [f, re] of [['apps/utils/pricing.html', /<article data-lang-block="ja
 for (const l of LANGS.filter(x => !CORE.includes(x))) { if (/\n<div class="plan-name">/.test(read('apps/utils/i18n/pricing.' + l + '.html'))) fail('indent lost ' + l); }
 // 금액 일치: utils biz · legal biz · btc · voca
 const ub = read('apps/utils/js/biz.js'), lb = read('apps/home/legal/biz.js'), bt = read('apps/btc/index.html'), vo = read('apps/voca/index.html');
-if (!/lifetime: \{ price: 5000, list: 10000/.test(ub)) fail('utils biz lifetime');
-if ((lb.match(/lifetime: 5000, lifetime_list: 10000/g) || []).length !== 3) fail('legal biz 3 plans');
-if (!/lifetime: \{ price: 5000, list: 10000, url:/.test(bt)) fail('btc PREM_PLANS');
-if (!/lifetime: \{ price: 5000, list: 10000 \}/.test(vo)) fail('voca PREMIUM.plans');
+const lv = DEAL ? '10000' : 'null';   // 네 곳의 비교 가격이 같은 상태(숫자/ null)인지
+if (!new RegExp('lifetime: \\{ price: 5000, list: ' + lv + ',').test(ub)) fail('utils biz lifetime(list ' + lv + ')');
+if ((lb.match(new RegExp('lifetime: 5000, lifetime_list: ' + lv, 'g')) || []).length !== 3) fail('legal biz 3 plans(lifetime_list ' + lv + ')');
+if (!new RegExp('lifetime: \\{ price: 5000, list: ' + lv + ', url:').test(bt)) fail('btc PREM_PLANS(list ' + lv + ')');
+if (!new RegExp('lifetime: \\{ price: 5000, list: ' + lv + ' \\}').test(vo)) fail('voca PREMIUM.plans(list ' + lv + ')');
+// 정적 내비 배지의 -50% 꼬리는 비어 있고 hidden(JS 가 할인 중일 때만 채움) · 모달 플랜 카드에 가치 문구
+for (const f of ['apps/btc/index.html', 'apps/voca/index.html', 'apps/eth/index.html']) {
+  if (!/data-prem-off hidden><\/span>/.test(read(f))) fail(f + ': 정적 내비 배지에 -50% 텍스트가 박혀 있음');
+  if (!/<div className="prm-value">/.test(read(f))) fail(f + ': prm-value 없음');
+}
 // 프리미엄 모달의 법적 링크 컴포넌트가 모달에 들어가 있는지(btc · voca · 코인 1종)
 for (const f of ['apps/btc/index.html', 'apps/voca/index.html', 'apps/eth/index.html']) if (!/<PremLegal lang=\{lang\} \/>/.test(read(f))) fail(f + ': <PremLegal> 없음');
 // 포털 legal.js: lifetime_list 가 null 이면 deal-row 를 숨기는 코드 + CSS
