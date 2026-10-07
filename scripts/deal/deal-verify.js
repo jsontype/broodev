@@ -101,7 +101,7 @@ for (const f of ['apps/utils/index.html', 'apps/utils/pptx.html', 'apps/utils/ai
   const s = read(f);
   if (!/data-promo="tag" hidden><\/span>/.test(s)) fail(f + ': 메뉴 배지가 비어 있지 않음');
   const m = /<span class="pg-deal" data-deal hidden>([\s\S]*?)<\/span><\/span>/.exec(s);
-  if (m && />[^<]+</.test(m[1])) fail(f + ': 잠금 안내 pg-deal 에 정적 문자열이 남아 있음');
+  if (m && />[^<]+(?=<|$)/.test(m[1])) fail(f + ': 잠금 안내 pg-deal 에 정적 문자열이 남아 있음');
   if (/>-50%</.test(s.replace(/<script[\s\S]*?<\/script>/g, ''))) fail(f + ': HTML 에 -50% 텍스트');
 }
 // 포털 legal.js: lifetime_list 가 null 이면 deal-row 를 숨기는 코드 + CSS
