@@ -96,6 +96,14 @@ for (const f of ['apps/btc/index.html', 'apps/voca/index.html', 'apps/eth/index.
 }
 // 프리미엄 모달의 법적 링크 컴포넌트가 모달에 들어가 있는지(btc · voca · 코인 1종)
 for (const f of ['apps/btc/index.html', 'apps/voca/index.html', 'apps/eth/index.html']) if (!/<PremLegal lang=\{lang\} \/>/.test(read(f))) fail(f + ': <PremLegal> 없음');
+// utils 7 페이지의 정적 할인 요소(메뉴 배지 · pptx/ai/psd 잠금 안내)는 비어 있어야 한다 — promo.js 가 할인 중일 때만 글자를 채운다(크롤러 노출 방지)
+for (const f of ['apps/utils/index.html', 'apps/utils/pptx.html', 'apps/utils/ai.html', 'apps/utils/psd.html', 'apps/utils/pricing.html', 'apps/utils/contact.html', 'apps/utils/404.html']) {
+  const s = read(f);
+  if (!/data-promo="tag" hidden><\/span>/.test(s)) fail(f + ': 메뉴 배지가 비어 있지 않음');
+  const m = /<span class="pg-deal" data-deal hidden>([\s\S]*?)<\/span><\/span>/.exec(s);
+  if (m && />[^<]+</.test(m[1])) fail(f + ': 잠금 안내 pg-deal 에 정적 문자열이 남아 있음');
+  if (/>-50%</.test(s.replace(/<script[\s\S]*?<\/script>/g, ''))) fail(f + ': HTML 에 -50% 텍스트');
+}
 // 포털 legal.js: lifetime_list 가 null 이면 deal-row 를 숨기는 코드 + CSS
 if (!/deal-off/.test(read('apps/home/legal/legal.js')) || !/deal-off/.test(read('apps/home/legal/legal.css'))) fail('legal.js/css 에 deal-off 처리 없음');
 console.log(bad ? bad + ' PROBLEM(S)' : 'ALL CHECKS PASSED');
