@@ -128,6 +128,7 @@
       foot_privacy: '개인정보 처리방침',
       foot_refund: '환불·해지 정책',
       foot_contact: '문의',
+      foot_dev: '개발자 소개',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — 페이지를 찾을 수 없습니다 | Utils',
       nf_heading: '페이지를 찾을 수 없습니다',
@@ -264,6 +265,7 @@
       foot_privacy: 'プライバシーポリシー',
       foot_refund: '返金・解約ポリシー',
       foot_contact: 'お問い合わせ',
+      foot_dev: '開発者について',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — ページが見つかりません | Utils',
       nf_heading: 'ページが見つかりません',
@@ -399,6 +401,7 @@
       foot_privacy: 'Privacy Policy',
       foot_refund: 'Refund & Cancellation',
       foot_contact: 'Contact',
+      foot_dev: 'About the developer',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Page not found | Utils',
       nf_heading: 'Page not found',
@@ -534,6 +537,7 @@
       foot_privacy: '隐私政策',
       foot_refund: '退款与取消政策',
       foot_contact: '联系我们',
+      foot_dev: '开发者介绍',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — 页面未找到 | Utils',
       nf_heading: '页面未找到',
@@ -669,6 +673,7 @@
       foot_privacy: 'Política de privacidad',
       foot_refund: 'Reembolsos y cancelación',
       foot_contact: 'Contacto',
+      foot_dev: 'Sobre el desarrollador',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Página no encontrada | Utils',
       nf_heading: 'Página no encontrada',
@@ -804,6 +809,7 @@
       foot_privacy: 'Política de privacidade',
       foot_refund: 'Reembolsos e cancelamento',
       foot_contact: 'Contato',
+      foot_dev: 'Sobre o desenvolvedor',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Página não encontrada | Utils',
       nf_heading: 'Página não encontrada',
@@ -939,6 +945,7 @@
       foot_privacy: 'Politique de confidentialité',
       foot_refund: 'Remboursement et résiliation',
       foot_contact: 'Contact',
+      foot_dev: 'À propos du développeur',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Page introuvable | Utils',
       nf_heading: 'Page introuvable',
@@ -1074,6 +1081,7 @@
       foot_privacy: 'Политика конфиденциальности',
       foot_refund: 'Возврат и отмена',
       foot_contact: 'Контакты',
+      foot_dev: 'О разработчике',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Страница не найдена | Utils',
       nf_heading: 'Страница не найдена',
@@ -1209,6 +1217,7 @@
       foot_privacy: 'Datenschutzerklärung',
       foot_refund: 'Rückerstattung & Kündigung',
       foot_contact: 'Kontakt',
+      foot_dev: 'Über den Entwickler',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Seite nicht gefunden | Utils',
       nf_heading: 'Seite nicht gefunden',
@@ -1344,6 +1353,7 @@
       foot_privacy: 'Informativa sulla privacy',
       foot_refund: 'Rimborsi e disdetta',
       foot_contact: 'Contatti',
+      foot_dev: 'Chi è lo sviluppatore',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Pagina non trovata | Utils',
       nf_heading: 'Pagina non trovata',
@@ -1479,6 +1489,7 @@
       foot_privacy: 'นโยบายความเป็นส่วนตัว',
       foot_refund: 'นโยบายคืนเงินและยกเลิก',
       foot_contact: 'ติดต่อ',
+      foot_dev: 'เกี่ยวกับผู้พัฒนา',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — ไม่พบหน้าที่ต้องการ | Utils',
       nf_heading: 'ไม่พบหน้าที่ต้องการ',
@@ -1614,6 +1625,7 @@
       foot_privacy: '隱私權政策',
       foot_refund: '退款與取消政策',
       foot_contact: '聯絡我們',
+      foot_dev: '開發者介紹',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — 找不到頁面 | Utils',
       nf_heading: '找不到頁面',
@@ -1749,6 +1761,7 @@
       foot_privacy: 'Privacybeleid',
       foot_refund: 'Terugbetaling & opzegging',
       foot_contact: 'Contact',
+      foot_dev: 'Over de ontwikkelaar',
       // 404.html (data-page="404" → title_404; 본문 nf_*)
       title_404: '404 — Pagina niet gevonden | Utils',
       nf_heading: 'Pagina niet gevonden',
