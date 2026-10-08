@@ -8,13 +8,13 @@
      조각을 못 받으면(오프라인·404) en 블록 + 그 언어로 쓴 안내(#legal-notice: 「영어판 표시 · 정본은 일본어」)로 폴백
    - <title>·meta description 은 표시 중인 article 의 data-title / data-desc 로 교체. <html lang> 은 선택 언어(zh → zh-Hans)
    - [data-biz="키"] ← BIZ(언어별 '_ko' '_en' 변형 우선 · ja 외 언어에 전용 변형이 없으면 '_en') · [data-biz-href="email"] ← mailto: ·
-     [data-price="utils.yearly"] ← PLANS 경로(¥2,500) · [data-price-monthly] ← 연액 ÷ 12 반올림 · [data-plan-url] ← href
+     [data-price="utils.monthly|yearly|lifetime"] ← PLANS 경로(¥100 · ¥800 · ¥2,000) · [data-price-monthly] ← 연액 ÷ 12 반올림 · [data-plan-url] ← href
    - BIZ.invoice_no 가 자리표시자(T000…)면 [data-biz-row="invoice_no"] 숨김
    - V = 캐시 버스터. legal.js/css·조각을 고치면 여기와 5개 페이지의 ?v= 를 같이 올린다 */
 (function () {
   'use strict';
   var BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
-  var V = '20261007b';
+  var V = '20261008a';
   var LANGS = ['en', 'ja', 'ko', 'zh', 'es', 'pt', 'fr', 'ru', 'de', 'it', 'th', 'zh-Hant', 'nl'];
   var NAMES = { en: 'English', ja: '日本語', ko: '한국어', zh: '简体中文', es: 'Español', pt: 'Português', fr: 'Français', ru: 'Русский', de: 'Deutsch', it: 'Italiano', th: 'ไทย', 'zh-Hant': '繁體中文', nl: 'Nederlands' };
   var HTML_LANG = { zh: 'zh-Hans' };

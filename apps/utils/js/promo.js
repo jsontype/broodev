@@ -5,7 +5,7 @@
    - PLANS.promo.until('YYYY-MM-DD') 이 있으면 「N일 남음」, 없으면 「기간 한정」. 가짜 마감(리셋되는 타이머) 금지 — 실제 종료일만 넣는다
    - 로드 순서: i18n.js → biz.js → promo.js (site.js/app.js 보다 앞). 언어가 바뀌면(mh:lang) 다시 채우고, site.js 는 조각을 끼운 뒤 MH_PROMO.apply() 를 부른다
    - 라이선스 보유자(MH_LICENSE.active)에게는 사이드바 메뉴의 「-50%」 배지를 숨긴다(btc·voca 와 동일). license.js 는 이 파일 뒤에 로드되므로 DOMContentLoaded · mh:license 에 다시 적용
-   ⚠ 景品表示法(二重価格表示): list 는 실제로 판 정가이거나 확실히 받을 장래 가격이어야 한다 — docs/stripe-setup.md §13. 2026-10-07 결정: 영구 ¥5,000 이므로 list 는 null(이 파일은 전부 숨김 상태로만 동작) */
+   ⚠ 景品表示法(二重価格表示): list 는 실제로 판 정가이거나 확실히 받을 장래 가격이어야 한다 — docs/stripe-setup.md §13. 2026-10-07 결정: 영구 같은 가격(2026-10-08 부터 ¥2,000)이므로 list 는 null(이 파일은 전부 숨김 상태로만 동작) */
 (function () {
   'use strict';
   var I = window.MH_I18N, PLANS = window.PLANS || {};

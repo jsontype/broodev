@@ -5,7 +5,7 @@
      i18n/{data-page}.{lang}.html 조각(같은 구조의 <article> 1개)을 선택 시 fetch 해 끼워 넣는다(13개를 한 파일에 넣으면 10배 무거워지므로).
      조각을 못 받으면(오프라인·404) en 블록. 조각 변경 시 V 와 5개 페이지의 ?v= 를 같이 올린다
    - [data-biz="키"] ← BIZ (언어별 변형 키 '_ko' '_en' 이 있으면 우선) · [data-biz-href="email"] ← mailto:
-   - [data-price="yearly|lifetime"] ← PLANS 금액(¥2,500 형식) · [data-plan="경로"] ← PLANS 경로값(범용)
+   - [data-price="monthly|yearly|lifetime"] ← PLANS 금액(¥800 형식) · [data-plan="경로"] ← PLANS 경로값(범용)
    - 법적 문서 링크(https://broodev.com/…)에 ?lang=현재언어 를 실어 보냄 (legal.js 가 같은 언어로 연다)
    - 등록번호(BIZ.invoice_no)가 자리표시자(T000…)면 [data-biz-row="invoice_no"] 행을 숨김
    index.html · pptx.html 은 app.js 가 같은 역할을 하므로 이 파일을 넣지 않는다. */
@@ -13,7 +13,7 @@
   'use strict';
   var I = window.MH_I18N, BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
   if (!I) return;
-  var V = '20261008a';
+  var V = '20261008b';
   var DOC = document.body ? document.body.getAttribute('data-page') : null;
 
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
@@ -141,7 +141,7 @@
     var lastMsg = null;
     var ERR = { invalid: 'lic_err_invalid', expired: 'lic_err_expired', canceled: 'lic_err_canceled', refunded: 'lic_err_canceled', disputed: 'lic_err_canceled', revoked: 'lic_err_canceled', device_limit: 'lic_err_device_limit' };
 
-    function planLabel(p) { return I.t(p === 'yearly' ? 'lic_plan_yearly' : 'lic_plan_lifetime'); }
+    function planLabel(p) { return I.t(p === 'monthly' ? 'lic_plan_monthly' : p === 'yearly' ? 'lic_plan_yearly' : 'lic_plan_lifetime'); }
     function fmtDate(iso) {
       if (!iso) return '';
       var d = new Date(iso); if (isNaN(d)) return String(iso).slice(0, 10);

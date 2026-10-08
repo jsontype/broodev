@@ -330,11 +330,14 @@
           if (idx < images.length) seq = seq.then(cellStep(images[idx], idx, r, c, cctx, groups));
         }
         return seq.then(function () {
-          groups.push({ name: 'Background', left: 0, top: 0, imageData: imageData(white(W, H)) });
+          /* ag-psd 의 children 은 PSD 레이어 레코드 순서 그대로 = 아래→위 (children[0] 이 맨 아래). 예전엔 Background 를 마지막에 넣어
+             맨 위 레이어가 되는 바람에 사진이 전부 가려진 PSD 가 저장됐다(2026-10-09 수정). Background 를 맨 앞(맨 아래)에, 그룹은 역순으로
+             넣어 Photoshop 레이어 패널에서 01 그룹이 맨 위에 오게 한다 */
+          var background = { name: 'Background', left: 0, top: 0, imageData: imageData(white(W, H)) };
           var psd = {
             width: W, height: H, channels: 3, bitsPerChannel: 8, colorMode: 3,
             imageResources: { resolutionInfo: { horizontalResolution: dpi, horizontalResolutionUnit: 'PPI', widthUnit: 'Centimeters', verticalResolution: dpi, verticalResolutionUnit: 'PPI', heightUnit: 'Centimeters' } },
-            children: groups   // 위→아래 순 (ag-psd): 01 그룹이 맨 위, Background 가 맨 아래
+            children: [background].concat(groups.slice().reverse())   // 아래→위: Background · N … 02 · 01
           };
           if (env.thumbnail) psd.canvas = comp; else psd.imageData = imageData(comp);
           out.push(agPsd.writePsd(psd, { generateThumbnail: !!env.thumbnail }));

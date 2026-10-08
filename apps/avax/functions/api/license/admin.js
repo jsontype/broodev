@@ -2,7 +2,7 @@
    Pages 변수 LICENSE_ADMIN_TOKEN(Secret · 32자 이상 난수)이 없으면 엔드포인트 자체가 404 처럼 닫힌다.
    { action, ... }:
      lookup        { key } | { email }                     → 라이선스 전체(마스킹 없음)
-     issue         { email, plan:'yearly'|'lifetime', name?, expires?(ISO), note?, lang?('ja'|'ko'|'en'), send?(기본 true) }
+     issue         { email, plan:'monthly'|'yearly'|'lifetime', name?, expires?(ISO), note?, lang?('ja'|'ko'|'en'), send?(기본 true) }
                    → 수동 발급(웹훅 누락·은행 송금 등) + 메일
      resend        { key, lang? }                           → 그 키의 안내 메일 재송
      revoke        { key, status?('revoked'|'refunded'|'canceled'), note? }
@@ -41,7 +41,7 @@ export async function admin({ request, env }) {
     }
     case 'issue': {
       const email = normEmail(body.email);
-      const plan = body.plan === 'yearly' || body.plan === 'lifetime' ? body.plan : null;
+      const plan = ['monthly', 'yearly', 'lifetime'].indexOf(body.plan) >= 0 ? body.plan : null;
       if (!email || !plan) return err('bad-request', 400);
       const expires = body.expires ? isoOrNull(body.expires) : (plan === 'yearly' ? new Date(Date.now() + 368 * 24 * 3600 * 1000).toISOString() : null);
       const lang = ['ja', 'ko', 'en'].indexOf(body.lang) >= 0 ? body.lang : 'ja';

@@ -1,6 +1,6 @@
 /* 라이선스 저장소 — Workers KV 네임스페이스 `VOCA_LICENSES` (Pages 프로젝트 broodev-utils → Settings → Bindings)
    키 설계(모두 문자열 값 · JSON):
-     lic:<KEY>          라이선스 본체 { key, email, name, plan: 'yearly'|'lifetime', status, created, updated, expires|null,
+     lic:<KEY>          라이선스 본체 { key, email, name, plan: 'monthly'|'yearly'|'lifetime', status, created, updated, expires|null,
                         cancel_at_period_end, customer, subscription, payment_intent, session, locale, devices:[{id,name,first,last}], mail_sent|mail_error, note }
      sub:<sub_id>       → KEY     (invoice.paid · subscription.updated/deleted 가 찾는 길)
      pi:<pi_id>         → KEY     (charge.refunded · dispute: payment_intent 로)

@@ -6,7 +6,7 @@
      charge.refunded · charge.dispute.created                               → 무효화
    필요 변수(Pages → Settings → Variables and Secrets):
      STRIPE_WEBHOOK_SECRET (Secret · whsec_…)      서명 검증 — 없으면 500 (열어 두지 않는다)
-     STRIPE_SECRET_KEY     (Secret · 제한 키 권장)  구독 기간·상품 조회(없으면 mode 로 플랜 추정 · 만료 = 지금+1년)
+     STRIPE_SECRET_KEY     (Secret · 제한 키 권장)  구독 기간·상품 조회(없으면 금액·mode 로 플랜 추정 · 만료 = 지금+1개월/1년)
      RESEND_API_KEY        (Secret)                 메일 (없으면 발급만 하고 mail_error 기록 → 관리자 재송)
      PRODUCT_MAP           (선택 · JSON)            {"prod_…":"yearly","prod_…":"lifetime"} — 상품명으로 못 가릴 때
    멱등: evt:<event.id> (7일) + sess:<session.id>. 처리 중 예외 → 500 → Stripe 가 재시도(최대 3일). 한 Stripe 계정을 여러 앱이
@@ -77,13 +77,13 @@ async function onCheckout(session, { store, env, livemode }) {
   const subId = idOf(session.subscription);
 
   let expires = null;
-  if (plan === 'yearly') {
+  if (plan === 'yearly' || plan === 'monthly') {
     let end = null;
     if (subId) {
       end = subscriptionPeriodEnd(await stripeGet(env, 'subscriptions/' + subId));
       if (!end) end = await store.takeSubPeriod(subId);
     }
-    if (!end) end = Math.floor(Date.now() / 1000) + 365 * 24 * 3600;
+    if (!end) end = Math.floor(Date.now() / 1000) + (plan === 'monthly' ? 31 : 365) * 24 * 3600;
     expires = secToIso(end + GRACE_SEC);
   }
 
@@ -113,13 +113,17 @@ async function resolvePlan(session, env) {
       if (pid && map[pid]) return map[pid];
       if (price.id && map[price.id]) return map[price.id];
       if (/utils/i.test(pname)) {
-        if (/年額|yearly|annual/i.test(pname) || price.recurring) return 'yearly';
+        const iv = price.recurring && price.recurring.interval;
+        if (/月額|monthly/i.test(pname) || iv === 'month') return 'monthly';
+        if (/年額|yearly|annual/i.test(pname) || iv === 'year' || price.recurring) return 'yearly';
         if (/買い切り|lifetime|一括|one.?time/i.test(pname) || price.type === 'one_time') return 'lifetime';
       }
     }
     return null;
   }
-  // 라인 아이템을 못 받음(STRIPE_SECRET_KEY 없음·오류) → 세션 mode 로
+  // 라인 아이템을 못 받음(STRIPE_SECRET_KEY 없음·오류) → 결제 금액(JPY 는 정수 엔 · 税込 100/800/2000) → 세션 mode 순으로 추정
+  const byAmount = { 100: 'monthly', 800: 'yearly', 2000: 'lifetime' }[Number(session.amount_total)];
+  if (byAmount) return byAmount;
   if (session.mode === 'subscription') return 'yearly';
   if (session.mode === 'payment') return 'lifetime';
   return null;

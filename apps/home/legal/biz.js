@@ -21,11 +21,23 @@ window.BIZ = {
 };
 
 /* 프리미엄을 파는 앱과 税込 가격 — 특상법 販売価格 행 · premium.html 표에 쓰인다. 앱이 늘면 항목 추가
-   lifetime_list: 평생(買い切り) 플랜의 비교 가격(정가). ★ 2026-10-07 결정으로 null — 영구 ¥5,000 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
+   ★ 2026-10-08 개정: 월간 ¥100(신설) · 연간 ¥800 · 買い切り ¥2,000 — 세 앱 공통. 여기가 금액의 정본이고 scripts/deal/deal-gen.js 가 13언어 문구(월액 대비 이득 %)를 여기서 읽어 생성한다.
+   각 앱 설정(utils js/biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 Stripe Price 도 같은 값으로(deal-verify.js 가 앞의 셋을 비교)
+   ★ 2026-10-08 개정: 월간 ¥100(신설) · 연간 ¥800 · 買い切り ¥2,000 — 세 앱 공통. 여기가 금액의 정본이고 scripts/deal/deal-gen.js 가 13언어 문구(월액 대비 이득 %)를 여기서 읽어 생성한다.
+   각 앱 설정(utils js/biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 Stripe Price 도 같은 값으로(deal-verify.js 가 앞의 셋을 비교)
+   ★ 2026-10-08 개정: 월간 ¥100(신설) · 연간 ¥800 · 買い切り ¥2,000 — 세 앱 공통. 여기가 금액의 정본이고 scripts/deal/deal-gen.js 가 13언어 문구(월액 대비 이득 %)를 여기서 읽어 생성한다.
+   각 앱 설정(utils js/biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 Stripe Price 도 같은 값으로(deal-verify.js 가 앞의 셋을 비교)
+   ★ 2026-10-08 개정: 월간 ¥100(신설) · 연간 ¥800 · 買い切り ¥2,000 — 세 앱 공통. 여기가 금액의 정본이고 scripts/deal/deal-gen.js 가 13언어 문구(월액 대비 이득 %)를 여기서 읽어 생성한다.
+   각 앱 설정(utils js/biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 Stripe Price 도 같은 값으로(deal-verify.js 가 앞의 셋을 비교)
+   ★ 2026-10-08 개정: 월간 ¥100(신설) · 연간 ¥800 · 買い切り ¥2,000 — 세 앱 공통. 여기가 금액의 정본이고 scripts/deal/deal-gen.js 가 13언어 문구(월액 대비 이득 %)를 여기서 읽어 생성한다.
+   각 앱 설정(utils js/biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 Stripe Price 도 같은 값으로(deal-verify.js 가 앞의 셋을 비교)
+   ★ 2026-10-08 개정: 월간 ¥100(신설) · 연간 ¥800 · 買い切り ¥2,000 — 세 앱 공통. 여기가 금액의 정본이고 scripts/deal/deal-gen.js 가 13언어 문구(월액 대비 이득 %)를 여기서 읽어 생성한다.
+   각 앱 설정(utils js/biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 Stripe Price 도 같은 값으로(deal-verify.js 가 앞의 셋을 비교)
+   lifetime_list: 평생(買い切り) 플랜의 비교 가격(정가). ★ 2026-10-07 결정으로 null — 영구 ¥2,000(2026-10-08 개정) 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
    null 이면 생성 스크립트(scripts/deal/deal-gen.js)가 총람 카드에 할인 장치 없이 가치 문구(「年額 2 年分で、ずっと」)만 넣고, legal.js 도 할인 요소를 만들지 않는다.
    숫자를 넣으면(실제로 그 가격에 판 기간이 있을 때만) 세 앱(utils js/biz.js PLANS.lifetime.list · btc PREM_PLANS · voca PREMIUM.plans)과 같은 값으로 맞추고 deal-gen.js 를 다시 돌린다 — docs/stripe-setup.md §13 */
 window.PLANS = {
-  utils: { name: 'Utils Premium',          url: 'https://utils.broodev.com/pricing', yearly: 2500, lifetime: 5000, lifetime_list: null },
-  btc:   { name: 'Crypto Signals Premium', url: 'https://btc.broodev.com/#premium',  yearly: 2500, lifetime: 5000, lifetime_list: null },  // 코인 사이트 15개 공통 라이선스 — #premium 이면 앱이 PREMIUM 모달을 바로 연다
-  voca:  { name: 'VOCA DECK Premium',      url: 'https://voca.broodev.com/#premium', yearly: 2500, lifetime: 5000, lifetime_list: null },  // #premium → 앱의 프리미엄 모달
+  utils: { name: 'Utils Premium',          url: 'https://utils.broodev.com/pricing', monthly: 100, yearly: 800, lifetime: 2000, lifetime_list: null },
+  btc:   { name: 'Crypto Signals Premium', url: 'https://btc.broodev.com/#premium',  monthly: 100, yearly: 800, lifetime: 2000, lifetime_list: null },  // 코인 사이트 15개 공통 라이선스 — #premium 이면 앱이 PREMIUM 모달을 바로 연다
+  voca:  { name: 'VOCA DECK Premium',      url: 'https://voca.broodev.com/#premium', monthly: 100, yearly: 800, lifetime: 2000, lifetime_list: null },  // #premium → 앱의 프리미엄 모달
 };

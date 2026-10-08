@@ -449,7 +449,9 @@
       .prm-keyrow { display: flex; gap: 6px; align-items: center; }
       .prm-keyrow input { flex: 1; min-width: 0; }
       /* 프리미엄 모달 플랜 카드 — 평생 플랜 할인 표시(PREMIUM.plans.lifetime.list). 테마 토큰만 사용(BROODEV 네온 / ORIGINAL Win95 베벨 둘 다) */
-      .prm-plans { display: grid; grid-template-columns: 1fr 1.3fr; gap: 8px; margin: 2px 0 10px; }
+      .prm-plans { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px; margin: 2px 0 10px; }   /* 월간 · 연간 · 買い切り(추천) */
+      .prm-buy:disabled { opacity: .45; cursor: not-allowed; }   /* Payment Link 미설정 = 準備中 */
+      .prm-dim { color: var(--t-muted); font-weight: 400; }
       .prm-plan { position: relative; display: flex; flex-direction: column; gap: 5px; padding: 12px 10px 10px; background: var(--t-sub-bg2); border: var(--t-bevel-w) solid; border-color: var(--panel-light) var(--panel-dark) var(--panel-dark) var(--panel-light); border-radius: var(--t-radius); }
       .prm-plan.best { border-color: var(--t-accent); box-shadow: 0 0 0 1px var(--t-accent) inset, 0 0 18px -6px var(--t-accent); }
       .prm-plan-name { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--t-panel-dim); }
@@ -874,48 +876,52 @@
        * ========================================================= */
       const PREMIUM = {
         launch: true,
-        yearlyUrl: 'https://buy.stripe.com/5kQ8wR5Iw9PC8E6e3w4wM02',
-        lifetimeUrl: 'https://buy.stripe.com/4gMaEZ6MA2nag6y3oS4wM03',
+        /* ★ 2026-10-08 가격 개정: 月額 ¥100(신설) · 年額 ¥800 · 買い切り ¥2,000 — Payment Link 는 새 Price 로 만들어 넣는다(docs/stripe-setup.md §14). 비어 있으면 버튼은 「準備中」.
+           구 링크(아카이브): 年額 ¥2,500 https://buy.stripe.com/5kQ8wR5Iw9PC8E6e3w4wM02 · 買い切り ¥5,000 https://buy.stripe.com/4gMaEZ6MA2nag6y3oS4wM03 */
+        monthlyUrl: '',
+        yearlyUrl: '',
+        lifetimeUrl: '',
         trialDays: 3,
         freeRows: 20,
-        /* 요금(税込). list(비교 가격·정가)는 2026-10-07 결정으로 null: 영구 ¥5,000 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
-           숫자를 넣으면 할인 표시가 켜지므로 실제로 그 가격에 판 기간이 있을 때만. 가치 문구(PLAN_DEAL.value)는 항상 표시. 실제 결제 금액은 Stripe Price(¥5,000) 그대로.
+        /* 요금(税込). list(비교 가격·정가)는 2026-10-07 결정으로 null: 영구 ¥2,000(2026-10-08 개정) 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
+           숫자를 넣으면 할인 표시가 켜지므로 실제로 그 가격에 판 기간이 있을 때만. 가치 문구(PLAN_DEAL.value)는 항상 표시. 실제 결제 금액은 Stripe Price 그대로.
            until: 'YYYY-MM-DD'(일본 시간 23:59 까지) 를 넣으면 「N일 남음」 카운트다운(실제 종료일만 — 가짜 마감 금지). ⚠ 景品表示法: list 는 종료 후 실제로 적용할 가격이어야 한다 — docs/stripe-setup.md §13 */
-        plans: { yearly: { price: 2500 }, lifetime: { price: 5000, list: null } },
+        plans: { monthly: { price: 100 }, yearly: { price: 800 }, lifetime: { price: 2000, list: null } },
+        years: 50,   // 買い切り 를 월액과 비교하는 기준 연수(카드 문구)
         until: null,
       }
       /* @plan-lbl — 13개 언어 플랜 이름(가격은 PREMIUM.plans 에서 렌더). 생성 스크립트가 채움 */
       const PLAN_LBL = {
-        en: { y: "Yearly", l: "Lifetime", due: "Due today", note: "Tax included. Your own CSV stays free." },
-        ja: { y: "年額", l: "買い切り", due: "今日のカード", note: "税込。自分のCSVの暗記は無料のまま。" },
-        ko: { y: "연간", l: "평생", due: "오늘 카드", note: "세금 포함. 내 CSV 암기는 계속 무료." },
-        zh: { y: "年付", l: "买断", due: "今日复习", note: "含税。用自己的 CSV 背单词依然免费。" },
-        "zh-Hant": { y: "年繳", l: "買斷", due: "今日複習", note: "含稅。用自己的 CSV 背單字依然免費。" },
-        th: { y: "รายปี", l: "ตลอดชีพ", due: "การ์ดวันนี้", note: "รวมภาษี ท่องศัพท์จาก CSV ของคุณเองยังฟรีเหมือนเดิม" },
-        es: { y: "Anual", l: "De por vida", due: "Tarjetas de hoy", note: "IVA incluido. Memorizar tu propio CSV sigue siendo gratis." },
-        fr: { y: "Annuel", l: "À vie", due: "Cartes du jour", note: "Prix TTC. Mémoriser votre propre CSV reste gratuit." },
-        de: { y: "Jährlich", l: "Lebenslang", due: "Heute fällig", note: "Inkl. MwSt. Das Lernen mit eigener CSV bleibt kostenlos." },
-        it: { y: "Annuale", l: "A vita", due: "Carte di oggi", note: "IVA inclusa. Memorizzare il tuo CSV resta gratis." },
-        pt: { y: "Anual", l: "Vitalício", due: "Cartões de hoje", note: "IVA incluído. Memorizar o seu próprio CSV continua grátis." },
-        ru: { y: "Годовой", l: "Навсегда", due: "Карточки на сегодня", note: "С учётом налога. Учить свой CSV по-прежнему бесплатно." },
-        nl: { y: "Jaarlijks", l: "Levenslang", due: "Kaarten van vandaag", note: "Incl. btw. Je eigen CSV leren blijft gratis." },
+        en: { m: "Monthly", y: "Yearly", l: "Lifetime", due: "Due today", note: "Tax included. Your own CSV stays free." },
+        ja: { m: "月額", y: "年額", l: "買い切り", due: "今日のカード", note: "税込。自分のCSVの暗記は無料のまま。" },
+        ko: { m: "월간", y: "연간", l: "평생", due: "오늘 카드", note: "세금 포함. 내 CSV 암기는 계속 무료." },
+        zh: { m: "月付", y: "年付", l: "买断", due: "今日复习", note: "含税。用自己的 CSV 背单词依然免费。" },
+        "zh-Hant": { m: "月繳", y: "年繳", l: "買斷", due: "今日複習", note: "含稅。用自己的 CSV 背單字依然免費。" },
+        th: { m: "รายเดือน", y: "รายปี", l: "ตลอดชีพ", due: "การ์ดวันนี้", note: "รวมภาษี ท่องศัพท์จาก CSV ของคุณเองยังฟรีเหมือนเดิม" },
+        es: { m: "Mensual", y: "Anual", l: "De por vida", due: "Tarjetas de hoy", note: "IVA incluido. Memorizar tu propio CSV sigue siendo gratis." },
+        fr: { m: "Mensuel", y: "Annuel", l: "À vie", due: "Cartes du jour", note: "Prix TTC. Mémoriser votre propre CSV reste gratuit." },
+        de: { m: "Monatlich", y: "Jährlich", l: "Lebenslang", due: "Heute fällig", note: "Inkl. MwSt. Das Lernen mit eigener CSV bleibt kostenlos." },
+        it: { m: "Mensile", y: "Annuale", l: "A vita", due: "Carte di oggi", note: "IVA inclusa. Memorizzare il tuo CSV resta gratis." },
+        pt: { m: "Mensal", y: "Anual", l: "Vitalício", due: "Cartões de hoje", note: "IVA incluído. Memorizar o seu próprio CSV continua grátis." },
+        ru: { m: "Ежемесячный", y: "Годовой", l: "Навсегда", due: "Карточки на сегодня", note: "С учётом налога. Учить свой CSV по-прежнему бесплатно." },
+        nl: { m: "Maandelijks", y: "Jaarlijks", l: "Levenslang", due: "Kaarten van vandaag", note: "Incl. btw. Je eigen CSV leren blijft gratis." },
       }
       /* @/plan-lbl */
       /* @deal-i18n — 13개 언어 할인 문구(단일 소스: 생성 스크립트가 채움. 키 동일: label limited was save best two after days buy peryear once tax) */
       const PLAN_DEAL = {
-        en: { label: "Launch offer", limited: "Limited time", was: "Regular price", save: "Save {save}", best: "Best value", two: "2 years of Yearly — yours forever", after: "{list} after the launch period", days: "{d} days left", buy: "Buy now", peryear: "/ year", once: "one-time", tax: "tax included", value: "The price of 2 years of Yearly — yours forever (nothing more to pay from year 3)" },
-        ja: { label: "発売記念価格", limited: "期間限定", was: "期間終了後の価格", save: "{save} お得", best: "いちばんお得", two: "年額 2 年分の価格で、ずっと", after: "発売記念期間の終了後は {list} になります", days: "あと {d} 日", buy: "今すぐ購入", peryear: "/ 年", once: "1 回のみ", tax: "税込", value: "年額 2 年分の価格で、ずっと使える（3 年目からは実質無料）" },
-        ko: { label: "발매 기념 특가", limited: "기간 한정", was: "정가", save: "{save} 절약", best: "최고 가성비", two: "연간 2년치 가격으로 평생", after: "특가 종료 후 정가 {list}", days: "{d}일 남음", buy: "지금 구매", peryear: "/ 년", once: "1회 결제", tax: "세금 포함", value: "연간 2년치 가격으로 평생 (3년째부터는 사실상 무료)" },
-        zh: { label: "首发特惠", limited: "限时", was: "原价", save: "立省 {save}", best: "最划算", two: "两年年费的价格，永久使用", after: "活动结束后价格为 {list}", days: "仅剩 {d} 天", buy: "立即购买", peryear: "/ 年", once: "一次性付费", tax: "含税", value: "两年年费的价格，永久使用（第 3 年起不再付费）" },
-        "zh-Hant": { label: "首發優惠", limited: "限時", was: "原價", save: "現省 {save}", best: "最划算", two: "兩年年費的價格，永久使用", after: "活動結束後價格為 {list}", days: "僅剩 {d} 天", buy: "立即購買", peryear: "/ 年", once: "單次付費", tax: "含稅", value: "兩年年費的價格，永久使用（第 3 年起不再付費）" },
-        th: { label: "โปรเปิดตัว", limited: "จำกัดเวลา", was: "ราคาปกติ", save: "ประหยัด {save}", best: "คุ้มที่สุด", two: "จ่ายเท่ารายปี 2 ปี ใช้ได้ตลอดไป", after: "หลังช่วงเปิดตัว ราคาจะเป็น {list}", days: "เหลืออีก {d} วัน", buy: "ซื้อเลย", peryear: "/ ปี", once: "จ่ายครั้งเดียว", tax: "รวมภาษี", value: "จ่ายเท่ารายปี 2 ปี ใช้ได้ตลอดไป (ปีที่ 3 เป็นต้นไปไม่ต้องจ่ายอีก)" },
-        es: { label: "Oferta de lanzamiento", limited: "Tiempo limitado", was: "Precio normal", save: "Ahorras {save}", best: "Más ahorro", two: "Por el precio de 2 años, tuyo para siempre", after: "Después del periodo de lanzamiento: {list}", days: "Quedan {d} días", buy: "Comprar ahora", peryear: "/ año", once: "pago único", tax: "IVA incl.", value: "El precio de 2 años del plan anual, tuyo para siempre (desde el 3.º año no pagas más)" },
-        fr: { label: "Offre de lancement", limited: "Durée limitée", was: "Prix normal", save: "Économisez {save}", best: "Le plus avantageux", two: "Pour le prix de 2 ans, à vous pour toujours", after: "Après la période de lancement : {list}", days: "Plus que {d} jours", buy: "Acheter", peryear: "/ an", once: "paiement unique", tax: "TTC", value: "Le prix de 2 ans d’abonnement annuel, à vous pour toujours (plus rien à payer dès la 3e année)" },
-        de: { label: "Einführungsangebot", limited: "Nur für kurze Zeit", was: "Normalpreis", save: "Sie sparen {save}", best: "Bestes Angebot", two: "Zum Preis von 2 Jahren – für immer nutzen", after: "Nach dem Aktionszeitraum: {list}", days: "Noch {d} Tage", buy: "Jetzt kaufen", peryear: "/ Jahr", once: "einmalig", tax: "inkl. MwSt.", value: "Der Preis von 2 Jahren Jahresplan – für immer (ab dem 3. Jahr zahlen Sie nichts mehr)" },
-        it: { label: "Offerta di lancio", limited: "A tempo limitato", was: "Prezzo pieno", save: "Risparmi {save}", best: "Più conveniente", two: "Al prezzo di 2 anni, tuo per sempre", after: "Dopo il periodo di lancio: {list}", days: "Ancora {d} giorni", buy: "Acquista ora", peryear: "/ anno", once: "una tantum", tax: "IVA incl.", value: "Il prezzo di 2 anni di piano annuale, tuo per sempre (dal 3º anno non paghi più nulla)" },
-        pt: { label: "Oferta de lançamento", limited: "Por tempo limitado", was: "Preço normal", save: "Poupe {save}", best: "Mais vantajoso", two: "Pelo preço de 2 anos, seu para sempre", after: "Após o período de lançamento: {list}", days: "Faltam {d} dias", buy: "Comprar agora", peryear: "/ ano", once: "pagamento único", tax: "IVA incl.", value: "O preço de 2 anos do plano anual, seu para sempre (a partir do 3.º ano não paga mais nada)" },
-        ru: { label: "Скидка на старте", limited: "Время ограничено", was: "Обычная цена", save: "Экономия {save}", best: "Самое выгодное", two: "По цене 2 лет подписки — навсегда", after: "После окончания акции: {list}", days: "Осталось {d} дн.", buy: "Купить", peryear: "/ год", once: "единоразово", tax: "с учётом налога", value: "Цена 2 лет годовой подписки — навсегда (с 3-го года больше ничего не платите)" },
-        nl: { label: "Introductieaanbieding", limited: "Tijdelijke actie", was: "Normale prijs", save: "Bespaar {save}", best: "Beste deal", two: "2 jaar betalen, voor altijd gebruiken", after: "Na de introductieperiode: {list}", days: "Nog {d} dagen", buy: "Nu kopen", peryear: "/ jaar", once: "eenmalig", tax: "incl. btw", value: "De prijs van 2 jaar jaarabonnement, voor altijd (vanaf jaar 3 betaalt u niets meer)" },
+        en: { label: "Launch offer", limited: "Limited time", was: "Regular price", save: "Save {save}", best: "Best value", two: "{ratio} years of Yearly — yours forever", after: "{list} after the launch period", days: "{d} days left", buy: "Buy now", peryear: "/ year", once: "one-time", tax: "tax included", value: "{offL}% cheaper than Monthly over {years} years ({mTotal} → {lifetime}) · the price of {ratio} years of Yearly, forever", pm: "Monthly", py: "Yearly", pl: "Lifetime", permonth: "/ month", cancel: "cancel anytime", soon: "Coming soon", valueY: "{offY}% cheaper than Monthly (12 months {mYear} → {yearly})" },
+        ja: { label: "発売記念価格", limited: "期間限定", was: "期間終了後の価格", save: "{save} お得", best: "いちばんお得", two: "年額 {ratio} 年分の価格で、ずっと", after: "発売記念期間の終了後は {list} になります", days: "あと {d} 日", buy: "今すぐ購入", peryear: "/ 年", once: "1 回のみ", tax: "税込", value: "{years} 年使えば月額より {offL}% お得（{mTotal} → {lifetime}）· 年額 {ratio} 年分の価格で、ずっと", pm: "月額", py: "年額", pl: "買い切り", permonth: "/ 月", cancel: "いつでも解約", soon: "準備中", valueY: "月額より {offY}% お得（12 か月分 {mYear} → {yearly}）" },
+        ko: { label: "발매 기념 특가", limited: "기간 한정", was: "정가", save: "{save} 절약", best: "최고 가성비", two: "연간 {ratio}년치 가격으로 평생", after: "특가 종료 후 정가 {list}", days: "{d}일 남음", buy: "지금 구매", peryear: "/ 년", once: "1회 결제", tax: "세금 포함", value: "{years}년 쓰면 월간보다 {offL}% 저렴 ({mTotal} → {lifetime}) · 연간 {ratio}년치 가격으로 평생", pm: "월간", py: "연간", pl: "평생", permonth: "/ 월", cancel: "언제든 해지", soon: "준비 중", valueY: "월간보다 {offY}% 저렴 (12개월 {mYear} → {yearly})" },
+        zh: { label: "首发特惠", limited: "限时", was: "原价", save: "立省 {save}", best: "最划算", two: "{ratio} 年年费的价格，永久使用", after: "活动结束后价格为 {list}", days: "仅剩 {d} 天", buy: "立即购买", peryear: "/ 年", once: "一次性付费", tax: "含税", value: "使用 {years} 年比月付省 {offL}%（{mTotal} → {lifetime}）· {ratio} 年年费的价格，永久使用", pm: "月付", py: "年付", pl: "买断", permonth: "/ 月", cancel: "随时可取消", soon: "准备中", valueY: "比月付省 {offY}%（12 个月 {mYear} → {yearly}）" },
+        "zh-Hant": { label: "首發優惠", limited: "限時", was: "原價", save: "現省 {save}", best: "最划算", two: "{ratio} 年年費的價格，永久使用", after: "活動結束後價格為 {list}", days: "僅剩 {d} 天", buy: "立即購買", peryear: "/ 年", once: "單次付費", tax: "含稅", value: "使用 {years} 年比月繳省 {offL}%（{mTotal} → {lifetime}）· {ratio} 年年費的價格，永久使用", pm: "月繳", py: "年繳", pl: "買斷", permonth: "/ 月", cancel: "隨時可取消", soon: "準備中", valueY: "比月繳省 {offY}%（12 個月 {mYear} → {yearly}）" },
+        th: { label: "โปรเปิดตัว", limited: "จำกัดเวลา", was: "ราคาปกติ", save: "ประหยัด {save}", best: "คุ้มที่สุด", two: "จ่ายเท่ารายปี {ratio} ปี ใช้ได้ตลอดไป", after: "หลังช่วงเปิดตัว ราคาจะเป็น {list}", days: "เหลืออีก {d} วัน", buy: "ซื้อเลย", peryear: "/ ปี", once: "จ่ายครั้งเดียว", tax: "รวมภาษี", value: "ใช้ {years} ปี ถูกกว่ารายเดือน {offL}% ({mTotal} → {lifetime}) · จ่ายเท่ารายปี {ratio} ปี ใช้ได้ตลอดไป", pm: "รายเดือน", py: "รายปี", pl: "ตลอดชีพ", permonth: "/ เดือน", cancel: "ยกเลิกได้ทุกเมื่อ", soon: "เร็ว ๆ นี้", valueY: "ถูกกว่ารายเดือน {offY}% (12 เดือน {mYear} → {yearly})" },
+        es: { label: "Oferta de lanzamiento", limited: "Tiempo limitado", was: "Precio normal", save: "Ahorras {save}", best: "Más ahorro", two: "El precio de {ratio} años, para siempre", after: "Después del periodo de lanzamiento: {list}", days: "Quedan {d} días", buy: "Comprar ahora", peryear: "/ año", once: "pago único", tax: "IVA incl.", value: "{offL}% más barato que el Mensual en {years} años ({mTotal} → {lifetime}) · el precio de {ratio} años del Anual, para siempre", pm: "Mensual", py: "Anual", pl: "Vitalicio", permonth: "/ mes", cancel: "cancele cuando quiera", soon: "Próximamente", valueY: "{offY}% más barato que el Mensual (12 meses {mYear} → {yearly})" },
+        fr: { label: "Offre de lancement", limited: "Durée limitée", was: "Prix normal", save: "Économisez {save}", best: "Le plus avantageux", two: "Le prix de {ratio} ans, pour toujours", after: "Après la période de lancement : {list}", days: "Plus que {d} jours", buy: "Acheter", peryear: "/ an", once: "paiement unique", tax: "TTC", value: "{offL}% moins cher que le mensuel sur {years} ans ({mTotal} → {lifetime}) · le prix de {ratio} ans d’abonnement annuel, pour toujours", pm: "Mensuel", py: "Annuel", pl: "À vie", permonth: "/ mois", cancel: "résiliable à tout moment", soon: "Bientôt disponible", valueY: "{offY}% moins cher que le mensuel (12 mois {mYear} → {yearly})" },
+        de: { label: "Einführungsangebot", limited: "Nur für kurze Zeit", was: "Normalpreis", save: "Sie sparen {save}", best: "Bestes Angebot", two: "Der Preis von {ratio} Jahren – für immer", after: "Nach dem Aktionszeitraum: {list}", days: "Noch {d} Tage", buy: "Jetzt kaufen", peryear: "/ Jahr", once: "einmalig", tax: "inkl. MwSt.", value: "{offL}% günstiger als monatlich über {years} Jahre ({mTotal} → {lifetime}) · der Preis von {ratio} Jahren Jahresabo – für immer", pm: "Monatlich", py: "Jährlich", pl: "Lebenslang", permonth: "/ Monat", cancel: "jederzeit kündbar", soon: "In Kürze", valueY: "{offY}% günstiger als monatlich (12 Monate {mYear} → {yearly})" },
+        it: { label: "Offerta di lancio", limited: "A tempo limitato", was: "Prezzo pieno", save: "Risparmi {save}", best: "Più conveniente", two: "Il prezzo di {ratio} anni, per sempre", after: "Dopo il periodo di lancio: {list}", days: "Ancora {d} giorni", buy: "Acquista ora", peryear: "/ anno", once: "una tantum", tax: "IVA incl.", value: "{offL}% in meno rispetto al Mensile in {years} anni ({mTotal} → {lifetime}) · il prezzo di {ratio} anni di Annuale, per sempre", pm: "Mensile", py: "Annuale", pl: "A vita", permonth: "/ mese", cancel: "disdetta in qualsiasi momento", soon: "In arrivo", valueY: "{offY}% in meno rispetto al Mensile (12 mesi {mYear} → {yearly})" },
+        pt: { label: "Oferta de lançamento", limited: "Por tempo limitado", was: "Preço normal", save: "Poupe {save}", best: "Mais vantajoso", two: "O preço de {ratio} anos, para sempre", after: "Após o período de lançamento: {list}", days: "Faltam {d} dias", buy: "Comprar agora", peryear: "/ ano", once: "pagamento único", tax: "IVA incl.", value: "{offL}% mais barato que o Mensal em {years} anos ({mTotal} → {lifetime}) · o preço de {ratio} anos do Anual, para sempre", pm: "Mensal", py: "Anual", pl: "Vitalício", permonth: "/ mês", cancel: "cancele a qualquer momento", soon: "Em breve", valueY: "{offY}% mais barato que o Mensal (12 meses {mYear} → {yearly})" },
+        ru: { label: "Скидка на старте", limited: "Время ограничено", was: "Обычная цена", save: "Экономия {save}", best: "Самое выгодное", two: "Цена {ratio} лет — навсегда", after: "После окончания акции: {list}", days: "Осталось {d} дн.", buy: "Купить", peryear: "/ год", once: "единоразово", tax: "с учётом налога", value: "на {offL}% дешевле ежемесячного за {years} лет ({mTotal} → {lifetime}) · цена {ratio} лет годового плана — навсегда", pm: "Ежемесячный", py: "Годовой", pl: "Бессрочный", permonth: "/ мес.", cancel: "отмена в любой момент", soon: "Скоро", valueY: "на {offY}% дешевле ежемесячного (12 месяцев {mYear} → {yearly})" },
+        nl: { label: "Introductieaanbieding", limited: "Tijdelijke actie", was: "Normale prijs", save: "Bespaar {save}", best: "Beste deal", two: "De prijs van {ratio} jaar, voor altijd", after: "Na de introductieperiode: {list}", days: "Nog {d} dagen", buy: "Nu kopen", peryear: "/ jaar", once: "eenmalig", tax: "incl. btw", value: "{offL}% goedkoper dan maandelijks over {years} jaar ({mTotal} → {lifetime}) · de prijs van {ratio} jaar jaarabonnement, voor altijd", pm: "Maandelijks", py: "Jaarlijks", pl: "Levenslang", permonth: "/ maand", cancel: "op elk moment opzegbaar", soon: "Binnenkort", valueY: "{offY}% goedkoper dan maandelijks (12 maanden {mYear} → {yearly})" },
       }
       /* @/deal-i18n */
       /* @prem-legal — 프리미엄 모달 하단의 판매자·법적 링크(13개 언어 · 생성 스크립트가 채움). 特商法: 販売 URL 로 지정된 화면에 사업자·表記 링크가 있어야 한다 */
@@ -937,26 +943,42 @@
       /* @/prem-legal */
       const yenFmt = (n) => '¥' + Number(n).toLocaleString('en-US')
       const dealVars = () => {
-        const L = PREMIUM.plans.lifetime, list = L.list != null && L.list > L.price ? L.list : null
+        const P = PREMIUM.plans, L = P.lifetime, M = P.monthly.price, Y = P.yearly.price, years = PREMIUM.years || 50
+        const list = L.list != null && L.list > L.price ? L.list : null
         const off = list ? Math.round((1 - L.price / list) * 100) : 0
         let days = null
         if (list && PREMIUM.until) { const d = Math.ceil((Date.parse(PREMIUM.until + 'T23:59:59+09:00') - Date.now()) / 864e5); days = d > 0 ? d : null }
-        return { on: !!list, list, off, save: list ? list - L.price : 0, days, price: L.price }
+        const mYear = M * 12, mTotal = mYear * years   // 월액 12개월 · 월액 {years}년 합계 — 이득(%)은 내림(과장 방지)
+        return { on: !!list, list, off, save: list ? list - L.price : 0, days, price: L.price, monthly: M, yearly: Y, lifetime: L.price, years, mYear, mTotal,
+          offY: Math.floor((1 - Y / mYear) * 100), offL: Math.floor((1 - L.price / mTotal) * 100), ratio: String(Math.round(L.price / Y * 10) / 10) }
       }
-      const dealT = (lang, key, v) => ((PLAN_DEAL[lang] || PLAN_DEAL.en)[key] || '').replace(/\{(\w+)\}/g, (_, k) => (k === 'list' || k === 'save' || k === 'price') ? (v[k] != null ? yenFmt(v[k]) : '') : (v[k] != null ? String(v[k]) : ''))
+      const YEN_KEYS = ['list', 'save', 'price', 'monthly', 'yearly', 'lifetime', 'mYear', 'mTotal']
+      const dealT = (lang, key, v) => ((PLAN_DEAL[lang] || PLAN_DEAL.en)[key] || '').replace(/\{(\w+)\}/g, (_, k) => v[k] == null ? '' : (YEN_KEYS.indexOf(k) >= 0 ? yenFmt(v[k]) : String(v[k])))
       /* 프리미엄 모달의 플랜 카드 2장 — 평생 플랜에 정가 취소선 · -50% 태그 · 발매 기념 · 절약액 */
       function PremPlans({ lang, onBuy }) {
-        const P = PLAN_LBL[lang] || PLAN_LBL.en, v = dealVars(), on = v.on
+        const v = dealVars(), on = v.on
+        const urlOf = (plan) => plan === 'lifetime' ? PREMIUM.lifetimeUrl : plan === 'monthly' ? PREMIUM.monthlyUrl : PREMIUM.yearlyUrl
+        const buy = (plan, best) => {   // Payment Link 가 비어 있으면 「準備中」(비활성) — 표시 가격과 다른 금액을 청구하지 않기 위해
+          const url = urlOf(plan)
+          return <button className={'apply-btn prm-buy' + (best ? ' prm-buy-best' : '')} disabled={!url} onClick={() => onBuy(plan)}>{url ? (best ? '★ ' : '') + dealT(lang, 'buy', v) : dealT(lang, 'soon', v)}</button>
+        }
         return (
           <div className="prm-plans">
             <div className="prm-plan">
-              <div className="prm-plan-name">{P.y}</div>
-              <div className="prm-price-row"><span className="prm-price">{yenFmt(PREMIUM.plans.yearly.price)}</span><span className="prm-unit">{dealT(lang, 'peryear', v)} · {dealT(lang, 'tax', v)}</span></div>
-              <button className="apply-btn prm-buy" onClick={() => onBuy('yearly')}>{dealT(lang, 'buy', v)}</button>
+              <div className="prm-plan-name">{dealT(lang, 'pm', v)}</div>
+              <div className="prm-price-row"><span className="prm-price">{yenFmt(v.monthly)}</span><span className="prm-unit">{dealT(lang, 'permonth', v)} · {dealT(lang, 'tax', v)}</span></div>
+              <div className="prm-value prm-dim">{dealT(lang, 'cancel', v)}</div>
+              {buy('monthly')}
+            </div>
+            <div className="prm-plan">
+              <div className="prm-plan-name">{dealT(lang, 'py', v)}</div>
+              <div className="prm-price-row"><span className="prm-price">{yenFmt(v.yearly)}</span><span className="prm-unit">{dealT(lang, 'peryear', v)} · {dealT(lang, 'tax', v)}</span></div>
+              <div className="prm-value">{dealT(lang, 'valueY', v)}</div>
+              {buy('yearly')}
             </div>
             <div className="prm-plan best">
               <div className="prm-ribbon">{dealT(lang, 'best', v)}</div>
-              <div className="prm-plan-name">{P.l}</div>
+              <div className="prm-plan-name">{dealT(lang, 'pl', v)}</div>
               {on && (
                 <div className="prm-deal">
                   <span className="prm-tag">-{v.off}%</span>
@@ -966,12 +988,12 @@
               )}
               <div className="prm-price-row">
                 {on && <s className="prm-was" title={dealT(lang, 'was', v)}>{yenFmt(v.list)}</s>}
-                <span className="prm-price">{yenFmt(PREMIUM.plans.lifetime.price)}</span>
+                <span className="prm-price">{yenFmt(v.lifetime)}</span>
                 <span className="prm-unit">{dealT(lang, 'once', v)} · {dealT(lang, 'tax', v)}</span>
               </div>
               {on && <div className="prm-save">{dealT(lang, 'save', v)}</div>}
               <div className="prm-value">{dealT(lang, 'value', v)}</div>
-              <button className="apply-btn prm-buy prm-buy-best" onClick={() => onBuy('lifetime')}>★ {dealT(lang, 'buy', v)}</button>
+              {buy('lifetime', true)}
               {on && <div className="prm-fine">{dealT(lang, 'after', v)}</div>}
             </div>
           </div>
@@ -2671,7 +2693,7 @@
           showToast(t.prmTrialStarted(PREMIUM.trialDays))
         }
         const buyPremium = (plan) => {
-          const url = plan === 'lifetime' ? PREMIUM.lifetimeUrl : PREMIUM.yearlyUrl
+          const url = plan === 'lifetime' ? PREMIUM.lifetimeUrl : plan === 'monthly' ? PREMIUM.monthlyUrl : PREMIUM.yearlyUrl
           if (url) window.open(url, '_blank', 'noopener')
           else showToast(t.soon)
         }
