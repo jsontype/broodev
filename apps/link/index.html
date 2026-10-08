@@ -605,7 +605,7 @@
          JS 없는 크롤러도 읽는다. -->
     <nav class="site-nav" aria-label="broodev">
       <a class="site-nav-brand" href="/">₿ broodev</a>
-      <button class="site-nav-toggle" type="button" aria-label="menu" aria-expanded="false">≡</button>
+      <button class="site-nav-toggle" type="button" aria-label="메뉴" aria-expanded="false">≡</button>
       <div class="site-nav-links">
         <a href="/" data-nk="0" aria-current="page">대시보드</a>
         <a href="/methodology" data-nk="1">점수 방법론</a>
@@ -617,7 +617,7 @@
       </div>
       <label class="site-nav-lang">
         <span class="globe" aria-hidden="true">🌐</span>
-        <select aria-label="Language / 언어"></select>
+        <select aria-label="언어"></select>
       </label>
     </nav>
     <script>
@@ -626,6 +626,7 @@
         var LANGS = [["en","English"],["ja","日本語"],["ko","한국어"],["zh","简体中文"],["zh-Hant","繁體中文"],["th","ไทย"],["es","Español"],["fr","Français"],["de","Deutsch"],["it","Italiano"],["pt","Português"],["ru","Русский"],["nl","Nederlands"]];
         var CODES = LANGS.map(function (l) { return l[0]; });
         var NAV = {"ko":["대시보드","점수 방법론","지표 해설","공포지수 활용법","용어집","운영자 소개"],"en":["Dashboard","Methodology","Indicators","Fear & Greed Guide","Glossary","About"],"ja":["ダッシュボード","スコア方法","指標解説","恐怖指数ガイド","用語集","運営者情報"],"zh":["仪表板","评分方法","指标解读","恐惧指数指南","术语表","关于"],"zh-Hant":["儀表板","評分方法","指標解讀","恐懼指數指南","術語表","關於"],"th":["แดชบอร์ด","วิธีคำนวณคะแนน","อธิบายตัวชี้วัด","คู่มือดัชนีความกลัว","อภิธานศัพท์","เกี่ยวกับ"],"es":["Panel","Metodología","Indicadores","Guía de miedo y codicia","Glosario","Acerca de"],"fr":["Tableau de bord","Méthodologie","Indicateurs","Guide peur & avidité","Glossaire","À propos"],"de":["Übersicht","Methodik","Indikatoren","Angst-Gier-Leitfaden","Glossar","Über uns"],"it":["Dashboard","Metodologia","Indicatori","Guida paura e avidità","Glossario","Chi siamo"],"pt":["Painel","Metodologia","Indicadores","Guia de medo e ganância","Glossário","Sobre"],"ru":["Панель","Методология","Индикаторы","Гид по индексу страха","Глоссарий","О нас"],"nl":["Dashboard","Methodologie","Indicatoren","Angst & hebzucht-gids","Woordenlijst","Over ons"]};
+        var ARIA = {"ko":["메뉴","언어"],"en":["Menu","Language"],"ja":["メニュー","言語"],"zh":["菜单","语言"],"zh-Hant":["選單","語言"],"th":["เมนู","ภาษา"],"es":["Menú","Idioma"],"fr":["Menu","Langue"],"de":["Menü","Sprache"],"it":["Menu","Lingua"],"pt":["Menu","Idioma"],"ru":["Меню","Язык"],"nl":["Menu","Taal"]};
         function detect() {
           try {
             var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
@@ -649,6 +650,8 @@
           var labels = NAV[code] || NAV.en;
           for (var i = 0; i < links.length; i++) { var k = +links[i].getAttribute('data-nk'); if (labels[k]) links[i].textContent = labels[k]; }
           if (sel.value !== code) sel.value = code;
+          var aria = ARIA[code] || ARIA.en;
+          toggle.setAttribute('aria-label', aria[0]); sel.setAttribute('aria-label', aria[1]);
           try { document.documentElement.lang = code; } catch (e) {}
         }
         apply(cur());
@@ -851,16 +854,16 @@
         <a class="dev" data-coin="dev" href="https://dev.broodev.com/">◈ dev</a>
       </nav>
       <nav class="foot-links">
-        <a href="/methodology">점수 방법론</a><span class="sep"> · </span><a href="/indicators">지표 해설</a><span class="sep"> · </span><a href="/guide-fear-greed">공포지수 활용법</a><span class="sep"> · </span><a href="/glossary">용어집</a>
+        <a href="/methodology" data-fk="methodology">점수 방법론</a><span class="sep"> · </span><a href="/indicators" data-fk="indicators">지표 해설</a><span class="sep"> · </span><a href="/guide-fear-greed" data-fk="guide">공포지수 활용법</a><span class="sep"> · </span><a href="/glossary" data-fk="glossary">용어집</a>
       </nav>
       <nav class="foot-links">
-        <a href="/">홈</a><span class="sep"> · </span><a href="/privacy">개인정보처리방침</a><span class="sep"> · </span><a href="/terms">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact?app=btc">📮 문의 &amp; 버그 신고</a>
+        <a href="/" data-fk="home">홈</a><span class="sep"> · </span><a href="/privacy" data-fk="privacy">개인정보처리방침</a><span class="sep"> · </span><a href="/terms" data-fk="terms">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact?app=btc" data-fk="contact">📮 문의 &amp; 버그 신고</a>
       </nav>
       <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. 이 페이지의 체인링크 공포·탐욕 지수와 매수 타이밍 점수는 공개 지표를 합성한 참고 정보이며 투자 자문이 아닙니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
     </footer>
 
-    <script src="seo-i18n.js?v=2"></script>
+    <script src="seo-i18n.js?v=3"></script>
     <!-- ?coin= 선택 시 정적 본문/제목을 해당 코인으로 현지화.
          (기본 btc = 색인되는 정규 페이지이므로 원문 그대로 둔다. 다른 코인은
           canonical 이 루트라 색인되지 않으며, 이 스왑은 사용자 화면용이다.) -->
@@ -932,7 +935,7 @@
         }
       })();
     </script>
-    <script src="foot-i18n.js"></script>
+    <script src="foot-i18n.js?v=2"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
@@ -989,6 +992,7 @@
           term: { welcome: '// btc_signal shell — type `help` to start', help: ['commands:', '  score              current buy-timing score + verdict', '  why                what pushes the score up/down (weighted contribution)', '  show <ind>         indicator detail (rsi|macd|fng|mayer|dd|cross)', '  bands              5-tier verdict band table', '  sources            data source status / freshness', '  refresh            refetch everything', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! no analysis data — `refresh`', needData: '  ! no data', scoreCoverage: (o, pct) => `  coverage: ${o}/8 indicators (${pct}% weight)`, whySum: (s) => `  ── total ${s} (higher = more buy-favorable)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    value: ${v}  (${d})`, showScore: (s, w) => `    sub-score: ${s}  · weight ${w}%`, refreshing: '  ↻ refetching all sources...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Signals are for reference only.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — not financial advice'], skip: '[ click / press any key to skip ]', skipTitle: 'Click to skip' },
           src: { fallback: 'fallback', cached: 'cached', offline: 'offline', loading: 'loading' },
+          coinSel: 'Select coin',
         },
         ja: {
           tagline: '買い時ターミナル', subtitle: 'BTC指標8種をライブ合成 → 買い時スコア · 参考シグナルのみ（投資助言ではありません）',
@@ -1003,22 +1007,24 @@
           det: { nodata: 'データ不足', oversold: '売られすぎ ⚑', overbought: '買われすぎ', neutral: '中立', posZone: '+領域', negZone: '−領域', turnUp: ' · 上昇転換', falling: ' · 下落', vs200: 'vs 200日線', fallback200: (d) => `200日フォールバック(${d}日)`, high: (v) => `高値 ${v}` },
           term: { welcome: '// btc_signal shell — `help` で開始', help: ['commands:', '  score              現在の買い時スコア + 判定', '  why                スコアを押し上げ/押し下げる要因（加重寄与）', '  show <ind>         指標の詳細 (rsi|macd|fng|mayer|dd|cross)', '  bands              5段階の判定バンド表', '  sources            データソースの状態/鮮度', '  refresh            すべて再取得', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! 分析データなし — `refresh`', needData: '  ! データなし', scoreCoverage: (o, pct) => `  カバレッジ: ${o}/8 指標 (重み${pct}%)`, whySum: (s) => `  ── 合計 ${s}（高いほど買いに有利）`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    値: ${v}  (${d})`, showScore: (s, w) => `    部分スコア: ${s}  · 重み ${w}%`, refreshing: '  ↻ 全ソースを再取得中...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. シグナルは参考用です。', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — 投資助言ではありません'], skip: '[ クリック / 任意のキーでスキップ ]', skipTitle: 'クリックでスキップ' },
-          src: { fallback: 'fallback', cached: 'cached', offline: 'offline', loading: 'loading' },
+          src: { fallback: '予備', cached: 'キャッシュ', offline: 'オフライン', loading: '読み込み中' },
+          coinSel: 'コイン選択',
         },
         ko: {
-          tagline: 'buy-timing terminal', subtitle: '실시간 체인링크 지표 8종 → 매수 타이밍 합성 점수 · 신호 참고용(투자자문 아님)',
+          tagline: '매수 타이밍 터미널', subtitle: '실시간 체인링크 지표 8종 → 매수 타이밍 합성 점수 · 신호 참고용(투자자문 아님)',
           tips: '용어 설명', tipsHint: '어려운 용어에 마우스를 올리면 쉬운 설명이 나옵니다', langLabel: '언어', loading: 'LOADING',
           buyTimingScore: 'BUY TIMING SCORE', dataLoading: '데이터 로딩 중…', indicatorsOnline: (n) => `${n}/8 지표 온라인`, higherMoreBuy: '높을수록 매수 우호', subScore: '부분점수',
-          stale: 'STALE', curSel: '표시 통화', vol: 'vol', mcap: 'mcap', priceHistory: (n) => `LINK 가격 (최근 ${n}일)`, scoreTrend: '매수 타이밍 점수 추이', histLoading: '// 가격 히스토리 로딩…', trendAccrues: '// 점수 추이는 시간이 지나며 쌓입니다',
-          footer: '⚠ 본 점수는 공개 지표를 합성한 참고 신호이며 투자 자문이 아닙니다.', dataLabel: '데이터:', refresh: 'refresh', clearHistory: 'clear history',
+          stale: 'STALE', curSel: '표시 통화', vol: '거래량', mcap: '시가총액', priceHistory: (n) => `LINK 가격 (최근 ${n}일)`, scoreTrend: '매수 타이밍 점수 추이', histLoading: '// 가격 히스토리 로딩…', trendAccrues: '// 점수 추이는 시간이 지나며 쌓입니다',
+          footer: '⚠ 본 점수는 공개 지표를 합성한 참고 신호이며 투자 자문이 아닙니다.', dataLabel: '데이터:', refresh: '새로고침', clearHistory: '기록 지우기',
           banner: { p1: '이 점수는 공개 지표를 합성한', s1: '참고 자료일 뿐, 투자 자문이나 매수·매도 권유가 아닙니다.', p2: '암호화폐는 원금 전액 손실 위험이 있으며,', s2: '모든 투자 판단과 그 결과(손익)에 대한 책임은 전적으로 이용자 본인에게 있습니다.', p3: '반드시 스스로 조사하세요(DYOR).' },
           bands: { STRONG_BUY: { label: 'STRONG BUY', advice: '과매도+공포+저평가 다중 합류. 분할 매수 적극 구간.' }, ACCUMULATE: { label: 'ACCUMULATE', advice: '매수 우호. 분할 적립 권장. 추세 필터와 함께 확인.' }, NEUTRAL: { label: 'NEUTRAL', advice: '관망/중립. 뚜렷한 우위 없음. 추가 신호 대기.' }, CAUTION: { label: 'CAUTION', advice: '주의. 탐욕·고평가 진입 초입. 추격 매수 자제.' }, OVERHEATED: { label: 'OVERHEATED', advice: '과열. 극탐욕/고평가/고점 근접. 신규 매수 금지.' } },
-          ind: { RSI: { name: 'Relative Strength Index (Wilder)', desc: '과매도(<30) = 매수 / 과매수(>70) = 경계' }, MACD: { name: 'MACD 12·26·9 히스토그램', desc: '음→양 / 바닥 상향전환 = 매수 모멘텀' }, FNG: { name: '공포·탐욕 지수 (역발상)', desc: '극공포 = 매수 기회 / 극탐욕 = 과열' }, Mayer: { name: 'Mayer Multiple (가격 / 200일선)', desc: '<0.8 강한 매수 / >2.4 과열' }, DD: { name: '365일 고점 대비 낙폭', desc: '-30% 관심 / -50% 강한 매수' }, GC_DC: { name: '골든·데드 크로스 추세', desc: '골든크로스 = 추세 매수 우호' } },
+          ind: { RSI: { name: '상대강도지수 (Wilder)', desc: '과매도(<30) = 매수 / 과매수(>70) = 경계' }, MACD: { name: 'MACD 12·26·9 히스토그램', desc: '음→양 / 바닥 상향전환 = 매수 모멘텀' }, FNG: { name: '공포·탐욕 지수 (역발상)', desc: '극공포 = 매수 기회 / 극탐욕 = 과열' }, Mayer: { name: '마이어 배수 (가격 / 200일선)', desc: '<0.8 강한 매수 / >2.4 과열' }, DD: { name: '365일 고점 대비 낙폭', desc: '-30% 관심 / -50% 강한 매수' }, GC_DC: { name: '골든·데드 크로스 추세', desc: '골든크로스 = 추세 매수 우호' } },
           fng: { extremeFear: '극단적 공포', fear: '공포', neutral: '중립', greed: '탐욕', extremeGreed: '극단적 탐욕' },
           det: { nodata: '데이터 부족', oversold: '과매도 ⚑', overbought: '과매수', neutral: '중립', posZone: '+영역', negZone: '−영역', turnUp: ' · 상승전환', falling: ' · 하락', vs200: 'vs 200일선', fallback200: (d) => `200D 폴백(${d}d)`, high: (v) => `고점 ${v}` },
-          term: { welcome: '// btc_signal shell — `help` 입력으로 시작', help: ['commands:', '  score              현재 매수 타이밍 점수 + 판정', '  why                무엇이 점수를 끌어올리/내리는지(가중 기여도)', '  show <ind>         지표 상세 (rsi|macd|fng|mayer|dd|cross)', '  bands              5단계 판정 밴드 표', '  sources            데이터 소스 상태/신선도', '  refresh            전체 재조회', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! 분석 데이터 없음 — `refresh`', needData: '  ! 데이터 없음', scoreCoverage: (o, pct) => `  coverage: ${o}/8 indicators (${pct}% weight)`, whySum: (s) => `  ── 합계 ${s} (높을수록 매수 우호)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    값: ${v}  (${d})`, showScore: (s, w) => `    부분점수: ${s}  · 가중치 ${w}%`, refreshing: '  ↻ refetching all sources...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. 신호는 참고용입니다.', notFound: (n) => `  command not found: ${n} — \`help\`` },
-          boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — not financial advice'], skip: '[ click / 아무 키나 눌러 건너뛰기 ]', skipTitle: '클릭하면 건너뜁니다' },
-          src: { fallback: 'fallback', cached: 'cached', offline: 'offline', loading: 'loading' },
+          term: { welcome: '// btc_signal shell — `help` 입력으로 시작', help: ['commands:', '  score              현재 매수 타이밍 점수 + 판정', '  why                무엇이 점수를 끌어올리/내리는지(가중 기여도)', '  show <ind>         지표 상세 (rsi|macd|fng|mayer|dd|cross)', '  bands              5단계 판정 밴드 표', '  sources            데이터 소스 상태/신선도', '  refresh            전체 재조회', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! 분석 데이터 없음 — `refresh`', needData: '  ! 데이터 없음', scoreCoverage: (o, pct) => `  커버리지: ${o}/8 지표 (가중치 ${pct}%)`, whySum: (s) => `  ── 합계 ${s} (높을수록 매수 우호)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    값: ${v}  (${d})`, showScore: (s, w) => `    부분점수: ${s}  · 가중치 ${w}%`, refreshing: '  ↻ 모든 소스를 다시 가져오는 중...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. 신호는 참고용입니다.', notFound: (n) => `  command not found: ${n} — \`help\`` },
+          boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — 투자 자문 아님'], skip: '[ click / 아무 키나 눌러 건너뛰기 ]', skipTitle: '클릭하면 건너뜁니다' },
+          src: { fallback: '예비', cached: '캐시', offline: '오프라인', loading: '로딩 중' },
+          coinSel: '코인 선택',
         },
         zh: {
           tagline: '买入时机终端', subtitle: '8 项实时Chainlink指标 → 买入时机综合评分 · 仅供参考信号（非投资建议）',
@@ -1033,7 +1039,8 @@
           det: { nodata: '数据不足', oversold: '超卖 ⚑', overbought: '超买', neutral: '中性', posZone: '+区域', negZone: '−区域', turnUp: ' · 转涨', falling: ' · 下跌', vs200: 'vs 200日均线', fallback200: (d) => `200日回退(${d}日)`, high: (v) => `高点 ${v}` },
           term: { welcome: '// btc_signal shell — 输入 `help` 开始', help: ['commands:', '  score              当前买入时机评分 + 判定', '  why                哪些因素拉高/拉低评分（加权贡献）', '  show <ind>         指标详情 (rsi|macd|fng|mayer|dd|cross)', '  bands              五档判定区间表', '  sources            数据源状态/新鲜度', '  refresh            重新获取全部', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! 无分析数据 — `refresh`', needData: '  ! 无数据', scoreCoverage: (o, pct) => `  覆盖: ${o}/8 指标 (权重${pct}%)`, whySum: (s) => `  ── 合计 ${s}（越高越利于买入）`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    值: ${v}  (${d})`, showScore: (s, w) => `    分项评分: ${s}  · 权重 ${w}%`, refreshing: '  ↻ 正在重新获取所有数据源...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. 信号仅供参考。', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — 非投资建议'], skip: '[ 点击 / 按任意键跳过 ]', skipTitle: '点击跳过' },
-          src: { fallback: 'fallback', cached: 'cached', offline: 'offline', loading: 'loading' },
+          src: { fallback: '备用', cached: '缓存', offline: '离线', loading: '加载中' },
+          coinSel: '选择币种',
         },
         es: {
           tagline: 'terminal de timing de compra', subtitle: '8 indicadores LINK en vivo → puntuación compuesta de timing de compra · solo señal de referencia (no es asesoría financiera)',
@@ -1048,7 +1055,8 @@
           det: { nodata: 'datos insuficientes', oversold: 'sobreventa ⚑', overbought: 'sobrecompra', neutral: 'neutral', posZone: 'zona +', negZone: 'zona −', turnUp: ' · girando al alza', falling: ' · cayendo', vs200: 'vs MM 200d', fallback200: (d) => `respaldo 200d (${d}d)`, high: (v) => `máx ${v}` },
           term: { welcome: '// btc_signal shell — escribe `help` para empezar', help: ['commands:', '  score              puntuación de timing de compra actual + veredicto', '  why                qué sube/baja la puntuación (contribución ponderada)', '  show <ind>         detalle del indicador (rsi|macd|fng|mayer|dd|cross)', '  bands              tabla de 5 bandas de veredicto', '  sources            estado/frescura de las fuentes', '  refresh            volver a obtener todo', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! sin datos de análisis — `refresh`', needData: '  ! sin datos', scoreCoverage: (o, pct) => `  cobertura: ${o}/8 indicadores (${pct}% del peso)`, whySum: (s) => `  ── total ${s} (más alto = más favorable a comprar)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    valor: ${v}  (${d})`, showScore: (s, w) => `    sub-puntuación: ${s}  · peso ${w}%`, refreshing: '  ↻ volviendo a obtener todas las fuentes...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Las señales son solo de referencia.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — no es asesoría financiera'], skip: '[ clic / pulsa cualquier tecla para saltar ]', skipTitle: 'Clic para saltar' },
-          src: { fallback: 'fallback', cached: 'en caché', offline: 'sin conexión', loading: 'cargando' },
+          src: { fallback: 'respaldo', cached: 'en caché', offline: 'sin conexión', loading: 'cargando' },
+          coinSel: 'Elegir moneda',
         },
         fr: {
           tagline: 'terminal de timing d’achat', subtitle: '8 indicateurs LINK en direct → score composite de timing d’achat · signal de référence uniquement (pas un conseil financier)',
@@ -1063,7 +1071,8 @@
           det: { nodata: 'données insuffisantes', oversold: 'survente ⚑', overbought: 'surachat', neutral: 'neutre', posZone: 'zone +', negZone: 'zone −', turnUp: ' · retournement haussier', falling: ' · baisse', vs200: 'vs MM 200j', fallback200: (d) => `repli 200j (${d}j)`, high: (v) => `haut ${v}` },
           term: { welcome: '// btc_signal shell — tapez `help` pour commencer', help: ['commands:', '  score              score de timing d’achat actuel + verdict', '  why                ce qui fait monter/descendre le score (contribution pondérée)', '  show <ind>         détail de l’indicateur (rsi|macd|fng|mayer|dd|cross)', '  bands              tableau des 5 bandes de verdict', '  sources            état/fraîcheur des sources', '  refresh            tout récupérer à nouveau', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! aucune donnée d’analyse — `refresh`', needData: '  ! aucune donnée', scoreCoverage: (o, pct) => `  couverture : ${o}/8 indicateurs (${pct}% du poids)`, whySum: (s) => `  ── total ${s} (plus élevé = plus favorable à l’achat)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    valeur : ${v}  (${d})`, showScore: (s, w) => `    sous-score : ${s}  · poids ${w}%`, refreshing: '  ↻ récupération de toutes les sources...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Les signaux sont indicatifs uniquement.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — pas un conseil financier'], skip: '[ clic / appuyez sur une touche pour passer ]', skipTitle: 'Cliquer pour passer' },
-          src: { fallback: 'fallback', cached: 'en cache', offline: 'hors ligne', loading: 'chargement' },
+          src: { fallback: 'secours', cached: 'en cache', offline: 'hors ligne', loading: 'chargement' },
+          coinSel: 'Choisir la crypto',
         },
         'zh-Hant': {
           tagline: '買入時機終端', subtitle: '8 項即時Chainlink指標 → 買入時機綜合評分 · 僅供參考訊號（非投資建議）',
@@ -1078,7 +1087,8 @@
           det: { nodata: '資料不足', oversold: '超賣 ⚑', overbought: '超買', neutral: '中性', posZone: '+區域', negZone: '−區域', turnUp: ' · 轉漲', falling: ' · 下跌', vs200: 'vs 200日均線', fallback200: (d) => `200日回退(${d}日)`, high: (v) => `高點 ${v}` },
           term: { welcome: '// btc_signal shell — 輸入 `help` 開始', help: ['commands:', '  score              目前買入時機評分 + 判定', '  why                哪些因素拉高/拉低評分（加權貢獻）', '  show <ind>         指標詳情 (rsi|macd|fng|mayer|dd|cross)', '  bands              五檔判定區間表', '  sources            資料來源狀態/新鮮度', '  refresh            重新取得全部', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! 無分析資料 — `refresh`', needData: '  ! 無資料', scoreCoverage: (o, pct) => `  覆蓋: ${o}/8 指標 (權重${pct}%)`, whySum: (s) => `  ── 合計 ${s}（越高越有利買入）`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    值: ${v}  (${d})`, showScore: (s, w) => `    分項評分: ${s}  · 權重 ${w}%`, refreshing: '  ↻ 正在重新取得所有資料來源...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. 訊號僅供參考。', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — 非投資建議'], skip: '[ 點擊 / 按任意鍵跳過 ]', skipTitle: '點擊跳過' },
-          src: { fallback: 'fallback', cached: 'cached', offline: 'offline', loading: 'loading' },
+          src: { fallback: '備援', cached: '快取', offline: '離線', loading: '載入中' },
+          coinSel: '選擇幣種',
         },
         th: {
           tagline: 'เทอร์มินัลจับจังหวะซื้อ', subtitle: 'ตัวชี้วัด LINK สด 8 ตัว → คะแนนจังหวะซื้อรวม · เป็นสัญญาณอ้างอิงเท่านั้น (ไม่ใช่คำแนะนำการลงทุน)',
@@ -1088,27 +1098,29 @@
           footer: '⚠ คะแนนนี้เป็นสัญญาณอ้างอิงที่สังเคราะห์จากตัวชี้วัดสาธารณะ ไม่ใช่คำแนะนำการลงทุน', dataLabel: 'ข้อมูล:', refresh: 'รีเฟรช', clearHistory: 'ล้างประวัติ',
           banner: { p1: 'คะแนนนี้เป็นการสังเคราะห์ตัวชี้วัดสาธารณะ —', s1: 'ใช้เพื่ออ้างอิงเท่านั้น ไม่ใช่คำแนะนำการลงทุนหรือการชี้นำให้ซื้อ/ขาย', p2: 'คริปโทมีความเสี่ยงที่จะสูญเสียเงินต้นทั้งหมด และ', s2: 'การตัดสินใจลงทุนทั้งหมดและผลที่ตามมา (กำไร/ขาดทุน) เป็นความรับผิดชอบของคุณเองทั้งสิ้น', p3: 'ศึกษาด้วยตนเองเสมอ (DYOR)' },
           bands: { STRONG_BUY: { label: 'STRONG BUY', advice: 'ขายมากเกิน + ความกลัว + ราคาต่ำกว่ามูลค่ามาบรรจบกัน เป็นโซนที่เหมาะกับการทยอยซื้อ' }, ACCUMULATE: { label: 'ACCUMULATE', advice: 'เอื้อต่อการซื้อ แนะนำให้ทยอยสะสม และยืนยันด้วยตัวกรองแนวโน้ม' }, NEUTRAL: { label: 'NEUTRAL', advice: 'รอดู/เป็นกลาง ไม่มีความได้เปรียบชัดเจน รอสัญญาณเพิ่มเติม' }, CAUTION: { label: 'CAUTION', advice: 'ระวัง ความโลภ/ราคาสูงเกินเริ่มก่อตัว หลีกเลี่ยงการไล่ราคา' }, OVERHEATED: { label: 'OVERHEATED', advice: 'ร้อนแรงเกินไป โลภสุดขีด/ราคาสูงเกิน/ใกล้จุดสูงสุด ห้ามซื้อเพิ่ม' } },
-          ind: { RSI: { name: 'ดัชนีกำลังสัมพัทธ์ (Wilder)', desc: 'ขายมากเกิน (<30) = ซื้อ / ซื้อมากเกิน (>70) = ระวัง' }, MACD: { name: 'ฮิสโทแกรม MACD 12·26·9', desc: 'ลบ→บวก / กลับตัวขึ้นจากก้น = โมเมนตัมซื้อ' }, FNG: { name: 'ดัชนีความกลัว-ความโลภ (สวนทาง)', desc: 'กลัวสุดขีด = โอกาสซื้อ / โลภสุดขีด = ร้อนแรงเกิน' }, Mayer: { name: 'Mayer Multiple (ราคา / MA 200 วัน)', desc: '<0.8 ซื้อแรง / >2.4 ร้อนแรงเกิน' }, DD: { name: 'การลดลงจากจุดสูงสุด 365 วัน', desc: '-30% น่าสนใจ / -50% ซื้อแรง' }, GC_DC: { name: 'แนวโน้ม Golden/Death Cross', desc: 'Golden cross = แนวโน้มเอื้อต่อการซื้อ' } },
+          ind: { RSI: { name: 'ดัชนีกำลังสัมพัทธ์ (Wilder)', desc: 'ขายมากเกิน (<30) = ซื้อ / ซื้อมากเกิน (>70) = ระวัง' }, MACD: { name: 'ฮิสโทแกรม MACD 12·26·9', desc: 'ลบ→บวก / กลับตัวขึ้นจากก้น = โมเมนตัมซื้อ' }, FNG: { name: 'ดัชนีความกลัว-ความโลภ (สวนทาง)', desc: 'กลัวสุดขีด = โอกาสซื้อ / โลภสุดขีด = ร้อนแรงเกิน' }, Mayer: { name: 'ตัวคูณเมเยอร์ (ราคา / MA 200 วัน)', desc: '<0.8 ซื้อแรง / >2.4 ร้อนแรงเกิน' }, DD: { name: 'การลดลงจากจุดสูงสุด 365 วัน', desc: '-30% น่าสนใจ / -50% ซื้อแรง' }, GC_DC: { name: 'แนวโน้ม Golden/Death Cross', desc: 'Golden cross = แนวโน้มเอื้อต่อการซื้อ' } },
           fng: { extremeFear: 'กลัวสุดขีด', fear: 'กลัว', neutral: 'เป็นกลาง', greed: 'โลภ', extremeGreed: 'โลภสุดขีด' },
           det: { nodata: 'ข้อมูลไม่พอ', oversold: 'ขายมากเกิน ⚑', overbought: 'ซื้อมากเกิน', neutral: 'เป็นกลาง', posZone: 'โซน +', negZone: 'โซน −', turnUp: ' · กลับตัวขึ้น', falling: ' · ลดลง', vs200: 'เทียบ MA 200 วัน', fallback200: (d) => `สำรอง 200 วัน (${d}วัน)`, high: (v) => `สูงสุด ${v}` },
           term: { welcome: '// btc_signal shell — พิมพ์ `help` เพื่อเริ่ม', help: ['commands:', '  score              คะแนนจังหวะซื้อปัจจุบัน + คำตัดสิน', '  why                อะไรดันคะแนนขึ้น/ลง (สัดส่วนถ่วงน้ำหนัก)', '  show <ind>         รายละเอียดตัวชี้วัด (rsi|macd|fng|mayer|dd|cross)', '  bands              ตารางแถบคำตัดสิน 5 ระดับ', '  sources            สถานะ/ความสดของแหล่งข้อมูล', '  refresh            ดึงข้อมูลใหม่ทั้งหมด', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! ไม่มีข้อมูลวิเคราะห์ — `refresh`', needData: '  ! ไม่มีข้อมูล', scoreCoverage: (o, pct) => `  ความครอบคลุม: ${o}/8 ตัวชี้วัด (น้ำหนัก ${pct}%)`, whySum: (s) => `  ── รวม ${s} (ยิ่งสูงยิ่งเอื้อต่อการซื้อ)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    ค่า: ${v}  (${d})`, showScore: (s, w) => `    คะแนนย่อย: ${s}  · น้ำหนัก ${w}%`, refreshing: '  ↻ กำลังดึงข้อมูลทุกแหล่งใหม่...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. สัญญาณใช้เพื่ออ้างอิงเท่านั้น', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — ไม่ใช่คำแนะนำการลงทุน'], skip: '[ คลิก / กดปุ่มใดก็ได้เพื่อข้าม ]', skipTitle: 'คลิกเพื่อข้าม' },
-          src: { fallback: 'fallback', cached: 'cached', offline: 'ออฟไลน์', loading: 'กำลังโหลด' },
+          src: { fallback: 'สำรอง', cached: 'แคช', offline: 'ออฟไลน์', loading: 'กำลังโหลด' },
+          coinSel: 'เลือกเหรียญ',
         },
         de: {
           tagline: 'Kauf-Timing-Terminal', subtitle: '8 Live-LINK-Indikatoren → zusammengesetzter Kauf-Timing-Score · nur Referenzsignal (keine Finanzberatung)',
           tips: 'Glossar', tipsHint: 'Fahre über schwierige Begriffe für eine einfache Erklärung', langLabel: 'Sprache', loading: 'LÄDT',
           buyTimingScore: 'BUY TIMING SCORE', dataLoading: 'Daten werden geladen…', indicatorsOnline: (n) => `${n}/8 Indikatoren online`, higherMoreBuy: 'höher = kaufgünstiger', subScore: 'Teil-Score',
-          stale: 'STALE', curSel: 'Anzeigewährung', vol: 'Vol.', mcap: 'MCap', priceHistory: (n) => `LINK-Preis (letzte ${n} T)`, scoreTrend: 'Verlauf des Kauf-Timing-Scores', histLoading: '// Preisverlauf wird geladen…', trendAccrues: '// Verlauf baut sich mit der Zeit auf',
+          stale: 'STALE', curSel: 'Anzeigewährung', vol: 'Vol.', mcap: 'Marktkap.', priceHistory: (n) => `LINK-Preis (letzte ${n} T)`, scoreTrend: 'Verlauf des Kauf-Timing-Scores', histLoading: '// Preisverlauf wird geladen…', trendAccrues: '// Verlauf baut sich mit der Zeit auf',
           footer: '⚠ Dieser Score ist ein aus öffentlichen Indikatoren zusammengesetztes Referenzsignal, keine Finanzberatung.', dataLabel: 'Daten:', refresh: 'aktualisieren', clearHistory: 'Verlauf löschen',
           banner: { p1: 'Dieser Score ist eine Synthese öffentlicher Indikatoren —', s1: 'nur zur Orientierung, keine Anlageberatung oder Kauf-/Verkaufsempfehlung.', p2: 'Krypto birgt das Risiko eines Totalverlusts des Kapitals, und', s2: 'alle Anlageentscheidungen und deren Ergebnisse (Gewinne/Verluste) liegen allein in Ihrer Verantwortung.', p3: 'Mach immer deine eigene Recherche (DYOR).' },
           bands: { STRONG_BUY: { label: 'STRONG BUY', advice: 'Überverkauft + Angst + Unterbewertung treffen zusammen. Starke Zone für gestaffelte Käufe.' }, ACCUMULATE: { label: 'ACCUMULATE', advice: 'Kaufgünstig. Gestaffeltes Ansparen empfohlen. Mit dem Trendfilter bestätigen.' }, NEUTRAL: { label: 'NEUTRAL', advice: 'Abwarten / neutral. Kein klarer Vorteil. Auf weitere Signale warten.' }, CAUTION: { label: 'CAUTION', advice: 'Vorsicht. Gier/Überbewertung setzt ein. Dem Preis nicht hinterherjagen.' }, OVERHEATED: { label: 'OVERHEATED', advice: 'Überhitzt. Extreme Gier / überbewertet / nahe am Top. Keine neuen Käufe.' } },
-          ind: { RSI: { name: 'Relative-Stärke-Index (Wilder)', desc: 'Überverkauft (<30) = Kauf / Überkauft (>70) = Vorsicht' }, MACD: { name: 'MACD 12·26·9 Histogramm', desc: 'neg→pos / Aufwärtswende vom Boden = Kaufmomentum' }, FNG: { name: 'Angst-&-Gier-Index (antizyklisch)', desc: 'Extreme Angst = Kaufchance / Extreme Gier = überhitzt' }, Mayer: { name: 'Mayer Multiple (Preis / 200T-MA)', desc: '<0,8 starker Kauf / >2,4 überhitzt' }, DD: { name: 'Rückgang vom 365T-Hoch', desc: '-30% Interesse / -50% starker Kauf' }, GC_DC: { name: 'Golden/Death-Cross-Trend', desc: 'Golden Cross = Trend kaufgünstig' } },
+          ind: { RSI: { name: 'Relative-Stärke-Index (Wilder)', desc: 'Überverkauft (<30) = Kauf / Überkauft (>70) = Vorsicht' }, MACD: { name: 'MACD 12·26·9 Histogramm', desc: 'neg→pos / Aufwärtswende vom Boden = Kaufmomentum' }, FNG: { name: 'Angst-&-Gier-Index (antizyklisch)', desc: 'Extreme Angst = Kaufchance / Extreme Gier = überhitzt' }, Mayer: { name: 'Mayer-Multiple (Preis / 200T-MA)', desc: '<0,8 starker Kauf / >2,4 überhitzt' }, DD: { name: 'Rückgang vom 365T-Hoch', desc: '-30% Interesse / -50% starker Kauf' }, GC_DC: { name: 'Golden/Death-Cross-Trend', desc: 'Golden Cross = Trend kaufgünstig' } },
           fng: { extremeFear: 'Extreme Angst', fear: 'Angst', neutral: 'Neutral', greed: 'Gier', extremeGreed: 'Extreme Gier' },
           det: { nodata: 'unzureichende Daten', oversold: 'überverkauft ⚑', overbought: 'überkauft', neutral: 'neutral', posZone: '+Zone', negZone: '−Zone', turnUp: ' · Aufwärtswende', falling: ' · fallend', vs200: 'vs 200T-MA', fallback200: (d) => `200T-Fallback (${d}T)`, high: (v) => `Hoch ${v}` },
           term: { welcome: '// btc_signal shell — `help` eingeben zum Start', help: ['commands:', '  score              aktueller Kauf-Timing-Score + Urteil', '  why                was den Score hebt/senkt (gewichteter Beitrag)', '  show <ind>         Indikator-Detail (rsi|macd|fng|mayer|dd|cross)', '  bands              Tabelle der 5 Urteilsstufen', '  sources            Status/Aktualität der Quellen', '  refresh            alles neu laden', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! keine Analysedaten — `refresh`', needData: '  ! keine Daten', scoreCoverage: (o, pct) => `  Abdeckung: ${o}/8 Indikatoren (${pct}% Gewicht)`, whySum: (s) => `  ── gesamt ${s} (höher = kaufgünstiger)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    Wert: ${v}  (${d})`, showScore: (s, w) => `    Teil-Score: ${s}  · Gewicht ${w}%`, refreshing: '  ↻ alle Quellen werden neu geladen...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Signale dienen nur als Referenz.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — keine Finanzberatung'], skip: '[ Klick / beliebige Taste zum Überspringen ]', skipTitle: 'Zum Überspringen klicken' },
-          src: { fallback: 'fallback', cached: 'zwischengespeichert', offline: 'offline', loading: 'lädt' },
+          src: { fallback: 'Ersatzquelle', cached: 'zwischengespeichert', offline: 'offline', loading: 'lädt' },
+          coinSel: 'Coin wählen',
         },
         it: {
           tagline: 'terminale di timing d’acquisto', subtitle: '8 indicatori LINK in tempo reale → punteggio composito di timing d’acquisto · solo segnale di riferimento (non è consulenza finanziaria)',
@@ -1123,7 +1135,8 @@
           det: { nodata: 'dati insufficienti', oversold: 'ipervenduto ⚑', overbought: 'ipercomprato', neutral: 'neutrale', posZone: 'zona +', negZone: 'zona −', turnUp: ' · svolta al rialzo', falling: ' · in calo', vs200: 'vs MM 200g', fallback200: (d) => `ripiego 200g (${d}g)`, high: (v) => `max ${v}` },
           term: { welcome: '// btc_signal shell — digita `help` per iniziare', help: ['commands:', '  score              punteggio di timing d’acquisto attuale + verdetto', '  why                cosa alza/abbassa il punteggio (contributo ponderato)', '  show <ind>         dettaglio indicatore (rsi|macd|fng|mayer|dd|cross)', '  bands              tabella delle 5 fasce di verdetto', '  sources            stato/freschezza delle fonti', '  refresh            ricarica tutto', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! nessun dato di analisi — `refresh`', needData: '  ! nessun dato', scoreCoverage: (o, pct) => `  copertura: ${o}/8 indicatori (${pct}% del peso)`, whySum: (s) => `  ── totale ${s} (più alto = più favorevole all’acquisto)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    valore: ${v}  (${d})`, showScore: (s, w) => `    sotto-punteggio: ${s}  · peso ${w}%`, refreshing: '  ↻ ricarico tutte le fonti...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. I segnali sono solo di riferimento.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — non è consulenza finanziaria'], skip: '[ clic / premi un tasto per saltare ]', skipTitle: 'Clic per saltare' },
-          src: { fallback: 'fallback', cached: 'in cache', offline: 'offline', loading: 'caricamento' },
+          src: { fallback: 'riserva', cached: 'in cache', offline: 'offline', loading: 'caricamento' },
+          coinSel: 'Scegli la moneta',
         },
         pt: {
           tagline: 'terminal de timing de compra', subtitle: '8 indicadores LINK ao vivo → pontuação composta de timing de compra · apenas sinal de referência (não é aconselhamento financeiro)',
@@ -1138,7 +1151,8 @@
           det: { nodata: 'dados insuficientes', oversold: 'sobrevendido ⚑', overbought: 'sobrecomprado', neutral: 'neutro', posZone: 'zona +', negZone: 'zona −', turnUp: ' · viragem em alta', falling: ' · a cair', vs200: 'vs MM 200d', fallback200: (d) => `recurso 200d (${d}d)`, high: (v) => `máx ${v}` },
           term: { welcome: '// btc_signal shell — escreva `help` para começar', help: ['commands:', '  score              pontuação de timing de compra atual + veredicto', '  why                o que sobe/desce a pontuação (contribuição ponderada)', '  show <ind>         detalhe do indicador (rsi|macd|fng|mayer|dd|cross)', '  bands              tabela de 5 faixas de veredicto', '  sources            estado/frescura das fontes', '  refresh            obter tudo de novo', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! sem dados de análise — `refresh`', needData: '  ! sem dados', scoreCoverage: (o, pct) => `  cobertura: ${o}/8 indicadores (${pct}% do peso)`, whySum: (s) => `  ── total ${s} (mais alto = mais favorável à compra)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    valor: ${v}  (${d})`, showScore: (s, w) => `    subpontuação: ${s}  · peso ${w}%`, refreshing: '  ↻ a obter todas as fontes de novo...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Os sinais são apenas de referência.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — não é aconselhamento financeiro'], skip: '[ clique / prima qualquer tecla para saltar ]', skipTitle: 'Clique para saltar' },
-          src: { fallback: 'fallback', cached: 'em cache', offline: 'offline', loading: 'a carregar' },
+          src: { fallback: 'reserva', cached: 'em cache', offline: 'offline', loading: 'a carregar' },
+          coinSel: 'Escolher moeda',
         },
         ru: {
           tagline: 'терминал тайминга покупки', subtitle: '8 живых индикаторов LINK → сводная оценка тайминга покупки · только справочный сигнал (не финансовая консультация)',
@@ -1153,22 +1167,24 @@
           det: { nodata: 'недостаточно данных', oversold: 'перепродан ⚑', overbought: 'перекуплен', neutral: 'нейтрально', posZone: '+зона', negZone: '−зона', turnUp: ' · разворот вверх', falling: ' · падение', vs200: 'к 200д СС', fallback200: (d) => `резерв 200д (${d}д)`, high: (v) => `макс ${v}` },
           term: { welcome: '// btc_signal shell — введите `help` для начала', help: ['commands:', '  score              текущая оценка тайминга покупки + вердикт', '  why                что повышает/понижает оценку (взвешенный вклад)', '  show <ind>         детали индикатора (rsi|macd|fng|mayer|dd|cross)', '  bands              таблица из 5 полос вердикта', '  sources            статус/свежесть источников', '  refresh            перезагрузить всё', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! нет данных анализа — `refresh`', needData: '  ! нет данных', scoreCoverage: (o, pct) => `  охват: ${o}/8 индикаторов (вес ${pct}%)`, whySum: (s) => `  ── итого ${s} (выше = выгоднее для покупки)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    значение: ${v}  (${d})`, showScore: (s, w) => `    частичная оценка: ${s}  · вес ${w}%`, refreshing: '  ↻ перезагрузка всех источников...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Сигналы только для справки.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — не финансовая консультация'], skip: '[ клик / любая клавиша для пропуска ]', skipTitle: 'Нажмите, чтобы пропустить' },
-          src: { fallback: 'fallback', cached: 'из кэша', offline: 'офлайн', loading: 'загрузка' },
+          src: { fallback: 'резерв', cached: 'из кэша', offline: 'офлайн', loading: 'загрузка' },
+          coinSel: 'Выбор монеты',
         },
         nl: {
           tagline: 'koop-timing-terminal', subtitle: '8 live LINK-indicatoren → samengestelde koop-timing-score · alleen referentiesignaal (geen financieel advies)',
           tips: 'Woordenlijst', tipsHint: 'Beweeg over moeilijke termen voor een eenvoudige uitleg', langLabel: 'Taal', loading: 'LADEN',
           buyTimingScore: 'BUY TIMING SCORE', dataLoading: 'Gegevens laden…', indicatorsOnline: (n) => `${n}/8 indicatoren online`, higherMoreBuy: 'hoger = gunstiger om te kopen', subScore: 'deelscore',
-          stale: 'STALE', curSel: 'Weergavevaluta', vol: 'vol', mcap: 'mcap', priceHistory: (n) => `LINK-prijs (laatste ${n}d)`, scoreTrend: 'Trend van de koop-timing-score', histLoading: '// prijsgeschiedenis laden…', trendAccrues: '// de trend bouwt op in de loop van de tijd',
+          stale: 'STALE', curSel: 'Weergavevaluta', vol: 'volume', mcap: 'marktkap.', priceHistory: (n) => `LINK-prijs (laatste ${n}d)`, scoreTrend: 'Trend van de koop-timing-score', histLoading: '// prijsgeschiedenis laden…', trendAccrues: '// de trend bouwt op in de loop van de tijd',
           footer: '⚠ Deze score is een referentiesignaal samengesteld uit openbare indicatoren, geen financieel advies.', dataLabel: 'Data:', refresh: 'vernieuwen', clearHistory: 'geschiedenis wissen',
           banner: { p1: 'Deze score is een synthese van openbare indicatoren —', s1: 'alleen ter referentie, geen beleggingsadvies of koop-/verkoopaanbeveling.', p2: 'Crypto draagt het risico van volledig verlies van je inleg, en', s2: 'alle beleggingsbeslissingen en de uitkomsten daarvan (winst/verlies) zijn uitsluitend je eigen verantwoordelijkheid.', p3: 'Doe altijd je eigen onderzoek (DYOR).' },
           bands: { STRONG_BUY: { label: 'STRONG BUY', advice: 'Oververkocht + angst + onderwaardering komen samen. Sterke zone voor gefaseerd kopen.' }, ACCUMULATE: { label: 'ACCUMULATE', advice: 'Gunstig om te kopen. Gefaseerd opbouwen aanbevolen. Bevestig met het trendfilter.' }, NEUTRAL: { label: 'NEUTRAL', advice: 'Afwachten / neutraal. Geen duidelijk voordeel. Wacht op meer signalen.' }, CAUTION: { label: 'CAUTION', advice: 'Voorzichtig. Hebzucht/overwaardering komt op. Jaag de prijs niet achterna.' }, OVERHEATED: { label: 'OVERHEATED', advice: 'Oververhit. Extreme hebzucht / overgewaardeerd / dicht bij de top. Geen nieuwe aankopen.' } },
-          ind: { RSI: { name: 'Relative Strength Index (Wilder)', desc: 'Oververkocht (<30) = kopen / Overkocht (>70) = voorzichtig' }, MACD: { name: 'MACD 12·26·9 histogram', desc: 'neg→pos / ommekeer omhoog vanaf de bodem = koopmomentum' }, FNG: { name: 'Angst-&-Hebzucht-index (contrair)', desc: 'Extreme angst = koopkans / Extreme hebzucht = oververhit' }, Mayer: { name: 'Mayer Multiple (prijs / 200d MA)', desc: '<0,8 sterk kopen / >2,4 oververhit' }, DD: { name: 'Daling vanaf 365d-top', desc: '-30% interesse / -50% sterk kopen' }, GC_DC: { name: 'Golden/Death cross-trend', desc: 'Golden cross = trend gunstig om te kopen' } },
+          ind: { RSI: { name: 'Relatieve-sterkte-index (Wilder)', desc: 'Oververkocht (<30) = kopen / Overkocht (>70) = voorzichtig' }, MACD: { name: 'MACD 12·26·9 histogram', desc: 'neg→pos / ommekeer omhoog vanaf de bodem = koopmomentum' }, FNG: { name: 'Angst-&-Hebzucht-index (contrair)', desc: 'Extreme angst = koopkans / Extreme hebzucht = oververhit' }, Mayer: { name: 'Mayer-multiple (prijs / 200d MA)', desc: '<0,8 sterk kopen / >2,4 oververhit' }, DD: { name: 'Daling vanaf 365d-top', desc: '-30% interesse / -50% sterk kopen' }, GC_DC: { name: 'Golden/Death cross-trend', desc: 'Golden cross = trend gunstig om te kopen' } },
           fng: { extremeFear: 'Extreme Angst', fear: 'Angst', neutral: 'Neutraal', greed: 'Hebzucht', extremeGreed: 'Extreme Hebzucht' },
           det: { nodata: 'onvoldoende gegevens', oversold: 'oververkocht ⚑', overbought: 'overkocht', neutral: 'neutraal', posZone: '+zone', negZone: '−zone', turnUp: ' · ommekeer omhoog', falling: ' · dalend', vs200: 'vs 200d MA', fallback200: (d) => `terugval 200d (${d}d)`, high: (v) => `top ${v}` },
           term: { welcome: '// btc_signal shell — typ `help` om te beginnen', help: ['commands:', '  score              huidige koop-timing-score + oordeel', '  why                wat de score omhoog/omlaag duwt (gewogen bijdrage)', '  show <ind>         indicatordetail (rsi|macd|fng|mayer|dd|cross)', '  bands              tabel met 5 oordeelsbanden', '  sources            status/versheid van bronnen', '  refresh            alles opnieuw ophalen', '  theme <green|cyan|amber|red> · matrix <on|off>', '  clear · help · whoami'], needRefresh: '  ! geen analysegegevens — `refresh`', needData: '  ! geen gegevens', scoreCoverage: (o, pct) => `  dekking: ${o}/8 indicatoren (${pct}% gewicht)`, whySum: (s) => `  ── totaal ${s} (hoger = gunstiger om te kopen)`, showUsage: '  ! show rsi|macd|fng|mayer|dd|cross', showVal: (v, d) => `    waarde: ${v}  (${d})`, showScore: (s, w) => `    deelscore: ${s}  · gewicht ${w}%`, refreshing: '  ↻ alle bronnen opnieuw ophalen...', themeOk: (n) => `  ✓ theme → ${n}`, themeErr: '  ! theme: green | cyan | amber | red', matrixMsg: (on) => `  ✓ matrix ${on ? 'ON' : 'OFF'}`, whoami: '  satoshi // HODL responsibly. DYOR. Signalen zijn alleen ter referentie.', notFound: (n) => `  command not found: ${n} — \`help\`` },
           boot: { lines: ['> initializing btc_signal_terminal v1.0 ...', '> linking market feeds: coingecko / binance / alternative.me / coinmetrics', '> establishing secure uplink ............ [ OK ]', '> loading indicator engine: rsi · macd · mayer · drawdown · f&g', '> computing buy-timing composite ........ [ OK ]', '> ACCESS GRANTED. // signal only — geen financieel advies'], skip: '[ klik / druk op een toets om over te slaan ]', skipTitle: 'Klik om over te slaan' },
-          src: { fallback: 'fallback', cached: 'gecachet', offline: 'offline', loading: 'laden' },
+          src: { fallback: 'reservebron', cached: 'gecachet', offline: 'offline', loading: 'laden' },
+          coinSel: 'Munt kiezen',
         },
       }
       const getT = (lang) => T[lang] || T[DEFAULT_LANG]
@@ -1230,10 +1246,10 @@
           chg24: { title: '24時間変動率', body: '1日前と比べて価格が何%上がった(緑)・下がった(赤)かを表す。' },
           stale: { title: 'STALE・古いデータ', body: '取得したデータが古くて新鮮でないという表示。更新(↻)すると最新になる。' },
           coverage: { title: '指標カバレッジ', body: 'スコア計算時に8つの指標のうち何個が実際に生きているか。8/8なら全反映、欠けると残りだけで再計算する。' },
-          src_live: { title: '状態: live', body: '今まさに実際のサーバーから取得した最新データという意味。' },
-          src_fallback: { title: '状態: fallback', body: '1番目のサーバーが使えず、予備(別)のサーバーから代わりに取得したという意味。' },
-          src_cached: { title: '状態: cached', body: '一時的にサーバーへ接続できず、保存しておいた直前のデータを仮表示中。' },
-          src_offline: { title: '状態: offline', body: 'データを取得できなかった。ネットやサーバー状態を確認して更新してね。' },
+          src_live: { title: '状態: リアルタイム', body: '今まさに実際のサーバーから取得した最新データという意味。' },
+          src_fallback: { title: '状態: 予備', body: '1番目のサーバーが使えず、予備(別)のサーバーから代わりに取得したという意味。' },
+          src_cached: { title: '状態: キャッシュ', body: '一時的にサーバーへ接続できず、保存しておいた直前のデータを仮表示中。' },
+          src_offline: { title: '状態: オフライン', body: 'データを取得できなかった。ネットやサーバー状態を確認して更新してね。' },
         },
         ko: {
           score: { title: '매수 타이밍 점수', body: '아래 8개 지표를 한데 모아 만든 0~100점이야. 점수가 높을수록 "지금 사기 괜찮은 편", 낮을수록 "과열돼서 사기엔 부담"이라는 뜻. 미래를 맞히는 예언이 아니라 참고용 종합 점수야.' },
@@ -1248,10 +1264,10 @@
           chg24: { title: '24시간 변동률', body: '하루 전과 비교해 가격이 몇 % 올랐는지(초록)·내렸는지(빨강)를 나타내.' },
           stale: { title: 'STALE · 오래된 데이터', body: '받아온 데이터가 너무 오래돼서 신선하지 않다는 표시야. 새로고침(↻)하면 최신으로 갱신돼.' },
           coverage: { title: '지표 커버리지', body: '점수를 계산할 때 8개 지표 중 몇 개가 실제로 살아있는지를 뜻해. 8/8이면 전부 반영, 일부가 빠지면 남은 것들로만 점수를 다시 계산해.' },
-          src_live: { title: '데이터 상태: live', body: '방금 실제 서버에서 받아온 최신 데이터라는 뜻이야.' },
-          src_fallback: { title: '데이터 상태: fallback', body: '1순위 서버가 안 돼서 예비(다른) 서버에서 대신 받아왔다는 뜻이야.' },
-          src_cached: { title: '데이터 상태: cached', body: '잠시 서버를 못 불러와서, 저장해 둔 직전 데이터를 임시로 보여주는 중이야.' },
-          src_offline: { title: '데이터 상태: offline', body: '데이터를 못 받아왔어. 인터넷이나 서버 상태를 확인하고 새로고침해봐.' },
+          src_live: { title: '데이터 상태: 실시간', body: '방금 실제 서버에서 받아온 최신 데이터라는 뜻이야.' },
+          src_fallback: { title: '데이터 상태: 예비', body: '1순위 서버가 안 돼서 예비(다른) 서버에서 대신 받아왔다는 뜻이야.' },
+          src_cached: { title: '데이터 상태: 캐시', body: '잠시 서버를 못 불러와서, 저장해 둔 직전 데이터를 임시로 보여주는 중이야.' },
+          src_offline: { title: '데이터 상태: 오프라인', body: '데이터를 못 받아왔어. 인터넷이나 서버 상태를 확인하고 새로고침해봐.' },
         },
         zh: {
           score: { title: '买入时机评分', body: '把下面8个指标合在一起算出的0~100分。分数越高表示"现在买入相对还行"，越低表示"过热、买入有压力"。它不是预测未来，只是一个参考用的综合分。' },
@@ -1266,10 +1282,10 @@
           chg24: { title: '24小时涨跌幅', body: '与一天前相比价格涨了(绿)/跌了(红)百分之几。' },
           stale: { title: 'STALE·过期数据', body: '表示取到的数据太旧、不够新鲜。点刷新(↻)即可更新到最新。' },
           coverage: { title: '指标覆盖率', body: '计算评分时8个指标中实际有几个在线。8/8表示全部计入；若有缺失，则用其余指标重新计算。' },
-          src_live: { title: '状态: live', body: '表示刚刚从真实服务器取到的最新数据。' },
-          src_fallback: { title: '状态: fallback', body: '首选服务器不可用，改从备用(其他)服务器取到的数据。' },
-          src_cached: { title: '状态: cached', body: '短暂无法访问服务器，暂时显示之前保存的数据。' },
-          src_offline: { title: '状态: offline', body: '未能取到数据。请检查网络或服务器状态后刷新。' },
+          src_live: { title: '状态: 实时', body: '表示刚刚从真实服务器取到的最新数据。' },
+          src_fallback: { title: '状态: 备用', body: '首选服务器不可用，改从备用(其他)服务器取到的数据。' },
+          src_cached: { title: '状态: 缓存', body: '短暂无法访问服务器，暂时显示之前保存的数据。' },
+          src_offline: { title: '状态: 离线', body: '未能取到数据。请检查网络或服务器状态后刷新。' },
         },
         es: {
           score: { title: 'Puntuación de Timing de Compra', body: 'Una puntuación de 0 a 100 que combina los 8 indicadores de abajo. Más alta significa "momento relativamente OK para comprar"; más baja, "sobrecalentado, arriesgado comprar". No predice el futuro: es solo una referencia compuesta.' },
@@ -1284,10 +1300,10 @@
           chg24: { title: 'Cambio 24h', body: 'Cuántos % subió (verde) o bajó (rojo) el precio respecto a hace un día.' },
           stale: { title: 'STALE · Datos Antiguos', body: 'Una marca que indica que los datos son demasiado antiguos para estar frescos. Pulsa actualizar (↻) para ponerlos al día.' },
           coverage: { title: 'Cobertura de Indicadores', body: 'Cuántos de los 8 indicadores están realmente en línea al calcular la puntuación. 8/8 = todos usados; si faltan algunos, se recalcula con el resto.' },
-          src_live: { title: 'Estado: live', body: 'Significa que los datos se acaban de obtener frescos del servidor real.' },
-          src_fallback: { title: 'Estado: fallback', body: 'El servidor principal falló, así que los datos se obtuvieron de un servidor de respaldo (alternativo).' },
-          src_cached: { title: 'Estado: cached', body: 'No se pudo acceder al servidor un momento, así que se muestran temporalmente los últimos datos guardados.' },
-          src_offline: { title: 'Estado: offline', body: 'No se pudieron obtener datos. Revisa tu internet o el estado del servidor y actualiza.' },
+          src_live: { title: 'Estado: en vivo', body: 'Significa que los datos se acaban de obtener frescos del servidor real.' },
+          src_fallback: { title: 'Estado: respaldo', body: 'El servidor principal falló, así que los datos se obtuvieron de un servidor de respaldo (alternativo).' },
+          src_cached: { title: 'Estado: en caché', body: 'No se pudo acceder al servidor un momento, así que se muestran temporalmente los últimos datos guardados.' },
+          src_offline: { title: 'Estado: sin conexión', body: 'No se pudieron obtener datos. Revisa tu internet o el estado del servidor y actualiza.' },
         },
         fr: {
           score: { title: 'Score de Timing d’Achat', body: 'Un score de 0 à 100 combinant les 8 indicateurs ci-dessous. Plus haut = "moment relativement correct pour acheter" ; plus bas = "surchauffe, risqué d’acheter". Ce n’est pas une prédiction, juste une référence composite.' },
@@ -1302,10 +1318,10 @@
           chg24: { title: 'Variation 24h', body: 'De combien de % le prix a monté (vert) ou baissé (rouge) par rapport à la veille.' },
           stale: { title: 'STALE · Données Anciennes', body: 'Un indicateur signalant que les données récupérées sont trop anciennes. Appuyez sur actualiser (↻) pour les mettre à jour.' },
           coverage: { title: 'Couverture des Indicateurs', body: 'Combien des 8 indicateurs sont réellement en ligne lors du calcul du score. 8/8 = tous utilisés ; s’il en manque, le score est recalculé avec le reste.' },
-          src_live: { title: 'État : live', body: 'Signifie que les données viennent d’être récupérées fraîches depuis le vrai serveur.' },
-          src_fallback: { title: 'État : fallback', body: 'Le serveur principal a échoué, les données ont donc été récupérées depuis un serveur de secours (alternatif).' },
-          src_cached: { title: 'État : cached', body: 'Le serveur était brièvement injoignable, on affiche temporairement les dernières données enregistrées.' },
-          src_offline: { title: 'État : offline', body: 'Impossible de récupérer les données. Vérifiez votre connexion ou l’état du serveur et actualisez.' },
+          src_live: { title: 'État : en direct', body: 'Signifie que les données viennent d’être récupérées fraîches depuis le vrai serveur.' },
+          src_fallback: { title: 'État : secours', body: 'Le serveur principal a échoué, les données ont donc été récupérées depuis un serveur de secours (alternatif).' },
+          src_cached: { title: 'État : en cache', body: 'Le serveur était brièvement injoignable, on affiche temporairement les dernières données enregistrées.' },
+          src_offline: { title: 'État : hors ligne', body: 'Impossible de récupérer les données. Vérifiez votre connexion ou l’état du serveur et actualisez.' },
         },
         'zh-Hant': {
           score: { title: '買入時機評分', body: '把下面8個指標合在一起算出的0~100分。分數越高表示「現在買入相對還行」，越低表示「過熱、買入有壓力」。它不是預測未來，只是一個參考用的綜合分。' },
@@ -1320,45 +1336,45 @@
           chg24: { title: '24小時漲跌幅', body: '與一天前相比價格漲了(綠)/跌了(紅)百分之幾。' },
           stale: { title: 'STALE·過期資料', body: '表示取到的資料太舊、不夠新鮮。點重新整理(↻)即可更新到最新。' },
           coverage: { title: '指標覆蓋率', body: '計算評分時8個指標中實際有幾個在線。8/8表示全部計入；若有缺失，則用其餘指標重新計算。' },
-          src_live: { title: '狀態: live', body: '表示剛剛從真實伺服器取到的最新資料。' },
-          src_fallback: { title: '狀態: fallback', body: '首選伺服器不可用，改從備用(其他)伺服器取到的資料。' },
-          src_cached: { title: '狀態: cached', body: '短暫無法存取伺服器，暫時顯示之前儲存的資料。' },
-          src_offline: { title: '狀態: offline', body: '未能取到資料。請檢查網路或伺服器狀態後重新整理。' },
+          src_live: { title: '狀態: 即時', body: '表示剛剛從真實伺服器取到的最新資料。' },
+          src_fallback: { title: '狀態: 備援', body: '首選伺服器不可用，改從備用(其他)伺服器取到的資料。' },
+          src_cached: { title: '狀態: 快取', body: '短暫無法存取伺服器，暫時顯示之前儲存的資料。' },
+          src_offline: { title: '狀態: 離線', body: '未能取到資料。請檢查網路或伺服器狀態後重新整理。' },
         },
         th: {
           score: { title: 'คะแนนจังหวะซื้อ', body: 'คะแนน 0~100 ที่ได้จากการรวมตัวชี้วัด 6 ตัวด้านล่าง ยิ่งสูงแปลว่า "ตอนนี้ซื้อค่อนข้างโอเค" ยิ่งต่ำแปลว่า "ร้อนแรงเกิน เสี่ยงที่จะซื้อ" ไม่ใช่การทำนายอนาคต เป็นเพียงคะแนนอ้างอิงรวม' },
           RSI: { title: 'RSI · ดัชนีกำลังสัมพัทธ์', body: 'แสดงเป็น 0~100 ว่าราคาขึ้น/ลงเร็วเกินไปหรือไม่ ต่ำกว่า 30 = "ลงมากเกิน (ขายมากเกิน)" คาดว่าจะเด้ง น่าสนใจซื้อ; สูงกว่า 70 = "ขึ้นมากเกิน (ซื้อมากเกิน)" ต้องระวัง' },
           MACD: { title: 'MACD · โมเมนตัมแนวโน้ม', body: 'ใช้ส่วนต่างของเส้นเฉลี่ยสั้นกับยาว ดูว่าแรงขาขึ้นกำลังแรงขึ้นหรืออ่อนลง เมื่อแท่งกลับตัวขึ้นจากค่าลบ อ่านว่าเป็นการเด้งจากก้น' },
           FNG: { title: 'ดัชนีความกลัว-ความโลภ', body: 'วัด 0~100 ว่านักลงทุนตอนนี้กลัวหรือโลภ ใกล้ 0 ทุกคนเทขายด้วยความตื่นตระหนก ซึ่งมักเป็นโอกาสซื้อถูก (สวนทาง); ใกล้ 100 คือร้อนแรงเกิน' },
-          Mayer: { title: 'Mayer Multiple', body: 'ราคาปัจจุบันเป็นกี่เท่าของ "ราคาเฉลี่ย 200 วัน" ต่ำกว่า 1 = ถูกกว่าค่าเฉลี่ย; ต่ำกว่า 0.8 = โซนก้นในอดีต (ซื้อแรง); สูงกว่า 2.4 = ร้อนแรง/แพงเกิน' },
+          Mayer: { title: 'ตัวคูณเมเยอร์', body: 'ราคาปัจจุบันเป็นกี่เท่าของ "ราคาเฉลี่ย 200 วัน" ต่ำกว่า 1 = ถูกกว่าค่าเฉลี่ย; ต่ำกว่า 0.8 = โซนก้นในอดีต (ซื้อแรง); สูงกว่า 2.4 = ร้อนแรง/แพงเกิน' },
           DD: { title: 'การลดลง · ตกจากจุดสูงสุด', body: 'ราคาลดลงกี่ % จากจุดสูงสุดในรอบปี -50% หมายถึงลดครึ่งจากยอด ยิ่งลงมากยิ่งถือเป็นช่วงความกลัวและโอกาสทยอยซื้อ' },
-          GC_DC: { title: 'Golden / Death Cross', body: 'เมื่อเส้นเฉลี่ยสั้น (50 วัน) ตัดขึ้นเหนือเส้นยาว (200 วัน) คือ golden cross (แนวโน้มขาขึ้นเริ่ม); ตัดลงคือ death cross (ขาลง) บอกว่าแนวโน้มใหญ่ชี้ขึ้นหรือลง' },
+          GC_DC: { title: 'โกลเดนครอส / เดธครอส', body: 'เมื่อเส้นเฉลี่ยสั้น (50 วัน) ตัดขึ้นเหนือเส้นยาว (200 วัน) คือ golden cross (แนวโน้มขาขึ้นเริ่ม); ตัดลงคือ death cross (ขาลง) บอกว่าแนวโน้มใหญ่ชี้ขึ้นหรือลง' },
           mcap: { title: 'มูลค่าตลาด', body: 'มูลค่ารวมของเหรียญในตลาด คำนวณจากราคาปัจจุบัน × จำนวนเหรียญหมุนเวียน แสดงว่าเหรียญนี้ใหญ่แค่ไหนในตลาด' },
           vol: { title: 'ปริมาณซื้อขาย (24ชม.)', body: 'จำนวนเงินรวมที่ซื้อขายใน 24 ชั่วโมงล่าสุด ยิ่งมากยิ่งแสดงว่าความสนใจและการซื้อขายคึกคัก' },
           chg24: { title: 'เปลี่ยนแปลง 24ชม.', body: 'ราคาขึ้น (เขียว) หรือลง (แดง) กี่ % เทียบกับเมื่อวาน' },
           stale: { title: 'STALE · ข้อมูลเก่า', body: 'เครื่องหมายบอกว่าข้อมูลที่ดึงมาเก่าเกินไป ไม่สดแล้ว กดรีเฟรช (↻) เพื่ออัปเดตล่าสุด' },
           coverage: { title: 'ความครอบคลุมตัวชี้วัด', body: 'ตอนคำนวณคะแนน มีตัวชี้วัดกี่ตัวจาก 6 ที่ออนไลน์จริง 8/8 = ใช้ครบ; ถ้าขาดบางตัว จะคำนวณใหม่จากที่เหลือ' },
-          src_live: { title: 'สถานะ: live', body: 'หมายถึงข้อมูลเพิ่งดึงสดจากเซิร์ฟเวอร์จริง' },
-          src_fallback: { title: 'สถานะ: fallback', body: 'เซิร์ฟเวอร์หลักล้มเหลว จึงดึงข้อมูลจากเซิร์ฟเวอร์สำรอง (อื่น) แทน' },
-          src_cached: { title: 'สถานะ: cached', body: 'เข้าเซิร์ฟเวอร์ไม่ได้ชั่วครู่ จึงแสดงข้อมูลล่าสุดที่บันทึกไว้ชั่วคราว' },
-          src_offline: { title: 'สถานะ: offline', body: 'ดึงข้อมูลไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือสถานะเซิร์ฟเวอร์แล้วรีเฟรช' },
+          src_live: { title: 'สถานะ: เรียลไทม์', body: 'หมายถึงข้อมูลเพิ่งดึงสดจากเซิร์ฟเวอร์จริง' },
+          src_fallback: { title: 'สถานะ: สำรอง', body: 'เซิร์ฟเวอร์หลักล้มเหลว จึงดึงข้อมูลจากเซิร์ฟเวอร์สำรอง (อื่น) แทน' },
+          src_cached: { title: 'สถานะ: แคช', body: 'เข้าเซิร์ฟเวอร์ไม่ได้ชั่วครู่ จึงแสดงข้อมูลล่าสุดที่บันทึกไว้ชั่วคราว' },
+          src_offline: { title: 'สถานะ: ออฟไลน์', body: 'ดึงข้อมูลไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือสถานะเซิร์ฟเวอร์แล้วรีเฟรช' },
         },
         de: {
           score: { title: 'Kauf-Timing-Score', body: 'Ein Wert von 0–100 aus der Kombination der 8 Indikatoren unten. Höher heißt „relativ okayer Zeitpunkt zum Kaufen“, niedriger „überhitzt, riskant zu kaufen“. Keine Vorhersage, nur eine zusammengesetzte Referenz.' },
           RSI: { title: 'RSI · Relative-Stärke-Index', body: 'Zeigt auf einer Skala 0–100, ob der Preis zu schnell gestiegen/gefallen ist. Unter 30 = „zu stark gefallen (überverkauft)“, Erholung erwartet — kaufenswert. Über 70 = „zu stark gestiegen (überkauft)“ — Vorsicht.' },
           MACD: { title: 'MACD · Trend-Momentum', body: 'Nutzt den Abstand zwischen einem kurzen und einem langen Durchschnitt, um zu sehen, ob die Aufwärtskraft zu- oder abnimmt. Drehen die Balken aus dem Negativen nach oben, gilt das als Erholung vom Boden.' },
           FNG: { title: 'Angst-&-Gier-Index', body: 'Misst auf 0–100, ob Anleger ängstlich oder gierig sind. Nahe 0 verkaufen alle panisch — oft die günstige Kaufchance (antizyklisch). Nahe 100 ist überhitzt.' },
-          Mayer: { title: 'Mayer Multiple', body: 'Das Wievielfache der Preis gegenüber dem „200-Tage-Durchschnittspreis“ beträgt. Unter 1 = günstiger als der Schnitt; unter 0,8 = historische Bodenzone (starker Kauf); über 2,4 = überhitzt/teuer.' },
+          Mayer: { title: 'Mayer-Multiple', body: 'Das Wievielfache der Preis gegenüber dem „200-Tage-Durchschnittspreis“ beträgt. Unter 1 = günstiger als der Schnitt; unter 0,8 = historische Bodenzone (starker Kauf); über 2,4 = überhitzt/teuer.' },
           DD: { title: 'Rückgang · Abstand vom Hoch', body: 'Um wie viel % der Preis vom Jahreshoch gefallen ist. -50% = halbiert seit dem Top. Je größer der Rückgang, desto eher eine Angstphase und Chance für gestaffelte Käufe.' },
-          GC_DC: { title: 'Golden / Death Cross', body: 'Kreuzt der kurze Schnitt (50T) den langen (200T) nach oben, ist es ein Golden Cross (Aufwärtstrend beginnt); nach unten ein Death Cross (Abwärtstrend). Zeigt, ob der große Trend auf- oder abwärts weist.' },
+          GC_DC: { title: 'Goldenes Kreuz / Todeskreuz', body: 'Kreuzt der kurze Schnitt (50T) den langen (200T) nach oben, ist es ein Golden Cross (Aufwärtstrend beginnt); nach unten ein Death Cross (Abwärtstrend). Zeigt, ob der große Trend auf- oder abwärts weist.' },
           mcap: { title: 'Marktkapitalisierung', body: 'Der gesamte Marktwert der Münze. Berechnet als aktueller Preis × im Umlauf befindliche Münzen. Zeigt, wie groß die Münze am Markt ist.' },
           vol: { title: 'Volumen (24h)', body: 'Der in den letzten 24 Stunden gehandelte Gesamtbetrag. Je höher, desto aktiver Interesse und Handel.' },
           chg24: { title: '24h-Veränderung', body: 'Um wie viel % der Preis gegenüber gestern gestiegen (grün) oder gefallen (rot) ist.' },
           stale: { title: 'STALE · Alte Daten', body: 'Markierung, dass die abgerufenen Daten zu alt sind. Auf Aktualisieren (↻) tippen, um zu aktualisieren.' },
           coverage: { title: 'Indikator-Abdeckung', body: 'Wie viele der 8 Indikatoren bei der Score-Berechnung tatsächlich online sind. 8/8 = alle genutzt; fehlen welche, wird mit dem Rest neu gerechnet.' },
-          src_live: { title: 'Status: live', body: 'Bedeutet, die Daten wurden gerade frisch vom echten Server abgerufen.' },
-          src_fallback: { title: 'Status: fallback', body: 'Der Hauptserver fiel aus, daher wurden die Daten von einem Ersatzserver (alternativ) geholt.' },
-          src_cached: { title: 'Status: cached', body: 'Der Server war kurz nicht erreichbar, daher werden vorübergehend die zuletzt gespeicherten Daten gezeigt.' },
+          src_live: { title: 'Status: aktuell', body: 'Bedeutet, die Daten wurden gerade frisch vom echten Server abgerufen.' },
+          src_fallback: { title: 'Status: Ersatzquelle', body: 'Der Hauptserver fiel aus, daher wurden die Daten von einem Ersatzserver (alternativ) geholt.' },
+          src_cached: { title: 'Status: zwischengespeichert', body: 'Der Server war kurz nicht erreichbar, daher werden vorübergehend die zuletzt gespeicherten Daten gezeigt.' },
           src_offline: { title: 'Status: offline', body: 'Daten konnten nicht abgerufen werden. Internet oder Serverstatus prüfen und aktualisieren.' },
         },
         it: {
@@ -1368,15 +1384,15 @@
           FNG: { title: 'Indice Paura e Avidità', body: 'Misura su 0–100 se gli investitori hanno paura o avidità. Vicino a 0 tutti vendono nel panico — spesso l’occasione di comprare a buon mercato (contrarian). Vicino a 100 è surriscaldato.' },
           Mayer: { title: 'Multiplo di Mayer', body: 'Quante volte il prezzo attuale vale rispetto al „prezzo medio a 200 giorni“. Sotto 1 = più conveniente della media; sotto 0,8 = zona di fondo storica (acquisto forte); sopra 2,4 = surriscaldato/caro.' },
           DD: { title: 'Ribasso · Calo dal Massimo', body: 'Di quanti % il prezzo è sceso dal massimo dell’ultimo anno. -50% = dimezzato dal picco. Più ampio il calo, più è visto come fase di paura e occasione di acquisto scaglionato.' },
-          GC_DC: { title: 'Golden / Death Cross', body: 'Quando la media breve (50g) incrocia sopra la lunga (200g) è un golden cross (inizio trend rialzista); sotto è un death cross (ribassista). Mostra se il grande trend punta in alto o in basso.' },
+          GC_DC: { title: 'Croce d’oro / Croce della morte', body: 'Quando la media breve (50g) incrocia sopra la lunga (200g) è un golden cross (inizio trend rialzista); sotto è un death cross (ribassista). Mostra se il grande trend punta in alto o in basso.' },
           mcap: { title: 'Capitalizzazione', body: 'Il valore di mercato totale della moneta. Calcolato come prezzo attuale × monete in circolazione. Mostra quanto è grande la moneta sul mercato.' },
           vol: { title: 'Volume (24h)', body: 'L’importo totale scambiato nelle ultime 24 ore. Più è alto, più sono attivi l’interesse e gli scambi.' },
           chg24: { title: 'Variazione 24h', body: 'Di quanti % il prezzo è salito (verde) o sceso (rosso) rispetto a un giorno fa.' },
           stale: { title: 'STALE · Dati Vecchi', body: 'Un contrassegno che indica che i dati recuperati sono troppo vecchi. Premi aggiorna (↻) per portarli all’ultima versione.' },
           coverage: { title: 'Copertura Indicatori', body: 'Quanti degli 8 indicatori sono davvero online nel calcolo del punteggio. 8/8 = tutti usati; se ne mancano, si ricalcola con i restanti.' },
-          src_live: { title: 'Stato: live', body: 'Significa che i dati sono appena stati recuperati freschi dal server reale.' },
-          src_fallback: { title: 'Stato: fallback', body: 'Il server principale è fallito, quindi i dati sono stati presi da un server di riserva (alternativo).' },
-          src_cached: { title: 'Stato: cached', body: 'Il server è stato irraggiungibile per un momento, quindi si mostrano temporaneamente gli ultimi dati salvati.' },
+          src_live: { title: 'Stato: in tempo reale', body: 'Significa che i dati sono appena stati recuperati freschi dal server reale.' },
+          src_fallback: { title: 'Stato: riserva', body: 'Il server principale è fallito, quindi i dati sono stati presi da un server di riserva (alternativo).' },
+          src_cached: { title: 'Stato: in cache', body: 'Il server è stato irraggiungibile per un momento, quindi si mostrano temporaneamente gli ultimi dati salvati.' },
           src_offline: { title: 'Stato: offline', body: 'Impossibile recuperare i dati. Controlla la connessione o lo stato del server e aggiorna.' },
         },
         pt: {
@@ -1392,9 +1408,9 @@
           chg24: { title: 'Variação 24h', body: 'Quantos % o preço subiu (verde) ou caiu (vermelho) em relação a um dia atrás.' },
           stale: { title: 'STALE · Dados Antigos', body: 'Uma marca que indica que os dados obtidos estão demasiado antigos. Carregue em atualizar (↻) para os pôr em dia.' },
           coverage: { title: 'Cobertura de Indicadores', body: 'Quantos dos 8 indicadores estão realmente online ao calcular a pontuação. 8/8 = todos usados; se faltarem alguns, recalcula-se com os restantes.' },
-          src_live: { title: 'Estado: live', body: 'Significa que os dados acabaram de ser obtidos frescos do servidor real.' },
-          src_fallback: { title: 'Estado: fallback', body: 'O servidor principal falhou, por isso os dados foram obtidos de um servidor de reserva (alternativo).' },
-          src_cached: { title: 'Estado: cached', body: 'O servidor ficou um momento inacessível, por isso mostram-se temporariamente os últimos dados guardados.' },
+          src_live: { title: 'Estado: em tempo real', body: 'Significa que os dados acabaram de ser obtidos frescos do servidor real.' },
+          src_fallback: { title: 'Estado: reserva', body: 'O servidor principal falhou, por isso os dados foram obtidos de um servidor de reserva (alternativo).' },
+          src_cached: { title: 'Estado: em cache', body: 'O servidor ficou um momento inacessível, por isso mostram-se temporariamente os últimos dados guardados.' },
           src_offline: { title: 'Estado: offline', body: 'Não foi possível obter dados. Verifique a internet ou o estado do servidor e atualize.' },
         },
         ru: {
@@ -1410,27 +1426,27 @@
           chg24: { title: 'Изменение за 24ч', body: 'На сколько % цена выросла (зелёный) или упала (красный) по сравнению с прошлым днём.' },
           stale: { title: 'STALE · Старые данные', body: 'Метка о том, что полученные данные слишком старые. Нажмите обновить (↻), чтобы обновить до свежих.' },
           coverage: { title: 'Покрытие индикаторов', body: 'Сколько из 8 индикаторов реально онлайн при расчёте оценки. 8/8 = используются все; если каких-то нет, пересчёт по оставшимся.' },
-          src_live: { title: 'Статус: live', body: 'Значит, данные только что получены свежими с реального сервера.' },
-          src_fallback: { title: 'Статус: fallback', body: 'Основной сервер не сработал, поэтому данные получены с резервного (альтернативного) сервера.' },
-          src_cached: { title: 'Статус: cached', body: 'Сервер был ненадолго недоступен, поэтому временно показываются последние сохранённые данные.' },
-          src_offline: { title: 'Статус: offline', body: 'Не удалось получить данные. Проверьте интернет или состояние сервера и обновите.' },
+          src_live: { title: 'Статус: в реальном времени', body: 'Значит, данные только что получены свежими с реального сервера.' },
+          src_fallback: { title: 'Статус: резерв', body: 'Основной сервер не сработал, поэтому данные получены с резервного (альтернативного) сервера.' },
+          src_cached: { title: 'Статус: из кэша', body: 'Сервер был ненадолго недоступен, поэтому временно показываются последние сохранённые данные.' },
+          src_offline: { title: 'Статус: офлайн', body: 'Не удалось получить данные. Проверьте интернет или состояние сервера и обновите.' },
         },
         nl: {
           score: { title: 'Koop-timing-score', body: 'Een score van 0–100 door de 8 indicatoren hieronder te combineren. Hoger betekent „relatief oké moment om te kopen“, lager „oververhit, riskant om te kopen“. Geen voorspelling, slechts een samengestelde referentie.' },
-          RSI: { title: 'RSI · Relative Strength Index', body: 'Toont op een schaal van 0–100 of de prijs te snel is gestegen/gedaald. Onder 30 = „te veel gedaald (oververkocht)“, herstel verwacht — interessant om te kopen. Boven 70 = „te veel gestegen (overkocht)“ — voorzichtig.' },
+          RSI: { title: 'RSI · Relatieve-sterkte-index', body: 'Toont op een schaal van 0–100 of de prijs te snel is gestegen/gedaald. Onder 30 = „te veel gedaald (oververkocht)“, herstel verwacht — interessant om te kopen. Boven 70 = „te veel gestegen (overkocht)“ — voorzichtig.' },
           MACD: { title: 'MACD · Trendmomentum', body: 'Gebruikt het verschil tussen een kort en een lang gemiddelde om te zien of de opwaartse „kracht“ toe- of afneemt. Draaien de staven vanuit het negatieve omhoog, dan wordt dat gelezen als herstel vanaf de bodem.' },
           FNG: { title: 'Angst-&-Hebzucht-index', body: 'Meet op 0–100 of beleggers angstig of hebzuchtig zijn. Bij bijna 0 verkoopt iedereen in paniek — vaak de goedkope koopkans (contrair). Bij bijna 100 is het oververhit.' },
-          Mayer: { title: 'Mayer Multiple', body: 'Hoeveel keer de huidige prijs is ten opzichte van de „200-daagse gemiddelde prijs“. Onder 1 = goedkoper dan gemiddeld; onder 0,8 = historische bodemzone (sterk kopen); boven 2,4 = oververhit/duur.' },
+          Mayer: { title: 'Mayer-multiple', body: 'Hoeveel keer de huidige prijs is ten opzichte van de „200-daagse gemiddelde prijs“. Onder 1 = goedkoper dan gemiddeld; onder 0,8 = historische bodemzone (sterk kopen); boven 2,4 = oververhit/duur.' },
           DD: { title: 'Daling · Val vanaf de Top', body: 'Hoeveel % de prijs is gedaald vanaf de top van het afgelopen jaar. -50% = gehalveerd sinds de top. Hoe groter de daling, hoe meer het als angstfase en kans op gefaseerd kopen wordt gezien.' },
-          GC_DC: { title: 'Golden / Death Cross', body: 'Als het korte gemiddelde (50d) boven het lange (200d) kruist, is het een golden cross (opwaartse trend begint); eronder een death cross (neerwaarts). Toont of de grote trend omhoog of omlaag wijst.' },
+          GC_DC: { title: 'Gouden kruis / Doodskruis', body: 'Als het korte gemiddelde (50d) boven het lange (200d) kruist, is het een golden cross (opwaartse trend begint); eronder een death cross (neerwaarts). Toont of de grote trend omhoog of omlaag wijst.' },
           mcap: { title: 'Marktkapitalisatie', body: 'De totale marktwaarde van de munt. Berekend als huidige prijs × munten in omloop. Toont hoe groot de munt op de markt is.' },
           vol: { title: 'Volume (24u)', body: 'Het totale bedrag dat in de laatste 24 uur is verhandeld. Hoe hoger, hoe actiever de interesse en handel.' },
           chg24: { title: '24u-verandering', body: 'Hoeveel % de prijs is gestegen (groen) of gedaald (rood) ten opzichte van een dag geleden.' },
           stale: { title: 'STALE · Oude Gegevens', body: 'Een markering dat de opgehaalde gegevens te oud zijn. Klik op vernieuwen (↻) om bij te werken naar de nieuwste.' },
           coverage: { title: 'Indicatordekking', body: 'Hoeveel van de 8 indicatoren echt online zijn bij het berekenen van de score. 8/8 = allemaal gebruikt; ontbreken er enkele, dan wordt herberekend met de rest.' },
-          src_live: { title: 'Status: live', body: 'Betekent dat de gegevens net vers van de echte server zijn opgehaald.' },
-          src_fallback: { title: 'Status: fallback', body: 'De primaire server faalde, dus de gegevens zijn opgehaald van een back-upserver (alternatief).' },
-          src_cached: { title: 'Status: cached', body: 'De server was even onbereikbaar, dus de laatst opgeslagen gegevens worden tijdelijk getoond.' },
+          src_live: { title: 'Status: actueel', body: 'Betekent dat de gegevens net vers van de echte server zijn opgehaald.' },
+          src_fallback: { title: 'Status: reservebron', body: 'De primaire server faalde, dus de gegevens zijn opgehaald van een back-upserver (alternatief).' },
+          src_cached: { title: 'Status: gecachet', body: 'De server was even onbereikbaar, dus de laatst opgeslagen gegevens worden tijdelijk getoond.' },
           src_offline: { title: 'Status: offline', body: 'Kon geen gegevens ophalen. Controleer je internet of de serverstatus en vernieuw.' },
         },
       }
@@ -1590,22 +1606,24 @@
        *  구분해 중복 색인을 막는다. ?coin= 딥링크는 보조로 유지.
        * ========================================================= */
       const COINS = [
-        { slug: 'btc',  ticker: 'BTC',  sym: '₿', cg: 'bitcoin',      bn: 'BTCUSDT',  ko: '비트코인' },
-        { slug: 'eth',  ticker: 'ETH',  sym: 'Ξ', cg: 'ethereum',     bn: 'ETHUSDT',  ko: '이더리움' },
-        { slug: 'xrp',  ticker: 'XRP',  sym: '✕', cg: 'ripple',       bn: 'XRPUSDT',  ko: '리플' },
-        { slug: 'doge', ticker: 'DOGE', sym: 'Ð', cg: 'dogecoin',     bn: 'DOGEUSDT', ko: '도지코인' },
-        { slug: 'bch',  ticker: 'BCH',  sym: '₿', cg: 'bitcoin-cash', bn: 'BCHUSDT',  ko: '비트코인캐시' },
-        { slug: 'link', ticker: 'LINK', sym: '⬡', cg: 'chainlink',    bn: 'LINKUSDT', ko: '체인링크' },
-        { slug: 'xlm',  ticker: 'XLM',  sym: '✦', cg: 'stellar',      bn: 'XLMUSDT',  ko: '스텔라루멘' },
-        { slug: 'ltc',  ticker: 'LTC',  sym: 'Ł', cg: 'litecoin',     bn: 'LTCUSDT',  ko: '라이트코인' },
-        { slug: 'avax', ticker: 'AVAX', sym: '▲', cg: 'avalanche-2',  bn: 'AVAXUSDT', ko: '아발란체' },
-        { slug: 'shib', ticker: 'SHIB', sym: '🐕', cg: 'shiba-inu',   bn: 'SHIBUSDT', ko: '시바이누' },
-        { slug: 'dot',  ticker: 'DOT',  sym: '●', cg: 'polkadot',     bn: 'DOTUSDT',  ko: '폴카닷' },
-        { slug: 'pepe', ticker: 'PEPE', sym: '🐸', cg: 'pepe',        bn: 'PEPEUSDT', ko: '페페' },
-        { slug: 'grt',  ticker: 'GRT',  sym: '◈', cg: 'the-graph',    bn: 'GRTUSDT',  ko: '더그래프' },
-        { slug: 'sand', ticker: 'SAND', sym: '◆', cg: 'the-sandbox',  bn: 'SANDUSDT', ko: '샌드박스' },
-        { slug: 'mana', ticker: 'MANA', sym: '◇', cg: 'decentraland', bn: 'MANAUSDT', ko: '디센트럴랜드' },
+        { slug: 'btc',  ticker: 'BTC',  sym: '₿', cg: 'bitcoin',      bn: 'BTCUSDT',  ko: '비트코인', nm: { en: 'Bitcoin', ja: 'ビットコイン', zh: '比特币', 'zh-Hant': '比特幣', th: 'บิตคอยน์', ru: 'Биткоин' } },
+        { slug: 'eth',  ticker: 'ETH',  sym: 'Ξ', cg: 'ethereum',     bn: 'ETHUSDT',  ko: '이더리움', nm: { en: 'Ethereum', ja: 'イーサリアム', zh: '以太坊', 'zh-Hant': '以太幣', th: 'อีเธอเรียม', ru: 'Эфириум' } },
+        { slug: 'xrp',  ticker: 'XRP',  sym: '✕', cg: 'ripple',       bn: 'XRPUSDT',  ko: '리플', nm: { en: 'XRP', ja: 'リップル', zh: '瑞波', 'zh-Hant': '瑞波', th: 'ริปเปิล', ru: 'Рипл' } },
+        { slug: 'doge', ticker: 'DOGE', sym: 'Ð', cg: 'dogecoin',     bn: 'DOGEUSDT', ko: '도지코인', nm: { en: 'Dogecoin', ja: 'ドージコイン', zh: '狗狗币', 'zh-Hant': '狗狗幣', th: 'ดอจคอยน์', ru: 'Догикоин' } },
+        { slug: 'bch',  ticker: 'BCH',  sym: '₿', cg: 'bitcoin-cash', bn: 'BCHUSDT',  ko: '비트코인캐시', nm: { en: 'Bitcoin Cash', ja: 'ビットコインキャッシュ', zh: '比特币现金', 'zh-Hant': '比特幣現金', th: 'บิตคอยน์แคช', ru: 'Биткоин-кэш' } },
+        { slug: 'link', ticker: 'LINK', sym: '⬡', cg: 'chainlink',    bn: 'LINKUSDT', ko: '체인링크', nm: { en: 'Chainlink', ja: 'チェーンリンク', zh: 'Chainlink', 'zh-Hant': 'Chainlink', th: 'เชนลิงก์', ru: 'Чейнлинк' } },
+        { slug: 'xlm',  ticker: 'XLM',  sym: '✦', cg: 'stellar',      bn: 'XLMUSDT',  ko: '스텔라루멘', nm: { en: 'Stellar', ja: 'ステラルーメン', zh: '恒星币', 'zh-Hant': '恆星幣', th: 'สเตลลาร์', ru: 'Стеллар' } },
+        { slug: 'ltc',  ticker: 'LTC',  sym: 'Ł', cg: 'litecoin',     bn: 'LTCUSDT',  ko: '라이트코인', nm: { en: 'Litecoin', ja: 'ライトコイン', zh: '莱特币', 'zh-Hant': '萊特幣', th: 'ไลต์คอยน์', ru: 'Лайткоин' } },
+        { slug: 'avax', ticker: 'AVAX', sym: '▲', cg: 'avalanche-2',  bn: 'AVAXUSDT', ko: '아발란체', nm: { en: 'Avalanche', ja: 'アバランチ', zh: '雪崩币', 'zh-Hant': '雪崩幣', th: 'อาวาแลนช์', ru: 'Аваланч' } },
+        { slug: 'shib', ticker: 'SHIB', sym: '🐕', cg: 'shiba-inu',   bn: 'SHIBUSDT', ko: '시바이누', nm: { en: 'Shiba Inu', ja: 'シバイヌ', zh: '柴犬币', 'zh-Hant': '柴犬幣', th: 'ชิบะอินุ', ru: 'Шиба-ину' } },
+        { slug: 'dot',  ticker: 'DOT',  sym: '●', cg: 'polkadot',     bn: 'DOTUSDT',  ko: '폴카닷', nm: { en: 'Polkadot', ja: 'ポルカドット', zh: '波卡', 'zh-Hant': '波卡', th: 'โพลคาดอต', ru: 'Полкадот' } },
+        { slug: 'pepe', ticker: 'PEPE', sym: '🐸', cg: 'pepe',        bn: 'PEPEUSDT', ko: '페페', nm: { en: 'Pepe', ja: 'ペペ', zh: '佩佩币', 'zh-Hant': '佩佩幣', th: 'เปเป้', ru: 'Пепе' } },
+        { slug: 'grt',  ticker: 'GRT',  sym: '◈', cg: 'the-graph',    bn: 'GRTUSDT',  ko: '더그래프', nm: { en: 'The Graph', ja: 'ザ・グラフ', zh: 'The Graph', 'zh-Hant': 'The Graph', th: 'เดอะกราฟ', ru: 'The Graph' } },
+        { slug: 'sand', ticker: 'SAND', sym: '◆', cg: 'the-sandbox',  bn: 'SANDUSDT', ko: '샌드박스', nm: { en: 'The Sandbox', ja: 'サンドボックス', zh: '沙盒', 'zh-Hant': '沙盒', th: 'แซนด์บ็อกซ์', ru: 'Сэндбокс' } },
+        { slug: 'mana', ticker: 'MANA', sym: '◇', cg: 'decentraland', bn: 'MANAUSDT', ko: '디센트럴랜드', nm: { en: 'Decentraland', ja: 'ディセントラランド', zh: 'Decentraland', 'zh-Hant': 'Decentraland', th: 'ดีเซนทราแลนด์', ru: 'Децентраленд' } },
       ]
+      // 코인 이름 표시: ko = 레지스트리 ko, 그 외 = nm[lang] (라틴 문자권 es/fr/de/it/pt/nl 은 영어 고유명 그대로)
+      const coinName = (c, lang) => (lang === 'ko' ? c.ko : (c.nm && (c.nm[lang] || c.nm.en)) || c.ticker)
       const COIN = (() => {
         let s = 'btc'
         try { s = (typeof window !== 'undefined' && window.__SUBCOIN) || (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase() } catch {}
@@ -2161,7 +2179,7 @@
             {meta.key === 'MACD' && part?.series?.length ? <Histogram data={part.series} times={part.times} fmt={(v) => (v >= 0 ? '+' : '') + (Math.abs(v) >= 1 ? Math.round(v).toLocaleString() : v.toFixed(2))} /> :
               part?.series?.length ? <Sparkline data={part.series} times={part.times} color="var(--accent)" height={40} fmt={meta.key === 'RSI' ? (v) => v.toFixed(1) : meta.key === 'FNG' ? (v) => String(Math.round(v)) : undefined} refLines={meta.key === 'RSI' ? [{ v: 30, color: 'rgba(0,255,156,.3)' }, { v: 70, color: 'rgba(255,59,92,.3)' }] : []} /> : null}
             <div className="mini-bar"><div className="mini-fill" style={{ width: `${s == null ? 0 : s}%`, background: 'var(--accent)' }} /></div>
-            <div className="mini-row"><span>{s == null ? <span className="na-flag">N/A · OFFLINE</span> : t.subScore}</span><span>{s == null ? '' : s.toFixed(0) + ' / 100'}</span></div>
+            <div className="mini-row"><span>{s == null ? <span className="na-flag">N/A · {t.src.offline.toUpperCase()}</span> : t.subScore}</span><span>{s == null ? '' : s.toFixed(0) + ' / 100'}</span></div>
             <div className="ind-desc">{desc}</div>
           </article>
         )
@@ -2983,19 +3001,19 @@
       }
       const getOnchain = (lang) => ONCHAIN_I18N[lang] || ONCHAIN_I18N.en
       const PREM_UI = {
-        ko: { label: 'PREMIUM', body: '오늘의 점수는 무료입니다. why, 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간', life: '평생', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)' },
-        en: { label: 'PREMIUM', body: "Today's score is free. why, history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly', life: 'Lifetime', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)' },
-        ja: { label: 'PREMIUM', body: '今日のスコアは無料。why・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額', life: '買い切り', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）' },
-        zh: { label: 'PREMIUM', body: '今日评分免费。why、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付', life: '买断', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）' },
-        'zh-Hant': { label: 'PREMIUM', body: '今日評分免費。why、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付', life: '買斷', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）' },
-        th: { label: 'PREMIUM', body: 'คะแนนวันนี้ฟรี why แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี', life: 'ตลอดชีพ', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)' },
-        es: { label: 'PREMIUM', body: 'La puntuación de hoy es gratis. why, el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual', life: 'De por vida', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)' },
-        fr: { label: 'PREMIUM', body: 'Le score du jour est gratuit. why, l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel', life: 'À vie', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)' },
-        de: { label: 'PREMIUM', body: 'Der heutige Score ist kostenlos. why, Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich', life: 'Lebenslang', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)' },
-        it: { label: 'PREMIUM', body: 'Il punteggio di oggi è gratis. why, lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale', life: 'A vita', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)' },
-        pt: { label: 'PREMIUM', body: 'A pontuação de hoje é grátis. why, o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual', life: 'Vitalício', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)' },
-        ru: { label: 'PREMIUM', body: 'Сегодняшний балл бесплатный. why, история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год', life: 'Навсегда', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)' },
-        nl: { label: 'PREMIUM', body: 'De score van vandaag is gratis. why, verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks', life: 'Levenslang', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)' },
+        ko: { label: 'PREMIUM', body: '오늘의 점수는 무료입니다. why, 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간', life: '평생', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)', emailPh: '이메일' },
+        en: { label: 'PREMIUM', body: "Today's score is free. why, history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly', life: 'Lifetime', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)', emailPh: 'email' },
+        ja: { label: 'PREMIUM', body: '今日のスコアは無料。why・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額', life: '買い切り', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）', emailPh: 'メールアドレス' },
+        zh: { label: 'PREMIUM', body: '今日评分免费。why、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付', life: '买断', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）', emailPh: '电子邮箱' },
+        'zh-Hant': { label: 'PREMIUM', body: '今日評分免費。why、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付', life: '買斷', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）', emailPh: '電子郵件' },
+        th: { label: 'PREMIUM', body: 'คะแนนวันนี้ฟรี why แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี', life: 'ตลอดชีพ', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)', emailPh: 'อีเมล' },
+        es: { label: 'PREMIUM', body: 'La puntuación de hoy es gratis. why, el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual', life: 'De por vida', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)', emailPh: 'correo electrónico' },
+        fr: { label: 'PREMIUM', body: 'Le score du jour est gratuit. why, l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel', life: 'À vie', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)', emailPh: 'adresse e-mail' },
+        de: { label: 'PREMIUM', body: 'Der heutige Score ist kostenlos. why, Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich', life: 'Lebenslang', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)', emailPh: 'E-Mail-Adresse' },
+        it: { label: 'PREMIUM', body: 'Il punteggio di oggi è gratis. why, lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale', life: 'A vita', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)', emailPh: 'indirizzo e-mail' },
+        pt: { label: 'PREMIUM', body: 'A pontuação de hoje é grátis. why, o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual', life: 'Vitalício', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)', emailPh: 'endereço de e-mail' },
+        ru: { label: 'PREMIUM', body: 'Сегодняшний балл бесплатный. why, история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год', life: 'Навсегда', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)', emailPh: 'эл. почта' },
+        nl: { label: 'PREMIUM', body: 'De score van vandaag is gratis. why, verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks', life: 'Levenslang', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)', emailPh: 'e-mailadres' },
       }
       const premUi = (lang) => PREM_UI[lang] || PREM_UI.en
       /* 요금 플랜 — list(비교 가격·정가)는 2026-10-07 결정으로 null: 영구 ¥2,000(2026-10-08 개정) 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
@@ -3182,6 +3200,12 @@
           let m = document.querySelector('meta[name="description"]')
           if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'description'); document.head.appendChild(m) }
           m.setAttribute('content', t.subtitle)
+          // 공유 메타도 현재 언어로 (서버측 ?lang 현지화는 functions/_middleware.js — 이건 언어 전환 후 클라이언트 DOM 동기화)
+          const docT = DOC_TITLE[lang] || DOC_TITLE.en
+          ;[['meta[property="og:title"]', docT], ['meta[name="twitter:title"]', docT], ['meta[property="og:image:alt"]', docT],
+            ['meta[property="og:description"]', t.subtitle], ['meta[name="twitter:description"]', t.subtitle]].forEach(([q, v]) => {
+            const el = document.querySelector(q); if (el) el.setAttribute('content', v)
+          })
           // 하단 SEO 본문을 현재 언어로 렌더 (seo-i18n.js) — 언어별 "보이는" 콘텐츠라 SEO에도 유리
           if (window.renderSEO) window.renderSEO(lang)
         }, [lang, t])
@@ -3319,7 +3343,7 @@
                     <p className="subtitle">{t.subtitle}</p>
                   </div>
                 </div>
-                <nav className="coin-switch" aria-label="코인 선택">
+                <nav className="coin-switch" aria-label={t.coinSel}>
                   <select
                     value={COIN.slug}
                     onChange={(e) => {
@@ -3329,9 +3353,9 @@
                       if (lang) u.searchParams.set('lang', lang)
                       window.location.assign(u)
                     }}
-                    aria-label="코인 선택"
+                    aria-label={t.coinSel}
                   >
-                    {COINS.map((c) => <option key={c.slug} value={c.slug}>{c.ticker} · {c.ko}</option>)}
+                    {COINS.map((c) => <option key={c.slug} value={c.slug}>{c.ticker} · {coinName(c, lang)}</option>)}
                   </select>
                 </nav>
                 <div className="topbar-right">
@@ -3366,7 +3390,7 @@
                     <span className="ps-deal"><span className="ps-now">{yenFmt(PREM_PLANS.lifetime.price)}</span><span className="ps-label">{dealT(lang, 'two', dealVars())}</span></span>
                   )}
                   <span className="ps-cta">{dealT(lang, 'buy', dealVars())} →</span>
-                  <button type="button" className="ps-x" aria-label="close" onClick={(e) => { e.stopPropagation(); hideStrip() }}>×</button>
+                  <button type="button" className="ps-x" aria-label={premUi(lang).close} onClick={(e) => { e.stopPropagation(); hideStrip() }}>×</button>
                 </div>
               )}
 
@@ -3448,7 +3472,7 @@
                     .then((r) => r.json()).then((d) => { if (d && d.ok) setAlertEmail('') })
                 }}>
                   <span>{premUi(lang).mail}</span>
-                  <input value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} placeholder="email" style={{ background: 'transparent', color: 'inherit', border: '1px solid var(--line)', padding: '4px 8px' }} />
+                  <input value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} placeholder={premUi(lang).emailPh} aria-label={premUi(lang).emailPh} style={{ background: 'transparent', color: 'inherit', border: '1px solid var(--line)', padding: '4px 8px' }} />
                   <button className="chip" type="submit">OK</button>
                 </form>
               )}

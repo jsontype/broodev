@@ -13,6 +13,8 @@
   var LANGS = ['en', 'ja', 'ko', 'zh', 'es', 'pt', 'fr', 'ru', 'de', 'it', 'th', 'zh-Hant', 'nl'];
   var NAMES = { en: 'English', ja: '日本語', ko: '한국어', zh: '简体中文', es: 'Español', pt: 'Português', fr: 'Français', ru: 'Русский', de: 'Deutsch', it: 'Italiano', th: 'ไทย', 'zh-Hant': '繁體中文', nl: 'Nederlands' };
   var HTML_LANG = { zh: 'zh-Hans' };
+  // og:locale(현재 언어) + og:locale:alternate(나머지 12개) — index.html 의 정적 값은 ko_KR + 12개
+  var OG_LOCALE = { en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', zh: 'zh_CN', es: 'es_ES', pt: 'pt_BR', fr: 'fr_FR', ru: 'ru_RU', de: 'de_DE', it: 'it_IT', th: 'th_TH', 'zh-Hant': 'zh_TW', nl: 'nl_NL' };
   var STORE = 'broodev:lang';
 
   function norm(tag) {
@@ -55,6 +57,12 @@
     if (md && D.en && D.en.meta_desc) md.setAttribute('content', t('meta_desc'));
     var og = { 'meta[property="og:title"]': 'og_title', 'meta[name="twitter:title"]': 'og_title', 'meta[property="og:description"]': 'og_desc', 'meta[name="twitter:description"]': 'og_desc', 'meta[property="og:image:alt"]': 'og_title' };
     Object.keys(og).forEach(function (sel) { var el = document.querySelector(sel); if (el && D.en && D.en[og[sel]]) el.setAttribute('content', t(og[sel])); });
+    var ogl = document.querySelector('meta[property="og:locale"]');
+    if (ogl) {
+      ogl.setAttribute('content', OG_LOCALE[cur]);
+      var others = LANGS.filter(function (l) { return l !== cur; });
+      Array.prototype.forEach.call(document.querySelectorAll('meta[property="og:locale:alternate"]'), function (el, i) { if (others[i]) el.setAttribute('content', OG_LOCALE[others[i]]); });
+    }
     each('[data-i18n]', function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
     each('[data-i18n-html]', function (el) { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
     ['placeholder', 'aria-label', 'alt', 'title'].forEach(function (attr) {

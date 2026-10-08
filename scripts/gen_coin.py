@@ -152,6 +152,19 @@ def gen(c):
             shutil.rmtree(p)
         elif os.path.exists(p):
             os.remove(p)
+    # 콘텐츠 페이지 번역 조각(i18n/<doc>.<lang>.html — content-i18n.js 가 읽음, 2026-10-09): 비트코인 전용 페이지의 조각은 지우고,
+    # 남는 것(privacy·terms·404)은 본문 HTML 과 같은 치환(호스트·브랜드·13언어 코인명)을 거친다
+    i18n_dir = os.path.join(dst, "i18n")
+    if os.path.isdir(i18n_dir):
+        for fn_ in sorted(os.listdir(i18n_dir)):
+            p = os.path.join(i18n_dir, fn_)
+            if fn_.split(".")[0] + ".html" in BTC_ONLY:
+                os.remove(p)
+                continue
+            with open(p, encoding="utf-8") as f:
+                txt = f.read()
+            with open(p, "w", encoding="utf-8", newline="") as f:
+                f.write(transform_generic(txt, c))
     for rel, fn in TRANSFORMS.items():
         p = os.path.join(dst, rel)
         if not os.path.exists(p):

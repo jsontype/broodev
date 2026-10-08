@@ -1,0 +1,522 @@
+    <main class="wrap" data-title="De geschiedenis van de Mayer Multiple — wat het 200-daags gemiddelde in elke bitcoincyclus zei | broodev" data-desc="Waarom koos Trace Mayer het getal 2,4? We volgen chronologisch wat de Mayer Multiple werkelijk was op de toppen van 2013·2017·2021·2024 en de bodems van 2015·2018·2020·2022, en laten met berekeningen zien waarom het broodev-model deze indicator extreem verschillende gewichten geeft: 4% op korte en 18% op lange termijn.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoremethodologie</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/guide-fear-greed">Gids angstindex</a>
+        <a href="/glossary">Woordenlijst</a>
+      </nav>
+
+      <h1>De geschiedenis van de Mayer Multiple<br />— wat het 200-daags gemiddelde in elke cyclus zei</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems · Onderwerp: het Mayer Multiple-onderdeel van de broodev koopmoment-score v2</p>
+
+      <p class="lead">
+        <code>Mayer Multiple = huidige prijs ÷ 200-daags voortschrijdend gemiddelde</code>. Eén deling, meer is het niet.
+        Toch neemt dit ene getal <strong>18% van de broodev-langetermijnscore en 4% van de kortetermijnscore</strong> voor zijn rekening. Een verschil van een factor vierenhalf.
+        Waarom dezelfde indicator zulke verschillende gewichten krijgt, valt niet met een formule uit te leggen.
+        <strong>Het valt alleen uit te leggen door de geschiedenis van de bitcoincycli te volgen.</strong> Daarom is dit stuk geschreven als kroniek en niet als rekensom.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Tijdlijn</div>
+        <ol>
+          <li><a href="#origin">2014 — de vraag van één podcaster, en het getal 2,4</a></li>
+          <li><a href="#wild">2011~2013 — het wilde tijdperk waarin de multiple boven de 4 kwam</a></li>
+          <li><a href="#floor">2015 — het jaar waarin de bodem van “0,8” ontstond</a></li>
+          <li><a href="#2017">2017 — de doorslaggevende reden dat het kortetermijngewicht 4% werd</a></li>
+          <li><a href="#bottoms">2018 · 2020 — drie bodems op bijna dezelfde plek</a></li>
+          <li><a href="#2021">2021 — twee toppen, twee totaal verschillende multiples</a></li>
+          <li><a href="#etf">2022~2026 — na de ETF’s komt 2,4 misschien nooit meer terug</a></li>
+          <li><a href="#weights">Dus waarom 4% en 18% — het antwoord in cijfers</a></li>
+          <li><a href="#curve">Anatomie van de omzettingsfunctie — waarom de knikken bij 0,8 · 1,4 · 2,4</a></li>
+          <li><a href="#silence">Vier plekken waar deze indicator zwijgt</a></li>
+          <li><a href="#today">Hoe je dit getal leest in 2026</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Over de cijfers in dit stuk.</strong> De historische multiple-waarden hieronder zijn <strong>gereconstrueerde benaderingen</strong>, verkregen door de dagelijkse slotkoers te delen door het 200-daags enkelvoudig voortschrijdend gemiddelde.
+        Afhankelijk van welke beurskoers je gebruikt en of je de slotkoers in UTC neemt, schommelt het eerste cijfer achter de komma.
+        Lees “op de top was het 2,9” dus eerder als <strong>“het lag tussen 2,5 en 3”</strong>. Het betoog van dit stuk zit niet in de decimalen, maar in <strong>de richting van cyclus tot cyclus</strong>.
+      </div>
+
+      <section class="bd-figs" aria-label="Live grafiek van de Mayer Multiple">
+        <p class="muted">De grafieken hieronder worden getekend door bij je bezoek de volledige dagelijkse BTC-geschiedenis op te halen uit de openbare API van CoinMetrics en die direct in de browser te berekenen. Bekijk eerst met eigen ogen de tijdlijn uit de tekst en lees dan verder. Beweeg met de muis over de grafiek om de waarde per datum te zien.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-price" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+          </div>
+          <p class="bd-cap">BTC-prijs (logaritmische schaal) en het 200-daags enkelvoudig voortschrijdend gemiddelde. Oranje stippellijn = halvings (2012·2016·2020·2024). Gegevens: CoinMetrics Community API, dagelijkse BTC-slotkoers — opgehaald bij je bezoek en in de browser berekend; <strong>benaderingen, alleen ter referentie</strong>.</p>
+        </div>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-mult" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+          </div>
+          <p class="bd-cap">Tijdreeks van de Mayer Multiple. Groene arcering = 0,8 of lager (historisch ondergewaardeerde zone), rode arcering = boven 2,4 (oververhitte zone). De extreme waarden boven 4 uit 2011~2013 worden bij 4 afgekapt. Gegevens: CoinMetrics Community API, dagelijkse BTC-slotkoers — opgehaald bij je bezoek en in de browser berekend; <strong>benaderingen, alleen ter referentie</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="origin">2014 — de vraag van één podcaster, en het getal 2,4</h2>
+      <p>
+        In 2014 had de bitcoingemeenschap geen indicatoren zoals vandaag. Er waren geen on-chain-databedrijven en geen Angst- &amp; Hebzucht-index.
+        Er waren alleen koersgrafieken en forumberichten, en voor wie in 2013 twee bubbels kort na elkaar (april en november) had meegemaakt, bleef er één vraag over.
+        <strong>“Kan ik nu kopen?”</strong>
+      </p>
+      <p>
+        Trace Mayer was een vroege bitcoininvesteerder en podcaster. Belangrijk is dat hij geen trader was.
+        Hij was niet geïnteresseerd in <em>“stijgt het vandaag?”</em>, maar in <strong>“hoe staat iemand die nu instapt er over een paar jaar voor?”</strong>.
+        Als de tijdshorizon van de vraag verschilt, zijn er ook andere instrumenten nodig.
+      </p>
+      <p>
+        Hij greep naar het <strong>200-daags voortschrijdend gemiddelde</strong>, dat in de traditionele financiële wereld al bijna 100 jaar werd gebruikt.
+        De 200-daagse lijn is ruwweg <strong>het gemiddelde van 10 maanden aan handelsdagen</strong>. Een trage lijn die niet beweegt door één of twee nieuwsberichten of één liquidatiegolf.
+        Mayers idee was simpel. <strong>“Hoeveel keer boven die trage lijn staat de prijs van vandaag?”</strong>
+      </p>
+      <pre><code>Mayer Multiple = slotkoers van vandaag ÷ 200-daags enkelvoudig voortschrijdend gemiddelde (SMA)
+
+multiple 1.0  → gelijk aan het 200-daags gemiddelde
+multiple 0.7  → 30% goedkoper dan het gemiddelde
+multiple 2.5  → 150% duurder dan het gemiddelde</code></pre>
+
+      <h3>Waar het getal 2,4 vandaan kwam</h3>
+      <p>
+        Mayer bleef daar niet bij en voerde een <strong>backtest van regels</strong> uit (hij loofde een beloning uit aan de gemeenschap en liet de berekening crowdsourcen).
+        De vraag luidde zo.
+      </p>
+      <p class="lead">
+        <em>“Wat levert op lange termijn meer op: een regel die alleen periodiek koopt als de Mayer Multiple onder X ligt, of een regel die op elk moment koopt? Laten we X van 0,1 tot 5 allemaal uitproberen.”</em>
+      </p>
+      <p>
+        Wat hij in de resultaten benadrukte, was niet de optimale waarde maar <strong>het knikpunt</strong>.
+        Als je de drempel steeds verder verhoogde (= ook kopen als het duur is), werd het langetermijnrendement vanaf een bepaald punt merkbaar slechter, en dat punt lag <strong>rond 2,4</strong>.
+        2,4 is dus geen voorspelling dat “hier de top ligt”, maar een statistiek achteraf: <strong>“duurder kopen dan dit kwam historisch duur te staan”</strong>.
+      </p>
+      <div class="note warn">
+        <strong>We benoemen de beperking meteen.</strong> Toen Mayer zijn berekening uitvoerde, was bitcoin <strong>een activum dat pas 5 jaar bestond</strong>.
+        Er waren maar twee afgeronde cycli, en het grootste deel van de steekproef viel in de “vroege fase van explosieve groei”.
+        <strong>2,4 is een getal uit twee cycli.</strong> We gebruiken dit getal, maar in de wetenschap dat het geen natuurconstante is.
+        In het laatste deel van dit stuk bespreken we waarom 2,4 <em>al aan het verouderen is</em>.
+      </div>
+
+      <h2 id="wild">2011~2013 — het wilde tijdperk waarin de multiple boven de 4 kwam</h2>
+      <p>
+        Pas je de indicator toe op data van vóór zijn uitvinding, dan zie je dat de vroege bitcoin <strong>waarden haalde die naar huidige maatstaven absurd zijn</strong>.
+      </p>
+      <p>
+        In de eerste grote bubbel van juni 2011 <strong>kwam de multiple boven de 5.</strong> De prijs was dus vijf keer het 200-daags gemiddelde.
+        Ook op de twee toppen van april en november 2013 bereikte hij <strong>waarden van 3~4</strong>.
+        In die tijd was de regel <em>“multiple 2,4 = gevaar”</em> in de praktijk waardeloos. Na het passeren van 2,4 verdubbelde de prijs immers nog.
+      </p>
+      <p>
+        Hoe kwam dat? De marktwaarde lag tussen enkele honderden miljoenen en enkele miljarden dollars, de liquiditeit was dun, er was geen derivatenmarkt en shorten was vrijwel onmogelijk.
+        <strong>Het was een markt met alleen kracht omhoog en geen kracht omlaag.</strong> In zo’n markt is vijf keer de 200-daagse lijn heel natuurlijk.
+      </p>
+      <p>
+        De les die de data uit die tijd ons vandaag geeft: <strong>“de absolute waarde van de Mayer Multiple hangt af van de marktstructuur”</strong>.
+        Dezelfde 2,4 betekende in 2013 “nog maar het begin” en werd in 2021 “bijna onbereikbaar”. Daar komen we later op terug.
+      </p>
+
+      <h2 id="floor">2015 — het jaar waarin de bodem van “0,8” ontstond</h2>
+      <p>
+        Na de ineenstorting van Mt. Gox in 2014 daalde bitcoin meer dan een jaar lang. Rond het dieptepunt van januari 2015 werd de multiple tot <strong>rond 0,6</strong> omlaaggedrukt.
+        Maar belangrijker dan het dieptepunt zelf is dat de multiple daarvoor en daarna <strong>maandenlang tussen 0,7 en 0,9 kroop</strong>.
+      </p>
+      <p>
+        Die “slepende bodem” is waar de <strong>0,8</strong> in onze omzettingsfunctie vandaan komt.
+        0,8 is een <strong>korting van 20%</strong> ten opzichte van de 200-daagse lijn. En als je alle perioden in de bitcoingeschiedenis optelt waarin de multiple onder 0,8 lag,
+        is dat slechts <strong>een heel klein deel van alle handelsdagen</strong>. Zeldzaamheid — dat is de enige onderbouwing van deze drempel.
+      </p>
+      <div class="note">
+        <strong>Wat ons model onder 0,8 niet doet.</strong> Een multiple van 0,6 is inderdaad “goedkoper” dan 0,8.
+        Maar onze omzettingsfunctie <strong>vlakt alles onder 0,8 af tot 100 punten.</strong> Of het nu 0,6 of 0,5 is, het blijft 100 punten.
+        Goedkoper levert niet méér op. Want <strong>een daling heeft geen ondergrens</strong>.
+        Een model dat 0,5 105 punten geeft, roept steeds harder “koop” naarmate de crash dieper wordt. Dat is geen indicator, maar een <em>gaspedaal</em>.
+        Door de bovenkant vlak af te kappen, hebben we precisie opgegeven om <strong>bescheidenheid te kopen</strong>.
+      </div>
+
+      <h2 id="2017">2017 — de doorslaggevende reden dat het kortetermijngewicht 4% werd</h2>
+      <p>
+        Voor wie in de Mayer Multiple geloofde, was 2017 <strong>het pijnlijkste jaar</strong>. En het is ook de geschiedenis van dit jaar die het kortetermijngewicht van ons model naar 4% heeft gedrukt.
+      </p>
+      <p>
+        In 2017 begon bitcoin rond 1,000 dollar en eindigde eind december rond 20,000 dollar. Het probleem is <strong>op welk punt van die reis de multiple “duur” zei</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Moment in 2017</th><th>Geschatte multiple</th><th>Wat Mayer zegt</th><th>Wat er daarna werkelijk gebeurde</th></tr></thead>
+          <tbody>
+            <tr><td>mei~juni (rond 2,500 dollar)</td><td><code>1.5~1.7</code></td><td>“oververhitting begint”</td><td>tot het jaareinde nog ongeveer <strong>7 keer zo hoog</strong></td></tr>
+            <tr><td>augustus (rond 4,000 dollar)</td><td><code>1.8~2.0</code></td><td>“behoorlijk duur”</td><td>in 4 maanden nog <strong>4 keer zo hoog</strong></td></tr>
+            <tr><td>november (rond 8,000 dollar)</td><td><code>2.0~2.2</code></td><td>“dicht bij de topzone”</td><td>in 6 weken nog <strong>2,4 keer zo hoog</strong></td></tr>
+            <tr><td>half december (rond 19,000 dollar)</td><td><code>2.5~2.9</code></td><td>“extreme oververhitting”</td><td>de echte top. Alleen hier klopte het</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Zie je het? De Mayer Multiple <strong>zei het hele jaar “duur”, en zat het hele jaar fout.</strong> En in de laatste twee weken had hij gelijk.
+      </p>
+      <p>
+        Trek hier niet de verkeerde conclusie. Dit betekent niet dat <em>“de Mayer Multiple een slechte indicator is”</em>.
+        <strong>Wie in mei 2017 een multiple van 1,6 zag en uitstapte</strong> en <strong>wie in mei 2017 de multiple van 1,6 negeerde, bleef vasthouden en in december uitstapte</strong> —
+        het langetermijnrendement van de tweede is overweldigend beter, maar <strong>wie tot in 2018 bleef vasthouden</strong>, doet het weer slechter dan de eerste.
+        Hetzelfde getal leidt afhankelijk van de tijdshorizon tot tegengestelde conclusies.
+      </p>
+      <div class="note warn">
+        <strong>Daarom is het kortetermijngewicht 4%.</strong> Het kortetermijntabblad van broodev kijkt <strong>1~3 maanden</strong> vooruit.
+        Welke rij uit de tabel hierboven je ook neemt, de waarschuwing “duur” van de Mayer Multiple <strong>voorspelde de richting van de volgende 1~3 maanden niet.</strong>
+        Stop je een signaal met een vertraging van <em>enkele maanden~1 jaar</em> in een venster van <em>1~3 maanden</em>, dan is het geen signaal meer maar <strong>ruis</strong>.<br /><br />
+        ⚠️ <strong>Belangrijk:</strong> op het kortetermijntabblad werkt deze indicator <strong>niet</strong> als “duur = waarschuwing”.
+        Integendeel, hij werkt als <strong>“duur = sterke trend = pluspunten”</strong>.
+        Wie houdt de top van de bubbel dan tegen? — <strong>niet het gewicht, maar een aparte blow-off-topbeveiliging</strong>.
+        In het <a href="#weights">volgende deel</a> maken we beide functies en de beveiliging volledig openbaar, inclusief code.
+      </div>
+
+      <h2 id="bottoms">2018 · 2020 — drie bodems op bijna dezelfde plek</h2>
+      <p>
+        Deze indicator, die op de toppen zo grillig was, is <strong>op de bodems verrassend consistent</strong>. Dat is zijn ware aard.
+      </p>
+      <p>
+        <strong>In december 2018</strong>, rond 3,150 dollar, toen een jaar lange bearmarkt ten einde liep, lag de multiple <strong>rond 0,5~0,6</strong>.<br />
+        <strong>In maart 2020</strong>, toen de coronaschok de prijs op één dag halveerde tot rond 3,800 dollar, lag de multiple <strong>rond 0,6</strong>.<br />
+        <strong>In november 2022</strong>, toen FTX instortte en de prijs terugviel tot rond 15,500 dollar, lag de multiple <strong>op 0,6~0,7</strong>.
+      </p>
+      <p>
+        <strong>In 7 jaar tijd vielen drie bodems met drie totaal verschillende oorzaken (een eigen bubbel die barstte / een pandemie / fraude bij een beurs) op bijna dezelfde multiple.</strong>
+        En dat terwijl de prijs van 3,150 naar 15,500 dollar ging, vijf keer zo hoog.
+        Daarom noemt men de 200-daagse lijn <strong>de zwaartekracht van de prijs</strong>. De absolute prijs is per cyclus totaal anders, maar <strong>de ondergrens van hoe ver de prijs van de 200-daagse lijn kan afwijken</strong> was vergelijkbaar.
+      </p>
+      <p>
+        Maart 2020 verdient een aparte vermelding. Het is namelijk vrijwel het enige geval waarin de Mayer Multiple <strong>direct én precies</strong> raak was.
+        De reden is duidelijk. <strong>De schok was binnen één dag voorbij.</strong>
+        Terwijl de prijs verticaal instortte, bewoog de 200-daagse lijn nauwelijks, en daardoor scheurde de multiple in één klap open tot 0,6.
+        <strong>De Mayer Multiple is gevoelig voor “plotse crashes” en ongevoelig voor “langzaam afbrokkelen”.</strong> Die zin komt in het deel over de beperkingen pijnlijk terug.
+      </p>
+
+      <h2 id="2021">2021 — twee toppen, twee totaal verschillende multiples</h2>
+      <p>
+        2021 is het belangrijkste jaar om deze indicator te begrijpen. Want <strong>in hetzelfde jaar waren er twee toppen tegen bijna dezelfde prijs, maar met totaal verschillende multiples</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Top van 2021</th><th>Prijs</th><th>Geschatte multiple</th><th>Score van onze omzettingsfunctie</th></tr></thead>
+          <tbody>
+            <tr><td>april (1e top)</td><td>ongeveer 64,000 dollar</td><td><code>1.9~2.2</code></td><td>ongeveer <strong>22~30 punten</strong> (CAUTION)</td></tr>
+            <tr><td>november (2e top, cyclushoogtepunt)</td><td>ongeveer 69,000 dollar</td><td><code>1.3~1.4</code></td><td>ongeveer <strong>50~55 punten</strong> (NEUTRAL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Op de echte top van de cyclus zei de Mayer Multiple “neutraal”.</strong>
+      </p>
+      <p>
+        Dat is geen bug van de indicator, maar <strong>wiskundig volkomen logisch</strong>.
+        Terwijl de prijs na de top van april de hele zomer zijwaarts rond 30,000 dollar bewoog, <em>kroop de 200-daagse lijn gestaag omhoog.</em>
+        Toen de prijs in november 69,000 dollar raakte, lag de 200-daagse lijn al rond 50,000 dollar. Groeit de noemer, dan krimpt de multiple.
+      </p>
+      <p>
+        <strong>Als de top in tweeën wordt gesplitst, mist de Mayer Multiple de tweede.</strong>
+        Hoe meer de markt verandert in een volwassen vorm die “trapsgewijs stijgt in plaats van in één keer te exploderen”, hoe machtelozer het bovenste alarm van deze indicator wordt.
+      </p>
+
+      <h2 id="etf">2022~2026 — na de ETF’s komt 2,4 misschien nooit meer terug</h2>
+      <p>
+        Als je de cijfers tot nu toe per cyclus onder elkaar zet, zie je <strong>een trend die maar één kant op gaat</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cyclus</th><th>Multiple op de top (ca.)</th><th>Multiple op de bodem (ca.)</th><th>Amplitude</th></tr></thead>
+          <tbody>
+            <tr><td>2011</td><td><code>5 of hoger</code></td><td><code>0.4~0.5</code></td><td>extreem</td></tr>
+            <tr><td>2013</td><td><code>3~4</code></td><td><code>0.5~0.6</code> (2015)</td><td>zeer groot</td></tr>
+            <tr><td>2017</td><td><code>2.5~2.9</code></td><td><code>0.5~0.6</code> (2018)</td><td>groot</td></tr>
+            <tr><td>2021</td><td><code>1.9~2.2</code> (april)</td><td><code>0.6~0.7</code> (2022)</td><td>middelgroot</td></tr>
+            <tr><td>2024~2025</td><td><code>1.5~1.8</code></td><td>—</td><td><strong>klein</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>De multiple op de top daalt cyclus na cyclus, en de multiple op de bodem stijgt.</strong> De amplitude wordt samengedrukt.
+        De oorzaken zijn niet moeilijk te raden.
+      </p>
+      <ul>
+        <li><strong>Derivaten en shorten</strong> — de markt heeft nu een kracht die van bovenaf drukt. Die was er in 2013 niet.</li>
+        <li><strong>Institutioneel geld en spot-ETF’s</strong> — de instroom sinds 2024 is veel geleidelijker en gestager dan de manie van particulieren. Een geleidelijke stijging wordt door de 200-daagse lijn bijgehouden.</li>
+        <li><strong>De omvang van de marktwaarde</strong> — om een activum van een biljoen dollar naar 3 keer het 200-daags gemiddelde te laten springen, is een heel andere hoeveelheid geld nodig.</li>
+      </ul>
+      <div class="note warn">
+        <strong>Eerlijk gezegd: de bovenste band van ons model is al aan het verouderen.</strong>
+        De zone “Mayer Multiple boven 2,4 → 10 punten of minder” <strong>is in de laatste twee cycli geen enkele keer geactiveerd.</strong>
+        Blijft de marktstructuur zo, dan kan 2,4 <em>een dode drempel worden die nooit meer wordt aangetikt</em>.
+        <br /><br />
+        Toch hebben we deze waarde <strong>nog niet verlaagd</strong>. De reden is een dilemma.
+        Verlagen we de drempel van 2,4 → 1,8 om hem aan recente data aan te passen, dan lijkt het nu goed te kloppen, maar dat is <strong>de curve naar het verleden buigen (curve fitting)</strong>.
+        Een zo afgesteld model stort in op het moment dat de volgende cyclus terugkeert naar de oude vorm.
+        <strong>Onze huidige keuze is “de oorspronkelijke drempel behouden, maar in dit document vastleggen dat hij minder vaak afgaat”.</strong>
+        We vonden het beter de zwakke plekken van het model openbaar te maken dan het stilletjes bij te stellen.
+      </div>
+
+      <h2 id="weights">Dus waarom 4% en 18% — het antwoord in cijfers</h2>
+
+      <div class="note warn">
+        <strong>Correctie (2026-07-14)</strong> — de vorige versie van dit deel <strong>paste de langetermijn-omzettingsfunctie ten onrechte ook toe op de kortetermijnkolom</strong> en
+        beschreef de kortetermijnbijdrage van de Mayer Multiple daardoor <strong>met het omgekeerde teken</strong>.
+        Bovendien ontbrak de <strong>blow-off-topbeveiliging</strong>, die op korte termijn in werkelijkheid de bescherming tegen oververhitting verzorgt.
+        Hieronder staat de volledig gecorrigeerde inhoud, gebaseerd op de code.
+      </div>
+
+      <p>
+        Er is één feit dat je hier absoluut moet weten. <strong>De normalisatiefunctie van de Mayer Multiple is er niet één, maar twee.</strong>
+        Het kortetermijn- en het langetermijntabblad gebruiken <strong>verschillende functies</strong>, met <strong>tegengestelde tekens</strong>.
+      </p>
+
+      <pre><code>// lange termijn (contrair) — hoe goedkoper, hoe hoger de score
+conMayer(m):
+  m ≤ 0.8 → 100
+  m ≤ 1.4 → 50 + ((1.4 − m) / 0.6) × 50
+  m ≤ 2.4 → 10 + ((2.4 − m) / 1.0) × 40
+  m &gt; 2.4 → 10 − (m − 2.4) × 25
+
+// korte termijn (momentum) — hoe duurder, hoe hoger de score
+momMayer(m) = clamp(50 + (m − 1) × 25,  0,  100)</code></pre>
+
+      <p>
+        <strong>Op korte termijn “hoe duurder, hoe meer punten” klinkt waanzinnig.</strong> Maar in een venster van 1~3 maanden
+        betekent een grote afstand boven de 200-daagse lijn <strong>niet “overwaardering”, maar “een sterke opwaartse trend”</strong>.
+        2017 bewees precies dat — ook nadat de multiple 2,4 passeerde, steeg de prijs nog maandenlang door.
+        Het kortetermijntabblad ontkent die trend niet.
+      </p>
+
+      <p>Laten we de werkelijke bijdrage uitrekenen.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Deelscore korte termijn<br /><span class="muted">momMayer</span></th><th>Bijdrage korte termijn<br /><span class="muted">×4%</span></th><th>Deelscore lange termijn<br /><span class="muted">conMayer</span></th><th>Bijdrage lange termijn<br /><span class="muted">×18%</span></th></tr></thead>
+          <tbody>
+            <tr><td><code>0.75</code> (ondergewaardeerd)</td><td>43.75</td><td>1.75 pt</td><td>100</td><td><strong>18.0 pt</strong></td></tr>
+            <tr><td><code>1.0</code> (200-daagse lijn)</td><td>50</td><td>2.0 pt</td><td>83.3</td><td>15.0 pt</td></tr>
+            <tr><td><code>1.6</code></td><td>65</td><td>2.6 pt</td><td>42.0</td><td>7.6 pt</td></tr>
+            <tr><td><code>2.6</code> (oververhit)</td><td>90</td><td><strong>3.6 pt</strong></td><td>5.0</td><td>0.9 pt</td></tr>
+            <tr><td><strong>Amplitude (0.5~2.5)</strong></td><td>37.5 ~ 87.5</td><td><strong>ca. 2.0 pt</strong></td><td>100 ~ 7.5</td><td><strong>ca. 16.7 pt</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>Op het kortetermijntabblad is de totale amplitude van Mayer iets meer dan 2 punten.</strong> En de richting is <em>ondergewaardeerd → minpunten</em>.
+        <strong>Op het langetermijntabblad beweegt hij bijna 17 punten, en in de tegengestelde richting</strong> — genoeg om <code>NEUTRAL(55 pt)</code>
+        helemaal naar <code>CAUTION(38 pt)</code> te duwen, anderhalve band.
+        Dat hij <strong>gedeeld bovenaan staat (18%)</strong> met RSI·MACD·angst en hebzucht is niet overdreven, omdat de bodems van 2018·2020·2022
+        allemaal in dezelfde multiple-zone vielen. Er zijn niet veel indicatoren die zich op cyclusniveau zo vaak hebben herhaald.
+      </p>
+
+      <h3>Maar waarom op korte termijn 4% en niet 0%</h3>
+      <p>
+        Op korte termijn is Mayer <strong>een dubbeling van de trendindicatoren</strong>. De informatie “de prijs is ver boven de 200-daagse lijn uitgelopen”
+        zit grotendeels al in RSI (28%), drawdown (18%) en MACD (14%). Als je daar Mayer ook nog zwaar bij laat wegen,
+        <strong>tel je hetzelfde signaal vier keer</strong>. Daarom is het naar 4% gedrukt.
+      </p>
+      <p>
+        <strong>Het is geen 0% omdat er één invalshoek is die deze drie niet zien.</strong>
+        RSI en MACD kijken naar de snelheid van de <em>afgelopen dagen</em>, en drawdown kijkt naar de afstand <em>tot de top</em>.
+        Alleen Mayer kijkt naar <strong>“hoe ver de prijs is afgeweken van de langetermijn-referentielijn, het 200-daags gemiddelde”</strong>.
+        De <strong>absolute mate van uitrekking</strong> van de trend — dat kunnen de andere drie niet vervangen. Die 4% is daarvoor.
+      </p>
+
+      <h3>Wie remt dan de oververhitting — de blow-off-topbeveiliging</h3>
+      <p>
+        Hier komt de voor de hand liggende tegenwerping. <strong>“Als op korte termijn duurder meer punten oplevert, blijft de score op de top van een bubbel dan niet stijgen?”</strong>
+        Klopt. Met alleen momMayer zou dat gebeuren.
+      </p>
+      <p>
+        Daarom doet <strong>niet het gewicht maar een apart mechanisme</strong> dat werk.
+        Het past een <strong>demping toe op de kortetermijn-totaalscore zelf</strong>, nadat de samenstelling klaar is.
+      </p>
+      <pre><code>if (mayer &gt; 2.0):
+    totaalscore_kort ×= clamp(1 − (mayer − 2.0) × 0.55,  0.25,  1)</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Factor</th><th>Als de kortetermijn-totaalscore 70 was</th></tr></thead>
+          <tbody>
+            <tr><td><code>2.0</code></td><td>×1.00</td><td>70.0 (geen demping)</td></tr>
+            <tr><td><code>2.5</code></td><td>×0.725</td><td>50.8 <span class="muted">(−19.2 pt)</span></td></tr>
+            <tr><td><code>3.0</code></td><td>×0.45</td><td>31.5 <span class="muted">(−38.5 pt)</span></td></tr>
+            <tr><td><code>3.4 of hoger</code></td><td>×0.25 <span class="muted">(ondergrens)</span></td><td>17.5 <span class="muted">(−52.5 pt)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Dit is de echte rem.</strong> Dit is van een totaal andere orde dan de amplitude van 2 punten die het gewicht van 4% oplevert.
+        Bij een multiple van 2,5 <strong>verdwijnt 27,5% van de kortetermijn-totaalscore in één keer.</strong>
+        <code>ACCUMULATE(70 pt)</code> zakt naar <code>NEUTRAL(50.8 pt)</code>.
+      </p>
+      <div class="note">
+        Samengevat speelt de Mayer Multiple op het kortetermijntabblad <strong>twee rollen</strong>.<br />
+        <strong>① Gewicht van 4%</strong> — weerspiegelt de mate van trenduitrekking <em>licht</em> (duurder = meer punten, amplitude 2 punten)<br />
+        <strong>② Blow-off-beveiliging</strong> — dempt boven een multiple van 2,0 <em>de totaalscore zelf</em> (maximaal 75% minder)<br />
+        <strong>“Het is maar 4%, dus Mayer wordt op korte termijn genegeerd” is een misverstand.</strong> Het gewicht is niet klein:
+        <strong>de rol van bescherming tegen oververhitting is van het gewicht naar de beveiliging verplaatst</strong>.
+      </div>
+      <p class="muted">
+        Eerlijk gezegd kon onze backtest niet stellig zeggen of de dempingscoëfficiënt 0,55 en de ondergrens 0,25 optimaal zijn.
+        Het enige wat vaststaat is dat “zonder de beveiliging de kortetermijnscore op de toppen van 2017·2021 gevaarlijk hoog was”. De rest is een inschatting.
+      </p>
+
+      <h2 id="curve">Anatomie van de omzettingsfunctie — waarom de knikken bij 0,8 · 1,4 · 2,4</h2>
+      <p>
+        Onze functie die de Mayer Multiple omzet in een deelscore van 0~100 <strong>knikt op drie plekken.</strong>
+        De herkomst van elk knikpunt is totaal verschillend.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Knikpunt</th><th>Herkomst</th><th>Betekenis</th></tr></thead>
+          <tbody>
+            <tr><td><code>0.8</code></td><td>waarneming van de bodems van 2015·2018·2022</td><td>20% korting ten opzichte van de 200-daagse lijn. Historisch maar zelden bereikt</td></tr>
+            <tr><td><code>1.4</code></td><td>dicht bij het <strong>langetermijngemiddelde</strong> van de multiple over de hele bitcoingeschiedenis</td><td>“gemiddeld = 50 punten” — de centrale as van de functie</td></tr>
+            <tr><td><code>2.4</code></td><td>de oorspronkelijke backtest van Trace Mayer</td><td>het punt waarna duurder kopen het langetermijnresultaat deed omslaan</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Dat 1,4 gelijkstaat aan 50 punten, is de ruggengraat van deze functie.</strong> Het langetermijngemiddelde van de Mayer Multiple van bitcoin ligt boven 1 —
+        <em>boven</em> de 200-daagse lijn staan is voor dit activum dus de normale toestand (een vanzelfsprekende eigenschap van een stijgend activum).
+        Daarom kozen we <strong>niet “1,0 = neutraal”, maar “1,4 ≈ neutraal”</strong>.
+        De gangbare interpretatie die een multiple van 1,0 als neutraal neemt, is voor bitcoin <strong>structureel te optimistisch</strong>.
+      </p>
+
+      <h3>Waarom de helling per segment verschilt</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Segment</th><th>Verandering van de score</th><th>Verandering per 0,1 multiple</th><th>Waarom deze helling</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100 (vast)</td><td><strong>0 pt</strong></td><td>goedkoper levert niet meer op (geen vallend mes vangen)</td></tr>
+            <tr><td><code>0.8 ~ 1.4</code></td><td>100 → 50</td><td><strong>−8.3 pt</strong></td><td>het segment waar de markt <strong>het grootste deel van de tijd</strong> doorbrengt → resolutie geconcentreerd</td></tr>
+            <tr><td><code>1.4 ~ 2.4</code></td><td>50 → 10</td><td><strong>−4.0 pt</strong></td><td>of het nu 1,6 of 2,0 is, uiteindelijk is het “duur” → geen resolutie nodig</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>dempt naar 0</td><td>in de extremen heeft precisie geen zin</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        De kern is dat <strong>de helling van het segment 0,8~1,4 meer dan twee keer zo steil is als die van het segment 1,4~2,4</strong>.
+        Dat is bewust. Bitcoin <strong>brengt meer dan de helft van alle handelsdagen door met een multiple tussen 0,8 en 1,4.</strong>
+        Waar het model elke dag mee te maken heeft, is niet 2,6 maar <strong>de vraag of het 1,05 of 1,25 is</strong>. Daar moet de resolutie naartoe, wil de score zinvol veranderen.
+      </p>
+      <p>Als je waarden invult, krijg je dit.</p>
+      <pre><code>multiple 0.70  →  100 pt    (bodemzone 2018·2022)
+multiple 0.90  →   91.7 pt
+multiple 1.00  →   83.3 pt   (gelijk aan de 200-daagse lijn)
+multiple 1.20  →   66.7 pt
+multiple 1.40  →   50.0 pt   ← centrale as (langetermijngemiddelde)
+multiple 1.60  →   42.0 pt
+multiple 1.90  →   30.0 pt   (topzone april 2021)
+multiple 2.20  →   18.0 pt
+multiple 2.40  →   10.0 pt   ← Mayers drempel
+multiple 2.60  →    rond 6 pt (dempt naar 0)</code></pre>
+      <p>
+        Vlak aan beide uiteinden en steil in het midden: <strong>de vorm van een omgekeerde, zachte S</strong>.
+        Deze functie zet het principe <em>“zuinig met woorden in de extremen, veel zeggen in de twijfelzone”</em> om in code.
+      </p>
+
+      <h2 id="silence">Vier plekken waar deze indicator zwijgt</h2>
+      <p>
+        Tot nu toe hebben we gezien <strong>wat deze indicator kan</strong>. Nu kijken we <strong>waar hij niets kan zeggen</strong>.
+        In de praktijk is deze kant belangrijker.
+      </p>
+
+      <h3>1. De late fase van een bearmarkt — het sluwste falen</h3>
+      <p>
+        Eerder schreven we dat “de Mayer Multiple gevoelig is voor plotse crashes en ongevoelig voor langzaam afbrokkelen”. Hier betalen we daar de prijs voor.
+      </p>
+      <p>
+        Als een langdurige bearmarkt ongeveer een jaar aan de gang is, <strong>zakt de 200-daagse lijn zelf mee met de prijs.</strong>
+        Dan <strong>“normaliseert” de multiple naar rond 0,9~1,0</strong>, ook al blijft de prijs dalen.
+        Dat is precies wat er midden 2018 en midden 2022 gebeurde. Bij −70% vanaf de top zegt de Mayer Multiple <strong>doodleuk “neutraal”.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Dit is een gebrek dat de Mayer Multiple in zijn eentje nooit kan oplossen.</strong> Het is het lot van een indicator met een bewegende noemer.
+        Daarom neemt broodev apart de <strong>drawdown vanaf de 365-daagse top</strong> op.
+        De noemer van de drawdown-indicator is <strong>een vaste top uit het verleden</strong>, dus die zakt niet mee.
+        <strong>Als Mayer zwijgt, schreeuwt de drawdown in zijn plaats.</strong> Beide indicatoren opnemen is geen dubbeling, maar <strong>wederzijdse aanvulling</strong>.
+      </div>
+
+      <h3>2. Coins zonder 200 dagen — en hoe wij dat toegeven</h3>
+      <p>
+        Een coin die nog geen 200 dagen genoteerd staat, heeft geen 200-daags voortschrijdend gemiddelde. De Mayer Multiple berekenen is <strong>in principe onmogelijk.</strong>
+      </p>
+      <p>Onze app gaat in twee stappen met deze situatie om.</p>
+      <ul>
+        <li>
+          <strong>Als er te weinig data is, maar wel iets</strong> — wordt als vervanging gerekend met het voortschrijdend gemiddelde over de langst mogelijke periode,
+          en <strong>toont het scherm met een label hoeveel dagen er werkelijk zijn gebruikt</strong>, zoals <code>200D fallback(120d)</code>.
+          <strong>Een multiple berekend met een 120-daags gemiddelde is geen Mayer Multiple.</strong> Een kort gemiddelde volgt de prijs sneller, dus de multiple wordt rond 1 gedrukt en <strong>vangt oververhitting noch onderwaardering goed op.</strong>
+          We berekenen deze waarde wel, maar <strong>verbergen op het scherm niet dat het niet de echte is.</strong>
+        </li>
+        <li>
+          <strong>Als er helemaal niets is</strong> — krijgt de indicator <strong>geen 0 punten, maar wordt hij uit de berekening weggelaten</strong>.
+          Want 0 punten betekent “slecht”, niet “onbekend”. De gewichten van de overige 5 indicatoren worden hergenormaliseerd tot weer 100% in totaal,
+          en er verschijnt <code>coverage: 5/6 (82% weight)</code>. Valt Mayer op het langetermijntabblad weg, dan betekent dat dat <strong>18% van de onderbouwing in één keer verdwijnt</strong>.
+          <strong>Lees een langetermijnscore met deze melding met een trede minder vertrouwen.</strong>
+        </li>
+      </ul>
+
+      <h3>3. Altcoins — de drempels zijn maatkleding voor BTC</h3>
+      <p>
+        0,8 en 2,4 zijn <strong>getallen die uit de volatiliteitsstructuur van bitcoin zijn gehaald</strong>.
+        Leg je dezelfde meetlat aan bij een altcoin met 2~3 keer de volatiliteit van bitcoin, dan wordt de bovengrens (2,4) in elke bullmarkt makkelijk doorbroken en de ondergrens (0,8) in elke bearmarkt.
+        <strong>Naar een brandalarm dat te vaak afgaat, luistert uiteindelijk niemand meer.</strong>
+        Je kunt er terecht van uitgaan dat de Mayer Multiple-score op een altcoinscherm <strong>duidelijk minder zeggingskracht heeft</strong> dan op het BTC-scherm.
+      </p>
+
+      <h3>4. Er is geen grond om de 200-daagse lijn als “reële waarde” te zien</h3>
+      <p>
+        Het laatste punt is het meest fundamentele. De Mayer Multiple is <strong>een indicator die puur naar de prijs kijkt</strong>.
+        Hij weet niets van on-chain, miningkosten, kapitaalstromen of regelgeving.
+      </p>
+      <p>
+        En <strong>het getal 200 dagen zelf heeft geen theoretische onderbouwing.</strong>
+        Het is gewoon een periode die op traditionele financiële markten <em>uit gewoonte</em> wordt gebruikt. 180 of 250 dagen zou zelfs beter kunnen zijn.
+        De stelling “200-daags gemiddelde = reële waarde van bitcoin” <strong>is nooit bewezen.</strong>
+        De enige grond waarop wij deze indicator gebruiken, is één waarneming: <strong>“in eerdere cycli keerde de prijs er meestal naar terug”</strong>,
+        en <strong>een waarneming is geen wet.</strong>
+      </p>
+
+      <h2 id="today">Hoe je dit getal leest in 2026</h2>
+      <p>Als je de kroniek tot nu toe samenvat tot een praktische leeswijze, blijven er drie zinnen over.</p>
+      <ul>
+        <li>
+          <strong>De Mayer Multiple zegt niet “wanneer”. Hij zegt “hoeveel”.</strong>
+          Een waarde van 2,2 betekent niet “het daalt binnenkort”, maar “hier kopen kwam historisch duur te staan”. <strong>Het is geen timinginstrument, maar een waarderingsinstrument.</strong>
+        </li>
+        <li>
+          <strong>Vertrouw hem op de bodem, wantrouw hem op de top.</strong> Onder 0,8 heeft zich in drie cycli herhaald.
+          Boven 2,4 is in de laatste twee cycli geen enkele keer voorgekomen. <strong>De betrouwbaarheid van deze indicator is boven en onder niet symmetrisch.</strong>
+        </li>
+        <li>
+          <strong>Laat je niet geruststellen als de multiple “normaal” is.</strong> Een 0,95 in de late fase van een bearmarkt is niet <em>normaal</em>, maar <strong>het geluid van een indicator die zwijgt</strong>.
+          Kijk dan naar de <a href="/indicators">365-daagse drawdown</a> en de <a href="/guide-fear-greed">Angst- &amp; Hebzucht-index</a>.
+        </li>
+      </ul>
+      <p>
+        Tot slot: als we uit dit stuk het moment moeten kiezen dat het langst het onthouden waard is, dan is dat <strong>november 2021</strong>.
+        Op de echte top van de cyclus <strong>zei de Mayer Multiple “neutraal”.</strong>
+        Geen enkele indicator heeft in elke cyclus gelijk, en <strong>deze wordt vooral stiller naarmate de markt volwassener wordt.</strong>
+        Daarom baseert broodev de score niet op de Mayer Multiple alleen, maar <a href="/methodology">combineert het 6 indicatoren</a>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document en de scores van broodev zijn <strong>referentiemateriaal dat openbare indicatoren combineert en geen beleggingsadvies.</strong>
+        De historische multiple-waarden in de tekst zijn <strong>benaderingen die per gegevensbron kunnen verschillen, en patronen uit het verleden bieden geen garantie voor de toekomst.</strong>
+        Cryptovaluta zijn risicovolle activa <strong>waarbij je je volledige inleg kunt verliezen</strong>.
+        Alle verantwoordelijkheid voor beleggingsbeslissingen en de gevolgen daarvan (winst en verlies) ligt volledig bij de gebruiker zelf. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoremethodologie</b><span>Met welke gewichten de 6 indicatoren worden gecombineerd (alle cijfers openbaar)</span></a>
+        <a href="/indicators"><b>Uitleg van de 6 indicatoren</b><span>Wanneer RSI, MACD, drawdown en crosses je elk in de steek laten</span></a>
+        <a href="/guide-fear-greed"><b>Praktische gids angstindex</b><span>De indicator om naar te kijken als Mayer zwijgt</span></a>
+        <a href="/glossary"><b>Woordenlijst</b><span>Begrippen als 200-daagse lijn, SMA en deelscore</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

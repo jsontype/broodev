@@ -1,0 +1,754 @@
+    <main class="wrap" data-title="TTSで発音まで覚える — 言語によって効果が違う理由と実践設定 | VOCA DECK" data-desc="TTS音声をオンにすると、得られるものは言語ごとに違います。中国語の変調、英語の同綴異音語、フランス語のリエゾン、日本語の漢字の読み、そしてスペイン語はなぜTTSがあまり要らないのか。括弧表記のルール・シャドーイングの再生間隔の計算・ブラウザTTSの実際の限界まで。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — TTS &amp; PRONUNCIATION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 単語帳</a>
+          <a href="/method">暗記法の原理</a>
+          <a href="/csv-guide">CSVの作り方</a>
+          <a href="/study-guide">学習戦略</a>
+        </nav>
+
+        <h1>TTSで発音まで覚える</h1>
+        <p class="muted">最終更新：2026-07-14 · 作成：Y-Systems</p>
+
+        <p class="lead">
+          「TTSをオンにすると良い」という話は<strong>半分しか正しくありません。</strong>
+          音声をオンにしたときに<strong>得られるものが、言語によってまったく違うから</strong>です。
+          中国語はTTSなしで覚えると、<strong>単語の半分がそもそも記憶に入りません。</strong>
+          一方でスペイン語は、<strong>TTSをオフにしても発音をほぼ正確に復元できます。</strong>
+          この記事ではその<strong>温度差</strong>を言語別に整理し、各言語でCSVをどう書くべきか、
+          再生間隔を何秒にすれば後について言う時間が取れるのかを、<strong>アプリのコードにある実際のルールと数字</strong>でまとめます。
+        </p>
+
+        <h2>まず結論 — 言語別のTTS依存度</h2>
+        <p>
+          下の表がこの記事の要約であり、中心です。<strong>「TTSをオフにすると何を失うか」</strong>を基準にしています。
+          星が多いほど、音声なしで目だけで覚えたときに<strong>取り返しにくい損失</strong>が生じます。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>言語</th>
+                <th>綴り→発音の予測</th>
+                <th>TTSをオフにすると失うもの</th>
+                <th>依存度</th>
+                <th>CSVの発音表記</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>中国語</strong></td>
+                <td>低い<br /><span class="muted">ピンインがあっても実際の音とは違う</span></td>
+                <td><strong>声調 = 意味。</strong>しかも第3声の変調・一/不の変調は<strong>表記にまったく現れない</strong></td>
+                <td>★★★★★</td>
+                <td>入れない（漢字のみ）</td>
+              </tr>
+              <tr>
+                <td><strong>タイ語</strong></td>
+                <td>非常に低い</td>
+                <td>5つの声調 + 文字と音の対応が複雑。ローマ字表記は信頼できない</td>
+                <td>★★★★★</td>
+                <td>入れない（タイ文字のみ）</td>
+              </tr>
+              <tr>
+                <td><strong>英語</strong></td>
+                <td>低い</td>
+                <td>強勢の位置、黙字、<strong>同綴異音語</strong>（read/lead/tear）</td>
+                <td>★★★★☆</td>
+                <td>同綴異音語にだけ発音つづり</td>
+              </tr>
+              <tr>
+                <td><strong>フランス語</strong></td>
+                <td>中程度<br /><span class="muted">読むのは規則的、逆方向は不可能</span></td>
+                <td>語末の黙字、鼻母音、<strong>リエゾン</strong>（単語単体では現れない）</td>
+                <td>★★★★☆</td>
+                <td>表記より<strong>フレーズカード</strong></td>
+              </tr>
+              <tr>
+                <td><strong>日本語</strong></td>
+                <td>仮名は規則的<br /><strong>漢字は予測不能</strong></td>
+                <td>漢字の読み、高低アクセント（箸 / 橋）</td>
+                <td>★★★★☆</td>
+                <td><strong>括弧に読み仮名</strong>（アプリが対応）</td>
+              </tr>
+              <tr>
+                <td><strong>ロシア語</strong></td>
+                <td>中程度<br /><span class="muted">強勢が表記されない</span></td>
+                <td>強勢の位置 → それに応じて<strong>母音そのものが変わる</strong>（アーカニエ）</td>
+                <td>★★★★☆</td>
+                <td>強勢記号のみ（任意）</td>
+              </tr>
+              <tr>
+                <td><strong>ドイツ語</strong></td>
+                <td>高い</td>
+                <td>母音の長さ、chの2つの音、rの発音</td>
+                <td>★★☆☆☆</td>
+                <td>たいてい不要</td>
+              </tr>
+              <tr>
+                <td><strong>イタリア語</strong></td>
+                <td>非常に高い</td>
+                <td>ほとんどない（強勢の例外が少しだけ）</td>
+                <td>★★☆☆☆</td>
+                <td>不要</td>
+              </tr>
+              <tr>
+                <td><strong>スペイン語</strong></td>
+                <td><strong>非常に高い</strong><br /><span class="muted">3つのルールで決まる</span></td>
+                <td><strong>ほとんどない。</strong>表記が発音を事実上100%決める</td>
+                <td>★☆☆☆☆</td>
+                <td>不要</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          この順位は<strong>「表記が発音をどれだけ教えてくれるか」</strong>だけを基準につけたものです。
+          リスニング訓練や速さに慣れる目的なら、<strong>どの言語でもTTSは役に立ちます</strong>。
+          スペイン語の星1つは「TTSは役に立たない」ではなく、<strong>「発音を知るための用途としてはあまり要らない」</strong>という意味です。
+        </p>
+
+        <h2>なぜ温度差が生まれるのか（手短に）</h2>
+        <p>
+          <a href="/method#dual">暗記法の原理</a>で「TTSをオンにすると聴覚の経路がもう1本加わる」と
+          <strong>一文で済ませた箇所</strong>があります。この記事はそこから始まります。ただし二重符号化の話を繰り返すつもりはありません。
+          <strong>想起の手がかりが1つ増える</strong>ことより、もっと重要なのはこちらです。
+        </p>
+        <p>
+          単語を<strong>目だけで</strong>覚えると、頭の中には<strong>自分が勝手に読んだ音</strong>も一緒に保存されます。
+          音を保存しないのではありません。<strong>間違った音を保存するのです。</strong>
+          <code>colonel</code>を「コロネル」と読んで覚えた人にとって、ネイティブが話す本物の<code>colonel</code>（「カーヌル」）は
+          <strong>知っている単語ではなく、初めて聞く単語</strong>です。意味を完璧に知っていても<strong>リスニングの点数は0点</strong>です。
+        </p>
+        <p>
+          そしてこの誤りは<strong>消すコストのほうが、覚えるコストより大きい</strong>のです。
+          すでに定着した発音を矯正するのは、まっさらな状態から新しく入れるよりずっと時間がかかります。
+          <strong>TTSは後からオンにする機能ではなく、最初からオンにすべき機能</strong>である理由がこれです。
+        </p>
+        <div class="note">
+          一言でまとめると — <strong>TTSの本質は「聴覚の手がかりの追加」ではなく、「間違った発音の保存を前もって防ぐ」ことです。</strong>
+          だから<strong>表記が発音を裏切る言語ほど</strong>効果が大きくなります。上の表の順番は、まさにその順番です。
+        </div>
+
+        <h2>言語別の処方</h2>
+
+        <h3>中国語 — 表記が実際の音を教えてくれない唯一のケース</h3>
+        <p>
+          中国語を「★★★★★」にした理由は、声調だけではありません。
+          声調はピンインに記号で書かれているので、それだけなら目でも覚えられるはずです。
+          問題は、<strong>ピンインに書かれた声調と、実際に発音される声調が違う</strong>ことです。
+        </p>
+        <p>まず、声調が意味そのものだということから見てみましょう。同じ<code>ma</code>なのに、すべて別の単語です。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>声調</th><th>ピンイン</th><th>漢字</th><th>意味</th></tr></thead>
+            <tbody>
+              <tr><td>第1声（高く平ら）</td><td>mā</td><td>妈</td><td>お母さん</td></tr>
+              <tr><td>第2声（上がる）</td><td>má</td><td>麻</td><td>麻 / しびれる</td></tr>
+              <tr><td>第3声（下がってから上がる）</td><td>mǎ</td><td>马</td><td>馬（horse）</td></tr>
+              <tr><td>第4声（急に下げる）</td><td>mà</td><td>骂</td><td>叱る</td></tr>
+              <tr><td>軽声</td><td>ma</td><td>吗</td><td>疑問の助詞</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>実際に声調を取り違えると、こんなことが起こります。</p>
+        <ul>
+          <li><code>我想问你</code> wǒ xiǎng <strong>wèn</strong> nǐ — 「あなたに聞きたい」<br />
+              <code>我想吻你</code> wǒ xiǎng <strong>wěn</strong> nǐ — <strong>「あなたにキスしたい」</strong>（第4声 → 第3声、たった1つの違い）</li>
+          <li><code>买</code> <strong>mǎi</strong> 買う ↔ <code>卖</code> <strong>mài</strong> 売る — <strong>正反対の意味</strong>が第3声/第4声の1つで分かれます。</li>
+          <li><code>睡觉</code> shuìjiào 寝る ↔ <code>水饺</code> shuǐjiǎo 水餃子 — 声調を流すと「水餃子しに行きます」になってしまいます。</li>
+        </ul>
+        <p>
+          ここまでは、ピンインを丁寧に見れば解決します。<strong>本当の問題はここからです。</strong>
+        </p>
+        <div class="note warn">
+          <strong>変調（變調）— ピンインに書かれたとおりに読むと間違えます</strong><br />
+          <strong>第3声 + 第3声 → 第2声 + 第3声。</strong><code>你好</code>はピンインで<strong>nǐ hǎo</strong>（第3声+第3声）と書きますが、
+          実際の発音は<strong>ní hǎo</strong>（第2声+第3声）です。<br />
+          <strong>一</strong>：本来は第1声 yī ですが、<code>一个</code> = <strong>yí</strong> ge、<code>一起</code> = <strong>yì</strong> qǐ に変わります。<br />
+          <strong>不</strong>：本来は第4声 bù ですが、<code>不是</code> = <strong>bú</strong> shì に変わります。<br />
+          <strong>問題は、表記が一貫していないことです。</strong>
+          <strong>第3声の変調</strong>（你好）はピンインに<em>決して反映されません</em> — いつも<code>nǐ hǎo</code>と書いて<code>ní hǎo</code>と読みます。
+          一方で<strong>一・不の変調</strong>は<em>教材によって違います</em> — 変調後の形（<code>yí ge</code>、<code>bú shì</code>）で書くところもあれば、
+          本来の声調（<code>yī ge</code>、<code>bù shì</code>）で書くところもあります。
+          <strong>つまり表記は信用できません。</strong>結局、<strong>耳で確かめる以外に確実な方法はありません。</strong>
+        </div>
+        <p>
+          中国語で目だけで覚えた単語が「半分」である理由がこれです。
+          <strong>表記が教えてくれない層がもう1つあり、その層は音としてしか存在しません。</strong>
+          日本語や韓国語のように声調のない言語の話者にとっては、事情はさらに悪くなります。母語に声調がないため、声調を<strong>意味を変える音素</strong>ではなく
+          <strong>口調やイントネーション</strong>程度に処理してしまうのです。意識的に音を入れてあげないと、
+          <strong>声調は記憶にエンコードすらされません。</strong>
+        </p>
+        <div class="note warn">
+          <strong>中国語学習者にとって最も重要な設定</strong> — 詳細設定で<strong>音声を自分で選んでください。</strong>
+          低品質なローカルの中国語音声は<strong>声調の輪郭がつぶれます。</strong>
+          ほかの言語なら「ちょっとロボットっぽい」程度ですが、中国語では<strong>学ぶべき情報そのものが消える</strong>のです。
+          既定の「自動」に任せないでください。詳しい理由は下の<a href="#limits">限界</a>の節に書きました。
+        </div>
+
+        <h3>英語 — 規則より例外のほうが多い言語</h3>
+        <p>
+          英語は<strong>綴りを見て発音を推測すると間違えるように設計されているかのような</strong>言語です。
+          歴史的にさまざまな言語から単語を借りてくる中で、綴りは元の言語のまま残り、発音だけが変わったからです。
+          以下は<strong>綴りから推測するとほぼ確実に間違える</strong>単語です。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>単語</th><th>綴りどおりに読むと</th><th>実際の発音</th><th>犯人</th></tr></thead>
+            <tbody>
+              <tr><td><code>colonel</code></td><td>コロネル</td><td><strong>カー–ヌル</strong> /ˈkɜːrnəl/</td><td>文字にないrの音が出る</td></tr>
+              <tr><td><code>choir</code></td><td>チョイア</td><td><strong>クワイア</strong> /ˈkwaɪər/</td><td>chが /kw/</td></tr>
+              <tr><td><code>yacht</code></td><td>ヤクト</td><td><strong>ヤー–ト</strong> /jɑːt/</td><td>chがまるごと黙字</td></tr>
+              <tr><td><code>epitome</code></td><td>エピトーム</td><td><strong>イ–ピタミ</strong> /ɪˈpɪtəmi/</td><td>語末のeが生きている + 強勢</td></tr>
+              <tr><td><code>hyperbole</code></td><td>ハイパーボール</td><td><strong>ハイ–パーバリ</strong> /haɪˈpɜːrbəli/</td><td>同じ理由</td></tr>
+              <tr><td><code>awry</code></td><td>オー–リー</td><td><strong>ア–ライ</strong> /əˈraɪ/</td><td>a+wryの区切り間違い</td></tr>
+              <tr><td><code>quay</code></td><td>クウェイ</td><td><strong>キー</strong> /kiː/</td><td>4文字で音は2つ</td></tr>
+              <tr><td><code>indict</code></td><td>インディクト</td><td><strong>イン–ダイト</strong> /ɪnˈdaɪt/</td><td>cが黙字</td></tr>
+              <tr><td><code>subtle</code></td><td>サブトル</td><td><strong>サ–トル</strong> /ˈsʌtl/</td><td>bが黙字</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          ところが<strong>これらは実はTTSが自力で解決してくれます。</strong>英語の音声エンジンは世界で最も多く訓練された音声で、
+          上の単語をそのまま渡せば<strong>すべて正確に読みます。</strong>ですから英語のカードには
+          <strong>発音表記を入れる必要がありません。</strong>ただの<code>colonel,大佐</code>で十分です。
+        </p>
+        <p>
+          <strong>英語でTTSが失敗するポイントは別にあります。</strong>それが<strong>同綴異音語（heteronym）</strong>です。
+          綴りは同じなのに発音が2通りある単語です。単語を1つだけ渡されても、<strong>TTSにはどちらなのか知る方法がありません。</strong>
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>綴り</th><th>発音A</th><th>発音B</th></tr></thead>
+            <tbody>
+              <tr><td><code>lead</code></td><td>リー–ド（導く）</td><td>レッド（鉛）</td></tr>
+              <tr><td><code>read</code></td><td>リー–ド（現在）</td><td>レッド（過去）</td></tr>
+              <tr><td><code>tear</code></td><td>ティア（涙）</td><td>テア（裂く）</td></tr>
+              <tr><td><code>wind</code></td><td>ウィンド（風）</td><td>ワインド（巻く）</td></tr>
+              <tr><td><code>live</code></td><td>リヴ（住む）</td><td>ライヴ（生放送）</td></tr>
+              <tr><td><code>desert</code></td><td>デ–ザト（砂漠）</td><td>ディ–<strong>ザー–</strong>ト（見捨てる）</td></tr>
+              <tr><td><code>record</code></td><td><strong>レ</strong>–カド（名詞）</td><td>リ–<strong>コー–</strong>ド（動詞）</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          下の<a href="#paren">括弧ルール</a>で、この問題をアプリの機能で強制的に解決する方法を扱います。
+          <strong>英語で括弧を使う理由は、事実上これ1つだけです。</strong>
+        </p>
+
+        <h3>フランス語 — 読めるけれど、逆にはたどれない</h3>
+        <p>
+          フランス語はよく誤解されます。<strong>「フランス語は綴りと発音が違う」という言い方は正確ではありません。</strong>
+          フランス語は<strong>綴り → 発音の方向にはかなり規則的</strong>です。規則を覚えれば、初めて見る単語も読めます。
+          問題は<strong>発音 → 綴りの方向がほぼ不可能</strong>なこと、そして<strong>その規則が多くの学習者の直感と正反対</strong>なことです。
+        </p>
+        <p>最も強烈な例を見てみましょう。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>単語</th><th>文字数</th><th>実際の音</th><th>残るもの</th></tr></thead>
+            <tbody>
+              <tr><td><code>eaux</code>（水、複数）</td><td>4</td><td>/o/</td><td><strong>音は1つ</strong> — 4文字で「オ」1つ</td></tr>
+              <tr><td><code>oiseau</code>（鳥）</td><td>6</td><td>/wazo/</td><td>どの文字も音と1対1で対応しない</td></tr>
+              <tr><td><code>beaucoup</code>（たくさん）</td><td>8</td><td>/boku/</td><td>最後のpは黙字</td></tr>
+              <tr><td><code>temps</code>（時間）</td><td>5</td><td>/tɑ̃/</td><td>m・p・sはすべて消え、<strong>鼻母音</strong>だけ</td></tr>
+              <tr><td><code>femme</code>（女性）</td><td>5</td><td>/fam/</td><td>eなのに<strong>「ア」</strong>の音</td></tr>
+              <tr><td><code>monsieur</code></td><td>8</td><td>/məsjø/</td><td>綴りとほぼ無関係</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>語末の子音はたいてい黙字</strong>です（例外としてc・r・f・lはよく残ります — 英単語「CaReFuL」で覚えます）。
+          そして<strong>鼻母音</strong>（/ɑ̃/ /ɛ̃/ /ɔ̃/）は<strong>日本語に存在しない音</strong>です。
+          存在しない音は、<strong>目で身につける方法が原理的にありません。</strong>これは努力の問題ではありません。
+        </p>
+        <div class="note">
+          <strong>フランス語の本当の落とし穴はリエゾン（liaison）で、これはTTSでも拾えません。</strong><br />
+          <code>les</code>（レ）+ <code>amis</code>（アミ）をそれぞれ覚えると「レ アミ」になります。実際は<strong>/le.za.mi/「レザミ」</strong>です。
+          黙字だったsが<strong>後ろの単語の母音と出会って生き返り</strong>、/z/で発音されるのです。<br />
+          問題は — <strong>単語を1つずつ読み上げるTTSは、リエゾンを決して見せてくれない</strong>ことです。
+          <code>les</code>単体は永遠に「レ」です。<br />
+          <strong>処方：フランス語は単語ではなく「フレーズ」をカードにしてください。</strong>
+          <code>les amis</code>、<code>vous avez</code>、<code>petit ami</code>のように<strong>2〜3語を1枚のカードに</strong>入れると、
+          そこで初めてTTSがリエゾンを聞かせてくれます。
+        </div>
+
+        <h3>日本語 — 漢字は読みを教えてくれない</h3>
+        <p>
+          日本語は<strong>仮名で書かれた部分はほぼ完璧に規則的</strong>です。その点ではスペイン語並みです。
+          ところが<strong>漢字が混ざった瞬間、予測可能性はゼロに収束</strong>します。
+        </p>
+        <p>
+          漢字1字が<strong>音読み・訓読みを合わせて10通り以上</strong>に読まれることも珍しくありません。
+          <code>生</code>の1字だけでも、せい・しょう・なま・き・いきる・うまれる・はえる・おう… です。
+        </p>
+        <ul>
+          <li><code>生憎</code> = <strong>あいにく</strong>（あいにく・折悪しく）— 漢字2字のどこからもこの読みは推測できません。
+              音に漢字を<strong>後からあてはめた</strong>当て字だからです。</li>
+          <li><code>一日</code>は<strong>ついたち</strong>（その月の1日）でもあり、<strong>いちにち</strong>（1日間）でもあります。
+              <strong>同じ表記、違う読み、違う意味。</strong></li>
+          <li><code>明日</code> = <strong>あした</strong> / <strong>あす</strong> / <strong>みょうにち</strong> — 文脈と改まり度で分かれます。</li>
+        </ul>
+        <p>
+          ここに<strong>高低アクセント</strong>が乗ります。<code>箸</code>（食事に使うはし）と<code>橋</code>（川に架かるはし）は
+          どちらも<strong>はし</strong>とまったく同じに書かれますが、<strong>音の高低パターンが違います。</strong>
+          表記では区別できず、<strong>耳でしか区別できません。</strong>
+          （韓国語話者など、高低アクセントのない言語の話者は、この違いをまったく知覚できないことが多いです。）
+        </p>
+        <div class="note">
+          <strong>日本語学習者へのうれしい知らせ</strong> — このアプリの<strong>括弧ルール</strong>は、まさにこの問題のために作られました。
+          A面に<code>生憎（あいにく）</code>と書けば、<strong>画面には漢字と読みの両方が表示され、音声はあいにくだけを読みます。</strong>
+          すぐ次の節でこのルールを詳しく扱います。
+        </div>
+
+        <h3>ロシア語 — 強勢がわからないと、母音が何かさえわからない</h3>
+        <p>
+          ロシア語には2つの裏切りが重なっています。手短に書きます。
+        </p>
+        <ol>
+          <li><strong>強勢の位置が表記されません。</strong>教材と辞書にだけ強勢記号を付け、
+              実際のロシア語の文書には<strong>付けません。</strong>位置は不規則で、覚えるしかありません。</li>
+          <li><strong>強勢が母音の音を変えます（アーカニエ）。</strong>強勢のない<code>о</code>は<strong>「オ」ではなく「ア」に近く</strong>変わります。
+              <code>молоко</code>（牛乳）は綴りどおりなら「モロコ」ですが、実際は<strong>/məlɐˈko/「マラコー」</strong>です。
+              強勢がわからないと、<strong>どの母音が残るのかさえわかりません。</strong></li>
+        </ol>
+        <p>
+          しかも強勢の位置が単語を分けます。<code>за́мок</code>（城）と<code>замо́к</code>（錠前）は
+          <strong>綴りがまったく同じです。</strong>単語1つだけを渡されたら、TTSもどちらかわかりません —
+          英語の同綴異音語とまったく同じ問題で、解決策も同じです（文脈のあるカード）。
+        </p>
+
+        <h3>スペイン語 — TTSをオフにしてもいい理由</h3>
+        <p>
+          正直に書きます。<strong>スペイン語学習者にとって、TTSは「発音を知るための道具」としてはほとんど必要ありません。</strong>
+          スペイン語は<strong>表記が発音を事実上完全に決める</strong>からです。
+          下の<strong>強勢ルール3つ</strong>さえ知っていれば、初めて見る単語も正確に読めます。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ルール</th><th>強勢の位置</th><th>例</th></tr></thead>
+            <tbody>
+              <tr><td>母音・n・sで終わる</td><td>後ろから<strong>2番目</strong>の音節</td><td><code>ca-sa</code> → <strong>CA</strong>-sa · <code>co-men</code> → <strong>CO</strong>-men</td></tr>
+              <tr><td>それ以外の子音で終わる</td><td><strong>最後</strong>の音節</td><td><code>ha-blar</code> → ha-<strong>BLAR</strong> · <code>fe-liz</code> → fe-<strong>LIZ</strong></td></tr>
+              <tr><td>上の2つのルールの例外</td><td>必ず<strong>アクセント記号で示される</strong></td><td><code>ca-fé</code> · <code>lá-piz</code> · <code>te-lé-fo-no</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          これに字母のルールをいくつか（hは常に黙字、ll・ñ、vとbは事実上同じ音、c+e/iとzは地域によって /θ/ または /s/）加えれば
+          <strong>おしまいです。</strong>例外をあえて探すなら外来語くらいです。
+        </p>
+        <div class="note">
+          <strong>だからスペイン語学習者は、TTSを別のことに使ってください。</strong>
+          発音を知るためではなく、<strong>速さに慣れるため</strong>に使います。
+          スペイン語の本当の難関は「読み」ではなく<strong>母音の連結（synalepha）と話す速さ</strong>です。
+          単語間の母音がつぶれてつながり、しかも速いのです。
+          <strong>読み上げ速度を1.3〜1.5倍に上げて</strong>カードを回してください。発音学習ではなく<strong>リスニング訓練</strong>です。
+          これは同じTTS機能を<strong>まったく別の目的で</strong>使うということです。
+        </div>
+
+        <h2 id="paren">アプリが実際にしていること — コードが決めたルール</h2>
+        <p>
+          ここからは一般論ではなく、<strong>VOCA DECKのコードに実際に組み込まれている動作</strong>です。
+          これを知っておくと、CSVをずっと上手に作れます。
+        </p>
+
+        <h3>ルール1 — 括弧があれば、A面は「括弧の中だけ」を読みます</h3>
+        <p>
+          アプリの音声関数は、カードのテキストから<strong>まず括弧を探します。</strong>
+          全角<code>（）</code>・半角<code>()</code>のどちらも認識します。
+        </p>
+        <ul>
+          <li><strong>A面（単語）に括弧があれば</strong> → <strong>括弧の中身だけ</strong>を読みます。括弧の外は<strong>まったく読みません。</strong></li>
+          <li><strong>B面（意味）</strong> → 括弧とその中身を<strong>まるごと消して</strong>残りだけを読みます。</li>
+          <li><strong>画面には常に原文全体がそのまま表示されます。</strong>消えるのは音だけです。</li>
+        </ul>
+        <p>
+          この非対称性が肝心です。<strong>「見えるもの」と「聞こえるもの」を別々に設計できる</strong>ということだからです。
+        </p>
+        <pre><code>生憎（あいにく）,運悪く
+  → 画面: 生憎（あいにく）   (漢字と読みの両方が見える)
+  → 音声: あいにく            (読みだけが聞こえる)
+
+买,買う（mǎi）
+  → 画面: 買う（mǎi）        (ピンインが目に見える)
+  → 音声: 「買う」           (ピンインは読まれない — B面は括弧を消す)</code></pre>
+        <p>
+          2つ目の例に注目してください。<strong>ピンインをB面の括弧に入れると</strong>、
+          <strong>目ではピンインを確認しながら、耳にはピンインが割り込まない</strong>状態になります。
+          中国語学習者にとって、これが最も良い配置です。
+        </p>
+
+        <h3>ルール2 — 面ごとに言語（音声）が別です</h3>
+        <p>
+          A面とB面は<strong>それぞれ別の音声ロケール</strong>で読まれます。既定値は<strong>A = 日本語（ja-JP）、B = 韓国語（ko-KR）</strong>で、
+          詳細設定で<strong>13のロケール</strong>（en-US · ja-JP · ko-KR · zh-CN · zh-TW · th-TH · es-ES · fr-FR · de-DE · it-IT · pt-PT · ru-RU · nl-NL）から選べます。
+        </p>
+        <div class="note warn">
+          <strong>これが「音が出ない」の原因第1位です。</strong>
+          英語の単語帳を入れたのに、A面のロケールが<strong>既定値の日本語（ja-JP）</strong>のままだと、
+          日本語の音声が英単語を読もうとします。<strong>変に聞こえるか、まったく音が出ません。</strong><br />
+          <strong>CSVを自分で作ったなら、必ず詳細設定でA面の言語を先に合わせてください。</strong>
+          （サンプル単語帳を適用すると、ロケールは自動で設定されます。）
+        </div>
+
+        <h3>ルール3 — 読み上げ速度は0.5〜2.0倍に制限されます</h3>
+        <p>
+          A面・B面<strong>それぞれ</strong>0.5倍から2.0倍まで、<strong>0.05刻み</strong>で調整します。
+          この範囲外の値は、コードが強制的に切り詰めます。
+        </p>
+        <p>
+          <strong>そして、ここには正直に書いておくべき限界があります。</strong>
+          ブラウザの速度調整は<strong>音の高さを保ったまま時間だけを引き伸ばす方式</strong>です。
+          そのため<strong>0.7倍より下げると「ゆっくり話すネイティブ」ではなく「変な音」になります。</strong>
+          さらに重要なのは、遅くすると<strong>実際の発音の核心である縮約と連結が消えてしまう</strong>ことです。
+          0.6倍で聞いた<code>water</code>は、<strong>実際に耳にするwaterではありません。</strong>
+          <strong>ゆっくり聞くのは声調・音素の確認用であって、実戦のリスニング練習ではありません。</strong>
+        </p>
+
+        <h3>ルール4 — 繰り返し再生は1〜20回、または無限</h3>
+        <p>
+          1枚のカードで同じ音声を<strong>最大20回まで</strong>繰り返させることができ、<strong>無限の繰り返し</strong>もできます。
+          無限の繰り返しは<strong>1回読み終えて0.25秒休んでから</strong>また始めます。
+          次のカードに進むかTTSをオフにすると、<strong>すぐに止まります</strong>。
+        </p>
+        <p class="muted">
+          無限の繰り返しは、<strong>声調1つを体に刻み込むときや、できない発音1つに食らいつくとき</strong>に使います。
+          普段の学習では1〜2回で十分です。
+        </p>
+
+        <h3>ルール5 — 音量は掛け算です（落とし穴）</h3>
+        <p>
+          実際の音量はこう計算されます。
+        </p>
+        <pre><code>実際の音量 = (全体音量 ÷ 100) × (その面の音量 ÷ 100)
+
+全体 50% + A面 50%  →  0.5 × 0.5 = 0.25  →  実際は 25%</code></pre>
+        <p>
+          <strong>2つのスライダーを両方下げると掛け合わされ、思ったよりずっと小さくなります。</strong>
+          「音が小さすぎる」なら、まずここを確認してください。
+          逆に<strong>A面だけ大きく、B面は小さく</strong>しておく使い方は便利です
+          （外国語は大きく聞き、母語の意味はBGMのように）。
+        </p>
+
+        <h3>ルール6 — 何を読むかを選べます</h3>
+        <p>
+          <strong>A面のみ / B面のみ / 両方</strong>から選びます。
+          <strong>ほとんどの学習者には「A面のみ」が合っています。</strong>母語の意味まで音声で聞く理由はほとんどなく、
+          <strong>母語の音声が割り込むと、外国語の音への集中が途切れます。</strong>
+          B面の音声をオンにする理由は、「意味→単語」の方向で産出練習をするときくらいです。
+        </p>
+        <p>
+          さらに<strong>「音声のみ」モード</strong>が別にあります。オンにすると<strong>画面の文字が消え、音だけが残ります。</strong>
+          <strong>これは事実上、書き取り（ディクテーション）モードです。</strong>
+          綴りに頼らず<strong>音だけで意味を思い出す訓練</strong>になり、
+          <a href="/method#limit">「見ればわかる」と「思い出せる」を取り違える問題</a>を正面から打ち破ります。
+          <strong>目を閉じて行う想起練習</strong>だと考えてください。
+        </p>
+
+        <h2>CSVに発音を書くか、TTSに任せるか</h2>
+        <p>
+          いちばんよく受ける質問です。そして<strong>正解は言語によって違います。</strong>
+          上の<a href="#paren">括弧ルール</a>と各言語の性質を組み合わせれば答えが出ます。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>言語</th><th>答え</th><th>こう書いてください</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>日本語</strong></td>
+                <td><strong>括弧に読み仮名</strong></td>
+                <td><code>生憎（あいにく）,運悪く</code><br /><span class="muted">漢字だけを渡すと、音声エンジンは文脈なしに読みを推測して間違えます。括弧が正解を強制します。</span></td>
+              </tr>
+              <tr>
+                <td><strong>英語</strong></td>
+                <td><strong>ほとんど不要。</strong><br />ただし同綴異音語だけ発音つづりを</td>
+                <td><code>lead（leed）,導く</code><br /><code>lead（led）,鉛</code><br /><span class="muted">カードを2枚に分け、括弧で発音を強制します。</span></td>
+              </tr>
+              <tr>
+                <td><strong>中国語</strong></td>
+                <td><strong>A面の括弧は禁止。</strong><br />ピンインはB面の括弧へ</td>
+                <td><code>买,買う（mǎi）</code><br /><span class="muted">A面の括弧にピンインを入れると、中国語の音声がローマ字を読もうとして崩れます。漢字だけを渡せば正確に読みます。</span></td>
+              </tr>
+              <tr>
+                <td><strong>フランス語</strong></td>
+                <td><strong>表記の代わりにフレーズカード</strong></td>
+                <td><code>les amis,友人たち</code><br /><span class="muted">単語単体ではリエゾンは現れません。</span></td>
+              </tr>
+              <tr>
+                <td><strong>ロシア語</strong></td>
+                <td>不要（強勢記号のみ任意）</td>
+                <td><code>молоко,牛乳</code></td>
+              </tr>
+              <tr>
+                <td><strong>スペイン語 · イタリア語</strong></td>
+                <td><strong>不要</strong></td>
+                <td><code>hablar,話す</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>絶対にやらないで ① — 括弧の中に発音記号（IPA）</strong><br />
+          <code>colonel（ˈkɜːrnəl）,大佐</code>のように書くと、ルール1により<strong>音声エンジンに「ˈkɜːrnəl」という文字列がそのまま渡されます。</strong>
+          エンジンはIPAの特殊文字（ɜ · ə · ː）を<strong>読めません。</strong>黙り込むか、文字の名前を読むか、崩れた音を出します。
+          <strong>IPAは人が読む記号であって、音声エンジンが読む記号ではありません。</strong><br />
+          <span class="muted">発音記号を目で見たいなら<strong>B面の括弧</strong>に入れてください。そうすれば画面には表示され、音声からは外れます。</span>
+        </div>
+
+        <div class="note warn">
+          <strong>絶対にやらないで ② — 括弧の中にカタカナの発音</strong><br />
+          <code>apple（アップル）,りんご</code> — <strong>日本人がいちばんやりがちなミス</strong>です。
+          A面のロケールがen-USの状態で、括弧の中の「アップル」が<strong>英語の音声に渡されます。</strong>
+          英語の音声はカタカナを読めません。そしてルール1のせいで、<strong>括弧の外の「apple」はまったく読まれません。</strong>
+          結果：<strong>何の音も出ません。</strong><br />
+          <strong>カタカナの発音表記は、そもそも目標が間違っています。</strong>「アップル」はappleの発音ではありません。
+          日本語にない音をカタカナで書いた瞬間、<strong>間違った発音を保存することになります。</strong>それこそが、この記事が最初から言ってきた損失です。
+        </div>
+
+        <div class="note">
+          <strong>知っておくべき落とし穴をもう1つ</strong> — コードは<strong>最初の括弧1つだけ</strong>を探します。
+          A面に括弧を2回使うと、<strong>前のものだけを読んで後ろは無視</strong>します。
+          <code>一日（ついたち）と一日（いちにち）</code>のようなカードは<strong>ついたちしか読まれません。</strong>
+          <strong>1枚のカードに括弧は1つだけ。</strong>読みが2つあるなら<strong>カードを2枚に分けてください</strong>
+          （<a href="/csv-guide#design">「1枚のカードに1つの概念だけ」</a>の原則とまったく同じ結論です）。
+        </div>
+
+        <h2>シャドーイング — 再生間隔を何秒にするか</h2>
+        <p>
+          <strong>シャドーイング</strong>は、聞いた音を<strong>すぐに後について言う</strong>練習です。
+          TTSの価値が最大になるところであり、<strong>ほとんどの人が失敗するところ</strong>でもあります。
+          理由は単純です — <strong>後について言う時間がないから</strong>です。
+          既定の間隔3秒で自動再生を回すと、音声が終わるやいなや<strong>次のカードに進んでしまいます。</strong>
+        </p>
+        <p>だから時間を<strong>計算して</strong>入れる必要があります。1枚のカードのA面に必要な時間は、こう構成されます。</p>
+        <pre><code>A面に必要な時間
+  = 音声の再生時間 × 繰り返し回数
+  + 自分が反応するまでの時間  (約 0.3 〜 0.5秒)
+  + 自分が後について言う時間  (≒ 音声の再生時間)
+  + 余裕                      (約 0.5秒)</code></pre>
+        <p class="muted">
+          <strong>正直に明かします</strong> — このうち<strong>コードが決めている値は「再生間隔・速度・繰り返し回数」だけ</strong>です。
+          「反応時間0.3〜0.5秒」「1音節あたり0.25〜0.35秒」といった値は<strong>測定値ではなく、実際の使用に基づく目安</strong>です。
+          正確な数字として受け取らず、<strong>出発点</strong>として使ってください。自分のペースに合わせて調整するのが正解です。
+        </p>
+        <p>
+          英単語1つ（2音節）の音声は、1.0倍速でおよそ<strong>0.6〜0.8秒</strong>です。
+          短い例文（6〜8語）ならおよそ<strong>2.5〜3.5秒</strong>です。計算してみましょう。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>状況</th><th>計算</th><th>必要な時間</th><th>3秒で足りる？</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>単語を1回再生 + 後について言う</td>
+                <td>0.8 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 2.5秒</strong></td>
+                <td><strong>足ります</strong>（既定値がたまたまちょうどいい）</td>
+              </tr>
+              <tr>
+                <td>単語を<strong>2回</strong>再生 + 後について言う</td>
+                <td>0.8×2 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 3.3秒</strong></td>
+                <td><strong>足りません</strong> — 途中で切れます</td>
+              </tr>
+              <tr>
+                <td><strong>例文</strong>を1回 + 後について言う</td>
+                <td>3.0 + 0.4 + 3.0 + 0.5</td>
+                <td><strong>≈ 7秒</strong></td>
+                <td><strong>まったく足りない</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          そのためアプリには<strong>A面・B面の間隔をそれぞれ調整する値</strong>があります。
+          操作パネルの基本間隔はそのままにして、<strong>A面にだけ時間を足す</strong>方式です（0にすると基本間隔と同じ）。
+          <strong>シャドーイングはA面でしか行わないので、B面の時間を延ばす理由はありません。</strong>
+        </p>
+        <p>目的別のおすすめの組み合わせです。そのまま使わず、<strong>出発点</strong>にしてください。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>目的</th><th>速度</th><th>繰り返し</th><th>A面の合計時間</th><th>理由</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>初めての接触</strong>（音の刻み込み）</td><td>1.0×</td><td>2回</td><td><strong>5秒</strong></td>
+                <td>2回聞いて1回後について言う余裕</td>
+              </tr>
+              <tr>
+                <td><strong>シャドーイング（単語）</strong></td><td>0.9×</td><td>1回</td><td><strong>4秒</strong></td>
+                <td>1回聞いてすぐに後について言う</td>
+              </tr>
+              <tr>
+                <td><strong>シャドーイング（例文）</strong></td><td>0.85×</td><td>1回</td><td><strong>7〜8秒</strong></td>
+                <td>文は後について言うのに時間がかかる</td>
+              </tr>
+              <tr>
+                <td><strong>声調トレーニング</strong>（中国語）</td><td><strong>0.7×</strong></td><td>3回</td><td><strong>6秒</strong></td>
+                <td>遅くすると声調の輪郭が広がって聞こえる。<br /><strong>0.7より下げないこと</strong></td>
+              </tr>
+              <tr>
+                <td><strong>リスニング速度への適応</strong></td><td>1.3〜1.5×</td><td>1回</td><td><strong>3秒</strong></td>
+                <td>実戦の速さに耳を合わせる</td>
+              </tr>
+              <tr>
+                <td><strong>復習スキャン</strong>（知っている単語）</td><td>1.5×</td><td>1回</td><td><strong>2秒</strong></td>
+                <td>素早く流して穴だけを探す</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>シャドーイングの核心は「声に出して言うこと」です。</strong>頭の中でなぞるのはシャドーイングではありません。
+          <strong>口の筋肉を実際に動かしてこそ</strong>調音運動の記憶ができ、それが最終的に話す力になります。
+          <strong>口を開かないのなら、間隔を延ばす理由はありません。</strong>そのまま3秒にして、たくさん回してください。
+        </div>
+
+        <h2 id="limits">ブラウザTTSの限界 — 正直に</h2>
+        <p>
+          ここがこの記事で<strong>いちばん重要な部分</strong>です。
+          ブラウザの音声合成には<strong>無料でインストール不要</strong>という圧倒的な長所がありますが、
+          <strong>代償があります。</strong>知って使うのと知らずに使うのとでは違います。
+        </p>
+
+        <h3>① 端末ごとに音声が違います — これが最大の限界です</h3>
+        <p>
+          アプリは音声を<strong>作りません。</strong><strong>端末にすでにインストールされている音声を借りて使うだけです。</strong>
+          そのため<strong>まったく同じCSV、まったく同じ設定なのに、スマホでは自然でPCではロボットのように</strong>聞こえます。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>環境</th><th>状況</th></tr></thead>
+            <tbody>
+              <tr><td><strong>iPhone / Mac</strong></td><td>高品質な音声を内蔵。ただし言語によっては<strong>設定から別途ダウンロードする必要が</strong>あります。</td></tr>
+              <tr><td><strong>Android / Chrome</strong></td><td>おおむね品質は良好です。ただし<strong>言語パックがないと、その言語の音声はそもそも存在しません。</strong></td></tr>
+              <tr><td><strong>Windows + Edge</strong></td><td>高品質なオンライン音声を使います。<strong>最も良い組み合わせであることが多いです。</strong></td></tr>
+              <tr><td><strong>Windows + Chrome</strong></td><td>古いローカル音声しか出てこないことが多く、<strong>明らかにロボットのようです。</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          だからアプリには<strong>ロケールごとに音声を自分で選ぶ機能</strong>があります。既定値は「自動」（ブラウザが自動で選択）です。
+          <strong>音が気に入らなければ、自動をやめてリストから自分で選んでください。</strong>たいてい、ずっと良い音声が隠れています。
+        </p>
+        <div class="note warn">
+          <strong>中国語・タイ語の学習者は、この項目を読み飛ばさないでください。</strong>
+          ほかの言語なら音声の品質が低くても「ちょっと不自然」で済みますが、
+          <strong>声調言語で音声の品質が低いと「学ぶべき情報が失われる」</strong>のです。
+          声調の輪郭がつぶれた音声で声調を学ぶことはできません。<strong>音声選びは選択ではなく必須です。</strong>
+        </div>
+
+        <h3>② 再読み込みするとTTSは必ずオフになっています（バグではありません）</h3>
+        <p>
+          アプリは<strong>意図的にTTSの状態を保存しません。</strong>ほかの設定はすべて保存するのに、これだけはしません。
+          <strong>ブラウザが、ユーザーの操作なしに音を出せないようにブロックしているから</strong>です。
+          もしオンの状態で保存しておくと、ページを開いた途端にアプリが音を出そうとしてブラウザにブロックされ、
+          <strong>ユーザーは「オンなのに音が出ない」</strong>という最悪の状態に出くわします。
+        </p>
+        <p>
+          だから常にオフの状態で始まります。<strong>あなたがTTSのチェックボックスを押すそのクリックこそが、ブラウザの音のロックを外す鍵</strong>なのです。
+          <strong>毎回自分でオンにするのは不便ですが、代わりの方法はもっと悪いのです。</strong>
+        </p>
+
+        <h3>③ 音声リストが遅れて届きます</h3>
+        <p>
+          ブラウザは利用できる音声のリストを<strong>非同期で</strong>読み込みます。
+          ページを開いた直後は<strong>音声選択リストが空に見えることがあります。</strong>
+          アプリはリストが届くと自動で更新しますが、<strong>設定画面が空なら、少し待ってから開き直してください。</strong>
+        </p>
+
+        <h3>④ オフラインでは音声が変わったり消えたりします</h3>
+        <p>
+          <strong>ローカル音声</strong>はオフラインでも動きますが、<strong>高品質な音声の多くはクラウドベース</strong>なのでネットワークが必要です。
+          <strong>飛行機の中で急に声がロボットっぽくなったり、まったく出なくなったりする理由がこれです。</strong>
+          <strong>アプリと単語帳そのものはオフラインでも正常に動作します</strong>（ブラウザにだけ保存されるため）。
+          <strong>TTSだけがOSとネットワークに左右されます。</strong>
+        </p>
+
+        <h3>⑤ 単語1つには文脈がありません</h3>
+        <p>
+          すでに何度も出てきた問題で、<strong>構造的に解決できません。</strong>
+          英語の<code>read</code>、中国語の<code>行</code>（xíng 行く / háng 列・銀行）、
+          ロシア語の<code>замок</code>（城 / 錠前）— <strong>TTSは推測するしかなく、よく間違えます。</strong>
+        </p>
+        <p>
+          <strong>解決策は1つだけです：文脈をカードに入れること。</strong>
+          括弧で発音を強制するか、例文をA面に入れるかのどちらかです。
+          <strong>これはTTSの限界であって、設定で直せる問題ではありません。</strong>
+        </p>
+
+        <h3>⑥ 単語単体の発音は「辞書形」です — 実戦の発音ではありません</h3>
+        <p>
+          <strong>これが最も過小評価されている限界です。</strong>
+          TTSが単語1つを読むときに出る音は、<strong>一語一語はっきりした辞書形（citation form）</strong>です。
+          ところが<strong>実際の会話では、単語はそのようには発音されません。</strong>
+        </p>
+        <ul>
+          <li><strong>弱形（weak form）</strong> — <code>to</code>は「トゥー」ではなく /tə/「タ」、<code>can</code>は「キャン」ではなく /kən/「クン」とつぶれます。</li>
+          <li><strong>連結と縮約</strong> — <code>want to</code> →「ワナ」、<code>going to</code> →「ガナ」。</li>
+          <li><strong>はじき音化</strong> — アメリカ英語の<code>water</code>は、tが /d/ に近く変わります。</li>
+        </ul>
+        <p>
+          <strong>TTSで単語を完璧に覚えた人が、ネイティブ同士の会話を一言も聞き取れないことがよくあるのは、これが理由です。</strong>
+          単語カードで覚えた音と、<strong>実際に流れていく音は違います。</strong>
+          <strong>単語のTTSは「発音の出発点」をつかませてくれるだけで、リスニングを完成させてはくれません。</strong>
+          完成させるのは<strong>実際のコンテンツ（ドラマ・ポッドキャスト・講義）</strong>です。このアプリがそれに取って代わることはできません。
+        </p>
+
+        <h3>⑦ TTSは入力を与えるだけ — 自分の発音が合っているかは誰も教えてくれません</h3>
+        <p>
+          シャドーイングの根本的な限界です。<strong>正確な音を聞かせることと、自分が出した音が合っているか確かめることは、まったく別のことです。</strong>
+          <strong>アプリには後者ができません。</strong>あなたが間違って後について言っても、<strong>誰も指摘しません。</strong>
+          そして人は<strong>自分の発音を自分で正確に聞き取れません。</strong>
+        </p>
+        <p>
+          <strong>補う方法</strong>はアプリの外にあります — <strong>スマホで自分の声を録音して、TTSと交互に聞いてみてください。</strong>
+          これ1つだけでも、<strong>自分ではまったく気づけなかった違い</strong>が聞こえてきます。
+          <strong>可能なら、人に確認してもらうのがいちばん確実です。</strong>
+        </p>
+
+        <h2>まとめ</h2>
+        <p>
+          <strong>TTSは「オンにすると良い付加機能」ではなく、言語によっては「オンにしないと半分しか覚えられない」機能です。</strong>
+        </p>
+        <ul>
+          <li><strong>中国語・タイ語</strong> — TTSなしで覚えると<strong>単語の半分（声調）が記憶に入りません。</strong>音声の品質まで気を配ってください。</li>
+          <li><strong>英語・フランス語・日本語・ロシア語</strong> — <strong>表記が発音を裏切ります。</strong>TTSが間違った発音の保存を防いでくれます。</li>
+          <li><strong>スペイン語・イタリア語</strong> — <strong>表記だけで発音がわかります。</strong>TTSは発音用ではなく<strong>速さへの適応用</strong>に使ってください。</li>
+          <li><strong>CSVの表記</strong> — 日本語は<strong>括弧に読み仮名</strong>、英語は<strong>同綴異音語だけ発音つづり</strong>、
+              中国語は<strong>A面の括弧は禁止・ピンインはB面に。</strong><strong>IPAやカタカナの発音は絶対に括弧に入れないでください。</strong></li>
+          <li><strong>シャドーイング</strong> — <strong>口を開くなら</strong>A面の時間を4〜5秒（例文は7〜8秒）に。<strong>口を開かないなら3秒のままたくさん回してください。</strong></li>
+        </ul>
+        <div class="note">
+          そして最も重要なこと — <strong>TTSは発音を「聞かせて」くれるだけで、覚えてはくれません。</strong>
+          <a href="/method#fix">接触と想起は違います。</a>音を聞いたからといって、その音を出せるわけではありません。
+          <strong>口を開かなければなりません。</strong>その部分は道具が代わりにやってくれることはできません。
+        </div>
+
+        <div class="note warn">
+          <strong>この記事の範囲と限界</strong><br />
+          この記事の<strong>アプリの動作・設定範囲・計算ルール</strong>（速度0.5〜2.0倍、繰り返し1〜20回、音量の掛け算、括弧の処理、13のロケール）は
+          <strong>VOCA DECKの実際のコードから取った値</strong>です。<br />
+          一方で<strong>「1音節あたり0.25〜0.35秒」「反応時間0.3〜0.5秒」、目的別のおすすめの組み合わせ</strong>は
+          <strong>測定された研究結果ではなく、実際の使用に基づく目安</strong>です。個人差が大きいので<strong>出発点としてだけ</strong>使ってください。<br />
+          言語別の発音の説明は<strong>標準語（普通話・東京方言・標準フランス語など）を基準</strong>としており、
+          <strong>地域差や方言では異なる場合があります。</strong>
+          そして<strong>ブラウザTTSはネイティブスピーカーではありません。</strong>試験や大事な場面での発音は、
+          <strong>辞書の音声と実際のネイティブの素材で必ずクロスチェックしてください。</strong>
+        </div>
+
+        <h2>続けて読む</h2>
+        <div class="related">
+          <a href="/method"><b>点滅式単語帳の暗記法の原理</b><span>忘却曲線・間隔効果・二重符号化、そして限界</span></a>
+          <a href="/csv-guide"><b>CSV単語帳の作り方</b><span>文字化けの解決 + 良いカード設計の原則</span></a>
+          <a href="/study-guide"><b>学習戦略ガイド</b><span>1日に何語、復習の周期、4週間プラン</span></a>
+          <a href="/"><b>単語帳を開く</b><span>TTSをオンにしてすぐに始める</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 運営：Y-Systems · <a href="/privacy">プライバシーポリシー</a> · <a href="/terms">利用規約</a></footer>
+      </div>
+    </main>

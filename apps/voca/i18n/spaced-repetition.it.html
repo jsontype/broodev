@@ -1,0 +1,793 @@
+<main class="wrap" data-title="Algoritmi di ripetizione dilazionata a confronto — Leitner · SM-2 · FSRS, e perché noi non ne usiamo nessuno | VOCA DECK" data-desc="Le formule con cui lo schedario di Leitner (1972), SM-2 (1987, EF 2.5) e FSRS (stabilità S) calcolano la data del ripasso, confrontate con numeri reali. Una simulazione che segue una sola parola per 30 giorni, una tabella di conversione tra ritenzione desiderata e intervallo in FSRS e, svelato a livello di codice, il prezzo della scelta di VOCA DECK: un ciclo uniforme al posto della personalizzazione.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Quaderno di vocaboli</a>
+          <a href="/method">Come funziona</a>
+          <a href="/study-guide">Strategia di studio</a>
+          <a href="/csv-guide">Creare un CSV</a>
+        </nav>
+
+        <h1>Algoritmi di ripetizione dilazionata a confronto</h1>
+        <p class="muted">Leitner · SM-2 · FSRS, e perché noi non ne usiamo nessuno · Ultimo aggiornamento: 2026-07-14 · A cura di Y-Systems</p>
+
+        <p class="lead">
+          Questo articolo <strong>parte mostrando i punti in cui la nostra app perde.</strong>
+          Nella tabella qui sotto, la colonna VOCA DECK contiene diverse «✗». Non le abbiamo cancellate.
+          <strong>Il cuore della ripetizione dilazionata (spaced repetition) è «chi calcola la data del ripasso, e come»</strong>,
+          e noi abbiamo <strong>scelto di non fare</strong> quel calcolo.
+          L’articolo <strong>seziona, a livello di formule e di numeri,</strong> i tre algoritmi che quel calcolo lo fanno davvero,
+          e <strong>mostra, preso direttamente dal nostro codice,</strong> a cosa abbiamo rinunciato e per ottenere cosa.
+        </p>
+
+        <h2 id="spec">Prima la scheda tecnica — ogni cella della tabella è un capitolo di questo articolo</h2>
+        <p>
+          Prima di leggere le spiegazioni, guardiamo <strong>la tabella delle conclusioni</strong>. Ogni riga viene sezionata più sotto, una alla volta.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Voce</th>
+                <th><a href="#leitner" style="color:#22dd22">Schedario di Leitner</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Variante di Anki</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(Memorizzazione flash)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Unità di pianificazione</strong></td>
+                <td>Giorno (per scomparto)</td>
+                <td>Giorno</td>
+                <td>Minuto + giorno</td>
+                <td>Giorno (con decimali)</td>
+                <td><strong>Secondo</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Stato che la carta ricorda</strong></td>
+                <td>1 numero di scomparto<br />(1~5)</td>
+                <td>EF · numero di ripetizioni · intervallo<br />(3 numeri reali)</td>
+                <td>ease · intervallo · numero di errori</td>
+                <td>Difficoltà D · stabilità S<br />(variabili latenti)</td>
+                <td><strong>1 booleano</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>Valutazione della qualità della risposta</strong></td>
+                <td>○/✗ 2 livelli</td>
+                <td>q = 0~5 (6 livelli)</td>
+                <td>4 livelli (Again~Easy)</td>
+                <td>4 livelli</td>
+                <td><strong>✗ Nessuna</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Registro dei ripassi</strong></td>
+                <td>Schedario fisico</td>
+                <td>Stato per carta</td>
+                <td>Log completo dei ripassi</td>
+                <td>Log obbligatorio (per l’apprendimento)</td>
+                <td><strong>✗ Non salvato</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Impara dai tuoi dati</strong></td>
+                <td>✗</td>
+                <td>✗ (costanti fissate a mano)</td>
+                <td>✗</td>
+                <td><strong>○ (ottimizzazione dei parametri)</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>Personalizzazione per carta</strong></td>
+                <td>△ (schiacciata su 5 livelli)</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗ (tutte uguali)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Copertura completa garantita</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>(○ solo in avanti,<br />✗ in casuale)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Account · installazione · sincronizzazione</strong></td>
+                <td>Scatola di cartone</td>
+                <td>Necessari</td>
+                <td>Necessari</td>
+                <td>Necessari</td>
+                <td><strong>◎ Nessuno necessario</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Valanga di ripassi arretrati</strong></td>
+                <td>Sì</td>
+                <td>Sì</td>
+                <td><strong>Sì (prima causa di abbandono)</strong></td>
+                <td>Sì</td>
+                <td><strong>◎ No</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Ritenzione a lungo termine delle carte mature</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗ (punto cieco)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Densità di esposizione nella sessione</strong></td>
+                <td>Bassa</td>
+                <td>Bassa</td>
+                <td>Bassa</td>
+                <td>Bassa</td>
+                <td><strong>◎ 6 s/carta</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>La tabella in una frase</strong> — le prime quattro colonne sono strumenti che rispondono a <strong>«tra quanti giorni rivederla?»</strong>,
+          la colonna più a destra è uno strumento che risponde a <strong>«cosa guardare in questi 6 secondi?»</strong>.
+          <strong>Non sono concorrenti che risolvono lo stesso problema.</strong> La conclusione dell’articolo è già tutta qui.
+        </div>
+
+        <h2 id="leitner">1972 — Leitner: «spostare la carta, questo è l’algoritmo»</h2>
+
+        <h3>Il problema che l’epoca voleva risolvere</h3>
+        <p>
+          Non c’erano computer. Quello che il giornalista tedesco <strong>Sebastian Leitner</strong>
+          propose in un libro del 1972 era <strong>una ripetizione dilazionata che non richiede alcun calcolo</strong>.
+          Niente matita, niente calcolo delle date. <strong>Il semplice gesto di spostare fisicamente la carta equivale a salvarne lo stato.</strong>
+        </p>
+
+        <h3>Come l’ha risolto</h3>
+        <ul>
+          <li>Si divide una scatola con divisori in <strong>5 scomparti</strong>.</li>
+          <li>Ogni carta nuova parte dallo <strong>scomparto 1</strong>.</li>
+          <li>Se rispondi bene, <strong>avanza di uno scomparto</strong>.</li>
+          <li>Se sbagli, <strong>da qualunque scomparto si trovi, precipita senza eccezioni nello scomparto 1</strong>.</li>
+          <li>Ogni scomparto ha il proprio ritmo di ripasso. La disposizione più diffusa è la seguente.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scomparto</th><th>Ritmo di ripasso</th><th>Cosa significa stare qui</th><th>Se sbagli</th></tr></thead>
+            <tbody>
+              <tr><td>N. 1</td><td><strong>Ogni giorno</strong></td><td>Ancora non la sai / appena sbagliata</td><td>Resta nel n. 1</td></tr>
+              <tr><td>N. 2</td><td>Ogni 2 giorni</td><td>Indovinata una volta</td><td><strong>→ precipita nel n. 1</strong></td></tr>
+              <tr><td>N. 3</td><td>Ogni 4 giorni</td><td>Indovinata due volte di fila</td><td><strong>→ precipita nel n. 1</strong></td></tr>
+              <tr><td>N. 4</td><td>Ogni 8 giorni</td><td>Tre volte di fila</td><td><strong>→ precipita nel n. 1</strong></td></tr>
+              <tr><td>N. 5</td><td>Ogni 16 giorni</td><td>Quasi memorizzata</td><td><strong>→ precipita nel n. 1</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          A rigore, <strong>lo schema originale di Leitner non si basava sulle date ma sulla capienza: «quando uno scomparto è pieno, lo si svuota»</strong>.
+          Gli 1 · 2 · 4 · 8 · 16 giorni qui sopra sono una <strong>versione a calendario</strong> affermatasi in seguito.
+          Molti testi confondono le due cose, quindi lo precisiamo.
+        </p>
+
+        <h3>Cosa non ha funzionato</h3>
+        <p>
+          Il difetto fatale di Leitner è che <strong>«la caduta è troppo crudele»</strong>.
+          Una carta nello scomparto 5 che <strong>inciampa una sola volta</strong> viene trattata
+          <strong>esattamente come</strong> una carta nuova «mai indovinata» e ricade nello scomparto 1.
+          In realtà quella carta è quasi imparata, ma lo schedario non ha modo di esprimerlo.
+          <strong>Con un solo intero come stato, non c’è posto per registrare «quasi saputa, ma oggi confusa».</strong>
+        </p>
+        <p>
+          E <strong>tutte le carte salgono la stessa scala.</strong>
+          Una parola facile deve percorrere tutti e 5 gli scomparti, e anche una parola che proprio non vuole entrare in testa ne percorre 5.
+          <strong>Serviva una scala che ogni carta potesse salire alla propria velocità.</strong> Arrivò 15 anni dopo.
+        </p>
+
+        <h2 id="sm2">1987 — SM-2: 15 anni per trasformare un intero in un numero reale</h2>
+
+        <h3>Il problema che l’epoca voleva risolvere</h3>
+        <p>
+          Il polacco <strong>Piotr Woźniak</strong>, creando SuperMemo, pubblicò
+          <strong>SM-2</strong>, che sostituisce il «numero di scomparto (intero)» di Leitner con un <strong>«coefficiente di facilità (numero reale)»</strong>.
+          L’invenzione chiave è un solo elemento: l’<strong>EF (Easiness Factor, coefficiente di facilità)</strong>.
+        </p>
+
+        <h3>Come l’ha risolto — la formula vera</h3>
+        <p>A ogni ripasso SM-2 ti fa autovalutare su sei livelli, <strong>q = 0~5</strong> (5 = perfetto, 0 = vuoto totale). Poi aggiorna l’EF così.</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+EF iniziale = 2.5   ·   EF minimo = 1.3 (non scende mai sotto)</code></pre>
+        <p>Ecco i valori che questa formula produce davvero. <strong>La tabella è stata compilata facendo i conti a mano.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q (autovalutazione)</th><th>Significato</th><th>Variazione dell’EF</th><th>Partendo da EF 2.5</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>Ricordata alla perfezione</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>Giusta, ma con un attimo di esitazione</td><td><strong>±0.00</strong></td><td>2.50 (invariato)</td></tr>
+              <tr><td><strong>3</strong></td><td>Giusta per un pelo</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>Sbagliata, ma chiara vedendo la risposta</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>Sbagliata, la risposta suona estranea</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>Vuoto totale</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Che q=4 dia esattamente 0 è l’intenzione progettuale della formula.</strong>
+          «Giusta senza problemi» è un <strong>punto neutro che non modifica</strong> la valutazione della difficoltà;
+          se vai meglio sale, se vai peggio scende. Le costanti 0.1 · 0.08 · 0.02
+          <strong>non derivano da una teoria: le ha tarate a mano Woźniak</strong>. Questo punto diventerà importante più avanti.
+        </p>
+        <p>Poi l’intervallo successivo viene stabilito così.</p>
+        <pre><code>I(1) = 1 giorno
+I(2) = 6 giorni
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+se q &lt; 3 → il numero di ripetizioni n torna a 1 (l’intervallo torna a 1 giorno)</code></pre>
+        <p>
+          <strong>L’EF è un moltiplicatore.</strong> Per questo una carta facile con EF 2.5 e una carta infernale con EF 1.3
+          <strong>si allontanano in modo esponenziale.</strong> A parità di ripassi, gli intervalli raggiunti sono completamente diversi.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ripasso n.</th><th>EF 2.5 (carta facile)</th><th>EF 1.9 (media)</th><th>EF 1.3 (carta infernale)</th></tr></thead>
+            <tbody>
+              <tr><td>1°</td><td>1 giorno</td><td>1 giorno</td><td>1 giorno</td></tr>
+              <tr><td>2°</td><td>6 giorni</td><td>6 giorni</td><td>6 giorni</td></tr>
+              <tr><td>3°</td><td>15 giorni</td><td>11 giorni</td><td>8 giorni</td></tr>
+              <tr><td>4°</td><td>38 giorni</td><td>22 giorni</td><td>10 giorni</td></tr>
+              <tr><td>5°</td><td>94 giorni</td><td>41 giorni</td><td>13 giorni</td></tr>
+              <tr><td>6°</td><td><strong>235 giorni</strong></td><td>78 giorni</td><td>17 giorni</td></tr>
+              <tr><td>7°</td><td><strong>587 giorni (1.6 anni)</strong></td><td>148 giorni</td><td><strong>22 giorni</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Al 7° ripasso: <strong>587 giorni contro 22 — una differenza di 27 volte</strong>.
+          È qui che SM-2 batte Leitner. Le carte facili vengono <strong>tolte di mezzo per un anno e mezzo</strong>,
+          e tutto quel tempo viene speso sulle carte difficili.
+        </p>
+
+        <h3>Cosa non ha funzionato</h3>
+        <p><strong>① L’autovalutazione a 6 livelli è troppo difficile per una persona.</strong>
+          Per ogni carta devi decidere che differenza c’è tra q=3 e q=4. In pratica la maggior parte degli utenti
+          <strong>preme sempre e solo due o tre livelli.</strong> Il design a 6 livelli collassa di fatto in 3.</p>
+        <p><strong>② La gestione degli errori è ambigua.</strong> Il testo originale dice «se q&lt;3, ricomincia da capo <em>senza modificare l’EF</em>», ma
+          lo pseudocodice dello stesso documento <strong>aggiorna l’EF per ogni q</strong>. Le implementazioni si dividono.
+          <strong>Che un bivio centrale di un algoritmo usato da oltre 30 anni sia ambiguo nella documentazione</strong> è un fatto che è più onesto riportare così com’è.
+          (La simulazione di questo articolo ha scelto l’opzione <strong>«anche l’EF viene aggiornato»</strong>.)</p>
+        <p><strong>③ Le costanti sono fissate senza giustificazione.</strong> Perché I(2) vale 6 giorni? Perché proprio 0.08?
+          <strong>Numeri tarati a mano da una sola persona nel 1987 sui propri dati</strong> vengono applicati tali e quali a tutti gli studenti del mondo.
+          È per questo che è nato FSRS.</p>
+
+        <h2 id="anki">La variante di Anki — e l’«ease hell»</h2>
+        <p>
+          Anki non usa SM-2 così com’è. <strong>Riduce i livelli a 4</strong> (Again / Hard / Good / Easy),
+          chiama l’EF <strong>ease</strong> e ha ritoccato l’ampiezza delle correzioni. Ecco il comportamento reale con il preset predefinito.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Pulsante</th><th>Variazione dell’ease</th><th>Intervallo successivo</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong> (errore)</td><td><strong>−0.20</strong></td><td>Intervallo precedente <strong>× 0%</strong> → minimo 1 giorno<br />(+ 10 min di riapprendimento)</td><td>L’intervallo viene <strong>azzerato al minimo</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>Intervallo precedente × <strong>1.2</strong></td><td>Moltiplicatore fisso, indipendente dall’ease</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>Intervallo precedente × <strong>ease</strong></td><td>Punto neutro (il q=4 di SM-2)</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>Intervallo precedente × ease × <strong>1.3</strong></td><td>Bonus «facile»</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Altri valori predefiniti: passi di apprendimento <code>1m 10m</code> · intervallo di promozione <strong>1 giorno</strong> · intervallo «facile» <strong>4 giorni</strong> ·
+          ease iniziale <strong>2.50</strong> · <strong>ease minima 1.30</strong> · soglia sanguisuga (leech) <strong>8 errori</strong>.
+          I valori predefiniti di Anki possono cambiare a seconda della versione e del preset: <strong>controllali tu stesso nelle opzioni del mazzo.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Cos’è l’«ease hell»?</strong> — Una carta su cui premi ripetutamente Again (−0.20) e Hard (−0.15)
+          vede la sua ease <strong>incollarsi al minimo di 1.30.</strong> A quel punto l’intervallo successivo cresce solo di <strong>× 1.3</strong>
+          e <strong>striscia</strong>: 1 giorno → 2 giorni → 3 giorni → 4 giorni… E per giunta Again lo riporta a 1 giorno.
+          Risultato: <strong>poche carte occupano per sempre la coda dei ripassi quotidiani</strong>.<br />
+          <strong>L’unica strada per far risalire l’ease è Easy (+0.15), e nessuno preme Easy su una carta infernale.</strong>
+          <strong>Quattro porte per scendere e una sola per risalire</strong>: è il difetto strutturale della famiglia SM-2,
+          ed è il motivo per cui gli utenti di Anki dicono che «8 carte sanguisuga mi stanno rovinando la vita».
+        </div>
+        <p>
+          I rimedi stanno per lo più <strong>fuori dall’algoritmo</strong>: cancellare la carta, spezzarla, aggiungerci una frase («è la carta a essere fatta male,
+          non io a essere stupido»), oppure <strong>azzerare l’ease a mano</strong>.
+          <strong>Significa che una persona sta riparando a mano ciò che l’algoritmo non sa riparare</strong>, e proprio questa consapevolezza ha dato vita alla generazione successiva.
+        </p>
+
+        <h2 id="fsrs">FSRS — l’unico algoritmo che sa dire con precisione «che cosa sia S»</h2>
+        <p>
+          <strong>FSRS (Free Spaced Repetition Scheduler)</strong> abbandona le costanti tarate a mano e
+          <strong>adatta i propri parametri al tuo log di ripasso reale</strong>. Si basa sul <strong>modello DSR</strong>.
+        </p>
+        <ul>
+          <li><strong>D (Difficulty, difficoltà)</strong> — quanto è intrinsecamente difficile questa carta</li>
+          <li><strong>S (Stability, stabilità)</strong> — quanto a lungo regge il ricordo</li>
+          <li><strong>R (Retrievability, recuperabilità)</strong> — la probabilità di ricordarla <strong>in questo preciso istante</strong></li>
+        </ul>
+        <p>La curva dell’oblio è definita così (secondo FSRS-4.5 / 5, <strong>DECAY = −0.5</strong>, <strong>FACTOR = 19/81</strong>).</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>Un fatto che quasi nessuno fa notare</h3>
+        <p><strong>Sostituiamo t con S.</strong> Cioè: «che succede se rivedi una carta di stabilità S esattamente dopo S giorni?»</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← esattamente 90%</code></pre>
+        <p>
+          <strong>Non è un caso. FACTOR = 19/81 e DECAY = −0.5 sono costanti ricavate a ritroso proprio per ottenere questo valore.</strong>
+          <strong>Per questo la natura di S si definisce in una sola frase.</strong>
+        </p>
+        <div class="note">
+          <strong>S (stabilità) = «il numero di giorni che servono perché la probabilità di ricordare scenda al 90%»</strong><br />
+          S = 30 significa: «se reincontri questa carta tra 30 giorni, la indovini nove volte su dieci».
+          <strong>Non è una variabile interna astratta, ma una grandezza fisica che si legge in giorni.</strong>
+          L’EF di SM-2 non consente una lettura del genere. Se chiedi cosa significhi «EF 2.5», l’unica risposta è «un numero per cui si moltiplica».
+        </div>
+
+        <h3>Come cambia il carico di ripasso al variare della ritenzione desiderata — tabella di conversione</h3>
+        <p>
+          FSRS ti fa scegliere direttamente la <strong>ritenzione desiderata (desired retention)</strong> (predefinita <strong>0.90</strong>).
+          Risolvendo la formula qui sopra rispetto a t, l’intervallo risulta così.
+        </p>
+        <pre><code>intervallo t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>Ecco il risultato inserendo i numeri. <strong>Questa tabella potrebbe essere la parte più pratica dell’articolo.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ritenzione desiderata R</th><th>Intervallo (multiplo di S)</th><th>Per una carta con S=30 giorni</th><th>Carico di ripasso</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14 giorni</td><td><strong>Esplode, circa × 2.2</strong></td></tr>
+              <tr><td><strong>0.90</strong> (predefinita)</td><td><strong>× 1.00</strong></td><td>30 giorni</td><td>Riferimento</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49 giorni</td><td>Circa il 40% in meno</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72 giorni</td><td><strong>Circa il 58% in meno</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133 giorni</td><td>Circa il 77% in meno</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Come leggerla: <strong>alzare la ritenzione da 0.90 a 0.95, «appena 5 punti», riduce l’intervallo a meno della metà</strong>
+          e <strong>raddoppia il carico di ripasso.</strong> Al contrario, abbassarla a 0.80 <strong>fa scendere il carico sotto la metà,
+          perdendo solo 10 punti di percentuale di risposte giuste</strong>. Poiché la curva è così ripida,
+          <strong>l’intuizione «più alta è la ritenzione, meglio è» qui crolla.</strong>
+          Se l’esame non è imminente, l’intervallo 0.85~0.90 è in genere ragionevole.
+        </p>
+        <p class="muted">
+          Nota di precisione: la derivazione qui sopra vale per <strong>FSRS-4.5 / 5, in cui DECAY è fissato a −0.5</strong>.
+          <strong>Da FSRS-6 in poi DECAY stesso è un parametro appreso</strong>, quindi l’uguaglianza «S = intervallo al 90%»
+          potrebbe non valere esattamente. Anche il numero di parametri è cresciuto da una versione all’altra: <strong>17 → 19 → 21</strong>.
+          <strong>Non citare questi numeri così come sono senza verificare la versione.</strong>
+        </p>
+
+        <h3>Cosa FSRS non sa fare</h3>
+        <p>
+          FSRS <strong>diventa tuo solo con il tuo log.</strong>
+          <strong>Finché non si accumulano da qualche centinaio a poco più di 1.000 ripassi, gira con i parametri predefiniti</strong>,
+          che in fondo sono <strong>«la media degli altri»</strong>. Cioè <strong>nel primo mese FSRS non è personalizzato.</strong>
+          E tenere un log significa anche che <strong>tutta la cronologia dei tuoi ripassi viene salvata da qualche parte</strong>.
+        </p>
+
+        <h2 id="sim">Seguire una sola parola per 30 giorni — simulazione</h2>
+        <p>
+          Trasformiamo le formule astratte in qualcosa di concreto. Mettiamo una sola carta, la parola <code>ubiquitous</code>, in tre sistemi con il seguente scenario.
+        </p>
+        <div class="note">
+          <strong>Scenario</strong> — imparata il giorno 1 → <strong>sbagliata al primo ripasso</strong> (SM-2 q=2 / Anki Again)
+          → da lì in poi sempre giusta senza problemi (q=4 / Good).
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Leitner (1 · 2 · 4 · 8 · 16 giorni)</th><th>SM-2 (EF iniziale 2.5)</th><th>Anki (ease iniziale 2.50)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Giorno 1</strong></td><td>Apprendimento · scomparto 1</td><td>Apprendimento · I=1 giorno</td><td>Apprendimento (1 min→10 min) · promozione 1 giorno</td></tr>
+              <tr><td><strong>Giorno 2</strong></td><td><strong>Errore</strong> · resta nello scomparto 1</td><td><strong>Errore q=2</strong> · EF 2.50→<strong>2.18</strong> · reset</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · intervallo 1 giorno</td></tr>
+              <tr><td><strong>Giorno 3</strong></td><td>Giusta → <strong>scomparto 2</strong></td><td>Giusta · I=1 giorno</td><td>Good · 1 × 2.30 = <strong>2 giorni</strong></td></tr>
+              <tr><td><strong>Giorno 4</strong></td><td>—</td><td>Giusta · I=<strong>6 giorni</strong></td><td>—</td></tr>
+              <tr><td><strong>Giorno 5</strong></td><td>Giusta → <strong>scomparto 3</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5 giorni</strong></td></tr>
+              <tr><td><strong>Giorno 9</strong></td><td>Giusta → <strong>scomparto 4</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Giorno 10</strong></td><td>—</td><td>Giusta · 6 × 2.18 = <strong>13 giorni</strong></td><td>Good · 5 × 2.30 = <strong>12 giorni</strong></td></tr>
+              <tr><td><strong>Giorno 17</strong></td><td>Giusta → <strong>scomparto 5</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Giorno 22</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28 giorni</strong></td></tr>
+              <tr><td><strong>Giorno 23</strong></td><td>—</td><td>Giusta · 13 × 2.18 = <strong>28 giorni</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>Ripassi totali<br />in 30 giorni</strong></td>
+                <td><strong>6</strong></td><td><strong>6</strong></td><td><strong>6</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Prossimo ripasso</strong></td>
+                <td>Giorno 33</td>
+                <td><strong>Giorno 51</strong></td>
+                <td><strong>Giorno 50</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Il numero da guardare davvero qui non è «6» ma «33 contro 51».</strong>
+          Tutti e tre i sistemi hanno fatto ripassare <strong>esattamente 6 volte</strong> in 30 giorni. La fatica è la stessa.
+          Eppure <strong>Leitner richiama la carta il giorno 33, SM-2 il giorno 51.</strong>
+          Con gli stessi 6 ripassi SM-2 l’ha <strong>spinta 18 giorni più in là.</strong>
+          Questo divario <strong>si allarga in modo moltiplicativo</strong> a ogni giro. Dopo un anno Leitner la chiede ancora ogni 16 giorni,
+          mentre SM-2 ha già raggiunto intervalli di un anno.
+        </p>
+        <p>
+          <strong>E in questa tabella non c’è una colonna VOCA DECK.</strong> Perché non è possibile inserirla.
+          Nella nostra app <strong>il concetto stesso di «giorno n» non esiste.</strong> Il perché è nel prossimo capitolo.
+        </p>
+
+        <h2 id="voca">VOCA DECK sezionato — cosa fa davvero il nostro codice</h2>
+        <p>
+          Ora tocca a noi. Lo scriviamo <strong>senza confezione, esattamente come sta nel codice</strong>.
+        </p>
+
+        <h3>Cosa salva una carta: ecco tutto</h3>
+        <pre><code>{ a: "ubiquitous", b: "onnipresente", mem: false }</code></pre>
+        <p>
+          <strong>Questa è l’intera carta.</strong> Fronte, retro e <strong>un booleano.</strong>
+          <strong>Non vengono salvati né l’ora del ripasso, né quante volte hai sbagliato, né quanto eri incerto.</strong>
+        </p>
+        <p>
+          Per questo <strong>non potremmo aggiungere SM-2 nemmeno volendo.</strong>
+          SM-2 richiede almeno <code>EF · numero di ripetizioni · data dell’ultimo ripasso</code>,
+          e FSRS ha bisogno del <strong>log completo dei ripassi</strong> per adattare i parametri.
+          Noi <strong>non abbiamo né account, né server, né log dei ripassi.</strong>
+          Il mazzo e i contrassegni di memorizzazione restano <strong>solo nel <code>localStorage</code> del browser</strong> e non vengono inviati a nessun server.
+          <strong>Non è che non siamo riusciti a farlo: l’abbiamo costruita così. Il prezzo è la rinuncia alla personalizzazione.</strong>
+        </p>
+
+        <h3>La vera natura dello scheduler: una riga di operazione modulo</h3>
+        <p>
+          Il nostro modo di scegliere la «carta successiva» è un <strong>indice ciclico (cyclic)</strong>.
+          A seconda dell’impostazione <code>order</code> si hanno tre casi.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Impostazione</th><th>Comportamento</th><th>Distanza prima di rivederla</th><th>Copertura</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> In avanti (predefinito)</td><td>Indice +1 in ciclo</td><td><strong>Esattamente ogni N carte</strong> (uniforme)</td><td><strong>100% garantita</strong></td></tr>
+              <tr><td><code>rev</code> All’indietro</td><td>Indice −1 in ciclo</td><td><strong>Esattamente ogni N carte</strong> (uniforme)</td><td><strong>100% garantita</strong></td></tr>
+              <tr><td><code>rnd</code> Casuale</td><td><strong>Estrazione uniforme indipendente a ogni passo</strong><br />(esclusa solo la carta attuale)</td><td>Valore atteso N−1 carte,<br /><strong>varianza alta</strong></td><td><strong>Nessuna garanzia ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>La modalità casuale non è un mescolamento — e questo dobbiamo dirlo chiaramente anche noi.</strong><br />
+          Non si mescolano le carte per poi fare un giro completo (estrazione senza reinserimento), ma <strong>ogni volta si estrae di nuovo tra le carte rimanenti</strong>.
+          <strong>Per questo la stessa carta può uscire tre volte di fila, oppure non uscire mai per un giro intero.</strong>
+        </div>
+
+        <h3>Abbiamo calcolato questo prezzo in numeri</h3>
+        <p>
+          Supponiamo di far girare un mazzo da 100 carte (N=100) in modalità casuale per <strong>99 passi</strong> (= l’equivalente di un giro in avanti).
+          La probabilità che una certa carta venga estratta in un passo è <strong>1/(N−1) = 1/99</strong>.
+          La probabilità che quella carta <strong>non compaia nemmeno una volta in 99 passi</strong> è quindi:
+        </p>
+        <pre><code>P(0 comparse) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>La distribuzione del numero di comparse segue quasi una Poisson (λ=1).</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Comparse nell’arco di un giro (99 passi)</th><th>Probabilità</th><th>Significato</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0 volte</strong></td><td><strong>Circa 37%</strong></td><td><strong>Un terzo del mazzo non esce affatto</strong></td></tr>
+              <tr><td>1 volta</td><td>Circa 37%</td><td>Come previsto</td></tr>
+              <tr><td>2 volte</td><td>Circa 18%</td><td>Spreco</td></tr>
+              <tr><td>3 volte o più</td><td>Circa 8%</td><td>Sempre la stessa carta</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>In altre parole, facendo un giro in modalità casuale, circa il 37% del mazzo quel giorno non si fa nemmeno vedere.</strong>
+          Anche con due giri (198 passi) <strong>circa il 13%</strong> continua a non uscire, e
+          <strong>servono tre giri</strong> perché la quota non vista scenda <strong>sotto il 5%</strong>.
+        </p>
+        <div class="note">
+          <strong>Quindi usala così (una prescrizione che viene dal codice)</strong>
+          <ul>
+            <li><strong>Prima lettura · ripasso completo la sera prima dell’esame</strong> → <strong>In avanti</strong>. È il momento in cui serve una copertura del 100%. In casuale ne salteresti un terzo.</li>
+            <li><strong>Dalla 3ª lettura in poi, quando devi rompere gli indizi dati dall’ordine</strong> → prova prima <strong>All’indietro</strong>.
+              <strong>Rompe gli indizi dell’ordine mantenendo la copertura al 100%.</strong> La maggior parte delle persone passa oltre questa opzione senza notarla.</li>
+            <li><strong>Vero allenamento al richiamo casuale</strong> → <strong>Casuale</strong>. Ma usala <strong>mettendo in conto di far girare il mazzo tre volte</strong>.</li>
+          </ul>
+        </div>
+
+        <h3>Unità di tempo: la scala del nostro scheduler è il «secondo»</h3>
+        <p>
+          L’intervallo predefinito è <strong>3 secondi</strong> (da 1 a 60 secondi nel pannello di controllo). Ogni carta attraversa <strong>due fasi, fronte · retro</strong>,
+          quindi <strong>6 s/carta di default</strong>. E il timer ha un <strong>minimo di 0.5 secondi</strong>
+          (per quanto breve lo imposti, non scende sotto).
+        </p>
+        <p>Da qui deriva subito <strong>il limite fisico della dimensione del mazzo</strong>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dimensione del mazzo N</th><th>Durata di un giro<br />(6 s/carta di default)</th><th>Distanza prima di rivedere la stessa carta</th><th>Giudizio</th></tr></thead>
+            <tbody>
+              <tr><td>30 carte</td><td><strong>3 min</strong></td><td>3 min</td><td>◎ Ripetizioni fitte nella sessione</td></tr>
+              <tr><td>100 carte</td><td><strong>10 min</strong></td><td>10 min</td><td>○ Limite superiore pratico</td></tr>
+              <tr><td>300 carte</td><td><strong>30 min</strong></td><td>30 min</td><td>△ Già un giro è pesante</td></tr>
+              <tr><td>500 carte</td><td><strong>50 min</strong></td><td>50 min</td><td>✗ L’effetto di ripetizione nella sessione svanisce</td></tr>
+              <tr><td>2.000 carte</td><td><strong>3 h 20 min</strong></td><td>3 h 20 min</td><td><strong>✗ Di fatto impossibile</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>Il limite onesto della Memorizzazione flash: dividi i mazzi in blocchi da 300 carte al massimo.</strong>
+          Un unico mazzo da 2.000 carte richiede <strong>3 h 20 min per giro</strong>.
+          Non è più «esposizione rapida e ripetuta». È semplicemente <strong>leggere lentamente un elenco</strong>.
+          <strong>Se devi gestire 2.000 carte, è un lavoro per Anki, non per questa app.</strong>
+        </div>
+
+        <h3>L’intervallo è la lunghezza della «finestra di richiamo» — usalo in modo asimmetrico</h3>
+        <p>
+          Considerare l’intervallo solo come una «regolazione della velocità» significa usarlo a metà.
+          <strong>I pochi secondi in cui il fronte resta sullo schermo sono l’unico momento in cui puoi sforzarti di richiamare la risposta.</strong>
+          Per questo abbiamo reso possibile impostare <strong>separatamente</strong> l’intervallo del fronte e quello del retro (impostazioni avanzate, da 0 a 60 secondi).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Situazione</th><th>Intervallo fronte</th><th>Intervallo retro</th><th>Per carta</th><th>Intento</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Prima lettura</strong> (piena di parole sconosciute)</td><td>2 s</td><td>4 s</td><td>6 s</td><td>Non c’è niente da richiamare, quindi <strong>si guarda a lungo il significato</strong></td></tr>
+              <tr><td><strong>2ª~3ª lettura</strong> (allenamento al richiamo)</td><td><strong>5 s</strong></td><td>1.5 s</td><td>6.5 s</td><td><strong>Guadagnare tempo per richiamare</strong>, verificare in un lampo</td></tr>
+              <tr><td><strong>Sprint a ridosso dell’esame</strong></td><td>1.5 s</td><td>1.5 s</td><td>3 s</td><td>Scansione completa — 100 carte in <strong>5 minuti</strong></td></tr>
+              <tr><td><strong>Studio a orecchio con TTS</strong></td><td>3 s</td><td>3 s</td><td>6 s</td><td>Lasciare il tempo alla voce di finire</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>«Fronte 5 s / retro 1.5 s» alla 2ª~3ª lettura è l’impostazione che in questa app più si avvicina all’allenamento al richiamo.</strong>
+          <strong>Man mano che le letture avanzano, allunga il fronte e accorcia il retro.</strong>
+          La maggior parte delle persone fa il contrario, e così finisce per <strong>limitarsi a guardare passivamente</strong> fino alla fine.
+        </p>
+
+        <h2 id="mem">Cos’è davvero il «contrassegno Memorizzata» — un Leitner con soli 2 scomparti</h2>
+        <p>
+          Il nostro unico strumento di personalizzazione è il <strong>contrassegno Memorizzata</strong>.
+          Tradotto nel linguaggio degli algoritmi, corrisponde esattamente a questo.
+        </p>
+        <div class="note">
+          <strong>Contrassegno Memorizzata = uno schedario di Leitner con 2 scomparti.</strong> Ma <strong>non è una scala, è una porta.</strong><br />
+          Scomparto 1 = <code>mem: false</code> (continua a girare) · scomparto 2 = <code>mem: true</code> (escluso dal ciclo)<br />
+          Ed è l’impostazione <strong>Ambito</strong> a scegliere lo scomparto —
+          <strong>Salta memorizzate</strong> (predefinito) / <strong>Solo memorizzate</strong> / <strong>Tutte</strong>.
+        </div>
+
+        <h3>Cosa si ottiene già solo con questo (più di quanto si pensi)</h3>
+        <p>
+          <strong>La fetta più grande del lavoro di un algoritmo di personalizzazione consiste in realtà nel «non mostrare le carte che sai già»</strong>.
+          Anche quando SM-2 sposta una carta con EF 2.5 a 587 giorni, alla fine lo fa <strong>per non mostrartela adesso</strong>.
+          Il contrassegno Memorizzata si prende <strong>il pezzo più rozzo, ma anche il più grosso</strong>, di quell’effetto.
+        </p>
+        <p>
+          Vediamo i numeri. In un mazzo da 100 carte, se <strong>contrassegni 40 carte come memorizzate</strong>, ne restano 60 in ciclo.
+          Un giro passa da <strong>10 min → 6 min</strong> e <strong>la distanza prima di rivedere una carta che non sai passa da 10 min → 6 min</strong>.
+          <strong>A parità di 20 minuti, incontri le carte difficili 1.67 volte più spesso.</strong>
+          <strong>Un 1.67 ottenuto gratis.</strong> Con una sola casella di spunta.
+        </p>
+
+        <h3>Cosa manca rispetto a un vero SM-2 (qui sta il punto)</h3>
+        <p><strong>① Non ci sono livelli — è 0 oppure 1.</strong>
+          SM-2 distingue tra «EF 2.5 (facilissima)», «EF 1.6 (piuttosto difficile)» ed «EF 1.3 (inferno)»
+          e le mostra <strong>ciascuna con una frequenza diversa</strong>. Noi abbiamo solo <strong>«la mostro / non la mostro»</strong>.
+          <strong>Tra le 60 carte non memorizzate, tutte sono perfettamente uguali.</strong>
+          Una parola vista per la prima volta ieri e una che dopo 40 passaggi ancora non entra escono <strong>esattamente con la stessa frequenza</strong>.
+          <strong>È il punto in cui perdiamo più nettamente contro SM-2.</strong></p>
+
+        <p><strong>② Non c’è il tempo — quindi non si può calcolare «quando rivederla».</strong>
+          <code>mem</code> è un booleano. <strong>Non viene salvato quando è stato messo il contrassegno.</strong>
+          Un giudizio come «questa carta è contrassegnata da 40 giorni, è ora di ricontrollarla»
+          <strong>l’app non può darlo, per principio.</strong> Non c’è alcun timestamp.</p>
+
+        <p><strong>③ Ne nasce un punto cieco — le carte contrassegnate marciscono in silenzio.</strong></p>
+        <div class="note warn">
+          <strong>Questo è l’avvertimento più importante dell’articolo.</strong><br />
+          Il contrassegno Memorizzata è una <strong>porta a senso unico</strong>. Una volta che una carta è uscita nello scomparto 2,
+          <strong>non ha alcuna strada per tornare da sola.</strong>
+          SM-2 <strong>prima o poi richiama sempre</strong> anche una carta da 587 giorni — per intercettare l’oblio.
+          Noi <strong>non la richiamiamo mai.</strong><br />
+          <strong>Così si accumulano carte «contrassegnate come sapute ma in realtà dimenticate, senza che tu lo sappia».</strong>
+          E lo scopri in sede d’esame.
+        </div>
+
+        <h3>La procedura per colmare a mano quel punto cieco</h3>
+        <p>
+          Visto che l’algoritmo non lo fa, <strong>devi farlo tu.</strong> Per fortuna non è difficile, e la funzione c’è già nell’app.
+          <strong>Impostare l’Ambito su «Solo memorizzate»</strong> esiste esattamente per questo scopo.
+        </p>
+        <ol>
+          <li><strong>Una volta alla settimana, fissa un giorno.</strong> (Per esempio: la domenica)</li>
+          <li>Imposta l’Ambito su <strong>«Solo memorizzate»</strong>. → Girano solo le carte contrassegnate.</li>
+          <li><strong>Ordine casuale</strong>, <strong>intervallo del fronte lungo, 4~5 secondi</strong>. — Si tratta di mettere alla prova un vero richiamo.</li>
+          <li><strong>Quando esce una carta che non ricordi, togli subito il contrassegno Memorizzata</strong>. → Retrocessa allo scomparto 1. <strong>Apri a mano la porta del ritorno.</strong></li>
+          <li>Rimetti «Salta memorizzate» e riprendi come al solito.</li>
+        </ol>
+        <p>
+          <strong>Questi 5 passi sono tutto ciò che serve per imitare a mano il «ripasso delle carte mature» di SM-2.</strong>
+          Non essendo automatico è inferiore, ma <strong>è enormemente meglio che non farlo affatto.</strong>
+          <strong>Senza questo, il contrassegno Memorizzata diventa «una funzione che nasconde le carte che fingono di essere sapute».</strong>
+        </p>
+
+        <h2 id="which">Quindi cosa usare — una prescrizione onesta</h2>
+        <p>
+          <strong>«Usa la nostra app» è la risposta giusta in meno della metà dei casi.</strong> Lo scriviamo così com’è.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>La tua situazione</th><th>Consiglio</th><th>Perché (in numeri)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Mantenere da 2.000 a 10.000 parole<br />per 6 mesi o più anni</strong><br />(maratone come il CSAT coreano, il TOEIC o il GRE)</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">(non la nostra app)</span></td>
+                <td>Con la Memorizzazione flash un giro di 2.000 carte richiede <strong>3 h 20 min</strong>. È fisicamente impossibile.
+                  In più le carte mature non vengono mai richiamate, quindi <strong>la ritenzione a lungo termine fallisce</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Esame tra 14 giorni · studio last minute</strong><br />200~300 parole</td>
+                <td><strong>Memorizzazione flash</strong></td>
+                <td>Gli intervalli di SM-2 sono <strong>1 giorno → 6 giorni → 15 giorni</strong>.
+                  <strong>In 14 giorni si riesce a fare appena 3 passaggi.</strong> Uno scheduler a scala di giorni
+                  <strong>è inutile quando resta poco tempo</strong>. Tre giri al giorno vincono.</td>
+              </tr>
+              <tr>
+                <td><strong>Non riesci ad aprire l’app tutti i giorni</strong><br />(salti 3 giorni di fila)</td>
+                <td><strong>Memorizzazione flash</strong></td>
+                <td>Se salti 3 giorni su Anki, si accumulano <strong>centinaia di carte arretrate</strong>.
+                  È <strong>la prima causa di abbandono degli SRS</strong>. La Memorizzazione flash <strong>non ha il concetto di carta arretrata.</strong>
+                  La apri quando vuoi e la chiudi quando vuoi.</td>
+              </tr>
+              <tr>
+                <td><strong>Mazzo da 30 a 300 carte,<br />un solo file CSV</strong></td>
+                <td><strong>Memorizzazione flash</strong></td>
+                <td>Installare Anki e configurare tipo di nota, opzioni del mazzo e account di sincronizzazione: <strong>l’attrito supera il vantaggio.</strong>
+                  Apri il CSV e <strong>lo studio parte 3 secondi dopo</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Studiare solo con le orecchie<br />mentre lavi i piatti · nel tragitto casa-lavoro</strong></td>
+                <td><strong>Memorizzazione flash (TTS, solo voce)</strong></td>
+                <td>Con Anki devi <strong>guardare lo schermo e premere un pulsante</strong> per andare avanti.
+                  La Memorizzazione flash, in modalità <strong>riproduzione automatica + solo voce</strong>, <strong>non ti impegna né le mani né gli occhi.</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Non vuoi lasciare una cronologia dei ripassi<br />né creare un account</strong></td>
+                <td><strong>Memorizzazione flash</strong></td>
+                <td>Il mazzo e i contrassegni di memorizzazione vengono salvati <strong>solo nel localStorage del browser</strong> e
+                  <strong>non vengono inviati a nessun server.</strong> In cambio <strong>non c’è nemmeno la sincronizzazione tra dispositivi.</strong> (Per lo stesso motivo.)</td>
+              </tr>
+              <tr>
+                <td><strong>30 parole infernali<br />che proprio non entrano</strong></td>
+                <td><strong>Memorizzazione flash</strong></td>
+                <td>Su Anki queste carte <strong>finiscono nell’ease hell e restano incollate a un’ease di 1.30.</strong>
+                  Meglio <strong>estrarle in un CSV a parte e farne un mazzo da 30 carte (3 minuti a giro)</strong>, da percorrere cinque volte al giorno.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">La risposta più precisa: i due lavorano su livelli diversi</h2>
+        <p>
+          Arrivato fin qui, questa frase dovrebbe ormai essere chiara.
+        </p>
+        <div class="note">
+          <strong>Anki decide «quali carte vedere oggi». (a scala di giorni)</strong><br />
+          <strong>La Memorizzazione flash decide «come esporre quella carta adesso». (a scala di secondi)</strong><br />
+          <strong>I due non si contendono lo stesso problema: si sovrappongono uno sopra l’altro.</strong>
+        </div>
+        <p>Ecco la combinazione che usa davvero chi li adopera entrambi.</p>
+        <ol>
+          <li><strong>Affida ad Anki la pianificazione a lungo termine.</strong> In un mazzo da 5.000 parole, FSRS sceglie «le 120 carte di oggi».</li>
+          <li><strong>Esporta in CSV le carte che su Anki continui a sbagliare (sanguisughe · ease intorno a 1.3).</strong>
+            Di solito sono <strong>da 30 a 80</strong>.</li>
+          <li><strong>Carica quel CSV nella Memorizzazione flash e fallo girare due o tre volte al giorno.</strong>
+            Con 80 carte <strong>un giro dura 8 minuti</strong>. Fronte 5 s / retro 1.5 s per allenare il richiamo.</li>
+          <li><strong>Togli con il contrassegno Memorizzata le carte diventate sicure nella Memorizzazione flash</strong>, e su Anki azzera l’ease di quelle carte.</li>
+        </ol>
+        <p>
+          <strong>La Memorizzazione flash fa ciò che Anki non sa fare, e Anki fa ciò che la Memorizzazione flash non sa fare.</strong>
+          Anki non sa creare un’<strong>esposizione ad alta densità nella sessione</strong> (non ti mostra la stessa carta 20 volte al giorno),
+          e la Memorizzazione flash non sa calcolare <strong>la data di ripasso tra 6 mesi</strong>.
+          <strong>Un solo file (CSV) collega i due strumenti.</strong>
+          Come crearlo è spiegato in <a href="/csv-guide">Come creare una lista di vocaboli in CSV</a>.
+        </p>
+
+        <h2 id="qa">Domande e risposte veloci</h2>
+
+        <h3>D. FSRS è sempre migliore di SM-2?</h3>
+        <p>
+          <strong>Quando il log dei ripassi è abbastanza ricco, in genere sì.</strong> Ma <strong>non nel primo mese.</strong>
+          FSRS diventa tuo solo dopo aver <strong>adattato i parametri al tuo log</strong>; fino ad allora gira con <strong>la media degli altri</strong>.
+          E FSRS si regge sul <strong>presupposto che tu prema i pulsanti onestamente</strong>.
+          <strong>Se premi Good a casaccio, un algoritmo raffinato sbaglia in modo raffinato.</strong>
+          <strong>Spazzatura dentro, spazzatura fuori — e questo nessun algoritmo può correggerlo.</strong>
+        </p>
+
+        <h3>D. A quanto conviene impostare la ritenzione desiderata?</h3>
+        <p>
+          Riguarda la <a href="#fsrs">tabella di conversione</a> qui sopra. <strong>Passare da 0.90 a 0.95 raddoppia il carico di ripasso.</strong>
+          Paghi <strong>il doppio del tempo</strong> per 5 punti di risposte giuste. Nella maggior parte dei casi ci perdi.
+          <strong>0.85~0.90 se l’esame è lontano, 0.90~0.95 se è imminente</strong>: è un punto di partenza ragionevole.
+          <strong>Ma è un «punto di partenza», non la «risposta giusta».</strong>
+        </p>
+
+        <h3>D. Quanti secondi di intervallo sono giusti nella Memorizzazione flash?</h3>
+        <p>
+          <strong>Il «valore giusto» cambia a ogni lettura.</strong> I 3 secondi predefiniti sono solo <strong>un valore ragionevole per la prima lettura</strong>.
+          <strong>Man mano che le letture si accumulano, allunga il fronte (tempo per richiamare) e accorcia il retro (solo verifica).</strong>
+          Fronte 5 s / retro 1.5 s è <strong>l’impostazione più vicina all’allenamento al richiamo</strong>.
+          La disposizione dettagliata è nella <a href="#voca">tabella qui sopra</a>.
+        </p>
+
+        <h3>D. La modalità casuale non è sempre migliore di quella in avanti? Rompe gli indizi dell’ordine.</h3>
+        <p>
+          <strong>No, è proprio la trappola che questo articolo ha calcolato.</strong> La modalità casuale <strong>non garantisce la copertura</strong>
+          (<strong>circa il 37% non visto</strong> nell’equivalente di un giro). Se vuoi rompere gli indizi dell’ordine e insieme preservare la copertura,
+          usa <strong>All’indietro</strong>. <strong>La maggior parte degli utenti non sa perché esista questa opzione.</strong>
+        </p>
+
+        <h3>D. Ho contrassegnato tutto come memorizzato e il mazzo è vuoto. Ho finito?</h3>
+        <p>
+          <strong>No. È da lì che si comincia.</strong> Imposta l’Ambito su <strong>«Solo memorizzate»</strong> e
+          <strong>fai un controllo una volta alla settimana</strong>. Alle carte che non ricordi <strong>togli il contrassegno</strong> per rimetterle in ciclo.
+          <strong>Senza questa procedura, il contrassegno Memorizzata diventa una funzione che nasconde l’oblio.</strong> La procedura è descritta <a href="#mem">più sopra</a>.
+        </p>
+
+        <h3>D. Allora un giorno VOCA DECK integrerà SM-2?</h3>
+        <p>
+          <strong>Per farlo dovremmo salvare un log dei ripassi; lo spazio di archiviazione crescerebbe, si vorrebbe la sincronizzazione tra dispositivi,
+          e a quel punto servirebbe un account.</strong> In quell’istante <strong>sparirebbe l’unico vantaggio di questa app: «attrito zero».</strong>
+          <strong>Significherebbe rifare Anki in una versione peggiore.</strong>
+          <strong>Non vogliamo diventare Anki.</strong> Per ora non è in programma, e
+          <strong>le ragioni per non farlo sono scritte lungo tutto questo articolo.</strong>
+        </p>
+
+        <h2 id="closing">Per finire — un algoritmo non può aprire l’app al posto tuo</h2>
+        <p>
+          FSRS è <strong>il miglior scheduler del mondo</strong>. E <strong>se non apri l’app per 3 giorni, non vale niente.</strong>
+          Mostra con un intervallo perfetto <strong>«340 carte da ripassare oggi»</strong> e aspetta,
+          e chi vede quel numero <strong>chiude l’app.</strong>
+        </p>
+        <p>
+          I 50 anni di storia degli algoritmi di ripetizione dilazionata sono stati <strong>«una gara a ridurre al minimo i ripassi»</strong>.
+          Leitner con 5 scomparti, SM-2 con la moltiplicazione per l’EF, FSRS con il tuo log.
+          <strong>Tutti puntavano allo stesso obiettivo: eliminare i ripassi inutili.</strong>
+        </p>
+        <p>
+          <strong>Ma non è lì che le persone falliscono davvero.</strong>
+          <strong>Non si molla «perché i ripassi sono troppi», ma «perché oggi non si è aperta l’app».</strong>
+          È per questo che abbiamo rinunciato in blocco alla personalizzazione e <strong>puntato tutto sul portare l’attrito a zero</strong>.
+          <strong>Non siamo certi che sia la scelta giusta.</strong>
+          <strong>Ma è la scelta che abbiamo fatto, e in questo articolo non ne abbiamo nascosto nessun prezzo.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Avvertenza</strong><br />
+          Questo articolo <strong>fornisce informazioni sui metodi di studio</strong> e <strong>non costituisce una consulenza didattica o medica.</strong>
+          Gli effetti dello studio <strong>variano molto da persona a persona</strong>, e nessuno dei metodi qui descritti <strong>garantisce un voto o un risultato specifico.</strong><br />
+          <strong>I valori predefiniti e le formule degli strumenti di terze parti (Anki · SuperMemo · FSRS) cambiano a seconda della versione.</strong>
+          I numeri di questo articolo <strong>si basano sui preset predefiniti più noti</strong>;
+          <strong>verificali sempre di persona nella schermata delle impostazioni e nella documentazione ufficiale della versione che usi.</strong>
+          Le formule relative a FSRS <strong>si basano su FSRS-4.5 / 5 con DECAY fissato a −0.5</strong> e
+          <strong>potrebbero non valere da FSRS-6 in poi.</strong><br />
+          I valori relativi a VOCA DECK <strong>si riferiscono all’implementazione effettiva al momento della stesura</strong> e possono cambiare con gli aggiornamenti.
+        </div>
+
+        <h2>Continua a leggere</h2>
+        <div class="related">
+          <a href="/method"><b>Il principio della Memorizzazione flash</b><span>Curva dell’oblio · effetto di spaziatura · doppia codifica — perché l’esposizione ripetuta funziona</span></a>
+          <a href="/study-guide"><b>Strategie per memorizzare i vocaboli</b><span>Quante al giorno, quando ripassare, un piano di 4 settimane</span></a>
+          <a href="/csv-guide"><b>Come creare una lista di vocaboli in CSV</b><span>Come trasferire le carte infernali di Anki nella Memorizzazione flash</span></a>
+          <a href="/"><b>Apri il quaderno</b><span>Prova tu stesso intervallo, ordine e ambito</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · Gestito da Y-Systems · <a href="/privacy">Informativa sulla privacy</a> · <a href="/terms">Termini di utilizzo</a></footer>
+      </div>
+    </main>

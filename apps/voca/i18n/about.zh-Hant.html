@@ -1,0 +1,156 @@
+<main class="wrap" data-title="營運者介紹 · 創建初衷 — VOCA DECK | broodev" data-desc="VOCA DECK（營運：Y-Systems）營運者介紹。為什麼做這個背單字工具、資料存放在哪裡、獲利模式與利益衝突揭露，以及如何回報錯誤。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — ABOUT</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 單字本</a>
+          <a href="/method">記憶法原理</a>
+          <a href="/csv-guide">製作CSV</a>
+          <a href="/study-guide">學習策略</a>
+        </nav>
+
+        <h1>營運者介紹 · 創建初衷</h1>
+        <p class="muted">最後更新：2026-07-16 · 營運：Y-Systems</p>
+
+        <p class="lead">
+          VOCA DECK源於一個問題：<strong>「如果把翻單字本的阻力降到零，會怎樣？」</strong>
+          這個頁面回答：誰做了它、你的資料去了哪裡、這個網站怎麼賺錢。
+        </p>
+
+        <h2>誰做的</h2>
+        <ul>
+          <li><strong>營運主體</strong> — Y-Systems（個人開發工作室）</li>
+          <li><strong>營運者</strong> — jsontyper</li>
+          <li><strong>聯絡方式</strong> — <a href="mailto:support@broodev.com">support@broodev.com</a></li>
+          <li><strong>其他應用程式</strong> — <a href="https://dev.broodev.com/">dev.broodev.com</a>（全部應用程式列表）</li>
+        </ul>
+        <p>
+          近距離看過背單字在課堂上實際如何進行、又如何崩潰，
+          這些經驗是這個工具和這些文章的基礎。
+          不過，文章不會只靠經驗之談來寫——而是以<strong>公開的學習科學研究（遺忘曲線、間隔效應、
+          提取練習）能說明到什麼程度</strong>為標準來檢驗，來自課堂經驗的內容會
+          註明是經驗。沒有依據的主張會寫明沒有依據，
+          這個工具涵蓋不到的領域則另外彙整在<a href="/method#limit">侷限一節</a>。
+          設計、開發、寫作、營運全由一個人完成，所以內容出錯時責任也很明確——全在我。
+        </p>
+
+        <h2>為什麼要做</h2>
+        <p>
+          紙本單字本需要<strong>翻頁、用手遮住、還要記住看到了哪裡</strong>。
+          這些細小的阻力累積起來，最終會讓人<strong>「乾脆不背了」</strong>。
+        </p>
+        <p>
+          記憶說到底是<strong>接觸次數的函數</strong>。
+          用完美的方法見10次，往往不如用零阻力的方法<strong>見100次更有效</strong>。
+          所以我做了一個<strong>只要按一下播放鍵就會自動翻頁</strong>的單字本。
+        </p>
+
+        <h2>原型出處 — AnyMemory</h2>
+        <p>
+          這種「閃示單字」的方式本身並不是我發明的。
+          它的原型是<strong>Windows XP時代在韓國以免費軟體形式發布的背單字程式
+          AnyMemory</strong>。VOCA DECK參考了這個程式——
+          以大字交替顯示單字和釋義的方式——把它重新做成免安裝、在瀏覽器中即可使用，
+          並搭配CSV單字本、已記標記和TTS的工具。
+        </p>
+        <p class="muted">
+          AnyMemory當年曾在BetaNews（韓國IT新聞網站）的下載區等處免費發布，但如今原始發布檔案已被撤下，
+          在公開資料中也沒能查到作者的名字。如果你知道原作者是誰，
+          <a href="/contact?app=voca">請告訴我</a>，我會在這裡註明正確的出處。
+          感謝原作者留下了這麼好的方法。
+        </p>
+        <p>
+          不過，<strong>這種方式的侷限我也會如實寫出來。</strong>只是被動地看，會產生「以為自己會了」的錯覺。
+          所以在<a href="/method">記憶法原理</a>一文中，專門設了<strong>「只靠閃示是不夠的」</strong>一節，
+          說明如何穿插提取練習。目的不是賣工具，而是讓你真正記住。
+        </p>
+
+        <h2>你的資料去了哪裡</h2>
+        <div class="note">
+          <strong>學習資料哪裡也不去。</strong>不會傳送到伺服器。
+        </div>
+        <ul>
+          <li><strong>沒有註冊。</strong>不收集電子郵件，也不收集密碼。</li>
+          <li>你開啟的<strong>單字本（CSV）和已記標記只儲存在你瀏覽器的localStorage中</strong>。</li>
+          <li>上傳的CSV檔案不會傳到伺服器。<strong>只在瀏覽器內部讀取。</strong></li>
+          <li>換裝置後資料不會跟著走。<strong>請另外保存好原始CSV。</strong></li>
+        </ul>
+        <p>
+          具體來說是這樣的：開啟CSV時，瀏覽器的FileReader會<strong>在你的裝置上</strong>讀取檔案、
+          轉換成卡片，並把結果（單字本、已記標記、播放設定、語言選擇）儲存到名為<code>voca:*</code>的
+          localStorage項目中。儲存到「我的Voca Deck」的單字本也在同一個地方。
+          按下<strong>匯出備份</strong>時，這些資料只是以JSON檔案形式<strong>下載到你的裝置</strong>，
+          同樣不會傳到伺服器。TTS語音也使用瀏覽器內建的語音合成（speechSynthesis），
+          所以單字不會被傳送到外部服務。
+        </p>
+        <p>
+          這種結構的<strong>代價我也如實寫出。</strong>因為伺服器上沒有帳號，
+          清除瀏覽器資料或使用無痕視窗後，<strong>學習紀錄就會消失，而且無法復原。</strong>
+          也沒有跨裝置同步。因此建議保存好原始CSV並定期匯出備份。
+          這是在便利（同步）和<strong>不收集資料</strong>之間選擇了後者的結果。
+        </p>
+        <p>
+          <strong>唯一的例外</strong> — 如果在<a href="/contact?app=voca">聯絡頁面</a>
+          附上螢幕截圖傳送，該圖片會為了以連結形式放進郵件而上傳到我們的伺服器儲存空間，
+          並<strong>在90天後自動刪除</strong>。學習應用程式本身完全不使用這條路徑。
+          詳情請見<a href="/privacy">隱私權政策</a>。
+        </p>
+
+        <h2>獲利模式與利益衝突揭露</h2>
+        <p>了解這個網站如何賺錢，是使用者的權利。</p>
+        <ul>
+          <li><strong>目前的收入來源只有Google AdSense廣告。</strong></li>
+          <li><strong>不賣單字本、教材或課程。</strong>不與任何特定教材或補習班合作。</li>
+          <li><strong>沒有聯盟行銷（affiliate）連結。</strong>文章中即使提到其他教材或工具，也不會因此獲得任何報酬。</li>
+          <li>與競爭工具（如Anki）進行<a href="/spaced-repetition">誠實的比較</a>。
+            我們的工具較好的情況和<strong>Anki較好的情況，兩者都會寫。</strong>
+            無論你用哪個工具，廣告收入都不會改變，所以沒有強行留住你的動機。</li>
+          <li>將來部分附加功能<strong>可能會以付費（進階版）形式提供。</strong>目前沒有任何收費項目，
+            推出時會在本頁和<a href="/terms">使用條款</a>中寫明哪些收費、哪些繼續免費。
+            核心功能（開啟CSV、閃示播放、已記標記）將維持免費。</li>
+        </ul>
+
+        <h2>編輯原則</h2>
+        <p>本站的說明文章（<a href="/method">記憶法原理</a>、<a href="/study-guide">學習策略</a>、
+          <a href="/csv-guide">CSV指南</a>、<a href="/spaced-repetition">間隔重複比較</a>等）都按以下原則撰寫。</p>
+        <ol>
+          <li><strong>先寫侷限。</strong>沒有寫明我們的方法在哪些情況下不管用的文章，不發布。
+            實際上，<a href="/method#limit">記憶法原理的侷限一節</a>就是以「只靠閃示是不夠的」開頭的。</li>
+          <li><strong>寫明學習科學依據。</strong>不寫「有效」，而寫「為什麼有效」。
+            依託遺忘曲線、間隔效應、提取練習等經過驗證的概念，依據較弱的部分會標明較弱。</li>
+          <li><strong>誠實地比較競爭工具。</strong>不只說自己的好。
+            文章裡確實寫了：如果需要長期複習排程，Anki類工具更合適。</li>
+          <li><strong>不誇大。</strong>不做「一個月背3,000個單字」之類的承諾。
+            因為背多少不是由工具決定，而是由接觸次數和提取練習決定的。</li>
+          <li><strong>修改必留紀錄。</strong>影響內容的更正會在相應頁面留下修改事實和日期，
+            所有內容頁面頂部都會顯示「最後更新」日期。</li>
+        </ol>
+
+        <h2>本站不做的事</h2>
+        <ul>
+          <li>❌ 保證成績或考試通過 — 工具只是減少重複的阻力，<strong>真正去記的終究是你自己。</strong></li>
+          <li>❌ 要求註冊 — 無需帳號即可使用全部功能。</li>
+          <li>❌ 收集學習資料 — 我們無從知道你在背什麼，也沒有必要知道。</li>
+          <li>❌ 銷售教材和課程或與之合作 — 既然什麼都不賣，文章就沒有理由為了銷售而被扭曲。</li>
+        </ul>
+
+        <h2>錯誤回報與更正</h2>
+        <p>
+          Bug、錯誤和改進建議請透過<a href="/contact?app=voca">聯絡頁面</a>或
+          <a href="mailto:support@broodev.com">support@broodev.com</a> 傳送給我們。
+          如果是影響內容的更正，會在相應頁面<strong>留下修改事實和日期。</strong>
+          所有內容頁面頂部都會顯示<strong>「最後更新」日期</strong>。
+        </p>
+
+        <h2>延伸閱讀</h2>
+        <div class="related">
+          <a href="/method"><b>閃示記憶法的原理</b><span>遺忘曲線、間隔效應 — 以及這種方式的侷限</span></a>
+          <a href="/spaced-repetition"><b>間隔重複完全指南</b><span>與Anki（SM-2）的誠實比較</span></a>
+          <a href="/privacy"><b>隱私權政策</b><span>資料為什麼不上傳伺服器</span></a>
+          <a href="/"><b>開啟單字本</b><span>立即開始</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 營運 Y-Systems · <a href="mailto:support@broodev.com">support@broodev.com</a></footer>
+      </div>
+    </main>

@@ -1,0 +1,793 @@
+    <main class="wrap" data-title="Algoritmen voor gespreide herhaling vergeleken — Leitner · SM-2 · FSRS, en waarom wij geen algoritme gebruiken | VOCA DECK" data-desc="We vergelijken met echte getallen hoe de Leitner-box (1972), SM-2 (1987, EF 2.5) en FSRS (stabiliteit S) de herhaaldatum berekenen. Een simulatie die één woord 30 dagen volgt, een omrekentabel van doelretentie naar interval voor FSRS en, tot op codeniveau, de prijs die VOCA DECK betaalt voor gelijkmatige rotatie in plaats van personalisatie.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Woordenlijst</a>
+          <a href="/method">Hoe het werkt</a>
+          <a href="/study-guide">Leerstrategie</a>
+          <a href="/csv-guide">Een CSV maken</a>
+        </nav>
+
+        <h1>Algoritmen voor gespreide herhaling vergeleken</h1>
+        <p class="muted">Leitner · SM-2 · FSRS, en waarom wij geen algoritme gebruiken · Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems</p>
+
+        <p class="lead">
+          Dit artikel <strong>begint met de punten waarop onze app verliest.</strong>
+          In de tabel hieronder staan in de kolom van VOCA DECK meerdere “✗”-en. Die hebben we niet weggehaald.
+          <strong>De kern van gespreide herhaling (spaced repetition) is “wie de herhaaldatum berekent, en hoe”</strong>,
+          en wij hebben <strong>ervoor gekozen die berekening niet te doen</strong>.
+          Dit artikel <strong>ontleedt op het niveau van formules en getallen</strong> de drie algoritmen die die berekening wél uitvoeren,
+          en <strong>laat rechtstreeks vanuit de code zien</strong> wat we hebben opgegeven om wat te winnen.
+        </p>
+
+        <h2 id="spec">Eerst het specificatieblad — elke cel van de tabel is de inhoudsopgave van dit artikel</h2>
+        <p>
+          Voordat je de uitleg leest, kijken we <strong>eerst naar de conclusietabel</strong>. Elke rij wordt hieronder één voor één ontleed.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kenmerk</th>
+                <th><a href="#leitner" style="color:#22dd22">Leitner-box</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki-variant</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(Flits-stampen)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Planningseenheid</strong></td>
+                <td>Dagen (per vak)</td>
+                <td>Dagen</td>
+                <td>Minuten + dagen</td>
+                <td>Dagen (met decimalen)</td>
+                <td><strong>Seconden</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Toestand die een kaart onthoudt</strong></td>
+                <td>1 vaknummer<br />(1~5)</td>
+                <td>EF · aantal herhalingen · interval<br />(3 reële getallen)</td>
+                <td>ease · interval · aantal fouten</td>
+                <td>Moeilijkheid D · stabiliteit S<br />(latente variabelen)</td>
+                <td><strong>1 boolean</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>Kwaliteitsniveaus van het antwoord</strong></td>
+                <td>○/✗, 2 niveaus</td>
+                <td>q = 0~5 (6 niveaus)</td>
+                <td>4 niveaus (Again~Easy)</td>
+                <td>4 niveaus</td>
+                <td><strong>✗ Geen</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Herhaalgeschiedenis opslaan</strong></td>
+                <td>Fysieke box</td>
+                <td>Toestand per kaart</td>
+                <td>Volledig herhaallogboek</td>
+                <td>Logboek verplicht (om te trainen)</td>
+                <td><strong>✗ Wordt niet opgeslagen</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Leert van je eigen gegevens</strong></td>
+                <td>✗</td>
+                <td>✗ (constanten met de hand gekozen)</td>
+                <td>✗</td>
+                <td><strong>○ (parameteroptimalisatie)</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>Personalisatie per kaart</strong></td>
+                <td>△ (platgedrukt tot 5 niveaus)</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗ (allemaal gelijk)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Gegarandeerd volledige dekking</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>(○ alleen bij vooruit,<br />✗ bij willekeurig)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Account · installatie · synchronisatie</strong></td>
+                <td>Kartonnen doos</td>
+                <td>Nodig</td>
+                <td>Nodig</td>
+                <td>Nodig</td>
+                <td><strong>◎ Niets van dat alles nodig</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Lawine van achterstallige herhalingen</strong></td>
+                <td>Ja</td>
+                <td>Ja</td>
+                <td><strong>Ja (oorzaak nr. 1 van afhaken)</strong></td>
+                <td>Ja</td>
+                <td><strong>◎ Nee</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Langetermijnbehoud van rijpe kaarten</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗ (blinde vlek)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Blootstellingsdichtheid binnen een sessie</strong></td>
+                <td>Laag</td>
+                <td>Laag</td>
+                <td>Laag</td>
+                <td>Laag</td>
+                <td><strong>◎ 6 s/kaart</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>De tabel in één zin</strong> — de eerste vier kolommen zijn hulpmiddelen voor de vraag <strong>“over hoeveel dagen zie ik dit weer?”</strong>,
+          de kolom helemaal rechts is een hulpmiddel voor de vraag <strong>“wat zie ik in deze 6 seconden?”</strong>.
+          <strong>Het zijn geen concurrenten die hetzelfde probleem oplossen.</strong> De conclusie van dit artikel staat hier al.
+        </div>
+
+        <h2 id="leitner">1972 — Leitner: “een kaart verplaatsen ís het algoritme”</h2>
+
+        <h3>Het probleem dat die tijd wilde oplossen</h3>
+        <p>
+          Er waren geen computers. Wat de Duitse journalist <strong>Sebastian Leitner</strong>
+          in een boek uit 1972 voorstelde, was <strong>gespreide herhaling zonder rekenwerk</strong>.
+          Geen potlood, geen datumberekening. <strong>Het fysiek verplaatsen van de kaart is zelf de opslag van de toestand.</strong>
+        </p>
+
+        <h3>Hoe het werd opgelost</h3>
+        <ul>
+          <li>Een doos met tussenschotten wordt verdeeld in <strong>5 vakken</strong>.</li>
+          <li>Alle nieuwe kaarten beginnen in <strong>vak 1</strong>.</li>
+          <li>Goed geantwoord: de kaart <strong>schuift één vak op</strong>.</li>
+          <li>Fout geantwoord: <strong>in welk vak de kaart ook zat, ze valt altijd terug naar vak 1</strong>.</li>
+          <li>Elk vak heeft een eigen herhaalcyclus. Een veelgebruikte indeling is als volgt.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Vak</th><th>Herhaalcyclus</th><th>In dit vak zitten betekent</th><th>Bij een fout</th></tr></thead>
+            <tbody>
+              <tr><td>Nr. 1</td><td><strong>Elke dag</strong></td><td>Nog niet gekend / net fout</td><td>Blijft in nr. 1</td></tr>
+              <tr><td>Nr. 2</td><td>Om de 2 dagen</td><td>Eén keer goed</td><td><strong>→ valt terug naar nr. 1</strong></td></tr>
+              <tr><td>Nr. 3</td><td>Om de 4 dagen</td><td>Twee keer achter elkaar goed</td><td><strong>→ valt terug naar nr. 1</strong></td></tr>
+              <tr><td>Nr. 4</td><td>Om de 8 dagen</td><td>Drie keer achter elkaar</td><td><strong>→ valt terug naar nr. 1</strong></td></tr>
+              <tr><td>Nr. 5</td><td>Om de 16 dagen</td><td>Bijna gememoriseerd</td><td><strong>→ valt terug naar nr. 1</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Strikt genomen <strong>werkte Leitners oorspronkelijke opzet niet met data maar met capaciteit: “als een vak vol is, maak je het leeg”</strong>.
+          De 1·2·4·8·16 dagen hierboven zijn de <strong>kalenderversie</strong> die later gangbaar werd.
+          Veel teksten gooien die twee op één hoop, dus we zeggen het er even bij.
+        </p>
+
+        <h3>Wat er misging</h3>
+        <p>
+          De fatale zwakte van Leitner is dat <strong>“de val te wreed is”</strong>.
+          Een kaart in vak 5 waarbij je <strong>één enkele keer uitglijdt</strong>, krijgt
+          <strong>precies dezelfde behandeling</strong> als “een nieuwe kaart die nog nooit goed is beantwoord” en valt terug naar vak 1.
+          In werkelijkheid ken je die kaart bijna, maar de doos kan dat op geen enkele manier uitdrukken.
+          <strong>De toestand is maar één geheel getal, dus er is geen plek om “bijna gekend, maar vandaag even in de war” op te slaan.</strong>
+        </p>
+        <p>
+          Bovendien <strong>beklimmen alle kaarten dezelfde ladder.</strong>
+          Een makkelijk woord moet alle 5 sporten nemen, en een woord dat er maar niet in wil, net zo goed 5.
+          <strong>Er was een ladder nodig waarop elke kaart in haar eigen tempo klimt.</strong> Die kwam er 15 jaar later.
+        </p>
+
+        <h2 id="sm2">1987 — SM-2: 15 jaar om een geheel getal in een reëel getal te veranderen</h2>
+
+        <h3>Het probleem dat die tijd wilde oplossen</h3>
+        <p>
+          <strong>SM-2</strong>, gepubliceerd door de Pool <strong>Piotr Woźniak</strong> toen hij SuperMemo bouwde,
+          vervangt Leitners “vaknummer (geheel getal)” door een <strong>“gemakkelijkheidsfactor (reëel getal)”</strong>.
+          De kernuitvinding is er maar één: de <strong>EF (Easiness Factor, gemakkelijkheidsfactor)</strong>.
+        </p>
+
+        <h3>Hoe het werd opgelost — de echte formule</h3>
+        <p>Bij SM-2 beoordeel je jezelf bij elke herhaling op een zesdelige schaal, <strong>q = 0~5</strong> (5 = perfect, 0 = blanco). Daarna wordt de EF zo bijgewerkt.</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+begin-EF = 2.5   ·   ondergrens EF = 1.3 (lager gaat hij niet)</code></pre>
+        <p>Dit zijn de waarden die deze formule in de praktijk oplevert. <strong>De tabel is met de hand uitgerekend en ingevuld.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q (zelfbeoordeling)</th><th>Betekenis</th><th>Verandering EF</th><th>Vanaf EF 2.5</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>Perfect herinnerd</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>Goed, maar even geaarzeld</td><td><strong>±0.00</strong></td><td>2.50 (ongewijzigd)</td></tr>
+              <tr><td><strong>3</strong></td><td>Op het nippertje goed</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>Fout, maar bij het zien van het antwoord herkend</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>Fout, en het antwoord voelt onbekend</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>Volledig blanco</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Dat q=4 precies 0 oplevert, is de ontwerpbedoeling van deze formule.</strong>
+          “Zonder moeite goed” is het <strong>neutrale punt dat</strong> de moeilijkheidsinschatting <strong>niet verandert</strong>;
+          beter gaat omhoog, slechter omlaag. De constanten 0.1 · 0.08 · 0.02
+          <strong>zijn niet uit een theorie afgeleid, maar door Woźniak met de hand afgesteld</strong>. Dat wordt verderop belangrijk.
+        </p>
+        <p>Het volgende interval wordt zo bepaald.</p>
+        <pre><code>I(1) = 1 dag
+I(2) = 6 dagen
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+als q &lt; 3 → het aantal herhalingen n gaat terug naar 1 (het interval valt terug naar 1 dag)</code></pre>
+        <p>
+          <strong>De EF is een vermenigvuldigingsfactor.</strong> Daardoor <strong>groeien</strong> een makkelijke kaart met EF 2.5 en een helse kaart met EF 1.3
+          <strong>exponentieel uit elkaar.</strong> Bij hetzelfde aantal herhalingen kom je op totaal verschillende intervallen uit.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Herhaling nr.</th><th>EF 2.5 (makkelijke kaart)</th><th>EF 1.9 (gemiddeld)</th><th>EF 1.3 (helse kaart)</th></tr></thead>
+            <tbody>
+              <tr><td>1e</td><td>1 dag</td><td>1 dag</td><td>1 dag</td></tr>
+              <tr><td>2e</td><td>6 dagen</td><td>6 dagen</td><td>6 dagen</td></tr>
+              <tr><td>3e</td><td>15 dagen</td><td>11 dagen</td><td>8 dagen</td></tr>
+              <tr><td>4e</td><td>38 dagen</td><td>22 dagen</td><td>10 dagen</td></tr>
+              <tr><td>5e</td><td>94 dagen</td><td>41 dagen</td><td>13 dagen</td></tr>
+              <tr><td>6e</td><td><strong>235 dagen</strong></td><td>78 dagen</td><td>17 dagen</td></tr>
+              <tr><td>7e</td><td><strong>587 dagen (1.6 jaar)</strong></td><td>148 dagen</td><td><strong>22 dagen</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Bij de 7e herhaling is het <strong>587 dagen tegen 22 — een verschil van een factor 27</strong>.
+          Hier verslaat SM-2 Leitner. Makkelijke kaarten worden <strong>anderhalf jaar uit het zicht opgeborgen</strong>,
+          en al die tijd gaat naar de moeilijke kaarten.
+        </p>
+
+        <h3>Wat er misging</h3>
+        <p><strong>① Zelfbeoordeling op 6 niveaus is te moeilijk voor mensen.</strong>
+          Bij elke kaart moet je beslissen wat het verschil is tussen q=3 en q=4. In de praktijk
+          <strong>drukken de meeste gebruikers steeds op dezelfde twee of drie niveaus.</strong> Het ontwerp met 6 niveaus zakt in feite in tot 3.</p>
+        <p><strong>② De afhandeling van fouten is dubbelzinnig.</strong> De oorspronkelijke tekst zegt: “als q&lt;3, begin opnieuw met herhalen <em>zonder de EF te wijzigen</em>”,
+          maar de pseudocode in hetzelfde document <strong>werkt de EF bij voor elke q</strong>. Implementaties interpreteren het verschillend.
+          <strong>Dat het centrale beslispunt van een algoritme dat al meer dan 30 jaar wordt gebruikt op papier onduidelijk is,</strong> kun je eerlijk gezegd beter gewoon opschrijven.
+          (De simulatie in dit artikel kiest voor <strong>“de EF wordt ook bijgewerkt”</strong>.)</p>
+        <p><strong>③ De constanten liggen zonder onderbouwing vast.</strong> Waarom is I(2) 6 dagen? Waarom precies 0.08?
+          <strong>Getallen die één persoon in 1987 met de hand op zijn eigen gegevens afstemde,</strong> worden ongewijzigd op elke leerling ter wereld toegepast.
+          Daarom ontstond FSRS.</p>
+
+        <h2 id="anki">De Anki-variant — en de “ease hell”</h2>
+        <p>
+          Anki gebruikt SM-2 niet ongewijzigd. <strong>Het aantal niveaus is teruggebracht tot 4</strong> (Again / Hard / Good / Easy),
+          de EF heet er <strong>ease</strong> en de stapgrootte van de aanpassingen is opnieuw afgesteld. Met de standaardvoorinstelling werkt het in de praktijk zo.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Knop</th><th>Verandering ease</th><th>Volgend interval</th><th>Opmerking</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong> (fout)</td><td><strong>−0.20</strong></td><td>Vorig interval <strong>× 0%</strong> → minimaal 1 dag<br />(+ 10 min opnieuw leren)</td><td>Het interval wordt <strong>naar de bodem teruggezet</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>Vorig interval × <strong>1.2</strong></td><td>Vaste factor, los van ease</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>Vorig interval × <strong>ease</strong></td><td>Neutraal punt (de q=4 van SM-2)</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>Vorig interval × ease × <strong>1.3</strong></td><td>Easy-bonus</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Overige standaardwaarden: leerstappen <code>1m 10m</code> · doorstroominterval <strong>1 dag</strong> · Easy-interval <strong>4 dagen</strong> ·
+          start-ease <strong>2.50</strong> · <strong>ondergrens ease 1.30</strong> · drempel voor bloedzuigers (leech) <strong>8 fouten</strong>.
+          De standaardwaarden van Anki kunnen per versie en voorinstelling verschillen, dus <strong>controleer ze zelf in de deckopties.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Wat is “ease hell”?</strong> — bij een kaart waarop je steeds weer Again (−0.20) en Hard (−0.15) drukt,
+          <strong>blijft de ease vastgeplakt aan de ondergrens van 1.30.</strong> Daarna groeit het volgende interval telkens maar <strong>× 1.3</strong>
+          en <strong>kruipt</strong> het van 1 dag → 2 dagen → 3 dagen → 4 dagen… Bovendien zet Again het interval weer terug op 1 dag.
+          Het resultaat: <strong>een handvol kaarten bezet voor altijd de dagelijkse herhaalwachtrij</strong>.<br />
+          <strong>De enige weg om de ease te verhogen is Easy (+0.15), en op een helse kaart druk je nooit op Easy.</strong>
+          <strong>Vier deuren naar beneden en maar één naar boven</strong> — dat is het structurele gebrek van de SM-2-familie,
+          en de reden dat Anki-gebruikers zeggen dat “8 bloedzuigerkaarten mijn leven verpesten”.
+        </div>
+        <p>
+          De remedie ligt bijna altijd <strong>buiten het algoritme</strong>. De kaart verwijderen, opsplitsen, er een zin bij zetten (“de kaart is slecht,
+          niet ik dom”), of <strong>de ease handmatig resetten</strong>.
+          <strong>Mensen repareren dus met de hand wat het algoritme niet kan repareren</strong>, en dat besef bracht de volgende generatie voort.
+        </p>
+
+        <h2 id="fsrs">FSRS — het enige algoritme dat precies kan antwoorden op “wat is S nou eigenlijk?”</h2>
+        <p>
+          <strong>FSRS (Free Spaced Repetition Scheduler)</strong> gooit de handmatig afgestelde constanten weg en
+          <strong>past de parameters aan op jouw echte herhaallogboek</strong>. Het is gebaseerd op het <strong>DSR-model</strong>.
+        </p>
+        <ul>
+          <li><strong>D (Difficulty, moeilijkheid)</strong> — hoe moeilijk deze kaart in wezen is</li>
+          <li><strong>S (Stability, stabiliteit)</strong> — hoe lang de herinnering standhoudt</li>
+          <li><strong>R (Retrievability, ophaalbaarheid)</strong> — de kans dat je het je <strong>op dit moment</strong> herinnert</li>
+        </ul>
+        <p>De vergeetcurve wordt zo gedefinieerd (volgens FSRS-4.5 / 5, <strong>DECAY = −0.5</strong>, <strong>FACTOR = 19/81</strong>).</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>Eén feit dat bijna niemand goed aanstipt</h3>
+        <p><strong>Laten we t = S invullen.</strong> Met andere woorden: “wat als je een kaart met stabiliteit S precies S dagen later ziet?”</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← precies 90%</code></pre>
+        <p>
+          <strong>Dat is geen toeval. FACTOR = 19/81 en DECAY = −0.5 zijn constanten die juist zo zijn teruggerekend dat deze waarde eruit komt.</strong>
+          Daarom <strong>laat de betekenis van S zich in één zin definiëren.</strong>
+        </p>
+        <div class="note">
+          <strong>S (stabiliteit) = “het aantal dagen tot de kans dat je het je herinnert gedaald is tot 90%”</strong><br />
+          S = 30 betekent: “als je deze kaart over 30 dagen weer tegenkomt, heb je hem negen van de tien keer goed”.
+          <strong>Het is geen abstracte interne variabele, maar een fysieke grootheid die je in dagen afleest.</strong>
+          De EF van SM-2 laat zo’n interpretatie niet toe. Vraag je wat “EF 2.5” betekent, dan is het enige antwoord: “een getal waarmee je vermenigvuldigt”.
+        </div>
+
+        <h3>Hoe de herhaallast verandert als je de doelretentie aanpast — omrekentabel</h3>
+        <p>
+          Met FSRS stel je de <strong>doelretentie (desired retention)</strong> zelf in (standaard <strong>0.90</strong>).
+          Los je de formule hierboven op naar t, dan krijg je dit interval.
+        </p>
+        <pre><code>interval t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>Dit is het resultaat als je getallen in deze formule invult. <strong>Deze tabel is misschien het meest praktische deel van dit artikel.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Doelretentie R</th><th>Interval (veelvoud van S)</th><th>Bij een kaart met S=30 dagen</th><th>Herhaallast</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14 dagen</td><td><strong>schiet omhoog, ca. 2.2 keer</strong></td></tr>
+              <tr><td><strong>0.90</strong> (standaard)</td><td><strong>× 1.00</strong></td><td>30 dagen</td><td>Referentie</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49 dagen</td><td>ca. 40% minder</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72 dagen</td><td><strong>ca. 58% minder</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133 dagen</td><td>ca. 77% minder</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Zo lees je het: <strong>verhoog je de retentie van 0.90 naar 0.95, “maar 5 procentpunt”, dan wordt het interval minder dan de helft</strong>
+          en <strong>verdubbelt de hoeveelheid herhaling.</strong> Omgekeerd: zakken naar 0.80 <strong>halveert de hoeveelheid herhaling ruimschoots, terwijl
+          je maar 10 procentpunt aan goede antwoorden inlevert</strong>. Omdat de curve zo steil is,
+          <strong>stort de intuïtie “hoe hoger de retentie, hoe beter” hier in.</strong>
+          Staat het examen niet voor de deur, dan is 0.85~0.90 meestal een redelijke bandbreedte.
+        </p>
+        <p class="muted">
+          Kanttekening over nauwkeurigheid: de afleiding hierboven geldt voor <strong>FSRS-4.5 / 5, waarin DECAY vastligt op −0.5</strong>.
+          <strong>Vanaf FSRS-6 is DECAY zelf een geleerde parameter</strong>, waardoor de gelijkheid “S = interval tot 90%”
+          niet meer precies hoeft te kloppen. Het aantal parameters groeide per versie ook: <strong>17 → 19 → 21</strong>.
+          <strong>Citeer deze getallen niet zonder de versie te controleren.</strong>
+        </p>
+
+        <h3>Wat FSRS niet kan</h3>
+        <p>
+          FSRS <strong>wordt pas van jou als het jouw logboek heeft.</strong>
+          Tot er <strong>een paar honderd tot iets meer dan 1,000 herhalingen zijn verzameld, draait het op standaardparameters</strong>,
+          en dat is uiteindelijk <strong>“het gemiddelde van anderen”</strong>. Met andere woorden: <strong>FSRS in de eerste maand is niet gepersonaliseerd.</strong>
+          En een logboek bijhouden betekent ook dat <strong>al je herhaalgeschiedenis ergens wordt opgeslagen</strong>.
+        </p>
+
+        <h2 id="sim">Eén woord 30 dagen volgen — simulatie</h2>
+        <p>
+          Laten we de abstracte formules tastbaar maken. We nemen één kaart, het woord <code>ubiquitous</code>, en stoppen die met het volgende scenario in drie systemen.
+        </p>
+        <div class="note">
+          <strong>Scenario</strong> — op dag 1 nieuw geleerd → <strong>fout bij de eerste herhaling</strong> (SM-2 q=2 / Anki Again)
+          → daarna steeds zonder moeite goed (q=4 / Good).
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Datum</th><th>Leitner (1·2·4·8·16 dagen)</th><th>SM-2 (start met EF 2.5)</th><th>Anki (start met ease 2.50)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Dag 1</strong></td><td>Leren · vak 1</td><td>Leren · I=1 dag</td><td>Leren (1 min→10 min) · doorstroom 1 dag</td></tr>
+              <tr><td><strong>Dag 2</strong></td><td><strong>Fout</strong> · blijft in vak 1</td><td><strong>Fout q=2</strong> · EF 2.50→<strong>2.18</strong> · reset</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · interval 1 dag</td></tr>
+              <tr><td><strong>Dag 3</strong></td><td>Goed → <strong>vak 2</strong></td><td>Goed · I=1 dag</td><td>Good · 1 × 2.30 = <strong>2 dagen</strong></td></tr>
+              <tr><td><strong>Dag 4</strong></td><td>—</td><td>Goed · I=<strong>6 dagen</strong></td><td>—</td></tr>
+              <tr><td><strong>Dag 5</strong></td><td>Goed → <strong>vak 3</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5 dagen</strong></td></tr>
+              <tr><td><strong>Dag 9</strong></td><td>Goed → <strong>vak 4</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Dag 10</strong></td><td>—</td><td>Goed · 6 × 2.18 = <strong>13 dagen</strong></td><td>Good · 5 × 2.30 = <strong>12 dagen</strong></td></tr>
+              <tr><td><strong>Dag 17</strong></td><td>Goed → <strong>vak 5</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Dag 22</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28 dagen</strong></td></tr>
+              <tr><td><strong>Dag 23</strong></td><td>—</td><td>Goed · 13 × 2.18 = <strong>28 dagen</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>Totaal herhalingen<br />in 30 dagen</strong></td>
+                <td><strong>6</strong></td><td><strong>6</strong></td><td><strong>6</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Volgende herhaling</strong></td>
+                <td>Dag 33</td>
+                <td><strong>Dag 51</strong></td>
+                <td><strong>Dag 50</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Het getal waar je hier echt naar moet kijken, is niet “6” maar “33 tegen 51”.</strong>
+          Alle drie de systemen lieten het woord in 30 dagen <strong>precies 6 keer</strong> herhalen. De inspanning is gelijk.
+          Maar <strong>Leitner roept het op dag 33 weer op, en SM-2 op dag 51.</strong>
+          Met dezelfde 6 herhalingen <strong>schoof SM-2 het 18 dagen verder vooruit.</strong>
+          Die kloof <strong>groeit met elke herhaling multiplicatief.</strong> Na een jaar vraagt Leitner nog steeds om de 16 dagen,
+          terwijl SM-2 al bij intervallen van een jaar is aangekomen.
+        </p>
+        <p>
+          <strong>En in deze tabel staat geen kolom voor VOCA DECK.</strong> Die kán er niet in.
+          Onze app <strong>kent het begrip “dag zoveel” niet eens.</strong> Waarom niet, is het onderwerp van het volgende hoofdstuk.
+        </p>
+
+        <h2 id="voca">VOCA DECK ontleed — wat onze code echt doet</h2>
+        <p>
+          Nu zijn wij aan de beurt. We schrijven het <strong>zonder verpakking, precies zoals het in de code staat</strong>.
+        </p>
+
+        <h3>Wat een kaart opslaat: dit is alles</h3>
+        <pre><code>{ a: "ubiquitous", b: "alomtegenwoordig", mem: false }</code></pre>
+        <p>
+          <strong>Dit is een kaart in haar geheel.</strong> Voorkant, achterkant en <strong>één boolean.</strong>
+          <strong>Het tijdstip van herhalen, hoe vaak je het fout had, hoe erg je twijfelde — niets daarvan wordt opgeslagen.</strong>
+        </p>
+        <p>
+          Daarom <strong>kunnen we SM-2 niet inbouwen, ook al zouden we willen.</strong>
+          SM-2 heeft minstens <code>EF · aantal herhalingen · laatste herhaaldatum</code> nodig,
+          en FSRS heeft <strong>het volledige herhaallogboek</strong> nodig om de parameters aan te passen.
+          Wij hebben <strong>geen account, geen server en geen herhaallogboek.</strong>
+          Het deck en de markeringen blijven <strong>alleen in de <code>localStorage</code> van de browser</strong> en worden niet naar een server gestuurd.
+          <strong>Dit is niet iets wat we niet konden maken; zo hebben we het gemaakt. De prijs is het opgeven van personalisatie.</strong>
+        </p>
+
+        <h3>Wat onze planner eigenlijk is: één regel modulo-rekenen</h3>
+        <p>
+          Hoe wij de “volgende kaart” kiezen, is een <strong>cyclische (cyclic) index</strong>.
+          Afhankelijk van de instelling <code>order</code> zijn er drie varianten.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Instelling</th><th>Gedrag</th><th>Interval tot het weerzien</th><th>Dekking</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> Vooruit (standaard)</td><td>Index +1, rondgaand</td><td><strong>Precies elke N kaarten</strong> (gelijkmatig)</td><td><strong>100% gegarandeerd</strong></td></tr>
+              <tr><td><code>rev</code> Achteruit</td><td>Index −1, rondgaand</td><td><strong>Precies elke N kaarten</strong> (gelijkmatig)</td><td><strong>100% gegarandeerd</strong></td></tr>
+              <tr><td><code>rnd</code> Willekeurig</td><td><strong>Bij elke stap een onafhankelijke, gelijkmatige trekking</strong><br />(alleen de huidige kaart wordt uitgesloten)</td><td>Verwachtingswaarde N−1 kaarten,<br /><strong>grote spreiding</strong></td><td><strong>Geen garantie ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>De willekeurige modus is geen schudden — ook dat moeten wij duidelijk zeggen.</strong><br />
+          De kaarten worden niet geschud om één volledige ronde te maken (trekken zonder terugleggen); <strong>er wordt telkens opnieuw getrokken uit de overige kaarten</strong>.
+          Daardoor <strong>kan dezelfde kaart drie keer achter elkaar komen, of een hele ronde lang geen enkele keer.</strong>
+        </div>
+
+        <h3>We hebben die prijs in getallen uitgerekend</h3>
+        <p>
+          Stel dat je een deck van 100 kaarten (N=100) in willekeurige modus <strong>99 stappen</strong> laat draaien (= de omvang van één ronde vooruit).
+          De kans dat een bepaalde kaart in één stap getrokken wordt, is <strong>1/(N−1) = 1/99</strong>.
+          De kans dat die kaart <strong>in 99 stappen geen enkele keer verschijnt</strong>, is dan:
+        </p>
+        <pre><code>P(0 keer verschenen) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>De verdeling van het aantal keren verschijnen volgt vrijwel een Poissonverdeling (λ=1).</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Aantal keer verschenen in één ronde (99 stappen)</th><th>Kans</th><th>Betekenis</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0 keer</strong></td><td><strong>ca. 37%</strong></td><td><strong>Een derde van het deck komt helemaal niet langs</strong></td></tr>
+              <tr><td>1 keer</td><td>ca. 37%</td><td>Zoals bedoeld</td></tr>
+              <tr><td>2 keer</td><td>ca. 18%</td><td>Verspilling</td></tr>
+              <tr><td>3 keer of meer</td><td>ca. 8%</td><td>Steeds dezelfde kaart</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Met andere woorden: draai je één ronde in willekeurige modus, dan krijg je zo’n 37% van het deck die dag niet eens te zien.</strong>
+          Ook na twee rondes (198 stappen) is <strong>ca. 13%</strong> nog steeds niet verschenen, en
+          <strong>pas na drie rondes</strong> zakt het aandeel nooit getoonde kaarten <strong>onder 5%</strong>.
+        </p>
+        <div class="note">
+          <strong>Gebruik het dus zo (een recept dat rechtstreeks uit de code volgt)</strong>
+          <ul>
+            <li><strong>Eerste ronde · volledige controle op de avond voor het examen</strong> → <strong>Vooruit</strong>. Dit is het moment waarop je 100% dekking nodig hebt. Willekeurig sla je een derde over.</li>
+            <li><strong>Vanaf de 3e ronde, als je de volgordeaanwijzingen wilt doorbreken</strong> → gebruik eerst <strong>Achteruit</strong>.
+              <strong>Het doorbreekt de volgordeaanwijzingen en houdt de dekking op 100%.</strong> De meeste mensen lopen deze optie gewoon voorbij.</li>
+            <li><strong>Echte training in willekeurig ophalen</strong> → <strong>Willekeurig</strong>. Maar gebruik het <strong>in de wetenschap dat je het deck drie rondes moet draaien</strong>.</li>
+          </ul>
+        </div>
+
+        <h3>Tijdseenheid: de schaal van onze planner is de “seconde”</h3>
+        <p>
+          Het standaardinterval is <strong>3 seconden</strong> (1~60 s in het bedieningspaneel). Elke kaart doorloopt <strong>twee fasen, voorkant · achterkant</strong>, dus
+          het is <strong>standaard 6 s/kaart</strong>. En de timer heeft een <strong>ondergrens van 0.5 s</strong>
+          (hoe kort je hem ook instelt, lager gaat hij niet).
+        </p>
+        <p>Daaruit volgt meteen de <strong>fysieke bovengrens van de deckgrootte</strong>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Deckgrootte N</th><th>Duur van één ronde<br />(standaard 6 s/kaart)</th><th>Interval tot dezelfde kaart terugkomt</th><th>Oordeel</th></tr></thead>
+            <tbody>
+              <tr><td>30 kaarten</td><td><strong>3 min</strong></td><td>3 min</td><td>◎ Dichte herhaling binnen de sessie</td></tr>
+              <tr><td>100 kaarten</td><td><strong>10 min</strong></td><td>10 min</td><td>○ Praktische bovengrens</td></tr>
+              <tr><td>300 kaarten</td><td><strong>30 min</strong></td><td>30 min</td><td>△ Eén ronde is al zwaar</td></tr>
+              <tr><td>500 kaarten</td><td><strong>50 min</strong></td><td>50 min</td><td>✗ Effect van herhaling binnen de sessie verdwijnt</td></tr>
+              <tr><td>2,000 kaarten</td><td><strong>3 u 20 min</strong></td><td>3 u 20 min</td><td><strong>✗ In de praktijk onmogelijk</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>De eerlijke grens van Flits-stampen: splits decks op in maximaal 300 kaarten.</strong>
+          Maak je één deck van 2,000 kaarten, dan <strong>duurt één ronde 3 u 20 min</strong>.
+          Dat is geen “snelle herhaalde blootstelling” meer. Het is gewoon <strong>langzaam een lijst lezen</strong>.
+          <strong>Moet je 2,000 kaarten beheren, dan is dat een klus voor Anki en niet voor deze app.</strong>
+        </div>
+
+        <h3>Het interval is de lengte van het “ophaalvenster” — gebruik het asymmetrisch</h3>
+        <p>
+          Zie je het interval alleen als “snelheidsregeling”, dan gebruik je maar de helft.
+          <strong>Die paar seconden dat de voorkant in beeld is, zijn de enige tijd waarin je je kunt inspannen om het antwoord op te halen</strong>.
+          Daarom hebben we het mogelijk gemaakt de intervallen van voor- en achterkant <strong>apart</strong> in te stellen (geavanceerde instellingen, 0~60 s).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Situatie</th><th>Interval voorkant</th><th>Interval achterkant</th><th>Per kaart</th><th>Bedoeling</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Eerste ronde</strong> (vol onbekende woorden)</td><td>2 s</td><td>4 s</td><td>6 s</td><td>Er valt nog niets op te halen, dus <strong>kijk langer naar de betekenis</strong></td></tr>
+              <tr><td><strong>2e~3e ronde</strong> (ophaaltraining)</td><td><strong>5 s</strong></td><td>1.5 s</td><td>6.5 s</td><td><strong>Tijd winnen om op te halen</strong>, controleren in een flits</td></tr>
+              <tr><td><strong>Sprint vlak voor het examen</strong></td><td>1.5 s</td><td>1.5 s</td><td>3 s</td><td>Volledige scan — 100 kaarten in <strong>5 min</strong></td></tr>
+              <tr><td><strong>Leren op het gehoor met TTS</strong></td><td>3 s</td><td>3 s</td><td>6 s</td><td>Tijd zodat de stem kan uitspreken</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>De “voorkant 5 s / achterkant 1.5 s” van de 2e~3e ronde is in deze app de instelling die het dichtst bij ophaaloefening komt</strong>.
+          <strong>Hoe verder je in de rondes komt, hoe langer de voorkant en hoe korter de achterkant.</strong>
+          De meeste mensen doen het andersom, en <strong>kijken</strong> daardoor tot het eind <strong>alleen passief</strong>.
+        </p>
+
+        <h2 id="mem">Wat de “geleerd-markering” eigenlijk is — een Leitner met maar 2 vakken</h2>
+        <p>
+          Ons enige personalisatiemechanisme is de <strong>geleerd-markering</strong>.
+          Vertaald naar de taal van algoritmen is het precies dit.
+        </p>
+        <div class="note">
+          <strong>Geleerd-markering = een Leitner-box met 2 vakken.</strong> Alleen <strong>is het geen ladder, maar een deur.</strong><br />
+          Vak 1 = <code>mem: false</code> (blijft rouleren) · vak 2 = <code>mem: true</code> (uit de rotatie gehaald)<br />
+          En de instelling <strong>bereik</strong> kiest het vak —
+          <strong>Geleerde overslaan</strong> (standaard) / <strong>Alleen geleerde</strong> / <strong>Alle</strong>.
+        </div>
+
+        <h3>Wat je hiermee alleen al wint (meer dan je denkt)</h3>
+        <p>
+          <strong>Het grootste deel van wat een personalisatie-algoritme doet, is eigenlijk “kaarten die je al kent niet laten zien”</strong>.
+          Als SM-2 een kaart met EF 2.5 587 dagen vooruitschuift, probeert het uiteindelijk ook <strong>die kaart nu niet te laten zien</strong>.
+          De geleerd-markering pakt <strong>het grofste, maar ook het grootste stuk</strong> van dat effect.
+        </p>
+        <p>
+          Laten we het in getallen bekijken. Markeer je in een deck van 100 kaarten <strong>er 40 als geleerd</strong>, dan rouleren er nog 60.
+          Eén ronde krimpt van <strong>10 min → 6 min</strong>, en <strong>het interval tot je een onbekende kaart weerziet daalt van 10 min → 6 min</strong>.
+          <strong>In dezelfde 20 minuten kom je de moeilijke kaarten 1.67 keer zo vaak tegen.</strong>
+          <strong>Een factor 1.67 voor niets.</strong> Met één vinkje.
+        </p>
+
+        <h3>Wat er ontbreekt vergeleken met een echte SM-2 (dit is het belangrijke deel)</h3>
+        <p><strong>① Er zijn geen niveaus — het is 0 of 1.</strong>
+          SM-2 maakt onderscheid tussen “EF 2.5 (heel makkelijk)”, “EF 1.6 (vrij moeilijk)” en “EF 1.3 (hels)”
+          en toont elk <strong>met een andere frequentie</strong>. Wij hebben alleen <strong>“tonen / niet tonen”</strong>.
+          <strong>Binnen de 60 niet-geleerde kaarten zijn ze allemaal volstrekt gelijk.</strong>
+          Een woord dat je gisteren voor het eerst zag en een woord dat er na 40 keer nog steeds niet in zit, komen <strong>met precies dezelfde frequentie</strong> langs.
+          <strong>Dit is het duidelijkste punt waarop we van SM-2 verliezen.</strong></p>
+
+        <p><strong>② Er is geen tijd — dus “wanneer opnieuw bekijken” is niet te berekenen.</strong>
+          <code>mem</code> is een boolean. <strong>Wanneer je markeerde, wordt niet opgeslagen.</strong>
+          Daarom kan <strong>de app</strong> de afweging “het is 40 dagen geleden dat je deze kaart markeerde, tijd om hem opnieuw te controleren”
+          <strong>principieel niet maken.</strong> Er is immers geen tijdstempel.</p>
+
+        <p><strong>③ Zo ontstaat de blinde vlek — gemarkeerde kaarten verrotten in stilte.</strong></p>
+        <div class="note warn">
+          <strong>Dit is de belangrijkste waarschuwing in dit artikel.</strong><br />
+          De geleerd-markering is een <strong>deur in één richting</strong>. Gaat een kaart naar vak 2,
+          <strong>dan is er geen weg waarlangs ze vanzelf terugkomt.</strong>
+          SM-2 <strong>roept vroeg of laat altijd</strong> zelfs een kaart van 587 dagen <strong>weer op</strong> — om vergeten te betrappen.
+          Wij <strong>roepen haar nooit meer op.</strong><br />
+          <strong>Er stapelt zich dus op: “een kaart die als geleerd is gemarkeerd, is eigenlijk vergeten, en jij weet het niet”.</strong>
+          En dat ontdek je in de examenzaal.
+        </div>
+
+        <h3>De werkwijze om die blinde vlek met de hand te dichten</h3>
+        <p>
+          Omdat het algoritme het niet doet, <strong>moet de mens het doen.</strong> Gelukkig is het niet moeilijk en zit de functie al in de app.
+          <strong>Het bereik op “Alleen geleerde” zetten</strong> bestaat precies voor dit doel.
+        </p>
+        <ol>
+          <li><strong>Kies één vaste dag per week.</strong> (Bijvoorbeeld: zondag)</li>
+          <li>Zet het bereik op <strong>“Alleen geleerde”</strong>. → Alleen de als geleerd gemarkeerde kaarten rouleren.</li>
+          <li><strong>Volgorde willekeurig</strong>, <strong>interval voorkant op een ruime 4~5 s</strong>. — Je test hier echt ophalen.</li>
+          <li><strong>Komt er een kaart die je niet meer weet, haal dan ter plekke de geleerd-markering weg</strong>. → Gedegradeerd naar vak 1. <strong>Je zet de terugweg met de hand open.</strong></li>
+          <li>Zet het daarna weer op “Geleerde overslaan” en ga verder zoals altijd.</li>
+        </ol>
+        <p>
+          <strong>Deze 5 stappen zijn alles wat nodig is om de “herhaling van rijpe kaarten” van SM-2 met de hand na te bootsen.</strong>
+          Omdat het niet automatisch gaat, is het minderwaardig, maar <strong>het is overweldigend beter dan niets doen.</strong>
+          <strong>Doe je dit niet, dan wordt de geleerd-markering een “functie die kaarten verstopt die doen alsof je ze kent”.</strong>
+        </p>
+
+        <h2 id="which">Wat moet ik dan gebruiken — een eerlijk recept</h2>
+        <p>
+          <strong>“Gebruik onze app” is in minder dan de helft van de gevallen het juiste antwoord.</strong> We schrijven het zoals het is.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Jouw situatie</th><th>Aanbeveling</th><th>Reden (in getallen)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>2,000~10,000 woorden<br />6 maanden tot jaren paraat houden</strong><br />(langlopende voorbereiding op bijv. het Koreaanse Suneung-examen, TOEIC of GRE)</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">(niet onze app)</span></td>
+                <td>Bij Flits-stampen duurt één ronde van 2,000 kaarten <strong>3 u 20 min</strong>. Dat is fysiek onmogelijk.
+                  Bovendien roept het rijpe kaarten niet opnieuw op, dus <strong>faalt het bij langetermijnbehoud</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Examen over 14 dagen · last-minute blokken</strong><br />200~300 woorden</td>
+                <td><strong>Flits-stampen</strong></td>
+                <td>De intervallen van SM-2 zijn <strong>1 dag → 6 dagen → 15 dagen</strong>.
+                  <strong>Binnen 14 dagen kom je maar tot 3 rondes</strong>. Een planner in dagen
+                  <strong>is nutteloos als er weinig tijd over is</strong>. Drie rondes per dag winnen.</td>
+              </tr>
+              <tr>
+                <td><strong>Wie de app niet elke dag opent</strong><br />(slaat steeds 3 dagen over)</td>
+                <td><strong>Flits-stampen</strong></td>
+                <td>In Anki stapelen zich na 3 overgeslagen dagen <strong>honderden achterstallige kaarten</strong> op.
+                  Dat is <strong>oorzaak nr. 1 van afhaken bij SRS</strong>. Bij Flits-stampen <strong>bestaat het begrip achterstallige kaart niet.</strong>
+                  Open wanneer je wilt, sluit wanneer je wilt.</td>
+              </tr>
+              <tr>
+                <td><strong>Deck van 30~300 kaarten,<br />één CSV-bestand</strong></td>
+                <td><strong>Flits-stampen</strong></td>
+                <td>De <strong>wrijving van het instellen</strong> van Anki-installatie + notitietype + deckopties + synchronisatieaccount <strong>is groter dan de winst.</strong>
+                  Open de CSV en <strong>3 seconden later ben je al aan het leren</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Alleen met je oren leren<br />tijdens de afwas · onderweg naar werk</strong></td>
+                <td><strong>Flits-stampen (alleen TTS-geluid)</strong></td>
+                <td>In Anki moet je <strong>naar het scherm kijken en op een knop drukken</strong> om verder te gaan.
+                  Flits-stampen met <strong>automatisch afspelen + alleen geluid</strong> <strong>vraagt handen noch ogen.</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Geen herhaalgeschiedenis willen achterlaten,<br />geen account willen maken</strong></td>
+                <td><strong>Flits-stampen</strong></td>
+                <td>Het deck en de markeringen worden <strong>alleen in de localStorage van de browser</strong> opgeslagen en
+                  <strong>niet naar een server gestuurd.</strong> Daar staat tegenover dat er <strong>ook geen synchronisatie tussen apparaten is.</strong> (Om dezelfde reden.)</td>
+              </tr>
+              <tr>
+                <td><strong>30 helse woorden<br />die er maar niet in willen</strong></td>
+                <td><strong>Flits-stampen</strong></td>
+                <td>In Anki <strong>belanden deze kaarten in ease hell en blijven ze aan ease 1.30 plakken.</strong>
+                  <strong>Exporteer ze liever naar een aparte CSV en maak een deck van 30 kaarten (één ronde 3 min)</strong>, en draai dat vijf rondes per dag.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">Het preciezere antwoord: ze werken op verschillende lagen</h2>
+        <p>
+          Als je tot hier bent gekomen, zou deze zin nu duidelijk moeten zijn.
+        </p>
+        <div class="note">
+          <strong>Anki bepaalt “welke kaarten je vandaag ziet”. (per dag)</strong><br />
+          <strong>Flits-stampen bepaalt “hoe je die kaarten nu te zien krijgt”. (per seconde)</strong><br />
+          <strong>Ze vechten niet om hetzelfde probleem; ze stapelen zich op elkaar.</strong>
+        </div>
+        <p>Dit is de combinatie die mensen die beide gebruiken in de praktijk toepassen.</p>
+        <ol>
+          <li><strong>Laat de langetermijnplanning over aan Anki.</strong> De “120 kaarten voor vandaag” uit een deck van 5,000 woorden kiest FSRS voor je uit.</li>
+          <li><strong>Exporteer de kaarten die je in Anki steeds fout hebt (bloedzuigers, ease rond 1.3) naar een CSV.</strong>
+            Dat zijn er meestal <strong>30~80</strong>.</li>
+          <li><strong>Laad die CSV in Flits-stampen en draai er twee à drie rondes per dag mee.</strong>
+            Bij 80 kaarten <strong>duurt één ronde 8 min</strong>. Voorkant 5 s / achterkant 1.5 s om ophalen te oefenen.</li>
+          <li><strong>Haal kaarten die in Flits-stampen zeker zitten eruit met de geleerd-markering</strong>, en reset in Anki de ease van die kaarten.</li>
+        </ol>
+        <p>
+          <strong>Flits-stampen doet wat Anki niet kan, en Anki doet wat Flits-stampen niet kan.</strong>
+          Anki <strong>kan geen dichte blootstelling binnen een sessie creëren</strong> (het laat je niet 20 keer per dag dezelfde kaart zien),
+          en Flits-stampen kan <strong>de herhaaldatum over 6 maanden</strong> niet berekenen.
+          <strong>Eén bestand (CSV) verbindt de twee hulpmiddelen.</strong>
+          Hoe je dat maakt, lees je in <a href="/csv-guide">Een CSV-woordenlijst maken</a>.
+        </p>
+
+        <h2 id="qa">Korte vragen &amp; antwoorden</h2>
+
+        <h3>V. Is FSRS altijd beter dan SM-2?</h3>
+        <p>
+          <strong>Als er genoeg herhaallogboek is opgebouwd, meestal wel.</strong> Maar <strong>in de eerste maand niet.</strong>
+          FSRS wordt pas van jou <strong>als het de parameters op jouw logboek heeft afgestemd</strong>; tot die tijd draait het op <strong>het gemiddelde van anderen</strong>.
+          En FSRS rust op de <strong>aanname dat jij eerlijk op de knoppen drukt</strong>.
+          <strong>Druk je achteloos alleen op Good, dan zit een verfijnd algoritme er verfijnd naast.</strong>
+          <strong>Rommel erin, rommel eruit — dat kan geen algoritme voor je oplossen.</strong>
+        </p>
+
+        <h3>V. Wat is de juiste doelretentie?</h3>
+        <p>
+          Kijk nog eens naar de <a href="#fsrs">omrekentabel</a> hierboven. <strong>Van 0.90 → 0.95 verdubbelt de hoeveelheid herhaling.</strong>
+          Je betaalt <strong>dubbel zoveel tijd</strong> voor 5 procentpunt meer goede antwoorden. In de meeste gevallen is dat verlies.
+          <strong>Is het examen ver weg, dan 0.85~0.90; staat het voor de deur, dan 0.90~0.95</strong> — dat is een redelijk startpunt.
+          <strong>Maar dit is geen “juist antwoord”, het is een “startpunt”.</strong>
+        </p>
+
+        <h3>V. Hoeveel seconden interval is juist in Flits-stampen?</h3>
+        <p>
+          <strong>De “juiste waarde” verschilt per ronde.</strong> De standaard 3 s is alleen <strong>een redelijke waarde voor de eerste ronde</strong>.
+          <strong>Naarmate de rondes zich opstapelen: voorkant langer (tijd om op te halen), achterkant korter (alleen controleren).</strong>
+          Voorkant 5 s / achterkant 1.5 s is <strong>de instelling die het dichtst bij ophaaloefening komt</strong>.
+          De uitgebreide indeling staat in de <a href="#voca">tabel hierboven</a>.
+        </p>
+
+        <h3>V. Is willekeurig niet altijd beter dan vooruit? Het doorbreekt toch de volgordeaanwijzingen.</h3>
+        <p>
+          <strong>Nee, dat is precies de valkuil die we in dit artikel hebben uitgerekend.</strong> Willekeurig <strong>garandeert geen dekking</strong>
+          (in één ronde <strong>blijft ca. 37% ongezien</strong>). Wil je de volgordeaanwijzingen doorbreken én de dekking behouden, gebruik dan
+          <strong>Achteruit</strong>. <strong>De meeste gebruikers weten niet waarom deze optie bestaat.</strong>
+        </p>
+
+        <h3>V. Ik heb alles als geleerd gemarkeerd en het deck is leeg. Ben ik klaar?</h3>
+        <p>
+          <strong>Nee. Dan begint het pas.</strong> Zet het bereik op <strong>“Alleen geleerde”</strong> en
+          <strong>controleer één keer per week</strong>. Kaarten die je niet meer weet, <strong>haal je de markering af</strong> zodat ze terugkomen.
+          <strong>Zonder deze werkwijze wordt de geleerd-markering een functie die vergeten verstopt.</strong> De werkwijze staat <a href="#mem">hierboven</a>.
+        </p>
+
+        <h3>V. Komt SM-2 dan ooit in VOCA DECK?</h3>
+        <p>
+          <strong>Daarvoor zouden we het herhaallogboek moeten opslaan, dan groeit de opslag, dan wil je synchronisatie tussen apparaten,
+          en dan heb je een account nodig.</strong> Op dat moment <strong>verdwijnt het enige voordeel van deze app: “nul wrijving”.</strong>
+          <strong>Dat zou neerkomen op een mislukte kopie van Anki maken.</strong>
+          <strong>Wij proberen Anki niet te worden.</strong> Op dit moment zijn er geen plannen voor, en
+          <strong>waarom we het niet doen, hebben we in dit hele artikel opgeschreven.</strong>
+        </p>
+
+        <h2 id="closing">Tot slot — een algoritme kan de app niet voor je openen</h2>
+        <p>
+          FSRS is <strong>de beste planner ter wereld</strong>. En <strong>als je de app 3 dagen niet opent, stelt hij niets voor.</strong>
+          Hij wacht alleen maar met <strong>“340 kaarten om vandaag te herhalen”</strong>, op perfecte intervallen,
+          en wie dat getal ziet, <strong>sluit de app.</strong>
+        </p>
+        <p>
+          De 50-jarige geschiedenis van algoritmen voor gespreide herhaling was <strong>“een wedstrijd om herhalingen te minimaliseren”</strong>.
+          Leitner met 5 vakken, SM-2 met EF-vermenigvuldiging, FSRS met jouw logboek.
+          <strong>Allemaal gingen ze voor hetzelfde doel — overbodige herhalingen schrappen.</strong>
+        </p>
+        <p>
+          <strong>Maar daar gaan mensen in werkelijkheid niet onderuit.</strong>
+          <strong>Mensen stoppen niet omdat er “te veel herhalingen zijn”, maar omdat ze de app “vandaag niet openden”.</strong>
+          Daarom hebben we personalisatie volledig opgegeven en <strong>alles ingezet op wrijving terugbrengen naar nul</strong>.
+          <strong>We weten niet zeker of dat de juiste keuze is.</strong>
+          <strong>Maar het is de keuze die we hebben gemaakt, en we hebben de prijs ervan in dit artikel op geen enkel punt verzwegen.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Disclaimer</strong><br />
+          Dit artikel is <strong>informatie over leermethoden</strong> en <strong>geen educatief of medisch advies.</strong>
+          Leereffecten <strong>verschillen sterk van persoon tot persoon</strong>, en geen van de hier beschreven methoden <strong>garandeert een bepaald cijfer of resultaat.</strong><br />
+          <strong>De standaardwaarden en formules van hulpmiddelen van derden (Anki · SuperMemo · FSRS) veranderen per versie.</strong>
+          De getallen in dit artikel <strong>zijn gebaseerd op de algemeen bekende standaardvoorinstellingen</strong>;
+          <strong>controleer ze altijd zelf in het instellingenscherm en de officiële documentatie van de versie die je gebruikt.</strong>
+          De FSRS-formules <strong>gelden voor FSRS-4.5 / 5 met DECAY vast op −0.5</strong> en
+          <strong>kloppen mogelijk niet voor FSRS-6 of hoger.</strong><br />
+          De getallen over VOCA DECK <strong>zijn gebaseerd op de daadwerkelijke implementatie op het moment van schrijven</strong> en kunnen door updates veranderen.
+        </div>
+
+        <h2>Verder lezen</h2>
+        <div class="related">
+          <a href="/method"><b>Hoe flits-memorisatie werkt</b><span>Vergeetcurve · spreidingseffect · dubbele codering — waarom herhaalde blootstelling werkt</span></a>
+          <a href="/study-guide"><b>Leerstrategie voor woordjes</b><span>Hoeveel per dag, wanneer herhalen, een plan voor 4 weken</span></a>
+          <a href="/csv-guide"><b>Een CSV-woordenlijst maken</b><span>Zo zet je de helse kaarten uit Anki over naar Flits-stampen</span></a>
+          <a href="/"><b>Woordenlijst openen</b><span>Probeer interval, volgorde en bereik zelf uit</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+      </div>
+    </main>

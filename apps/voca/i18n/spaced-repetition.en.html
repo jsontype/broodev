@@ -1,0 +1,793 @@
+<main class="wrap" data-title="Spaced Repetition Algorithms Compared — Leitner · SM-2 · FSRS, and Why We Chose Not to Use One | VOCA DECK" data-desc="We compare the review-date formulas of the Leitner box (1972), SM-2 (1987, EF 2.5) and FSRS (stability S) with real numbers. A simulation that tracks a single word for 30 days, an FSRS desired-retention-to-interval conversion table, and the price VOCA DECK paid for choosing even cycling over personalization — disclosed down to the code.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Vocabulary deck</a>
+          <a href="/method">How it works</a>
+          <a href="/study-guide">Study strategy</a>
+          <a href="/csv-guide">Making a CSV</a>
+        </nav>
+
+        <h1>Spaced Repetition Algorithms Compared</h1>
+        <p class="muted">Leitner · SM-2 · FSRS, and why we chose not to use an algorithm · Last updated: 2026-07-14 · Written by Y-Systems</p>
+
+        <p class="lead">
+          This article <strong>opens with the categories where our app loses.</strong>
+          In the table below, the VOCA DECK column has several “✗” marks. We did not remove them.
+          <strong>The heart of spaced repetition is “who calculates the review date, and how”</strong> —
+          and we <strong>chose not to do that calculation at all</strong>.
+          Here we <strong>dissect, down to the formulas and the numbers,</strong> three algorithms that actually do that calculation,
+          and we <strong>pull straight from our code</strong> what we gave up and what we wanted in return.
+        </p>
+
+        <h2 id="spec">Spec sheet first — each cell of the table is this article’s table of contents</h2>
+        <p>
+          Before any explanation, <strong>the summary table comes first</strong>. Each row is dissected one by one below.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th><a href="#leitner" style="color:#22dd22">Leitner box</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki variant</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(Flashing Memorizer)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Scheduling unit</strong></td>
+                <td>Days (per box)</td>
+                <td>Days</td>
+                <td>Minutes + days</td>
+                <td>Days (fractional)</td>
+                <td><strong>Seconds</strong></td>
+              </tr>
+              <tr>
+                <td><strong>State each card remembers</strong></td>
+                <td>One box number<br />(1~5)</td>
+                <td>EF · repetition count · interval<br />(3 real numbers)</td>
+                <td>ease · interval · lapse count</td>
+                <td>Difficulty D · stability S<br />(latent variables)</td>
+                <td><strong>One boolean</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>Answer quality grades</strong></td>
+                <td>○/✗, 2 levels</td>
+                <td>q = 0~5 (6 levels)</td>
+                <td>4 levels (Again~Easy)</td>
+                <td>4 levels</td>
+                <td><strong>✗ None</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Review history storage</strong></td>
+                <td>Physical box</td>
+                <td>Per-card state</td>
+                <td>Full review log</td>
+                <td>Log required (for training)</td>
+                <td><strong>✗ Not stored</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Learns from your own data</strong></td>
+                <td>✗</td>
+                <td>✗ (hand-tuned constants)</td>
+                <td>✗</td>
+                <td><strong>○ (parameter optimization)</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>Per-card personalization</strong></td>
+                <td>△ (squashed into 5 levels)</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗ (all identical)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Guaranteed full coverage</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>(○ for forward only,<br />✗ for random)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Account · install · sync</strong></td>
+                <td>Paper box</td>
+                <td>Required</td>
+                <td>Required</td>
+                <td>Required</td>
+                <td><strong>◎ None needed</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Review backlog avalanche</strong></td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td><strong>Yes (No. 1 reason people quit)</strong></td>
+                <td>Yes</td>
+                <td><strong>◎ None</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Long-term retention of mature cards</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗ (blind spot)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Exposure density within a session</strong></td>
+                <td>Low</td>
+                <td>Low</td>
+                <td>Low</td>
+                <td>Low</td>
+                <td><strong>◎ 6 s/card</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>The table in one sentence</strong> — the first four columns are tools that answer <strong>“how many days from now should I see this?”</strong>,
+          while the rightmost column is a tool that answers <strong>“what should I look at during these 6 seconds?”</strong>
+          <strong>They are not competitors solving the same problem.</strong> The conclusion of this article is already right here.
+        </div>
+
+        <h2 id="leitner">1972 — Leitner: “moving the box is the algorithm”</h2>
+
+        <h3>The problem of that era</h3>
+        <p>
+          There were no computers. What the German journalist <strong>Sebastian Leitner</strong>
+          proposed in his 1972 book was <strong>spaced repetition that needs no calculation</strong>.
+          No pencil, no date arithmetic. <strong>The physical act of moving a card is itself the saved state</strong>.
+        </p>
+
+        <h3>How it worked</h3>
+        <ul>
+          <li>Divide a box with partitions into <strong>5 compartments</strong>.</li>
+          <li>Every new card starts in <strong>compartment 1</strong>.</li>
+          <li>Answer correctly and the card <strong>moves forward one compartment</strong>.</li>
+          <li>Get it wrong and, <strong>no matter which compartment it was in, it drops straight back to compartment 1</strong>.</li>
+          <li>Each compartment has its own review cycle. A commonly used arrangement looks like this.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Compartment</th><th>Review cycle</th><th>What being here means</th><th>When you miss</th></tr></thead>
+            <tbody>
+              <tr><td>No. 1</td><td><strong>Every day</strong></td><td>Not known yet / just missed</td><td>Stays in No. 1</td></tr>
+              <tr><td>No. 2</td><td>Every 2 days</td><td>Answered correctly once</td><td><strong>→ drops to No. 1</strong></td></tr>
+              <tr><td>No. 3</td><td>Every 4 days</td><td>Two correct in a row</td><td><strong>→ drops to No. 1</strong></td></tr>
+              <tr><td>No. 4</td><td>Every 8 days</td><td>Three in a row</td><td><strong>→ drops to No. 1</strong></td></tr>
+              <tr><td>No. 5</td><td>Every 16 days</td><td>Almost memorized</td><td><strong>→ drops to No. 1</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Strictly speaking, <strong>Leitner’s original scheme was capacity-based — “empty a compartment when it is full” — not date-based</strong>.
+          The 1·2·4·8·16-day schedule above is a <strong>calendar version</strong> that settled in later.
+          Many articles blur this distinction, so we note it here.
+        </p>
+
+        <h3>What broke</h3>
+        <p>
+          Leitner’s fatal weakness is that <strong>“the fall is too brutal.”</strong>
+          A card in compartment 5 that <strong>slips just once</strong> is treated
+          <strong>exactly the same</strong> as “a new card never answered correctly” and drops to compartment 1.
+          In reality that card is almost memorized, but the box has no way to express that.
+          <strong>With only one integer of state, there is nowhere to store “almost memorized, but confused today.”</strong>
+        </p>
+        <p>
+          And <strong>every card climbs the same ladder.</strong>
+          An easy word must step through all 5 compartments, and a word that simply won’t stick also gets exactly 5.
+          What was needed was <strong>a ladder each card climbs at its own speed</strong>. That arrived 15 years later.
+        </p>
+
+        <h2 id="sm2">1987 — SM-2: 15 years to turn an integer into a real number</h2>
+
+        <h3>The problem of that era</h3>
+        <p>
+          <strong>SM-2</strong>, published by Poland’s <strong>Piotr Woźniak</strong> while building SuperMemo,
+          replaces Leitner’s “compartment number (integer)” with an <strong>“easiness factor (real number)”</strong>.
+          The key invention is a single value: the <strong>EF (Easiness Factor)</strong>.
+        </p>
+
+        <h3>How it worked — the actual formula</h3>
+        <p>At every review, SM-2 has you grade yourself on six levels, <strong>q = 0~5</strong> (5 = perfect, 0 = total blank). It then updates EF like this.</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+initial EF = 2.5   ·   EF floor = 1.3 (never goes below this)</code></pre>
+        <p>Here are the values this formula actually produces. <strong>We filled in this table by hand calculation.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q (self-grade)</th><th>Meaning</th><th>EF change</th><th>Starting from EF 2.5</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>Recalled perfectly</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>Correct, after a brief hesitation</td><td><strong>±0.00</strong></td><td>2.50 (unchanged)</td></tr>
+              <tr><td><strong>3</strong></td><td>Correct, barely</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>Wrong, but recognized it on seeing the answer</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>Wrong, answer still unfamiliar</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>Complete blank</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>That q=4 comes out at exactly 0 is the design intent of this formula</strong>.
+          “Correct without trouble” is a <strong>neutral point that leaves the difficulty estimate unchanged</strong>;
+          do better and EF goes up, do worse and it goes down. The constants 0.1 · 0.08 · 0.02
+          <strong>were not derived from theory — Woźniak tuned them by hand</strong>. This becomes important later.
+        </p>
+        <p>The next interval is then set like this.</p>
+        <pre><code>I(1) = 1 day
+I(2) = 6 days
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+if q &lt; 3 → reset repetition count n to 1 (interval returns to 1 day)</code></pre>
+        <p>
+          <strong>EF is a multiplier.</strong> So an easy card at EF 2.5 and a hellish card at EF 1.3
+          <strong>diverge exponentially.</strong> With the same number of reviews, they reach completely different intervals.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Review no.</th><th>EF 2.5 (easy card)</th><th>EF 1.9 (average)</th><th>EF 1.3 (hellish card)</th></tr></thead>
+            <tbody>
+              <tr><td>1st</td><td>1 day</td><td>1 day</td><td>1 day</td></tr>
+              <tr><td>2nd</td><td>6 days</td><td>6 days</td><td>6 days</td></tr>
+              <tr><td>3rd</td><td>15 days</td><td>11 days</td><td>8 days</td></tr>
+              <tr><td>4th</td><td>38 days</td><td>22 days</td><td>10 days</td></tr>
+              <tr><td>5th</td><td>94 days</td><td>41 days</td><td>13 days</td></tr>
+              <tr><td>6th</td><td><strong>235 days</strong></td><td>78 days</td><td>17 days</td></tr>
+              <tr><td>7th</td><td><strong>587 days (1.6 years)</strong></td><td>148 days</td><td><strong>22 days</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          At the 7th review it is <strong>587 days versus 22 days — a 27-fold gap</strong>.
+          This is where SM-2 beats Leitner. It <strong>sweeps easy cards out of sight for a year and a half at a time</strong>
+          and spends all that time on the hard cards instead.
+        </p>
+
+        <h3>What broke</h3>
+        <p><strong>① Six-level self-grading is too hard for humans.</strong>
+          For every card you have to decide the difference between q=3 and q=4. In practice most users
+          <strong>keep pressing the same two or three grades.</strong> The six-level design effectively collapses into three.</p>
+        <p><strong>② The failure handling is ambiguous.</strong> The original text says “if q&lt;3, start repetitions from the beginning <em>without changing EF</em>,”
+          yet the pseudocode in the same document <strong>updates EF for every q</strong>. Implementations interpret it differently.
+          <strong>That a key branch point of an algorithm used for over 30 years is ambiguous on paper</strong> is something it is more honest to state plainly.
+          (The simulation in this article takes the <strong>“EF is updated too”</strong> reading.)</p>
+        <p><strong>③ The constants are fixed without justification.</strong> Why is I(2) 6 days? Why 0.08 of all numbers?
+          <strong>Numbers hand-tuned by one person in 1987 on his own data</strong> are applied unchanged to every learner in the world.
+          That is why FSRS came along.</p>
+
+        <h2 id="anki">The Anki variant — and “ease hell”</h2>
+        <p>
+          Anki does not use SM-2 as-is. It <strong>cuts the grades down to four</strong> (Again / Hard / Good / Easy),
+          calls EF <strong>ease</strong>, and re-tuned the size of the adjustments. Here is how it actually behaves with the default preset.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Button</th><th>Ease change</th><th>Next interval</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong> (fail)</td><td><strong>−0.20</strong></td><td>Previous interval <strong>× 0%</strong> → minimum 1 day<br />(+ 10-minute relearning)</td><td>Interval <strong>reset to the floor</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>Previous interval × <strong>1.2</strong></td><td>Fixed multiplier independent of ease</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>Previous interval × <strong>ease</strong></td><td>Neutral point (SM-2’s q=4)</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>Previous interval × ease × <strong>1.3</strong></td><td>Easy bonus</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Other defaults: learning steps <code>1m 10m</code> · graduating interval <strong>1 day</strong> · easy interval <strong>4 days</strong> ·
+          starting ease <strong>2.50</strong> · <strong>ease floor 1.30</strong> · leech threshold <strong>8 lapses</strong>.
+          Anki’s defaults can vary by version and preset, so <strong>check them yourself in the deck options.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>What “ease hell” is</strong> — a card on which you keep pressing Again (−0.20) and Hard (−0.15)
+          <strong>gets stuck at the ease floor of 1.30.</strong> From then on, the next interval grows only <strong>× 1.3</strong> at a time, so it
+          <strong>crawls</strong> 1 day → 2 days → 3 days → 4 days… On top of that, Again knocks the interval back to 1 day.
+          The result is that <strong>a handful of cards occupy your daily review queue forever</strong>.<br />
+          <strong>The only path that raises ease is Easy (+0.15), and you never press Easy on a hellish card.</strong>
+          <strong>Four doors lead down and only one leads back up</strong> — this is the structural flaw of the SM-2 family,
+          and the reason Anki users say “8 leech cards are ruining my life.”
+        </div>
+        <p>
+          The remedies mostly lie <strong>outside the algorithm</strong>. Delete the card, split it, add a sentence to it (“the card is bad,
+          not me”), or <strong>reset its ease by hand</strong>.
+          <strong>It means people are fixing by hand what the algorithm cannot fix</strong>, and that realization gave birth to the next generation.
+        </p>
+
+        <h2 id="fsrs">FSRS — the only algorithm that can answer “what exactly is S?”</h2>
+        <p>
+          <strong>FSRS (Free Spaced Repetition Scheduler)</strong> throws away hand-tuned constants and
+          <strong>fits its parameters to your actual review log</strong>. It is based on the <strong>DSR model</strong>.
+        </p>
+        <ul>
+          <li><strong>D (Difficulty)</strong> — how inherently hard this card is</li>
+          <li><strong>S (Stability)</strong> — how long the memory holds up</li>
+          <li><strong>R (Retrievability)</strong> — the probability of recalling it <strong>right now</strong></li>
+        </ul>
+        <p>It defines the forgetting curve like this (as of FSRS-4.5 / 5, <strong>DECAY = −0.5</strong>, <strong>FACTOR = 19/81</strong>).</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>One fact almost nobody points out</h3>
+        <p><strong>Let’s substitute t = S.</strong> In other words, “what happens if you see a card with stability S exactly S days later?”</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← exactly 90%</code></pre>
+        <p>
+          <strong>This is no coincidence. FACTOR = 19/81 and DECAY = −0.5 are constants worked backward to produce exactly this value.</strong>
+          So <strong>what S really is can be defined in one sentence.</strong>
+        </p>
+        <div class="note">
+          <strong>S (stability) = “the number of days it takes for the probability of recall to fall to 90%”</strong><br />
+          S = 30 means “if you meet this card again in 30 days, you will get it right nine times out of ten.”
+          <strong>It is not an abstract internal variable but a physical quantity you can read in days.</strong>
+          SM-2’s EF allows no such interpretation. Ask what “EF 2.5” means and the only answer is “a number you multiply by.”
+        </div>
+
+        <h3>How review volume changes with desired retention — a conversion table</h3>
+        <p>
+          FSRS lets you set the <strong>desired retention</strong> directly (default <strong>0.90</strong>).
+          Solving the formula above for t gives the interval.
+        </p>
+        <pre><code>interval t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>Here are the results of plugging numbers into that formula. <strong>This table may be the most practical part of this article.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Desired retention R</th><th>Interval (multiple of S)</th><th>For a card with S=30 days</th><th>Review load</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14 days</td><td><strong>Surges about 2.2×</strong></td></tr>
+              <tr><td><strong>0.90</strong> (default)</td><td><strong>× 1.00</strong></td><td>30 days</td><td>Baseline</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49 days</td><td>About 40% less</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72 days</td><td><strong>About 58% less</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133 days</td><td>About 77% less</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          How to read it: <strong>raise retention from 0.90 to 0.95 — “a mere 5 points” — and the interval shrinks to less than half,</strong>
+          <strong>doubling your reviews.</strong> Conversely, lower it to 0.80 and <strong>your reviews fall below half,
+          at a cost of only 10 points of accuracy</strong>. Because the curve is this steep,
+          <strong>the intuition that “higher retention is always better” collapses here.</strong>
+          Unless an exam is right around the corner, the 0.85~0.90 range is generally sensible.
+        </p>
+        <p class="muted">
+          Accuracy note: the derivation above is based on <strong>FSRS-4.5 / 5, where DECAY is fixed at −0.5</strong>.
+          <strong>From FSRS-6 onward, DECAY itself is a learned parameter</strong>, so the identity “S = the 90% interval” may
+          not hold exactly. The number of parameters has also grown by version, <strong>17 → 19 → 21</strong>.
+          <strong>Don’t quote these numbers as-is without checking the version.</strong>
+        </p>
+
+        <h3>What FSRS can’t do</h3>
+        <p>
+          FSRS <strong>only becomes yours once it has your log.</strong>
+          <strong>Until a few hundred to roughly 1,000 reviews pile up, it runs on default parameters</strong>,
+          which are ultimately <strong>“someone else’s average.”</strong> In other words, <strong>FSRS in your first month is not personalized.</strong>
+          And keeping a log also means that <strong>every review record is stored somewhere</strong>.
+        </p>
+
+        <h2 id="sim">Tracking one word for 30 days — a simulation</h2>
+        <p>
+          Let’s turn the abstract formulas into something concrete. We put a single card, the word <code>ubiquitous</code>, into the three systems with the following scenario.
+        </p>
+        <div class="note">
+          <strong>Scenario</strong> — learned new on day 1 → <strong>fails the first review</strong> (SM-2 q=2 / Anki Again)
+          → answered correctly without trouble every time after that (q=4 / Good).
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Day</th><th>Leitner (1·2·4·8·16 days)</th><th>SM-2 (starting EF 2.5)</th><th>Anki (starting ease 2.50)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Day 1</strong></td><td>Learned · compartment 1</td><td>Learned · I=1 day</td><td>Learning (1 min→10 min) · graduates at 1 day</td></tr>
+              <tr><td><strong>Day 2</strong></td><td><strong>Fail</strong> · stays in compartment 1</td><td><strong>Fail q=2</strong> · EF 2.50→<strong>2.18</strong> · reset</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · interval 1 day</td></tr>
+              <tr><td><strong>Day 3</strong></td><td>Pass → <strong>compartment 2</strong></td><td>Pass · I=1 day</td><td>Good · 1 × 2.30 = <strong>2 days</strong></td></tr>
+              <tr><td><strong>Day 4</strong></td><td>—</td><td>Pass · I=<strong>6 days</strong></td><td>—</td></tr>
+              <tr><td><strong>Day 5</strong></td><td>Pass → <strong>compartment 3</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5 days</strong></td></tr>
+              <tr><td><strong>Day 9</strong></td><td>Pass → <strong>compartment 4</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Day 10</strong></td><td>—</td><td>Pass · 6 × 2.18 = <strong>13 days</strong></td><td>Good · 5 × 2.30 = <strong>12 days</strong></td></tr>
+              <tr><td><strong>Day 17</strong></td><td>Pass → <strong>compartment 5</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Day 22</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28 days</strong></td></tr>
+              <tr><td><strong>Day 23</strong></td><td>—</td><td>Pass · 13 × 2.18 = <strong>28 days</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>Total reviews<br />in 30 days</strong></td>
+                <td><strong>6</strong></td><td><strong>6</strong></td><td><strong>6</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Next review</strong></td>
+                <td>Day 33</td>
+                <td><strong>Day 51</strong></td>
+                <td><strong>Day 50</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>The number that really matters here is not “6” but “33 versus 51.”</strong>
+          All three systems made you review <strong>exactly 6 times</strong> in 30 days. The workload is the same.
+          Yet <strong>Leitner calls the card back on day 33, while SM-2 calls it on day 51.</strong>
+          Spending the same 6 reviews, SM-2 <strong>pushed the card 18 days further out.</strong>
+          This gap <strong>widens multiplicatively</strong> with each round. A year later, Leitner is still asking every 16 days,
+          while SM-2 has already reached year-long intervals.
+        </p>
+        <p>
+          <strong>And there is no VOCA DECK column in this table.</strong> Because there is no way to put one in.
+          Our app <strong>has no concept of “day N” at all.</strong> Why is the subject of the next chapter.
+        </p>
+
+        <h2 id="voca">VOCA DECK dissected — what our code actually does</h2>
+        <p>
+          Now it’s our turn. We write it <strong>exactly as it is in the code, with no packaging</strong>.
+        </p>
+
+        <h3>What a card stores: this is all of it</h3>
+        <pre><code>{ a: "ubiquitous", b: "present everywhere", mem: false }</code></pre>
+        <p>
+          <strong>That is the whole of one card.</strong> Front, back, and <strong>a single boolean.</strong>
+          <strong>We store neither when you reviewed it, nor how many times you missed it, nor how much it confused you.</strong>
+        </p>
+        <p>
+          So <strong>even if we wanted to bolt on SM-2, we couldn’t.</strong>
+          SM-2 needs at minimum <code>EF · repetition count · last review date</code>,
+          and FSRS needs <strong>the full review log</strong> to fit its parameters.
+          We have <strong>no accounts, no server and no review log.</strong>
+          Your deck and memorized marks live <strong>only in the browser’s <code>localStorage</code></strong> and are never sent to a server.
+          <strong>This isn’t something we failed to build — it’s how we built it. The price is giving up personalization.</strong>
+        </p>
+
+        <h3>What the scheduler really is: one line of modulo arithmetic</h3>
+        <p>
+          The way we decide the “next card” is a <strong>cyclic index</strong>.
+          It splits three ways depending on the <code>order</code> setting.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Setting</th><th>Behavior</th><th>Re-encounter interval</th><th>Coverage</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> Forward (default)</td><td>Index cycles by +1</td><td><strong>Exactly every N cards</strong> (even)</td><td><strong>100% guaranteed</strong></td></tr>
+              <tr><td><code>rev</code> Backward</td><td>Index cycles by −1</td><td><strong>Exactly every N cards</strong> (even)</td><td><strong>100% guaranteed</strong></td></tr>
+              <tr><td><code>rnd</code> Random</td><td><strong>Independent uniform draw at every step</strong><br />(excluding only the current card)</td><td>Expected N−1 cards,<br /><strong>high variance</strong></td><td><strong>No guarantee ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>Random mode is not a shuffle — this is something we need to state clearly.</strong><br />
+          Rather than shuffling the cards and going around once (sampling without replacement), it <strong>draws anew each time from the remaining cards</strong>.
+          So <strong>the same card can come up three times in a row, or not appear even once during a whole lap.</strong>
+        </div>
+
+        <h3>We calculated the price in numbers</h3>
+        <p>
+          Suppose you run a 100-card deck (N=100) in random mode for <strong>99 steps</strong> (= one forward lap’s worth).
+          The probability that a particular card is drawn on a given step is <strong>1/(N−1) = 1/99</strong>.
+          So the probability that the card <strong>never appears during those 99 steps</strong> is:
+        </p>
+        <pre><code>P(0 appearances) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>The distribution of appearance counts closely follows a Poisson distribution (λ=1).</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Appearances during one lap’s worth (99 steps)</th><th>Probability</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0</strong></td><td><strong>About 37%</strong></td><td><strong>A third of the deck never shows up</strong></td></tr>
+              <tr><td>1</td><td>About 37%</td><td>As intended</td></tr>
+              <tr><td>2</td><td>About 18%</td><td>Wasted</td></tr>
+              <tr><td>3 or more</td><td>About 8%</td><td>The same card over and over</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>In other words, run one lap’s worth in random mode and about 37% of the deck never even shows its face that day.</strong>
+          Even after two laps’ worth (198 steps), <strong>about 13%</strong> still hasn’t appeared, and
+          <strong>only after three laps’ worth</strong> does the unseen share drop <strong>below 5%</strong>.
+        </p>
+        <div class="note">
+          <strong>So use it like this (a prescription that comes straight from the code)</strong>
+          <ul>
+            <li><strong>First pass · full check the day before the exam</strong> → <strong>Forward</strong>. These are the moments you need 100% coverage. Run it in random and you’ll skip a third.</li>
+            <li><strong>From the third pass on, when you need to break order cues</strong> → use <strong>Backward</strong> first.
+              <strong>It breaks order cues while keeping coverage at 100%</strong>. Most people walk right past this option.</li>
+            <li><strong>Genuine random retrieval training</strong> → <strong>Random</strong>. But use it <strong>prepared to run three laps’ worth of the deck</strong>.</li>
+          </ul>
+        </div>
+
+        <h3>Time unit: our scheduler’s tick is “seconds”</h3>
+        <p>
+          The default delay is <strong>3 seconds</strong> (1~60 seconds in the control panel). Each card goes through <strong>two phases, front and back</strong>, so
+          it’s <strong>6 seconds per card by default</strong>. The timer also has a <strong>floor of 0.5 seconds</strong>
+          (however short you set it, it never goes below that).
+        </p>
+        <p>This immediately yields a <strong>physical upper limit on deck size</strong>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Deck size N</th><th>Time per lap<br />(default 6 s/card)</th><th>Re-encounter interval for the same card</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr><td>30 cards</td><td><strong>3 min</strong></td><td>3 min</td><td>◎ Dense repetition within a session</td></tr>
+              <tr><td>100 cards</td><td><strong>10 min</strong></td><td>10 min</td><td>○ Practical upper limit</td></tr>
+              <tr><td>300 cards</td><td><strong>30 min</strong></td><td>30 min</td><td>△ One lap is already a burden</td></tr>
+              <tr><td>500 cards</td><td><strong>50 min</strong></td><td>50 min</td><td>✗ In-session repetition effect gone</td></tr>
+              <tr><td>2,000 cards</td><td><strong>3 h 20 min</strong></td><td>3 h 20 min</td><td><strong>✗ Effectively impossible</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>Flashing Memorizer’s honest limit: split decks into 300 cards or fewer.</strong>
+          Build a single 2,000-card deck and <strong>one lap takes 3 hours 20 minutes</strong>.
+          That is no longer “rapid repeated exposure.” It’s just <strong>slow list reading</strong>.
+          <strong>If you need to manage 2,000 cards, that’s Anki’s job, not this app’s.</strong>
+        </div>
+
+        <h3>The delay is the length of your “retrieval window” — set it asymmetrically</h3>
+        <p>
+          If you think of the delay as just “speed control,” you’re using only half of it.
+          <strong>The few seconds the front is on screen are the only time you can struggle to recall the answer</strong>.
+          That’s why we made it possible to set the front and back delays <strong>separately</strong> (advanced settings, 0~60 seconds).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Situation</th><th>Front delay</th><th>Back delay</th><th>Per card</th><th>Intent</th></tr></thead>
+            <tbody>
+              <tr><td><strong>First pass</strong> (full of unknown words)</td><td>2 s</td><td>4 s</td><td>6 s</td><td>Nothing to recall yet, so <strong>look at the meaning longer</strong></td></tr>
+              <tr><td><strong>Passes 2~3</strong> (retrieval training)</td><td><strong>5 s</strong></td><td>1.5 s</td><td>6.5 s</td><td><strong>Buy time to recall</strong>, check in an instant</td></tr>
+              <tr><td><strong>Last-minute speed run before the exam</strong></td><td>1.5 s</td><td>1.5 s</td><td>3 s</td><td>Full scan — 100 cards in <strong>5 minutes</strong></td></tr>
+              <tr><td><strong>TTS listening study</strong></td><td>3 s</td><td>3 s</td><td>6 s</td><td>Leave time for the audio to finish</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>The “front 5 s / back 1.5 s” of passes 2~3 is the setting in this app closest to retrieval practice</strong>.
+          <strong>As your passes progress, lengthen the front and shorten the back.</strong>
+          Most people do the opposite, and end up <strong>just passively watching</strong> all the way through.
+        </p>
+
+        <h2 id="mem">What the “Memorized” mark really is — a Leitner box with only 2 compartments</h2>
+        <p>
+          Our only personalization mechanism is a single thing: the <strong>Memorized mark</strong>.
+          Translated into the language of algorithms, it is exactly this.
+        </p>
+        <div class="note">
+          <strong>Memorized mark = a Leitner box with 2 compartments.</strong> But <strong>it is a door, not a ladder.</strong><br />
+          Box 1 = <code>mem: false</code> (keeps cycling) · Box 2 = <code>mem: true</code> (removed from the cycle)<br />
+          And the <strong>Range</strong> setting chooses the box —
+          <strong>Skip memorized</strong> (default) / <strong>Memorized only</strong> / <strong>All</strong>.
+        </div>
+
+        <h3>What you get from this alone (more than you’d think)</h3>
+        <p>
+          <strong>The biggest share of what a personalization algorithm does is actually “not showing you cards you know.”</strong>
+          When SM-2 pushes an EF 2.5 card 587 days out, it too is ultimately <strong>trying not to show it now</strong>.
+          The Memorized mark captures <strong>the crudest but biggest chunk</strong> of that effect.
+        </p>
+        <p>
+          Let’s look at the numbers. In a 100-card deck, <strong>mark 40 cards as memorized</strong> and 60 cards remain in the cycle.
+          One lap shrinks from <strong>10 min → 6 min</strong>, and <strong>the re-encounter interval for the cards you don’t know shrinks from 10 min → 6 min</strong>.
+          <strong>In the same 20 minutes, you meet the hard cards 1.67 times as often</strong>.
+          <strong>A free 1.67×.</strong> From a single checkbox.
+        </p>
+
+        <h3>Where it falls short of real SM-2 (this is the important part)</h3>
+        <p><strong>① There are no levels — it’s 0 or 1.</strong>
+          SM-2 distinguishes “EF 2.5 (very easy),” “EF 1.6 (somewhat hard)” and “EF 1.3 (hell)” and
+          shows them <strong>at different frequencies</strong>. We only have <strong>“show / don’t show.”</strong>
+          <strong>Within the 60 unmemorized cards, everything is perfectly equal.</strong>
+          A word you saw for the first time yesterday and a word that won’t stick after 40 viewings come up at <strong>exactly the same frequency</strong>.
+          <strong>This is the clearest point where we lose to SM-2.</strong></p>
+
+        <p><strong>② There is no time — so “when to see it again” can’t be calculated.</strong>
+          <code>mem</code> is a boolean. <strong>We don’t store when you marked it.</strong>
+          So a judgment like “it’s been 40 days since this card was marked, time to check it again”
+          is <strong>something the app fundamentally cannot make.</strong> There’s no timestamp.</p>
+
+        <p><strong>③ The resulting blind spot — marked cards quietly rot.</strong></p>
+        <div class="note warn">
+          <strong>This is the most important warning in this article.</strong><br />
+          The Memorized mark is a <strong>one-way door</strong>. Once a card goes out to box 2,
+          <strong>there is no way for it to come back on its own.</strong>
+          SM-2 <strong>will always call even a 587-day card back eventually</strong> — to catch forgetting.
+          We <strong>never call it back.</strong><br />
+          <strong>So a state of “a card you marked as memorized has actually been forgotten, and you don’t know it” keeps piling up.</strong>
+          And you find out in the exam room.
+        </div>
+
+        <h3>The procedure to fill that blind spot by hand</h3>
+        <p>
+          Since the algorithm won’t do it, <strong>a person has to.</strong> Fortunately it isn’t hard, and the app already has the feature.
+          <strong>Switching the Range to “Memorized only”</strong> exists for exactly this purpose.
+        </p>
+        <ol>
+          <li><strong>Pick one day a week.</strong> (e.g. Sunday)</li>
+          <li>Switch the Range to <strong>“Memorized only.”</strong> → Only the cards you marked as memorized cycle.</li>
+          <li><strong>Set the order to Random</strong> and <strong>the front delay long, 4~5 seconds</strong>. — You’re testing genuine retrieval.</li>
+          <li><strong>When a card comes up that you can’t recall, unmark it on the spot</strong>. → Demoted to box 1. <strong>You are opening the door back by hand.</strong></li>
+          <li>Switch back to “Skip memorized” and run as usual.</li>
+        </ol>
+        <p>
+          <strong>These 5 steps are the whole of manually imitating SM-2’s “mature card reviews.”</strong>
+          Not being automatic makes it inferior, but <strong>it is overwhelmingly better than doing nothing.</strong>
+          <strong>Skip this, and the Memorized mark becomes “a feature for hiding cards you only pretend to know.”</strong>
+        </p>
+
+        <h2 id="which">So what should you use — an honest prescription</h2>
+        <p>
+          <strong>“Use our app” is the right answer in fewer than half the cases.</strong> We put it as it is.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Your situation</th><th>Recommended</th><th>Why (in numbers)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Retaining 2,000~10,000 words<br />for 6 months to several years</strong><br />(long campaigns: Korea’s CSAT, TOEIC, GRE)</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">(not our app)</span></td>
+                <td>Flashing Memorizer takes <strong>3 hours 20 minutes</strong> for one lap of 2,000 cards. It’s physically impossible.
+                  And because it never calls mature cards back, it <strong>fails at long-term retention</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Exam in 14 days · cramming</strong><br />200~300 words</td>
+                <td><strong>Flashing Memorizer</strong></td>
+                <td>SM-2’s intervals are <strong>1 day → 6 days → 15 days</strong>.
+                  <strong>Within 14 days you get only 3 rounds</strong>. A day-based scheduler is
+                  <strong>useless when little time is left</strong>. Three laps a day wins.</td>
+              </tr>
+              <tr>
+                <td><strong>People who can’t open it every day</strong><br />(miss 3 days at a time)</td>
+                <td><strong>Flashing Memorizer</strong></td>
+                <td>Miss 3 days in Anki and <strong>hundreds of overdue cards</strong> pile up.
+                  This is <strong>the No. 1 reason people abandon SRS</strong>. Flashing Memorizer <strong>has no concept of overdue cards.</strong>
+                  Open it whenever, close it whenever.</td>
+              </tr>
+              <tr>
+                <td><strong>A deck of 30~300 cards,<br />one CSV file</strong></td>
+                <td><strong>Flashing Memorizer</strong></td>
+                <td>The <strong>friction of setting up</strong> an Anki install + note type + deck options + sync account <strong>outweighs the benefit.</strong>
+                  Open a CSV and <strong>studying starts 3 seconds later</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Studying by ear only while<br />doing dishes · commuting</strong></td>
+                <td><strong>Flashing Memorizer (TTS voice only)</strong></td>
+                <td>Anki only moves on <strong>when you look at the screen and press a button</strong>.
+                  Flashing Memorizer, in <strong>auto-play + voice-only</strong> mode, <strong>needs neither hands nor eyes.</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Don’t want to leave a review history<br />or create an account</strong></td>
+                <td><strong>Flashing Memorizer</strong></td>
+                <td>Your deck and memorized marks are stored <strong>only in the browser’s localStorage</strong> and
+                  <strong>never sent to a server.</strong> In exchange, <strong>there is no cross-device sync either.</strong> (For the same reason.)</td>
+              </tr>
+              <tr>
+                <td><strong>30 hellish words<br />that just won’t stick</strong></td>
+                <td><strong>Flashing Memorizer</strong></td>
+                <td>In Anki these cards <strong>fall into ease hell and get stuck at ease 1.30.</strong>
+                  Instead, <strong>export them to a separate CSV as a 30-card deck (3 minutes per lap)</strong> and run it five laps a day.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">The most accurate answer: the two work on different layers</h2>
+        <p>
+          If you’ve read this far, the following sentence should now make sense.
+        </p>
+        <div class="note">
+          <strong>Anki decides “which cards to look at today.” (in days)</strong><br />
+          <strong>Flashing Memorizer decides “how to expose those cards right now.” (in seconds)</strong><br />
+          <strong>The two don’t fight over the same problem — they stack on top of each other.</strong>
+        </div>
+        <p>Here is the combination people who use both actually rely on.</p>
+        <ol>
+          <li><strong>Leave the long-term schedule to Anki.</strong> FSRS picks “today’s 120 cards” out of a 5,000-word deck for you.</li>
+          <li><strong>Export the cards you keep missing in Anki (leeches, ease near 1.3) to a CSV.</strong>
+            Usually this comes to <strong>30~80 cards</strong>.</li>
+          <li><strong>Load that CSV into Flashing Memorizer and run two or three laps a day.</strong>
+            At 80 cards, <strong>one lap takes 8 minutes</strong>. Front 5 s / back 1.5 s for retrieval practice.</li>
+          <li><strong>Remove cards that have become solid in Flashing Memorizer with the Memorized mark</strong>, and reset their ease in Anki.</li>
+        </ol>
+        <p>
+          <strong>Flashing Memorizer does what Anki can’t, and Anki does what Flashing Memorizer can’t.</strong>
+          Anki can’t create <strong>high-density exposure within a session</strong> (it won’t show you the same card 20 times a day),
+          and Flashing Memorizer can’t calculate <strong>a review date 6 months out</strong>.
+          <strong>A single file (CSV) links the two tools.</strong>
+          How to make one is in <a href="/csv-guide">Making a CSV word deck</a>.
+        </p>
+
+        <h2 id="qa">Short Q&amp;A</h2>
+
+        <h3>Q. Is FSRS always better than SM-2?</h3>
+        <p>
+          <strong>Generally yes, once enough review log has built up.</strong> But <strong>not in your first month.</strong>
+          FSRS only becomes yours after <strong>fitting its parameters to your log</strong>; until then it runs on <strong>someone else’s average</strong>.
+          And FSRS rests on <strong>the assumption that you press the buttons honestly</strong>.
+          <strong>Lazily press only Good, and a sophisticated algorithm will be sophisticatedly wrong.</strong>
+          <strong>Garbage in, garbage out — and that’s something no algorithm can fix for you.</strong>
+        </p>
+
+        <h3>Q. What should I set desired retention to?</h3>
+        <p>
+          Look at the <a href="#fsrs">conversion table</a> above again. <strong>Going from 0.90 → 0.95 doubles your review volume.</strong>
+          You’re paying <strong>twice the time</strong> to buy 5 points of accuracy. In most cases that’s a losing trade.
+          <strong>If the exam is far off, 0.85~0.90; if it’s right around the corner, 0.90~0.95</strong> is a sensible starting point.
+          <strong>But this is a “starting point,” not “the answer.”</strong>
+        </p>
+
+        <h3>Q. How many seconds should the Flashing Memorizer delay be?</h3>
+        <p>
+          <strong>The “right value” differs with each pass.</strong> The default of 3 seconds is merely <strong>a reasonable value for a first pass</strong>.
+          <strong>As passes accumulate, lengthen the front (time to recall) and shorten the back (just for checking).</strong>
+          Front 5 s / back 1.5 s is <strong>the setting closest to retrieval practice</strong>.
+          The detailed arrangement is in <a href="#voca">the table above</a>.
+        </p>
+
+        <h3>Q. Isn’t random mode always better than forward? It breaks order cues, after all.</h3>
+        <p>
+          <strong>No — that is exactly the trap this article calculated.</strong> Random <strong>doesn’t guarantee coverage</strong>
+          (<strong>about 37% unseen</strong> per lap’s worth). If you want to break order cues while keeping coverage, use
+          <strong>Backward</strong>. <strong>Most users don’t know why this option exists.</strong>
+        </p>
+
+        <h3>Q. I’ve marked everything as memorized and my deck is empty. Am I done?</h3>
+        <p>
+          <strong>No. That’s where it begins.</strong> Switch the Range to <strong>“Memorized only”</strong> and
+          <strong>check once a week</strong>. <strong>Unmark</strong> the cards you couldn’t recall to send them back.
+          <strong>Skip this procedure and the Memorized mark becomes a feature that hides forgetting.</strong> The procedure is written <a href="#mem">above</a>.
+        </p>
+
+        <h3>Q. So will you add SM-2 to VOCA DECK someday?</h3>
+        <p>
+          <strong>To add it, we’d have to store a review log; then storage grows, you’d want cross-device sync,
+          and then accounts become necessary.</strong> At that moment <strong>this app’s one strength, “zero friction,” disappears.</strong>
+          <strong>That would be rebuilding Anki as a worse version of Anki.</strong>
+          <strong>We are not trying to become Anki.</strong> For now we have no plans to add it, and
+          <strong>we have laid out the reasons for not adding it throughout this entire article.</strong>
+        </p>
+
+        <h2 id="closing">Finally — an algorithm can’t make you open the app</h2>
+        <p>
+          FSRS is <strong>the best scheduler in the world</strong>. And <strong>if you don’t open the app for 3 days, it is nothing.</strong>
+          It just sits there, having perfectly spaced <strong>“340 cards to review today,”</strong> waiting,
+          and the person who sees that number <strong>closes the app.</strong>
+        </p>
+        <p>
+          The 50-year history of spaced repetition algorithms has been <strong>“a race to minimize reviews.”</strong>
+          Leitner with 5 compartments, SM-2 with EF multiplication, FSRS with your own log.
+          <strong>All aimed at the same goal — erasing unnecessary reviews.</strong>
+        </p>
+        <p>
+          <strong>But that is not where people actually fail.</strong>
+          <strong>People don’t quit because “there are too many reviews”; they quit because “they didn’t open it today.”</strong>
+          That is why we gave up personalization entirely and <strong>bet everything on bringing friction down to zero</strong>.
+          <strong>We are not sure it was the right choice.</strong>
+          <strong>But it is the choice we made, and in this article we have hidden none of its price.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Disclaimer</strong><br />
+          This article is <strong>information about study methods</strong> and <strong>not educational or medical advice.</strong>
+          Learning outcomes <strong>vary greatly between individuals</strong>, and none of the methods described here <strong>guarantees any particular score or result.</strong><br />
+          <strong>Defaults and formulas of third-party tools (Anki · SuperMemo · FSRS) vary by version.</strong>
+          The numbers in this article are <strong>based on widely known default presets</strong>;
+          <strong>always check them yourself in the settings screen and official documentation of the version you use.</strong>
+          The FSRS formulas are <strong>based on FSRS-4.5 / 5 with DECAY fixed at −0.5</strong>
+          and <strong>may not hold in FSRS-6 or later.</strong><br />
+          Figures about VOCA DECK are <strong>based on the actual implementation at the time of writing</strong> and may change with updates.
+        </div>
+
+        <h2>Read next</h2>
+        <div class="related">
+          <a href="/method"><b>How the Flashing Memorizer method works</b><span>Forgetting curve · spacing effect · dual coding — why repeated exposure works</span></a>
+          <a href="/study-guide"><b>Vocabulary study strategy</b><span>How many a day, when to review, a 4-week plan</span></a>
+          <a href="/csv-guide"><b>Making a CSV word deck</b><span>How to move hellish cards exported from Anki into Flashing Memorizer</span></a>
+          <a href="/"><b>Open the deck</b><span>Try the delay, order and range settings yourself</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></footer>
+      </div>
+    </main>

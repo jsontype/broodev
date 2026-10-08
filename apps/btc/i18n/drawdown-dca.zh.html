@@ -1,0 +1,501 @@
+<main class="wrap" data-title="回撤与分批买入的数学 — 跌−50%要涨+100%才能回本 | broodev" data-desc="用表格计算亏损回本的不对称性。同样的1,200万韩元，分别以一次性、等额4批、按回撤加权分批投入时，在三种下跌情景中平均成本与盈亏如何分化；弹药耗尽的算术；以及回撤指标为何在走向归零的资产上100%始终出错。">
+      <nav class="nav">
+        <a href="/">← 仪表盘</a>
+        <a href="/methodology">评分方法</a>
+        <a href="/indicators">指标解读</a>
+        <a href="/guide-fear-greed">恐惧指数用法</a>
+        <a href="/glossary">术语表</a>
+      </nav>
+
+      <h1>回撤与分批买入的数学</h1>
+      <p class="muted">最后更新：2026-07-14 · 作者：Y-Systems · 本文只由计算构成</p>
+
+      <p class="lead">
+        本文没有建议。<strong>只有计算。</strong>
+        “已经跌了很多，所以便宜”为什么危险，分批买入实际上能为你做什么、又<em>不能</em>做什么，
+        全部只用数字来说明。先把结论写在前面 —
+        <strong>分批买入不是提高收益的技巧，而是收窄结果区间的技巧。</strong>
+        下面那张九格表会证明这一点。
+      </p>
+
+      <section class="bd-figs" aria-label="回撤实时图表">
+        <p class="muted">进入计算之前，先看看本文的主角“相对历史最高价的回撤”在BTC的真实历史中长什么样。0%线表示正在创新高，每一个低谷都是不得不支付正文表格中“所需回本涨幅”的区间。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">正在加载图表数据…</div></div>
+          </div>
+          <p class="bd-cap">BTC相对历史最高价（ATH）的回撤，全部时段。虚线 = −30%（模型开启“关注”的位置）·−50%（“强烈利于买入”区间）。橙色虚线 = 减半。最深处是2011年的约−93%。数据：CoinMetrics Community API，BTC日线收盘价 — 在你访问时获取并在浏览器中计算，属于<strong>近似值，仅供参考</strong>。</p>
+        </div>
+      </section>
+
+      <h2 id="c1">计算1 — 回本的不对称</h2>
+      <p>
+        先从最简单、也最残酷的公式看起。遭遇回撤 <code>d</code> 的资产，
+        <strong>回到本金所需的涨幅</strong>并不是 <code>d</code>。
+      </p>
+      <pre><code>所需涨幅 = d ÷ (1 − d)
+
+遭遇 −50%      0.50 ÷ 0.50 = +100%
+遭遇 −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        下跌时是从<strong>剩下的金额</strong>里扣，上涨时是在<strong>缩水后的金额</strong>上加。
+        仅仅因为分母的这一点差别，亏损与回本就永远不对称。完整的表如下。
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>回撤</th><th>回本所需涨幅</th><th>1,000万韩元剩下的金额</th><th>体感</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>900万</td><td>几乎对称。到这里为止直觉还是对的</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>800万</td><td>差距开始慢慢拉开</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>700万</td><td>我们的模型开启“关注”的位置</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>600万</td><td>跌40，回本却要+67。已是1.7倍</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>500万</td><td>我们的模型视为“强烈利于买入”的位置</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>400万</td><td>需要2.5倍</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>300万</td><td>3.3倍</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>200万</td><td>5倍。得熬过一整个周期</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>100万</td><td>10倍</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>50万</td><td>20倍。几乎变成了另一种资产</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        表中值得注意的不是数值，而是<strong>间隔</strong>。
+        回撤从−10%加深到−50%，加深了40个百分点，所需回本涨幅从11%增加到100%，增加了<strong>89个百分点</strong>。
+        然而从−50%到−90%，同样再加深40个百分点，所需回本涨幅却从100%增加到900%，增加了<strong>800个百分点</strong>。
+        <strong>同样是40个百分点，伤害却是9倍。</strong>回撤是线性加深的，代价却是爆炸式增长的。
+      </p>
+
+      <div class="note">
+        由此得出第一个实战含义。<strong>“反正已经跌了很多，再跌也差不多”完全是误解。</strong>
+        从−50%跌到−70%，不是“多跌了20个百分点”，而是回本负担<strong>从+100%变成+233%、变为2.3倍</strong>的事件。
+        每一次额外下跌，总是比之前的下跌更昂贵。
+      </div>
+
+      <h2 id="c2">计算2 — 下跌不是相加，而是相乘</h2>
+      <p>
+        第二个陷阱是，人们会用<strong>加法</strong>来计算回撤。
+        “先跌了−30%，又跌了−30%，所以是−60%。”不对。回撤是相乘的。
+      </p>
+      <pre><code>累计回撤 = (1 − d₁) × (1 − d₂) × … − 1
+
+−30% 两次  →  0.7 × 0.7 = 0.49  →  −51%
+−50% 两次  →  0.5 × 0.5 = 0.25  →  −75%  （需要 +300% 才能回本）</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>连续下跌</th><th>用加法计算</th><th>实际累计回撤</th><th>回本所需</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5次</td><td>−100%（全部亏光？）</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2次</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3次</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2次</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        相乘这一性质，既是好消息也是坏消息。
+        好的一面是：<strong>就算连挨五次−20%，也不会归零</strong> — 乘法只会逼近0，永远到不了。
+        坏的一面是：<strong>中途出现的反弹，几乎追回不了你以为的那么多</strong>。
+        挨了−50%之后，即使出现+30%的反弹，也是 <code>0.5 × 1.3 = 0.65</code>，仍然是−35%。
+        为什么熊市里“终于反弹了”的安心感总是一次次被辜负，答案就在这个乘法里。
+      </p>
+
+      <h2 id="c3">计算3 — 为什么偏偏是365日高点</h2>
+      <p>
+        要衡量回撤，就得先确定<strong>是从哪里跌下来的</strong>。基准点一变，同样的价格就会得出不同的回撤。
+        我们的模型使用<strong>365日高点</strong>，而不是历史最高价（ATH）。这个选择是有代价的，下面就把代价写清楚。
+      </p>
+      <p>
+        假设某个币3年前曾涨到200万韩元，最近1年内的最高价是100万韩元，现在是60万韩元。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>基准点</th><th>回撤计算</th><th>结果</th><th>这个数字在说什么</th></tr></thead>
+          <tbody>
+            <tr><td>历史最高价 200万</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>“历史性大暴跌区间”</td></tr>
+            <tr><td>365日高点 100万</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>“以最近1年为基准的深度调整”</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        同一个币、同一个价格，数字却相差将近一倍。我们选择365日只有一个理由：
+        <strong>以ATH为基准的回撤，时间越久就越不再是指标，而是变成一个常数。</strong>
+        如果永远以2021年的高点为基准，有些币会连续5年显示“−70%，被低估”。
+        每天都发出买入信号的指标，是不含任何信息的指标。
+      </p>
+      <div class="note warn">
+        <strong>代价 — 365日窗口会在漫长熊市中自行重置。</strong>
+        如果下跌持续超过1年，<strong>365日高点本身就会落进下跌区间之内。</strong>
+        假设价格在14个月里从100 → 30。现在“最近1年”的最高价不再是100，而是比如55。
+        回撤就被算成 <code>30 ÷ 55 − 1 = −45%</code>。相对ATH是−70%，我们的指标却说是−45%。
+        <strong>存在这样的区间：恰恰在跌得最深的时候，回撤分数反而看起来更温和。</strong>
+        这不是bug，而是窗口方式的结构性局限。使用时必须心里有数。
+      </div>
+      <p>
+        <strong>−30%与−50%这两条界线</strong>也是按同样的逻辑定的。
+        加密货币<em>即使在牛市正中</em>，−30%的调整也很常见。所以−30%不是“买”，而是“开始关注”（回本负担+43%，仍在可承受范围）。
+        而−50%是回本需要<strong>+100%</strong>的位置，从历史上看，它更多出现在周期转折处，而不是牛市调整中。
+        <strong>两条界线依据的不是价格，而是“回本负担翻倍的位置”。</strong>
+      </p>
+
+      <h2 id="c4">计算4 — 同样的1,200万韩元，三种方法</h2>
+      <p>
+        现在进入正题。预算有<strong>1,200万韩元</strong>。1枚币最初的价格是<strong>100万韩元</strong>。
+        观测时点从t0到t8共9次（可以理解为按月）。比较三种执行方式。
+      </p>
+      <ul>
+        <li><strong>策略A — 一次性投入。</strong>在t0用1,200万韩元全额买入。</li>
+        <li><strong>策略B — 等额4批。</strong>在t0·t2·t4·t6各投入300万韩元。<em>不管价格如何</em>，机械执行。</li>
+        <li><strong>策略C — 按回撤加权分批。</strong>把1,200万韩元拆成每份100万韩元的<strong>12份</strong>，只在相对365日高点的回撤<strong>首次进入</strong>各区间时执行：</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>回撤区间</th><th>执行份数</th><th>金额</th><th>累计用掉</th></tr></thead>
+          <tbody>
+            <tr><td>0 ~ −20%</td><td>0份</td><td>0韩元</td><td>0%</td></tr>
+            <tr><td>−20 ~ −35%</td><td>1份</td><td>100万</td><td>8.3%</td></tr>
+            <tr><td>−35 ~ −50%</td><td>2份</td><td>200万</td><td>25.0%</td></tr>
+            <tr><td>−50 ~ −65%</td><td>4份</td><td>400万</td><td>58.3%</td></tr>
+            <tr><td>−65% 以下</td><td>5份</td><td>500万</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        这里的区间与份数分配<strong>只是为了展示计算的示例</strong>，并非推荐某种特定分配。
+        关键不在数字本身，而在<em>“越往下分配得越多”</em>这个形态。
+      </p>
+
+      <h3>情景① — 深跌之后部分回升</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>时点</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>价格（万）</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>365日回撤</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>把三种策略实际买了什么原样摊开来看。<strong>数量 = 金额 ÷ 价格</strong>。</p>
+      <pre><code>策略A  t0: 1,200万 ÷ 100 = 12.0000枚
+       合计 12.0000枚 · 平均成本 100.00万
+
+策略B  t0:  300万 ÷ 100 =  3.0000枚
+       t2:  300万 ÷  74 =  4.0541枚
+       t4:  300万 ÷  55 =  5.4545枚
+       t6:  300万 ÷  38 =  7.8947枚
+       合计 20.4033枚 · 平均成本 1,200 ÷ 20.4033 = 58.81万
+
+策略C  t2(−26%): 100万 ÷ 74 =  1.3514枚   ← 首次进入 −20~−35
+       t3(−38%): 200万 ÷ 62 =  3.2258枚   ← 首次进入 −35~−50
+       t5(−56%): 400万 ÷ 44 =  9.0909枚   ← 首次进入 −50~−65
+       （未跌到 −65% 以下 → 5份 500万 未执行）
+       合计 13.6681枚 · 投入 700万 · 平均成本 51.21万 · 剩余现金 500万</code></pre>
+      <p>
+        只看平均成本，排名一目了然：<strong>C(51.21) &lt; B(58.81) &lt; A(100.00)</strong>。
+        按回撤加权的方式把平均成本压到了一次性投入的<strong>将近一半</strong>。
+        大多数文章到这里就以“看吧，分批买入才是答案”收尾。<strong>我们不会停在这里。</strong>
+      </p>
+      <p>
+        首先必须指出一点：<strong>策略C没能把1,200万韩元花完。</strong>只投入了700万韩元。
+        “投入同样的总额”这个前提本身，在按回撤加权的方式下<strong>就不成立。</strong>
+        市场跌得不够深，预算就会剩下。这不是副作用，而是这个策略的定义。
+        因此要公平比较，就必须看<strong>连剩余现金也算在内的总资产</strong>。
+      </p>
+
+      <h2 id="c5">计算5 — 三种策略 × 三种情景，九格里的真相</h2>
+      <p>
+        只计算情景①，结论就是被操纵的。<strong>因为下跌路径是我画的。</strong>
+        要诚实，就也得计算<strong>分批买入会输的路径</strong>。再做两条。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>情景</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① 下跌后部分回升</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② 没有回升的下跌</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ 没有下跌的上涨</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        情景②在t6之前与①<strong>完全相同。</strong>从t7开始，它没有反弹，而是继续下跌。
+        策略C在这里于t7（−67%）以 <code>500 ÷ 33 = 15.1515枚</code> 执行最后5份500万韩元，<strong>全部用完</strong>。
+        情景③的回撤最多只到−7%，<strong>连策略C的第一道门槛（−20%）都碰不到。</strong>C<strong>一枚也买不到。</strong>
+      </p>
+      <p>以t8时点的总资产（币的市值 + 剩余现金）计算的盈亏率。三种策略的投入预算都是同样的1,200万韩元。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>策略</th><th>① 下跌后回升<br />(t8 = 61)</th><th>② 没有回升<br />(t8 = 29)</th><th>③ 没有下跌的上涨<br />(t8 = 168)</th><th>最高 − 最低<br />（结果区间）</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A 一次性</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0个百分点</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B 等额4批</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0个百分点</td>
+            </tr>
+            <tr>
+              <td><strong>C 按回撤加权</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5个百分点</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        请慢慢读这九格。<strong>没有任何策略能在全部三种情景中都排第一。</strong>
+      </p>
+      <ul>
+        <li><strong>策略C在①和②中完胜。</strong>而<strong>在③中垫底。</strong>收益率0%。市场上涨68%的时候，它握着现金在一旁观望。</li>
+        <li><strong>策略A只在③中获胜。</strong>而且是压倒性的（+68%）。代价是在②中挨了<strong>−71%</strong>。按照计算1的表，这是一个需要<strong>+245%</strong>才能回本的坑。</li>
+        <li><strong>策略B哪里都不是第一，哪里也都不是最后。</strong></li>
+      </ul>
+      <p>
+        最右边那一栏就是整篇文章的结论。<strong>结果区间：A为139个百分点，B为83个百分点，C为41.5个百分点。</strong>
+        分批越细、越按回撤加权，<strong>最高值就被削得越多，最低值也被抬得越高。</strong>
+        分批买入所做的不是<em>提高平均值</em>，而是<strong>收窄分布</strong>。
+        这不是偏好问题，而是算术的结果。这是一笔用放弃上行来换取下行保护的交易。
+      </p>
+      <div class="note">
+        <strong>“分批买入能赚得更多”这句话是错的。“分批买入能少受致命伤”才是对的。</strong>
+        上表中C赢下①·②，也有一部分是因为<strong>我画了两条下跌路径、只画了一条上涨路径</strong>。
+        如果放进两条上涨路径，平均排名就会反转。<strong>换了路径，排名就会变。</strong>
+        不会变的只有<strong>“区间”按A &gt; B &gt; C排列这一个事实</strong>，这也是这次模拟中唯一可以信赖的结果。
+      </div>
+
+      <h2 id="c6">计算6 — 弹药耗尽的算术</h2>
+      <p>
+        自称在分批买入的人，大多数真正失败的地方并不是分配表。
+        而是<strong>在太高的位置就把钱全用光了</strong>。下面用数字把这一点钉死。
+      </p>
+      <p>
+        加入<strong>策略D</strong>。它原样再现了人在害怕时“想赶快上车”的常见心理。
+        下跌一开始，就在<strong>t1（−12%）·t2（−26%）·t3（−38%）各投入400万韩元</strong>，<strong>在−38%把预算全部用完</strong>。
+        在情景①（之后又继续跌到−62%，再回升到61）上进行计算。
+      </p>
+      <pre><code>策略D  t1: 400万 ÷ 88 =  4.5455枚
+       t2: 400万 ÷ 74 =  5.4054枚
+       t3: 400万 ÷ 62 =  6.4516枚
+       合计 16.4025枚 · 平均成本 73.16万 · 剩余弹药 0韩元
+
+       t4(−45%) · t5(−56%) · t6(−62%) ← 全都只能旁观</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>策略</th><th>买到的最低价</th><th>平均成本</th><th>总数量</th><th>情景① 盈亏</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D 提前耗尽</strong>（在−38%全仓）</td><td>62万</td><td><strong>73.16万</strong></td><td>16.4025枚</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C 按回撤加权</strong>（保留弹药）</td><td>44万</td><td><strong>51.21万</strong></td><td>13.6681枚</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        同样的下跌、同样的预算、同样的“分批买入”。然而<strong>平均成本却分成了73.16万韩元和51.21万韩元</strong>。
+        <strong>差距是21.95万韩元，足足30%。</strong>盈亏是−16.6%对+11.1%，相差<strong>27.7个百分点</strong>。
+      </p>
+      <p>
+        策略D错的不是<em>没有分批</em>。D也分了3次买入。
+        D错在<strong>最便宜的区间到来之前，就把买入的钱花光了</strong>。
+        在模拟中，D在最低价38万韩元处一枚也没买到。
+        <strong>在−38%把预算用光的代价，就是只能眼看着−62%。</strong>
+      </p>
+      <div class="note warn">
+        <strong>弹药分配的唯一规则 — 越往下，剩下的必须越多。</strong>
+        这就是策略C的分配（0 · 1 · 2 · 4 · 5份）<strong>不是等差、而是越往后越大</strong>的原因。
+        回撤越深，<strong>同样的钱能买到的数量就增长得越快</strong>。
+        100万韩元在<strong>价格74时能买1.35枚</strong>，在<strong>价格38时能买2.63枚</strong> — <strong>将近两倍</strong>。
+        最有力的买入总是发生在最可怕的区间，如果那时余额为零，那个区间就<strong>等于从未存在过。</strong>
+      </div>
+
+      <h2 id="c7">计算7 — 没有下限意味着什么</h2>
+      <p>
+        到目前为止的所有计算，都垫着一个<strong>没有说出口的前提</strong>：
+        <strong>资产会存活下来。</strong>这个前提一旦打破，上面所有的表都会被颠覆。
+      </p>
+      <p>把一枚走向退市的币的典型路径原样代入计算。8个时点，从价格100万韩元开始。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>时点</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>价格（万）</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>365日回撤</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>回撤分项得分</strong></td><td>低</td><td>关注</td><td><strong>满分</strong></td><td><strong>满分</strong></td><td><strong>满分</strong></td><td><strong>满分</strong></td><td><strong>满分</strong></td><td><strong>满分</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>请看最下面一行。</strong>从t2到t7，在资产走向死亡的<strong>整个过程中</strong>，回撤指标一直给出满分。
+        −55%时“强烈买入”，−95%时“强烈买入”，−99%时还是“强烈买入”。
+        <strong>回撤指标在这里一次也没说对。100%始终出错。</strong>
+        而且因为它是<strong>“跌得越多、越叫你使劲买”的结构</strong>，错得越久，错得越大。
+      </p>
+      <p>把三种策略原样放到这条路径上。最终价格是0.3万韩元。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>策略</th><th>总数量</th><th>平均成本</th><th>最终市值</th><th>盈亏</th><th>回本所需涨幅</th></tr></thead>
+          <tbody>
+            <tr><td>A 一次性</td><td>12.00枚</td><td>100.00万</td><td>3.6万</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B 等额4批</td><td>234.67枚</td><td>5.11万</td><td>70.4万</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C 按回撤加权</td><td>34.76枚</td><td>34.52万</td><td>10.4万</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        这里暴露出两件事。第一，<strong>三种策略全都死了。</strong>
+        第二，其中<strong>“做得最好”的策略，成绩是−94.1%</strong>。
+        再搬出计算1的公式，就连这个最好的结果，回本也需要<strong>+1,595%</strong>。
+        <strong>这张表里没有赢家，只有输得没那么惨的输家。</strong>
+      </p>
+      <p>
+        看看策略C。按回撤加权的方式在情景①·②中那么优秀，在这里却
+        <strong>跟着“便宜”的信号，把预算的91.7%砸进了−55%、−75%区间，最终以−99.1%收场。</strong>
+        按回撤加权，意味着<strong>“跌得越多买得越多”</strong>，
+        <strong>在走向归零的资产上，这就是一个把亏损最大化的算法。</strong>
+        在情景①中让C成为赢家的那个特性，在这里正是判C死刑的特性。<strong>是同一个特性。</strong>
+      </p>
+      <div class="note warn">
+        <strong>回撤指标的前提条件 — “这个资产5年后还存在。”</strong>
+        回撤假设<strong>价格会回归</strong>。对会回归的资产，它是好指标；
+        对会消失的资产，它是<strong>最危险的指标</strong>。而<strong>图表分不出这两者。</strong>
+        −80%的比特币图表和−80%、濒临退市的山寨币图表，<strong>长得一模一样。</strong>
+        差别不在指标，而在<strong>基本面·流动性·团队·解锁量</strong>，而我们的模型一样也不看。
+        如今已经消失的数千个山寨币，<strong>无一例外都经过了−90%区间，而在每一个这样的区间里，回撤指标都给出了满分。</strong>
+      </div>
+
+      <h2 id="c8">计算8 — 所以我们只给回撤18%和14%</h2>
+      <p>
+        上面的计算7，就是在我们的模型中<strong>回撤在6个指标里、无论哪种模式都不是权重第一</strong>的原因。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>模式</th><th>回撤权重</th><th>6个中的排名</th><th>排名第一的指标</th></tr></thead>
+          <tbody>
+            <tr><td><strong>短期</strong>（动量）</td><td><strong>18%</strong></td><td>第3</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>长期</strong>（逆向）</td><td><strong>14%</strong></td><td>并列第5</td><td>RSI · MACD · F&amp;G · Mayer 各18%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        出人意料的是，<strong>长期模式反而更低</strong>（18% → 14%）。
+        也许你会想“长期投资不正是最该看回撤的吗？”，但原因在于<strong>重复计算</strong>。
+      </p>
+      <p>
+        <strong>回撤与Mayer倍数实际上问的是同一个问题</strong> — <em>“现在的价格是否低于过去的基准线？”</em>
+        只不过回撤以<strong>365日高点</strong>、Mayer以<strong>200日移动平均线</strong>作为基准线。
+        在长期模式中，Mayer倍数以<strong>18%</strong>位居最高一档。
+        如果这里再给回撤18%，就等于<strong>把36%押在同一个视角（估值）上</strong>。
+        使用6个指标的理由是<strong>为了混合不同的视角</strong>，这样一来这个设计就崩了。
+        所以在长期模式中，<strong>把权重给使用更稳定基准线（200日均线）的Mayer，而调低依赖单一高点的回撤。</strong>
+        365日高点<strong>只是某一天的数值</strong>，如果那天是一次异常暴涨，之后一整年的回撤都会被扭曲。
+        200日<em>平均</em>就没有这样的弱点。
+      </p>
+
+      <h3>仅靠回撤无法得出STRONG BUY</h3>
+      <p>用计算来确认权重如此设定的实际含义。回撤为<strong>满分（100分）</strong>时，对总分的贡献如下。</p>
+      <pre><code>短期: 100分 × 0.18 = 贡献18分（其余82%来自另外5个指标）
+长期: 100分 × 0.14 = 贡献14分（其余86%来自另外5个指标）
+
+要越过 STRONG BUY(80分) 门槛，其余5个指标的加权平均需要
+
+  短期:  (80 − 18) ÷ 0.82 = 75.6分以上
+  长期:  (80 − 14) ÷ 0.86 = 76.7分以上</code></pre>
+      <p>
+        也就是说，<strong>即使因−70%的暴跌让回撤拿到满分，只要RSI·MACD·恐惧指数·Mayer·交叉的平均分不超过75分，
+        分数就绝对到不了80（STRONG BUY）。</strong>
+      </p>
+      <p>
+        再极端一点 — <strong>如果只有回撤是100分、其余五个指标全是0分，总分就是短期18分、长期14分</strong>。
+        两者都落在<strong>0~25区间</strong>，所以长期标签页会显示<strong>OVERHEATED</strong>，短期标签页会显示<strong>AVOID（强下行趋势）</strong>。
+        “都跌了70%，长期标签页却说过热？”看起来很奇怪，但这<strong>正是有意设计的行为</strong>。
+        只是价格跌了而已，趋势已死、情绪没有改善、相对200日线仍然偏贵 —
+        <strong>计算7的退市路径恰恰就是这个样子。</strong>
+        不让回撤一个指标压倒其他五个，这就是18%/14%权重存在的理由。
+      </p>
+      <p class="muted">
+        参考：上市不满1年的币<strong>不存在365日高点，因此回撤缺失</strong>。
+        这时会去掉回撤，把其余指标的权重重新归一化，并在仪表盘上显示为 <code>coverage: 5/6</code>。
+        详细计算见<a href="/methodology">评分方法</a>中的重新归一化一节。
+      </p>
+
+      <h2 id="c9">这些计算在哪里说谎</h2>
+      <p>到这里为止，我展示了八张表。现在来写<strong>不该相信这些表的理由</strong>。</p>
+      <ul>
+        <li>
+          <strong>三种情景是我编出来的。</strong>不是回测，而是<strong>假想路径</strong>。
+          数字只要稍微一改，策略排名随时都可能反转。这次模拟所证明的只有一件事：
+          不是<strong>“C好”，而是“分得越细，结果区间越窄”</strong>。
+        </li>
+        <li>
+          <strong>平均成本不是业绩指标。</strong>在计算7中，策略B的平均成本是<strong>5.11万韩元</strong>，三者中最低。
+          然后<strong>以−94.1%收场。</strong>平均成本低并不代表<em>买得便宜</em>，
+          只代表<strong>在下跌过程中一直在买</strong>。资产一旦死掉，平均成本是多少，结果都是零。
+        </li>
+        <li>
+          <strong>手续费·滑点·税费全部设为0。</strong>实际上分批买入<strong>交易次数多，要付更多手续费。</strong>
+          上表中的差距，有一部分在现实中会被原样扣掉。
+        </li>
+        <li>
+          <strong>机会成本设为0。</strong>情景③中策略C之所以是“0.0%”，是假设
+          <strong>剩余现金什么也赚不到</strong>。算上存款利息会好一点；
+          反过来，<strong>如果那1年里其他资产上涨了，那就是实际亏损</strong>。
+        </li>
+        <li>
+          <strong>365日窗口会让漫长熊市中的回撤看起来更浅</strong>（计算3的警告）。
+          在最深的区间，指标可能反而最迟钝。
+        </li>
+        <li>
+          <strong>策略C的区间与份数分配（0·1·2·4·5）只是用于计算的示例。</strong>
+          我们不推荐这种分配，也不主张它是最优值。
+          把区间改成−25/−40/−55，结果也会改变。<strong>没有正确答案。</strong>
+        </li>
+        <li>
+          <strong>最重要的变量不在计算里。</strong>这个资产5年后还存在吗？
+          答案不在表格里，而在<strong>项目的实质</strong>里，而我们的模型并不看这一点。
+        </li>
+      </ul>
+
+      <p>
+        总结一下。<strong>回撤衡量的不是“有多便宜”，只是“跌了多少”。</strong>
+        两者只有在资产存活下来时才是一回事，否则就是完全相反的意思。
+        <strong>这个指标喊“买”喊得最响的时刻，与资产正在死去的时刻无法区分</strong> —
+        这就是关于回撤你需要知道的全部。
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ 投资提示</strong><br />
+        本文中的所有情景·价格·分配·收益率都是<strong>为说明计算原理而设的假想示例</strong>，
+        并非真实市场数据或回测结果。不推荐任何特定策略·分配·币种。
+        本文<strong>仅供教育与参考，不构成投资建议。</strong>
+        加密货币是<strong>可能损失全部本金</strong>的高风险资产，现实中正如计算7那样，
+        <strong>价值归零的案例比比皆是。</strong>
+        包括分批买入在内，任何技巧都无法防止亏损。
+        所有投资决策及其后果的责任完全由用户本人承担。请务必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸阅读</h2>
+      <div class="related">
+        <a href="/methodology"><b>评分方法</b><span>包括回撤18%/14%在内的全部6项权重与重新归一化计算</span></a>
+        <a href="/indicators"><b>6个指标解读</b><span>除回撤之外，其余五个指标看的是什么</span></a>
+        <a href="/guide-fear-greed"><b>恐惧指数实战用法</b><span>如果说本文是“数学”，那篇就是“流程”</span></a>
+        <a href="/glossary"><b>术语表</b><span>回撤·平均成本·Mayer倍数的定义</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 运营 Y-Systems · <a href="/privacy">隐私政策</a> · <a href="/terms">使用条款</a></footer>
+    </main>

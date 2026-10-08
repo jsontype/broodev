@@ -68,6 +68,7 @@
         }
       }
     </script>
+    <script src="/content-i18n.js?v=20261009a" data-key="btc:lang" data-doc="drawdown-dca"></script>
   </head>
   <body>
     <main class="wrap">
@@ -572,8 +573,12 @@ STRONG BUY(80점) 문턱을 넘으려면, 나머지 5개 지표의 가중평균�
       <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
     </main>
     <script>
-(function () {
+(window.CI18N ? window.CI18N.ready : Promise.resolve()).then(function () {
   'use strict';
+  // 13개 언어 — content-i18n.js 가 본문을 번역본으로 바꾼 뒤(window.CI18N.ready) 실행된다. 화면 문구는 TR({ ko: …, en: …, … }) 로
+  var LANG = (window.CI18N && window.CI18N.lang) || 'ko';
+  function TR(o) { return o[LANG] != null ? o[LANG] : (o.en != null ? o.en : o.ko); }
+
   if (!window.fetch || !window.localStorage) return;
   var NS = 'http://www.w3.org/2000/svg';
   var DAY = 86400000;
@@ -748,7 +753,7 @@ STRONG BUY(80점) 문턱을 넘으려면, 나머지 5개 지표의 가중평균�
     for (var i = 0; i < paneIds.length; i++) {
       var m = document.getElementById(paneIds[i]);
       if (!m) continue;
-      m.innerHTML = i === 0 ? '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>' : '';
+      m.innerHTML = i === 0 ? TR({ ko: '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>', en: '<div class="bd-err">Could not load chart data — please refresh in a moment.</div>', ja: '<div class="bd-err">チャートデータを読み込めませんでした — しばらくしてから再読み込みしてください。</div>', zh: '<div class="bd-err">无法加载图表数据 — 请稍后刷新。</div>', 'zh-Hant': '<div class="bd-err">無法載入圖表資料 — 請稍後重新整理。</div>', th: '<div class="bd-err">โหลดข้อมูลกราฟไม่สำเร็จ — โปรดรีเฟรชอีกครั้งในภายหลัง</div>', es: '<div class="bd-err">No se pudieron cargar los datos del gráfico — actualiza la página en un momento.</div>', fr: '<div class="bd-err">Impossible de charger les données du graphique — veuillez actualiser dans un instant.</div>', de: '<div class="bd-err">Diagrammdaten konnten nicht geladen werden — bitte gleich neu laden.</div>', it: '<div class="bd-err">Impossibile caricare i dati del grafico — ricarica la pagina tra poco.</div>', pt: '<div class="bd-err">Não foi possível carregar os dados do gráfico — atualize a página em instantes.</div>', ru: '<div class="bd-err">Не удалось загрузить данные графика — обновите страницу чуть позже.</div>', nl: '<div class="bd-err">Grafiekgegevens konden niet worden geladen — vernieuw de pagina zo meteen.</div>' }) : '';
     }
   }
 
@@ -968,18 +973,18 @@ STRONG BUY(80점) 문턱을 넘으려면, 나머지 5개 지표의 가중평균�
     var dd = drawdownPct(pts);
     drawChart({
       mount: 'bd-dd-main',
-      title: '역대 최고가(ATH) 대비 낙폭 — 전체 기간',
+      title: TR({ ko: '역대 최고가(ATH) 대비 낙폭 — 전체 기간', en: 'Drawdown from all-time high (ATH) — full history', ja: '史上最高値（ATH）からの下落率 — 全期間', zh: '相对历史最高价（ATH）的回撤 — 全部时段', 'zh-Hant': '相對歷史最高價（ATH）的回撤 — 全部期間', th: 'การลดลงจากราคาสูงสุดตลอดกาล (ATH) — ทั้งช่วงเวลา', es: 'Caída desde el máximo histórico (ATH) — todo el periodo', fr: 'Repli depuis le plus haut historique (ATH) — toute la période', de: 'Rückgang vom Allzeithoch (ATH) — gesamter Zeitraum', it: 'Ribasso dal massimo storico (ATH) — intero periodo', pt: 'Queda desde a máxima histórica (ATH) — período completo', ru: 'Просадка от исторического максимума (ATH) — весь период', nl: 'Daling vanaf de all-time high (ATH) — volledige periode' }),
       height: 300, yMin: -100, yMax: 0, halvings: true, areaBase: 0,
       yFmt: function (v) { return Math.round(v) + '%'; },
-      legendExtra: [{ name: '반감기', color: ORANGE }],
+      legendExtra: [{ name: TR({ ko: '반감기', en: 'Halving', ja: '半減期', zh: '减半', 'zh-Hant': '減半', th: 'ฮาล์ฟวิ่ง', es: 'Halving', fr: 'Halving', de: 'Halving', it: 'Halving', pt: 'Halving', ru: 'Халвинг', nl: 'Halving' }), color: ORANGE }],
       hlines: [
         { y: -30, color: '#e8964a', label: '-30%' },
         { y: -50, color: RED, label: '-50%' }
       ],
-      series: [{ name: 'ATH 대비 낙폭', color: '#ff6b5c', type: 'area', fill: 'rgba(178,58,46,0.18)', pts: downsample(dd, 800), fmt: function (v) { return v.toFixed(1) + '%'; } }]
+      series: [{ name: TR({ ko: 'ATH 대비 낙폭', en: 'Drawdown from ATH', ja: 'ATHからの下落率', zh: '相对ATH的回撤', 'zh-Hant': '相對ATH的回撤', th: 'การลดลงจาก ATH', es: 'Caída desde el ATH', fr: 'Repli depuis l’ATH', de: 'Rückgang vom ATH', it: 'Ribasso dall’ATH', pt: 'Queda desde a ATH', ru: 'Просадка от ATH', nl: 'Daling vanaf ATH' }), color: '#ff6b5c', type: 'area', fill: 'rgba(178,58,46,0.18)', pts: downsample(dd, 800), fmt: function (v) { return v.toFixed(1) + '%'; } }]
     });
   }, function () { showError(['bd-dd-main']); });
-})();
+});
     </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,13 +25,25 @@
     <div id="root">
       <div style="max-width:420px;margin:18vh auto;text-align:center;color:#4f7a6c;font-family:monospace">
         <div style="font-size:34px;color:#00ff9c">⚙</div>
-        <p>broodev 관리자 콘솔 로딩 중…<br />(JavaScript가 필요합니다)</p>
+        <p>broodev · admin</p>
+        <p id="boot-msg" aria-live="polite">…</p>
+        <noscript><p>JavaScript is required.</p></noscript>
       </div>
     </div>
 
     <!-- i18n: 언어 데이터(12) + 코어(ko) -->
     <script src="i18n/en.js"></script><script src="i18n/ja.js"></script><script src="i18n/zh.js"></script><script src="i18n/zh-Hant.js"></script><script src="i18n/th.js"></script><script src="i18n/es.js"></script><script src="i18n/fr.js"></script><script src="i18n/de.js"></script><script src="i18n/it.js"></script><script src="i18n/pt.js"></script><script src="i18n/ru.js"></script><script src="i18n/nl.js"></script>
     <script src="i18n.js"></script>
+    <!-- React 마운트 전(Babel CDN 로딩 중)에도 감지된 언어로 <html lang> 과 로딩 문구를 맞춘다 -->
+    <script>
+      (function () {
+        try {
+          var I = window.ADMIN_I18N, l = I.detectLang(), t = I.getT(l);
+          document.documentElement.lang = l;
+          var m = document.getElementById('boot-msg'); if (m && t.loading) m.textContent = t.loading;
+        } catch (e) {}
+      })();
+    </script>
 
     <!-- Google Identity Services (SSO) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>

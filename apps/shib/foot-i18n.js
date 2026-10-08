@@ -23,7 +23,35 @@
     sand: nm('샌드박스', 'The Sandbox', 'サンドボックス', '沙盒', '沙盒', 'แซนด์บ็อกซ์', 'сэндбокс'),
     mana: nm('디센트럴랜드', 'Decentraland', 'ディセントラランド', 'Decentraland', 'Decentraland', 'ดีเซนทราแลนด์', 'децентраленд')
   };
+  /* 푸터 라벨(공통·코인명 없음): 자매 열 제목/aria · 정책·해설 링크(data-fk) */
+  var FOOT = {
+    ko: { fam: '코인 매수 타이밍 시그널 · 코인 선택', famAria: '코인 선택', site: '사이트 정보', methodology: '점수 방법론', indicators: '지표 해설', guide: '공포지수 활용법', glossary: '용어집', home: '홈', privacy: '개인정보처리방침', terms: '이용약관', contact: '📮 문의 & 버그 신고' },
+    en: { fam: 'Coin buy-timing signals · choose a coin', famAria: 'Choose a coin', site: 'Site information', methodology: 'Methodology', indicators: 'Indicators', guide: 'Fear & Greed Guide', glossary: 'Glossary', home: 'Home', privacy: 'Privacy Policy', terms: 'Terms of Use', contact: '📮 Contact & bug report' },
+    ja: { fam: 'コイン買い時シグナル · コインを選ぶ', famAria: 'コイン選択', site: 'サイト情報', methodology: 'スコア方法', indicators: '指標解説', guide: '恐怖指数ガイド', glossary: '用語集', home: 'ホーム', privacy: 'プライバシーポリシー', terms: '利用規約', contact: '📮 お問い合わせ・不具合報告' },
+    zh: { fam: '加密货币买入时机信号 · 选择币种', famAria: '选择币种', site: '网站信息', methodology: '评分方法', indicators: '指标解读', guide: '恐惧指数指南', glossary: '术语表', home: '首页', privacy: '隐私政策', terms: '使用条款', contact: '📮 联系与问题反馈' },
+    'zh-Hant': { fam: '加密貨幣買入時機訊號 · 選擇幣種', famAria: '選擇幣種', site: '網站資訊', methodology: '評分方法', indicators: '指標解讀', guide: '恐懼指數指南', glossary: '術語表', home: '首頁', privacy: '隱私權政策', terms: '使用條款', contact: '📮 聯絡與問題回報' },
+    th: { fam: 'สัญญาณจังหวะซื้อเหรียญ · เลือกเหรียญ', famAria: 'เลือกเหรียญ', site: 'ข้อมูลเว็บไซต์', methodology: 'วิธีคำนวณคะแนน', indicators: 'อธิบายตัวชี้วัด', guide: 'คู่มือดัชนีความกลัว', glossary: 'อภิธานศัพท์', home: 'หน้าแรก', privacy: 'นโยบายความเป็นส่วนตัว', terms: 'ข้อกำหนดการใช้งาน', contact: '📮 ติดต่อและแจ้งปัญหา' },
+    es: { fam: 'Señales de momento de compra · elige una moneda', famAria: 'Elegir moneda', site: 'Información del sitio', methodology: 'Metodología', indicators: 'Indicadores', guide: 'Guía de miedo y codicia', glossary: 'Glosario', home: 'Inicio', privacy: 'Política de privacidad', terms: 'Términos de uso', contact: '📮 Contacto y errores' },
+    fr: { fam: 'Signaux de timing d’achat · choisir une crypto', famAria: 'Choisir la crypto', site: 'Informations sur le site', methodology: 'Méthodologie', indicators: 'Indicateurs', guide: 'Guide peur & avidité', glossary: 'Glossaire', home: 'Accueil', privacy: 'Politique de confidentialité', terms: 'Conditions d’utilisation', contact: '📮 Contact & signaler un bug' },
+    de: { fam: 'Kauf-Timing-Signale · Coin wählen', famAria: 'Coin wählen', site: 'Website-Informationen', methodology: 'Methodik', indicators: 'Indikatoren', guide: 'Angst-Gier-Leitfaden', glossary: 'Glossar', home: 'Startseite', privacy: 'Datenschutzerklärung', terms: 'Nutzungsbedingungen', contact: '📮 Kontakt & Fehlermeldung' },
+    it: { fam: 'Segnali di timing d’acquisto · scegli una moneta', famAria: 'Scegli la moneta', site: 'Informazioni sul sito', methodology: 'Metodologia', indicators: 'Indicatori', guide: 'Guida paura e avidità', glossary: 'Glossario', home: 'Pagina iniziale', privacy: 'Informativa sulla privacy', terms: 'Termini di utilizzo', contact: '📮 Contatti e segnalazione errori' },
+    pt: { fam: 'Sinais de momento de compra · escolher moeda', famAria: 'Escolher moeda', site: 'Informações do site', methodology: 'Metodologia', indicators: 'Indicadores', guide: 'Guia de medo e ganância', glossary: 'Glossário', home: 'Início', privacy: 'Política de privacidade', terms: 'Termos de utilização', contact: '📮 Contacto e erros' },
+    ru: { fam: 'Сигналы момента покупки · выбор монеты', famAria: 'Выбор монеты', site: 'Информация о сайте', methodology: 'Методология', indicators: 'Индикаторы', guide: 'Гид по индексу страха', glossary: 'Глоссарий', home: 'Главная', privacy: 'Политика конфиденциальности', terms: 'Условия использования', contact: '📮 Связь и сообщения об ошибках' },
+    nl: { fam: 'Koop-timingsignalen · munt kiezen', famAria: 'Munt kiezen', site: 'Site-informatie', methodology: 'Methodologie', indicators: 'Indicatoren', guide: 'Angst & hebzucht-gids', glossary: 'Woordenlijst', home: 'Startpagina', privacy: 'Privacybeleid', terms: 'Gebruiksvoorwaarden', contact: '📮 Contact & foutmelding' }
+  };
   function localize(lang) {
+    var f = FOOT[lang] || FOOT.en;
+    var lab = document.querySelector('.site-foot .foot-fam-label');
+    if (lab) lab.textContent = f.fam;
+    var fam = document.querySelector('.site-foot .foot-fam');
+    if (fam) fam.setAttribute('aria-label', f.famAria);
+    var foot = document.querySelector('footer.site-foot');
+    if (foot) foot.setAttribute('aria-label', f.site);
+    var fk = document.querySelectorAll('.site-foot [data-fk]');
+    for (var j = 0; j < fk.length; j++) {
+      var v = f[fk[j].getAttribute('data-fk')];
+      if (v) fk[j].textContent = v;
+    }
     var els = document.querySelectorAll('.foot-fam [data-coin]');
     for (var i = 0; i < els.length; i++) {
       var m = NAMES[els[i].getAttribute('data-coin')];

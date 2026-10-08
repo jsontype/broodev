@@ -1,0 +1,160 @@
+<main class="wrap" data-title="如何制作CSV单词本 — 用Excel·Google表格打造你自己的记忆卡组 | VOCA DECK" data-desc="用Excel、Google表格、记事本制作CSV单词本的实战指南。乱码（编码）的解决办法、逗号与引号的处理、设计好单词卡的5条原则以及常见错误。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — CSV GUIDE</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 单词本</a>
+          <a href="/method">记忆法原理</a>
+          <a href="/study-guide">学习策略</a>
+        </nav>
+
+        <h1>如何制作CSV单词本</h1>
+        <p class="muted">最后更新：2026-07-14 · 作者：Y-Systems</p>
+
+        <p class="lead">
+          VOCA DECK靠<strong>你自己制作的单词本</strong>运行。比起别人整理的5,000词列表，
+          <strong>你真正不认识的200个词</strong>要有力得多。
+          本文介绍<strong>CSV的制作方法</strong>，并解决几乎每个人都会遇到一次的<strong>乱码问题</strong>。
+        </p>
+
+        <div class="toc">
+          <div class="toc-title">目录</div>
+          <ol>
+            <li><a href="#format">CSV是什么？（最简单的格式）</a></li>
+            <li><a href="#excel">用Excel / Google表格制作</a></li>
+            <li><a href="#encoding">⚠ 出现乱码时 — 编码问题</a></li>
+            <li><a href="#comma">释义中含有逗号时</a></li>
+            <li><a href="#design">制作好单词卡的5条原则</a></li>
+            <li><a href="#mistakes">常见错误</a></li>
+          </ol>
+        </div>
+
+        <h2 id="format">CSV是什么？（最简单的格式）</h2>
+        <p>
+          CSV是<strong>Comma-Separated Values</strong>的缩写，意思是“用逗号分隔的值”。
+          听起来很高深，其实就是<strong>用记事本就能做的文本文件</strong>。一行一张卡片，用逗号把正面和背面分开。
+        </p>
+        <pre><code>apple,苹果
+diligent,勤奋的
+procrastinate,拖延
+serendipity,意外的好运</code></pre>
+        <p>
+          <strong>左边是正面（单词），右边是背面（释义）</strong>。就这么简单。
+          在记事本里像上面这样写好，另存为<code>单词本.csv</code>就完成了。
+        </p>
+        <div class="note">
+          不一定非得是“英语单词–中文”。只要<strong>左边是问题、右边是答案</strong>，什么都可以。
+          汉字–读音、历史年份–事件、化学式–名称、人的长相特征–名字……只要结构对得上，全都能变成记忆卡组。
+        </div>
+
+        <h2 id="excel">用Excel / Google表格制作</h2>
+        <p>单词多的话，用表格管理要方便得多。</p>
+        <ol>
+          <li>在<strong>A列输入单词，B列输入释义</strong>。（没有标题行也可以）</li>
+          <li>
+            <strong>Google表格</strong>：文件 → 下载 → <strong>逗号分隔值（.csv）</strong><br />
+            <span class="muted">Google表格始终以UTF-8保存，所以<strong>不会出现乱码。这是最稳妥的方法。</strong></span>
+          </li>
+          <li>
+            <strong>Excel</strong>：文件 → 另存为 → 选择<strong>CSV UTF-8（逗号分隔）</strong><br />
+            <span class="muted">⚠ 如果只选“CSV（逗号分隔）”，可能会出现乱码。请务必选择带<strong>UTF-8</strong>的那一项。</span>
+          </li>
+        </ol>
+
+        <h2 id="encoding">⚠ 出现乱码时 — 编码问题</h2>
+        <p>
+          打开单词本后，如果释义显示成<code>ì‚¬ê³¼</code>这样的乱码，那就是<strong>编码</strong>问题。
+          文件是以<strong>UTF-8以外的其他方式（主要是Windows的CP949/ANSI）</strong>保存的。
+        </p>
+        <p><strong>解决方法（从最简单的开始）</strong></p>
+        <ol>
+          <li>
+            <strong>用记事本重新保存</strong> — 用记事本打开文件，
+            <strong>文件 → 另存为 → 把编码改为“UTF-8”</strong>后保存。大多数情况这样就能解决。
+          </li>
+          <li>
+            <strong>如果用的是Excel</strong> — 以“CSV UTF-8（逗号分隔）(*.csv)”格式重新保存。
+          </li>
+          <li>
+            <strong>还是不行就借道Google表格</strong> — 粘贴到Google表格中再下载为CSV，就能保证是UTF-8。
+          </li>
+        </ol>
+        <div class="note warn">
+          <strong>为什么会这样？</strong> 文字在电脑里是以数字形式保存的，而这套<strong>转换规则有好几种</strong>。
+          UTF-8是世界标准，CP949是旧版Windows的韩语编码方式。保存时和读取时的规则不同，文字就会变成乱码。
+          <strong>统一用UTF-8就行了。</strong>
+        </div>
+
+        <h2 id="comma">释义中含有逗号时</h2>
+        <p>
+          CSV用逗号来分隔单元格。那如果<strong>释义本身就带逗号</strong>，会怎么样呢？
+        </p>
+        <pre><code>bank,银行, 河岸          ← ✗ 被拆成3个单元格</code></pre>
+        <p>这时只要<strong>用双引号括起来</strong>就行。</p>
+        <pre><code>bank,"银行, 河岸"        ← ✓ 释义保持为一个整体</code></pre>
+        <p>
+          如果在Excel或Google表格里制作，<strong>这一步会自动处理。</strong>只有手动在记事本里写时才需要注意。
+          更简单的办法是<strong>用斜杠或分号代替逗号</strong>：<code>bank,银行 / 河岸</code>
+        </p>
+
+        <h2 id="design">制作好单词卡的5条原则</h2>
+        <p>决定记忆效率的不是格式，而是<strong>内容设计</strong>。</p>
+
+        <h3>① 一张卡片只放一个概念</h3>
+        <p>
+          把5个释义硬塞进一张卡，<strong>结果一个也记不住。</strong>
+          像<code>run,跑/经营/参选/流动/运转</code>这样的卡片是最糟糕的。
+          先从<strong>最常用的一个释义</strong>开始，需要其他释义时再做成<strong>单独的卡片</strong>。
+        </p>
+
+        <h3>② 只放你不认识的词</h3>
+        <p>
+          混进已经认识的词，<strong>跳过它们的时间就全都浪费了</strong>。
+          不要把市面上的单词书整本导入，而是把<strong>阅读时卡住的词</strong>随时加进去。
+          <strong>200个词的自制单词本，胜过5,000个词的别人的单词本。</strong>
+        </p>
+
+        <h3>③ 附上简短的语境（例句）</h3>
+        <p>
+          只背单词，就会陷入<strong>“知道意思却不会用”</strong>的状态。在背面附上一句简短的例句，
+          <a href="/method">双重编码</a>就会增强，并延伸到实际运用。
+        </p>
+        <pre><code>procrastinate,"拖延 — Stop procrastinating and start now."</code></pre>
+
+        <h3>④ 确定方向（单词→释义 vs 释义→单词）</h3>
+        <p>
+          如果目标是<strong>阅读和听力</strong>，<code>单词,释义</code>的方向就足够了。<br />
+          如果目标是<strong>口语和写作</strong>，就需要<code>释义,单词</code>的方向。难得多，但真正的输出能力正是从这里来的。
+        </p>
+
+        <h3>⑤ 把卡组拆小</h3>
+        <p>
+          1,000个词放成一大堆，<strong>光是过一轮就累垮了。</strong>
+          按<strong>50~100个为一组</strong>拆分，重复周期就会变短，能更频繁地获得<a href="/method#spacing">间隔效应</a>。
+        </p>
+
+        <h2 id="mistakes">常见错误</h2>
+        <ul>
+          <li><strong>直接使用从网上下载的5,000词列表</strong> — 其中90%是你已经认识或一辈子都用不到的词。</li>
+          <li><strong>一张卡片放5个释义</strong> — 什么也留不下。</li>
+          <li><strong>在Excel里存成普通CSV</strong> — 会出现乱码。务必用<strong>CSV UTF-8</strong>。</li>
+          <li><strong>卡组太大</strong> — 一轮太长，再次遇到同一个词要等太久。</li>
+          <li><strong>做好了却不用</strong> — 最常见，也最致命。别花3个小时做一本完美的单词本，<strong>今天就用30个词开始吧。</strong></li>
+        </ul>
+
+        <div class="note">
+          单词本<strong>只保存在浏览器（localStorage）中</strong>，不会发送到服务器。
+          换设备后需要重新打开CSV文件，所以请<strong>另外保存好原始CSV</strong>。
+        </div>
+
+        <h2>延伸阅读</h2>
+        <div class="related">
+          <a href="/method"><b>闪示单词记忆法的原理</b><span>为什么反复接触有效，以及它的局限</span></a>
+          <a href="/study-guide"><b>学习策略指南</b><span>每天背几个、复习周期、常见错误</span></a>
+          <a href="/"><b>打开单词本</b><span>用做好的CSV马上开始</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 运营：Y-Systems · <a href="/privacy">隐私政策</a> · <a href="/terms">使用条款</a></footer>
+      </div>
+    </main>

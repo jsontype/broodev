@@ -1,0 +1,293 @@
+<main class="wrap" data-title="Cómo detectar el suelo de Bitcoin — capitalización de mercado vs coste medio de compra | broodev" data-desc="El suelo de Bitcoin no se identifica por el precio, sino por si la capitalización de mercado ha caído por debajo del coste medio de compra de los inversores (la capitalización realizada). Reconstruimos con gráficos en vivo cómo el MVRV bajó realmente de 1 en los cinco suelos de 2011, 2015, 2018, 2020 y 2022, y publicamos íntegras las fórmulas de la puntuación de suelo de broodev (BOTTOM RADAR), que además incorpora Thermocap (las recompensas mineras acumuladas).">
+      <nav class="nav">
+        <a href="/">← Panel</a>
+        <a href="/methodology">Metodología de la puntuación</a>
+        <a href="/indicators">Indicadores explicados</a>
+        <a href="/bitcoin-bottom">Señales de suelo</a>
+        <a href="/glossary">Glosario</a>
+      </nav>
+
+      <h1>Cómo detectar el suelo de Bitcoin<br />— capitalización de mercado vs coste medio de compra</h1>
+      <p class="muted">Última actualización: 2026-07-22 · Autor: Y-Systems · Alcance: los componentes on-chain de la puntuación de suelo de broodev (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Todos los intentos de encontrar el suelo de Bitcoin a partir del precio han fracasado. El suelo de 2018 estuvo en 3,150 dólares y el de 2022 en 15,500 dólares — <strong>una diferencia de cinco veces.</strong>
+        Sin embargo, ambos suelos compartían algo que no era el precio. <strong>La capitalización de mercado de Bitcoin había caído por debajo de la suma de lo que todos los inversores pagaron realmente (el coste medio de compra total)</strong>.
+        Este artículo dibuja esa observación directamente con datos en vivo, sigue en orden cronológico cómo se marcó realmente esta señal en los cinco suelos
+        y publica, fórmula incluida, con qué ponderaciones la combina la <strong>puntuación de suelo (BOTTOM RADAR)</strong> de broodev.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Índice</div>
+        <ol>
+          <li><a href="#concept">Por qué el «coste medio de compra» delata el suelo — la capitalización realizada</a></li>
+          <li><a href="#chart-mc">Gráfico en vivo ① — capitalización de mercado vs coste medio de compra (2010 a hoy)</a></li>
+          <li><a href="#history">Cinco suelos — los días en que el MVRV bajó de 1</a></li>
+          <li><a href="#mvrv-z">Gráfico en vivo ② — estandarizar con el MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Gráfico en vivo ③ — Thermocap, el suelo según el coste de minería</a></li>
+          <li><a href="#divergence">Cómo leer los momentos en que ambos indicadores divergen</a></li>
+          <li><a href="#limits">Los límites de estos indicadores — una muestra de 4 ciclos, la era de los ETF</a></li>
+          <li><a href="#radar">Cómo se compone la puntuación de suelo de broodev (BOTTOM RADAR) — ponderaciones publicadas</a></li>
+          <li><a href="#faq">Preguntas frecuentes</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Sobre las cifras de este artículo.</strong> Los gráficos de abajo son <strong>datos reales que se descargan directamente de CoinMetrics Community API y blockchain.info y se dibujan en tu navegador</strong> al abrir esta página (caché de 6 horas).
+        En cambio, los valores de MVRV en los suelos pasados y las rentabilidades posteriores que aparecen en las tablas son <strong>aproximaciones reconstruidas</strong> — los decimales varían según la fuente de datos y el día que se tome como mínimo.
+        El argumento de este artículo no está en los decimales, sino en <strong>el patrón repetido de que «los periodos en que la capitalización cayó por debajo del coste coincidieron con los suelos»</strong>.
+      </div>
+
+      <h2 id="concept">Por qué el «coste medio de compra» delata el suelo — la capitalización realizada</h2>
+      <p>
+        Todo el mundo conoce la capitalización de mercado: <code>precio actual × oferta en circulación</code>. Es una cifra que <em>supone</em> que un único último precio negociado representa el valor de todas las monedas.
+        Pero los datos on-chain contienen otra cifra mucho más interesante: la <strong>capitalización realizada (Realized Cap)</strong>.
+      </p>
+      <pre><code>Capitalización   = precio actual × oferta en circulación     (valora cada moneda al 'precio de hoy')
+Cap. realizada   = Σ (cada moneda × precio del día en que se movió por última vez)
+                 = total de lo que los inversores pagaron realmente ≈ coste medio de compra del mercado × oferta en circulación</code></pre>
+      <p>
+        La blockchain registra <strong>cuándo se movió cada moneda de cartera por última vez</strong>. Si se toma el precio del día de ese movimiento como «coste de adquisición» de la moneda y se suma todo,
+        se obtiene el total de dinero que el mercado ha metido realmente en Bitcoin. En términos bursátiles equivale a <strong>multiplicar el precio medio de compra de todos los accionistas por el número de acciones</strong>.
+        Por eso en este artículo llamamos a la capitalización realizada <strong>«coste medio de compra (total)»</strong>.
+      </p>
+      <p>El cociente entre ambas cifras es el famoso <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = capitalización ÷ capitalización realizada
+
+MVRV 2.0  → el tenedor medio duplica su capital (zona de ganancias generalizadas)
+MVRV 1.0  → el mercado en su conjunto está exactamente en tablas
+MVRV 0.8  → el tenedor medio pierde un −20% (zona de pérdidas generalizadas)</code></pre>
+      <p>
+        De aquí sale la lógica del suelo. <strong>Que el MVRV baje de 1 significa que, en promedio, el conjunto de tenedores de bitcoin está en pérdidas.</strong>
+        Históricamente, en esta zona han ocurrido dos cosas. Primero, la <strong>capitulación (capitulation)</strong> de los inversores que no soportan las pérdidas alcanza su clímax.
+        Segundo, quienes absorben ese volumen son tenedores a largo plazo a los que no les afectan las ganancias o pérdidas. Es el <strong>momento en que las monedas pasan de manos débiles a manos fuertes</strong>,
+        y en los cuatro ciclos este momento <strong>coincidió siempre con un gran suelo.</strong> Puedes comprobarlo tú mismo en el gráfico de abajo.
+      </p>
+
+      <h2 id="chart-mc">Gráfico en vivo ① — capitalización de mercado vs coste medio de compra<span class="info-tip" tabindex="0" role="note" aria-label="Explicación: capitalización de mercado vs coste medio de compra">ⓘ<span class="tip-bubble"><b>Capitalización de mercado vs coste medio de compra</b>La línea azul es el coste medio de compra de los inversores. Cuando la capitalización (blanca) cae por debajo de ella, el mercado está de media en pérdidas, lo que históricamente ha sido zona de suelo.</span></span></h2>
+      <p>
+        La línea blanca es la <strong>capitalización de mercado</strong> y la azul, el <strong>coste medio de compra (capitalización realizada)</strong>. La escala es logarítmica y las líneas discontinuas naranjas marcan los cuatro halvings.
+        Al pasar el cursor se muestran la fecha y ambos valores. Solo hay una cosa que mirar — <strong>los tramos en que la línea blanca se hunde por debajo de la azul</strong>. Todos fueron suelos.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">Cargando datos y dibujando el gráfico… (puede tardar unos segundos)</div></div>
+      <p class="chart-src">Datos: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, velas diarias de toda la historia · capitalización realizada = capitalización ÷ MVRV) · caché local de 6 horas · escala logarítmica</p>
+      <p>
+        Fíjate en una propiedad de la línea azul: <strong>casi nunca baja.</strong> Mientras la capitalización se desploma un −80%, el coste medio de compra solo desciende suavemente.
+        Esto se debe a que el coste solo se actualiza <em>cuando realmente se produce una operación</em>. Incluso en un mercado dominado por el miedo, la mayoría de las monedas no se mueven, y el coste de las monedas inmóviles no cambia.
+        Por eso la línea azul se comporta <strong>no como una línea de gravedad del precio, sino como el valor contable del mercado</strong>. Que la capitalización perfore ese valor contable es raro, y precisamente por raro es una señal.
+      </p>
+
+      <h2 id="history">Cinco suelos — los días en que el MVRV bajó de 1</h2>
+      <p>
+        En la historia de Bitcoin, las fases en que la capitalización cayó por debajo del coste medio de compra (MVRV &lt; 1) se cuentan con los dedos. Este es el registro de las que coincidieron con los cinco grandes suelos.
+        Todas las cifras son <strong>aproximadas</strong> — dependen del día que se tome como mínimo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fase de suelo</th><th>Precio entonces (aprox.)</th><th>MVRV mínimo (aprox.)</th><th>1 año después (aprox.)</th><th>2 años después (aprox.)</th></tr></thead>
+          <tbody>
+            <tr><td>Noviembre de 2011</td><td>unos $2</td><td><code>0.4~0.6</code></td><td>unos $11 (+400% y pico)</td><td>unos $1,000 (cientos de veces)</td></tr>
+            <tr><td>Enero de 2015</td><td>unos $170~230</td><td><code>0.55~0.7</code></td><td>unos $380~430 (+90~130%)</td><td>unos $900 (+300% y pico)</td></tr>
+            <tr><td>Diciembre de 2018</td><td>unos $3,200</td><td><code>0.7 aprox.</code></td><td>unos $7,200 (+120% y pico)</td><td>unos $23,000 (+600% y pico)</td></tr>
+            <tr><td>Marzo de 2020</td><td>unos $3,800~5,000</td><td><code>0.85~0.95</code> (durante unos días)</td><td>unos $58,000 (+1,000% y pico)</td><td>unos $44,000 (+700% y pico)</td></tr>
+            <tr><td>Noviembre de 2022</td><td>unos $15,500</td><td><code>0.75~0.85</code></td><td>unos $37,000 (+130% y pico)</td><td>unos $90,000 (+480% y pico)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Los cinco suelos tuvieron causas completamente distintas: el estallido de su propia burbuja (2011), las secuelas de Mt. Gox (2015), la liquidación de la burbuja de las ICO (2018), el pánico de la pandemia (2020) y la quiebra de FTX (2022).
+        Los precios van de $2 a $15,500, una diferencia de <strong>7,750 veces</strong>. Y, sin embargo, <strong>las cinco veces el MVRV estuvo por debajo de 1, en general en la franja de 0.7~0.9</strong>.
+        Si no se mide por el precio absoluto, sino por <strong>«cuánto descuento hay respecto al coste del mercado en su conjunto»</strong>, cinco suelos totalmente distintos caen casi en el mismo sitio.
+      </p>
+      <div class="note warn">
+        <strong>Ojo: lo contrario no se cumple.</strong> «MVRV &lt; 1 = suelo inmediato» no es cierto.
+        En 2011, en 2014~2015 y a finales de 2018, el MVRV permaneció por debajo de 1 durante <strong>de semanas a meses</strong>, y dentro de ese periodo el precio siguió cayendo.
+        Lo que dice este indicador no es «aquí está el mínimo», sino una información de zona: <strong>«históricamente, quien compró de forma escalonada en esta zona ganó mucho uno o dos años después»</strong>.
+        Léelo no como una herramienta de timing, sino como una <strong>herramienta de zona</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Gráfico en vivo ② — estandarizar con el MVRV Z-Score</h2>
+      <p>
+        El cociente MVRV tiene un punto débil: <strong>la altura de los techos cambia de un ciclo a otro</strong>. En el techo de 2011 el MVRV superó 7, pero en 2021 no llegó a 4.
+        Cuanto más crece el mercado, más se comprime la amplitud. Por eso el motor de broodev no usa el cociente sino el <strong>Z-Score</strong> — una forma de medir a cuántas desviaciones estándar
+        se ha alejado la <em>diferencia</em> entre capitalización y capitalización realizada en relación con la volatilidad histórica de la capitalización.
+      </p>
+      <pre><code>MVRV Z-Score = (capitalización − cap. realizada) ÷ σ(capitalización)
+               σ = desviación estándar de la capitalización en toda la historia
+
+z &lt; 0   → capitalización por debajo del coste medio de compra (zona de suelo histórica)
+z ≈ 1~2 → zona normal
+z &gt; 5   → zona de techo histórica (picos de 2011·2013·2017)</code></pre>
+      <p>
+        El gráfico de abajo muestra el MVRV Z-Score de toda la historia. El sombreado verde es <strong>z &lt; 0 (zona de suelo)</strong> y el rojo, <strong>z &gt; 5 (zona de sobrecalentamiento)</strong>.
+        Los suelos de 2011·2015·2018·2022 se hundieron todos por debajo de la línea 0 (marzo de 2020 apenas la rozó), y los grandes techos de 2011·2013·2017 alcanzaron todos el sombreado rojo con z de 7~9.
+        Sin embargo, <strong>el z del techo de 2021 se quedó en torno a 3.5</strong> — algo que volverá a aparecer en la sección de límites: cuanto más crece el mercado, más se comprime la amplitud por arriba.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">Cargando datos y dibujando el gráfico…</div></div>
+      <p class="chart-src">Datos: calculado a partir de la misma fuente de CoinMetrics Community API que el gráfico anterior · z = (capitalización − cap. realizada) ÷ σ(capitalización) · σ sobre toda la historia hasta cada momento (ventana expansiva) · caché local de 6 horas</p>
+      <div class="note">
+        <strong>Publicamos el método de cálculo tal cual.</strong> El MVRV Z del panel de broodev
+        se obtiene a partir de <code>CapMrktCurUSD</code> (capitalización) y <code>CapMVRVCur</code> (cociente MVRV) de CoinMetrics Community API,
+        derivando <code>cap. realizada = capitalización ÷ MVRV</code> y estandarizando después con la <strong>σ(capitalización) de toda la historia</strong>.
+        Los tramos pasados del gráfico se calculan con <strong>la σ disponible hasta ese momento</strong> (ventana expansiva), para dibujar «el valor que podía ver el inversor de ese día».
+        Por definición, el último punto coincide exactamente con el valor actual del panel. Es una API gratuita que no requiere clave, así que cualquiera puede reproducir las mismas cifras.
+      </div>
+
+      <h2 id="thermocap">Gráfico en vivo ③ — Thermocap, el suelo según el coste de minería</h2>
+      <p>
+        Si la capitalización realizada es <strong>el coste del inversor</strong>, Bitcoin tiene otro coste más: <strong>el coste del productor</strong>, es decir, el coste de minería.
+        <strong>Thermocap</strong> es el <strong>total acumulado (en USD) de las recompensas pagadas a los mineros (recompensa de bloque + comisiones)</strong> desde el lanzamiento de Bitcoin.
+        Es la suma de todo el dinero invertido hasta ahora en la seguridad de la red — por así decirlo, <strong>el coste total de crear este activo</strong>.
+      </p>
+      <pre><code>Thermocap    = Σ (ingresos diarios de los mineros en USD)  ← acumulado desde 2009
+Thermocap Z  = z-score of ln(capitalización ÷ Thermocap)   [sobre toda la historia]
+
+El cociente capitalización/Thermocap ha oscilado históricamente entre varias y varias decenas de veces.
+Cuanto más bajo el z (logaritmo del cociente estandarizado), mayor la 'infravaloración frente al coste de producción'.</code></pre>
+      <p>
+        Lo normal es que la capitalización cotice varias veces por encima de Thermocap (es propio de un activo con tendencia alcista). Lo importante es <strong>en qué punto del rango histórico</strong> se encuentra ese múltiplo,
+        y al estandarizar el logaritmo del múltiplo como z-score se pueden comparar los ciclos entre sí. En el gráfico de abajo se ve que <strong>los tramos en que z baja de 0</strong> coinciden con las zonas de suelo históricas.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">Cargando datos y dibujando el gráfico…</div></div>
+      <p class="chart-src">Datos: blockchain.info charts/miners-revenue (todo el periodo) — acumulado ponderando cada muestra por los días del intervalo (aproximación de la integral) · alineado por fecha con la capitalización diaria de CoinMetrics · z = z-score de ln(capitalización/Thermocap) sobre toda la historia · caché local de 6 horas</p>
+      <p>
+        El denominador de Thermocap difiere de forma decisiva del de la capitalización realizada: <strong>nunca disminuye y solo crece un poco cada día, al margen del mercado.</strong>
+        Aunque los inversores se deshagan de sus monedas presos del pánico, el acumulado de recompensas mineras no se inmuta. Por eso Thermocap Z es, frente a los indicadores basados en la capitalización realizada,
+        <strong>una línea de referencia de suelo más lenta y más obstinada</strong>. Este indicador es <strong>exclusivo de Bitcoin</strong>, porque existen datos de recompensas mineras — no se puede calcular para las altcoins.
+      </p>
+
+      <h2 id="divergence">Cómo leer los momentos en que ambos indicadores divergen</h2>
+      <p>
+        Si ambos son indicadores de «coste», ¿por qué mirar los dos? <strong>Porque sus denominadores se mueven a velocidades distintas.</strong>
+        La capitalización realizada (denominador del MVRV) se actualiza cada vez que una moneda cambia de manos — si el mercado alcista se alarga, el propio coste sube, y cuando termina la capitulación, el coste se asienta a la baja.
+        Thermocap no hace nada de eso: solo se acumula. Esa diferencia de velocidad genera la señal.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinación</th><th>Interpretación</th><th>Ejemplos históricos (aprox.)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z bajo + Thermocap Z bajo</td><td><strong>Zona de suelo profundo.</strong> Cerca tanto del coste del inversor como del coste de producción</td><td>2015 · finales de 2018 · finales de 2022</td></tr>
+            <tr><td>MVRV Z bajo + Thermocap Z normal</td><td>Desplome a mitad de ciclo. Hubo capitulación, pero el suelo estructural no está confirmado</td><td>marzo de 2020 · julio de 2021</td></tr>
+            <tr><td>MVRV Z normal + Thermocap Z alto</td><td>Fase final del mercado alcista. El coste ya ha subido mucho, así que mirar solo el MVRV engaña</td><td>noviembre de 2021 (segundo techo)</td></tr>
+            <tr><td>Ambos altos</td><td><strong>Zona de techo histórica.</strong> El peor momento para comprar</td><td>finales de 2013 · finales de 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La tercera fila es especialmente importante. Cuando un mercado alcista dura más de un año, <strong>la capitalización realizada sube siguiendo al precio y el MVRV parece «normal».</strong>
+        En el máximo del ciclo de noviembre de 2021, el MVRV estaba muy por debajo de los techos de 2011~2017. Es exactamente el mismo silencio estructural que el del múltiplo de Mayer, que <a href="/mayer-multiple">en noviembre de 2021 indicaba neutralidad</a>.
+        En ese momento, un indicador como Thermocap, <strong>cuyo denominador no sube a la par</strong>, sirve de verificación cruzada.
+      </p>
+
+      <h2 id="limits">Los límites de estos indicadores — una muestra de 4 ciclos, la era de los ETF</h2>
+      <p>Lo escribimos con honestidad: hasta dónde es válido el argumento de este artículo.</p>
+      <ul>
+        <li>
+          <strong>La muestra es de solo 4 ciclos.</strong> La observación «MVRV &lt; 1 fue el suelo» se basa en cinco fases y, en ciclos completos, solo en cuatro.
+          Es un tamaño que da vergüenza llamar estadística, y <strong>una observación no es una ley.</strong> Nada garantiza que el próximo ciclo se detenga en el mismo sitio.
+        </li>
+        <li>
+          <strong>Posible distorsión en la era de los ETF.</strong> Desde 2024, una gran cantidad de monedas ha quedado inmovilizada en ETF al contado y custodios institucionales.
+          Las participaciones de los ETF cambian de manos sin movimientos on-chain, así que <strong>aunque haya compraventas reales, la capitalización realizada (el coste) puede no actualizarse.</strong>
+          Es un cambio estructural por el que el coste on-chain se va quedando desfasado respecto al coste real del mercado, y difumina la comparación directa con ciclos anteriores.
+        </li>
+        <li>
+          <strong>La capitalización realizada puede distorsionarse por los movimientos internos de los exchanges.</strong> Cuando un exchange reorganiza sus carteras frías y mueve monedas,
+          el «coste» de ese volumen se reescribe al precio del día del movimiento aunque no haya compras reales. A la inversa, las monedas que cambian de manos <em>dentro</em> de un exchange no dejan rastro on-chain, y su coste no se actualiza.
+        </li>
+        <li>
+          <strong>El problema de las monedas dormidas para siempre.</strong> Las monedas minadas en los primeros tiempos y que nunca se han movido (se estima que varios millones, entre ellas las de Satoshi)
+          se computan con un coste cercano a 0. Es un sesgo que tiende a infravalorar estructuralmente la capitalización realizada.
+        </li>
+        <li>
+          <strong>La naturaleza de la σ sobre toda la historia.</strong> Como la σ(capitalización), denominador del MVRV Z, se calcula sobre toda la historia, a medida que crece el tamaño del mercado también crece la σ,
+          y <strong>la amplitud del z en los ciclos recientes queda más aplastada que en el pasado.</strong> Significa que «valores extremos como z &gt; 7 quizá no vuelvan a verse», y es la razón por la que no hay que usar los umbrales como referencia absoluta.
+        </li>
+      </ul>
+
+      <h2 id="radar">Cómo se compone la puntuación de suelo de broodev (BOTTOM RADAR) — ponderaciones publicadas</h2>
+      <p>
+        El <strong>BOTTOM RADAR</strong> del panel de broodev es una puntuación compuesta independiente que no responde a «¿subirá si compro ahora?», sino a una sola pregunta: <strong>«¿estamos ahora en una zona de suelo histórica?»</strong>.
+        Sus ponderaciones son diferentes de las de las puntuaciones a corto y largo plazo. La clave es que concentra un 55% en los dos indicadores on-chain de coste.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicador</th><th>Ponderación</th><th>Por qué este peso</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Frente al coste medio de compra de los inversores. La señal número uno, que funcionó en los cinco suelos</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Frente al coste de producción (minería). Verificación cruzada cuando el denominador del MVRV induce a error</td></tr>
+            <tr><td>Múltiplo de Mayer</td><td>15%</td><td>Precio frente a la media de 200 días. Un eje de precio puro que el on-chain no ve</td></tr>
+            <tr><td>Caída desde el máximo de 365d</td><td>15%</td><td>Profundidad de la caída desde el máximo. Como el denominador es un máximo fijo, no se calla ni al final de un mercado bajista</td></tr>
+            <tr><td>Índice de Miedo y Codicia</td><td>15%</td><td>El termómetro del ánimo de capitulación. El suelo siempre ha llegado acompañado de miedo extremo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Los cinco componentes suman <strong>1.00</strong>. Cada indicador usa su puntuación normalizada a largo plazo (contraria) — los dos on-chain mapean su valor z a 0~100 con la tabla de anclas de abajo —
+        y los indicadores sin datos no puntúan 0, sino que <strong>se excluyen del cálculo y las ponderaciones restantes se renormalizan para sumar 100%</strong>.
+        En las monedas que no son BTC, Thermocap siempre queda fuera, y en las no soportadas por CoinMetrics también el MVRV, así que comprueba siempre el indicador de cobertura.
+      </p>
+      <pre><code>mapeo z → puntuación (Z_ANCHORS, interpolación lineal por tramos)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>La puntuación compuesta se interpreta en cinco franjas.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Puntuación de suelo</th><th>Veredicto</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Zona de suelo histórica — el mismo lugar que los grandes suelos del pasado</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Infravalorado — zona de descuento frente al coste</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutral</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Sobrevalorado — zona de prima frente al coste</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Zona de techo / sobrecalentamiento — el mismo lugar que los grandes techos del pasado</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        No hay ninguna prueba de que las ponderaciones 35·20·15·15·15 sean óptimas. Lo único seguro es la dirección — para juzgar el suelo, <strong>los indicadores on-chain basados en el coste se han reproducido mejor de un ciclo a otro que los basados en el precio</strong>,
+        y por eso reciben la mayoría del peso. El sistema de puntuación completo (la combinación de 8 indicadores de las pestañas de corto y largo plazo) está publicado íntegramente en el <a href="/methodology">documento de metodología de la puntuación</a>.
+      </p>
+
+      <h2 id="faq">Preguntas frecuentes</h2>
+      <dl>
+        <dt>¿Si el MVRV baja de 1, es siempre el suelo?</dt>
+        <dd>
+          No. Históricamente, las zonas con MVRV &lt; 1 coincidieron con grandes suelos, pero <em>dentro</em> de esas zonas el precio llegó a caer un 20~40% adicional (2011, 2015).
+          Hay que leerlo no como una «señal de mínimo», sino como «una zona de compra escalonada que históricamente dio buenos resultados uno o dos años después», y la muestra es de solo cuatro ciclos.
+        </dd>
+        <dt>¿Dónde puedo ver la capitalización realizada (el coste medio de compra)?</dt>
+        <dd>
+          Los gráficos de esta página derivan directamente la capitalización realizada a partir de la capitalización y el MVRV de CoinMetrics Community API (gratuita, sin clave) y la dibujan.
+          Las tarjetas MVRV·Z y la puntuación de suelo (BOTTOM RADAR) del panel de broodev usan los mismos datos y las mismas fórmulas.
+        </dd>
+        <dt>¿Se puede aplicar este método a las altcoins?</dt>
+        <dd>
+          Solo en parte. broodev calcula el MVRV Z para las 10 monedas para las que CoinMetrics ofrece MVRV (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA);
+          las monedas no soportadas se marcan como N/A y las ponderaciones se renormalizan. Thermocap (recompensas mineras acumuladas) es exclusivo de Bitcoin.
+        </dd>
+        <dt>¿Por qué es suelo cuando la capitalización cae por debajo del coste medio de compra?</dt>
+        <dd>
+          Que la capitalización esté por debajo de la capitalización realizada significa que el conjunto de tenedores está, de media, en pérdidas. En esta zona la capitulación de quienes no soportan las pérdidas alcanza su clímax,
+          y a medida que ese volumen pasa a manos de tenedores a largo plazo, la presión vendedora se agota. Aun así, es una observación de los cuatro ciclos pasados, no una ley garantizada.
+        </dd>
+      </dl>
+
+      <div class="note warn">
+        <strong>⚠ Advertencia sobre inversiones</strong><br />
+        Este documento y las puntuaciones de broodev son <strong>material de referencia que combina indicadores públicos, no asesoría de inversión.</strong>
+        Los valores históricos de MVRV y las rentabilidades del texto son <strong>aproximaciones que pueden variar según la fuente de datos, y los patrones pasados no garantizan el futuro.</strong>
+        Las criptomonedas son activos de alto riesgo en los que <strong>es posible perder todo el capital</strong>.
+        Toda decisión de inversión y sus resultados (ganancias o pérdidas) son responsabilidad exclusiva del usuario. Investiga siempre por tu cuenta (DYOR).
+      </div>
+
+      <h2>Sigue leyendo</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodología de la puntuación</b><span>Con qué ponderaciones se combinan los 8 indicadores (todas las cifras publicadas)</span></a>
+        <a href="/indicators"><b>Los 8 indicadores explicados</b><span>Incluye MVRV y Thermocap: cuándo te traiciona cada indicador</span></a>
+        <a href="/mayer-multiple"><b>Historia del múltiplo de Mayer</b><span>Lo que la media de 200 días dijo en cada ciclo — un indicador de suelo en el eje del precio</span></a>
+        <a href="/"><b>Ir al panel</b><span>Consulta ahora la puntuación de suelo (BOTTOM RADAR)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operado por Y-Systems · <a href="/privacy">Política de privacidad</a> · <a href="/terms">Términos de uso</a></footer>
+    </main>

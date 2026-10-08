@@ -1,0 +1,321 @@
+    <main class="wrap" data-title="Come individuare il minimo del Bitcoin — capitalizzazione di mercato vs costo medio d’acquisto | broodev" data-desc="Il minimo del Bitcoin non si riconosce dal prezzo, ma dal fatto che la capitalizzazione di mercato scenda sotto il costo medio d’acquisto degli investitori (realized cap). Ricostruiamo con grafici in tempo reale come l’MVRV sia sceso davvero sotto 1 nei cinque minimi del 2011, 2015, 2018, 2020 e 2022, e pubblichiamo per intero le formule del punteggio di minimo di broodev (BOTTOM RADAR), che integra anche il Thermocap (ricompense di mining cumulate).">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Metodologia del punteggio</a>
+        <a href="/indicators">Guida agli indicatori</a>
+        <a href="/bitcoin-bottom">Segnali di minimo</a>
+        <a href="/glossary">Glossario</a>
+      </nav>
+
+      <h1>Come individuare il minimo del Bitcoin<br />— capitalizzazione di mercato vs costo medio d’acquisto</h1>
+      <p class="muted">Ultimo aggiornamento: 2026-07-22 · Autore: Y-Systems · Ambito: le componenti on-chain del punteggio di minimo di broodev (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Ogni tentativo di trovare il minimo del Bitcoin guardando il prezzo è fallito. Il minimo del 2018 era a 3.150 dollari, quello del 2022 a 15.500 dollari — <strong>una differenza di cinque volte.</strong>
+        Eppure i due minimi avevano in comune una cosa che non era il prezzo: <strong>la capitalizzazione di mercato del Bitcoin era scesa sotto la somma di quanto tutti gli investitori avevano effettivamente pagato (il costo medio d’acquisto complessivo)</strong>.
+        Questo articolo traccia quell’osservazione direttamente con dati in tempo reale, ripercorre in ordine cronologico come il segnale si sia manifestato nei cinque minimi
+        e pubblica, formule comprese, con quali pesi il <strong>punteggio di minimo (BOTTOM RADAR)</strong> di broodev lo combina.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Indice</div>
+        <ol>
+          <li><a href="#concept">Perché il «costo medio d’acquisto» rivela il minimo — la realized cap</a></li>
+          <li><a href="#chart-mc">Grafico in tempo reale ① — capitalizzazione di mercato vs costo medio d’acquisto (2010–oggi)</a></li>
+          <li><a href="#history">Cinque minimi — i giorni in cui l’MVRV è sceso sotto 1</a></li>
+          <li><a href="#mvrv-z">Grafico in tempo reale ② — standardizzare con l’MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Grafico in tempo reale ③ — Thermocap, il minimo secondo il costo di mining</a></li>
+          <li><a href="#divergence">Come leggere i momenti in cui i due indicatori divergono</a></li>
+          <li><a href="#limits">I limiti di questi indicatori — un campione di 4 cicli, l’era degli ETF</a></li>
+          <li><a href="#radar">Come è composto il punteggio di minimo di broodev (BOTTOM RADAR) — pesi pubblicati</a></li>
+          <li><a href="#faq">Domande frequenti</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Sui numeri di questo articolo.</strong> I grafici qui sotto sono <strong>dati reali scaricati direttamente da CoinMetrics Community API e blockchain.info e disegnati nel browser</strong> all’apertura della pagina (cache di 6 ore).
+        I valori di MVRV ai minimi passati e i rendimenti successivi riportati nelle tabelle, invece, sono <strong>approssimazioni ricostruite</strong> — i decimali oscillano a seconda della fonte dati e del giorno scelto come minimo.
+        La tesi dell’articolo non sta nei decimali, ma nello <strong>schema ricorrente per cui «i periodi in cui la capitalizzazione è scesa sotto il costo hanno coinciso con i minimi»</strong>.
+      </div>
+
+      <h2 id="concept">Perché il «costo medio d’acquisto» rivela il minimo — la realized cap</h2>
+      <p>
+        La capitalizzazione di mercato la conoscono tutti: <code>prezzo attuale × offerta circolante</code>. È un numero che <em>presuppone</em> che un solo ultimo prezzo eseguito rappresenti il valore di tutte le monete.
+        Ma nei dati on-chain c’è un altro numero, molto più interessante: la <strong>capitalizzazione realizzata (Realized Cap)</strong>.
+      </p>
+      <pre><code>Cap. di mercato  = prezzo attuale × offerta circolante      (ogni moneta valutata al «prezzo di adesso»)
+Realized cap     = Σ (ogni moneta × prezzo del giorno in cui si è mossa l’ultima volta)
+                 = somma di quanto gli investitori hanno effettivamente pagato ≈ costo medio d’acquisto dell’intero mercato × offerta circolante</code></pre>
+      <p>
+        La blockchain registra <strong>quando ogni moneta ha cambiato portafoglio l’ultima volta</strong>. Se si considera il prezzo del giorno di quel movimento come «costo di acquisizione» della moneta e si somma tutto,
+        si ottiene il totale del denaro che il mercato ha effettivamente messo nel Bitcoin. In termini azionari equivale a <strong>moltiplicare il prezzo medio di carico di tutti gli azionisti per il numero di azioni</strong>.
+        Per questo in questo articolo chiamiamo la realized cap <strong>«costo medio d’acquisto (complessivo)»</strong>.
+      </p>
+      <p>Il rapporto tra i due numeri è il famoso <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = cap. di mercato ÷ realized cap
+
+MVRV 2.0  → il detentore medio ha il doppio del capitale investito (tutti in profitto)
+MVRV 1.0  → il mercato nel suo insieme è esattamente in pari
+MVRV 0.8  → il detentore medio è in perdita del −20% (tutti in perdita)</code></pre>
+      <p>
+        Da qui nasce la logica del minimo. <strong>Un MVRV sotto 1 significa che, in media, l’insieme dei detentori di Bitcoin è in perdita.</strong>
+        Storicamente in questa zona sono accadute due cose. Primo, la <strong>capitolazione (capitulation)</strong> degli investitori che non reggono più le perdite raggiunge il culmine.
+        Secondo, chi assorbe quelle monete sono i detentori di lungo periodo, indifferenti a profitti e perdite. È il momento in cui le monete <strong>passano dalle mani deboli a quelle forti</strong>,
+        e in quattro cicli questo momento ha <strong>sempre coinciso con il grande minimo.</strong> Potete verificarlo voi stessi nel grafico qui sotto.
+      </p>
+
+      <h2 id="chart-mc">Grafico in tempo reale ① — capitalizzazione di mercato vs costo medio d’acquisto<span class="info-tip" tabindex="0" role="note" aria-label="Spiegazione: capitalizzazione di mercato vs costo medio d’acquisto">ⓘ<span class="tip-bubble"><b>Capitalizzazione di mercato vs costo medio d’acquisto</b>La linea blu è il costo medio d’acquisto degli investitori. Quando la capitalizzazione di mercato (bianca) scende sotto questa linea, l’investitore medio è in perdita: storicamente è stata una zona di minimo.</span></span></h2>
+      <p>
+        La linea bianca è la <strong>capitalizzazione di mercato</strong>, quella blu il <strong>costo medio d’acquisto (realized cap)</strong>. La scala è logaritmica e le linee tratteggiate arancioni indicano i quattro halving.
+        Passando il mouse vengono mostrati la data e i due valori. C’è una sola cosa da guardare — <strong>i tratti in cui la linea bianca scende sotto quella blu</strong>. Sono stati tutti dei minimi.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">Caricamento dei dati e disegno del grafico in corso… (può richiedere qualche secondo)</div></div>
+      <p class="chart-src">Dati: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, intera storia giornaliera · realized cap = cap. di mercato ÷ MVRV) · cache locale di 6 ore · scala logaritmica</p>
+      <p>
+        Notate una proprietà della linea blu: <strong>non scende quasi mai.</strong> Anche mentre la capitalizzazione crolla del −80%, il costo medio d’acquisto cala solo dolcemente.
+        Il costo si aggiorna infatti <em>solo quando avviene davvero uno scambio</em>. Anche in un mercato in preda alla paura la maggior parte delle monete resta ferma, e il costo di una moneta ferma non cambia.
+        Così la linea blu si comporta <strong>non come una linea di gravità del prezzo, ma come il valore contabile del mercato</strong>. È raro che la capitalizzazione sfondi al ribasso il valore contabile, ed è proprio la rarità a renderlo un segnale.
+      </p>
+
+      <h2 id="history">Cinque minimi — i giorni in cui l’MVRV è sceso sotto 1</h2>
+      <p>
+        Nella storia del Bitcoin le fasi in cui la capitalizzazione è scesa sotto il costo medio d’acquisto (MVRV &lt; 1) si contano sulle dita di una mano. Ecco i casi coincisi con i cinque grandi minimi.
+        Tutti i valori sono <strong>approssimazioni</strong> — cambiano a seconda del giorno scelto come minimo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fase di minimo</th><th>Prezzo di allora (circa)</th><th>MVRV minimo (circa)</th><th>Dopo 1 anno (circa)</th><th>Dopo 2 anni (circa)</th></tr></thead>
+          <tbody>
+            <tr><td>novembre 2011</td><td>circa $2</td><td><code>0.4~0.6</code></td><td>circa $11 (+400% e oltre)</td><td>circa $1.000 (centinaia di volte)</td></tr>
+            <tr><td>gennaio 2015</td><td>circa $170~230</td><td><code>0.55~0.7</code></td><td>circa $380~430 (+90~130%)</td><td>circa $900 (+300% e oltre)</td></tr>
+            <tr><td>dicembre 2018</td><td>circa $3.200</td><td><code>~0.7</code></td><td>circa $7.200 (+120% e oltre)</td><td>circa $23.000 (+600% e oltre)</td></tr>
+            <tr><td>marzo 2020</td><td>circa $3.800~5.000</td><td><code>0.85~0.95</code> (per pochi giorni)</td><td>circa $58.000 (+1.000% e oltre)</td><td>circa $44.000 (+700% e oltre)</td></tr>
+            <tr><td>novembre 2022</td><td>circa $15.500</td><td><code>0.75~0.85</code></td><td>circa $37.000 (+130% e oltre)</td><td>circa $90.000 (+480% e oltre)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        I cinque minimi avevano cause tutte diverse: lo scoppio della prima bolla (2011), le conseguenze di Mt. Gox (2015), la liquidazione della bolla delle ICO (2018), il panico della pandemia (2020), il fallimento di FTX (2022).
+        Tra $2 e $15.500 il prezzo differisce di <strong>7.750 volte</strong>. Eppure <strong>in tutti e cinque i casi l’MVRV era sotto 1, per lo più nella fascia 0,7–0,9</strong>.
+        Se si misura non il prezzo assoluto ma <strong>«quanto è scontato rispetto al costo dell’intero mercato»</strong>, cinque minimi completamente diversi cadono quasi nello stesso punto.
+      </p>
+      <div class="note warn">
+        <strong>Attenzione: il contrario non vale.</strong> «MVRV &lt; 1 = minimo immediato» è falso.
+        Nel 2011, nel 2014–2015 e a fine 2018 l’MVRV è rimasto sotto 1 per <strong>settimane o mesi</strong>, e in quel periodo il prezzo è sceso ancora.
+        Ciò che l’indicatore dice non è «questo è il punto più basso», ma un’informazione di zona: <strong>«storicamente chi ha comprato a rate in questa fascia ha guadagnato molto dopo 1–2 anni»</strong>.
+        Leggetelo non come uno strumento di timing, ma come <strong>uno strumento di zona</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Grafico in tempo reale ② — standardizzare con l’MVRV Z-Score</h2>
+      <p>
+        Il rapporto MVRV ha un punto debole: <strong>l’altezza dei massimi cambia da un ciclo all’altro</strong>. Al massimo del 2011 l’MVRV superava 7, nel 2021 non arrivava a 4.
+        Più il mercato cresce, più l’ampiezza delle oscillazioni si comprime. Per questo il motore di broodev usa lo <strong>Z-Score</strong> al posto del rapporto — un metodo che misura di quante deviazioni standard
+        la <em>differenza</em> tra capitalizzazione di mercato e realized cap si discosta rispetto alla volatilità storica della capitalizzazione.
+      </p>
+      <pre><code>MVRV Z-Score = (cap. di mercato − realized cap) ÷ σ(cap. di mercato)
+               σ = deviazione standard della cap. di mercato sull’intera storia
+
+z &lt; 0   → cap. di mercato sotto il costo medio d’acquisto (zona di minimo storico)
+z ≈ 1~2 → zona normale
+z &gt; 5   → zona di massimo storico (i picchi del 2011·2013·2017)</code></pre>
+      <p>
+        Il grafico qui sotto mostra l’MVRV Z-Score sull’intera storia. L’ombreggiatura verde indica <strong>z &lt; 0 (zona di minimo)</strong>, quella rossa <strong>z &gt; 5 (zona di surriscaldamento)</strong>.
+        I minimi del 2011·2015·2018·2022 sono tutti scesi sotto lo zero (marzo 2020 lo ha solo sfiorato), e i grandi massimi del 2011·2013·2017 hanno tutti toccato l’ombreggiatura rossa con z tra 7 e 9.
+        Invece <strong>al massimo del 2021 lo z si è fermato intorno a 3,5</strong> — più il mercato cresce, più l’ampiezza verso l’alto si comprime, un tema che ritroveremo nella sezione sui limiti.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">Caricamento dei dati e disegno del grafico in corso…</div></div>
+      <p class="chart-src">Dati: calcolati da CoinMetrics Community API sulla stessa fonte del grafico precedente · z = (cap. − realized cap) ÷ σ(cap.) · σ sull’intera storia fino a ciascun punto (finestra espansiva) · cache locale di 6 ore</p>
+      <div class="note">
+        <strong>Pubblichiamo il calcolo così com’è.</strong> L’MVRV Z della dashboard di broodev si ottiene ricavando
+        da <code>CapMrktCurUSD</code> (capitalizzazione di mercato) e <code>CapMVRVCur</code> (rapporto MVRV) di CoinMetrics Community API
+        la <code>realized cap = cap. di mercato ÷ MVRV</code>, e poi standardizzando con la <strong>σ(cap. di mercato) sull’intera storia</strong>.
+        Nel grafico qui sopra i tratti passati sono calcolati con la <strong>σ disponibile fino a quel momento</strong> (finestra espansiva) — per mostrare «il valore che l’investitore di quel giorno poteva vedere».
+        L’ultimo punto coincide per definizione esattamente con il valore attuale della dashboard. L’API è gratuita e non richiede chiave, quindi chiunque può riprodurre gli stessi numeri.
+      </div>
+
+      <h2 id="thermocap">Grafico in tempo reale ③ — Thermocap, il minimo secondo il costo di mining</h2>
+      <p>
+        Se la realized cap è il <strong>costo degli investitori</strong>, il Bitcoin ha anche un altro costo: il <strong>costo dei produttori</strong>, cioè il costo di mining.
+        Il <strong>Thermocap</strong> è il <strong>totale cumulato (in USD) delle ricompense pagate ai miner (ricompensa di blocco + commissioni)</strong> dalla nascita del Bitcoin.
+        È la somma del denaro finora speso per la sicurezza della rete — in altre parole, <strong>il costo totale sostenuto per creare questo asset</strong>.
+      </p>
+      <pre><code>Thermocap    = Σ (ricavi giornalieri dei miner in USD)  ← cumulati dal 2009
+Thermocap Z  = z-score of ln(cap. di mercato ÷ Thermocap)   [sull’intera storia]
+
+Storicamente il rapporto cap. di mercato/Thermocap oscilla tra poche volte e alcune decine di volte.
+Più è basso lo z del logaritmo standardizzato del rapporto, più l’asset è «sottovalutato rispetto al costo di produzione».</code></pre>
+      <p>
+        È normale che la capitalizzazione di mercato scambi a un multiplo del Thermocap (è la natura di un asset con tendenza rialzista). Conta <strong>in quale punto dell’intervallo storico si trova</strong> quel multiplo,
+        e standardizzando il logaritmo del multiplo in uno z-score diventa possibile il confronto tra cicli. Nel grafico qui sotto si vede che <strong>i tratti in cui z scende sotto 0</strong> coincidono con le zone di minimo storico.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">Caricamento dei dati e disegno del grafico in corso…</div></div>
+      <p class="chart-src">Dati: blockchain.info charts/miners-revenue (intero periodo) — cumulati pesando l’intervallo di campionamento in giorni (approssimazione integrale) · allineati per data con la cap. di mercato giornaliera di CoinMetrics · z = z-score di ln(cap./Thermocap) sull’intera storia · cache locale di 6 ore</p>
+      <p>
+        Il denominatore del Thermocap è radicalmente diverso dalla realized cap: <strong>non diminuisce mai e cresce solo un poco ogni giorno, indipendentemente dal mercato.</strong>
+        Anche se gli investitori svendono le monete in preda alla paura, il cumulato delle ricompense di mining non si sposta di un millimetro. Per questo il Thermocap Z diventa, rispetto agli indicatori basati sulla realized cap,
+        <strong>una linea di riferimento per il minimo più lenta e più ostinata</strong>. L’indicatore è <strong>esclusivo del Bitcoin</strong>, per cui esistono dati sulle ricompense di mining — non è calcolabile per le altcoin.
+      </p>
+
+      <h2 id="divergence">Come leggere i momenti in cui i due indicatori divergono</h2>
+      <p>
+        Sono entrambi indicatori di «costo»: perché guardarli tutti e due? <strong>Perché i loro denominatori si muovono a velocità diverse.</strong>
+        La realized cap (il denominatore dell’MVRV) si aggiorna ogni volta che una moneta cambia mano — se il mercato rialzista dura a lungo il costo stesso sale, e quando la capitolazione finisce il costo si abbassa.
+        Il Thermocap invece si limita ad accumularsi. È questa differenza di velocità a generare il segnale.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinazione</th><th>Interpretazione</th><th>Esempi storici (circa)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z basso + Thermocap Z basso</td><td><strong>Zona di minimo profondo.</strong> Vicino sia al costo degli investitori sia al costo di produzione</td><td>2015 · fine 2018 · fine 2022</td></tr>
+            <tr><td>MVRV Z basso + Thermocap Z normale</td><td>Crollo a metà ciclo. La capitolazione c’è stata, ma il minimo strutturale non è confermato</td><td>marzo 2020 · luglio 2021</td></tr>
+            <tr><td>MVRV Z normale + Thermocap Z alto</td><td>Fase avanzata del mercato rialzista. Il costo è già salito molto e guardare solo l’MVRV inganna</td><td>novembre 2021 (secondo massimo)</td></tr>
+            <tr><td>Entrambi alti</td><td><strong>Zona di massimo storico.</strong> Il momento peggiore per nuovi acquisti</td><td>fine 2013 · fine 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La terza riga è particolarmente importante. Quando un mercato rialzista dura più di un anno, <strong>la realized cap sale insieme al prezzo e l’MVRV sembra «normale».</strong>
+        Al massimo del ciclo di novembre 2021 l’MVRV era molto più basso dei massimi del 2011–2017. È esattamente lo stesso tipo di silenzio del Multiplo di Mayer, che <a href="/mayer-multiple">a novembre 2021 indicava neutralità</a>.
+        In quel momento un indicatore <strong>il cui denominatore non sale insieme al prezzo</strong>, come il Thermocap, svolge il ruolo di verifica incrociata.
+      </p>
+
+      <h2 id="limits">I limiti di questi indicatori — un campione di 4 cicli, l’era degli ETF</h2>
+      <p>Lo scriviamo con onestà: fin dove reggono gli argomenti di questo articolo.</p>
+      <ul>
+        <li>
+          <strong>Il campione è di soli 4 cicli.</strong> L’osservazione «MVRV &lt; 1 ha segnato il minimo» si basa su cinque fasi, ovvero quattro cicli completi.
+          È una dimensione che fa sorridere a chiamarla statistica, e <strong>un’osservazione non è una legge.</strong> Nulla garantisce che il prossimo ciclo si fermi nello stesso punto.
+        </li>
+        <li>
+          <strong>Possibili distorsioni nell’era degli ETF.</strong> Dal 2024 grandi quantità di monete sono vincolate in ETF spot e presso custodi istituzionali.
+          Le quote degli ETF cambiano mano senza movimenti on-chain, quindi <strong>anche quando avvengono scambi reali la realized cap (il costo) può non aggiornarsi.</strong>
+          È un cambiamento strutturale per cui il costo on-chain diventa via via più vecchio del costo reale di mercato, e offusca il confronto diretto con i cicli passati.
+        </li>
+        <li>
+          <strong>La realized cap può essere distorta dai movimenti interni degli exchange.</strong> Quando un exchange riorganizza i propri cold wallet spostando monete,
+          il «costo» di quei volumi viene ricalcolato al prezzo del giorno del movimento anche senza acquisti reali. Al contrario, le monete che cambiano mano <em>all’interno</em> di un exchange non lasciano traccia on-chain e il loro costo non si aggiorna.
+        </li>
+        <li>
+          <strong>Il problema delle monete dormienti per sempre.</strong> Le monete minate agli inizi e mai più mosse (come quelle di Satoshi, stimate in alcuni milioni)
+          hanno un costo calcolato vicino a 0. È una distorsione che porta la realized cap a essere strutturalmente sottostimata.
+        </li>
+        <li>
+          <strong>La natura della σ sull’intera storia.</strong> Poiché la σ(cap. di mercato), denominatore dell’MVRV Z, è calcolata sull’intera storia, più il mercato cresce più cresce anche σ, e
+          <strong>l’ampiezza dello z nei cicli recenti risulta compressa rispetto al passato.</strong> Significa che «valori estremi come z &gt; 7 potrebbero non ripresentarsi», ed è il motivo per cui le soglie non vanno usate come criteri assoluti.
+        </li>
+      </ul>
+
+      <h2 id="radar">Come è composto il punteggio di minimo di broodev (BOTTOM RADAR) — pesi pubblicati</h2>
+      <p>
+        Il <strong>BOTTOM RADAR</strong> della dashboard di broodev è un punteggio composito separato che non risponde a «se compro ora salirà?», ma a una sola domanda: <strong>«siamo ora in una zona di minimo storico?»</strong>.
+        I pesi stessi sono diversi da quelli dei punteggi di breve e lungo periodo. Il punto chiave è aver concentrato il 55% sui due indicatori on-chain di costo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicatore</th><th>Peso</th><th>Perché questo peso</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Rispetto al costo medio d’acquisto degli investitori. Il segnale principale, che ha funzionato in tutti e cinque i minimi</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Rispetto al costo di produzione (mining). Verifica incrociata quando il denominatore dell’MVRV crea un’illusione</td></tr>
+            <tr><td>Multiplo di Mayer</td><td>15%</td><td>Prezzo rispetto alla media a 200 giorni. Un asse di puro prezzo che l’on-chain non vede</td></tr>
+            <tr><td>Ribasso dal massimo a 365g</td><td>15%</td><td>Profondità del calo dal massimo. Il denominatore è un massimo fisso, quindi non tace nemmeno nella fase avanzata di un mercato ribassista</td></tr>
+            <tr><td>Indice Paura e Avidità</td><td>15%</td><td>Il termometro della psicologia della capitolazione. Il minimo è sempre arrivato insieme alla paura estrema</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La somma dei cinque elementi è <strong>1,00</strong>. Ogni indicatore usa il punteggio normalizzato di lungo periodo (contrarian) — i due on-chain mappano il valore z su 0–100 con la tabella di ancore qui sotto —
+        e gli indicatori senza dati non ricevono 0 punti: <strong>vengono esclusi dal calcolo e i pesi restanti vengono rinormalizzati a un totale del 100%</strong>.
+        Per le monete diverse da BTC il Thermocap è sempre escluso, e per quelle non supportate da CoinMetrics anche l’MVRV, quindi controllate sempre l’indicazione di copertura.
+      </p>
+      <pre><code>mappatura z → punteggio (Z_ANCHORS, interpolazione lineare a tratti)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>Il punteggio composito si interpreta in cinque fasce.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Punteggio di minimo</th><th>Giudizio</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Zona di minimo storico — lo stesso punto dei grandi minimi passati</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Sottovalutato — zona di sconto rispetto al costo</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutrale</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Sopravvalutato — zona di premio rispetto al costo</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Zona di massimo · surriscaldamento — lo stesso punto dei grandi massimi passati</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Non esiste alcuna prova che i pesi 35·20·15·15·15 siano ottimali. L’unica certezza è la direzione — nel giudicare il minimo, <strong>gli indicatori on-chain basati sul costo si sono dimostrati più riproducibili tra un ciclo e l’altro rispetto a quelli basati sul prezzo</strong>,
+        e per questo hanno ricevuto la maggioranza del peso. L’intero sistema di punteggio (la combinazione di 8 indicatori delle schede breve e lungo periodo) è pubblicato per intero nel <a href="/methodology">documento sulla metodologia del punteggio</a>.
+      </p>
+
+      <h2 id="faq">Domande frequenti</h2>
+      <dl>
+        <dt>Se l’MVRV scende sotto 1, è sempre il minimo?</dt>
+        <dd>
+          No. Storicamente le zone con MVRV &lt; 1 hanno coinciso con i grandi minimi, ma <em>anche al loro interno</em> il prezzo è sceso talvolta di un ulteriore 20–40% (2011, 2015).
+          Va letto non come «segnale del punto più basso», ma come «zona di acquisto a rate che storicamente ha reso bene dopo 1–2 anni», e il campione è di soli quattro cicli.
+        </dd>
+        <dt>Dove si può vedere la realized cap (costo medio d’acquisto)?</dt>
+        <dd>
+          I grafici di questa pagina ricavano e disegnano direttamente la realized cap dalla capitalizzazione di mercato e dall’MVRV di CoinMetrics Community API (gratuita, senza chiave).
+          Anche le schede MVRV·Z della dashboard di broodev e il punteggio di minimo (BOTTOM RADAR) usano gli stessi dati e le stesse formule.
+        </dd>
+        <dt>Questo metodo si può usare anche per le altcoin?</dt>
+        <dd>
+          Solo in parte. broodev calcola l’MVRV Z per le 10 monete per cui CoinMetrics fornisce l’MVRV (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA);
+          per le monete non supportate l’indicatore risulta N/A e i pesi vengono rinormalizzati. Il Thermocap (ricompense di mining cumulate) è esclusivo del Bitcoin.
+        </dd>
+        <dt>Perché quando la capitalizzazione scende sotto il costo medio d’acquisto si è al minimo?</dt>
+        <dd>
+          Una capitalizzazione sotto la realized cap significa che, in media, l’insieme dei detentori è in perdita. In questa zona la svendita di chi non regge più le perdite raggiunge il culmine,
+          e mentre quelle monete passano ai detentori di lungo periodo la pressione di vendita si esaurisce. Si tratta però di un’osservazione sugli ultimi quattro cicli, non di una legge garantita.
+        </dd>
+      </dl>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Se l’MVRV scende sotto 1, è sempre il minimo?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Storicamente le zone con MVRV < 1 hanno coinciso con i grandi minimi, ma anche al loro interno il prezzo è sceso talvolta di un ulteriore 20–40% (2011, 2015). Va letto non come segnale del punto più basso, ma come zona di acquisto a rate che storicamente ha reso bene dopo 1–2 anni, e il campione è di soli quattro cicli." }
+          },
+          {
+            "@type": "Question",
+            "name": "Dove si può vedere la realized cap (costo medio d’acquisto)?",
+            "acceptedAnswer": { "@type": "Answer", "text": "I grafici della pagina btc.broodev.com/bitcoin-bottom ricavano e disegnano direttamente la realized cap dalla capitalizzazione di mercato e dall’MVRV di CoinMetrics Community API (gratuita, senza chiave). Anche le schede MVRV·Z della dashboard di broodev e il punteggio di minimo (BOTTOM RADAR) usano gli stessi dati e le stesse formule." }
+          },
+          {
+            "@type": "Question",
+            "name": "Questo metodo si può usare anche per le altcoin?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Solo in parte. broodev calcola l’MVRV Z-Score per le 10 monete per cui CoinMetrics fornisce l’MVRV (BTC, ETH, XRP, DOGE, BCH, LINK, XLM, LTC, DOT, MANA); per le monete non supportate l’indicatore risulta N/A e i pesi vengono rinormalizzati. Il Thermocap (ricompense di mining cumulate) è esclusivo del Bitcoin." }
+          },
+          {
+            "@type": "Question",
+            "name": "Perché quando la capitalizzazione scende sotto il costo medio d’acquisto si è al minimo?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Una capitalizzazione sotto la realized cap significa che, in media, l’insieme dei detentori è in perdita. In questa zona la svendita di chi non regge più le perdite raggiunge il culmine, e mentre quelle monete passano ai detentori di lungo periodo la pressione di vendita si esaurisce. Si tratta però di un’osservazione sugli ultimi quattro cicli, non di una legge garantita." }
+          }
+        ]
+      }
+      </script>
+
+      <div class="note warn">
+        <strong>⚠ Avvertenza sugli investimenti</strong><br />
+        Questo documento e i punteggi di broodev sono <strong>materiale di riferimento che combina indicatori pubblici e non costituiscono consulenza finanziaria.</strong>
+        I valori storici di MVRV e i rendimenti riportati nel testo sono <strong>approssimazioni che possono variare a seconda della fonte dati, e gli schemi del passato non garantiscono il futuro.</strong>
+        Le criptovalute sono asset ad alto rischio con cui <strong>è possibile perdere l’intero capitale</strong>.
+        Ogni decisione di investimento e i suoi risultati (profitti e perdite) sono di esclusiva responsabilità dell’utente. Fate sempre le vostre ricerche (DYOR).
+      </div>
+
+      <h2>Continua a leggere</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodologia del punteggio</b><span>Con quali pesi vengono combinati gli 8 indicatori (tutti i valori pubblicati)</span></a>
+        <a href="/indicators"><b>Guida agli 8 indicatori</b><span>MVRV e Thermocap inclusi: quando ciascun indicatore tradisce</span></a>
+        <a href="/mayer-multiple"><b>La storia del Multiplo di Mayer</b><span>Cosa ha detto la media a 200 giorni in ogni ciclo — l’indicatore di minimo sull’asse del prezzo</span></a>
+        <a href="/"><b>Alla dashboard</b><span>Controlla ora il punteggio di minimo (BOTTOM RADAR)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · gestito da Y-Systems · <a href="/privacy">Informativa sulla privacy</a> · <a href="/terms">Termini di servizio</a></footer>
+    </main>

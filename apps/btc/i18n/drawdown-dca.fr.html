@@ -1,0 +1,501 @@
+    <main class="wrap" data-title="Les mathématiques du repli et de l’achat fractionné — effacer un −50% exige un +100% | broodev" data-desc="Nous calculons en tableaux l’asymétrie du rattrapage des pertes. Comment le prix moyen et le résultat des mêmes 12 millions de KRW investis en une fois, en 4 tranches égales ou en tranches pondérées par le repli divergent dans trois scénarios baissiers ; l’arithmétique des munitions épuisées, et pourquoi un indicateur de repli se trompe de façon 100% systématique sur un actif qui tend vers zéro.">
+      <nav class="nav">
+        <a href="/">← Tableau de bord</a>
+        <a href="/methodology">Méthodologie du score</a>
+        <a href="/indicators">Guide des indicateurs</a>
+        <a href="/guide-fear-greed">Utiliser l’indice de peur</a>
+        <a href="/glossary">Glossaire</a>
+      </nav>
+
+      <h1>Les mathématiques du repli et de l’achat fractionné</h1>
+      <p class="muted">Dernière mise à jour : 2026-07-14 · Auteur : Y-Systems · Cet article n’est fait que de calculs</p>
+
+      <p class="lead">
+        Cet article ne contient aucun conseil. <strong>Seulement des calculs.</strong>
+        Nous montrons, uniquement avec des chiffres, pourquoi « ça a beaucoup baissé, donc c’est bon marché » est dangereux, et ce que l’achat fractionné fait réellement — et ce qu’il <em>ne fait pas</em>.
+        Donnons d’abord la conclusion :
+        <strong>l’achat fractionné n’est pas une technique pour gagner plus. C’est une technique pour resserrer l’éventail des résultats.</strong>
+        Le tableau de neuf cases plus bas le démontre.
+      </p>
+
+      <section class="bd-figs" aria-label="Graphique en direct du repli">
+        <p class="muted">Avant d’entrer dans les calculs, regardons à quoi ressemble dans l’histoire réelle de BTC le héros de cet article, le « repli depuis le plus haut historique ». La ligne 0% signifie que de nouveaux records sont en cours, et chaque creux est une période où il a fallu payer le « rattrapage nécessaire » du tableau ci-dessous.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">Chargement des données du graphique…</div></div>
+          </div>
+          <p class="bd-cap">Repli de BTC depuis son plus haut historique (ATH), sur toute la période. Pointillés = −30% (point où le modèle active l’« intérêt ») et −50% (zone « fortement favorable à l’achat »). Pointillés orange = halvings. Le point le plus bas est d’environ −93% en 2011. Données : CoinMetrics Community API, clôtures quotidiennes de BTC — téléchargées au moment de la visite et calculées dans le navigateur ; valeurs <strong>approximatives, à titre indicatif</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="c1">Calcul 1 — L’asymétrie du retour à l’équilibre</h2>
+      <p>
+        Commençons par la formule la plus simple et la plus cruelle. La <strong>hausse nécessaire pour qu’un actif ayant subi un repli <code>d</code> revienne à son capital de départ</strong>
+        n’est pas <code>d</code>.
+      </p>
+      <pre><code>hausse nécessaire = d ÷ (1 − d)
+
+après un repli de −50%      0.50 ÷ 0.50 = +100%
+après un repli de −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        À la baisse, on perd <strong>sur ce qui reste</strong> ; à la hausse, on gagne <strong>sur un montant déjà réduit</strong>.
+        À cause de cette seule différence de dénominateur, pertes et rattrapages ne sont jamais symétriques. Voici le tableau complet.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Repli</th><th>Hausse nécessaire pour revenir à l’équilibre</th><th>Ce qu’il reste de 10 M KRW</th><th>Ressenti</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>9 M</td><td>Presque symétrique. Jusqu’ici, l’intuition a raison</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>8 M</td><td>L’écart commence à se creuser</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>7 M</td><td>Point où notre modèle active l’« intérêt »</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>6 M</td><td>−40 de baisse, +67 pour revenir. Déjà 1.7 fois</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>5 M</td><td>Point que notre modèle juge « fortement favorable à l’achat »</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>4 M</td><td>Il faut 2.5 fois</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>3 M</td><td>3.3 fois</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>2 M</td><td>5 fois. Il faut attendre un cycle entier</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>1 M</td><td>10 fois</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>0.5 M</td><td>20 fois. On a pratiquement affaire à un autre actif</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Ce qu’il faut regarder dans ce tableau, ce ne sont pas les valeurs mais les <strong>écarts</strong>.
+        Quand le repli s’approfondit de 40 points, de −10% à −50%, le rattrapage nécessaire passe de 11% à 100% : <strong>89 points</strong> de plus.
+        Mais de −50% à −90%, pour les mêmes 40 points supplémentaires, il passe de 100% à 900% : <strong>800 points</strong> de plus.
+        <strong>Les mêmes 40 points, neuf fois plus de dégâts.</strong> Le repli grandit de façon linéaire, mais son prix grandit de façon explosive.
+      </p>
+
+      <div class="note">
+        D’où une première conséquence pratique. <strong>« De toute façon ça a déjà beaucoup baissé, si ça baisse encore, ça ne change pas grand-chose » est un contresens total.</strong>
+        Passer de −50% à −70%, ce n’est pas « 20 points de plus » : c’est un événement où l’effort de rattrapage passe <strong>de +100% à +233%, soit 2.3 fois plus</strong>.
+        Chaque baisse supplémentaire coûte toujours plus cher que la précédente.
+      </div>
+
+      <h2 id="c2">Calcul 2 — Les baisses ne s’additionnent pas, elles se multiplient</h2>
+      <p>
+        Le deuxième piège, c’est que l’on calcule les replis par <strong>addition</strong>.
+        « J’ai pris −30%, puis encore −30%, donc −60%. » Non. Les replis se multiplient.
+      </p>
+      <pre><code>repli cumulé = (1 − d₁) × (1 − d₂) × … − 1
+
+deux fois −30%  →  0.7 × 0.7 = 0.49  →  −51%
+deux fois −50%  →  0.5 × 0.5 = 0.25  →  −75%  (rattrapage nécessaire +300%)</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Baisses successives</th><th>Par addition</th><th>Repli cumulé réel</th><th>Pour revenir à l’équilibre</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5 fois</td><td>−100% (perte totale ?)</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2 fois</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3 fois</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2 fois</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Le caractère multiplicatif est à la fois une bonne et une mauvaise nouvelle.
+        La bonne : <strong>même cinq fois −20% ne ramènent pas à zéro</strong> — une multiplication ne fait que tendre vers 0, sans jamais l’atteindre.
+        La mauvaise : <strong>les rebonds intermédiaires rendent bien moins qu’on ne le croit</strong>.
+        Après un −50%, même un rebond de +30% donne <code>0.5 × 1.3 = 0.65</code> : on est toujours à −35%.
+        Pourquoi le soulagement du « ça rebondit enfin » est-il si souvent trahi en marché baissier ? La réponse est dans cette multiplication.
+      </p>
+
+      <h2 id="c3">Calcul 3 — Pourquoi justement le plus haut sur 365 jours</h2>
+      <p>
+        Pour mesurer un repli, il faut décider <strong>d’où l’on est tombé</strong>. Si le point de référence change, le même prix donne un autre repli.
+        Notre modèle utilise le <strong>plus haut sur 365 jours</strong>, et non le plus haut historique (ATH). Ce choix a un prix, que nous écrivons ici.
+      </p>
+      <p>
+        Prenons une crypto montée à 2 millions de KRW il y a trois ans, dont le plus haut de la dernière année est de 1 million de KRW, et qui vaut aujourd’hui 600,000 KRW.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Référence</th><th>Calcul du repli</th><th>Résultat</th><th>Ce que dit ce chiffre</th></tr></thead>
+          <tbody>
+            <tr><td>Plus haut historique 2 M</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>« Zone d’effondrement historique »</td></tr>
+            <tr><td>Plus haut sur 365 jours 1 M</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>« Correction profonde sur la dernière année »</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Même crypto, même prix, et un chiffre presque deux fois différent. Nous avons choisi 365 jours pour une seule raison :
+        <strong>avec le temps, le repli mesuré depuis l’ATH cesse d’être un indicateur pour devenir une constante.</strong>
+        Si l’on prend éternellement le sommet de 2021 comme référence, certaines cryptos s’afficheront pendant cinq ans comme « sous-évaluées de −70% ».
+        Un indicateur qui donne un signal d’achat tous les jours est un indicateur sans information.
+      </p>
+      <div class="note warn">
+        <strong>Le prix à payer — en marché baissier prolongé, la fenêtre de 365 jours se réinitialise d’elle-même.</strong>
+        Si la baisse dure plus d’un an, <strong>le plus haut sur 365 jours lui-même descend à l’intérieur de la phase baissière.</strong>
+        Supposons que le prix soit passé de 100 → 30 en 14 mois. Le plus haut de « la dernière année » n’est plus 100, mais, disons, 55.
+        Le repli est alors calculé à <code>30 ÷ 55 − 1 = −45%</code>. Par rapport à l’ATH, c’est −70%, mais notre indicateur dit −45%.
+        <strong>Il existe des périodes où, au moment où le prix est le plus enfoncé, le score de repli paraît au contraire adouci.</strong>
+        Ce n’est pas un bug, mais une limite structurelle de la méthode par fenêtre (window). Il faut l’utiliser en connaissance de cause.
+      </div>
+      <p>
+        <strong>Les seuils de −30% et −50%</strong> ont été fixés selon la même logique.
+        Dans les cryptos, les corrections de −30% sont fréquentes <em>même en plein marché haussier</em>. C’est pourquoi −30% ne veut pas dire « achetez », mais « commencez à regarder » (effort de rattrapage +43%, encore supportable).
+        À l’inverse, −50% est le point où le rattrapage exige <strong>+100%</strong>, et il est historiquement apparu plus souvent lors de changements de cycle que lors de corrections haussières.
+        <strong>Les deux seuils ne reposent pas sur le prix, mais sur « le point où l’effort de rattrapage double ».</strong>
+      </p>
+
+      <h2 id="c4">Calcul 4 — Les mêmes 12 millions de KRW, trois méthodes</h2>
+      <p>
+        Venons-en au cœur du sujet. Nous disposons d’un budget de <strong>12 millions de KRW</strong> (1,200 en unités de 10,000 KRW). Une unité de la crypto vaut au départ <strong>1 million de KRW</strong> (100 dans ces unités).
+        Il y a 9 points d’observation, de t0 à t8 (pensez en mois). Nous comparons trois façons d’exécuter les achats.
+      </p>
+      <ul>
+        <li><strong>Stratégie A — En une fois.</strong> Achat de la totalité des 12 millions de KRW à t0.</li>
+        <li><strong>Stratégie B — 4 tranches égales.</strong> 3 millions de KRW à chacun de t0, t2, t4 et t6. Mécaniquement, <em>quel que soit le prix</em>.</li>
+        <li><strong>Stratégie C — Tranches pondérées par le repli.</strong> On découpe les 12 millions de KRW en <strong>12 lots</strong> de 1 million, exécutés uniquement <strong>la première fois</strong> que le repli depuis le plus haut sur 365 jours entre dans chaque zone :</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Zone de repli</th><th>Lots exécutés</th><th>Montant</th><th>Consommation cumulée</th></tr></thead>
+          <tbody>
+            <tr><td>0 ~ −20%</td><td>0 lot</td><td>0 KRW</td><td>0%</td></tr>
+            <tr><td>−20 ~ −35%</td><td>1 lot</td><td>1 M</td><td>8.3%</td></tr>
+            <tr><td>−35 ~ −50%</td><td>2 lots</td><td>2 M</td><td>25.0%</td></tr>
+            <tr><td>−50 ~ −65%</td><td>4 lots</td><td>4 M</td><td>58.3%</td></tr>
+            <tr><td>−65% et au-delà</td><td>5 lots</td><td>5 M</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        Cette répartition par zones et par lots est <strong>un exemple destiné à illustrer le calcul</strong> et ne recommande aucune répartition particulière.
+        L’essentiel n’est pas les chiffres eux-mêmes, mais la forme : <em>« plus on descend, plus on alloue »</em>.
+      </p>
+
+      <h3>Scénario ① — Forte baisse puis reprise partielle</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Moment</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prix (10,000 KRW)</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>Repli 365 j</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Détaillons exactement ce que chaque stratégie a acheté. <strong>Quantité = montant ÷ prix</strong> (montants et prix en unités de 10,000 KRW).</p>
+      <pre><code>Stratégie A  t0: 1,200 ÷ 100 = 12.0000 u.
+             total 12.0000 u. · prix moyen 100.00
+
+Stratégie B  t0:  300 ÷ 100 =  3.0000 u.
+             t2:  300 ÷  74 =  4.0541 u.
+             t4:  300 ÷  55 =  5.4545 u.
+             t6:  300 ÷  38 =  7.8947 u.
+             total 20.4033 u. · prix moyen 1,200 ÷ 20.4033 = 58.81
+
+Stratégie C  t2(−26%): 100 ÷ 74 =  1.3514 u.   ← première entrée en −20~−35
+             t3(−38%): 200 ÷ 62 =  3.2258 u.   ← première entrée en −35~−50
+             t5(−56%): 400 ÷ 44 =  9.0909 u.   ← première entrée en −50~−65
+             (−65% et au-delà non atteint → 5 lots, 500, non exécutés)
+             total 13.6681 u. · investi 700 · prix moyen 51.21 · 500 restent en liquidités</code></pre>
+      <p>
+        À ne regarder que le prix moyen, le classement est clair : <strong>C(51.21) &lt; B(58.81) &lt; A(100.00)</strong>.
+        La pondération par le repli a abaissé le prix moyen <strong>presque de moitié</strong> par rapport à l’achat en une fois.
+        C’est ici que la plupart des articles concluent par « Vous voyez, l’achat fractionné, c’est la solution ». <strong>Nous ne nous arrêtons pas là.</strong>
+      </p>
+      <p>
+        Il faut d’abord relever un point. <strong>La stratégie C n’a pas réussi à dépenser les 12 millions de KRW.</strong> Elle n’en a investi que 7 millions.
+        La prémisse « investir le même total » <strong>ne tient pas</strong> avec la méthode pondérée par le repli.
+        Si le marché ne baisse pas assez, il reste du budget. Ce n’est pas un effet secondaire, c’est la définition même de la stratégie.
+        Pour comparer équitablement, il faut donc regarder le <strong>patrimoine total, liquidités restantes comprises</strong>.
+      </p>
+
+      <h2 id="c5">Calcul 5 — Trois stratégies × trois scénarios : la vérité des neuf cases</h2>
+      <p>
+        Si l’on ne calcule que le scénario ①, la conclusion est truquée. <strong>Car c’est moi qui ai dessiné la trajectoire baissière.</strong>
+        Pour être honnête, il faut aussi calculer <strong>des trajectoires où l’achat fractionné perd</strong>. Nous en créons deux de plus.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scénario</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① Baisse puis reprise partielle</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② Baisse sans reprise</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ Hausse sans baisse</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Le scénario ② est <strong>strictement identique</strong> à ① jusqu’à t6. À partir de t7, au lieu de rebondir, il continue de baisser.
+        La stratégie C exécute alors à t7 (−67%) ses 5 derniers lots, 5 millions de KRW, à <code>500 ÷ 33 = 15.1515 u.</code> et <strong>épuise tout son budget</strong>.
+        Dans le scénario ③, le repli maximal s’arrête à −7% et <strong>n’atteint même pas le premier seuil de la stratégie C (−20%)</strong>. C <strong>n’achète pas une seule unité</strong>.
+      </p>
+      <p>Rendement sur le patrimoine total à t8 (valeur des cryptos + liquidités restantes). Le budget est identique pour les trois stratégies : 12 millions de KRW.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Stratégie</th><th>① Baisse puis reprise<br />(t8 = 61)</th><th>② Sans reprise<br />(t8 = 29)</th><th>③ Hausse sans baisse<br />(t8 = 168)</th><th>Meilleur − pire<br />(éventail des résultats)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A En une fois</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0 pts</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B 4 tranches égales</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0 pts</td>
+            </tr>
+            <tr>
+              <td><strong>C Pondérée par le repli</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5 pts</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Lisez lentement ces neuf cases. <strong>Aucune stratégie n’arrive première dans les trois scénarios.</strong>
+      </p>
+      <ul>
+        <li><strong>La stratégie C l’emporte largement en ① et ②.</strong> Et <strong>termine dernière en ③.</strong> Rendement 0%. Pendant que le marché montait de 68%, elle regardait, liquidités en main.</li>
+        <li><strong>La stratégie A ne gagne qu’en ③.</strong> Mais de façon écrasante (+68%). En contrepartie, elle encaisse <strong>−71%</strong> en ②. D’après le tableau du calcul 1, c’est un trou qui exige <strong>+245%</strong> pour revenir à l’équilibre.</li>
+        <li><strong>La stratégie B n’est première nulle part, et dernière nulle part.</strong></li>
+      </ul>
+      <p>
+        La colonne de droite est la conclusion de tout l’article. <strong>Éventail des résultats : A 139 pts, B 83 pts, C 41.5 pts.</strong>
+        Plus on fractionne finement et plus on pondère par le repli, <strong>plus le meilleur cas est rogné et plus le pire cas remonte.</strong>
+        Ce que fait l’achat fractionné, ce n’est pas <em>relever la moyenne</em>, c’est <strong>resserrer la distribution</strong>.
+        Ce n’est pas une affaire de goût, c’est le résultat de l’arithmétique. C’est un échange : on renonce au haut de la fourchette pour acheter une protection sur le bas.
+      </p>
+      <div class="note">
+        <strong>« Avec l’achat fractionné, on gagne plus » est faux. « Avec l’achat fractionné, on perd moins » est juste.</strong>
+        Si C a gagné en ① et ② dans le tableau, c’est aussi <strong>parce que j’ai dessiné deux trajectoires baissières et une seule haussière</strong>.
+        Avec deux trajectoires haussières, le classement moyen s’inverserait. <strong>Changez les trajectoires, et le classement change.</strong>
+        La seule chose qui ne change pas, c’est que <strong>l’« éventail » suit l’ordre A &gt; B &gt; C</strong>, et c’est le seul résultat fiable de cette simulation.
+      </div>
+
+      <h2 id="c6">Calcul 6 — L’arithmétique des munitions épuisées</h2>
+      <p>
+        Là où échouent réellement la plupart de ceux qui disent acheter de façon fractionnée, ce n’est pas dans le tableau de répartition.
+        C’est en <strong>dépensant tout trop haut</strong>. Fixons-le noir sur blanc avec des chiffres.
+      </p>
+      <p>
+        Ajoutons une <strong>stratégie D</strong>. Elle transpose telle quelle la psychologie courante de celui qui a peur et « veut acheter vite ».
+        Dès que la baisse commence, elle place <strong>4 millions de KRW à chacun de t1 (−12%), t2 (−26%) et t3 (−38%)</strong> et <strong>épuise tout le budget à −38%</strong>.
+        Nous calculons sur le scénario ① (qui descend ensuite jusqu’à −62% avant de remonter à 61).
+      </p>
+      <pre><code>Stratégie D  t1: 400 ÷ 88 =  4.5455 u.
+             t2: 400 ÷ 74 =  5.4054 u.
+             t3: 400 ÷ 62 =  6.4516 u.
+             total 16.4025 u. · prix moyen 73.16 · munitions restantes 0
+
+             t4(−45%) · t5(−56%) · t6(−62%) ← simple spectatrice</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stratégie</th><th>Prix d’achat le plus bas (10,000 KRW)</th><th>Prix moyen (10,000 KRW)</th><th>Quantité totale</th><th>Résultat scénario ①</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D Épuisement précoce</strong> (tout misé à −38%)</td><td>62</td><td><strong>73.16</strong></td><td>16.4025 u.</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C Pondérée par le repli</strong> (munitions préservées)</td><td>44</td><td><strong>51.21</strong></td><td>13.6681 u.</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Même baisse, même budget, même « achat fractionné ». Et pourtant <strong>les prix moyens divergent : 731,600 KRW contre 512,100 KRW</strong>.
+        <strong>L’écart est de 219,500 KRW, soit 30%.</strong> Les résultats, −16.6% contre +11.1%, s’écartent de <strong>27.7 points</strong>.
+      </p>
+      <p>
+        L’erreur de la stratégie D n’est pas <em>de ne pas avoir fractionné</em>. D a fractionné, en trois fois.
+        Son erreur est d’avoir <strong>épuisé son argent avant l’arrivée de la zone la moins chère</strong>.
+        Dans la simulation, D n’a pas acheté une seule unité au plus bas de 380,000 KRW.
+        <strong>Le prix d’avoir tout dépensé à −38%, c’est de regarder le −62% depuis les tribunes.</strong>
+      </p>
+      <div class="note warn">
+        <strong>La seule règle de répartition des munitions — plus on descend, plus il doit en rester.</strong>
+        C’est pourquoi la répartition de la stratégie C (0 · 1 · 2 · 4 · 5 lots) <strong>n’est pas arithmétique, mais croît vers la fin</strong>.
+        Plus le repli est profond, <strong>plus la quantité achetable avec la même somme augmente, et de façon géométrique</strong>.
+        Avec 1 million de KRW, on achète <strong>1.35 unité au prix de 74</strong> et <strong>2.63 unités au prix de 38</strong> — <strong>presque le double</strong>.
+        L’achat le plus puissant a toujours lieu dans la zone la plus effrayante, et si le solde est à 0 à ce moment-là, cette zone <strong>n’a tout simplement pas existé.</strong>
+      </div>
+
+      <h2 id="c7">Calcul 7 — Ce que signifie l’absence de plancher</h2>
+      <p>
+        Sous tous les calculs précédents se cachait <strong>une prémisse jamais énoncée</strong>.
+        <strong>Que l’actif survive.</strong> Si cette prémisse tombe, tous les tableaux précédents s’inversent.
+      </p>
+      <p>Intégrons au calcul la trajectoire typique d’une crypto en route vers le retrait de la cote (delisting). 8 points, en partant d’un prix de 1 million de KRW.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Moment</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prix (10,000 KRW)</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>Repli 365 j</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>Sous-score de repli</strong></td><td>Faible</td><td>Intérêt</td><td><strong>Maximal</strong></td><td><strong>Maximal</strong></td><td><strong>Maximal</strong></td><td><strong>Maximal</strong></td><td><strong>Maximal</strong></td><td><strong>Maximal</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Regardez la dernière ligne.</strong> De t2 à t7, <strong>pendant toute</strong> l’agonie de l’actif, l’indicateur de repli a donné le score maximal.
+        « Achat fort » à −55%, « achat fort » à −95%, « achat fort » à −99%.
+        <strong>Ici, l’indicateur de repli n’a pas eu raison une seule fois. Il s’est trompé de façon 100% systématique.</strong>
+        Et comme sa structure consiste à <strong>« dire d’acheter d’autant plus fort que ça baisse »</strong>, plus il se trompait, plus il se trompait lourdement.
+      </p>
+      <p>Faisons passer les trois stratégies sur cette trajectoire. Le prix final est de 3,000 KRW.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stratégie</th><th>Quantité totale</th><th>Prix moyen (10,000 KRW)</th><th>Valeur finale (10,000 KRW)</th><th>Résultat</th><th>Hausse nécessaire pour revenir à l’équilibre</th></tr></thead>
+          <tbody>
+            <tr><td>A En une fois</td><td>12.00 u.</td><td>100.00</td><td>3.6</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B 4 tranches égales</td><td>234.67 u.</td><td>5.11</td><td>70.4</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C Pondérée par le repli</td><td>34.76 u.</td><td>34.52</td><td>10.4</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Deux choses apparaissent ici. Premièrement, <strong>les trois stratégies sont mortes.</strong>
+        Deuxièmement, le résultat de la stratégie qui a <strong>« le mieux réussi » est de −94.1%</strong>.
+        Si l’on reprend la formule du calcul 1, même ce meilleur résultat exige <strong>+1,595%</strong> pour revenir à l’équilibre.
+        <strong>Ce tableau n’a pas de gagnant. Seulement des perdants moins désastreux.</strong>
+      </p>
+      <p>
+        Regardez la stratégie C. La méthode pondérée par le repli, si supérieure dans les scénarios ① et ②, a ici
+        <strong>suivi le signal « c’est bon marché », déversé 91.7% du budget dans les zones de −55% et −75%, et fini à −99.1%.</strong>
+        Pondérer par le repli, c’est <strong>« acheter d’autant plus que ça baisse »</strong>, et
+        <strong>sur un actif qui tend vers zéro, c’est un algorithme qui maximise la perte.</strong>
+        La propriété même qui a fait de C la gagnante du scénario ① la condamne ici à mort. <strong>C’est la même propriété.</strong>
+      </p>
+      <div class="note warn">
+        <strong>La condition préalable de l’indicateur de repli — « cet actif existera encore dans 5 ans ».</strong>
+        Le repli suppose que <strong>le prix reviendra vers sa moyenne</strong>. Pour un actif qui revient, c’est un bon indicateur ;
+        pour un actif appelé à disparaître, c’est <strong>l’indicateur le plus dangereux</strong>. Et <strong>le graphique ne fait pas la différence entre les deux.</strong>
+        Le graphique d’un bitcoin à −80% et celui d’un altcoin à −80% au bord du retrait de la cote <strong>se ressemblent trait pour trait.</strong>
+        La différence n’est pas dans l’indicateur, mais dans <strong>les fondamentaux, la liquidité, l’équipe et les déblocages de jetons</strong>, et notre modèle n’en regarde aucun.
+        Les milliers d’altcoins aujourd’hui disparus <strong>sont tous, sans exception, passés par la zone de −90%, et à chaque fois l’indicateur de repli leur a donné le score maximal.</strong>
+      </div>
+
+      <h2 id="c8">Calcul 8 — Voilà pourquoi nous ne donnons au repli que 18% et 14%</h2>
+      <p>
+        Le calcul 7 est la raison pour laquelle, dans notre modèle, <strong>le repli n’a la plus forte pondération des 6 indicateurs dans aucun mode</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>Pondération du repli</th><th>Rang sur 6</th><th>Indicateur n° 1</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Court terme</strong> (momentum)</td><td><strong>18%</strong></td><td>3e</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>Long terme</strong> (contrarian)</td><td><strong>14%</strong></td><td>5e ex æquo</td><td>RSI · MACD · F&amp;G · Mayer, 18% chacun</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Ce qui surprend, c’est qu’elle soit <strong>encore plus basse en long terme</strong> (18% → 14%).
+        « N’est-ce pas justement l’investissement à long terme qui devrait regarder le repli ? » pourrait-on penser, mais la raison est le <strong>double comptage</strong>.
+      </p>
+      <p>
+        <strong>Le repli et le multiple de Mayer posent en pratique la même question</strong> — <em>« le prix actuel est-il sous une ligne de référence passée ? »</em>
+        Simplement, le repli prend pour référence le <strong>plus haut sur 365 jours</strong>, et Mayer la <strong>moyenne mobile sur 200 jours</strong>.
+        En mode long terme, le multiple de Mayer pèse <strong>18%</strong>, dans le groupe de tête.
+        Si l’on donnait aussi 18% au repli, <strong>on concentrerait 36% sur une même perspective (la valorisation)</strong>.
+        La raison d’utiliser 6 indicateurs est de <strong>mélanger des perspectives différentes</strong> ; cette conception s’effondrerait.
+        En long terme, nous <strong>donnons donc du poids à Mayer, qui utilise une référence plus stable (la moyenne sur 200 jours), et réduisons le repli, qui dépend d’un seul sommet.</strong>
+        Le plus haut sur 365 jours est <strong>la valeur d’un seul jour</strong>, et si ce jour-là correspondait à une flambée anormale, tout le repli de l’année suivante s’en trouve faussé.
+        La <em>moyenne</em> sur 200 jours n’a pas cette faiblesse.
+      </p>
+
+      <h3>Le repli seul ne peut pas produire un STRONG BUY</h3>
+      <p>Vérifions par le calcul ce que signifient concrètement ces pondérations. Quand le repli obtient le <strong>score maximal (100 points)</strong>, sa contribution au total est la suivante.</p>
+      <pre><code>Court terme : 100 points × 0.18 = 18 points apportés (les 82% restants : les 5 autres indicateurs)
+Long terme  : 100 points × 0.14 = 14 points apportés (les 86% restants : les 5 autres indicateurs)
+
+Pour franchir le seuil STRONG BUY (80 points), la moyenne pondérée des 5 autres indicateurs doit atteindre
+
+  Court terme :  (80 − 18) ÷ 0.82 = 75.6 points ou plus
+  Long terme  :  (80 − 14) ÷ 0.86 = 76.7 points ou plus</code></pre>
+      <p>
+        Autrement dit, <strong>même si un krach de −70% donne au repli le score maximal, tant que RSI, MACD, l’indice de peur, Mayer et les croisements ne dépassent pas 75 points en moyenne,
+        le score n’atteindra jamais 80 (STRONG BUY).</strong>
+      </p>
+      <p>
+        Plus extrême encore — <strong>si seul le repli vaut 100 points et que les cinq autres indicateurs valent tous 0, le total est de 18 points en court terme et 14 en long terme</strong>.
+        Les deux tombent dans la <strong>zone 0~25</strong> : l’onglet long terme affiche <strong>OVERHEATED</strong>, l’onglet court terme <strong>AVOID (forte tendance baissière)</strong>.
+        « −70% de baisse et l’onglet long terme parle de surchauffe ? » Cela paraît étrange, mais c’est <strong>exactement le comportement voulu</strong>.
+        Seul le prix a baissé : la tendance est morte, le sentiment ne s’est pas amélioré, et par rapport à la moyenne sur 200 jours c’est toujours cher —
+        <strong>c’est exactement le visage de la trajectoire de retrait de la cote du calcul 7.</strong>
+        Empêcher le repli seul de l’emporter sur les cinq autres : voilà la raison d’être des pondérations 18%/14%.
+      </p>
+      <p class="muted">
+        Remarque : pour les cryptos cotées depuis moins d’un an, <strong>il n’existe pas de plus haut sur 365 jours, le repli est donc manquant</strong>.
+        On exclut alors le repli, on renormalise les pondérations des autres indicateurs, et le tableau de bord affiche <code>coverage: 5/6</code>.
+        Le calcul détaillé figure dans la section renormalisation de la <a href="/methodology">méthodologie du score</a>.
+      </p>
+
+      <h2 id="c9">Là où ces calculs mentent</h2>
+      <p>Nous avons montré huit tableaux jusqu’ici. Écrivons maintenant <strong>pourquoi il ne faut pas les croire</strong>.</p>
+      <ul>
+        <li>
+          <strong>Les trois scénarios, c’est moi qui les ai inventés.</strong> Ce n’est pas un backtest, mais des <strong>trajectoires hypothétiques</strong>.
+          Il suffit de modifier un peu les chiffres pour que le classement des stratégies s’inverse. Cette simulation ne démontre qu’une chose :
+          <strong>non pas « C est bonne », mais « plus on fractionne, plus l’éventail des résultats se resserre »</strong>.
+        </li>
+        <li>
+          <strong>Le prix moyen n’est pas un indicateur de performance.</strong> Dans le calcul 7, le prix moyen de la stratégie B était de <strong>51,100 KRW</strong>, le plus bas des trois.
+          Et elle a <strong>fini à −94.1%.</strong> Un prix moyen bas ne veut pas dire <em>avoir acheté bon marché</em>, seulement
+          <strong>avoir continué d’acheter pendant la chute</strong>. Si l’actif meurt, le résultat est 0, quel que soit le prix moyen.
+        </li>
+        <li>
+          <strong>Frais, slippage et impôts ont tous été mis à 0.</strong> En réalité, l’achat fractionné <strong>paie plus de frais car il multiplie les transactions.</strong>
+          Une partie des écarts des tableaux est rognée d’autant dans la réalité.
+        </li>
+        <li>
+          <strong>Le coût d’opportunité a été mis à 0.</strong> Si la stratégie C affiche « 0.0% » dans le scénario ③, c’est en supposant que
+          <strong>les liquidités restantes ne rapportent rien</strong>. Avec des intérêts de dépôt, c’est un peu mieux ;
+          à l’inverse, <strong>si d’autres actifs ont monté pendant cette année, c’est une perte réelle</strong>.
+        </li>
+        <li>
+          <strong>La fenêtre de 365 jours fait paraître le repli moins profond en marché baissier prolongé</strong> (avertissement du calcul 3).
+          C’est dans la zone la plus profonde que l’indicateur peut devenir le moins sensible.
+        </li>
+        <li>
+          <strong>La répartition par zones et lots de la stratégie C (0·1·2·4·5) est un exemple de calcul.</strong>
+          Nous ne recommandons pas cette répartition et ne prétendons pas qu’elle soit optimale.
+          Si l’on change les zones en −25/−40/−55, le résultat change aussi. <strong>Il n’y a pas de bonne réponse.</strong>
+        </li>
+        <li>
+          <strong>La variable la plus importante n’est pas dans le calcul.</strong> Cet actif existera-t-il dans 5 ans ?
+          La réponse n’est pas dans les tableaux, mais dans <strong>la substance réelle du projet</strong>, et notre modèle ne la regarde pas.
+        </li>
+      </ul>
+
+      <p>
+        En résumé : <strong>le repli ne mesure pas « à quel point c’est bon marché ». Il mesure seulement « de combien ça a baissé ».</strong>
+        Les deux ne disent la même chose que si l’actif survit ; sinon, ils disent exactement l’inverse.
+        <strong>Le moment où cet indicateur crie le plus fort « achetez » ne se distingue pas du moment où l’actif est en train de mourir</strong> —
+        c’est tout ce qu’il faut savoir sur le repli.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avertissement sur l’investissement</strong><br />
+        Tous les scénarios, prix, répartitions et rendements de ce document sont des <strong>exemples hypothétiques destinés à expliquer les principes de calcul</strong>
+        et non des données de marché réelles ni des résultats de backtest. Aucune stratégie, répartition ni valeur particulière n’est recommandée.
+        Ce document a une <strong>finalité éducative et informative et ne constitue pas un conseil en investissement.</strong>
+        Les cryptomonnaies sont des actifs à haut risque pouvant entraîner <strong>la perte totale du capital</strong>, et, comme dans le calcul 7,
+        <strong>il existe de nombreux cas où leur valeur a convergé vers 0.</strong>
+        Aucune technique, achat fractionné compris, n’empêche les pertes.
+        Toute décision d’investissement et ses conséquences relèvent de la seule responsabilité de l’utilisateur. Faites toujours vos propres recherches (DYOR).
+      </div>
+
+      <h2>À lire ensuite</h2>
+      <div class="related">
+        <a href="/methodology"><b>Méthodologie du score</b><span>Les 6 pondérations, dont le 18%/14% du repli, et le calcul de renormalisation</span></a>
+        <a href="/indicators"><b>Guide des 6 indicateurs</b><span>Ce que regardent les cinq autres, en dehors du repli</span></a>
+        <a href="/guide-fear-greed"><b>Guide pratique de l’indice de peur</b><span>Si cet article est « les mathématiques », celui-là est « la procédure »</span></a>
+        <a href="/glossary"><b>Glossaire</b><span>Définitions du repli, du prix moyen et du multiple de Mayer</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Exploité par Y-Systems · <a href="/privacy">Politique de confidentialité</a> · <a href="/terms">Conditions d’utilisation</a></footer>
+    </main>

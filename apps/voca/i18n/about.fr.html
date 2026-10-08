@@ -1,0 +1,156 @@
+<main class="wrap" data-title="À propos de l’opérateur · Pourquoi je l’ai créé — VOCA DECK | broodev" data-desc="À propos de l’opérateur de VOCA DECK (exploité par Y-Systems) : pourquoi ce carnet de vocabulaire a été créé, où sont stockées vos données, le modèle économique et la déclaration de conflits d’intérêts, et comment signaler une erreur.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — ABOUT</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Carnet de vocabulaire</a>
+          <a href="/method">Le principe</a>
+          <a href="/csv-guide">Créer un CSV</a>
+          <a href="/study-guide">Stratégie d’apprentissage</a>
+        </nav>
+
+        <h1>À propos de l’opérateur · Pourquoi je l’ai créé</h1>
+        <p class="muted">Dernière mise à jour : 2026-07-16 · Exploité par Y-Systems</p>
+
+        <p class="lead">
+          VOCA DECK est né d’une question : <strong>« Que se passerait-il si feuilleter un carnet de vocabulaire ne demandait plus aucun effort ? »</strong>
+          Cette page explique qui l’a créé, où vont vos données et comment ce site gagne de l’argent.
+        </p>
+
+        <h2>Qui l’a créé</h2>
+        <ul>
+          <li><strong>Entité exploitante</strong> — Y-Systems (studio de développement individuel)</li>
+          <li><strong>Opérateur</strong> — jsontyper</li>
+          <li><strong>Contact</strong> — <a href="mailto:support@broodev.com">support@broodev.com</a></li>
+          <li><strong>Autres applis</strong> — <a href="https://dev.broodev.com/">dev.broodev.com</a> (liste complète des applis)</li>
+        </ul>
+        <p>
+          Cet outil et ses articles reposent sur une expérience vécue de près : voir comment la mémorisation du vocabulaire se passe réellement en classe,
+          et comment elle s’effondre.
+          Pour autant, les articles ne s’appuient pas sur le seul témoignage : ils sont vérifiés à l’aune de <strong>ce que la recherche publiée en sciences de l’apprentissage
+          (courbe de l’oubli, effet d’espacement, pratique de récupération) permet réellement d’affirmer</strong>, et ce qui vient de l’expérience en classe
+          est présenté comme tel. Les affirmations sans fondement sont signalées comme telles,
+          et les domaines que cet outil ne couvre pas sont réunis à part dans la <a href="/method#limit">section des limites</a>.
+          Une seule personne s’occupe de la conception, du développement, de la rédaction et de l’exploitation : la responsabilité d’une erreur est donc claire, elle m’incombe entièrement.
+        </p>
+
+        <h2>Pourquoi je l’ai créé</h2>
+        <p>
+          Un carnet de vocabulaire papier oblige à <strong>tourner les pages, cacher les réponses avec la main et se rappeler où l’on s’était arrêté</strong>.
+          Ces petites frictions s’accumulent jusqu’à ce qu’on finisse par <strong>« ne plus le faire »</strong>.
+        </p>
+        <p>
+          La mémoire est, au fond, <strong>une fonction du nombre de contacts</strong>.
+          Bien souvent, rencontrer un mot <strong>100 fois avec une méthode sans friction l’emporte</strong> sur 10 rencontres avec une méthode parfaite.
+          J’ai donc créé un carnet qui <strong>avance tout seul dès qu’on appuie sur un unique bouton de lecture</strong>.
+        </p>
+
+        <h2>La source du modèle — AnyMemory</h2>
+        <p>
+          Cette méthode de « Mémorisation flash » n’est pas mon invention.
+          Son modèle est <strong>AnyMemory, un logiciel gratuit de mémorisation de vocabulaire diffusé en Corée du Sud
+          à l’époque de Windows XP</strong>. VOCA DECK a été reconstruit en s’inspirant de ce logiciel —
+          le principe d’afficher en alternance le mot et son sens en grands caractères — pour fonctionner dans le navigateur sans installation,
+          avec des paquets CSV, des marques de mémorisation et la synthèse vocale (TTS).
+        </p>
+        <p class="muted">
+          À l’époque, AnyMemory était distribué gratuitement, notamment dans la logithèque de BetaNews (un site coréen d’actualité tech), mais les fichiers d’origine ont depuis été retirés,
+          et je n’ai pas pu retrouver le nom de son auteur dans les sources publiques. Si vous savez qui l’a créé,
+          <a href="/contact?app=voca">faites-le-moi savoir</a> et j’indiquerai ici la source exacte.
+          Merci à l’auteur original de nous avoir laissé une si bonne méthode.
+        </p>
+        <p>
+          Cela dit, <strong>j’écris aussi honnêtement les limites de cette méthode.</strong> Se contenter de regarder passivement crée une « illusion de savoir ».
+          C’est pourquoi l’article <a href="/method">Le principe</a> consacre une section à part, <strong>« Le flash seul ne suffit pas »</strong>,
+          qui explique comment y intercaler la pratique de récupération. Le but n’est pas de vendre un outil, mais que vous reteniez vraiment.
+        </p>
+
+        <h2>Où vont vos données ?</h2>
+        <div class="note">
+          <strong>Vos données d’apprentissage ne vont nulle part.</strong> Elles ne sont pas envoyées à un serveur.
+        </div>
+        <ul>
+          <li><strong>Aucune inscription.</strong> Ni e-mail, ni mot de passe.</li>
+          <li>Les <strong>paquets (CSV) que vous ouvrez et vos marques de mémorisation sont enregistrés uniquement dans le localStorage de votre navigateur</strong>.</li>
+          <li>Les fichiers CSV importés ne sont pas envoyés sur un serveur. <strong>Ils sont lus uniquement dans le navigateur.</strong></li>
+          <li>Vos données ne vous suivent pas si vous changez d’appareil. <strong>Conservez vos CSV d’origine à part.</strong></li>
+        </ul>
+        <p>
+          Concrètement, voici comment cela fonctionne. Lorsque vous ouvrez un CSV, le FileReader du navigateur lit le fichier <strong>sur votre appareil</strong>,
+          le convertit en cartes et enregistre le résultat (paquets, marques de mémorisation, réglages de lecture, choix de langue) dans des entrées
+          localStorage nommées <code>voca:*</code>. Les paquets enregistrés dans « Mes Voca Decks » se trouvent au même endroit.
+          Appuyer sur <strong>Exporter la sauvegarde</strong> ne fait que <strong>télécharger ces données sur votre appareil</strong> sous forme de fichier JSON ;
+          là encore, rien ne part vers un serveur. La voix TTS utilise elle aussi la synthèse vocale intégrée au navigateur (speechSynthesis),
+          si bien que vos mots ne sont transmis à aucun service externe.
+        </p>
+        <p>
+          J’écris aussi <strong>honnêtement le prix de ce choix.</strong> Comme il n’y a pas de compte sur un serveur,
+          si vous effacez les données du navigateur ou utilisez une fenêtre de navigation privée, <strong>votre historique d’apprentissage disparaît, sans aucun moyen de le récupérer.</strong>
+          Il n’y a pas non plus de synchronisation entre appareils. C’est pourquoi je recommande de conserver vos CSV d’origine et d’exporter régulièrement une sauvegarde.
+          C’est le résultat d’un choix : <strong>ne pas collecter</strong> plutôt que la commodité (la synchronisation).
+        </p>
+        <p>
+          <strong>Une seule exception</strong> — si vous joignez une capture d’écran en écrivant via la <a href="/contact?app=voca">page de contact</a>,
+          cette image est téléversée sur le stockage de notre serveur afin d’être insérée sous forme de lien dans l’e-mail, puis
+          <strong>supprimée automatiquement au bout de 90 jours</strong>. L’application d’apprentissage elle-même n’utilise jamais cette voie.
+          Les détails figurent dans la <a href="/privacy">Politique de confidentialité</a>.
+        </p>
+
+        <h2>Modèle économique et déclaration de conflits d’intérêts</h2>
+        <p>Savoir comment ce site gagne de l’argent est un droit de l’utilisateur.</p>
+        <ul>
+          <li><strong>Les publicités Google AdSense sont actuellement la seule source de revenus.</strong></li>
+          <li><strong>Je ne vends ni paquets de vocabulaire, ni manuels, ni cours.</strong> Aucun partenariat avec un éditeur de manuels ou une école de soutien.</li>
+          <li><strong>Aucun lien d’affiliation.</strong> Même lorsqu’un article mentionne un autre manuel ou outil, je ne reçois aucune contrepartie.</li>
+          <li>Les outils concurrents (comme Anki) sont <a href="/spaced-repetition">comparés honnêtement</a>.
+            J’écris <strong>à la fois les cas où notre outil est meilleur et ceux où Anki l’est.</strong>
+            Les revenus publicitaires restent les mêmes quel que soit l’outil que vous utilisez : aucune raison de vous retenir à tout prix.</li>
+          <li>À l’avenir, certaines fonctions supplémentaires <strong>pourront être proposées en version payante (premium).</strong> Rien n’est vendu pour l’instant ;
+            le cas échéant, cette page et les <a href="/terms">Conditions d’utilisation</a> préciseront ce qui est payant et ce qui reste gratuit.
+            Les fonctions essentielles (ouvrir un CSV, lecture flash, marques de mémorisation) resteront gratuites.</li>
+        </ul>
+
+        <h2>Principes éditoriaux</h2>
+        <p>Tous les articles explicatifs de ce site (<a href="/method">Le principe</a>, <a href="/study-guide">Stratégie d’apprentissage</a>,
+          <a href="/csv-guide">Guide CSV</a>, <a href="/spaced-repetition">Comparatif de la répétition espacée</a>, etc.) sont rédigés selon les principes ci-dessous.</p>
+        <ol>
+          <li><strong>Les limites d’abord.</strong> Aucun article n’est publié sans préciser les cas où notre méthode ne fonctionne pas.
+            D’ailleurs, la <a href="/method#limit">section des limites du Principe</a> commence par « Le flash seul ne suffit pas ».</li>
+          <li><strong>Les fondements scientifiques sont indiqués.</strong> Pas « ça marche », mais « pourquoi ça marche ».
+            Nous nous appuyons sur des notions éprouvées comme la courbe de l’oubli, l’effet d’espacement et la pratique de récupération, et signalons comme faibles les points peu étayés.</li>
+          <li><strong>Les outils concurrents sont comparés honnêtement.</strong> Nous ne disons pas que seul le nôtre est bon.
+            Nous avons réellement écrit que, si vous avez besoin de planifier des révisions à long terme, les outils de type Anki sont préférables.</li>
+          <li><strong>Pas d’exagération.</strong> Aucune promesse du type « 3000 mots en un mois ».
+            Car la quantité mémorisée ne dépend pas de l’outil, mais du nombre de contacts et de la pratique de récupération.</li>
+          <li><strong>Les corrections sont consignées.</strong> Toute correction qui touche au contenu est signalée sur la page concernée, avec sa date,
+            et chaque page de contenu affiche en haut la date de « Dernière mise à jour ».</li>
+        </ol>
+
+        <h2>Ce que ce site ne fait pas</h2>
+        <ul>
+          <li>❌ Garantir des notes ou la réussite à un examen — l’outil ne fait que réduire la friction de la répétition ; <strong>au bout du compte, c’est vous qui mémorisez.</strong></li>
+          <li>❌ Exiger une inscription — toutes les fonctions sont utilisables sans compte.</li>
+          <li>❌ Collecter des données d’apprentissage — nous ne pouvons pas savoir ce que vous mémorisez, et nous n’avons pas besoin de le savoir.</li>
+          <li>❌ Vendre des manuels et des cours ou nouer des partenariats — comme rien n’est vendu, les articles n’ont aucune raison d’être faussés pour vendre.</li>
+        </ul>
+
+        <h2>Signaler une erreur et corrections</h2>
+        <p>
+          Envoyez bogues, erreurs et suggestions via la <a href="/contact?app=voca">page de contact</a> ou à
+          <a href="mailto:support@broodev.com">support@broodev.com</a>.
+          Si la correction touche au contenu, <strong>elle est signalée sur la page concernée avec sa date.</strong>
+          Chaque page de contenu affiche en haut la <strong>date de « Dernière mise à jour »</strong>.
+        </p>
+
+        <h2>Pour aller plus loin</h2>
+        <div class="related">
+          <a href="/method"><b>Le principe de la mémorisation par flashs</b><span>Courbe de l’oubli, effet d’espacement — et les limites de cette méthode</span></a>
+          <a href="/spaced-repetition"><b>Guide complet de la répétition espacée</b><span>Comparaison honnête avec Anki (SM-2)</span></a>
+          <a href="/privacy"><b>Politique de confidentialité</b><span>Pourquoi vos données ne vont pas sur un serveur</span></a>
+          <a href="/"><b>Ouvrir le carnet</b><span>Commencer tout de suite</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · Exploité par Y-Systems · <a href="mailto:support@broodev.com">support@broodev.com</a></footer>
+      </div>
+    </main>

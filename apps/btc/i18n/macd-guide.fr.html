@@ -1,0 +1,697 @@
+    <main class="wrap" data-title="Calculer le MACD à la main — Parcours pas à pas des EMA, de la ligne de signal et de l’histogramme sur 42 clôtures | broodev" data-desc="On injecte 42 clôtures pour calculer bougie par bougie l’EMA12, l’EMA26, la ligne MACD, la ligne de signal et l’histogramme. Pourquoi 30 bougies donnent zéro histogramme, la vraie raison d’utiliser l’EMA plutôt que la SMA, et pourquoi broodev regarde la direction par rapport à la veille plutôt que la valeur absolue de l’histogramme — vérifié avec le vrai code et de vrais chiffres.">
+      <nav class="nav">
+        <a href="/">← Tableau de bord</a>
+        <a href="/methodology">Méthodologie du score</a>
+        <a href="/indicators">Guide des indicateurs</a>
+        <a href="/guide-fear-greed">Utiliser l’indice de peur</a>
+        <a href="/glossary">Glossaire</a>
+      </nav>
+
+      <h1>Calculer le MACD à la main<br />— 42 clôtures suivies jusqu’au bout</h1>
+      <p class="muted">Dernière mise à jour : 2026-07-14 · Auteur : Y-Systems · Ce texte n’est pas une explication, c’est un <strong>compte rendu d’exercice</strong></p>
+
+      <p class="lead">
+        Commençons par l’échec. Préparez <strong>30</strong> clôtures et lancez un MACD standard (12·26·9) :
+        vous obtenez 5 valeurs de ligne MACD, mais <strong>0 valeur de ligne de signal et 0 valeur d’histogramme</strong>.
+        Avec un mois de données, on ne peut pas produire <em>une seule</em> barre d’histogramme MACD.
+        Étonnamment peu de gens le savent, parce qu’ils ont appris le MACD comme « la différence entre la moyenne 12 jours et la moyenne 26 jours », sans plus.
+      </p>
+      <p>
+        Ce texte ne commence donc pas par une définition. Nous allons <strong>injecter réellement 42 clôtures</strong>
+        et suivre <strong>bougie par bougie, calculatrice en main</strong> : EMA12 → EMA26 → ligne MACD → ligne de signal → histogramme → sous-score broodev.
+        Une simple calculatrice suffit pour reproduire chaque chiffre de cet article ;
+        si vous n’y arrivez pas, c’est nous qui nous sommes trompés.
+      </p>
+
+      <section class="bd-figs" aria-label="Graphique MACD en direct">
+        <p class="muted">Avant d’entrer dans le pas-à-pas, voyons d’abord ce que donne ce calcul sur de vraies données BTC. C’est exactement la même formule que l’exercice sur 42 clôtures ci-dessous (EMA12−EMA26, signal EMA9).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">Chargement des données du graphique…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">Chargement des données du graphique…</div></div>
+          </div>
+          <p class="bd-cap">Prix du BTC sur les 2 dernières années (en haut) et MACD(12,26,9) (en bas). Barres = histogramme (ligne MACD−ligne de signal, vert positif / rouge négatif). L’ampleur absolue du MACD est proportionnelle au niveau de prix — c’est pourquoi le texte regarde la direction plutôt que la valeur absolue. Données : CoinMetrics Community API, clôtures journalières du BTC — récupérées lors de votre visite et calculées dans le navigateur ; <strong>valeurs approximatives, à titre indicatif</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Le matériel — les 42 clôtures utilisées dans tout l’article</h2>
+      <p>
+        Il s’agit d’un actif fictif. Il part de 100, <strong>chute de −25,7 % jusqu’à 74,3 puis rebondit</strong>.
+        C’est une forme courante en crypto, et elle a été conçue pour inclure une zone (le creux) où les résultats de calcul divergent fortement.
+      </p>
+      <pre><code>J1–6     100.0  99.1 100.4  98.6  99.3  97.8
+J7–14     96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+J15–22    88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+J23–30    81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← le jour 30 est le plus bas (74.3)
+J31–36    75.6  74.8  76.9  78.2  77.5  79.8
+J37–42    81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>Ne vous souciez pas de l’unité.</strong> Nous le démontrerons plus loin : le sous-score MACD de broodev est
+        <strong>totalement invariant d’échelle (scale-invariant)</strong>. Multipliez ces 42 clôtures par 700 pour les amener
+        au niveau du bitcoin (58 730 dollars) : <strong>le sous-score reste identique jusqu’à la quatrième décimale.</strong>
+        Nous utilisons donc des nombres autour de 100, plus faciles à lire.
+      </div>
+
+      <p class="step">ÉTAPE 1</p>
+      <h2>Pourquoi l’EMA plutôt que la SMA — « une bougie d’il y a 12 jours crée le signal d’aujourd’hui »</h2>
+      <p>
+        Les manuels disent que « l’EMA est plus sensible aux prix récents, donc plus rapide », et s’arrêtent là. Cette phrase n’est <strong>qu’à moitié vraie.</strong>
+        Avec les mêmes 42 clôtures, nous avons fait tourner côte à côte un <strong>MACD version SMA (SMA12−SMA26)</strong> et un <strong>MACD version EMA (EMA12−EMA26)</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Jour</th><th>Clôture</th><th>Ligne MACD (EMA)</th><th>Ligne MACD (SMA)</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← creux EMA</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← creux SMA</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Résultat 1 — l’EMA a touché le creux une bougie plus tôt</h3>
+      <p>
+        La version EMA a marqué son creux (−7.008) au <strong>jour 28</strong> puis s’est retournée ; la version SMA l’a marqué au <strong>jour 29</strong> (−7.201).
+        Une bougie d’écart. En plus, le creux de l’EMA est <strong>moins profond</strong> (−7.008 contre −7.201).
+        Jusqu’ici, tout est conforme au manuel.
+      </p>
+
+      <h3>Résultat 2 — mais la SMA est revenue plus vite vers la ligne zéro</h3>
+      <p>
+        Regardez le jour 42. La version SMA est à <strong>−0.006</strong>, elle a pratiquement franchi la ligne zéro, tandis que la version EMA est encore à <strong>−1.389</strong>.
+        L’idée que « l’EMA est toujours plus rapide » s’effondre ici. <strong>Pourquoi la SMA a-t-elle soudain bondi ?</strong>
+      </p>
+      <p>
+        Du jour 41 au jour 42, la ligne MACD version SMA est passée <strong>de −1.036 à −0.006, soit +1.030 en une seule journée</strong>.
+        Le même jour, la version EMA n’a bougé que de +0.565. Presque deux fois moins. Le calcul révèle la cause.
+      </p>
+      <pre><code>SMA12(jour 42) − SMA12(jour 41)
+  = (86.2 du jour 42 qui entre − 74.3 du jour 30 qui sort de la fenêtre) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← effet non pas du prix du jour, mais de « la disparition de la bougie du jour 30 »
+
+Variation côté SMA26 = (86.2 − 87.2 du jour 16) ÷ 26 = −0.0385
+
+Variation du MACD version SMA = +0.9917 − (−0.0385) = +1.030   ✅ conforme au tableau</code></pre>
+      <p>
+        <strong>Voilà la vraie raison de ne pas utiliser la SMA.</strong> L’essentiel du signal SMA du jour 42 ne vient pas
+        <em>d’une hausse du prix du jour</em>, mais du fait que <strong>le plus bas de 74.3, vieux de 12 jours (jour 30), est brusquement sorti de la fenêtre de la moyenne mobile.</strong>
+        Rien ne s’est passé sur le marché aujourd’hui, et pourtant <strong>un événement d’il y a 12 jours fabrique le signal d’achat du jour.</strong>
+        C’est ce que la profession appelle l’<strong>« effet de sortie de fenêtre » (drop-off effect)</strong>.
+      </p>
+      <p>
+        L’EMA n’a pas de fenêtre. Le poids des anciens prix décroît de façon exponentielle en <code>(1−α)ⁿ</code> ; il <em>s’efface simplement peu à peu</em>,
+        sans jamais être <strong>éjecté du calcul</strong> du jour au lendemain. C’est pourquoi la version EMA a bougé en douceur de +0.565 le même jour.
+      </p>
+      <div class="note">
+        <strong>En résumé</strong> — on utilise l’EMA non pas « parce qu’elle est rapide », mais <strong>« parce qu’elle ne crée pas de signaux fantômes »</strong>.
+        La SMA a une bougie de retard aux retournements et, en échange, envoie à des moments incongrus des <strong>faux sursauts créés par une bougie vieille de 12 jours</strong>.
+        La <em>cause</em> d’un signal compte davantage que sa <em>vitesse</em>.
+      </div>
+
+      <p class="step">ÉTAPE 2</p>
+      <h2>Calculer l’EMA12 à la calculatrice</h2>
+      <p>
+        L’EMA utilisée par broodev <strong>prend comme amorce (seed) la moyenne simple des <code>period</code> premières valeurs</strong>, puis applique la mise à jour exponentielle.
+        <code>α = 2 ÷ (période + 1)</code>. Pour l’EMA12, <code>α = 2/13 = 0.153846</code>.
+      </p>
+      <pre><code>// code réel de broodev (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← amorce = moyenne simple des period premières valeurs
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>Injectons maintenant les 42 clôtures. L’amorce apparaît au jour 12, et la mise à jour commence au jour 13.</p>
+      <pre><code>Amorce jour 12 = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+               = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+Jour 13 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+Jour 14 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+Jour 15 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+Jour 16 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+Jour 17 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        Tout tient en une phrase : <strong>« on ajoute 15,4 % de la clôture du jour à 84,6 % de l’EMA de la veille »</strong>.
+        Les poids sont les mêmes chaque jour, et le passé est dilué de 84,6 % chaque jour. Le poids d’une clôture vieille de 30 jours est
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code> — moins de 0,1 %. Mais <strong>ce n’est pas zéro.</strong> Cette différence était la conclusion de l’ÉTAPE 1.
+      </p>
+
+      <p class="step">ÉTAPE 3</p>
+      <h2>EMA26 et ligne MACD — la première valeur n’arrive qu’au jour 26</h2>
+      <p>Pour l’EMA26, <code>α = 2/27 = 0.074074</code>. L’amorce est la moyenne simple des jours 1 à 26.</p>
+      <pre><code>Amorce jour 26 = 2341.4 ÷ 26 = <strong>90.0538</strong>
+Jour 27 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+Jour 28 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+Jour 29 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+Jour 30 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        L’amorce de l’EMA26 n’apparaissant qu’au jour 26, <strong>la première valeur de la ligne MACD (EMA12 − EMA26) date elle aussi du jour 26.</strong>
+        Jusqu’au jour 25, <strong>la ligne MACD elle-même n’existe pas.</strong>
+      </p>
+      <pre><code>Ligne MACD (jour 26) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        Voici la première observation importante. Alignez les valeurs de la ligne MACD du jour 26 au jour 34.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Jour</th><th>Clôture</th><th>Ligne MACD</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>Creux de la ligne MACD</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>Début du rebond</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>Le prix fait un plus bas inférieur, le MACD un plus bas supérieur</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Clôture du jour 28 : 75.1 → clôture du jour 30 : 74.3. <strong>Le prix a fait un plus bas inférieur (−1,1 %).</strong>
+        Mais la ligne MACD est passée de −7.008 à −6.851 : <strong>elle a fait un plus bas supérieur.</strong>
+        C’est ce qu’on appelle une <strong>divergence haussière (bullish divergence)</strong>.
+        Cela signifie : « le prix touche un nouveau plus bas, mais la <em>vitesse</em> de la baisse ralentit déjà ».
+      </p>
+      <p>
+        Dans ce pas-à-pas, le vrai creux du prix était au <strong>jour 30</strong>.
+        La ligne MACD s’était déjà retournée au <strong>jour 28</strong>. <strong>L’indicateur a changé de direction deux bougies avant le prix.</strong>
+        Retenez-le — c’est la base de « pourquoi la direction plutôt que la valeur absolue » à l’ÉTAPE 6.
+      </p>
+
+      <p class="step">ÉTAPE 4</p>
+      <h2>La ligne de signal — là où 30 bougies ne suffisent plus</h2>
+      <p>
+        La ligne de signal est l’<strong>EMA9 de la ligne MACD</strong>, autrement dit une <strong>EMA d’EMA</strong>.
+        La ligne MACD commençant au jour 26, l’amorce de la ligne de signal (la moyenne de 9 valeurs MACD) ne peut être calculée
+        <strong>qu’une fois réunies toutes les valeurs du jour 26 au jour 34</strong>.
+      </p>
+      <pre><code>Amorce du signal (jour 34)
+ = moyenne des 9 valeurs de la ligne MACD, jours 26 à 34
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+Histogramme (jour 34) = ligne MACD (−5.613) − ligne de signal (−6.6071) = <strong>+0.994</strong>   ← première valeur !</code></pre>
+      <p>À partir du jour 35, on met à jour avec α = 0.2.</p>
+      <pre><code>Signal jour 35 = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+                 histogramme = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+Signal jour 36 = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+                 histogramme = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+Signal jour 37 = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+                 histogramme = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>Pourquoi 30 bougies donnent zéro histogramme</strong><br />
+        26 (amorce EMA26) + 9 (amorce du signal) − 1 = <strong>34</strong>. La <strong>première valeur d’histogramme tombe au plus tôt sur la 34e bougie</strong>.
+        Or broodev regarde la <strong>variation de l’histogramme par rapport à la veille</strong>, il en faut donc <strong>2</strong> → <strong>35 bougies</strong>.
+        D’où cette garde dans le code.
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← moins de 35 bougies : sous-score MACD = null</code></pre>
+        Quand le MACD vaut <code>null</code>, la <a href="/methodology">renormalisation des pondérations</a> s’active :
+        le score est calculé avec les 5 autres indicateurs et affiché <code>coverage 5/6</code>. C’est un état fréquent pour les coins tout juste listés.
+      </div>
+      <p class="muted">
+        Précisons que 35 bougies sont une <strong>condition minimale, pas suffisante.</strong> L’histogramme du jour 34 repose sur une amorce de signal qui n’est
+        <em>qu’une moyenne simple de 9 valeurs MACD</em> : c’est encore une valeur « pas mûre ». En pratique, pour un histogramme stable,
+        il faut au moins <strong>60 à 80 bougies</strong>. Nous y revenons chiffres à l’appui dans l’<a href="#seed">annexe A</a> à la fin de l’article.
+      </p>
+
+      <p class="step">ÉTAPE 5</p>
+      <h2>Le tableau complet — du jour 26 au jour 42</h2>
+      <p>
+        Toutes les valeurs vues jusqu’ici sont réunies dans un seul tableau. <strong>ΔHistogramme</strong> est la « variation de l’histogramme par rapport à la bougie précédente »,
+        et <strong>court terme · long terme</strong> sont les sous-scores MACD (0 à 100) que broodev en tire.
+        Les lignes grisées correspondent à la <strong>zone où le calcul est tout simplement impossible</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>Jour</th><th>Clôture</th><th>EMA12</th><th>EMA26</th><th>Ligne MACD</th><th>Signal</th><th>Histogramme</th><th>ΔHistogramme</th><th>Score court terme</th><th>Score long terme</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Remarquez que dans ce tableau, <strong>la ligne MACD reste négative jusqu’au jour 42 (−1.389)</strong>.
+        Avec la règle « acheter quand le MACD passe au-dessus de la ligne zéro », vous n’auriez <strong>reçu aucun signal d’achat pendant tout ce rebond.</strong>
+        À l’inverse, <strong>l’histogramme est déjà positif dès le jour 34 (+0.994)</strong>.
+        L’histogramme mesure <em>si la ligne MACD a dépassé la ligne de signal</em> ; il réagit donc bien plus tôt qu’un franchissement de la ligne zéro.
+      </p>
+      <p>
+        Et regardez le <strong>jour 41</strong>. Cette seule ligne contient toute l’étape suivante.
+      </p>
+
+      <p class="step">ÉTAPE 6</p>
+      <h2>Là où broodev se sépare du manuel — la direction, pas la valeur absolue</h2>
+      <p>
+        Jusqu’ici, c’était du MACD standard : n’importe quel logiciel de graphiques donne les mêmes valeurs.
+        <strong>À partir d’ici commence la partie propre à broodev.</strong> Voici, <strong>tel qu’il figure dans le code source</strong>, la fonction qui convertit
+        l’histogramme (un réel sans borne) en un score de 0 à 100.
+      </p>
+      <pre><code>// mapping court terme (momentum) — pondération MACD 14 %
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① <strong>niveau</strong> de l’histogramme
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② <strong>direction</strong> par rapport à la veille
+, 0, 100)
+
+// mapping long terme (contrarien) — pondération MACD 18 %
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② <strong>direction</strong> par rapport à la veille
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① <strong>niveau</strong> de l’histogramme
+, 0, 100)</code></pre>
+      <p>
+        Les deux fonctions ont <strong>la même structure, avec les coefficients inversés.</strong> C’est tout.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Terme</th><th>Signification</th><th>Coefficient court terme (momentum)</th><th>Coefficient long terme (contrarien)</th></tr></thead>
+          <tbody>
+            <tr><td>① Niveau</td><td>Quelle est la taille actuelle de l’histogramme (valeur absolue)</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② Direction</td><td>A-t-il augmenté ou diminué par rapport à la bougie précédente (Δ)</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>Ratio niveau : direction</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>Gain du tanh</td><td>Plus il est grand, plus la saturation arrive vite pour de petites variations</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Le mode court terme donne deux fois plus de poids au niveau.</strong> Ce qui compte, c’est la force de la tendance.<br />
+        <strong>Le mode long terme donne 2,5 fois plus de poids à la direction.</strong> Même si l’histogramme est encore profondément négatif,
+        c’est <strong>« est-ce mieux qu’hier ? »</strong> qui domine le score.
+      </p>
+
+      <h3>Même histogramme, direction différente — de combien les scores divergent-ils ?</h3>
+      <p>Pour un prix de 100, nous avons testé quatre situations où <strong>la valeur de l’histogramme est la même mais où seule la direction par rapport à la veille change</strong>.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Situation</th><th>Histogramme</th><th>Valeur précédente</th><th>Score court terme</th><th>Score long terme</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>Très négatif mais <strong>en net retournement à la hausse</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>Très négatif et <strong>toujours en baisse</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>Légèrement positif mais <strong>en train de fléchir</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>Légèrement positif et <strong>en hausse</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Comparez les lignes 1 et 2. <strong>L’histogramme vaut −0.30 dans les deux cas.</strong> Seule la direction diffère.
+        Et pourtant <strong>le sous-score long terme passe de 22.6 à 58.4, soit 35.8 points d’écart.</strong>
+        Un modèle qui ne regarde que la valeur absolue <strong>ne distinguerait pas</strong> ces deux situations : les deux seraient « mauvaises ».
+      </p>
+      <p>
+        Or la ligne 1, c’est <strong>exactement le jour 28</strong> vu à l’ÉTAPE 3 :
+        la bougie où, alors que le prix faisait un nouveau plus bas, la pression baissière <em>commençait à faiblir</em>.
+        En ne regardant que la valeur absolue, on aurait noté cette bougie comme « la pire ». <strong>En réalité, elle précédait le creux de deux bougies.</strong>
+      </p>
+      <p>
+        Les lignes 3 et 4 racontent la même histoire dans l’autre sens. L’histogramme est positif (+0.10), donc <strong>pour un modèle en valeur absolue, les deux sont « bonnes »</strong>,
+        mais l’une fléchit et l’autre monte. Les scores long terme se séparent : <strong>37.5 contre 66.5</strong>.
+      </p>
+      <div class="note">
+        <strong>En une phrase</strong> — la valeur absolue de l’histogramme dit <strong>« à quel point c’est bon maintenant »</strong>,
+        la variation par rapport à la veille dit <strong>« est-ce en train de s’améliorer »</strong>.
+        Dans une optique d’accumulation à long terme, ce que nous voulons acheter, ce n’est pas un <em>actif qui va déjà bien</em>, mais un <em>actif qui a cessé de se dégrader</em>.
+        C’est pourquoi, dans le mapping long terme, le coefficient de direction (25) écrase le coefficient de niveau (10).
+      </div>
+
+      <h3>Le prix à payer : le tanh sature vite (la leçon du jour 41)</h3>
+      <p>
+        Rien n’est gratuit. Donner beaucoup de poids à la direction <strong>fait fortement bouger le score au moindre bruit.</strong>
+        Le <strong>jour 41</strong> du tableau de l’ÉTAPE 5 en est la preuve.
+      </p>
+      <pre><code>Jour 40 : ΔHistogramme = <strong>+0.155</strong>  (+0.183% du prix 84.7)  → score long terme <strong>80.0</strong>
+Jour 41 : ΔHistogramme = <strong>−0.014</strong>  (−0.017% du prix 83.9)  → score long terme <strong>57.4</strong>
+
+Calcul du terme de direction :
+  Jour 40 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  Jour 41 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  Écart <strong>−22.5 points</strong>   ← correspond à la baisse du sous-score long terme (−22.6)</code></pre>
+      <p>
+        <strong>Une infime baisse de l’histogramme, équivalente à 0,017 % du prix, a fait perdre 22.6 points au sous-score long terme.</strong>
+        La cause est la saturation du <code>tanh</code>. <code>tanh(1.098) ≈ 0.80</code> — autrement dit, dès que Δ atteint 0,18 % du prix,
+        le terme de direction prend déjà <strong>80 % de son maximum (25 points)</strong>. Au-delà, il a beau grossir, il ne monte plus.
+        À l’inverse, si le signe s’inverse, ces 20 points <strong>disparaissent instantanément.</strong>
+      </p>
+      <p>Cette courbe de saturation devient évidente sous forme de tableau.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>ΔHistogramme ÷ prix</th><th>Terme de direction court terme (max 15)</th><th>Terme de direction long terme (max 25)</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00 (saturé)</td><td>25.00 (saturé)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Au-delà de 0,4 %, les deux termes sont pratiquement à leur maximum.</strong> Au-dessus, ils n’apportent plus aucune information.
+        Autrement dit, <strong>l’information « l’histogramme est énorme » n’est quasiment pas reflétée dans le score broodev.</strong>
+        Même dans une envolée, le sous-score MACD reste collé autour de 100 et ne monte plus.
+        C’est un choix délibéré (empêcher les valeurs extrêmes de dominer le score global), mais c’est aussi une <strong>perte d’information manifeste</strong>.
+        Nous le disons franchement.
+      </p>
+
+      <p class="step">ÉTAPE 7</p>
+      <h2>Expérience en marché latéral — rien ne se passe, mais le score fait l’aller-retour entre 21 et 83</h2>
+      <p>
+        Voyons maintenant le pire scénario <strong>en chiffres</strong>. Nous créons un nouveau jeu de données :
+        <strong>un marché parfaitement latéral qui oscille entre 98.4 et 101.5 pendant 60 bougies.</strong> L’amplitude totale est de <strong>±1,5 %</strong>.
+        Pendant 60 jours, il ne s’est pratiquement <strong>rien passé</strong> sur le marché.
+      </p>
+      <p>Nous y appliquons le même MACD (12·26·9) et le même mapping broodev.</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Jour</th><th>Clôture</th><th>Histogramme</th><th>Signe</th><th>Inversion</th><th>Score court terme</th><th>Score long terme</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>En synthèse, voici ce que cela donne.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Élément</th><th>Valeur</th></tr></thead>
+          <tbody>
+            <tr><td>Bougies avec un histogramme</td><td>27 bougies (jours 34 à 60)</td></tr>
+            <tr class="mark"><td><strong>Nombre d’inversions de signe de l’histogramme</strong></td><td><strong>10 fois</strong> — en moyenne une fois toutes les 2,7 bougies</td></tr>
+            <tr><td>Valeur absolue maximale de l’histogramme</td><td>0.132 (<strong>0,13 %</strong> du prix)</td></tr>
+            <tr><td>Plage du sous-score court terme</td><td>21.1 à 83.0 → <strong>amplitude 61.9</strong></td></tr>
+            <tr><td>Plage du sous-score long terme</td><td>32.8 à 71.2 → <strong>amplitude 38.4</strong></td></tr>
+            <tr><td>Moyenne du sous-score court terme</td><td>52.6 (neutre)</td></tr>
+            <tr><td>Moyenne du sous-score long terme</td><td>50.7 (neutre)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>En 27 bougies, le signal achat/vente s’est inversé 10 fois.</strong> C’est ce qu’on appelle un <strong>whipsaw</strong> (faux signaux en série).
+        Avec la règle classique « acheter quand l’histogramme franchit la ligne zéro vers le haut, vendre quand il la franchit vers le bas »,
+        <strong>vous auriez acheté et vendu 10 fois en 27 jours</strong> et, pour un prix resté sur place, <strong>payé des frais 10 fois</strong>.
+      </p>
+      <p>
+        Plus inquiétant encore, <strong>l’amplitude du score</strong>. Le marché n’a bougé que de ±1,5 %, mais
+        le sous-score court terme a fait l’aller-retour <strong>de 21.1 (évitement fort) à 83.0 (achat fort)</strong>.
+        Entre le 21.1 du jour 50 et le 81.0 du jour 38, <strong>il n’y a pratiquement aucune différence réelle de marché</strong> : 2,6 % d’écart sur la clôture.
+      </p>
+
+      <h3>Alors, de combien le score final varie-t-il ?</h3>
+      <p>Le MACD n’est qu’un indicateur sur six. En appliquant la pondération, on obtient son <strong>impact réel sur le score global (0 à 100)</strong>.</p>
+      <pre><code>Mode court terme : amplitude du sous-score 61.9 × pondération <strong>0.14</strong> = <strong>8.67 points</strong>
+Mode long terme  : amplitude du sous-score 38.4 × pondération <strong>0.18</strong> = <strong>6.91 points</strong></code></pre>
+      <p>
+        Et voici un <strong>résultat contre-intuitif</strong> :
+        <strong>le court terme a une pondération plus faible (14 % &lt; 18 %), mais fait davantage varier le score final (8.67 &gt; 6.91).</strong>
+        Le coefficient de niveau de 30 et le gain de 800 rendent le mapping court terme bien plus sensible.
+        Conclure, en ne regardant que la pondération, que « le court terme tient moins compte du MACD » serait une erreur. <strong>Il faut aussi regarder la fonction de mapping.</strong>
+      </p>
+      <p class="muted">
+        Notons que dans les deux modes, <strong>la moyenne tourne autour de 50 (52.6 / 50.7)</strong>. En marché latéral, le sous-score MACD reste neutre
+        <em>en moyenne</em>. Le problème, c’est qu’on ne trade <strong>pas sur la moyenne, mais sur la valeur du jour</strong>.
+      </p>
+
+      <p class="step">ÉTAPE 8</p>
+      <h2>Pondération 14 % contre 18 % — une réponse par le calcul</h2>
+      <p>
+        Dans les pondérations publiées dans le <a href="/methodology">document de méthodologie</a>, le MACD pèse <strong>14 % en court terme et 18 % en long terme</strong>.
+        « Pourquoi le MACD, indicateur de momentum, pèse-t-il moins dans le mode momentum (court terme) ? » — c’est une question fréquente, et légitime.
+        La réponse est la <strong>redondance</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Mode</th><th>Nature momentum/tendance</th><th>Nature contrarienne</th><th>Rôle du MACD</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Court terme</strong></td>
+              <td>RSI 28% + F&amp;G 28% + repli 18% + MACD 14% + croix 8% = <strong>96%</strong><br /><span class="muted">en mode court terme, RSI, F&amp;G et repli sont <em>tous mappés dans le sens du momentum</em></span></td>
+              <td>Mayer 4%</td>
+              <td><strong>Redondant.</strong> 96 % regardent déjà la tendance</td>
+            </tr>
+            <tr>
+              <td><strong>Long terme</strong></td>
+              <td>MACD 18% + croix 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + Mayer 18% + repli 14% = <strong>50%</strong><br />(RSI 18% en mapping contrarien)</td>
+              <td><strong>Le seul frein.</strong> Plus de la moitié des 32 % qui retiennent quand 68 % crient « achetez »</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>En mode court terme, sur les 6 indicateurs, 5 sont en fait déjà mappés dans le sens du momentum.</strong>
+        Le RSI, via <code>50 + (RSI−50) × 1.6</code>, donne <em>un score d’autant plus élevé qu’il est haut</em> (surachat = bon),
+        le F&amp;G donne <em>un score d’autant plus élevé que l’avidité est forte</em>, et le repli <em>un score d’autant plus élevé qu’il est faible</em>.
+        Charger le MACD par-dessus reviendrait à <strong>compter quatre fois la même information</strong>.
+        De plus, comme on l’a vu à l’ÉTAPE 7, <strong>le MACD est l’indicateur le plus bruité de l’ensemble</strong> (10 inversions en 27 bougies).
+        Aucune raison d’alourdir un indicateur redondant et bruyant. D’où les 14 %.
+      </p>
+      <p>
+        <strong>Le mode long terme est tout l’inverse.</strong> F&amp;G (18 %) · Mayer (18 %) · repli (14 %) — <strong>au total, 50 % d’indicateurs contrariens</strong>,
+        et ces trois-là <a href="/indicators">se trompent tous ensemble en marché baissier</a>. Tous trois crient « c’est bon marché, achetez » pendant que le prix continue de chuter.
+        À ce moment-là, <strong>les seuls indicateurs capables de dire « pas encore » sont le MACD (18 %) et la croix dorée/de la mort (14 %)</strong>.
+        Or la croix, qui utilise la moyenne mobile 200 jours, est <strong>le signal le plus lent</strong> : près d’un creux, elle a plusieurs semaines de retard.
+      </p>
+      <div class="note">
+        <strong>Conclusion</strong> — en mode long terme, les 18 % du MACD ne s’expliquent <strong>pas parce qu’on « croit davantage au momentum », mais parce qu’« il manque de freins »</strong>.
+        Dans une structure où le trio contrarien pèse 50 %, le MACD est <strong>le seul indicateur rapide qui confirme qu’une tendance s’est réellement retournée</strong>.
+        Et cette confirmation ne passe pas par <em>l’histogramme est-il devenu positif ?</em> (lent),
+        mais par <em>l’histogramme est-il plus grand qu’hier ?</em> (rapide) — d’où le coefficient de direction de 25 dans le mapping long terme.
+        <strong>La pondération de 18 % et le coefficient de direction de 25 sont les deux faces d’une même décision.</strong>
+      </div>
+
+      <p class="step">Annexe A</p>
+      <h2 id="seed">Votre graphique et notre histogramme peuvent différer</h2>
+      <p>
+        C’est un fait que la plupart des articles sur le MACD ne mentionnent jamais : <strong>le MACD n’est pas un standard normalisé.</strong>
+        « 12·26·9 » est fixé, mais <strong>la valeur de départ de l’EMA (l’amorçage) ne l’est pas.</strong>
+      </p>
+      <ul>
+        <li><strong>Méthode broodev</strong> — amorce = <strong>moyenne simple</strong> des <code>period</code> premières valeurs (ÉTAPES 2 et 3 ci-dessus)</li>
+        <li><strong>Autre méthode courante</strong> — amorce = <strong>la première clôture elle-même</strong>, l’EMA tournant dès le jour 1</li>
+      </ul>
+      <p>Mêmes 42 clôtures, mêmes 12·26·9, et pourtant l’histogramme diverge ainsi.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Jour</th><th>Clôture</th><th>Histogramme<br />(broodev · amorce SMA)</th><th>Histogramme<br />(amorce première clôture)</th><th>Écart</th><th>Écart ÷ prix</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>aucune valeur</td><td><strong>+0.056</strong> ← signal d’achat !</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Regardez le jour 33.</strong> Avec l’amorce sur la première clôture, l’histogramme est <strong>déjà positif à +0.056</strong> —
+        autrement dit, le signal <strong>« franchissement haussier de la ligne zéro de l’histogramme, achat »</strong> est apparu.
+        Le même jour, broodev <strong>n’a même pas de valeur</strong> (l’amorce du signal n’est créée qu’au jour 34).
+        <strong>Mêmes données, mêmes paramètres, mais pas le même jour de signal.</strong>
+      </p>
+      <p>
+        L’écart se réduit avec le temps (0,82 % → 0,35 %). En théorie, l’influence de l’amorce sur une EMA s’éteint exponentiellement,
+        donc <strong>avec suffisamment de données, les deux méthodes convergent.</strong> Mais à la 42e bougie, il reste encore un écart de 0,35 % du prix.
+      </p>
+      <p>
+        <strong>Dans quelle mesure cet écart se répercute-t-il alors sur le sous-score broodev ?</strong> Nous l’avons simplement calculé, là aussi.
+        Le résultat <strong>n’était pas celui que j’attendais, et c’est ce qui le rend intéressant.</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Jour</th><th>Écart d’histogramme</th><th>Score court terme<br />(nous / alternative)</th><th>Δ</th><th>Score long terme<br />(nous / alternative)</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>L’écart de sous-score n’est que de 0.2 à 4.9 points.</strong> L’histogramme a divergé de 0,82 %, mais les scores bougent à peine.
+        La raison est <strong>précisément la saturation du tanh que nous critiquions à l’ÉTAPE 6 comme une « perte d’information »</strong>.
+        Dans cette zone, l’histogramme est déjà assez grand pour que le terme de niveau soit collé à son maximum ;
+        <strong>les deux étant saturés, l’écart ne se répercute pas sur le score.</strong>
+      </p>
+      <div class="note">
+        <strong>La même propriété est à la fois une faiblesse et une force</strong><br />
+        La saturation du tanh <strong>jette l’information sur l’ampleur des valeurs extrêmes</strong> (le défaut de l’ÉTAPE 6). Mais c’est justement grâce à elle que
+        <strong>le score est peu sensible au bruit d’implémentation, comme la méthode d’amorçage ou la source de données</strong> (l’atout de l’annexe A).
+        On gagne d’un côté, on perd de l’autre. Nous avons <strong>choisi la robustesse.</strong> Nous ne savons pas si c’était le bon choix.
+      </div>
+      <p>
+        <strong>Mais il est trop tôt pour être rassuré.</strong> Le résultat ci-dessus concerne une phase de tendance où l’histogramme est <em>déjà grand</em>.
+        Si l’on injecte le même écart de 0,30 % <strong>quand l’histogramme est proche de 0 (= avant saturation)</strong>, voici ce qui se passe.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Histogramme (prix de 100)</th><th>Score court terme</th><th>Score long terme</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15 (de part et d’autre de la ligne zéro)</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Quand l’histogramme se retrouve de part et d’autre de la ligne zéro, le sous-score court terme s’écarte de 50 points.</strong>
+        Et <strong>la zone proche de 0 est exactement celle où l’on cherche des signaux</strong> — points de retournement, marchés latéraux, juste avant un croisement.
+        <strong>La zone où l’écart d’amorçage pèse le plus est justement la zone la plus importante.</strong>
+        (Là encore, le mapping long terme varie bien moins que le court terme : +14.3 contre +50.0, car son coefficient de niveau n’est que de 10.)
+      </p>
+      <div class="note warn">
+        <strong>Trois implications pratiques</strong>
+        <ul>
+          <li>
+            <strong>Ne comparez pas les valeurs absolues du MACD d’un site à l’autre.</strong> Si l’histogramme de broodev diffère de celui de votre logiciel de graphiques,
+            ce n’est pas que l’un des deux se trompe, c’est que <strong>la méthode d’amorçage diffère</strong>. La comparaison elle-même n’a pas de sens.
+          </li>
+          <li>
+            <strong>Méfiez-vous d’autant plus que l’historique est court.</strong> Sur un coin tout juste listé, l’influence de l’amorce ne s’est pas encore dissipée.
+            Sur un actif comme le BTC, avec des centaines de bougies, l’écart est négligeable.
+          </li>
+          <li>
+            <strong>Soyez particulièrement sceptique face au signal « l’histogramme vient de franchir la ligne zéro ».</strong> Comme le montre le tableau ci-dessus,
+            près de la ligne zéro, les différences d’implémentation peuvent écarter le sous-score jusqu’à 50 points.
+            <strong>Plutôt que le franchissement de la ligne zéro lui-même, regardez la persistance de la direction sur plusieurs bougies</strong> : c’est bien plus sûr.
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">Annexe B</p>
+      <h2>Ce que ce pas-à-pas n’a pas démontré (et ne peut pas démontrer)</h2>
+      <p>
+        Jusqu’ici, nous avons reproduit le calcul sur des <strong>données fictives</strong> de 42 et 60 bougies.
+        Distinguons clairement ce que cet article a démontré de ce qu’il <strong>n’a pas démontré</strong>.
+      </p>
+      <h3>Ce qui est démontré</h3>
+      <ul>
+        <li>Le calcul MACD de broodev est le <strong>12·26·9 standard</strong>, et <strong>n’importe qui peut le reproduire</strong> avec les chiffres ci-dessus.</li>
+        <li>L’histogramme n’existe qu’<strong>à partir de la 34e bougie</strong>, et la lecture de direction <strong>à partir de la 35e</strong>. D’où la garde <code>closes.length &gt;= 35</code>.</li>
+        <li>Le mapping long terme pèse la direction 2,5 fois plus avec <strong>coefficient de direction 25 : coefficient de niveau 10</strong>. C’est écrit tel quel dans le code.</li>
+        <li>Le score est <strong>invariant d’échelle de prix</strong> (identique à la quatrième décimale même ×700).</li>
+        <li>En marché latéral, cet indicateur <strong>inverse son signal 10 fois en 27 bougies.</strong> C’est une <strong>faiblesse mesurée</strong> de notre modèle.</li>
+        <li>
+          Le MACD <strong>n’est pas un standard normalisé.</strong> Changer seulement la méthode d’amorçage décale le jour du signal sur les mêmes données.
+          Toutefois, grâce à la saturation du tanh, <strong>en phase de tendance</strong> cet écart ne se répercute presque pas sur le sous-score (0.2 à 4.9 points).
+          <strong>Près de la ligne zéro, il peut atteindre 50 points.</strong>
+        </li>
+      </ul>
+      <h3>Ce qui n’est pas démontré (important)</h3>
+      <ul>
+        <li>
+          <strong>Ce n’est pas une preuve que « suivre les changements de direction rapporte ».</strong> Les 42 bougies ci-dessus sont des données fictives <em>que j’ai construites pour qu’elles rebondissent</em>.
+          Il serait tout aussi facile de construire des données qui, après un changement de direction au creux, <strong>chutent encore de −40 %</strong>.
+          <strong>La transparence du calcul</strong> et <strong>le pouvoir prédictif</strong> sont deux questions totalement différentes.
+        </li>
+        <li>
+          <strong>Le MACD est par nature un indicateur retardé.</strong> C’est une moyenne mobile d’une différence de moyennes mobiles.
+          Quand l’histogramme change de direction, <strong>une partie du mouvement est déjà passée</strong>.
+          Le fait qu’à l’ÉTAPE 3 la ligne MACD se soit retournée 2 bougies avant le prix relève de la <strong>divergence</strong>, pas de la <strong>prescience</strong> —
+          et les divergences <strong>échouent souvent.</strong>
+        </li>
+        <li>
+          <strong>Les pondérations 14 %/18 % relèvent du jugement de l’auteur.</strong> La logique de l’ÉTAPE 8 (éviter la redondance, garder un frein) est une <em>justification de conception</em> convaincante,
+          <strong>pas une preuve d’optimalité.</strong> 16 % ferait peut-être mieux. Les données ne tranchent pas nettement.
+        </li>
+        <li>
+          <strong>La saturation du tanh jette l’information extrême.</strong> Comme vu à l’ÉTAPE 6, au-delà de 0,4 % du prix,
+          l’ampleur de l’histogramme n’est plus reflétée dans le score. C’est une conception qui <strong>jette délibérément l’information d’intensité</strong> des krachs et envolées historiques.
+        </li>
+        <li>
+          <strong>Le MACD ignore tout des actualités, de la réglementation, des piratages et de la liquidité.</strong> Même pendant la faillite d’une plateforme d’échange, l’histogramme peut afficher un joli retournement haussier.
+        </li>
+      </ul>
+      <p>
+        Le sous-score MACD ne représente que <strong>14 à 18 %</strong> du score global de broodev.
+        Les 82 à 86 % restants viennent des <a href="/indicators">cinq autres indicateurs</a>,
+        et la manière de les combiner est entièrement publiée dans le <a href="/methodology">document de méthodologie</a>.
+        <strong>Aucun indicateur ne décide quoi que ce soit à lui seul.</strong> C’est l’intention de la conception.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avertissement sur l’investissement</strong><br />
+        Ce document est un <strong>document technique qui rend publique une méthode de calcul ; ce n’est pas un conseil en investissement.</strong>
+        Les clôtures et scores du texte sont des <strong>données fictives</strong> destinées à illustrer le calcul et ne prédisent le prix futur d’aucun actif.
+        Les cryptomonnaies sont des actifs à haut risque pouvant entraîner <strong>la perte totale du capital</strong>.
+        Toute décision d’investissement et ses conséquences (gains ou pertes) relèvent entièrement de la responsabilité de l’utilisateur. Faites toujours vos propres recherches (DYOR).
+      </div>
+
+      <h2>À lire ensuite</h2>
+      <div class="related">
+        <a href="/methodology"><b>Méthodologie du score</b><span>Pondérations des 6 indicateurs, dont les 14 %/18 % du MACD, et renormalisation, entièrement publiées</span></a>
+        <a href="/indicators"><b>Les 6 indicateurs expliqués</b><span>Quand chacun des cinq autres, hors MACD, vous trahit</span></a>
+        <a href="/guide-fear-greed"><b>Utiliser l’indice de peur en pratique</b><span>L’indicateur précis que le MACD doit freiner</span></a>
+        <a href="/glossary"><b>Glossaire</b><span>EMA, histogramme, divergence, whipsaw : les termes en bref</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Exploité par Y-Systems · <a href="/privacy">Politique de confidentialité</a> · <a href="/terms">Conditions d’utilisation</a></footer>
+    </main>

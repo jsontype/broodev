@@ -1,0 +1,522 @@
+    <main class="wrap" data-title="A história do Múltiplo de Mayer — o que a média de 200 dias disse em cada ciclo do Bitcoin | broodev" data-desc="Porque é que Trace Mayer escolheu o número 2,4? Acompanhamos em ordem cronológica quanto valia realmente o Múltiplo de Mayer nos topos de 2013·2017·2021·2024 e nos fundos de 2015·2018·2020·2022, e mostramos com cálculos porque é que o modelo broodev dá a este indicador pesos radicalmente diferentes: 4% no curto prazo e 18% no longo prazo.">
+      <nav class="nav">
+        <a href="/">← Painel</a>
+        <a href="/methodology">Metodologia do score</a>
+        <a href="/indicators">Guia dos indicadores</a>
+        <a href="/guide-fear-greed">Guia do índice de medo</a>
+        <a href="/glossary">Glossário</a>
+      </nav>
+
+      <h1>A história do Múltiplo de Mayer<br />— o que a média de 200 dias disse em cada ciclo</h1>
+      <p class="muted">Última atualização: 2026-07-14 · Autor: Y-Systems · Âmbito: o componente Múltiplo de Mayer da pontuação de momento de compra broodev v2</p>
+
+      <p class="lead">
+        <code>Múltiplo de Mayer = preço atual ÷ média móvel de 200 dias</code>. Uma única divisão, e é tudo.
+        No entanto, este número sozinho representa <strong>18% da pontuação de longo prazo da broodev e 4% da de curto prazo</strong>. Uma diferença de quatro vezes e meia.
+        A razão para dar pesos tão diferentes ao mesmo indicador não se explica com uma fórmula.
+        <strong>Só se explica acompanhando a história dos ciclos do Bitcoin.</strong> Por isso este texto está escrito como uma crónica e não como um cálculo.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Cronologia</div>
+        <ol>
+          <li><a href="#origin">2014 — a pergunta de um podcaster, e o 2,4</a></li>
+          <li><a href="#wild">2011~2013 — a era selvagem em que o múltiplo passava de 4</a></li>
+          <li><a href="#floor">2015 — o ano em que nasceu o fundo de “0,8”</a></li>
+          <li><a href="#2017">2017 — a razão decisiva pela qual o peso de curto prazo ficou em 4%</a></li>
+          <li><a href="#bottoms">2018 · 2020 — três fundos marcados quase no mesmo sítio</a></li>
+          <li><a href="#2021">2021 — dois topos, dois múltiplos completamente diferentes</a></li>
+          <li><a href="#etf">2022~2026 — depois dos ETF, o 2,4 talvez nunca mais volte</a></li>
+          <li><a href="#weights">Então porquê 4% e 18% — a resposta em números</a></li>
+          <li><a href="#curve">Anatomia da função de conversão — porquê cortar em 0,8 · 1,4 · 2,4</a></li>
+          <li><a href="#silence">Os quatro pontos onde este indicador se cala</a></li>
+          <li><a href="#today">Como ler este número em 2026</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Sobre os números deste texto.</strong> Os valores históricos do múltiplo que aparecem abaixo são <strong>aproximações reconstruídas</strong> dividindo o fecho diário pela média móvel simples de 200 dias.
+        Consoante a bolsa cujo preço se usa e se o fecho é tomado em UTC, a primeira casa decimal oscila.
+        Leia “estava em 2,9 no topo” antes como <strong>“estava entre 2,5 e 3”</strong>. O argumento deste texto não está nas casas decimais, mas na <strong>tendência de ciclo para ciclo</strong>.
+      </div>
+
+      <section class="bd-figs" aria-label="Gráfico ao vivo do Múltiplo de Mayer">
+        <p class="muted">Os gráficos abaixo são desenhados descarregando, no momento da visita, todo o histórico diário de BTC da API pública da CoinMetrics e calculando-o diretamente no navegador. Confirme primeiro com os seus olhos a cronologia do texto e depois leia. Passe o rato por cima para ver o valor de cada data.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-price" class="bd-pane"><div class="bd-loading">A carregar os dados do gráfico…</div></div>
+          </div>
+          <p class="bd-cap">Preço do BTC (escala logarítmica) e média móvel simples de 200 dias. Tracejado laranja = halvings (2012·2016·2020·2024). Dados: CoinMetrics Community API, fecho diário do BTC — descarregados no momento da visita e calculados no navegador; <strong>valores aproximados, apenas para referência</strong>.</p>
+        </div>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-mult" class="bd-pane"><div class="bd-loading">A carregar os dados do gráfico…</div></div>
+          </div>
+          <p class="bd-cap">Série temporal do Múltiplo de Mayer. Sombreado verde = 0,8 ou menos (zona historicamente subvalorizada), sombreado vermelho = acima de 2,4 (zona de sobreaquecimento). Os valores extremos acima de 4 de 2011~2013 são cortados em 4. Dados: CoinMetrics Community API, fecho diário do BTC — descarregados no momento da visita e calculados no navegador; <strong>valores aproximados, apenas para referência</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="origin">2014 — a pergunta de um podcaster, e o 2,4</h2>
+      <p>
+        Em 2014 a comunidade Bitcoin não tinha indicadores como os de hoje. Não havia empresas de dados on-chain, nem Índice de Medo e Ganância.
+        Havia gráficos de preço e posts de fóruns, e para quem tinha vivido duas bolhas seguidas em 2013 (abril e novembro) restava uma única pergunta.
+        <strong>“Posso comprar agora?”</strong>
+      </p>
+      <p>
+        Trace Mayer era um investidor inicial em Bitcoin e podcaster. É importante que não fosse trader.
+        Não lhe interessava <em>“vai subir hoje?”</em>; interessava-lhe <strong>“como estará daqui a uns anos quem entrar agora?”</strong>.
+        Quando o horizonte temporal da pergunta muda, as ferramentas necessárias também mudam.
+      </p>
+      <p>
+        O que ele pegou foi a <strong>média móvel de 200 dias</strong>, usada nas finanças tradicionais há quase 100 anos.
+        A linha dos 200 dias é aproximadamente <strong>a média de 10 meses de dias úteis</strong>. Uma linha lenta, que não se mexe com uma ou duas notícias nem com uma liquidação.
+        A ideia de Mayer era simples. <strong>“Quantas vezes acima dessa linha lenta está o preço de hoje?”</strong>
+      </p>
+      <pre><code>Múltiplo de Mayer = fecho de hoje ÷ média móvel simples (SMA) de 200 dias
+
+múltiplo 1.0  → igual à média de 200 dias
+múltiplo 0.7  → 30% mais barato que a média
+múltiplo 2.5  → 150% mais caro que a média</code></pre>
+
+      <h3>De onde veio o número 2,4</h3>
+      <p>
+        Mayer não parou por aí e fez um <strong>backtest de regras</strong> (ofereceu uma recompensa à comunidade e fez o cálculo por crowdsourcing).
+        A pergunta era esta.
+      </p>
+      <p class="lead">
+        <em>“Entre uma regra que só compra periodicamente quando o Múltiplo de Mayer está abaixo de X e outra que compra a qualquer momento, qual tem melhor retorno a longo prazo? Vamos testar X de 0,1 a 5.”</em>
+      </p>
+      <p>
+        O que ele destacou nos resultados não foi o valor ótimo, mas o <strong>ponto de inflexão</strong>.
+        Ao subir continuamente o limiar (= comprar mesmo caro), a partir de certo ponto o desempenho de longo prazo começava a piorar visivelmente, e essa zona ficava <strong>por volta de 2,4</strong>.
+        Ou seja, 2,4 não é uma profecia de que “aqui é o topo”, mas uma estatística a posteriori: <strong>“comprar mais caro do que isto custou historicamente caro”</strong>.
+      </p>
+      <div class="note warn">
+        <strong>Deixamos já aqui claro o limite.</strong> Quando Mayer correu o cálculo, o Bitcoin era <strong>um ativo com apenas 5 anos de existência</strong>.
+        Só havia dois ciclos completos, e a maior parte da amostra era a “fase de crescimento explosivo inicial”.
+        <strong>O 2,4 é um número tirado de dois ciclos.</strong> Usamos este número, mas sabendo que não é uma constante física.
+        Na última secção deste texto explicamos porque é que o 2,4 <em>já está a envelhecer</em>.
+      </div>
+
+      <h2 id="wild">2011~2013 — a era selvagem em que o múltiplo passava de 4</h2>
+      <p>
+        Se aplicarmos o indicador aos dados anteriores à sua criação, o Bitcoin inicial marca <strong>valores que hoje não fazem sentido</strong>.
+      </p>
+      <p>
+        Na primeira grande bolha, em junho de 2011, o múltiplo <strong>passou de 5.</strong> Ou seja, o preço era cinco vezes a média de 200 dias.
+        Nos dois topos de abril e novembro de 2013 também chegou <strong>à casa dos 3~4</strong>.
+        Nessa época, a regra <em>“múltiplo 2,4 = perigo”</em> era praticamente inútil. Depois de passar 2,4, o preço ainda duplicava.
+      </p>
+      <p>
+        Porquê? A capitalização de mercado estava entre centenas de milhões e alguns milhares de milhões de dólares, a liquidez era baixa, não havia mercado de derivados e a venda a descoberto era praticamente impossível.
+        <strong>Era um mercado com força para empurrar para cima e sem força para puxar para baixo.</strong> Num mercado assim, 5 vezes a linha dos 200 dias é natural.
+      </p>
+      <p>
+        A lição que os dados dessa época nos dão hoje é que <strong>“o valor absoluto do Múltiplo de Mayer depende da estrutura do mercado”</strong>.
+        O mesmo 2,4 era “ainda o início” em 2013 e passa a ser “quase inatingível” em 2021. Voltaremos a este tema mais à frente.
+      </p>
+
+      <h2 id="floor">2015 — o ano em que nasceu o fundo de “0,8”</h2>
+      <p>
+        Depois do colapso da Mt. Gox em 2014, o Bitcoin caiu durante mais de um ano. Perto do mínimo de janeiro de 2015, o múltiplo foi empurrado até <strong>à casa dos 0,6</strong>.
+        Mas o mais importante não é o mínimo em si, e sim o facto de que, antes e depois dele, <strong>o múltiplo rastejou durante meses entre 0,7 e 0,9</strong>.
+      </p>
+      <p>
+        Este “fundo arrastado” é de onde vem o <strong>0,8</strong> da nossa função de conversão.
+        0,8 é um <strong>desconto de 20%</strong> face à linha dos 200 dias. E, somando todos os períodos da história do Bitcoin em que o múltiplo esteve abaixo de 0,8,
+        isso representa apenas <strong>uma fração ínfima de todos os dias de negociação</strong>. Ser raro — essa é a única justificação deste limiar.
+      </p>
+      <div class="note">
+        <strong>O que o nosso modelo não faz abaixo de 0,8.</strong> Um múltiplo de 0,6 é, de facto, “mais barato” do que 0,8.
+        Mas a nossa função de conversão <strong>achata tudo o que está abaixo de 0,8 em 100 pontos.</strong> Seja 0,6 ou 0,5, é igualmente 100 pontos.
+        Não dá mais por ser mais barato. Porque <strong>a queda não tem limite inferior</strong>.
+        Um modelo que dá 105 pontos a 0,5 grita “compre” cada vez mais alto à medida que o colapso se aprofunda. Isso não é um indicador, é um <em>acelerador</em>.
+        Cortar o topo de forma plana foi abdicar de precisão para <strong>comprar humildade</strong>.
+      </div>
+
+      <h2 id="2017">2017 — a razão decisiva pela qual o peso de curto prazo ficou em 4%</h2>
+      <p>
+        Para quem acreditava no Múltiplo de Mayer, 2017 foi <strong>o ano mais doloroso</strong>. E foi também o registo deste ano que empurrou o peso de curto prazo do nosso modelo para 4%.
+      </p>
+      <p>
+        Em 2017 o Bitcoin começou perto dos 1,000 dólares e acabou no fim de dezembro perto dos 20,000 dólares. O problema é <strong>em que ponto dessa viagem o múltiplo disse “está caro”</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Momento em 2017</th><th>Múltiplo aproximado</th><th>O que Mayer diz</th><th>O que aconteceu realmente depois</th></tr></thead>
+          <tbody>
+            <tr><td>maio~junho (casa dos 2,500 dólares)</td><td><code>1.5~1.7</code></td><td>“entrada em sobreaquecimento”</td><td>subiu mais <strong>cerca de 7 vezes</strong> até ao fim do ano</td></tr>
+            <tr><td>agosto (casa dos 4,000 dólares)</td><td><code>1.8~2.0</code></td><td>“bastante caro”</td><td>subiu <strong>mais 4 vezes</strong> em 4 meses</td></tr>
+            <tr><td>novembro (casa dos 8,000 dólares)</td><td><code>2.0~2.2</code></td><td>“perto da zona de topo”</td><td>subiu <strong>mais 2,4 vezes</strong> em 6 semanas</td></tr>
+            <tr><td>meados de dezembro (casa dos 19,000 dólares)</td><td><code>2.5~2.9</code></td><td>“sobreaquecimento extremo”</td><td>o topo real. Só aqui acertou</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Está a ver? O Múltiplo de Mayer <strong>disse “está caro” o ano inteiro, e errou o ano inteiro.</strong> E acertou nas duas últimas semanas.
+      </p>
+      <p>
+        Não se deve tirar a conclusão errada. Isto não quer dizer que <em>“o Múltiplo de Mayer é um mau indicador”</em>.
+        <strong>Quem viu o múltiplo em 1,6 em maio de 2017 e saiu</strong> e <strong>quem ignorou o múltiplo de 1,6 em maio de 2017, aguentou e saiu em dezembro</strong> —
+        o retorno de longo prazo do segundo é esmagadoramente melhor, mas <strong>quem continuou a segurar até 2018</strong> volta a ficar pior do que o primeiro.
+        O mesmo número leva a conclusões opostas consoante o horizonte temporal.
+      </p>
+      <div class="note warn">
+        <strong>É por isso que o peso de curto prazo é 4%.</strong> O separador de curto prazo da broodev tem uma perspetiva de <strong>1~3 meses</strong>.
+        Seja qual for a linha da tabela acima, o aviso “está caro” do Múltiplo de Mayer <strong>não acertou a direção dos 1~3 meses seguintes.</strong>
+        Se colocarmos um sinal com atraso de <em>vários meses a 1 ano</em> numa janela de <em>1~3 meses</em>, ele deixa de ser sinal e passa a ser <strong>ruído</strong>.<br /><br />
+        ⚠️ <strong>Importante:</strong> no separador de curto prazo, este indicador <strong>não</strong> funciona como “caro = aviso”.
+        Pelo contrário, funciona como <strong>“caro = tendência forte = pontos a mais”</strong>.
+        Então quem trava o topo da bolha? — <strong>não é o peso, é uma proteção separada contra topos blow-off</strong>.
+        Na <a href="#weights">próxima secção</a> divulgamos as duas funções e a proteção, com o código completo.
+      </div>
+
+      <h2 id="bottoms">2018 · 2020 — três fundos marcados quase no mesmo sítio</h2>
+      <p>
+        Este indicador, tão caprichoso nos topos, é <strong>surpreendentemente consistente nos fundos</strong>. É essa a sua verdadeira natureza.
+      </p>
+      <p>
+        <strong>Em dezembro de 2018</strong>, perto dos 3,150 dólares, quando um ano de mercado em baixa chegava ao fim, o múltiplo estava <strong>na casa dos 0,5~0,6</strong>.<br />
+        <strong>Em março de 2020</strong>, quando o choque da covid cortou o preço para metade num só dia e tocou a casa dos 3,800 dólares, o múltiplo estava <strong>perto de 0,6</strong>.<br />
+        <strong>Em novembro de 2022</strong>, quando a FTX colapsou e o preço desceu até à casa dos 15,500 dólares, o múltiplo estava <strong>em 0,6~0,7</strong>.
+      </p>
+      <p>
+        <strong>Em 7 anos, três fundos criados por três causas completamente diferentes (o rebentar de uma bolha própria / uma pandemia / a fraude de uma bolsa) foram marcados quase no mesmo múltiplo.</strong>
+        Apesar de o preço ter passado de 3,150 para 15,500 dólares, cinco vezes mais.
+        É por isso que se chama à linha dos 200 dias <strong>a gravidade do preço</strong>. O preço absoluto é completamente diferente de ciclo para ciclo, mas <strong>o limite inferior do quanto se pode afastar da linha dos 200 dias</strong> foi semelhante.
+      </p>
+      <p>
+        Março de 2020 merece um registo especial. Porque é praticamente o único caso em que o Múltiplo de Mayer acertou <strong>de imediato e com precisão</strong>.
+        A razão é clara. <strong>O choque terminou num único dia.</strong>
+        Enquanto o preço desabava na vertical, a linha dos 200 dias quase não se mexeu, e por isso o múltiplo rasgou-se de uma vez até 0,6.
+        <strong>O Múltiplo de Mayer é sensível a “quedas bruscas” e insensível a “desmoronamentos lentos”.</strong> Esta frase volta a aparecer, de forma dolorosa, na secção sobre limitações.
+      </p>
+
+      <h2 id="2021">2021 — dois topos, dois múltiplos completamente diferentes</h2>
+      <p>
+        2021 é o ano mais importante para perceber este indicador. Porque <strong>no mesmo ano houve dois topos a preços quase iguais, mas com múltiplos completamente diferentes</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Topo de 2021</th><th>Preço</th><th>Múltiplo aproximado</th><th>Pontuação da nossa função de conversão</th></tr></thead>
+          <tbody>
+            <tr><td>abril (1.º topo)</td><td>cerca de 64,000 dólares</td><td><code>1.9~2.2</code></td><td>cerca de <strong>22~30 pontos</strong> (CAUTION)</td></tr>
+            <tr><td>novembro (2.º topo, máximo do ciclo)</td><td>cerca de 69,000 dólares</td><td><code>1.3~1.4</code></td><td>cerca de <strong>50~55 pontos</strong> (NEUTRAL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>No verdadeiro topo do ciclo, o Múltiplo de Mayer disse “neutro”.</strong>
+      </p>
+      <p>
+        Isto não é um bug do indicador, é <strong>uma consequência matemática natural</strong>.
+        Depois do topo de abril, enquanto o preço andou de lado na casa dos 30,000 dólares durante todo o verão, a linha dos 200 dias continuou a <em>subir devagar.</em>
+        Quando o preço tocou os 69,000 dólares em novembro, a linha dos 200 dias já estava perto dos 50,000 dólares. Com o denominador maior, o múltiplo fica menor.
+      </p>
+      <p>
+        <strong>Quando o topo se divide em dois, o Múltiplo de Mayer falha o segundo.</strong>
+        Quanto mais o mercado evolui para uma forma madura, “que sobe em degraus em vez de explodir de uma vez”, mais impotente fica o alarme superior deste indicador.
+      </p>
+
+      <h2 id="etf">2022~2026 — depois dos ETF, o 2,4 talvez nunca mais volte</h2>
+      <p>
+        Se alinharmos verticalmente, ciclo a ciclo, os registos até aqui, vê-se <strong>uma tendência que corre numa só direção</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ciclo</th><th>Múltiplo no topo (aprox.)</th><th>Múltiplo no fundo (aprox.)</th><th>Amplitude</th></tr></thead>
+          <tbody>
+            <tr><td>2011</td><td><code>5 ou mais</code></td><td><code>0.4~0.5</code></td><td>extrema</td></tr>
+            <tr><td>2013</td><td><code>3~4</code></td><td><code>0.5~0.6</code> (2015)</td><td>muito grande</td></tr>
+            <tr><td>2017</td><td><code>2.5~2.9</code></td><td><code>0.5~0.6</code> (2018)</td><td>grande</td></tr>
+            <tr><td>2021</td><td><code>1.9~2.2</code> (abril)</td><td><code>0.6~0.7</code> (2022)</td><td>média</td></tr>
+            <tr><td>2024~2025</td><td><code>1.5~1.8</code></td><td>—</td><td><strong>pequena</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>O múltiplo no topo desce de ciclo para ciclo, e o múltiplo no fundo sobe.</strong> A amplitude está a comprimir-se.
+        As causas não são difíceis de adivinhar.
+      </p>
+      <ul>
+        <li><strong>Derivados e venda a descoberto</strong> — agora o mercado tem uma força que empurra para baixo. Algo que não existia em 2013.</li>
+        <li><strong>Capital institucional e ETF à vista</strong> — os fluxos a partir de 2024 são muito mais suaves e constantes do que a euforia dos particulares. Uma subida suave é acompanhada pela linha dos 200 dias.</li>
+        <li><strong>A dimensão da capitalização de mercado</strong> — para um ativo de um bilião de dólares saltar para 3 vezes a média de 200 dias, a escala de capital necessária é outra.</li>
+      </ul>
+      <div class="note warn">
+        <strong>Dizemo-lo com honestidade: a banda superior do nosso modelo já está a envelhecer.</strong>
+        A faixa “Múltiplo de Mayer acima de 2,4 → 10 pontos ou menos” <strong>não foi acionada uma única vez nos dois últimos ciclos.</strong>
+        Se a estrutura do mercado se mantiver, o 2,4 pode tornar-se <em>um limiar morto que nunca mais será tocado</em>.
+        <br /><br />
+        Mas <strong>ainda não baixámos</strong> este valor. A razão é um dilema.
+        Se baixarmos o limiar de 2,4 → 1,8 para se ajustar aos dados recentes, agora vai parecer que acerta bem, mas isso é <strong>dobrar a curva para encaixar no passado (curve fitting)</strong>.
+        Um modelo afinado assim desmorona-se no momento em que o próximo ciclo voltar à forma antiga.
+        <strong>A nossa escolha atual é “manter o limiar original, mas deixar escrito neste documento que ele é acionado menos vezes”.</strong>
+        Achámos melhor tornar públicas as fraquezas do modelo do que corrigi-lo em silêncio.
+      </div>
+
+      <h2 id="weights">Então porquê 4% e 18% — a resposta em números</h2>
+
+      <div class="note warn">
+        <strong>Nota de correção (2026-07-14)</strong> — a versão anterior desta secção <strong>aplicava por engano a função de conversão de longo prazo também à coluna de curto prazo</strong> e
+        explicava a contribuição de curto prazo do Múltiplo de Mayer <strong>com o sinal invertido</strong>.
+        Além disso, omitia a existência da <strong>proteção contra topos blow-off</strong>, que é quem realmente trata da defesa contra o sobreaquecimento no curto prazo.
+        O que se segue foi totalmente corrigido com base no código.
+      </div>
+
+      <p>
+        Há aqui um facto que é obrigatório conhecer. <strong>A função de normalização do Múltiplo de Mayer não é uma, são duas.</strong>
+        O separador de curto prazo e o de longo prazo usam <strong>funções diferentes</strong>, e <strong>com sinais opostos</strong>.
+      </p>
+
+      <pre><code>// longo prazo (contrária) — quanto mais barato, mais pontos
+conMayer(m):
+  m ≤ 0.8 → 100
+  m ≤ 1.4 → 50 + ((1.4 − m) / 0.6) × 50
+  m ≤ 2.4 → 10 + ((2.4 − m) / 1.0) × 40
+  m &gt; 2.4 → 10 − (m − 2.4) × 25
+
+// curto prazo (momentum) — quanto mais caro, mais pontos
+momMayer(m) = clamp(50 + (m − 1) × 25,  0,  100)</code></pre>
+
+      <p>
+        <strong>No curto prazo, “quanto mais caro, mais pontos” soa a loucura.</strong> Mas numa janela de 1~3 meses,
+        estar muito acima da linha dos 200 dias <strong>não é “sobrevalorização”, é “uma forte tendência de alta”</strong>.
+        2017 provou exatamente isso — mesmo depois de o múltiplo passar 2,4, o preço subiu durante mais uns meses.
+        O separador de curto prazo não nega essa tendência.
+      </p>
+
+      <p>Vamos calcular a contribuição real.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Múltiplo de Mayer</th><th>Subpontuação de curto prazo<br /><span class="muted">momMayer</span></th><th>Contribuição de curto prazo<br /><span class="muted">×4%</span></th><th>Subpontuação de longo prazo<br /><span class="muted">conMayer</span></th><th>Contribuição de longo prazo<br /><span class="muted">×18%</span></th></tr></thead>
+          <tbody>
+            <tr><td><code>0.75</code> (subvalorizado)</td><td>43.75</td><td>1.75 pts</td><td>100</td><td><strong>18.0 pts</strong></td></tr>
+            <tr><td><code>1.0</code> (linha dos 200 dias)</td><td>50</td><td>2.0 pts</td><td>83.3</td><td>15.0 pts</td></tr>
+            <tr><td><code>1.6</code></td><td>65</td><td>2.6 pts</td><td>42.0</td><td>7.6 pts</td></tr>
+            <tr><td><code>2.6</code> (sobreaquecido)</td><td>90</td><td><strong>3.6 pts</strong></td><td>5.0</td><td>0.9 pts</td></tr>
+            <tr><td><strong>Amplitude (0.5~2.5)</strong></td><td>37.5 ~ 87.5</td><td><strong>cerca de 2.0 pts</strong></td><td>100 ~ 7.5</td><td><strong>cerca de 16.7 pts</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>No separador de curto prazo, a amplitude total do Mayer é de pouco mais de 2 pontos.</strong> E a direção é <em>subvalorizado → pontos a menos</em>.
+        <strong>No separador de longo prazo move-se quase 17 pontos, e na direção contrária</strong> — o suficiente para empurrar <code>NEUTRAL(55 pts)</code>
+        até <code>CAUTION(38 pts)</code>, uma faixa e meia inteira.
+        Estar <strong>empatado no topo (18%)</strong> com RSI·MACD·medo e ganância não é exagerado porque os fundos de 2018·2020·2022
+        foram todos marcados na mesma zona de múltiplo. Não há muitos indicadores que se tenham reproduzido tanto à escala de ciclos.
+      </p>
+
+      <h3>Mas porquê 4% no curto prazo e não 0%</h3>
+      <p>
+        No curto prazo, o Mayer é <strong>uma duplicação dos indicadores de tendência</strong>. A informação “afastou-se para cima da linha dos 200 dias”
+        já está em grande parte contida no RSI (28%), na queda (18%) e no MACD (14%). Dar ainda muito peso ao Mayer seria
+        <strong>contar o mesmo sinal quatro vezes</strong>. Por isso foi reduzido a 4%.
+      </p>
+      <p>
+        <strong>Não é 0% porque há um ângulo que estes três não veem.</strong>
+        O RSI e o MACD olham para a velocidade dos <em>últimos dias</em>, e a queda olha para a distância <em>face ao máximo</em>.
+        Só o Mayer olha para <strong>“quanto se afastou da linha de referência de longo prazo que é a média de 200 dias”</strong>.
+        O <strong>grau absoluto de extensão</strong> da tendência — isto os outros três não substituem. Os 4% são essa parte.
+      </p>
+
+      <h3>Então quem trava o sobreaquecimento — a proteção contra topos blow-off</h3>
+      <p>
+        Aqui surge a objeção óbvia. <strong>“Se no curto prazo quanto mais caro mais pontos, a pontuação não continua a subir no topo da bolha?”</strong>
+        Certo. Se só existisse o momMayer, seria isso que aconteceria.
+      </p>
+      <p>
+        Por isso essa tarefa é feita <strong>não pelo peso, mas por um mecanismo separado</strong>.
+        Aplica-se uma <strong>atenuação à própria pontuação total de curto prazo</strong> depois de a síntese estar concluída.
+      </p>
+      <pre><code>if (mayer &gt; 2.0):
+    pontuação_total_curto ×= clamp(1 − (mayer − 2.0) × 0.55,  0.25,  1)</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Múltiplo de Mayer</th><th>Fator</th><th>Se a pontuação total de curto prazo fosse 70</th></tr></thead>
+          <tbody>
+            <tr><td><code>2.0</code></td><td>×1.00</td><td>70.0 (sem atenuação)</td></tr>
+            <tr><td><code>2.5</code></td><td>×0.725</td><td>50.8 <span class="muted">(−19.2 pts)</span></td></tr>
+            <tr><td><code>3.0</code></td><td>×0.45</td><td>31.5 <span class="muted">(−38.5 pts)</span></td></tr>
+            <tr><td><code>3.4 ou mais</code></td><td>×0.25 <span class="muted">(mínimo)</span></td><td>17.5 <span class="muted">(−52.5 pts)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Este é o verdadeiro travão.</strong> Está noutra dimensão face à amplitude de 2 pontos que o peso de 4% produz.
+        Com o múltiplo em 2,5, <strong>27,5% da pontuação total de curto prazo desaparece de uma vez.</strong>
+        <code>ACCUMULATE(70 pts)</code> desce para <code>NEUTRAL(50.8 pts)</code>.
+      </p>
+      <div class="note">
+        Resumindo, o Múltiplo de Mayer tem <strong>dois papéis</strong> no separador de curto prazo.<br />
+        <strong>① Peso de 4%</strong> — reflete <em>ligeiramente</em> o grau de extensão da tendência (mais caro = mais pontos, amplitude de 2 pontos)<br />
+        <strong>② Proteção blow-off</strong> — acima de um múltiplo de 2,0, <em>atenua a própria pontuação total</em> (corte máximo de 75%)<br />
+        <strong>“Como é 4%, o Mayer é ignorado no curto prazo” é um equívoco.</strong> Não é que o peso seja pequeno:
+        <strong>o papel de defesa contra o sobreaquecimento passou do peso para a proteção</strong>.
+      </div>
+      <p class="muted">
+        Acrescentando com honestidade: o nosso backtest não conseguiu dizer de forma taxativa se o coeficiente de atenuação 0,55 e o mínimo 0,25 são ótimos.
+        A única certeza é que “sem a proteção, a pontuação de curto prazo ficava perigosamente alta nos topos de 2017·2021”. O resto é juízo.
+      </p>
+
+      <h2 id="curve">Anatomia da função de conversão — porquê cortar em 0,8 · 1,4 · 2,4</h2>
+      <p>
+        A nossa função que converte o Múltiplo de Mayer numa subpontuação de 0~100 <strong>dobra em três pontos.</strong>
+        A origem de cada ponto de inflexão é completamente diferente.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ponto de inflexão</th><th>Origem</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td><code>0.8</code></td><td>observação dos fundos de 2015·2018·2022</td><td>desconto de 20% face à linha dos 200 dias. Historicamente atingido só raramente</td></tr>
+            <tr><td><code>1.4</code></td><td>próximo da <strong>média de longo prazo</strong> do múltiplo em todo o histórico do Bitcoin</td><td>“na média = 50 pontos” — o eixo central da função</td></tr>
+            <tr><td><code>2.4</code></td><td>o backtest original de Trace Mayer</td><td>o ponto a partir do qual comprar mais caro piorava o desempenho de longo prazo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>1,4 valer 50 pontos é a espinha dorsal desta função.</strong> A média de longo prazo do Múltiplo de Mayer do Bitcoin é superior a 1 —
+        ou seja, estar <em>acima</em> da linha dos 200 dias é o estado normal deste ativo (uma propriedade natural de um ativo com tendência de alta).
+        Por isso definimos <strong>não “1,0 = neutro”, mas “1,4 ≈ neutro”</strong>.
+        A interpretação comum que toma o múltiplo 1,0 como neutro é, para o Bitcoin, <strong>estruturalmente demasiado otimista</strong>.
+      </p>
+
+      <h3>Porque é que a inclinação muda de troço para troço</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Troço</th><th>Variação da pontuação</th><th>Variação por 0,1 de múltiplo</th><th>Porquê esta inclinação</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100 (fixo)</td><td><strong>0 pts</strong></td><td>não dá mais por ser mais barato (evitar apanhar a faca)</td></tr>
+            <tr><td><code>0.8 ~ 1.4</code></td><td>100 → 50</td><td><strong>−8.3 pts</strong></td><td>o troço onde o mercado passa <strong>a maior parte do tempo</strong> → resolução concentrada</td></tr>
+            <tr><td><code>1.4 ~ 2.4</code></td><td>50 → 10</td><td><strong>−4.0 pts</strong></td><td>seja 1,6 ou 2,0, no fim é “caro” → não precisa de resolução</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>atenua até 0</td><td>nos extremos a precisão não tem sentido</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        O essencial é que <strong>a inclinação do troço 0,8~1,4 é mais do dobro da do troço 1,4~2,4</strong>.
+        É intencional. O Bitcoin <strong>passa mais de metade dos dias de negociação com o múltiplo entre 0,8 e 1,4.</strong>
+        O que o modelo enfrenta todos os dias não é 2,6, mas <strong>se é 1,05 ou 1,25</strong>. É aí que tem de se concentrar a resolução para que a pontuação mude de forma significativa.
+      </p>
+      <p>Aplicando na prática, obtém-se isto.</p>
+      <pre><code>múltiplo 0.70  →  100 pts    (zona dos fundos de 2018·2022)
+múltiplo 0.90  →   91.7 pts
+múltiplo 1.00  →   83.3 pts   (igual à linha dos 200 dias)
+múltiplo 1.20  →   66.7 pts
+múltiplo 1.40  →   50.0 pts   ← eixo central (média de longo prazo)
+múltiplo 1.60  →   42.0 pts
+múltiplo 1.90  →   30.0 pts   (zona do topo de abril de 2021)
+múltiplo 2.20  →   18.0 pts
+múltiplo 2.40  →   10.0 pts   ← o limiar de Mayer
+múltiplo 2.60  →    cerca de 6 pts (atenua até 0)</code></pre>
+      <p>
+        Planas nas duas pontas e íngreme no meio: <strong>a forma de um S suave virado ao contrário</strong>.
+        Esta função passa para código o princípio de <em>“falar pouco nos extremos e falar muito na zona ambígua”</em>.
+      </p>
+
+      <h2 id="silence">Os quatro pontos onde este indicador se cala</h2>
+      <p>
+        Até aqui vimos <strong>o que este indicador consegue fazer</strong>. Agora vemos <strong>onde não consegue dizer nada</strong>.
+        Na prática, este lado é mais importante.
+      </p>
+
+      <h3>1. A fase final de um mercado em baixa — a falha mais traiçoeira</h3>
+      <p>
+        Escrevemos antes que “o Múltiplo de Mayer é sensível a quedas bruscas e insensível a desmoronamentos lentos”. O preço disso aparece aqui.
+      </p>
+      <p>
+        Quando um mercado em baixa prolongado já dura cerca de um ano, <strong>a própria linha dos 200 dias desce atrás do preço.</strong>
+        Então, mesmo com o preço a continuar a cair, <strong>o múltiplo “normaliza” para perto de 0,9~1,0.</strong>
+        Foi exatamente o que aconteceu a meio de 2018 e a meio de 2022. Com −70% face ao máximo, o Múltiplo de Mayer <strong>diz tranquilamente “neutro”.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Este é um defeito que o Múltiplo de Mayer sozinho nunca conseguirá corrigir.</strong> É o destino de um indicador cujo denominador se move.
+        É por isso que a broodev inclui à parte a <strong>queda face ao máximo de 365 dias</strong>.
+        O denominador do indicador de queda é <strong>um máximo passado fixo</strong>, por isso não desce junto.
+        <strong>Quando o Mayer se cala, a queda grita no seu lugar.</strong> Incluir os dois indicadores não é duplicação, é <strong>complementaridade</strong>.
+      </div>
+
+      <h3>2. Moedas sem 200 dias — e a forma como o admitimos</h3>
+      <p>
+        Uma moeda listada há menos de 200 dias não tem média móvel de 200 dias. <strong>Por princípio, não há forma</strong> de calcular o Múltiplo de Mayer.
+      </p>
+      <p>A nossa app trata esta situação em duas fases.</p>
+      <ul>
+        <li>
+          <strong>Quando os dados são insuficientes mas existem</strong> — calcula com a média móvel do período mais longo possível como substituto
+          e <strong>mostra no ecrã com uma etiqueta quantos dias foram realmente usados</strong>, como <code>200D fallback(120d)</code>.
+          <strong>Um múltiplo calculado com uma média de 120 dias não é o Múltiplo de Mayer.</strong> Uma média curta segue o preço mais depressa, por isso o múltiplo fica preso perto de 1 e <strong>não capta bem nem o sobreaquecimento nem a subvalorização.</strong>
+          Calculamos este valor, mas <strong>não escondemos no ecrã que ele não é o verdadeiro.</strong>
+        </li>
+        <li>
+          <strong>Quando não existem de todo</strong> — o indicador <strong>não recebe 0 pontos, é excluído do cálculo</strong>.
+          Porque 0 pontos quer dizer “mau”, não “desconhecido”. Os pesos dos 5 indicadores restantes são renormalizados para somar 100% de novo,
+          e é mostrado <code>coverage: 5/6 (82% weight)</code>. Se o Mayer sair no separador de longo prazo, isso significa que <strong>18% da base restante desaparece de uma vez</strong>.
+          <strong>Leia uma pontuação de longo prazo com esta indicação com um nível de confiança abaixo.</strong>
+        </li>
+      </ul>
+
+      <h3>3. Altcoins — os limiares são roupa feita à medida do BTC</h3>
+      <p>
+        0,8 e 2,4 são <strong>números extraídos da estrutura de volatilidade do Bitcoin</strong>.
+        Se medir com a mesma régua uma altcoin com 2~3 vezes a volatilidade do Bitcoin, o limite superior (2,4) é facilmente furado em cada mercado em alta e o inferior (0,8) em cada mercado em baixa.
+        <strong>Um alarme de incêndio que toca demasiadas vezes acaba por não ser ouvido por ninguém.</strong>
+        É justo considerar que a pontuação do Múltiplo de Mayer no ecrã de uma altcoin tem <strong>um poder interpretativo claramente inferior</strong> ao do ecrã do BTC.
+      </p>
+
+      <h3>4. Não há fundamento para a linha dos 200 dias ser o “valor justo”</h3>
+      <p>
+        O último é o mais fundamental. O Múltiplo de Mayer é <strong>um indicador que olha puramente para o preço</strong>.
+        Não sabe nada de on-chain, custo de mineração, fluxos de capital nem regulação.
+      </p>
+      <p>
+        E <strong>o número 200 dias em si não tem qualquer fundamento teórico.</strong>
+        É apenas um período usado <em>por convenção</em> nos mercados financeiros tradicionais. 180 ou 250 dias poderiam até ser melhores.
+        A proposição “média de 200 dias = valor justo do Bitcoin” <strong>nunca foi provada.</strong>
+        A única base para usarmos este indicador é uma observação: <strong>“nos ciclos passados, o preço costumava regressar para perto dela”</strong>,
+        e <strong>uma observação não é uma lei.</strong>
+      </p>
+
+      <h2 id="today">Como ler este número em 2026</h2>
+      <p>Comprimindo a crónica até aqui numa leitura prática, ficam três frases.</p>
+      <ul>
+        <li>
+          <strong>O Múltiplo de Mayer não diz “quando”. Diz “quanto”.</strong>
+          Um valor de 2,2 não quer dizer “vai cair em breve”, mas “comprar aqui custou historicamente caro”. <strong>Não é uma ferramenta de timing, é uma ferramenta de avaliação.</strong>
+        </li>
+        <li>
+          <strong>Confie nos fundos e desconfie nos topos.</strong> Abaixo de 0,8 repetiu-se em três ciclos.
+          Acima de 2,4 não apareceu uma única vez nos dois últimos ciclos. <strong>A fiabilidade deste indicador não é simétrica em cima e em baixo.</strong>
+        </li>
+        <li>
+          <strong>Não se tranquilize por o múltiplo estar “normal”.</strong> Um 0,95 na fase final de um mercado em baixa não é <em>normal</em>, é <strong>o som do indicador a calar-se</strong>.
+          Nesse momento, olhe para a <a href="/indicators">queda de 365 dias</a> e para o <a href="/guide-fear-greed">Índice de Medo e Ganância</a>.
+        </li>
+      </ul>
+      <p>
+        Por fim, se tivéssemos de escolher o momento deste texto que vale a pena lembrar por mais tempo, seria <strong>novembro de 2021</strong>.
+        No verdadeiro topo do ciclo, o Múltiplo de Mayer <strong>disse “neutro”.</strong>
+        Nenhum indicador acerta em todos os ciclos, e <strong>este, em particular, fica mais silencioso à medida que o mercado amadurece.</strong>
+        É por isso que a broodev não calcula a pontuação só com o Múltiplo de Mayer, mas <a href="/methodology">sintetiza 6 indicadores</a>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Aviso sobre investimento</strong><br />
+        Este documento e a pontuação da broodev são <strong>material de referência que sintetiza indicadores públicos e não aconselhamento de investimento.</strong>
+        Os valores históricos do múltiplo neste texto são <strong>aproximações que podem variar consoante a fonte de dados, e os padrões passados não garantem o futuro.</strong>
+        As criptomoedas são ativos de alto risco <strong>em que é possível perder todo o capital</strong>.
+        Toda a responsabilidade pelas decisões de investimento e pelos seus resultados (ganhos e perdas) é exclusivamente do utilizador. Faça sempre a sua própria pesquisa (DYOR).
+      </div>
+
+      <h2>Continue a ler</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodologia do score</b><span>Com que pesos se sintetizam os 6 indicadores (todos os números divulgados)</span></a>
+        <a href="/indicators"><b>Guia dos 6 indicadores</b><span>Quando é que RSI, MACD, queda e cruzamentos traem cada um</span></a>
+        <a href="/guide-fear-greed"><b>Guia prático do índice de medo</b><span>O indicador a consultar quando o Mayer se cala</span></a>
+        <a href="/glossary"><b>Glossário</b><span>Termos como linha dos 200 dias, SMA e subpontuação</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · operado pela Y-Systems · <a href="/privacy">Política de privacidade</a> · <a href="/terms">Termos de utilização</a></footer>
+    </main>

@@ -1,0 +1,755 @@
+    <main class="wrap" data-title="Ook de uitspraak leren met TTS — waarom het effect per taal verschilt en hoe je het in de praktijk instelt | VOCA DECK" data-desc="Met TTS-spraak aan win je per taal iets anders. Toonsandhi in het Chinees, heteroniemen in het Engels, liaison in het Frans, kanji-lezingen in het Japans en waarom het Spaans TTS nauwelijks nodig heeft. Haakjesregels, de pauze voor shadowing berekenen en de echte grenzen van browser-TTS.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — TTS &amp; PRONUNCIATION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Woordjesschrift</a>
+          <a href="/method">Hoe het werkt</a>
+          <a href="/csv-guide">Een CSV maken</a>
+          <a href="/study-guide">Leerstrategie</a>
+        </nav>
+
+        <h1>Met TTS ook de uitspraak leren</h1>
+        <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems</p>
+
+        <p class="lead">
+          “TTS aanzetten is goed” is <strong>maar half waar.</strong>
+          Want <strong>wat je wint als je de stem aanzet, verschilt per taal volledig</strong>.
+          Leer je Chinees zonder TTS, dan <strong>komt de helft van elk woord gewoon niet in je geheugen.</strong>
+          Bij het Spaans daarentegen <strong>kun je de uitspraak zelfs met TTS uit bijna precies reconstrueren.</strong>
+          Dit artikel splitst dat <strong>temperatuurverschil</strong> per taal uit: hoe je per taal je CSV schrijft
+          en hoeveel seconden pauze je nodig hebt om de tijd te hebben om na te zeggen — met <strong>de echte regels en getallen uit de code van de app</strong>.
+        </p>
+
+        <h2>Eerst de conclusie — afhankelijkheid van TTS per taal</h2>
+        <p>
+          De tabel hieronder is de samenvatting en de kern van dit artikel. Het criterium is <strong>“wat verlies je als je TTS uitzet”</strong>.
+          Hoe meer sterren, hoe groter het <strong>moeilijk te herstellen verlies</strong> als je zonder stem, alleen met je ogen leert.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Taal</th>
+                <th>Uitspraak voorspellen uit spelling</th>
+                <th>Wat je verliest zonder TTS</th>
+                <th>Afhankelijkheid</th>
+                <th>Uitspraak in de CSV</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Chinees</strong></td>
+                <td>Laag<br /><span class="muted">Ook met pinyin klinkt het in werkelijkheid anders</span></td>
+                <td><strong>Toon = betekenis.</strong> Bovendien staan de sandhi van de 3e toon en van 一·不 <strong>helemaal niet in de schrijfwijze</strong></td>
+                <td>★★★★★</td>
+                <td>Niet toevoegen (alleen karakters)</td>
+              </tr>
+              <tr>
+                <td><strong>Thai</strong></td>
+                <td>Zeer laag</td>
+                <td>5 tonen + ingewikkelde koppeling tussen letters en klanken. Romanisering is onbetrouwbaar</td>
+                <td>★★★★★</td>
+                <td>Niet toevoegen (alleen Thais schrift)</td>
+              </tr>
+              <tr>
+                <td><strong>Engels</strong></td>
+                <td>Laag</td>
+                <td>Plaats van de klemtoon, stomme letters, <strong>heteroniemen</strong> (read/lead/tear)</td>
+                <td>★★★★☆</td>
+                <td>Alleen bij heteroniemen fonetisch herspellen</td>
+              </tr>
+              <tr>
+                <td><strong>Frans</strong></td>
+                <td>Gemiddeld<br /><span class="muted">Lezen gaat volgens regels, de omgekeerde richting niet</span></td>
+                <td>Stomme eindmedeklinkers, nasale klinkers, <strong>liaison</strong> (verschijnt niet bij een los woord)</td>
+                <td>★★★★☆</td>
+                <td>In plaats van notatie: <strong>woordgroepkaarten</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Japans</strong></td>
+                <td>Kana is regelmatig<br /><strong>Kanji is onvoorspelbaar</strong></td>
+                <td>Lezingen van kanji, toonhoogteaccent (箸 / 橋)</td>
+                <td>★★★★☆</td>
+                <td><strong>Yomigana tussen haakjes</strong> (ondersteund door de app)</td>
+              </tr>
+              <tr>
+                <td><strong>Russisch</strong></td>
+                <td>Gemiddeld<br /><span class="muted">De klemtoon staat niet in de schrijfwijze</span></td>
+                <td>Plaats van de klemtoon → daardoor <strong>verandert de klinker zelf</strong> (akanje)</td>
+                <td>★★★★☆</td>
+                <td>Alleen het klemtoonteken (optioneel)</td>
+              </tr>
+              <tr>
+                <td><strong>Duits</strong></td>
+                <td>Hoog</td>
+                <td>Lengte van klinkers, de twee klanken van ch, de uitspraak van r</td>
+                <td>★★☆☆☆</td>
+                <td>Meestal niet nodig</td>
+              </tr>
+              <tr>
+                <td><strong>Italiaans</strong></td>
+                <td>Zeer hoog</td>
+                <td>Bijna niets (een paar klemtoonuitzonderingen)</td>
+                <td>★★☆☆☆</td>
+                <td>Niet nodig</td>
+              </tr>
+              <tr>
+                <td><strong>Spaans</strong></td>
+                <td><strong>Zeer hoog</strong><br /><span class="muted">Bepaald door 3 regels</span></td>
+                <td><strong>Bijna niets.</strong> De spelling bepaalt de uitspraak vrijwel 100%</td>
+                <td>★☆☆☆☆</td>
+                <td>Niet nodig</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Deze rangorde kijkt naar één ding: <strong>“hoeveel de spelling je over de uitspraak vertelt”</strong>.
+          Voor luistertraining en wennen aan tempo is <strong>TTS in elke taal nuttig</strong>.
+          De ene ster van het Spaans betekent niet “TTS is nutteloos”, maar <strong>“om de uitspraak te achterhalen is het minder nodig”</strong>.
+        </p>
+
+        <h2>Waarom dat verschil ontstaat (kort)</h2>
+        <p>
+          In <a href="/method#dual">Hoe het werkt</a> staat een passage waarin we <strong>in één zin langs</strong>
+          “met TTS aan komt er een auditief kanaal bij” gingen. Dit artikel begint daar. Het verhaal over dubbele codering herhaal ik niet.
+          Belangrijker dan <strong>één extra ophaalcue</strong> is het volgende.
+        </p>
+        <p>
+          Leer je een woord <strong>alleen met je ogen</strong>, dan slaat je hoofd er <strong>de klank bij op die je er zelf van gemaakt hebt</strong>.
+          Het is niet zo dat je geen klank opslaat. <strong>Je slaat de verkeerde klank op.</strong>
+          Wie <code>colonel</code> als “ko-lo-nel” heeft geleerd, hoort in het echte <code>colonel</code> van een moedertaalspreker (“keur-nul”)
+          <strong>geen bekend woord, maar een woord dat hij voor het eerst hoort</strong>. Ook als je de betekenis perfect kent, <strong>scoor je 0 op luistervaardigheid</strong>.
+        </p>
+        <p>
+          En die fout <strong>kost meer om uit te wissen dan om te leren.</strong>
+          Een ingesleten uitspraak corrigeren duurt veel langer dan iets nieuws in een lege plek zetten.
+          Daarom is <strong>TTS geen functie om later aan te zetten, maar een functie die vanaf het begin aan moet</strong>.
+        </p>
+        <div class="note">
+          In één regel — <strong>de kern van TTS is niet “een auditieve cue toevoegen”, maar “vooraf voorkomen dat de verkeerde uitspraak wordt opgeslagen”.</strong>
+          Daarom geldt: <strong>hoe meer de spelling de uitspraak verraadt</strong>, hoe groter het effect. De volgorde van de tabel hierboven is precies die volgorde.
+        </div>
+
+        <h2>Recept per taal</h2>
+
+        <h3>Chinees — het enige geval waarin de schrijfwijze de echte klank niet vertelt</h3>
+        <p>
+          Het Chinees staat niet alleen vanwege de tonen op “★★★★★”.
+          De tonen staan als tekens in het pinyin; als dat alles was, zou je ze ook met je ogen kunnen leren.
+          Het probleem is dat <strong>de toon in het pinyin en de toon die werkelijk wordt uitgesproken verschillen</strong>.
+        </p>
+        <p>Eerst: de toon ís de betekenis. Het is steeds <code>ma</code>, maar het zijn allemaal verschillende woorden.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Toon</th><th>Pinyin</th><th>Karakter</th><th>Betekenis</th></tr></thead>
+            <tbody>
+              <tr><td>1e toon (hoog en vlak)</td><td>mā</td><td>妈</td><td>moeder</td></tr>
+              <tr><td>2e toon (stijgend)</td><td>má</td><td>麻</td><td>hennep / verdoofd</td></tr>
+              <tr><td>3e toon (dalend-stijgend)</td><td>mǎ</td><td>马</td><td>paard (horse)</td></tr>
+              <tr><td>4e toon (scherp dalend)</td><td>mà</td><td>骂</td><td>uitschelden</td></tr>
+              <tr><td>Neutrale toon</td><td>ma</td><td>吗</td><td>vraagpartikel</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Mis je in de praktijk de toon, dan gebeurt er zoiets.</p>
+        <ul>
+          <li><code>我想问你</code> wǒ xiǎng <strong>wèn</strong> nǐ — “ik wil je iets vragen”<br />
+              <code>我想吻你</code> wǒ xiǎng <strong>wěn</strong> nǐ — <strong>“ik wil je kussen”</strong> (het verschil is alleen 4e toon → 3e toon)</li>
+          <li><code>买</code> <strong>mǎi</strong> kopen ↔ <code>卖</code> <strong>mài</strong> verkopen — <strong>tegengestelde betekenissen</strong>, gescheiden door alleen de 3e/4e toon.</li>
+          <li><code>睡觉</code> shuìjiào slapen ↔ <code>水饺</code> shuǐjiǎo gekookte dumplings — wees slordig met de tonen en “ik ga slapen” wordt “ik ga dumplings”.</li>
+        </ul>
+        <p>
+          Tot hier helpt goed naar het pinyin kijken. <strong>Het echte probleem begint nu.</strong>
+        </p>
+        <div class="note warn">
+          <strong>Toonsandhi (變調) — lees je precies wat in het pinyin staat, dan zit je fout</strong><br />
+          <strong>3e toon + 3e toon → 2e toon + 3e toon.</strong> <code>你好</code> schrijf je in pinyin als <strong>nǐ hǎo</strong> (3e+3e),
+          maar de echte uitspraak is <strong>ní hǎo</strong> (2e+3e).<br />
+          <strong>一</strong>: oorspronkelijk 1e toon yī, maar <code>一个</code> = <strong>yí</strong> ge, <code>一起</code> = <strong>yì</strong> qǐ.<br />
+          <strong>不</strong>: oorspronkelijk 4e toon bù, maar <code>不是</code> = <strong>bú</strong> shì.<br />
+          <strong>Het probleem is dat de notatie niet consequent is.</strong>
+          De <strong>sandhi van de 3e toon</strong> (你好) <em>staat nooit in het pinyin</em> — je schrijft altijd <code>nǐ hǎo</code> en zegt <code>ní hǎo</code>.
+          De <strong>sandhi van 一·不</strong> daarentegen <em>verschilt per lesmethode</em> — sommige schrijven de veranderde vorm (<code>yí ge</code>, <code>bú shì</code>),
+          andere de oorspronkelijke toon (<code>yī ge</code>, <code>bù shì</code>).
+          <strong>Je kunt de schrijfwijze dus niet vertrouwen.</strong> Uiteindelijk <strong>is er geen betrouwbare methode behalve met je oren controleren.</strong>
+        </div>
+        <p>
+          Dat is waarom een Chinees woord dat je alleen met je ogen hebt geleerd “half” is.
+          <strong>Er is nog een laag die de schrijfwijze niet laat zien, en die laag bestaat alleen in klank.</strong>
+          Voor Nederlandstaligen is het nog lastiger. Omdat je moedertaal geen tonen heeft, verwerk je een toon niet als
+          <strong>een foneem dat de betekenis verandert</strong>, maar als <strong>spreektrant of intonatie</strong>.
+          Als je de klank niet bewust toevoegt,
+          <strong>wordt de toon niet eens in je geheugen gecodeerd.</strong>
+        </p>
+        <div class="note warn">
+          <strong>De belangrijkste instelling voor wie Chinees leert</strong> — <strong>kies in de geavanceerde instellingen zelf de stem.</strong>
+          Lokale Chinese stemmen van lage kwaliteit <strong>vervagen de toonlijn.</strong>
+          In een andere taal is dat “klinkt een beetje robotachtig”, maar in het Chinees <strong>verdwijnt precies de informatie die je moet leren</strong>.
+          Laat het niet op de standaard “Automatisch” staan. De reden staat uitgebreid hieronder in het deel <a href="#limits">Grenzen</a>.
+        </div>
+
+        <h3>Engels — een taal met meer uitzonderingen dan regels</h3>
+        <p>
+          Het Engels lijkt <strong>ontworpen om je te laten falen als je de uitspraak uit de spelling raadt</strong>.
+          Historisch leende het woorden uit veel talen; de spelling hield de herkomst vast en alleen de uitspraak veranderde.
+          Hieronder woorden die je <strong>bijna zeker fout uitspreekt als je op de spelling afgaat</strong>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Woord</th><th>Gelezen volgens de spelling</th><th>Echte uitspraak</th><th>Boosdoener</th></tr></thead>
+            <tbody>
+              <tr><td><code>colonel</code></td><td>ko-lo-nel</td><td><strong>KEUR-nul</strong> /ˈkɜːrnəl/</td><td>Er ontstaat een r-klank die niet in de letters staat</td></tr>
+              <tr><td><code>choir</code></td><td>tsjo-ier</td><td><strong>KWAAI-er</strong> /ˈkwaɪər/</td><td>ch wordt /kw/</td></tr>
+              <tr><td><code>yacht</code></td><td>jacht</td><td><strong>JOT</strong> /jɑːt/</td><td>ch helemaal stom</td></tr>
+              <tr><td><code>epitome</code></td><td>e-pi-toom</td><td><strong>i-PI-tu-mie</strong> /ɪˈpɪtəmi/</td><td>De slot-e klinkt + klemtoon</td></tr>
+              <tr><td><code>hyperbole</code></td><td>hie-per-bool</td><td><strong>haai-PEUR-bu-lie</strong> /haɪˈpɜːrbəli/</td><td>Zelfde reden</td></tr>
+              <tr><td><code>awry</code></td><td>ò-rie</td><td><strong>u-RAAI</strong> /əˈraɪ/</td><td>Verkeerde opdeling a+wry</td></tr>
+              <tr><td><code>quay</code></td><td>kwee</td><td><strong>KIE</strong> /kiː/</td><td>4 letters, 2 klanken</td></tr>
+              <tr><td><code>indict</code></td><td>in-dikt</td><td><strong>in-DAAIT</strong> /ɪnˈdaɪt/</td><td>Stomme c</td></tr>
+              <tr><td><code>subtle</code></td><td>sub-tel</td><td><strong>SAT-ul</strong> /ˈsʌtl/</td><td>Stomme b</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Maar <strong>eigenlijk lost TTS dit allemaal zelf op.</strong> Engelse spraakengines zijn de best getrainde ter wereld:
+          geef je ze deze woorden zoals ze zijn, dan <strong>lezen ze ze allemaal correct voor.</strong> Op Engelse kaarten hoef je dus
+          <strong>geen uitspraaknotatie te zetten.</strong> Gewoon <code>colonel,kolonel</code> is genoeg.
+        </p>
+        <p>
+          <strong>Waar TTS in het Engels faalt, zit ergens anders.</strong> Dat zijn <strong>heteroniemen (heteronym)</strong>:
+          woorden met dezelfde spelling en twee uitspraken. Geef je alleen het woord, dan <strong>kan TTS niet weten welke je bedoelt.</strong>
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Spelling</th><th>Uitspraak A</th><th>Uitspraak B</th></tr></thead>
+            <tbody>
+              <tr><td><code>lead</code></td><td>LIED (leiden)</td><td>LED (lood)</td></tr>
+              <tr><td><code>read</code></td><td>RIED (tegenwoordige tijd)</td><td>RED (verleden tijd)</td></tr>
+              <tr><td><code>tear</code></td><td>TIER (traan)</td><td>TÈR (scheuren)</td></tr>
+              <tr><td><code>wind</code></td><td>WIND (wind)</td><td>WAAIND (opwinden)</td></tr>
+              <tr><td><code>live</code></td><td>LIV (leven)</td><td>LAAIV (live-uitzending)</td></tr>
+              <tr><td><code>desert</code></td><td>DE-zurt (woestijn)</td><td>di-<strong>ZEUR</strong>T (in de steek laten)</td></tr>
+              <tr><td><code>record</code></td><td><strong>RE</strong>-kurd (zelfstandig naamwoord)</td><td>ri-<strong>KOOR</strong>D (werkwoord)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Verderop, bij de <a href="#paren">haakjesregel</a>, laat ik zien hoe je dit met een appfunctie geforceerd oplost.
+          <strong>In het Engels is dit vrijwel de enige reden om haakjes te gebruiken.</strong>
+        </p>
+
+        <h3>Frans — je kunt het lezen, maar niet terugrekenen</h3>
+        <p>
+          Het Frans wordt vaak verkeerd begrepen. <strong>“In het Frans kloppen spelling en uitspraak niet” is niet juist.</strong>
+          Het Frans is <strong>in de richting spelling → uitspraak behoorlijk regelmatig</strong>. Ken je de regels, dan lees je zelfs woorden die je nooit eerder zag.
+          Het probleem is dat <strong>de richting uitspraak → spelling bijna onmogelijk is</strong>, en dat <strong>die regels haaks staan op de intuïtie van sprekers van andere talen</strong>.
+        </p>
+        <p>Kijk naar de meest sprekende voorbeelden.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Woord</th><th>Aantal letters</th><th>Echte klank</th><th>Wat overblijft</th></tr></thead>
+            <tbody>
+              <tr><td><code>eaux</code> (wateren, meervoud)</td><td>4</td><td>/o/</td><td><strong>1 klank</strong> — 4 letters worden één “oo”</td></tr>
+              <tr><td><code>oiseau</code> (vogel)</td><td>6</td><td>/wazo/</td><td>Geen enkele letter komt 1:1 overeen met de klank</td></tr>
+              <tr><td><code>beaucoup</code> (veel)</td><td>8</td><td>/boku/</td><td>De p aan het eind is stom</td></tr>
+              <tr><td><code>temps</code> (tijd)</td><td>5</td><td>/tɑ̃/</td><td>m, p en s verdwijnen allemaal; alleen een <strong>nasale klinker</strong> blijft</td></tr>
+              <tr><td><code>femme</code> (vrouw)</td><td>5</td><td>/fam/</td><td>Een e, maar het klinkt als <strong>“a”</strong></td></tr>
+              <tr><td><code>monsieur</code></td><td>8</td><td>/məsjø/</td><td>Heeft bijna niets met de spelling te maken</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Eindmedeklinkers zijn meestal stom</strong> (uitzonderlijk blijven c, r, f en l vaak klinken — te onthouden met het Engelse woord “CaReFuL”).
+          En <strong>nasale klinkers</strong> (/ɑ̃/ /ɛ̃/ /ɔ̃/) zijn <strong>klanken die in het Nederlands niet bestaan</strong>.
+          Een klank die je niet hebt, <strong>kun je in principe niet met je ogen aanleren.</strong> Dat is geen kwestie van moeite.
+        </p>
+        <div class="note">
+          <strong>De echte valkuil van het Frans is de liaison, en die vangt zelfs TTS niet.</strong><br />
+          Leer je <code>les</code> (“lee”) en <code>amis</code> (“amie”) apart, dan wordt het “lee amie”. In werkelijkheid is het <strong>/le.za.mi/ “leezamie”</strong>.
+          De stomme s <strong>komt weer tot leven als hij de klinker van het volgende woord tegenkomt</strong> en wordt als /z/ uitgesproken.<br />
+          Het probleem: <strong>TTS die woord voor woord voorleest, kan de liaison nooit laten horen</strong>.
+          <code>les</code> los blijft voor altijd “lee”.<br />
+          <strong>Recept: maak in het Frans kaarten van “woordgroepen”, niet van woorden.</strong>
+          Zet je <strong>2~3 woorden op één kaart</strong>, zoals <code>les amis</code>, <code>vous avez</code>, <code>petit ami</code>,
+          dan pas laat TTS je de liaison horen.
+        </div>
+
+        <h3>Japans — kanji vertellen je niet hoe je ze leest</h3>
+        <p>
+          In het Japans is <strong>alles wat in kana staat bijna perfect regelmatig</strong>. In dat opzicht is het van Spaans niveau.
+          Maar <strong>zodra er kanji in het spel komen, nadert de voorspelbaarheid nul</strong>.
+        </p>
+        <p>
+          Het komt vaak voor dat één kanji <strong>meer dan tien lezingen heeft, on- en kun-lezingen samen</strong>.
+          Alleen al <code>生</code> heeft せい·しょう·なま·き·いきる·うまれる·はえる·おう…
+        </p>
+        <ul>
+          <li><code>生憎</code> = <strong>あいにく</strong> (helaas) — uit geen van beide kanji is deze lezing af te leiden.
+              Het is ateji (当て字): de kanji zijn <strong>achteraf op een bestaande klank geplakt</strong>.</li>
+          <li><code>一日</code> is zowel <strong>ついたち</strong> (de 1e van de maand) als <strong>いちにち</strong> (één dag).
+              <strong>Zelfde schrijfwijze, andere lezing, andere betekenis.</strong></li>
+          <li><code>明日</code> = <strong>あした</strong> / <strong>あす</strong> / <strong>みょうにち</strong> — afhankelijk van context en formaliteit.</li>
+        </ul>
+        <p>
+          Daarbovenop komt het <strong>toonhoogteaccent</strong>. <code>箸</code> (eetstokjes) en <code>橋</code> (brug)
+          schrijf je allebei precies hetzelfde als <strong>はし</strong>, maar <strong>het patroon van hoog en laag verschilt.</strong>
+          Op schrift is het onmogelijk te onderscheiden; <strong>alleen je oren kunnen het.</strong>
+          (Veel niet-Japanners horen dit verschil helemaal niet.)
+        </p>
+        <div class="note">
+          <strong>Goed nieuws voor wie Japans leert</strong> — de <strong>haakjesregel</strong> van onze app is precies voor dit probleem gemaakt.
+          Schrijf je <code>生憎（あいにく）</code> op kant A, dan <strong>zie je op het scherm zowel de kanji als de lezing, en leest de stem alleen あいにく.</strong>
+          Het volgende deel behandelt deze regel uitgebreid.
+        </div>
+
+        <h3>Russisch — zonder klemtoon weet je niet eens welke klinker het is</h3>
+        <p>
+          In het Russisch stapelen twee vormen van verraad zich op. Kort.
+        </p>
+        <ol>
+          <li><strong>De plaats van de klemtoon staat niet in de schrijfwijze.</strong> Alleen lesboeken en woordenboeken zetten een klemtoonteken;
+              in echte Russische teksten <strong>staat het er niet.</strong> De plaats is onregelmatig en je kunt alleen maar uit je hoofd leren.</li>
+          <li><strong>De klemtoon verandert de klank van de klinker (akanje).</strong> Een onbeklemtoonde <code>о</code> klinkt <strong>niet als “o” maar meer als “a”</strong>.
+              <code>молоко</code> (melk) zou volgens de spelling “mo-lo-ko” zijn, maar is in werkelijkheid <strong>/məlɐˈko/ “mu-la-KO”</strong>.
+              Zonder de klemtoon te kennen <strong>weet je niet eens welke klinker overeind blijft.</strong></li>
+        </ol>
+        <p>
+          Bovendien scheidt de klemtoon woorden van elkaar. <code>за́мок</code> (kasteel/paleis) en <code>замо́к</code> (slot)
+          <strong>worden precies hetzelfde gespeld.</strong> Geef je alleen het woord, dan weet zelfs TTS niet welke het is —
+          hetzelfde probleem als de Engelse heteroniemen, met dezelfde oplossing (kaarten met context).
+        </p>
+
+        <h3>Spaans — waarom je TTS hier uit mag zetten</h3>
+        <p>
+          Eerlijk gezegd: <strong>voor wie Spaans leert is TTS als “hulpmiddel om de uitspraak te achterhalen” nauwelijks nodig.</strong>
+          In het Spaans <strong>bepaalt de spelling de uitspraak vrijwel volledig</strong>.
+          Met alleen de <strong>3 klemtoonregels</strong> hieronder lees je zelfs onbekende woorden correct.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Regel</th><th>Beklemtoonde lettergreep</th><th>Voorbeeld</th></tr></thead>
+            <tbody>
+              <tr><td>Eindigt op klinker, n of s</td><td><strong>Voorlaatste</strong> lettergreep</td><td><code>ca-sa</code> → <strong>CA</strong>-sa · <code>co-men</code> → <strong>CO</strong>-men</td></tr>
+              <tr><td>Eindigt op een andere medeklinker</td><td><strong>Laatste</strong> lettergreep</td><td><code>ha-blar</code> → ha-<strong>BLAR</strong> · <code>fe-liz</code> → fe-<strong>LIZ</strong></td></tr>
+              <tr><td>Uitzonderingen op beide regels</td><td>Altijd <strong>aangegeven met een accentteken</strong></td><td><code>ca-fé</code> · <code>lá-piz</code> · <code>te-lé-fo-no</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Tel daar een paar letterregels bij op (h is altijd stom, ll en ñ, v en b klinken vrijwel hetzelfde, c+e/i en z zijn /θ/ of /s/ afhankelijk van de regio), en
+          <strong>klaar.</strong> Wil je per se uitzonderingen zoeken, dan hooguit leenwoorden.
+        </p>
+        <div class="note">
+          <strong>Wie Spaans leert, gebruikt TTS dus beter voor iets anders.</strong>
+          Niet om de uitspraak te achterhalen, maar <strong>om aan het tempo te wennen</strong>.
+          De echte hindernis van het Spaans is niet “lezen”, maar <strong>klinkersamensmelting (synalepha) en spreektempo</strong>.
+          Klinkers tussen woorden smelten samen en er wordt snel gesproken.
+          <strong>Zet de leessnelheid op 1.3~1.5x</strong> en draai je kaarten. Geen uitspraakleren, maar <strong>luistertraining</strong>.
+          Je gebruikt dezelfde TTS-functie dan <strong>voor een heel ander doel</strong>.
+        </div>
+
+        <h2 id="paren">Wat de app echt doet — regels die in de code vastliggen</h2>
+        <p>
+          Vanaf hier geen algemene theorie meer, maar <strong>gedrag dat echt in de code van VOCA DECK zit</strong>.
+          Als je dit weet, maak je veel betere CSV’s.
+        </p>
+
+        <h3>Regel 1 — staan er haakjes, dan leest kant A “alleen wat erbinnen staat”</h3>
+        <p>
+          De spraakfunctie van de app <strong>zoekt eerst naar haakjes</strong> in de kaarttekst.
+          Zowel brede <code>（）</code> als smalle <code>()</code> worden herkend.
+        </p>
+        <ul>
+          <li><strong>Staan er haakjes op kant A (woord)</strong> → alleen <strong>de inhoud tussen de haakjes</strong> wordt voorgelezen. Wat erbuiten staat, wordt <strong>helemaal niet gelezen.</strong></li>
+          <li><strong>Kant B (betekenis)</strong> → de haakjes met inhoud worden <strong>volledig weggelaten</strong> en de rest wordt voorgelezen.</li>
+          <li><strong>Op het scherm staat altijd de volledige originele tekst.</strong> Alleen het geluid wordt weggelaten.</li>
+        </ul>
+        <p>
+          Deze asymmetrie is de kern. Ze betekent dat <strong>je “wat je ziet” en “wat je hoort” los van elkaar kunt ontwerpen</strong>.
+        </p>
+        <pre><code>生憎（あいにく）,helaas
+  → Scherm: 生憎（あいにく）   (kanji en lezing allebei zichtbaar)
+  → Geluid: あいにく            (alleen de lezing is hoorbaar)
+
+买,kopen（mǎi）
+  → Scherm: kopen（mǎi）       (het pinyin is zichtbaar)
+  → Geluid: "kopen"            (pinyin wordt niet gelezen — kant B laat haakjes weg)</code></pre>
+        <p>
+          Let op het tweede voorbeeld. <strong>Zet je het pinyin tussen haakjes op kant B</strong>,
+          dan <strong>zie je het pinyin wel, maar komt het niet tussen wat je hoort</strong>.
+          Voor wie Chinees leert is dat de beste indeling.
+        </p>
+
+        <h3>Regel 2 — elke kant heeft een eigen taal (stem)</h3>
+        <p>
+          Kant A en kant B worden met <strong>verschillende spraaklocales</strong> voorgelezen. Standaard is <strong>A = Japans (ja-JP), B = Koreaans (ko-KR)</strong>,
+          en in de geavanceerde instellingen kies je uit <strong>13 locales</strong> (en-US · ja-JP · ko-KR · zh-CN · zh-TW · th-TH · es-ES · fr-FR · de-DE · it-IT · pt-PT · ru-RU · nl-NL).
+        </p>
+        <div class="note warn">
+          <strong>Dit is oorzaak nr. 1 van “ik hoor geen geluid”.</strong>
+          Heb je een Engels woordjesschrift geladen en staat de locale van kant A nog op <strong>de standaard, Japans (ja-JP)</strong>,
+          dan probeert een Japanse stem Engelse woorden te lezen. <strong>Het klinkt raar, of er komt helemaal geen geluid.</strong><br />
+          <strong>Heb je de CSV zelf gemaakt, stel dan eerst in de geavanceerde instellingen de taal van kant A in.</strong>
+          (Pas je een voorbeeldschrift toe, dan wordt de locale automatisch ingesteld.)
+        </div>
+
+        <h3>Regel 3 — de leessnelheid is begrensd op 0.5 ~ 2.0x</h3>
+        <p>
+          Kant A en kant B <strong>elk afzonderlijk</strong> van 0.5x tot 2.0x, <strong>in stappen van 0.05</strong>.
+          Waarden buiten dat bereik worden door de code afgekapt.
+        </p>
+        <p>
+          <strong>En hier is een grens die ik eerlijk moet noemen.</strong>
+          De snelheidsregeling van de browser <strong>rekt alleen de tijd op en houdt de toonhoogte gelijk</strong>.
+          Daardoor <strong>wordt het onder 0.7x geen “langzame moedertaalspreker” maar “een raar geluid”.</strong>
+          Belangrijker nog: vertraag je, dan <strong>verdwijnen de verkortingen en verbindingen die de kern van echte uitspraak zijn</strong>.
+          Een <code>water</code> op 0.6x is <strong>niet de water die je in het echt gaat horen.</strong>
+          <strong>Langzaam luisteren is om tonen en klanken te controleren, niet om echte luistervaardigheid te oefenen.</strong>
+        </p>
+
+        <h3>Regel 4 — herhalen 1~20 keer, of eindeloos</h3>
+        <p>
+          Je kunt dezelfde stem op een kaart <strong>tot 20 keer</strong> laten herhalen, en ook <strong>eindeloos</strong>.
+          Bij eindeloos herhalen wordt alles <strong>één keer voorgelezen, 0.25 seconde gepauzeerd</strong> en opnieuw begonnen.
+          Ga je naar de volgende kaart of zet je TTS uit, dan <strong>stopt het meteen</strong>.
+        </p>
+        <p class="muted">
+          Eindeloos herhalen gebruik je <strong>om één toon in je lijf te krijgen of je vast te bijten in een klank die niet lukt</strong>.
+          Voor gewoon leren is 1~2 keer genoeg.
+        </p>
+
+        <h3>Regel 5 — volume wordt vermenigvuldigd (valkuil)</h3>
+        <p>
+          Het werkelijke volume wordt zo berekend.
+        </p>
+        <pre><code>werkelijk volume = (totaalvolume ÷ 100) × (volume van die kant ÷ 100)
+
+totaal 50% + kant A 50%  →  0.5 × 0.5 = 0.25  →  werkelijk 25%</code></pre>
+        <p>
+          <strong>Zet je beide schuifjes lager, dan vermenigvuldigen ze zich en wordt het veel zachter dan je verwacht.</strong>
+          Is het “veel te zacht”, controleer dan eerst dit.
+          Omgekeerd is het handig om <strong>alleen kant A hard en kant B zacht</strong> te zetten
+          (de vreemde taal hard, de betekenis in je eigen taal als achtergrondgeluid).
+        </p>
+
+        <h3>Regel 6 — je kiest wat er wordt voorgelezen</h3>
+        <p>
+          Kies uit <strong>alleen kant A / alleen kant B / beide</strong>.
+          <strong>Voor de meeste leerlingen is “alleen kant A” juist.</strong> Er is bijna geen reden om ook de betekenis in je eigen taal te horen,
+          en <strong>een stem in je moedertaal die ertussen komt, breekt je concentratie op de vreemde klank.</strong>
+          Kant B aanzetten heeft eigenlijk alleen zin als je productie oefent in de richting “betekenis → woord”.
+        </p>
+        <p>
+          Daarnaast is er een aparte <strong>modus “alleen geluid”</strong>. Zet je die aan, dan <strong>verdwijnt de tekst van het scherm en blijft alleen geluid over.</strong>
+          <strong>In feite is dit een dictee-modus.</strong>
+          Het wordt een <strong>training om de betekenis alleen uit de klank op te halen</strong>, zonder op de spelling te leunen,
+          en pakt frontaal <a href="/method#limit">de verwarring tussen “herkennen als je het ziet” en “het je kunnen herinneren”</a> aan.
+          Zie het als <strong>ophaaloefening met je ogen dicht</strong>.
+        </p>
+
+        <h2>Uitspraak in de CSV zetten of aan TTS overlaten?</h2>
+        <p>
+          Dit is de vraag die we het vaakst krijgen. En <strong>het juiste antwoord verschilt per taal.</strong>
+          Combineer de <a href="#paren">haakjesregel</a> hierboven met de eigenschappen van elke taal, en het antwoord volgt.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Taal</th><th>Antwoord</th><th>Schrijf het zo</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Japans</strong></td>
+                <td><strong>Yomigana tussen haakjes</strong></td>
+                <td><code>生憎（あいにく）,helaas</code><br /><span class="muted">Geef je alleen kanji, dan raadt de spraakengine de lezing zonder context en zit hij ernaast. De haakjes dwingen het juiste antwoord af.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Engels</strong></td>
+                <td><strong>Meestal niet nodig.</strong><br />Alleen heteroniemen fonetisch herspellen</td>
+                <td><code>lead（leed）,leiden</code><br /><code>lead（led）,lood</code><br /><span class="muted">Splits in 2 kaarten en dwing de uitspraak af met haakjes.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Chinees</strong></td>
+                <td><strong>Geen haakjes op kant A.</strong><br />Pinyin tussen haakjes op kant B</td>
+                <td><code>买,kopen（mǎi）</code><br /><span class="muted">Zet je pinyin tussen haakjes op kant A, dan probeert de Chinese stem Latijnse letters te lezen en gaat het mis. Met alleen karakters leest hij correct.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Frans</strong></td>
+                <td><strong>Geen notatie, maar woordgroepkaarten</strong></td>
+                <td><code>les amis,de vrienden</code><br /><span class="muted">Bij een los woord verschijnt de liaison niet.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Russisch</strong></td>
+                <td>Niet nodig (alleen klemtoonteken, optioneel)</td>
+                <td><code>молоко,melk</code></td>
+              </tr>
+              <tr>
+                <td><strong>Spaans · Italiaans</strong></td>
+                <td><strong>Niet nodig</strong></td>
+                <td><code>hablar,spreken</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>Doe dit nooit ① — fonetisch schrift (IPA) tussen haakjes</strong><br />
+          Schrijf je <code>colonel（ˈkɜːrnəl）,kolonel</code>, dan gaat volgens regel 1 <strong>de tekenreeks “ˈkɜːrnəl” letterlijk naar de spraakengine.</strong>
+          De engine <strong>kan</strong> de speciale IPA-tekens (ɜ · ə · ː) <strong>niet lezen.</strong> Hij zwijgt, leest de namen van de tekens of maakt een kapot geluid.
+          <strong>IPA is een schrift voor mensen, niet voor spraakengines.</strong><br />
+          <span class="muted">Wil je het fonetisch schrift zien, zet het dan tussen <strong>haakjes op kant B</strong>. Dan staat het op het scherm en valt het weg uit het geluid.</span>
+        </div>
+
+        <div class="note warn">
+          <strong>Doe dit nooit ② — de uitspraak in je eigen spelling tussen haakjes</strong><br />
+          <code>apple（eppul）,appel</code> — <strong>de makkelijkste fout om te maken</strong>.
+          Met kant A op locale en-US gaat “eppul” tussen de haakjes <strong>naar de Engelse stem.</strong>
+          De Engelse stem leest dat met Engelse regels, niet met de jouwe. En door regel 1 <strong>wordt “apple” buiten de haakjes helemaal niet gelezen.</strong>
+          Resultaat: <strong>je hoort nooit “apple”.</strong><br />
+          <strong>Uitspraak in je eigen spelling noteren heeft van meet af aan het verkeerde doel.</strong> “Eppul” is niet de uitspraak van apple.
+          Zodra je een klank die je eigen taal niet heeft in je eigen letters opschrijft, <strong>sla je de verkeerde uitspraak op.</strong> Dat is precies het verlies waar dit artikel vanaf het begin over gaat.
+        </div>
+
+        <div class="note">
+          <strong>Nog één valkuil om te kennen</strong> — de code zoekt <strong>alleen het eerste paar haakjes</strong>.
+          Gebruik je op kant A twee keer haakjes, dan <strong>wordt alleen het eerste gelezen en het tweede genegeerd</strong>.
+          Bij een kaart als <code>一日（ついたち）と一日（いちにち）</code> <strong>wordt alleen ついたち gelezen.</strong>
+          <strong>Eén paar haakjes per kaart.</strong> Zijn er twee lezingen, <strong>splits dan in twee kaarten</strong>
+          (precies dezelfde conclusie als het principe <a href="/csv-guide#design">“één begrip per kaart”</a>).
+        </div>
+
+        <h2>Shadowing — hoeveel seconden pauze je instelt</h2>
+        <p>
+          <strong>Shadowing</strong> is de oefening waarbij je wat je hoort <strong>meteen hardop nazegt</strong>.
+          Hier is TTS het meest waard, en hier <strong>gaan de meeste mensen onderuit</strong>.
+          De reden is simpel — <strong>er is geen tijd om na te zeggen</strong>.
+          Laat je automatisch afspelen met de standaardpauze van 3 seconden, dan <strong>springt hij naar de volgende kaart</strong> zodra de stem klaar is.
+        </p>
+        <p>Je moet de tijd dus <strong>uitrekenen</strong>. De benodigde tijd voor kant A van één kaart bestaat uit het volgende.</p>
+        <pre><code>Benodigde tijd kant A
+  = duur van de stem × aantal herhalingen
+  + jouw reactietijd             (ongeveer 0.3 ~ 0.5 s)
+  + jouw tijd om na te zeggen     (≒ duur van de stem)
+  + marge                         (ongeveer 0.5 s)</code></pre>
+        <p class="muted">
+          <strong>Eerlijk gezegd</strong> — hiervan <strong>liggen alleen “pauze, snelheid en aantal herhalingen” in de code vast</strong>.
+          Waarden als “reactietijd 0.3~0.5 s” en “0.25~0.35 s per lettergreep” zijn <strong>geen metingen maar schattingen op basis van echt gebruik</strong>.
+          Neem ze niet als exacte getallen, maar gebruik ze als <strong>vertrekpunt</strong>. Aanpassen aan je eigen tempo is de juiste weg.
+        </p>
+        <p>
+          De stem van één Engels woord (2 lettergrepen) duurt op 1.0x ongeveer <strong>0.6~0.8 s</strong>.
+          Een korte zin (6~8 woorden) duurt ongeveer <strong>2.5~3.5 s</strong>. Laten we rekenen.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Situatie</th><th>Berekening</th><th>Benodigde tijd</th><th>Lukt het in 3 s?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Woord 1 keer afspelen + nazeggen</td>
+                <td>0.8 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 2.5 s</strong></td>
+                <td><strong>Ja</strong> (de standaard is toevallig geschikt)</td>
+              </tr>
+              <tr>
+                <td>Woord <strong>2 keer</strong> afspelen + nazeggen</td>
+                <td>0.8×2 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 3.3 s</strong></td>
+                <td><strong>Nee</strong> — wordt afgekapt</td>
+              </tr>
+              <tr>
+                <td><strong>Zin</strong> 1 keer + nazeggen</td>
+                <td>3.0 + 0.4 + 3.0 + 0.5</td>
+                <td><strong>≈ 7 s</strong></td>
+                <td><strong>Bij lange na niet</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Daarom heeft de app <strong>aparte vertragingswaarden voor kant A en kant B</strong>.
+          De standaardpauze in het bedieningspaneel blijft staan en je <strong>geeft alleen kant A extra tijd</strong> (op 0 is het gelijk aan de standaardpauze).
+          <strong>Shadowing doe je alleen op kant A, dus er is geen reden om kant B meer tijd te geven.</strong>
+        </p>
+        <p>Aanbevolen combinaties per doel. Neem ze niet klakkeloos over, maar gebruik ze als <strong>vertrekpunt</strong>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Doel</th><th>Snelheid</th><th>Herhalingen</th><th>Totale tijd kant A</th><th>Waarom</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Eerste kennismaking</strong> (klank inprenten)</td><td>1.0×</td><td>2 keer</td><td><strong>5 s</strong></td>
+                <td>Ruimte om twee keer te luisteren en één keer na te zeggen</td>
+              </tr>
+              <tr>
+                <td><strong>Shadowing (woord)</strong></td><td>0.9×</td><td>1 keer</td><td><strong>4 s</strong></td>
+                <td>Eén keer luisteren en meteen nazeggen</td>
+              </tr>
+              <tr>
+                <td><strong>Shadowing (zin)</strong></td><td>0.85×</td><td>1 keer</td><td><strong>7~8 s</strong></td>
+                <td>Een zin nazeggen kost tijd</td>
+              </tr>
+              <tr>
+                <td><strong>Toontraining</strong> (Chinees)</td><td><strong>0.7×</strong></td><td>3 keer</td><td><strong>6 s</strong></td>
+                <td>Langzaam waaiert de toonlijn uit en wordt hoorbaar.<br /><strong>Ga niet onder 0.7</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Wennen aan luistertempo</strong></td><td>1.3~1.5×</td><td>1 keer</td><td><strong>3 s</strong></td>
+                <td>Stemt je oor af op het echte tempo</td>
+              </tr>
+              <tr>
+                <td><strong>Herhalingsscan</strong> (bekende woorden)</td><td>1.5×</td><td>1 keer</td><td><strong>2 s</strong></td>
+                <td>Snel doorlopen en alleen de gaten vinden</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>De kern van shadowing is “hardop spreken”.</strong> In je hoofd nazeggen is geen shadowing.
+          <strong>Je moet je mondspieren echt bewegen</strong> om een articulatorisch motorisch geheugen op te bouwen, en dat wordt uiteindelijk spreken.
+          <strong>Ga je je mond niet opendoen, dan is er geen reden om de pauze te verlengen.</strong> Laat het op 3 seconden staan en draai veel rondes.
+        </div>
+
+        <h2 id="limits">Grenzen van browser-TTS — eerlijk</h2>
+        <p>
+          Dit is <strong>het belangrijkste deel</strong> van dit artikel.
+          Spraaksynthese in de browser heeft het overweldigende voordeel dat ze <strong>gratis is en niets hoeft te installeren</strong>,
+          maar <strong>daar hangt een prijs aan.</strong> Het maakt uit of je dat weet of niet.
+        </p>
+
+        <h3>① De stem verschilt per apparaat — dit is de grootste beperking</h3>
+        <p>
+          De app <strong>maakt geen stemmen.</strong> <strong>Hij leent alleen de stemmen die al op het apparaat staan.</strong>
+          Daardoor <strong>klinkt dezelfde CSV met dezelfde instellingen op je telefoon natuurlijk en op je pc als een robot</strong>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Omgeving</th><th>Situatie</th></tr></thead>
+            <tbody>
+              <tr><td><strong>iPhone / Mac</strong></td><td>Stemmen van hoge kwaliteit ingebouwd. Afhankelijk van de taal moet je ze wel <strong>apart downloaden in de instellingen</strong>.</td></tr>
+              <tr><td><strong>Android / Chrome</strong></td><td>Over het algemeen goede kwaliteit. Maar <strong>zonder taalpakket bestaat er voor die taal gewoon geen stem.</strong></td></tr>
+              <tr><td><strong>Windows + Edge</strong></td><td>Gebruikt online stemmen van hoge kwaliteit. <strong>Vaak de beste combinatie.</strong></td></tr>
+              <tr><td><strong>Windows + Chrome</strong></td><td>Toont vaak alleen oude lokale stemmen en <strong>klinkt merkbaar robotachtig.</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Daarom heeft de app <strong>een functie om per locale zelf de stem te kiezen</strong>. De standaard is “Automatisch” (de browser kiest).
+          <strong>Bevalt het geluid niet, laat dan Automatisch los en kies zelf uit de lijst.</strong> Meestal zit er een veel betere stem verstopt.
+        </p>
+        <div class="note warn">
+          <strong>Wie Chinees of Thai leert, mag dit punt niet overslaan.</strong>
+          In andere talen eindigt een stem van lage kwaliteit bij “klinkt wat onnatuurlijk”, maar
+          <strong>in een toontaal betekent een stem van lage kwaliteit “verlies van informatie die je moet leren”.</strong>
+          Met een stem waarin de toonlijn vervaagt kun je geen tonen leren. <strong>Een stem kiezen is geen optie, maar een must.</strong>
+        </div>
+
+        <h3>② Na herladen staat TTS altijd uit (dat is geen bug)</h3>
+        <p>
+          De app <strong>slaat de TTS-status bewust niet op.</strong> Alle andere instellingen wel, alleen deze niet.
+          <strong>Dat komt doordat de browser geluid zonder interactie van de gebruiker tegenhoudt</strong>.
+          Zou de stand “aan” worden bewaard, dan probeert de app bij het openen van de pagina geluid te maken, blokkeert de browser dat,
+          en <strong>belandt de gebruiker in de slechtste situatie: “het staat aan, maar er komt geen geluid”</strong>.
+        </p>
+        <p>
+          Daarom begint het altijd uit. <strong>Jouw klik op het TTS-vakje is juist de sleutel die het geluidsslot van de browser opent</strong>.
+          <strong>Elke keer zelf aanzetten is onhandig, maar het alternatief is erger.</strong>
+        </p>
+
+        <h3>③ De lijst met stemmen komt laat binnen</h3>
+        <p>
+          De browser laadt de lijst met beschikbare stemmen <strong>asynchroon</strong>.
+          Net na het openen van de pagina <strong>kan de stemkeuzelijst leeg lijken.</strong>
+          De app werkt de lijst automatisch bij zodra die binnen is, maar <strong>is het instellingenvenster leeg, wacht dan even en open het opnieuw.</strong>
+        </p>
+
+        <h3>④ Offline veranderen of verdwijnen stemmen</h3>
+        <p>
+          <strong>Lokale stemmen</strong> werken ook offline, maar <strong>een groot deel van de stemmen van hoge kwaliteit draait in de cloud</strong> en heeft netwerk nodig.
+          <strong>Daarom klinkt de stem in het vliegtuig ineens als een robot of valt hij helemaal weg.</strong>
+          <strong>De app en de woordjesschriften zelf werken offline gewoon</strong> (ze staan alleen in de browser opgeslagen).
+          <strong>Alleen TTS hangt af van het besturingssysteem en het netwerk.</strong>
+        </p>
+
+        <h3>⑤ Een los woord heeft geen context</h3>
+        <p>
+          Dit probleem kwam al een paar keer langs en is <strong>structureel niet op te lossen.</strong>
+          Engels <code>read</code>, Chinees <code>行</code> (xíng gaan / háng rij, bank),
+          Russisch <code>замок</code> (kasteel / slot) — <strong>TTS kan alleen gokken, en gokt vaak mis.</strong>
+        </p>
+        <p>
+          <strong>Er is maar één oplossing: context op de kaart zetten.</strong>
+          Of je dwingt de uitspraak af met haakjes, of je zet een voorbeeldzin op kant A.
+          <strong>Dit is een grens van TTS, niet iets wat een instelling verhelpt.</strong>
+        </p>
+
+        <h3>⑥ De uitspraak van een los woord is de “woordenboekvorm” — niet de echte uitspraak</h3>
+        <p>
+          <strong>Dit is de meest onderschatte beperking.</strong>
+          Leest TTS één woord voor, dan hoor je een <strong>keurig gearticuleerde woordenboekvorm (citation form)</strong>.
+          Maar <strong>in echte gesprekken worden woorden zo niet uitgesproken.</strong>
+        </p>
+        <ul>
+          <li><strong>Zwakke vorm (weak form)</strong> — <code>to</code> wordt niet “toe” maar /tə/ “tu”, <code>can</code> niet “ken” maar /kən/ “kun”.</li>
+          <li><strong>Samentrekking en verbinding</strong> — <code>want to</code> → “wanna”, <code>going to</code> → “gonna”.</li>
+          <li><strong>Flapping</strong> — in Amerikaans Engels verandert de t van <code>water</code> in iets wat dicht bij /d/ ligt.</li>
+        </ul>
+        <p>
+          <strong>Daarom komt het vaak voor dat iemand die woorden perfect met TTS heeft geleerd, geen woord verstaat van een gesprek tussen moedertaalsprekers.</strong>
+          De klank die je van kaarten leert en <strong>de klank die in het echt voorbijstroomt, zijn verschillend</strong>.
+          <strong>Woord-TTS legt alleen het “vertrekpunt van de uitspraak” vast; het maakt je luistervaardigheid niet af.</strong>
+          Dat doet <strong>echte content (series, podcasts, colleges)</strong>. Deze app kan dat niet vervangen.
+        </p>
+
+        <h3>⑦ TTS geeft alleen input — niemand vertelt of jouw uitspraak klopt</h3>
+        <p>
+          Dit is de fundamentele grens van shadowing. <strong>De juiste klank laten horen en controleren of jouw klank klopt, zijn twee totaal verschillende dingen.</strong>
+          <strong>De app kan het tweede niet.</strong> Zeg je het fout na, dan <strong>wijst niemand je erop.</strong>
+          En mensen <strong>kunnen hun eigen uitspraak niet nauwkeurig horen.</strong>
+        </p>
+        <p>
+          De <strong>aanvulling</strong> ligt buiten de app — <strong>neem je eigen stem op met je telefoon en luister afwisselend naar die opname en naar TTS.</strong>
+          Alleen al daardoor hoor je <strong>verschillen die je zelf nooit zou opmerken</strong>.
+          <strong>Kan het, laat het dan door een mens controleren; dat is het zekerst.</strong>
+        </p>
+
+        <h2>Samenvatting</h2>
+        <p>
+          <strong>TTS is geen “leuke extra om aan te zetten”, maar een functie waarbij je, afhankelijk van de taal, “zonder haar maar de helft leert”.</strong>
+        </p>
+        <ul>
+          <li><strong>Chinees en Thai</strong> — leer je zonder TTS, dan <strong>komt de helft van het woord (de toon) niet in je geheugen.</strong> Let ook op de kwaliteit van de stem.</li>
+          <li><strong>Engels, Frans, Japans en Russisch</strong> — <strong>de spelling verraadt de uitspraak.</strong> TTS voorkomt dat de verkeerde uitspraak wordt opgeslagen.</li>
+          <li><strong>Spaans en Italiaans</strong> — <strong>de uitspraak volgt uit de spelling alleen.</strong> Gebruik TTS niet voor de uitspraak, maar <strong>om aan het tempo te wennen</strong>.</li>
+          <li><strong>Notatie in de CSV</strong> — Japans: <strong>yomigana tussen haakjes</strong>, Engels: <strong>alleen heteroniemen herspellen</strong>,
+              Chinees: <strong>geen haakjes op kant A, pinyin op kant B.</strong> <strong>Zet nooit IPA of uitspraak in je eigen spelling tussen haakjes.</strong></li>
+          <li><strong>Shadowing</strong> — <strong>ga je je mond opendoen</strong>, zet kant A dan op 4~5 s (zinnen 7~8 s). <strong>Zo niet, laat het op 3 s staan en draai veel rondes.</strong></li>
+        </ul>
+        <div class="note">
+          En het allerbelangrijkste — <strong>TTS laat de uitspraak alleen “horen”; het onthoudt hem niet voor je.</strong>
+          <a href="/method#fix">Blootstelling en ophalen zijn verschillende dingen.</a> Een klank gehoord hebben betekent niet dat je hem kunt maken.
+          <strong>Je moet je mond opendoen.</strong> Dat deel kan geen enkel hulpmiddel van je overnemen.
+        </div>
+
+        <div class="note warn">
+          <strong>Reikwijdte en grenzen van dit artikel</strong><br />
+          Het <strong>gedrag van de app, de instelbereiken en rekenregels</strong> in dit artikel (snelheid 0.5~2.0x, herhalen 1~20 keer, volume vermenigvuldigen, verwerking van haakjes, 13 locales) zijn
+          <strong>waarden uit de echte code van VOCA DECK</strong>.<br />
+          <strong>“0.25~0.35 s per lettergreep”, “reactietijd 0.3~0.5 s” en de aanbevolen combinaties per doel</strong> zijn daarentegen
+          <strong>schattingen op basis van echt gebruik, geen gemeten onderzoeksresultaten</strong>. De verschillen tussen mensen zijn groot, dus gebruik ze <strong>alleen als vertrekpunt</strong>.<br />
+          De uitspraakuitleg per taal gaat uit van <strong>de standaardtaal (standaardmandarijn, Tokio-dialect, standaardfrans enz.)</strong>;
+          <strong>regionale varianten en dialecten kunnen afwijken.</strong>
+          En <strong>browser-TTS is geen moedertaalspreker.</strong> Controleer uitspraak voor examens of belangrijke momenten
+          <strong>altijd met de audio van woordenboeken en echt materiaal van moedertaalsprekers.</strong>
+        </div>
+
+        <h2>Verder lezen</h2>
+        <div class="related">
+          <a href="/method"><b>Het principe achter Flits-stampen</b><span>Vergeetcurve, spacing-effect, dubbele codering — en de grenzen</span></a>
+          <a href="/csv-guide"><b>Een woordjesschrift maken in CSV</b><span>Kapotte tekens oplossen + principes voor goede kaarten</span></a>
+          <a href="/study-guide"><b>Gids voor leerstrategie</b><span>Hoeveel per dag, herhalingscyclus, 4-wekenplan</span></a>
+          <a href="/"><b>Woordjesschrift openen</b><span>Zet TTS aan en begin meteen</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · Beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+      </div>
+    </main>

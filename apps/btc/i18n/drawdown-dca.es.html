@@ -1,0 +1,501 @@
+    <main class="wrap" data-title="Las matemáticas de la caída y la compra escalonada — recuperar un −50% exige un +100% | broodev" data-desc="Calculamos en tablas la asimetría de recuperar pérdidas. Cómo divergen el precio medio y el resultado de los mismos 12 millones de KRW invertidos de golpe, en 4 tramos iguales o en tramos ponderados por la caída, en tres escenarios bajistas; la aritmética de quedarse sin munición, y por qué un indicador de caída se equivoca de forma 100% consistente con un activo que va a cero.">
+      <nav class="nav">
+        <a href="/">← Panel</a>
+        <a href="/methodology">Metodología de puntuación</a>
+        <a href="/indicators">Guía de indicadores</a>
+        <a href="/guide-fear-greed">Cómo usar el índice de miedo</a>
+        <a href="/glossary">Glosario</a>
+      </nav>
+
+      <h1>Las matemáticas de la caída y la compra escalonada</h1>
+      <p class="muted">Última revisión: 2026-07-14 · Autor: Y-Systems · Este artículo está hecho solo de cálculos</p>
+
+      <p class="lead">
+        En este artículo no hay consejos. <strong>Solo hay cálculos.</strong>
+        Mostramos únicamente con números por qué «ha caído mucho, así que está barato» es peligroso, y qué hace realmente la compra escalonada y qué <em>no hace</em>.
+        Adelantamos la conclusión:
+        <strong>la compra escalonada no es una técnica para ganar más. Es una técnica para estrechar el abanico de resultados.</strong>
+        La tabla de nueve casillas de más abajo lo demuestra.
+      </p>
+
+      <section class="bd-figs" aria-label="Gráfico en vivo de la caída">
+        <p class="muted">Antes de entrar en los cálculos, veamos cómo ha sido en la historia real de BTC el protagonista de este artículo, la «caída desde el máximo histórico». La línea del 0% significa que se están marcando nuevos máximos, y cada valle es un periodo en el que hubo que pagar la «recuperación necesaria» de la tabla del texto.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">Cargando datos del gráfico…</div></div>
+          </div>
+          <p class="bd-cap">Caída de BTC desde su máximo histórico (ATH), periodo completo. Líneas discontinuas = −30% (punto en el que el modelo activa el «interés») y −50% (zona «fuertemente favorable a la compra»). Línea discontinua naranja = halvings. El punto más profundo es aproximadamente −93% en 2011. Datos: CoinMetrics Community API, cierres diarios de BTC — descargados en el momento de la visita y calculados en el navegador; son <strong>aproximados y solo de referencia</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="c1">Cálculo 1 — La asimetría de volver a la casilla de salida</h2>
+      <p>
+        Empecemos por la fórmula más simple y más cruel. La <strong>subida necesaria para que un activo que ha sufrido una caída <code>d</code> vuelva al capital inicial</strong>
+        no es <code>d</code>.
+      </p>
+      <pre><code>subida necesaria = d ÷ (1 − d)
+
+con una caída de −50%      0.50 ÷ 0.50 = +100%
+con una caída de −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        Al caer, se resta <strong>sobre lo que queda</strong>; al subir, se suma <strong>sobre una cantidad ya reducida</strong>.
+        Solo por esa diferencia de denominador, pérdidas y recuperaciones nunca son simétricas. La tabla completa es esta.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Caída</th><th>Subida necesaria para recuperar</th><th>Lo que queda de 10 M KRW</th><th>Sensación</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>9 M</td><td>Casi simétrico. Hasta aquí la intuición acierta</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>8 M</td><td>Empieza a abrirse la brecha</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>7 M</td><td>Punto en el que nuestro modelo activa el «interés»</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>6 M</td><td>Cae −40 y hace falta +67. Ya 1.7 veces</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>5 M</td><td>Punto que nuestro modelo considera «fuertemente favorable a la compra»</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>4 M</td><td>Hace falta 2.5 veces</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>3 M</td><td>3.3 veces</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>2 M</td><td>5 veces. Hay que esperar un ciclo entero</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>1 M</td><td>10 veces</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>0.5 M</td><td>20 veces. Prácticamente se convierte en otro activo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Lo que hay que mirar en la tabla no son los valores, sino los <strong>intervalos</strong>.
+        Mientras la caída se profundiza 40 pp, de −10% a −50%, la recuperación necesaria pasa del 11% al 100%: <strong>89 pp</strong> más.
+        Pero de −50% a −90%, con los mismos 40 pp de profundidad adicional, la recuperación necesaria pasa del 100% al 900%: <strong>800 pp</strong> más.
+        <strong>Los mismos 40 pp, nueve veces más daño.</strong> La caída crece de forma lineal, pero su precio crece de forma explosiva.
+      </p>
+
+      <div class="note">
+        De aquí sale la primera implicación práctica. <strong>«Total, ya ha caído mucho; si cae más, da igual» es un error de bulto.</strong>
+        Pasar de −50% a −70% no es «caer 20 pp más», sino un suceso en el que la carga de recuperación pasa <strong>de +100% a +233%, 2.3 veces más</strong>.
+        Cada caída adicional siempre es más cara que la anterior.
+      </div>
+
+      <h2 id="c2">Cálculo 2 — Las caídas no se suman, se multiplican</h2>
+      <p>
+        La segunda trampa es que la gente calcula las caídas <strong>sumando</strong>.
+        «Me cayó un −30% y luego otro −30%, así que es −60%». No. Las caídas se multiplican.
+      </p>
+      <pre><code>caída acumulada = (1 − d₁) × (1 − d₂) × … − 1
+
+dos veces −30%  →  0.7 × 0.7 = 0.49  →  −51%
+dos veces −50%  →  0.5 × 0.5 = 0.25  →  −75%  (hace falta +300% para recuperar)</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Caídas consecutivas</th><th>Si se suma</th><th>Caída acumulada real</th><th>Para recuperar</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5 veces</td><td>−100% (¿pérdida total?)</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2 veces</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3 veces</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2 veces</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Que sea una multiplicación es a la vez una buena y una mala noticia.
+        La buena: <strong>aunque te caiga un −20% cinco veces, no llegas a cero</strong> — la multiplicación solo se acerca asintóticamente a 0, nunca lo alcanza.
+        La mala: <strong>los rebotes intermedios devuelven mucho menos de lo que parece</strong>.
+        Tras un −50%, aunque llegue un rebote de +30%, <code>0.5 × 1.3 = 0.65</code>: sigues en −35%.
+        La respuesta a por qué el alivio de «por fin rebota» traiciona tan a menudo en un mercado bajista está en esta multiplicación.
+      </p>
+
+      <h2 id="c3">Cálculo 3 — ¿Por qué precisamente el máximo de 365 días?</h2>
+      <p>
+        Para medir una caída hay que decidir <strong>desde dónde se ha caído</strong>. Si cambia el punto de referencia, el mismo precio da otra caída.
+        Nuestro modelo usa el <strong>máximo de 365 días</strong>, no el máximo histórico (ATH). Esa elección tiene un coste, y aquí lo dejamos por escrito.
+      </p>
+      <p>
+        Supongamos una moneda que hace tres años llegó a 2 millones de KRW, cuyo máximo del último año es de 1 millón de KRW y que ahora vale 600,000 KRW.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Referencia</th><th>Cálculo de la caída</th><th>Resultado</th><th>Lo que dice este número</th></tr></thead>
+          <tbody>
+            <tr><td>Máximo histórico 2 M</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>«Zona de desplome histórico»</td></tr>
+            <tr><td>Máximo de 365 días 1 M</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>«Corrección profunda respecto al último año»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La misma moneda, el mismo precio y un número casi dos veces distinto. Elegimos 365 días por una sola razón:
+        <strong>con el tiempo, la caída medida desde el ATH deja de ser un indicador y se convierte en una constante.</strong>
+        Si se toma para siempre como referencia el máximo de 2021, alguna moneda aparecerá durante cinco años como «infravalorada un −70%».
+        Un indicador que da señal de compra todos los días es un indicador sin información.
+      </p>
+      <div class="note warn">
+        <strong>El coste — en un mercado bajista largo, la ventana de 365 días se reinicia sola.</strong>
+        Si la caída dura más de un año, <strong>el propio máximo de 365 días baja hasta dentro del tramo bajista.</strong>
+        Supongamos que el precio cae de 100 → 30 a lo largo de 14 meses. Ahora el máximo del «último año» ya no es 100, sino, por ejemplo, 55.
+        La caída se calcula como <code>30 ÷ 55 − 1 = −45%</code>. Respecto al ATH es −70%, pero nuestro indicador dice −45%.
+        <strong>Hay periodos en los que, justo cuando más hundido está el precio, la puntuación de caída parece más suave.</strong>
+        No es un error, sino un límite estructural del método de ventana (window). Hay que usarlo sabiéndolo.
+      </div>
+      <p>
+        <strong>Los umbrales de −30% y −50%</strong> se fijaron con la misma lógica.
+        En las criptomonedas, las correcciones de −30% son habituales <em>incluso en plena tendencia alcista</em>. Por eso −30% no significa «compra», sino «empieza a mirar» (carga de recuperación +43%, todavía asumible).
+        En cambio, −50% es el punto en el que la recuperación exige <strong>+100%</strong>, e históricamente ha aparecido más a menudo en cambios de ciclo que en correcciones alcistas.
+        <strong>Ambos umbrales no se basan en el precio, sino en «el punto en el que la carga de recuperación se duplica».</strong>
+      </p>
+
+      <h2 id="c4">Cálculo 4 — Los mismos 12 millones de KRW, tres métodos</h2>
+      <p>
+        Ahora, lo importante. Tenemos un presupuesto de <strong>12 millones de KRW</strong> (1,200 en unidades de 10,000 KRW). Una moneda cuesta al principio <strong>1 millón de KRW</strong> (100 en esas unidades).
+        Hay 9 momentos de observación, de t0 a t8 (piense en meses). Comparamos tres formas de ejecutar la compra.
+      </p>
+      <ul>
+        <li><strong>Estrategia A — Todo de golpe.</strong> En t0 se compran los 12 millones de KRW completos.</li>
+        <li><strong>Estrategia B — 4 tramos iguales.</strong> 3 millones de KRW en cada uno de t0, t2, t4 y t6. Mecánicamente, <em>sin importar el precio</em>.</li>
+        <li><strong>Estrategia C — Tramos ponderados por la caída.</strong> Se dividen los 12 millones de KRW en <strong>12 lotes</strong> de 1 millón y solo se ejecutan <strong>la primera vez que</strong> la caída desde el máximo de 365 días entra en cada franja:</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Franja de caída</th><th>Lotes ejecutados</th><th>Importe</th><th>Consumo acumulado</th></tr></thead>
+          <tbody>
+            <tr><td>0 ~ −20%</td><td>0 lotes</td><td>0 KRW</td><td>0%</td></tr>
+            <tr><td>−20 ~ −35%</td><td>1 lote</td><td>1 M</td><td>8.3%</td></tr>
+            <tr><td>−35 ~ −50%</td><td>2 lotes</td><td>2 M</td><td>25.0%</td></tr>
+            <tr><td>−50 ~ −65%</td><td>4 lotes</td><td>4 M</td><td>58.3%</td></tr>
+            <tr><td>−65% o menos</td><td>5 lotes</td><td>5 M</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        Este reparto de franjas y lotes es <strong>un ejemplo para mostrar el cálculo</strong> y no recomienda ningún reparto concreto.
+        Lo esencial no son los números en sí, sino la forma: <em>«cuanto más abajo, más se asigna»</em>.
+      </p>
+
+      <h3>Escenario ① — Caída profunda y recuperación parcial</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Momento</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Precio (10,000 KRW)</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>Caída 365 días</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Desplegamos tal cual lo que compró cada estrategia. <strong>Cantidad = importe ÷ precio</strong> (importes y precios en unidades de 10,000 KRW).</p>
+      <pre><code>Estrategia A  t0: 1,200 ÷ 100 = 12.0000 uds.
+              total 12.0000 uds. · precio medio 100.00
+
+Estrategia B  t0:  300 ÷ 100 =  3.0000 uds.
+              t2:  300 ÷  74 =  4.0541 uds.
+              t4:  300 ÷  55 =  5.4545 uds.
+              t6:  300 ÷  38 =  7.8947 uds.
+              total 20.4033 uds. · precio medio 1,200 ÷ 20.4033 = 58.81
+
+Estrategia C  t2(−26%): 100 ÷ 74 =  1.3514 uds.   ← primera entrada en −20~−35
+              t3(−38%): 200 ÷ 62 =  3.2258 uds.   ← primera entrada en −35~−50
+              t5(−56%): 400 ÷ 44 =  9.0909 uds.   ← primera entrada en −50~−65
+              (no se alcanza −65% o menos → 5 lotes, 500, sin ejecutar)
+              total 13.6681 uds. · invertido 700 · precio medio 51.21 · quedan 500 en efectivo</code></pre>
+      <p>
+        Mirando solo el precio medio, el orden es claro: <strong>C(51.21) &lt; B(58.81) &lt; A(100.00)</strong>.
+        La ponderación por caída rebajó el precio medio <strong>casi a la mitad</strong> frente a la compra de golpe.
+        Aquí es donde la mayoría de los artículos terminan con un «¿Ves? La compra escalonada es la respuesta». <strong>Nosotros no nos detenemos aquí.</strong>
+      </p>
+      <p>
+        Primero hay que señalar algo. <strong>La estrategia C no logró gastar los 12 millones de KRW.</strong> Solo invirtió 7 millones.
+        La premisa de «invertir el mismo total» <strong>no se cumple</strong> en el método ponderado por la caída.
+        Si el mercado no cae lo suficiente, sobra presupuesto. No es un efecto secundario, es la definición de la estrategia.
+        Por eso, para comparar con justicia hay que mirar el <strong>patrimonio total, incluido el efectivo sobrante</strong>.
+      </p>
+
+      <h2 id="c5">Cálculo 5 — Tres estrategias × tres escenarios: la verdad de las nueve casillas</h2>
+      <p>
+        Si solo se calcula el escenario ①, la conclusión está amañada. <strong>Porque la trayectoria bajista la dibujé yo.</strong>
+        Para ser honestos hay que calcular también <strong>trayectorias en las que la compra escalonada pierde</strong>. Creamos dos más.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Escenario</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① Caída y recuperación parcial</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② Caída sin recuperación</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ Subida sin caídas</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        El escenario ② es <strong>idéntico</strong> a ① hasta t6. Desde t7, en lugar de rebotar, sigue cayendo.
+        Aquí la estrategia C ejecuta en t7 (−67%) los últimos 5 lotes, 5 millones de KRW, a <code>500 ÷ 33 = 15.1515 uds.</code> y <strong>agota todo el presupuesto</strong>.
+        En el escenario ③ la caída máxima se queda en −7% y <strong>ni siquiera toca el primer umbral de la estrategia C (−20%)</strong>. C <strong>no compra ni una sola unidad</strong>.
+      </p>
+      <p>Rentabilidad sobre el patrimonio total en t8 (valor de las monedas + efectivo sobrante). El presupuesto es el mismo para las tres estrategias: 12 millones de KRW.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Estrategia</th><th>① Caída y recuperación<br />(t8 = 61)</th><th>② Sin recuperación<br />(t8 = 29)</th><th>③ Subida sin caídas<br />(t8 = 168)</th><th>Máximo − mínimo<br />(abanico de resultados)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A De golpe</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0 pp</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B 4 tramos iguales</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0 pp</td>
+            </tr>
+            <tr>
+              <td><strong>C Ponderada por caída</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5 pp</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Lea despacio estas nueve casillas. <strong>Ninguna estrategia queda primera en los tres escenarios.</strong>
+      </p>
+      <ul>
+        <li><strong>La estrategia C arrasa en ① y ②.</strong> Y <strong>queda última en ③.</strong> Rentabilidad 0%. Mientras el mercado subía un 68%, miraba con el efectivo en la mano.</li>
+        <li><strong>La estrategia A solo gana en ③.</strong> Eso sí, de forma aplastante (+68%). A cambio, en ② se lleva un <strong>−71%</strong>. Según la tabla del cálculo 1, es un agujero que exige <strong>+245%</strong> para volver al punto de partida.</li>
+        <li><strong>La estrategia B no es primera en ninguno y tampoco última en ninguno.</strong></li>
+      </ul>
+      <p>
+        La columna de la derecha es la conclusión de todo el artículo. <strong>Abanico de resultados: A 139 pp, B 83 pp, C 41.5 pp.</strong>
+        Cuanto más se fracciona y más se pondera por la caída, <strong>más se recorta el máximo y más sube el mínimo.</strong>
+        Lo que hace la compra escalonada no es <em>subir la media</em>, sino <strong>estrechar la distribución</strong>.
+        No es cuestión de gustos, es el resultado de la aritmética. Es un trato: se renuncia a la parte alta a cambio de comprar protección en la parte baja.
+      </p>
+      <div class="note">
+        <strong>«Con la compra escalonada se gana más» es falso. Lo correcto es «con la compra escalonada se pierde menos».</strong>
+        Que C ganara en ① y ② en la tabla se debe también a que <strong>dibujé dos trayectorias bajistas y una alcista</strong>.
+        Con dos trayectorias alcistas, el orden medio se invertiría. <strong>Si cambias las trayectorias, cambia el orden.</strong>
+        Lo único que no cambia es que <strong>el «abanico» sigue el orden A &gt; B &gt; C</strong>, y ese es el único resultado fiable de esta simulación.
+      </div>
+
+      <h2 id="c6">Cálculo 6 — La aritmética de quedarse sin munición</h2>
+      <p>
+        Donde realmente fracasa la mayoría de quienes dicen comprar de forma escalonada no es en la tabla de reparto.
+        Es en <strong>gastarlo todo demasiado arriba</strong>. Vamos a dejarlo clavado con números.
+      </p>
+      <p>
+        Añadimos una <strong>estrategia D</strong>. Traslada tal cual la psicología habitual de quien tiene miedo y «quiere comprar rápido».
+        En cuanto empieza la caída, mete <strong>4 millones de KRW en cada uno de t1 (−12%), t2 (−26%) y t3 (−38%)</strong> y <strong>agota el presupuesto en −38%</strong>.
+        Lo calculamos sobre el escenario ① (después sigue cayendo hasta −62% y se recupera a 61).
+      </p>
+      <pre><code>Estrategia D  t1: 400 ÷ 88 =  4.5455 uds.
+              t2: 400 ÷ 74 =  5.4054 uds.
+              t3: 400 ÷ 62 =  6.4516 uds.
+              total 16.4025 uds. · precio medio 73.16 · munición restante 0
+
+              t4(−45%) · t5(−56%) · t6(−62%) ← solo mira</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Estrategia</th><th>Precio de compra más bajo (10,000 KRW)</th><th>Precio medio (10,000 KRW)</th><th>Cantidad total</th><th>Resultado escenario ①</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D Agotamiento temprano</strong> (todo dentro en −38%)</td><td>62</td><td><strong>73.16</strong></td><td>16.4025 uds.</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C Ponderada por caída</strong> (conserva munición)</td><td>44</td><td><strong>51.21</strong></td><td>13.6681 uds.</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La misma caída, el mismo presupuesto, la misma «compra escalonada». Y sin embargo <strong>los precios medios divergen: 731,600 KRW frente a 512,100 KRW</strong>.
+        <strong>La diferencia es de 219,500 KRW, nada menos que un 30%.</strong> El resultado, −16.6% frente a +11.1%: una brecha de <strong>27.7 pp</strong>.
+      </p>
+      <p>
+        El error de la estrategia D no fue <em>no fraccionar</em>. D también fraccionó, en tres veces.
+        Su error fue <strong>quedarse sin dinero antes de que llegara la zona más barata</strong>.
+        En la simulación, D no compró ni una sola unidad al mínimo de 380,000 KRW.
+        <strong>El precio de gastar todo el presupuesto en −38% es ver el −62% desde la barrera.</strong>
+      </p>
+      <div class="note warn">
+        <strong>La única regla del reparto de munición — cuanto más abajo, más debe quedar.</strong>
+        Por eso el reparto de la estrategia C (0 · 1 · 2 · 4 · 5 lotes) <strong>no es aritmético, sino creciente hacia el final</strong>.
+        Cuanto más profunda es la caída, <strong>más unidades se compran con el mismo dinero, y de forma geométrica</strong>.
+        Con 1 millón de KRW se compran <strong>1.35 unidades a precio 74</strong> y <strong>2.63 unidades a precio 38</strong> — <strong>casi el doble</strong>.
+        La compra más potente siempre ocurre en la zona más aterradora, y si en ese momento el saldo es 0, esa zona <strong>es como si no hubiera existido.</strong>
+      </div>
+
+      <h2 id="c7">Cálculo 7 — Lo que significa no tener suelo</h2>
+      <p>
+        Bajo todos los cálculos anteriores había <strong>una premisa no dicha</strong>.
+        <strong>Que el activo sobrevive.</strong> Si esa premisa se rompe, todas las tablas anteriores se invierten.
+      </p>
+      <p>Metemos en el cálculo la trayectoria típica de una moneda camino de su exclusión de cotización. 8 momentos, empezando en un precio de 1 millón de KRW.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Momento</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Precio (10,000 KRW)</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>Caída 365 días</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>Subpuntuación de caída</strong></td><td>Baja</td><td>Interés</td><td><strong>Máxima</strong></td><td><strong>Máxima</strong></td><td><strong>Máxima</strong></td><td><strong>Máxima</strong></td><td><strong>Máxima</strong></td><td><strong>Máxima</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Mire la última fila.</strong> De t2 a t7, <strong>durante todo</strong> el tiempo en que el activo agonizaba, el indicador de caída dio la puntuación máxima.
+        «Compra fuerte» en −55%, «compra fuerte» en −95%, «compra fuerte» en −99%.
+        <strong>Aquí el indicador de caída no acertó ni una sola vez. Se equivocó de forma 100% consistente.</strong>
+        Y como su estructura es <strong>«cuanto más cae, con más fuerza dice que compres»</strong>, cuanto más se equivocaba, más grande era el error.
+      </p>
+      <p>Pongamos las tres estrategias sobre esta trayectoria. El precio final es 3,000 KRW.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Estrategia</th><th>Cantidad total</th><th>Precio medio (10,000 KRW)</th><th>Valor final (10,000 KRW)</th><th>Resultado</th><th>Subida necesaria para recuperar</th></tr></thead>
+          <tbody>
+            <tr><td>A De golpe</td><td>12.00 uds.</td><td>100.00</td><td>3.6</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B 4 tramos iguales</td><td>234.67 uds.</td><td>5.11</td><td>70.4</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C Ponderada por caída</td><td>34.76 uds.</td><td>34.52</td><td>10.4</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Aquí salen dos cosas a la luz. Primera: <strong>las tres estrategias murieron.</strong>
+        Segunda: el resultado de la estrategia que <strong>«mejor lo hizo» es −94.1%</strong>.
+        Si recuperamos la fórmula del cálculo 1, incluso este mejor resultado necesita <strong>+1,595%</strong> para volver al punto de partida.
+        <strong>En esta tabla no hay ganador. Solo hay perdedores menos desastrosos.</strong>
+      </p>
+      <p>
+        Fíjese en la estrategia C. El método ponderado por la caída, tan superior en los escenarios ① y ②, aquí
+        <strong>siguió la señal de «está barato», volcó el 91.7% del presupuesto en las franjas de −55% y −75% y terminó en −99.1%.</strong>
+        Ponderar por la caída significa <strong>«cuanto más cae, más compro»</strong>, y
+        <strong>con un activo que va a cero eso es un algoritmo que maximiza la pérdida.</strong>
+        La misma propiedad que convirtió a C en ganadora en el escenario ① es la que aquí la sentencia a muerte. <strong>Es la misma propiedad.</strong>
+      </p>
+      <div class="note warn">
+        <strong>La condición previa del indicador de caída — «este activo seguirá existiendo dentro de 5 años».</strong>
+        La caída asume que <strong>el precio volverá a la media</strong>. Para un activo que vuelve es un buen indicador;
+        para un activo que va a desaparecer es <strong>el indicador más peligroso</strong>. Y <strong>el gráfico no distingue entre ambos.</strong>
+        Un gráfico de bitcoin en −80% y el de una altcoin en −80% a punto de dejar de cotizar <strong>son idénticos.</strong>
+        La diferencia no está en el indicador, sino en <strong>los fundamentales, la liquidez, el equipo y los desbloqueos de tokens</strong>, y nuestro modelo no mira nada de eso.
+        Los miles de altcoins que hoy han desaparecido <strong>pasaron sin excepción por la zona de −90%, y en cada una de esas zonas el indicador de caída dio la puntuación máxima.</strong>
+      </div>
+
+      <h2 id="c8">Cálculo 8 — Por eso solo damos a la caída un 18% y un 14%</h2>
+      <p>
+        El cálculo 7 es la razón por la que, en nuestro modelo, <strong>la caída no tiene la mayor ponderación de los 6 indicadores en ningún modo</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modo</th><th>Ponderación de la caída</th><th>Puesto entre 6</th><th>Indicador n.º 1</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Corto plazo</strong> (momentum)</td><td><strong>18%</strong></td><td>3.º</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>Largo plazo</strong> (contrario)</td><td><strong>14%</strong></td><td>5.º empatado</td><td>RSI · MACD · F&amp;G · Mayer, 18% cada uno</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Lo sorprendente es que <strong>en largo plazo es incluso más baja</strong> (18% → 14%).
+        «¿No es precisamente la inversión a largo plazo la que debería fijarse en la caída?», cabría pensar, pero la razón es el <strong>doble cómputo</strong>.
+      </p>
+      <p>
+        <strong>La caída y el múltiplo de Mayer plantean en la práctica la misma pregunta</strong> — <em>«¿está el precio actual por debajo de una línea de referencia pasada?»</em>
+        Solo que la caída usa como referencia el <strong>máximo de 365 días</strong> y Mayer, la <strong>media móvil de 200 días</strong>.
+        En el modo largo plazo, el múltiplo de Mayer tiene un <strong>18%</strong>, en el grupo más alto.
+        Si aquí diéramos también un 18% a la caída, <strong>estaríamos concentrando un 36% en la misma perspectiva (la valoración)</strong>.
+        La razón de usar 6 indicadores es <strong>mezclar perspectivas distintas</strong>, y así ese diseño se vendría abajo.
+        Por eso, en largo plazo <strong>damos peso a Mayer, que usa una referencia más estable (la media de 200 días), y rebajamos la caída, que depende de un único máximo.</strong>
+        El máximo de 365 días es <strong>el valor de un solo día</strong>, y si ese día hubo un pico anómalo, la caída de todo el año siguiente queda distorsionada.
+        La <em>media</em> de 200 días no tiene esa debilidad.
+      </p>
+
+      <h3>La caída por sí sola no puede generar un STRONG BUY</h3>
+      <p>Comprobamos con cálculos qué significa en la práctica que las ponderaciones estén fijadas así. Cuando la caída tiene la <strong>puntuación máxima (100 puntos)</strong>, su contribución al total es esta.</p>
+      <pre><code>Corto plazo: 100 puntos × 0.18 = aporta 18 puntos (el 82% restante, los otros 5 indicadores)
+Largo plazo: 100 puntos × 0.14 = aporta 14 puntos (el 86% restante, los otros 5 indicadores)
+
+Para superar el umbral de STRONG BUY (80 puntos), la media ponderada de los otros 5 indicadores debe ser
+
+  Corto plazo:  (80 − 18) ÷ 0.82 = 75.6 puntos o más
+  Largo plazo:  (80 − 14) ÷ 0.86 = 76.7 puntos o más</code></pre>
+      <p>
+        Es decir, <strong>aunque un desplome de −70% dé la puntuación máxima a la caída, si RSI, MACD, el índice de miedo, Mayer y los cruces no superan de media los 75 puntos,
+        la puntuación nunca llegará a 80 (STRONG BUY).</strong>
+      </p>
+      <p>
+        Llevándolo al extremo — <strong>si solo la caída tiene 100 puntos y los otros cinco indicadores tienen 0, el total es 18 puntos en corto plazo y 14 en largo plazo</strong>.
+        Ambos están en la <strong>franja 0~25</strong>, así que en la pestaña de largo plazo se muestra <strong>OVERHEATED</strong> y en la de corto plazo <strong>AVOID (fuerte tendencia bajista)</strong>.
+        «¿Ha caído un −70% y la pestaña de largo plazo dice sobrecalentado?» Parece raro, pero es <strong>exactamente el comportamiento buscado</strong>.
+        Solo ha caído el precio: la tendencia está muerta, el sentimiento no ha mejorado y, frente a la media de 200 días, sigue estando caro —
+        <strong>es exactamente el aspecto de la trayectoria hacia la exclusión del cálculo 7.</strong>
+        Impedir que la caída sola gane a los otros cinco: esa es la razón de ser de las ponderaciones del 18%/14%.
+      </p>
+      <p class="muted">
+        Nota: en las monedas con menos de un año de cotización <strong>no existe máximo de 365 días, así que la caída falta</strong>.
+        En ese caso se excluye la caída, se renormalizan las ponderaciones de los demás indicadores y el panel muestra <code>coverage: 5/6</code>.
+        El cálculo detallado está en el apartado de renormalización de la <a href="/methodology">metodología de puntuación</a>.
+      </p>
+
+      <h2 id="c9">Dónde mienten estos cálculos</h2>
+      <p>Hasta aquí hemos mostrado ocho tablas. Ahora escribimos <strong>por qué no debe creérselas</strong>.</p>
+      <ul>
+        <li>
+          <strong>Los tres escenarios los he inventado yo.</strong> No son un backtest, sino <strong>trayectorias hipotéticas</strong>.
+          Basta con cambiar un poco los números para que el orden de las estrategias se invierta. Lo único que demuestra esta simulación es
+          <strong>no que «C es buena», sino que «cuanto más se fracciona, más estrecho es el abanico de resultados»</strong>.
+        </li>
+        <li>
+          <strong>El precio medio no es una métrica de rendimiento.</strong> En el cálculo 7, el precio medio de la estrategia B fue <strong>51,100 KRW</strong>, el más bajo de los tres.
+          Y <strong>terminó en −94.1%.</strong> Un precio medio bajo no significa <em>haber comprado barato</em>, sino solo
+          <strong>haber seguido comprando mientras caía</strong>. Si el activo muere, el resultado es 0 sea cual sea el precio medio.
+        </li>
+        <li>
+          <strong>Comisiones, deslizamiento e impuestos se han puesto todos a 0.</strong> En la realidad, la compra escalonada <strong>paga más comisiones porque hace más operaciones.</strong>
+          Parte de las diferencias de las tablas se recorta tal cual en la realidad.
+        </li>
+        <li>
+          <strong>El coste de oportunidad se ha puesto a 0.</strong> Que la estrategia C dé «0.0%» en el escenario ③ supone que
+          <strong>el efectivo sobrante no rinde nada</strong>. Con intereses de un depósito mejora un poco y,
+          al contrario, <strong>si durante ese año subieron otros activos, es una pérdida real</strong>.
+        </li>
+        <li>
+          <strong>La ventana de 365 días hace que la caída parezca menos profunda en mercados bajistas largos</strong> (advertencia del cálculo 3).
+          En la zona más profunda, el indicador puede volverse menos sensible.
+        </li>
+        <li>
+          <strong>El reparto de franjas y lotes de la estrategia C (0·1·2·4·5) es un ejemplo de cálculo.</strong>
+          No recomendamos este reparto ni afirmamos que sea el óptimo.
+          Si se cambian las franjas a −25/−40/−55, el resultado también cambia. <strong>No hay respuesta correcta.</strong>
+        </li>
+        <li>
+          <strong>La variable más importante no está en el cálculo.</strong> ¿Existirá este activo dentro de 5 años?
+          La respuesta no está en las tablas, sino en <strong>la sustancia real del proyecto</strong>, y nuestro modelo no la mira.
+        </li>
+      </ul>
+
+      <p>
+        En resumen: <strong>la caída no mide «lo barato que está». Solo mide «cuánto ha caído».</strong>
+        Ambas cosas solo significan lo mismo cuando el activo sobrevive; cuando no, significan lo contrario.
+        <strong>Que el momento en que este indicador grita «compra» con más fuerza no se distingue del momento en que el activo está muriendo</strong> —
+        eso es todo lo que hay que saber sobre la caída.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Advertencia sobre inversión</strong><br />
+        Todos los escenarios, precios, repartos y rentabilidades de este documento son <strong>ejemplos hipotéticos para explicar los principios de cálculo</strong>
+        y no datos reales de mercado ni resultados de backtests. No se recomienda ninguna estrategia, reparto ni activo concreto.
+        Este documento tiene <strong>fines educativos y de referencia, y no constituye asesoramiento de inversión.</strong>
+        Las criptomonedas son activos de alto riesgo en los que <strong>es posible perder todo el capital</strong> y, de hecho, como en el cálculo 7,
+        <strong>existen numerosos casos en los que su valor ha convergido a 0.</strong>
+        Ninguna técnica, incluida la compra escalonada, evita las pérdidas.
+        Toda decisión de inversión y sus consecuencias son responsabilidad exclusiva del usuario. Investigue siempre por su cuenta (DYOR).
+      </div>
+
+      <h2>Sigue leyendo</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodología de puntuación</b><span>Las 6 ponderaciones completas, incluido el 18%/14% de la caída, y el cálculo de renormalización</span></a>
+        <a href="/indicators"><b>Guía de los 6 indicadores</b><span>Qué miran los otros cinco, además de la caída</span></a>
+        <a href="/guide-fear-greed"><b>Guía práctica del índice de miedo</b><span>Si este artículo es «las matemáticas», aquel es «el procedimiento»</span></a>
+        <a href="/glossary"><b>Glosario</b><span>Definiciones de caída, precio medio y múltiplo de Mayer</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operado por Y-Systems · <a href="/privacy">Política de privacidad</a> · <a href="/terms">Términos de uso</a></footer>
+    </main>

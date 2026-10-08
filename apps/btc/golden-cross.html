@@ -68,6 +68,7 @@
         }
       }
     </script>
+    <script src="/content-i18n.js?v=20261009a" data-key="btc:lang" data-doc="golden-cross"></script>
   </head>
   <body>
     <main class="wrap">
@@ -552,8 +553,12 @@ sLong: gc == null ? 50 : ...               ← 결측이어도 50점을 반환</
       <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
     </main>
     <script>
-(function () {
+(window.CI18N ? window.CI18N.ready : Promise.resolve()).then(function () {
   'use strict';
+  // 13개 언어 — content-i18n.js 가 본문을 번역본으로 바꾼 뒤(window.CI18N.ready) 실행된다. 화면 문구는 TR({ ko: …, en: …, … }) 로
+  var LANG = (window.CI18N && window.CI18N.lang) || 'ko';
+  function TR(o) { return o[LANG] != null ? o[LANG] : (o.en != null ? o.en : o.ko); }
+
   if (!window.fetch || !window.localStorage) return;
   var NS = 'http://www.w3.org/2000/svg';
   var DAY = 86400000;
@@ -728,7 +733,7 @@ sLong: gc == null ? 50 : ...               ← 결측이어도 50점을 반환</
     for (var i = 0; i < paneIds.length; i++) {
       var m = document.getElementById(paneIds[i]);
       if (!m) continue;
-      m.innerHTML = i === 0 ? '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>' : '';
+      m.innerHTML = i === 0 ? TR({ ko: '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>', en: '<div class="bd-err">Could not load chart data — please refresh in a moment.</div>', ja: '<div class="bd-err">チャートデータを読み込めませんでした — しばらくしてから再読み込みしてください。</div>', zh: '<div class="bd-err">无法加载图表数据 — 请稍后刷新。</div>', 'zh-Hant': '<div class="bd-err">無法載入圖表資料 — 請稍後重新整理。</div>', th: '<div class="bd-err">โหลดข้อมูลกราฟไม่สำเร็จ — โปรดรีเฟรชอีกครั้งในภายหลัง</div>', es: '<div class="bd-err">No se pudieron cargar los datos del gráfico — actualiza la página en un momento.</div>', fr: '<div class="bd-err">Impossible de charger les données du graphique — veuillez actualiser dans un instant.</div>', de: '<div class="bd-err">Diagrammdaten konnten nicht geladen werden — bitte gleich neu laden.</div>', it: '<div class="bd-err">Impossibile caricare i dati del grafico — ricarica la pagina tra poco.</div>', pt: '<div class="bd-err">Não foi possível carregar os dados do gráfico — atualize a página em instantes.</div>', ru: '<div class="bd-err">Не удалось загрузить данные графика — обновите страницу чуть позже.</div>', nl: '<div class="bd-err">Grafiekgegevens konden niet worden geladen — vernieuw de pagina zo meteen.</div>' }) : '';
     }
   }
 
@@ -956,22 +961,22 @@ sLong: gc == null ? 50 : ...               ← 결측이어도 50점을 반환</
     }
     drawChart({
       mount: 'bd-gc-main',
-      title: 'BTC 가격 + SMA50/SMA200 — 로그, 전체 기간',
+      title: TR({ ko: 'BTC 가격 + SMA50/SMA200 — 로그, 전체 기간', en: 'BTC price + SMA50/SMA200 — log, full history', ja: 'BTC価格 + SMA50/SMA200 — 対数、全期間', zh: 'BTC价格 + SMA50/SMA200 — 对数，全部期间', 'zh-Hant': 'BTC價格 + SMA50/SMA200 — 對數，全部期間', th: 'ราคา BTC + SMA50/SMA200 — สเกลล็อก, ทั้งช่วงเวลา', es: 'Precio de BTC + SMA50/SMA200 — log, historial completo', fr: 'Prix du BTC + SMA50/SMA200 — log, historique complet', de: 'BTC-Preis + SMA50/SMA200 — log, gesamter Zeitraum', it: 'Prezzo di BTC + SMA50/SMA200 — log, intero storico', pt: 'Preço do BTC + SMA50/SMA200 — log, histórico completo', ru: 'Цена BTC + SMA50/SMA200 — лог., вся история', nl: 'BTC-koers + SMA50/SMA200 — log, volledige historie' }),
       log: true, halvings: true, height: 320, yFmt: fmtUsdShort,
       legendExtra: [
-        { name: '골든크로스 ▲', color: GREEN },
-        { name: '데드크로스 ▼', color: RED },
-        { name: '반감기', color: ORANGE }
+        { name: TR({ ko: '골든크로스 ▲', en: 'Golden cross ▲', ja: 'ゴールデンクロス ▲', zh: '金叉 ▲', 'zh-Hant': '黃金交叉 ▲', th: 'โกลเดนครอส ▲', es: 'Cruce dorado ▲', fr: 'Croix dorée ▲', de: 'Golden Cross ▲', it: 'Golden cross ▲', pt: 'Cruz dourada ▲', ru: 'Золотой крест ▲', nl: 'Golden cross ▲' }), color: GREEN },
+        { name: TR({ ko: '데드크로스 ▼', en: 'Death cross ▼', ja: 'デッドクロス ▼', zh: '死叉 ▼', 'zh-Hant': '死亡交叉 ▼', th: 'เดธครอส ▼', es: 'Cruce de la muerte ▼', fr: 'Croix de la mort ▼', de: 'Death Cross ▼', it: 'Death cross ▼', pt: 'Cruz da morte ▼', ru: 'Крест смерти ▼', nl: 'Death cross ▼' }), color: RED },
+        { name: TR({ ko: '반감기', en: 'Halving', ja: '半減期', zh: '减半', 'zh-Hant': '減半', th: 'ฮาล์ฟวิ่ง', es: 'Halving', fr: 'Halving', de: 'Halving', it: 'Halving', pt: 'Halving', ru: 'Халвинг', nl: 'Halving' }), color: ORANGE }
       ],
       markers: markers,
       series: [
-        { name: 'BTC 가격', color: '#8ba396', width: 1, pts: downsample(pts, 800), fmt: fmtUsd },
+        { name: TR({ ko: 'BTC 가격', en: 'BTC price', ja: 'BTC価格', zh: 'BTC价格', 'zh-Hant': 'BTC價格', th: 'ราคา BTC', es: 'Precio de BTC', fr: 'Prix du BTC', de: 'BTC-Preis', it: 'Prezzo di BTC', pt: 'Preço do BTC', ru: 'Цена BTC', nl: 'BTC-koers' }), color: '#8ba396', width: 1, pts: downsample(pts, 800), fmt: fmtUsd },
         { name: 'SMA50', color: BLUE, width: 1.3, pts: downsample(s50, 800), fmt: fmtUsd },
         { name: 'SMA200', color: RED, width: 1.3, pts: downsample(s200, 800), fmt: fmtUsd }
       ]
     });
   }, function () { showError(['bd-gc-main']); });
-})();
+});
     </script>
   </body>
 </html>

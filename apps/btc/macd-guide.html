@@ -76,6 +76,7 @@
         }
       }
     </script>
+    <script src="/content-i18n.js?v=20261009a" data-key="btc:lang" data-doc="macd-guide"></script>
   </head>
   <body>
     <main class="wrap">
@@ -777,8 +778,12 @@ const conMacd = (cur, prev, px) =&gt; clamp(
       <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
     </main>
     <script>
-(function () {
+(window.CI18N ? window.CI18N.ready : Promise.resolve()).then(function () {
   'use strict';
+  // 13개 언어 — content-i18n.js 가 본문을 번역본으로 바꾼 뒤(window.CI18N.ready) 실행된다. 화면 문구는 TR({ ko: …, en: …, … }) 로
+  var LANG = (window.CI18N && window.CI18N.lang) || 'ko';
+  function TR(o) { return o[LANG] != null ? o[LANG] : (o.en != null ? o.en : o.ko); }
+
   if (!window.fetch || !window.localStorage) return;
   var NS = 'http://www.w3.org/2000/svg';
   var DAY = 86400000;
@@ -953,7 +958,7 @@ const conMacd = (cur, prev, px) =&gt; clamp(
     for (var i = 0; i < paneIds.length; i++) {
       var m = document.getElementById(paneIds[i]);
       if (!m) continue;
-      m.innerHTML = i === 0 ? '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>' : '';
+      m.innerHTML = i === 0 ? TR({ ko: '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>', en: '<div class="bd-err">Could not load chart data — please refresh in a moment.</div>', ja: '<div class="bd-err">チャートデータを読み込めませんでした — しばらくしてから再読み込みしてください。</div>', zh: '<div class="bd-err">无法加载图表数据 — 请稍后刷新。</div>', 'zh-Hant': '<div class="bd-err">無法載入圖表資料 — 請稍後重新整理。</div>', th: '<div class="bd-err">โหลดข้อมูลกราฟไม่สำเร็จ — โปรดรีเฟรชอีกครั้งในภายหลัง</div>', es: '<div class="bd-err">No se pudieron cargar los datos del gráfico — actualiza la página en unos momentos.</div>', fr: '<div class="bd-err">Impossible de charger les données du graphique — veuillez actualiser dans un instant.</div>', de: '<div class="bd-err">Diagrammdaten konnten nicht geladen werden — bitte gleich neu laden.</div>', it: '<div class="bd-err">Impossibile caricare i dati del grafico — riprova ad aggiornare tra poco.</div>', pt: '<div class="bd-err">Não foi possível carregar os dados do gráfico — atualize a página em instantes.</div>', ru: '<div class="bd-err">Не удалось загрузить данные графика — обновите страницу чуть позже.</div>', nl: '<div class="bd-err">Grafiekgegevens konden niet worden geladen — vernieuw de pagina zo meteen.</div>' }) : '';
     }
   }
 
@@ -1177,9 +1182,9 @@ const conMacd = (cur, prev, px) =&gt; clamp(
     var xd = [priceW[0][0], priceW[priceW.length - 1][0]];
     drawChart({
       mount: 'bd-macd-price',
-      title: 'BTC 가격 — 최근 2년',
+      title: TR({ ko: 'BTC 가격 — 최근 2년', en: 'BTC price — last 2 years', ja: 'BTC価格 — 直近2年', zh: 'BTC价格 — 最近2年', 'zh-Hant': 'BTC價格 — 最近2年', th: 'ราคา BTC — 2 ปีล่าสุด', es: 'Precio de BTC — últimos 2 años', fr: 'Prix du BTC — 2 dernières années', de: 'BTC-Preis — letzte 2 Jahre', it: 'Prezzo di BTC — ultimi 2 anni', pt: 'Preço do BTC — últimos 2 anos', ru: 'Цена BTC — последние 2 года', nl: 'BTC-prijs — afgelopen 2 jaar' }),
       height: 120, xDomain: xd, yFmt: fmtUsdShort,
-      series: [{ name: 'BTC 가격', color: INK, pts: downsample(priceW, 800), fmt: fmtUsd }]
+      series: [{ name: TR({ ko: 'BTC 가격', en: 'BTC price', ja: 'BTC価格', zh: 'BTC价格', 'zh-Hant': 'BTC價格', th: 'ราคา BTC', es: 'Precio de BTC', fr: 'Prix du BTC', de: 'BTC-Preis', it: 'Prezzo di BTC', pt: 'Preço do BTC', ru: 'Цена BTC', nl: 'BTC-prijs' }), color: INK, pts: downsample(priceW, 800), fmt: fmtUsd }]
     });
     drawChart({
       mount: 'bd-macd-main',
@@ -1187,13 +1192,13 @@ const conMacd = (cur, prev, px) =&gt; clamp(
       height: 240, xDomain: xd, yFmt: fmtNum,
       hlines: [{ y: 0, color: '#7d918a', label: '0' }],
       series: [
-        { name: '히스토그램', type: 'bars', color: GREEN, pts: downsample(histW, 500), fmt: fmtNum },
-        { name: 'MACD선', color: INK, pts: downsample(lineW, 800), fmt: fmtNum },
-        { name: '시그널(9)', color: RED, width: 1.2, pts: downsample(sigW, 800), fmt: fmtNum }
+        { name: TR({ ko: '히스토그램', en: 'Histogram', ja: 'ヒストグラム', zh: '柱状图', 'zh-Hant': '柱狀圖', th: 'ฮิสโตแกรม', es: 'Histograma', fr: 'Histogramme', de: 'Histogramm', it: 'Istogramma', pt: 'Histograma', ru: 'Гистограмма', nl: 'Histogram' }), type: 'bars', color: GREEN, pts: downsample(histW, 500), fmt: fmtNum },
+        { name: TR({ ko: 'MACD선', en: 'MACD line', ja: 'MACD線', zh: 'MACD线', 'zh-Hant': 'MACD線', th: 'เส้น MACD', es: 'Línea MACD', fr: 'Ligne MACD', de: 'MACD-Linie', it: 'Linea MACD', pt: 'Linha MACD', ru: 'Линия MACD', nl: 'MACD-lijn' }), color: INK, pts: downsample(lineW, 800), fmt: fmtNum },
+        { name: TR({ ko: '시그널(9)', en: 'Signal (9)', ja: 'シグナル(9)', zh: '信号线(9)', 'zh-Hant': '訊號線(9)', th: 'สัญญาณ (9)', es: 'Señal (9)', fr: 'Signal (9)', de: 'Signal (9)', it: 'Segnale (9)', pt: 'Sinal (9)', ru: 'Сигнальная (9)', nl: 'Signaal (9)' }), color: RED, width: 1.2, pts: downsample(sigW, 800), fmt: fmtNum }
       ]
     });
   }, function () { showError(['bd-macd-price', 'bd-macd-main']); });
-})();
+});
     </script>
   </body>
 </html>

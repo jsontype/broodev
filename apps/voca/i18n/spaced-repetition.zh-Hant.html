@@ -1,0 +1,793 @@
+<main class="wrap" data-title="間隔重複演算法比較 — 萊特納·SM-2·FSRS，以及我們為何不用演算法 | VOCA DECK" data-desc="以實際數字比較萊特納盒（1972）、SM-2（1987，EF 2.5）與 FSRS（穩定性 S）的複習日計算公式。內含同一個單字追蹤 30 天的模擬、FSRS 目標保留率與間隔換算表，並在程式碼層級公開 VOCA DECK 放棄個人化、改採均等循環所付出的代價。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 單字本</a>
+          <a href="/method">記憶法原理</a>
+          <a href="/study-guide">學習策略</a>
+          <a href="/csv-guide">製作CSV</a>
+        </nav>
+
+        <h1>間隔重複演算法比較</h1>
+        <p class="muted">萊特納·SM-2·FSRS，以及我們為何不用演算法 · 最後更新：2026-07-14 · 作者：Y-Systems</p>
+
+        <p class="lead">
+          這篇文章<strong>先從我們的 App 輸掉的項目講起。</strong>
+          下表的 VOCA DECK 欄裡有好幾個「✗」。我們沒有把它們刪掉。
+          <strong>間隔重複（spaced repetition）的核心是「由誰、用什麼方法計算複習日」</strong>，
+          而我們<strong>選擇了不做這個計算</strong>。
+          本文會把真正執行這項計算的三種演算法<strong>拆解到公式與數字的層級</strong>，
+          並<strong>直接從程式碼中拿出來給你看</strong>：我們為了得到什麼，放棄了什麼。
+        </p>
+
+        <h2 id="spec">先看規格表 — 表中每一格就是本文的目錄</h2>
+        <p>
+          在讀說明之前，<strong>先看結論表</strong>。每一列都會在下文逐一拆解。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th><a href="#leitner" style="color:#22dd22">萊特納盒</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki 變體</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(閃示單字)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>排程單位</strong></td>
+                <td>日（依盒子）</td>
+                <td>日</td>
+                <td>分 + 日</td>
+                <td>日（含小數）</td>
+                <td><strong>秒</strong></td>
+              </tr>
+              <tr>
+                <td><strong>卡片記住的狀態</strong></td>
+                <td>1 個盒子編號<br />(1~5)</td>
+                <td>EF · 重複次數 · 間隔<br />（3 個實數）</td>
+                <td>ease · 間隔 · 失敗次數</td>
+                <td>難度 D · 穩定性 S<br />（潛在變數）</td>
+                <td><strong>1 個布林值</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>作答品質等級</strong></td>
+                <td>○/✗ 2 級</td>
+                <td>q = 0~5（6 級）</td>
+                <td>4 級（Again~Easy）</td>
+                <td>4 級</td>
+                <td><strong>✗ 無</strong></td>
+              </tr>
+              <tr>
+                <td><strong>複習紀錄儲存</strong></td>
+                <td>實體盒子</td>
+                <td>每張卡片的狀態</td>
+                <td>完整複習日誌</td>
+                <td>日誌必需（用於學習）</td>
+                <td><strong>✗ 不儲存</strong></td>
+              </tr>
+              <tr>
+                <td><strong>以個人資料學習</strong></td>
+                <td>✗</td>
+                <td>✗（常數人工設定）</td>
+                <td>✗</td>
+                <td><strong>○（參數最佳化）</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>每張卡片個人化</strong></td>
+                <td>△（壓縮成 5 級）</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗（全部相同）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>保證全數覆蓋</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>（僅正向 ○，<br />隨機 ✗）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>帳號 · 安裝 · 同步</strong></td>
+                <td>紙盒</td>
+                <td>需要</td>
+                <td>需要</td>
+                <td>需要</td>
+                <td><strong>◎ 全部不需要</strong></td>
+              </tr>
+              <tr>
+                <td><strong>積壓複習轟炸</strong></td>
+                <td>有</td>
+                <td>有</td>
+                <td><strong>有（流失的頭號原因）</strong></td>
+                <td>有</td>
+                <td><strong>◎ 無</strong></td>
+              </tr>
+              <tr>
+                <td><strong>成熟卡片長期保持</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗（盲區）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>單次學習內的曝光密度</strong></td>
+                <td>低</td>
+                <td>低</td>
+                <td>低</td>
+                <td>低</td>
+                <td><strong>◎ 6 秒/張</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>用一句話讀懂這張表</strong> — 前四欄是解決<strong>「幾天後再看」</strong>的工具，
+          最右欄是解決<strong>「現在這 6 秒要看什麼」</strong>的工具。
+          <strong>它們不是解同一道題的競爭對手。</strong>本文的結論其實已經寫在這裡了。
+        </div>
+
+        <h2 id="leitner">1972 — 萊特納：「把卡片換盒子，就是演算法」</h2>
+
+        <h3>那個時代想解決的問題</h3>
+        <p>
+          當時沒有電腦。德國記者<strong>塞巴斯蒂安·萊特納（Sebastian Leitner）</strong>
+          在 1972 年的著作中提出的是<strong>不需要計算的間隔重複</strong>。
+          不需要鉛筆，也不需要算日期。<strong>實際移動卡片這個動作本身，就是在儲存狀態</strong>。
+        </p>
+
+        <h3>怎麼解決的</h3>
+        <ul>
+          <li>把有隔板的盒子分成<strong>5 格</strong>。</li>
+          <li>新卡片一律從<strong>第 1 格</strong>開始。</li>
+          <li>答對就<strong>往下一格前進一格</strong>。</li>
+          <li>答錯則<strong>不管原本在第幾格，一律跌回第 1 格</strong>。</li>
+          <li>每一格的複習週期不同。常見的配置如下。</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>格</th><th>複習週期</th><th>在這一格代表</th><th>答錯時</th></tr></thead>
+            <tbody>
+              <tr><td>第 1 格</td><td><strong>每天</strong></td><td>還不會 / 剛答錯</td><td>留在第 1 格</td></tr>
+              <tr><td>第 2 格</td><td>每 2 天</td><td>答對一次</td><td><strong>→ 跌回第 1 格</strong></td></tr>
+              <tr><td>第 3 格</td><td>每 4 天</td><td>連續答對兩次</td><td><strong>→ 跌回第 1 格</strong></td></tr>
+              <tr><td>第 4 格</td><td>每 8 天</td><td>連續三次</td><td><strong>→ 跌回第 1 格</strong></td></tr>
+              <tr><td>第 5 格</td><td>每 16 天</td><td>幾乎背熟</td><td><strong>→ 跌回第 1 格</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          嚴格來說，<strong>萊特納的原始方案不是依日期，而是「格子滿了就清空」的容量制</strong>。
+          上面的 1·2·4·8·16 天是後來才定型的<strong>日曆版本</strong>。
+          許多文章把兩者混為一談，所以在此特別說明。
+        </p>
+
+        <h3>哪裡出了問題</h3>
+        <p>
+          萊特納的致命弱點是<strong>「跌落太殘酷」</strong>。
+          在第 5 格<strong>只失手一次的卡片</strong>，會和「一次都沒答對過的新卡片」
+          <strong>受到完全相同的待遇</strong>，掉回第 1 格。
+          實際上那張卡片幾乎已經背熟，但盒子沒有辦法表達這一點。
+          <strong>狀態只有一個整數，所以沒有地方存放「幾乎背熟了，但今天搞混了」。</strong>
+        </p>
+        <p>
+          而且<strong>所有卡片都爬同一座梯子。</strong>
+          簡單的單字也得踩完 5 格，怎麼都背不起來的單字也同樣是 5 格。
+          當時需要的是<strong>每張卡片以不同速度攀爬的梯子</strong>。它在 15 年後出現了。
+        </p>
+
+        <h2 id="sm2">1987 — SM-2：把整數換成實數的 15 年</h2>
+
+        <h3>那個時代想解決的問題</h3>
+        <p>
+          波蘭的<strong>彼得·沃茲尼亞克（Piotr Woźniak）</strong>在開發 SuperMemo 時發表的
+          <strong>SM-2</strong>，把萊特納的「格子編號（整數）」換成了<strong>「難度係數（實數）」</strong>。
+          核心發明只有一個：<strong>EF（Easiness Factor，難度係數）</strong>。
+        </p>
+
+        <h3>怎麼解決的 — 實際公式</h3>
+        <p>SM-2 要你在每次複習時自己以 <strong>q = 0~5</strong> 六個等級評分（5 = 完美，0 = 一片空白）。然後這樣更新 EF。</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+EF 初始值 = 2.5   ·   EF 下限 = 1.3（不會再往下降）</code></pre>
+        <p>這個公式實際算出來的值如下。<strong>這是親手計算後填入的表。</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q（自我評分）</th><th>意義</th><th>EF 變化量</th><th>從 EF 2.5 開始</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>完美想起</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>答對但稍有遲疑</td><td><strong>±0.00</strong></td><td>2.50（不變）</td></tr>
+              <tr><td><strong>3</strong></td><td>勉強答對</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>答錯，但看了答案就懂</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>答錯，看了答案仍覺陌生</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>完全空白</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>q=4 剛好等於 0，正是這個公式的設計意圖</strong>。
+          「順利答對」是<strong>不改變難度評估的中立點</strong>，
+          表現更好就往上加，表現更差就往下扣。常數 0.1 · 0.08 · 0.02
+          <strong>並非由理論推導，而是沃茲尼亞克親手調出來的值</strong>。這一點在後面會變得很重要。
+        </p>
+        <p>接著這樣決定下一次的間隔。</p>
+        <pre><code>I(1) = 1 天
+I(2) = 6 天
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+若 q &lt; 3 → 把重複次數 n 重設為 1（間隔回到 1 天）</code></pre>
+        <p>
+          <strong>EF 是乘法倍數。</strong>所以 EF 2.5 的簡單卡片和 EF 1.3 的地獄卡片會
+          <strong>呈指數級拉開差距。</strong>即使複習次數相同，達到的間隔也完全不同。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>複習次數</th><th>EF 2.5（簡單卡片）</th><th>EF 1.9（普通）</th><th>EF 1.3（地獄卡片）</th></tr></thead>
+            <tbody>
+              <tr><td>第 1 次</td><td>1 天</td><td>1 天</td><td>1 天</td></tr>
+              <tr><td>第 2 次</td><td>6 天</td><td>6 天</td><td>6 天</td></tr>
+              <tr><td>第 3 次</td><td>15 天</td><td>11 天</td><td>8 天</td></tr>
+              <tr><td>第 4 次</td><td>38 天</td><td>22 天</td><td>10 天</td></tr>
+              <tr><td>第 5 次</td><td>94 天</td><td>41 天</td><td>13 天</td></tr>
+              <tr><td>第 6 次</td><td><strong>235 天</strong></td><td>78 天</td><td>17 天</td></tr>
+              <tr><td>第 7 次</td><td><strong>587 天（1.6 年）</strong></td><td>148 天</td><td><strong>22 天</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          第 7 次時是<strong>587 天對 22 天 — 相差 27 倍</strong>。
+          這就是 SM-2 勝過萊特納的地方。簡單的卡片<strong>一收就是一年半不再出現</strong>，
+          省下的時間全部用在困難的卡片上。
+        </p>
+
+        <h3>哪裡出了問題</h3>
+        <p><strong>① 6 級自我評分對人來說太難了。</strong>
+          每張卡片都得判斷 q=3 和 q=4 到底差在哪裡。實際上大多數使用者
+          <strong>只會反覆按其中兩三個等級。</strong>6 級設計實際上崩解成 3 級。</p>
+        <p><strong>② 失敗時的處理含糊不清。</strong>原文寫著「q&lt;3 時<em>不改變 EF</em>，從頭開始重複」，
+          但同一份文件的虛擬碼卻<strong>對所有 q 都更新 EF</strong>。各實作的解讀因此分歧。
+          <strong>一個用了 30 多年的演算法，其核心分歧點在文件上竟是模糊的</strong>——如實寫下這個事實才算誠實。
+          （本文的模擬採用<strong>「EF 也會更新」</strong>的解讀。）</p>
+        <p><strong>③ 常數毫無根據地被固定。</strong>為什麼 I(2) 是 6 天？為什麼偏偏是 0.08？
+          <strong>1987 年某一個人用自己的資料手調出來的數字</strong>，原封不動地套用在全世界所有學習者身上。
+          這正是 FSRS 誕生的原因。</p>
+
+        <h2 id="anki">Anki 的變體 — 以及「ease 地獄（ease hell）」</h2>
+        <p>
+          Anki 並沒有原封不動地使用 SM-2。它<strong>把等級縮減為 4 級</strong>（Again / Hard / Good / Easy），
+          把 EF 稱為 <strong>ease</strong>，並重新調整了增減幅度。以預設設定為準，實際行為如下。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>按鈕</th><th>ease 變化</th><th>下一次間隔</th><th>備註</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong>（失敗）</td><td><strong>−0.20</strong></td><td>前一次間隔 <strong>× 0%</strong> → 最少 1 天<br />（+ 重新學習 10 分鐘）</td><td>間隔<strong>歸零到底</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>前一次間隔 × <strong>1.2</strong></td><td>與 ease 無關的固定倍數</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>前一次間隔 × <strong>ease</strong></td><td>中立點（相當於 SM-2 的 q=4）</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>前一次間隔 × ease × <strong>1.3</strong></td><td>Easy 獎勵</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          其他預設值：學習步驟 <code>1m 10m</code> · 畢業間隔 <strong>1 天</strong> · Easy 間隔 <strong>4 天</strong> ·
+          起始 ease <strong>2.50</strong> · <strong>ease 下限 1.30</strong> · 水蛭卡（leech）門檻 <strong>失敗 8 次</strong>。
+          Anki 的預設值可能因版本與預設組而異，<strong>請在牌組選項中親自確認。</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>所謂「ease 地獄」</strong> — 反覆按 Again（−0.20）和 Hard（−0.15）的卡片，
+          ease 會<strong>黏死在下限 1.30。</strong>這樣一來下一次間隔每次只會<strong>× 1.3</strong>，
+          1 天 → 2 天 → 3 天 → 4 天…… 只能<strong>龜速爬行。</strong>而且 Again 又會把間隔打回 1 天。
+          結果就是<strong>少數幾張卡片永遠霸佔每天的複習佇列</strong>。<br />
+          <strong>能讓 ease 回升的路只有 Easy（+0.15）一條，但你不可能對地獄卡片按 Easy。</strong>
+          <strong>往下走的門有四扇，往上爬的門只有一扇</strong>——這是 SM-2 系列的結構性缺陷，
+          也是 Anki 使用者說「8 張水蛭卡毀了我的人生」的原因。
+        </div>
+        <p>
+          解方大多在<strong>演算法之外</strong>。刪掉卡片、拆開卡片、加上例句（「是卡片不好，
+          不是我笨」），或是<strong>手動重設 ease</strong>。
+          <strong>這代表人正在用手修補演算法修不好的東西</strong>，而這份自覺催生了下一代。
+        </p>
+
+        <h2 id="fsrs">FSRS — 唯一能精確回答「S 到底是什麼」的演算法</h2>
+        <p>
+          <strong>FSRS（Free Spaced Repetition Scheduler）</strong>拋棄了手調常數，
+          <strong>把參數擬合到你實際的複習日誌上</strong>。它的基礎是 <strong>DSR 模型</strong>。
+        </p>
+        <ul>
+          <li><strong>D（Difficulty，難度）</strong> — 這張卡片本質上有多難</li>
+          <li><strong>S（Stability，穩定性）</strong> — 記憶能撐多久</li>
+          <li><strong>R（Retrievability，可提取性）</strong> — <strong>此時此刻</strong>能想起來的機率</li>
+        </ul>
+        <p>遺忘曲線定義如下（以 FSRS-4.5 / 5 為準，<strong>DECAY = −0.5</strong>，<strong>FACTOR = 19/81</strong>）。</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>一個很少有人點破的事實</h3>
+        <p><strong>把 t = S 代入看看。</strong>也就是「穩定性為 S 的卡片，剛好在 S 天後再看會怎樣？」</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← 剛好 90%</code></pre>
+        <p>
+          <strong>這不是巧合。FACTOR = 19/81 與 DECAY = −0.5 正是為了得出這個值而反推出來的常數。</strong>
+          因此，<strong>S 的真面目可以用一句話定義。</strong>
+        </p>
+        <div class="note">
+          <strong>S（穩定性）＝「記住的機率降到 90% 所需的天數」</strong><br />
+          S = 30 的意思是「30 天後再遇到這張卡片，十次裡會答對九次」。
+          <strong>它不是抽象的內部變數，而是能以天數解讀的物理量。</strong>
+          SM-2 的 EF 無法這樣解讀。如果問「EF 2.5 是什麼意思」，答案只有「要乘的數」。
+        </div>
+
+        <h3>改變目標保留率時複習量如何變化 — 換算表</h3>
+        <p>
+          FSRS 讓你直接設定<strong>目標保留率（desired retention）</strong>（預設 <strong>0.90</strong>）。
+          把上面的公式對 t 求解，間隔如下。
+        </p>
+        <pre><code>間隔 t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>這是把數字代入公式算出的結果。<strong>這張表可能是本文最實用的部分。</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>目標保留率 R</th><th>間隔（相對於 S 的倍數）</th><th>若是 S=30 天的卡片</th><th>複習負擔</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14 天</td><td><strong>暴增約 2.2 倍</strong></td></tr>
+              <tr><td><strong>0.90</strong>（預設）</td><td><strong>× 1.00</strong></td><td>30 天</td><td>基準</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49 天</td><td>減少約 40%</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72 天</td><td><strong>減少約 58%</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133 天</td><td>減少約 77%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          讀法：<strong>把保留率從 0.90 提高到 0.95，「才 5 個百分點」，間隔就縮短到一半以下</strong>，
+          <strong>複習量變成兩倍。</strong>反過來降到 0.80，<strong>複習量會掉到一半以下，
+          正確率卻只損失 10 個百分點</strong>。正因為曲線如此陡峭，
+          <strong>「保留率越高越好」的直覺在這裡崩潰了。</strong>
+          如果考試不是迫在眉睫，0.85~0.90 區間大致是合理的。
+        </p>
+        <p class="muted">
+          準確性聲明：上述推導以<strong>DECAY 固定為 −0.5 的 FSRS-4.5 / 5</strong> 為準。
+          <strong>從 FSRS-6 起，DECAY 本身就是可學習的參數</strong>，因此「S = 90% 間隔」這個等式
+          可能不再精確成立。參數數量也隨版本從 <strong>17 → 19 → 21 個</strong>增加。
+          <strong>請勿未確認版本就直接引用這些數字。</strong>
+        </p>
+
+        <h3>FSRS 做不到的事</h3>
+        <p>
+          FSRS <strong>要有你的日誌才會變成你的。</strong>
+          在複習紀錄<strong>累積到數百～1,000 筆左右之前，它都以預設參數運作</strong>，
+          而那終究是<strong>「別人的平均值」</strong>。也就是說，<strong>剛開始第一個月的 FSRS 並不是個人化的。</strong>
+          而且留下日誌也意味著<strong>所有複習紀錄都會被儲存在某處</strong>。
+        </p>
+
+        <h2 id="sim">追蹤同一個單字 30 天 — 模擬</h2>
+        <p>
+          把抽象的公式換成具體的實物。把單字 <code>ubiquitous</code> 這一張卡片，依照下列情境放進三個系統。
+        </p>
+        <div class="note">
+          <strong>情境</strong> — 第 1 天新學 → <strong>第一次複習失敗</strong>（SM-2 q=2 / Anki Again）
+          → 之後一直順利答對（q=4 / Good）。
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>日期</th><th>萊特納（1·2·4·8·16 天）</th><th>SM-2（EF 2.5 起始）</th><th>Anki（ease 2.50 起始）</th></tr></thead>
+            <tbody>
+              <tr><td><strong>第 1 天</strong></td><td>學習 · 第 1 格</td><td>學習 · I=1 天</td><td>學習（1 分→10 分）· 畢業 1 天</td></tr>
+              <tr><td><strong>第 2 天</strong></td><td><strong>失敗</strong> · 留在第 1 格</td><td><strong>失敗 q=2</strong> · EF 2.50→<strong>2.18</strong> · 重設</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · 間隔 1 天</td></tr>
+              <tr><td><strong>第 3 天</strong></td><td>成功 → <strong>第 2 格</strong></td><td>成功 · I=1 天</td><td>Good · 1 × 2.30 = <strong>2 天</strong></td></tr>
+              <tr><td><strong>第 4 天</strong></td><td>—</td><td>成功 · I=<strong>6 天</strong></td><td>—</td></tr>
+              <tr><td><strong>第 5 天</strong></td><td>成功 → <strong>第 3 格</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5 天</strong></td></tr>
+              <tr><td><strong>第 9 天</strong></td><td>成功 → <strong>第 4 格</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>第 10 天</strong></td><td>—</td><td>成功 · 6 × 2.18 = <strong>13 天</strong></td><td>Good · 5 × 2.30 = <strong>12 天</strong></td></tr>
+              <tr><td><strong>第 17 天</strong></td><td>成功 → <strong>第 5 格</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>第 22 天</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28 天</strong></td></tr>
+              <tr><td><strong>第 23 天</strong></td><td>—</td><td>成功 · 13 × 2.18 = <strong>28 天</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>30 天內<br />總複習</strong></td>
+                <td><strong>6 次</strong></td><td><strong>6 次</strong></td><td><strong>6 次</strong></td>
+              </tr>
+              <tr>
+                <td><strong>下次複習日</strong></td>
+                <td>第 33 天</td>
+                <td><strong>第 51 天</strong></td>
+                <td><strong>第 50 天</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>這裡真正該看的數字不是「6 次」，而是「33 對 51」。</strong>
+          三個系統在 30 天內都<strong>同樣複習了 6 次</strong>。勞動量相同。
+          但是<strong>萊特納在第 33 天又叫你回來，SM-2 則在第 51 天。</strong>
+          同樣用了 6 次，SM-2 卻<strong>多推遠了 18 天</strong>。
+          這個差距會隨著次數<strong>以乘法擴大。</strong>一年後，萊特納仍每 16 天問一次，
+          SM-2 則早已達到一年期的間隔。
+        </p>
+        <p>
+          <strong>而這張表裡沒有 VOCA DECK 欄。</strong>因為根本放不進去。
+          我們的 App<strong>連「第幾天」這個概念都沒有。</strong>原因在下一章。
+        </p>
+
+        <h2 id="voca">拆解 VOCA DECK — 我們的程式碼實際在做什麼</h2>
+        <p>
+          現在輪到我們了。<strong>不加包裝，照程式碼原樣</strong>寫出來。
+        </p>
+
+        <h3>卡片儲存的內容：就這些</h3>
+        <pre><code>{ a: "ubiquitous", b: "無所不在的", mem: false }</code></pre>
+        <p>
+          <strong>這就是一張卡片的全部。</strong>正面、背面，以及<strong>一個布林值。</strong>
+          <strong>不儲存複習時間，不儲存錯了幾次，也不儲存有多混淆。</strong>
+        </p>
+        <p>
+          因此<strong>就算我們想加上 SM-2 也加不了。</strong>
+          SM-2 至少需要 <code>EF · 重複次數 · 上次複習日</code>，
+          FSRS 則必須有<strong>完整的複習日誌</strong>才能擬合參數。
+          我們<strong>沒有帳號、沒有伺服器，也沒有複習日誌。</strong>
+          牌組與已記標記<strong>只留在瀏覽器的 <code>localStorage</code></strong>，不會傳送到伺服器。
+          <strong>這不是做不出來，而是刻意這樣做。代價就是放棄個人化。</strong>
+        </p>
+
+        <h3>排程器的真面目：一行模運算</h3>
+        <p>
+          我們決定「下一張卡片」的方式是<strong>循環（cyclic）索引</strong>。
+          依 <code>order</code> 設定分為三種。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>設定</th><th>動作</th><th>重逢間隔</th><th>覆蓋率</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> 正向（預設）</td><td>索引每次 +1 循環</td><td><strong>剛好每 N 張</strong>（均等）</td><td><strong>保證 100%</strong></td></tr>
+              <tr><td><code>rev</code> 反向</td><td>索引每次 −1 循環</td><td><strong>剛好每 N 張</strong>（均等）</td><td><strong>保證 100%</strong></td></tr>
+              <tr><td><code>rnd</code> 隨機</td><td><strong>每一步獨立均等抽取</strong><br />（僅排除目前卡片）</td><td>期望值 N−1 張，<br /><strong>變異大</strong></td><td><strong>無保證 ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>隨機模式不是洗牌——這是我們也必須說清楚的部分。</strong><br />
+          它不是把卡片洗亂後跑一輪（不放回抽樣），而是<strong>每次都從其餘卡片中重新抽一張</strong>。
+          所以<strong>同一張卡可能連續出現三次，也可能整整一輪都沒出現過。</strong>
+        </div>
+
+        <h3>我們把代價換算成了數字</h3>
+        <p>
+          假設把 100 張的牌組（N=100）用隨機模式跑 <strong>99 步</strong>（= 正向一輪的份量）。
+          某張特定卡片在一步中被抽中的機率是 <strong>1/(N−1) = 1/99</strong>。
+          那麼這張卡<strong>在 99 步內一次都沒出現的機率</strong>是：
+        </p>
+        <pre><code>P(出現 0 次) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>出現次數的分布近似於卜瓦松分布（λ=1）。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>一輪份量（99 步）內的出現次數</th><th>機率</th><th>意義</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0 次</strong></td><td><strong>約 37%</strong></td><td><strong>牌組的三分之一完全沒出現</strong></td></tr>
+              <tr><td>1 次</td><td>約 37%</td><td>符合預期</td></tr>
+              <tr><td>2 次</td><td>約 18%</td><td>浪費</td></tr>
+              <tr><td>3 次以上</td><td>約 8%</td><td>一直是同一張卡</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>也就是說，用隨機模式跑一輪份量，牌組中約 37% 的卡片當天連面都見不到。</strong>
+          跑兩輪份量（198 步）仍有<strong>約 13%</strong> 沒出現，
+          <strong>要跑到三輪份量</strong>，未曝光比例才會降到 <strong>5% 以下</strong>。
+        </p>
+        <div class="note">
+          <strong>所以請這樣用（這是從程式碼得出的處方）</strong>
+          <ul>
+            <li><strong>第一輪 · 考前一天全面檢查</strong> → <strong>正向</strong>。這是需要 100% 覆蓋率的時刻。用隨機跑會漏掉三分之一。</li>
+            <li><strong>第三輪之後、需要打破順序線索時</strong> → 請先用<strong>反向</strong>。
+              <strong>既能打破順序線索，又能維持 100% 覆蓋率</strong>。大多數人都直接略過這個選項。</li>
+            <li><strong>真正的隨機提取訓練</strong> → <strong>隨機</strong>。不過要<strong>做好把牌組跑三輪份量的覺悟</strong>再用。</li>
+          </ul>
+        </div>
+
+        <h3>時間單位：我們排程器的刻度是「秒」</h3>
+        <p>
+          預設間隔為 <strong>3 秒</strong>（控制面板中可設 1~60 秒）。每張卡片要經過<strong>正面 · 背面兩個階段</strong>，
+          所以是<strong>預設 6 秒/張</strong>。另外計時器設有 <strong>0.5 秒的下限</strong>
+          （不管設得多短，都不會低於這個值）。
+        </p>
+        <p>由此直接得出<strong>牌組大小的物理上限</strong>。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>牌組大小 N</th><th>跑一輪所需時間<br />（預設 6 秒/張）</th><th>同一張卡的重逢間隔</th><th>判定</th></tr></thead>
+            <tbody>
+              <tr><td>30 張</td><td><strong>3 分鐘</strong></td><td>3 分鐘</td><td>◎ 單次學習內重複很密集</td></tr>
+              <tr><td>100 張</td><td><strong>10 分鐘</strong></td><td>10 分鐘</td><td>○ 實用的上限</td></tr>
+              <tr><td>300 張</td><td><strong>30 分鐘</strong></td><td>30 分鐘</td><td>△ 跑一輪就已經吃力</td></tr>
+              <tr><td>500 張</td><td><strong>50 分鐘</strong></td><td>50 分鐘</td><td>✗ 單次學習內重複的效果消失</td></tr>
+              <tr><td>2,000 張</td><td><strong>3 小時 20 分鐘</strong></td><td>3 小時 20 分鐘</td><td><strong>✗ 實際上不可行</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>閃示單字的誠實界線：請把牌組拆成 300 張以下。</strong>
+          做一個 2,000 張的牌組，<strong>跑一輪要 3 小時 20 分鐘</strong>。
+          那已經不是「快速重複曝光」，只是<strong>緩慢地讀清單</strong>而已。
+          <strong>如果需要管理 2,000 張，那是 Anki 的工作，不是這個 App 的工作。</strong>
+        </div>
+
+        <h3>間隔就是「提取窗口」的長度 — 請不對稱地使用</h3>
+        <p>
+          如果只把間隔當成「速度調整」，就只用了一半。
+          <strong>正面顯示的那幾秒，是你唯一能努力回想答案的時間</strong>。
+          所以我們讓正面與背面的間隔可以<strong>分開</strong>設定（進階設定，0~60 秒）。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>情況</th><th>正面間隔</th><th>背面間隔</th><th>每張</th><th>用意</th></tr></thead>
+            <tbody>
+              <tr><td><strong>第一輪</strong>（滿是不認識的單字）</td><td>2 秒</td><td>4 秒</td><td>6 秒</td><td>反正想不起來，<strong>就多看一會兒意思</strong></td></tr>
+              <tr><td><strong>第 2~3 輪</strong>（提取訓練）</td><td><strong>5 秒</strong></td><td>1.5 秒</td><td>6.5 秒</td><td><strong>爭取回想的時間</strong>，確認則一瞬間</td></tr>
+              <tr><td><strong>考前衝刺</strong></td><td>1.5 秒</td><td>1.5 秒</td><td>3 秒</td><td>全面掃描 — 100 張<strong>5 分鐘</strong></td></tr>
+              <tr><td><strong>TTS 聽覺學習</strong></td><td>3 秒</td><td>3 秒</td><td>6 秒</td><td>保留語音播完的時間</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>第 2~3 輪的「正面 5 秒 / 背面 1.5 秒」是這個 App 中最接近提取練習的設定</strong>。
+          <strong>隨著輪數增加，請拉長正面、縮短背面。</strong>
+          大多數人都反過來做，結果從頭到尾都只是<strong>被動地看</strong>。
+        </p>
+
+        <h2 id="mem">「已記標記」的真面目 — 只有 2 個盒子的萊特納</h2>
+        <p>
+          我們唯一的個人化機制就是<strong>已記標記</strong>。
+          把它翻譯成演算法的語言，精確來說是這樣。
+        </p>
+        <div class="note">
+          <strong>已記標記 = 只有 2 個盒子的萊特納盒。</strong>但<strong>它不是梯子，而是一扇門。</strong><br />
+          盒子 1 = <code>mem: false</code>（持續循環）· 盒子 2 = <code>mem: true</code>（排除在循環外）<br />
+          而<strong>顯示範圍</strong>設定負責選擇盒子 —
+          <strong>排除已記</strong>（預設）/ <strong>僅已記</strong> / <strong>全部</strong>。
+        </div>
+
+        <h3>光靠這個就能得到的東西（比想像中大）</h3>
+        <p>
+          個人化演算法所做的事情裡，<strong>佔比最大的其實是「不讓你看已經會的卡片」</strong>。
+          SM-2 把 EF 2.5 的卡片推到 587 天後，說到底也是<strong>為了現在不讓你看到它</strong>。
+          已記標記拿到的是這種效果中<strong>最粗暴、卻也最大的一塊</strong>。
+        </p>
+        <p>
+          用數字來看。在 100 張的牌組中<strong>標記 40 張為已記</strong>，循環對象就變成 60 張。
+          跑一輪從<strong>10 分鐘 → 6 分鐘</strong>，<strong>不會的卡片重逢間隔也從 10 分鐘 → 6 分鐘</strong>。
+          <strong>花同樣的 20 分鐘，遇到難卡的次數變成 1.67 倍</strong>。
+          <strong>白白多出 1.67 倍。</strong>只靠一個勾選框。
+        </p>
+
+        <h3>和真正的 SM-2 相比不足之處（這裡很重要）</h3>
+        <p><strong>① 沒有等級——不是 0 就是 1。</strong>
+          SM-2 會區分「EF 2.5（非常簡單）」、「EF 1.6（有點難）」與「EF 1.3（地獄）」，
+          並以<strong>各自不同的頻率</strong>出題。我們只有<strong>「看 / 不看」</strong>兩種。
+          <strong>在沒記住的 60 張裡，大家完全平等。</strong>
+          昨天第一次看到的單字，和看了 40 次仍背不起來的單字，會以<strong>完全相同的頻率</strong>出現。
+          <strong>這是我們輸給 SM-2 最明確的地方。</strong></p>
+
+        <p><strong>② 沒有時間——所以無法計算「何時再看」。</strong>
+          <code>mem</code> 是布林值。<strong>不記錄是何時標記的。</strong>
+          因此「這張卡標記已經 40 天了，差不多該再確認一下」這種判斷，
+          <strong>App 在原理上就做不到。</strong>因為沒有時間戳記。</p>
+
+        <p><strong>③ 因此產生的盲區——被標記的卡片會悄悄腐爛。</strong></p>
+        <div class="note warn">
+          <strong>這是本文最重要的警告。</strong><br />
+          已記標記是一扇<strong>單向門</strong>。卡片一旦進入盒子 2，
+          <strong>就沒有自己回來的路。</strong>
+          SM-2 就算是 587 天的卡片，<strong>總有一天也一定會再叫回來</strong>——為了抓住遺忘。
+          我們則<strong>永遠不會叫它回來。</strong><br />
+          <strong>也就是說，「標記為已記的卡片其實已經忘了，而你卻不知道」的狀態會不斷累積。</strong>
+          然後你會在考場上才發現。
+        </div>
+
+        <h3>用手填補這個盲區的步驟</h3>
+        <p>
+          演算法不幫你做，<strong>那就只能由人來做。</strong>所幸這並不難，App 裡也已經有這個功能。
+          <strong>把顯示範圍切換成「僅已記」</strong>，正是為了這個用途而存在的。
+        </p>
+        <ol>
+          <li><strong>每週一次，固定一天。</strong>（例：星期日）</li>
+          <li>把顯示範圍切換成<strong>「僅已記」</strong>。→ 只有標記為已記的卡片會循環。</li>
+          <li><strong>順序設為隨機</strong>，<strong>正面間隔拉長到 4~5 秒</strong>。——這是在測試真正的提取能力。</li>
+          <li><strong>遇到想不起來的卡片，就當場取消已記標記</strong>。→ 降回盒子 1。<strong>等於是親手打開回來的那扇門。</strong></li>
+          <li>再切回「排除已記」，照平常一樣跑。</li>
+        </ol>
+        <p>
+          <strong>這 5 個步驟，就是用手動方式模仿 SM-2「成熟卡片複習」的全部。</strong>
+          因為不是自動的所以比較差，但<strong>比完全不做好上太多。</strong>
+          <strong>如果不做這件事，已記標記就會變成「把裝懂的卡片藏起來的功能」。</strong>
+        </p>
+
+        <h2 id="which">那到底該用什麼 — 誠實的處方箋</h2>
+        <p>
+          <strong>「用我們的 App」是正確答案的情況連一半都不到。</strong>我們照實寫出來。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>你的情況</th><th>建議</th><th>理由（用數字說）</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>要把 2,000~10,000 個單字<br />維持 6 個月~數年</strong><br />（大學入學考試·TOEIC·GRE 長期抗戰）</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">（不是我們的 App）</span></td>
+                <td>閃示單字跑 2,000 張一輪要<strong>3 小時 20 分鐘</strong>。物理上不可能。
+                  而且它不會把成熟卡片叫回來，<strong>長期保持會失敗</strong>。</td>
+              </tr>
+              <tr>
+                <td><strong>倒數 14 天的考試 · 臨時抱佛腳</strong><br />單字 200~300 個</td>
+                <td><strong>閃示單字</strong></td>
+                <td>SM-2 的間隔是<strong>1 天 → 6 天 → 15 天</strong>。
+                  <strong>14 天內只能跑 3 次</strong>。以天為單位的排程器在
+                  <strong>剩餘時間很短時毫無用處</strong>。一天跑三輪才會贏。</td>
+              </tr>
+              <tr>
+                <td><strong>沒辦法每天打開的人</strong><br />（一缺就是 3 天）</td>
+                <td><strong>閃示單字</strong></td>
+                <td>在 Anki 缺席 3 天，就會堆積<strong>數百張積壓卡片</strong>。
+                  這是<strong>SRS 使用者流失的頭號原因</strong>。閃示單字<strong>根本沒有積壓卡片這個概念。</strong>
+                  隨時打開、隨時關掉就行。</td>
+              </tr>
+              <tr>
+                <td><strong>牌組 30~300 張，<br />只有一個 CSV 檔</strong></td>
+                <td><strong>閃示單字</strong></td>
+                <td>安裝 Anki + 設定筆記類型 + 牌組選項 + 同步帳號，<strong>這些摩擦比好處還大。</strong>
+                  打開 CSV，<strong>3 秒後就開始學習</strong>。</td>
+              </tr>
+              <tr>
+                <td><strong>洗碗 · 通勤時<br />只用耳朵學</strong></td>
+                <td><strong>閃示單字（TTS 僅語音）</strong></td>
+                <td>Anki 必須<strong>看著畫面按按鈕</strong>才能進到下一張。
+                  閃示單字用<strong>自動播放 + 僅語音</strong>模式，<strong>手和眼睛都不用。</strong></td>
+              </tr>
+              <tr>
+                <td><strong>不想留下複習紀錄<br />不想註冊帳號</strong></td>
+                <td><strong>閃示單字</strong></td>
+                <td>牌組與已記標記<strong>只存在瀏覽器的 localStorage</strong>，
+                  <strong>不會傳送到伺服器。</strong>相對地，<strong>也沒有跨裝置同步。</strong>（原因相同。）</td>
+              </tr>
+              <tr>
+                <td><strong>怎麼都背不起來的<br />30 個地獄單字</strong></td>
+                <td><strong>閃示單字</strong></td>
+                <td>在 Anki 裡，這些卡片會<strong>掉進 ease 地獄，黏死在 ease 1.30。</strong>
+                  不如<strong>另外匯出成 CSV，做成 30 張的牌組（一輪 3 分鐘）</strong>，一天跑五輪。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">最精確的答案：兩者處於不同層次</h2>
+        <p>
+          讀到這裡，你應該能理解這句話了。
+        </p>
+        <div class="note">
+          <strong>Anki 決定「今天要看哪些卡片」。（以天為單位）</strong><br />
+          <strong>閃示單字決定「那張卡片現在要怎麼呈現」。（以秒為單位）</strong><br />
+          <strong>兩者不是為了同一個問題而競爭，而是上下堆疊。</strong>
+        </div>
+        <p>同時使用兩者的人，實際的組合是這樣。</p>
+        <ol>
+          <li><strong>長期排程交給 Anki。</strong>5,000 單字牌組中的「今天要看的 120 張」由 FSRS 幫你挑出。</li>
+          <li><strong>把在 Anki 裡一直答錯的卡片（水蛭卡·ease 1.3 附近）匯出成 CSV。</strong>
+            通常會有<strong>30~80 張</strong>。</li>
+          <li><strong>把那個 CSV 放進閃示單字，一天跑兩三輪。</strong>
+            80 張的話<strong>一輪 8 分鐘</strong>。用正面 5 秒 / 背面 1.5 秒做提取練習。</li>
+          <li><strong>在閃示單字裡已經確實記住的卡片，用已記標記移出</strong>，並在 Anki 裡重設那張卡片的 ease。</li>
+        </ol>
+        <p>
+          <strong>Anki 做不到的由閃示單字來做，閃示單字做不到的由 Anki 來做。</strong>
+          Anki 無法製造<strong>單次學習內的高密度曝光</strong>（不會在一天內讓同一張卡出現 20 次），
+          閃示單字則無法計算<strong>6 個月後的複習日</strong>。
+          <strong>一個檔案（CSV）就能把兩個工具串起來。</strong>
+          做法請見<a href="/csv-guide">製作 CSV 單字本</a>。
+        </p>
+
+        <h2 id="qa">簡短 Q&amp;A</h2>
+
+        <h3>Q. FSRS 總是比 SM-2 好嗎？</h3>
+        <p>
+          <strong>在複習日誌累積足夠之後，大致是的。</strong>但<strong>剛開始的第一個月不是。</strong>
+          FSRS 要<strong>用你的日誌擬合參數</strong>才會變成你的，在那之前它是以<strong>別人的平均值</strong>在運作。
+          而且 FSRS 建立在<strong>你會誠實按按鈕的假設</strong>之上。
+          <strong>如果你隨便一直按 Good，精密的演算法就會精密地出錯。</strong>
+          <strong>垃圾進、垃圾出——這是演算法無法替你修正的。</strong>
+        </p>
+
+        <h3>Q. 目標保留率設多少才對？</h3>
+        <p>
+          請再看一次上面的<a href="#fsrs">換算表</a>。<strong>0.90 → 0.95 會讓複習量變成 2 倍。</strong>
+          為了買 5 個百分點的正確率，要付出<strong>兩倍的時間</strong>。大多數情況下是虧的。
+          <strong>考試還遠就設 0.85~0.90，考試迫在眉睫就設 0.90~0.95</strong>，這大概是合理的起點。
+          <strong>不過，這不是「正確答案」，而是「起點」。</strong>
+        </p>
+
+        <h3>Q. 閃示單字的間隔設幾秒才對？</h3>
+        <p>
+          <strong>「對的值」每一輪都不同。</strong>預設的 3 秒只是<strong>適合第一輪的穩妥值</strong>而已。
+          <strong>輪數越多，就越要拉長正面（回想的時間）、縮短背面（只用來確認）。</strong>
+          正面 5 秒 / 背面 1.5 秒是<strong>最接近提取練習的設定</strong>。
+          詳細配置請見<a href="#voca">上面的表</a>。
+        </p>
+
+        <h3>Q. 隨機模式不是總比正向好嗎？畢竟能打破順序線索。</h3>
+        <p>
+          <strong>不，這正是本文計算出來的陷阱。</strong>隨機<strong>不保證覆蓋率</strong>
+          （一輪份量中<strong>約 37% 未曝光</strong>）。如果既想打破順序線索，又想守住覆蓋率，
+          請用<strong>反向</strong>。<strong>大多數使用者都不知道這個選項存在的理由。</strong>
+        </p>
+
+        <h3>Q. 全部都標記成已記，牌組空了。這樣就結束了嗎？</h3>
+        <p>
+          <strong>不。從那時起才是開始。</strong>把顯示範圍切換成<strong>「僅已記」</strong>，
+          <strong>每週檢查一次</strong>。想不起來的卡片就<strong>取消標記</strong>讓它回去。
+          <strong>如果不做這個步驟，已記標記就會變成隱藏遺忘的功能。</strong>步驟寫在<a href="#mem">上面</a>。
+        </p>
+
+        <h3>Q. 那 VOCA DECK 以後會加入 SM-2 嗎？</h3>
+        <p>
+          <strong>要加入就得儲存複習日誌；要儲存，儲存空間就會變大；接著就會想要跨裝置同步；
+          這樣一來就需要帳號。</strong>那一刻，<strong>這個 App 唯一的優點「零摩擦」就消失了。</strong>
+          <strong>那等於是把 Anki 重新做成一個較差的版本。</strong>
+          <strong>我們並不想成為 Anki。</strong>目前沒有加入的計畫，
+          <strong>不加入的理由已經寫滿了整篇文章。</strong>
+        </p>
+
+        <h2 id="closing">最後 — 演算法沒辦法替你打開 App</h2>
+        <p>
+          FSRS 是<strong>世界上最好的排程器</strong>。但<strong>如果你 3 天沒打開 App，它什麼都不是。</strong>
+          它只會用完美的間隔顯示<strong>「今天要複習的卡片 340 張」</strong>然後等著，
+          而看到這個數字的人<strong>會關掉 App。</strong>
+        </p>
+        <p>
+          間隔重複演算法 50 年的歷史，是一場<strong>「把複習量降到最低的競賽」</strong>。
+          萊特納用 5 個格子，SM-2 用 EF 乘法，FSRS 用你的日誌。
+          <strong>大家都朝著同一個目標——刪掉不必要的複習。</strong>
+        </p>
+        <p>
+          <strong>但人們真正失敗的地方不在那裡。</strong>
+          <strong>人們不是因為「複習太多」而放棄，而是因為「今天沒打開」而放棄。</strong>
+          這就是我們整個放棄個人化、<strong>把一切押在讓摩擦歸零的理由</strong>。
+          <strong>我們並不確定這是正確的選擇。</strong>
+          <strong>但這就是我們做出的選擇，而它的代價，我們在本文中一點都沒有隱藏。</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>聲明</strong><br />
+          本文是<strong>關於學習方法的資訊提供</strong>，<strong>並非教育或醫學上的建議。</strong>
+          學習效果<strong>因人而異</strong>，本文所寫的任何方法都<strong>不保證特定的成績或結果。</strong><br />
+          <strong>第三方工具（Anki · SuperMemo · FSRS）的預設值與公式會因版本而異。</strong>
+          本文的數字是以<strong>廣為人知的預設設定為準</strong>，
+          <strong>請務必在你所使用版本的設定畫面與官方文件中親自確認。</strong>
+          FSRS 相關公式以<strong>DECAY 固定為 −0.5 的 FSRS-4.5 / 5 為準</strong>，
+          <strong>在 FSRS-6 以上可能不成立。</strong><br />
+          關於 VOCA DECK 的數值，是以<strong>本文撰寫時的實際實作為準</strong>，可能因更新而變動。
+        </div>
+
+        <h2>延伸閱讀</h2>
+        <div class="related">
+          <a href="/method"><b>閃示單字記憶法的原理</b><span>遺忘曲線·間隔效應·雙重編碼 — 為什麼反覆曝光有效</span></a>
+          <a href="/study-guide"><b>單字記憶學習策略</b><span>一天背幾個、何時複習、4 週計畫</span></a>
+          <a href="/csv-guide"><b>製作 CSV 單字本</b><span>把從 Anki 匯出的地獄卡片轉到閃示單字的方法</span></a>
+          <a href="/"><b>開啟單字本</b><span>親手調整間隔·順序·顯示範圍</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 營運 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+      </div>
+    </main>

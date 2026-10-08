@@ -1,0 +1,505 @@
+<main class="wrap" data-title="When RSI Got It Wrong — A Post-Mortem of Relative Strength Index Failures | broodev" data-desc="We dissect the phases where RSI went badly wrong: weeks above 70 in bull markets, long stays below 30 in bear markets, the real and fake signals of divergence, and the 59-point phantom signal created by Wilder smoothing versus a simple-average RSI. Plus the real reason our model gives RSI 28% short-term and 18% long-term, and six places where it still gets things wrong.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/indicators">Indicator guide</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/guide-fear-greed">Using the Fear Index</a>
+        <a href="/glossary">Glossary</a>
+      </nav>
+
+      <h1>When RSI Got It Wrong</h1>
+      <p class="muted">Post-mortem report · Last updated: 2026-07-14 · By Y-Systems · Subject: RSI(14, Wilder) and the RSI mapping in broodev Buy Timing Score v2</p>
+
+      <p class="lead">
+        This is not a how-to guide for RSI. It is <strong>a record of the times RSI went badly wrong</strong>.<br />
+        “RSI above 70 means overbought, so sell; below 30 means oversold, so buy” — that one line has been copied across the internet tens of thousands of times,
+        and <strong>anyone who traded crypto by that line missed most of every bull market and kept getting trapped in every bear market.</strong>
+        We take it apart phase by phase, and at the end we open up <strong>how our model handles RSI, and where it still gets things wrong</strong> — internal numbers included.
+      </p>
+
+      <div class="note">
+        <strong>What this article does not cover</strong> — The definition and basic formula of RSI are summarized in one paragraph in the <a href="/indicators#rsi">Indicator guide</a>,
+        and the weighting scheme for all six indicators is in <a href="/methodology">Scoring methodology</a>.
+        Here we deal only with <strong>failures</strong>. If RSI is new to you, read those two articles first.
+      </div>
+
+      <div class="caseidx">
+        <a href="#case01"><em>CASE 01</em><b>The market that won’t come down from 70</b><span>Why “overbought = sell” is a formula for ruin</span></a>
+        <a href="#case02"><em>CASE 02</em><b>The market that won’t climb back above 30</b><span>How price halves while staying oversold</span></a>
+        <a href="#case03"><em>CASE 03</em><b>The two faces of divergence</b><span>Why we don’t publish a win rate</span></a>
+        <a href="#case04"><em>CASE 04</em><b>A phantom signal created by the formula</b><span>Wilder vs simple average — a 59-point illusion</span></a>
+      </div>
+
+      <section class="bd-figs" aria-label="Live RSI chart">
+        <p class="muted">Before we get into it, let’s look at RSI(14, Wilder) computed from real BTC data. The top pane shows price over the same period — read the two together and see which phases of price line up with the stretches above 70 and below 30.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-rsi-price" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+            <div id="bd-rsi-main" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+          </div>
+          <p class="bd-cap">BTC price over the last 3 years (top) and RSI(14, Wilder smoothing) (bottom). Red shading = 70 and above (conventionally overbought); green shading = 30 and below (conventionally oversold). Data: CoinMetrics Community API, BTC daily close — fetched when you visit and computed in your browser, so treat it as an <strong>approximation for reference only</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="case01">CASE 01 — The market that won’t come down from 70 <span class="tag">Critical</span></h2>
+      <p>
+        RSI’s most expensive failures happen <strong>not in bear markets but in bull markets</strong>. Because they arrive as <strong>opportunity cost</strong> rather than losses, many people don’t even count them as failures.
+      </p>
+      <p>
+        Think back to Q4 2020. Bitcoin started near $10,000 and reached the $50,000s by Q1 2021.
+        Throughout that stretch, <strong>the daily RSI stayed pinned above 70 for weeks at a time.</strong> Anyone following the textbook sold on the first day RSI crossed 70.
+        Then they watched price go <strong>three, four times</strong> higher from that very spot.
+        November–December 2017 was exactly the same. After RSI crossed 70, bitcoin went from the $6,000s to nearly $20,000.
+      </p>
+      <p>
+        What comes next is worse. People who sold at RSI 70 usually <strong>never buy back in.</strong>
+        They wait for RSI to drop below 30 again, but in a strong uptrend <strong>RSI rarely even drops below 40.</strong>
+        Pullbacks in an uptrend end not at RSI 30 but around RSI 45–50.
+        In the end they either chase back in at a much higher price or sit out the entire cycle.
+      </p>
+
+      <h3>Why this happens structurally</h3>
+      <p>
+        RSI is <strong>not</strong> a measure of “expensive.” What RSI measures is <strong>how much larger the average gain over the last 14 days (divided over the 14-day period) is than the average loss on down days</strong>.
+        In other words, <strong>not the price level but the “consistency” of the rise</strong>.
+      </p>
+      <p>
+        And the very definition of a strong uptrend is <em>“many up days, and down days that don’t fall much.”</em>
+        <strong>So RSI 70+ is a symptom of an uptrend, not an anomaly.</strong> Just as a fever is a symptom of infection.
+        Taking a fever reducer doesn’t cure the infection, and selling at RSI 70 doesn’t end the rally.
+      </p>
+      <p>
+        Let’s check the math. Plug in a perfectly ordinary bullish stretch of <strong>10 up days (average +2%) and 4 down days (average −1%)</strong> out of 14,
+        and you get average gain = 10×2/14 = 1.43, average loss = 4×1/14 = 0.29, RS = 5.0 → <strong>RSI ≈ 83</strong>.
+        In terms of return, that’s roughly 16% over two weeks — by crypto standards, <strong>not even a violent move</strong>.
+        Yet RSI already prints “extremely overbought.” <strong>RSI 83 is not an anomaly; it is the arithmetic result of a normal bull market.</strong>
+      </p>
+
+      <div class="verdict">
+        <b>■ Autopsy findings</b>
+        <p>
+          “Overbought = sell” is a rule that holds <strong>only in sideways markets</strong>, <strong>wrongly applied to trending markets</strong>.
+          A break above RSI 70 is <strong>closer to a trend-confirmation signal than a sell signal.</strong>
+          That is why our model’s <strong>short-term (momentum) tab uses RSI in its natural direction instead of inverting it</strong> — the higher the RSI, <em>the higher the score.</em>
+          We publish the exact function, code and all, in the <a href="#verdict">Verdict</a> section below.
+        </p>
+      </div>
+
+      <h2 id="case02">CASE 02 — The market that won’t climb back above 30 <span class="tag">Critical</span></h2>
+      <p>
+        This is the mirror image of CASE 01. And here what disappears is not opportunity cost but <strong>real principal</strong>.
+      </p>
+      <p>
+        Throughout 2018, bitcoin fell from near $20,000 to the $3,000s. During that decline RSI
+        <strong>dropped below 30 again and again, and every time a flood of “historically oversold” posts followed.</strong>
+        Those who bought on that signal saw RSI 30 again in the next leg down.
+        2022 was a carbon copy. The Luna collapse in May, a further crash in June, the FTX bankruptcy in November — RSI printed oversold in every phase,
+        and <strong>every time there was a “lower oversold” still to come.</strong>
+      </p>
+      <p>
+        Here is the key point. <strong>RSI’s floor is not 30. It’s 0.</strong>
+        Someone who buys at RSI 28 can see RSI 22, and someone who buys at RSI 22 can see RSI 14.
+        And while RSI goes from 30 to 20, <strong>price falls another 30–40%.</strong>
+      </p>
+
+      <h3>The illusion created by the word “oversold”</h3>
+      <p>
+        The word <strong>oversold</strong> is itself the trap. It carries a sense of completion — <em>“it has been sold as much as it can be.”</em>
+        But what RSI 25 actually says is only a <em>past-tense statement</em>: <strong>“over the last 14 days, down days overwhelmingly outnumbered up days.”</strong>
+        About the future it says <strong>not a single word.</strong>
+      </p>
+      <p>
+        Reading it the other way around is actually statistically safer. <strong>RSI 25 is a confirmation signal that “a strong downtrend is in progress.”</strong>
+        Buying in a downtrend is less “buying something cheap” and more <strong>“walking up a down escalator.”</strong>
+      </p>
+      <div class="note warn">
+        <strong>There are rare cases where an RSI extreme was right — and that is the trap.</strong>
+        In the COVID crash of 12 March 2020 (−37% in a day), the daily RSI collapsed into the teens, and price rebounded within days.
+        Cases like this stick in memory. <strong>Because the hits become news while the misses quietly disappear (survivorship bias).</strong>
+        The records of the countless people who bought below RSI 30 in 2018 and 2022 and got trapped are preserved nowhere.
+        <strong>Don’t estimate RSI’s win rate from memory. Memory is already biased.</strong>
+      </div>
+      <p>
+        What makes the difference is <strong>not the RSI value but the nature of the decline</strong>.
+        March 2020 was a <strong>liquidity shock</strong> — the kind of event that ends within days.
+        2018 and 2022 were <strong>cycle retracements</strong> — the kind of event that lasts more than a year.
+        <strong>RSI cannot tell these two apart.</strong> Both output exactly the same “RSI 20.”
+        To tell them apart you need information from outside RSI — valuation (the Mayer Multiple), cycle drawdown, a trend filter.
+        That is <strong>the only reason to combine indicators at all</strong>.
+      </p>
+
+      <div class="verdict">
+        <b>■ Autopsy findings</b>
+        <p>
+          RSI 30 is <strong>not a buy signal but an “entering the zone of interest” signal</strong> — and only when other indicators agree.
+          That is <strong>why our model’s long-term (contrarian) tab inverts RSI yet lowers its weight to 18% instead of 28%</strong>.
+          From a contrarian standpoint RSI is merely <strong>supporting evidence</strong>; the main evidence is the Mayer Multiple and the 365-day drawdown.
+        </p>
+      </div>
+
+      <h2 id="case03">CASE 03 — The two faces of divergence <span class="tag">Undetermined</span></h2>
+      <p>
+        Once RSI’s failures became widely known, the remedy that appeared was <strong>divergence</strong>.
+        <em>Price makes a new low, but RSI is higher than at the previous low</em> → bullish divergence → a rebound is imminent.
+        The opposite is bearish divergence. This is <strong>an attempt to fix RSI’s failures with RSI</strong>. Which is why it only half works.
+      </p>
+
+      <h3>What divergence actually says (the part most articles skip)</h3>
+      <p>
+        Stated precisely, the mathematical meaning of a bullish divergence is this.
+      </p>
+      <pre><code>Price: low A ＞ low B   (lower low)
+RSI  : low A ＜ low B   (higher RSI)
+
+→ Translation: "Price fell further. But it fell less violently."</code></pre>
+      <p>
+        That’s all. <strong>It is not the statement “this is the bottom.”</strong> It is the statement “the pace of decline has slowed.”
+        And the pace of decline <strong>doesn’t slow only at bottoms.</strong>
+        Merely shifting from a crash into a <strong>slow, dragging decline</strong> is enough to generate a divergence automatically.
+        That’s what the bullish divergence of May–June 2022 was. The pace of decline clearly slowed, and afterwards price <strong>fell nearly another 40%.</strong>
+      </p>
+      <p>
+        Bearish divergence is no different. The bearish divergence just before the $64,000 top in April 2021 <strong>was right</strong> — price halved a month later.
+        But <strong>throughout the Q4 2020 rally, bearish divergences appeared repeatedly and were repeatedly invalidated.</strong>
+        Same pattern, opposite outcomes. <strong>In hindsight you can tell them apart; in advance there is no way to.</strong>
+      </p>
+
+      <h3>Why we don’t publish a “divergence win rate of ○○%”</h3>
+      <p>
+        RSI articles on the internet often attach numbers like “RSI divergence win rate: 70%.” <strong>We will not publish such a number.</strong> The honest reason is that <strong>it cannot be calculated</strong>.
+      </p>
+      <ul>
+        <li><strong>The definition of a “low” is arbitrary.</strong> Depending on whether you set the minimum spacing between two lows at 5 days or 20 days, the number of divergences changes several-fold.</li>
+        <li><strong>The definition of “success” is arbitrary.</strong> How many % within how many days counts as success? 2% within 3 days is a success, anything else a failure? Shift the criteria just a little and the win rate moves from the 40s to the 70s.</li>
+        <li><strong>Whoever picks the parameters picks the result.</strong> If you keep changing the combination until you find one that yields a 70% win rate, <strong>anyone can produce a 70% win rate.</strong> That is not a discovery but <strong>overfitting</strong>.</li>
+      </ul>
+      <p>
+        That is why <strong>our model’s code contains no divergence logic at all.</strong>
+        We compute the RSI time series (<code>rsiWilder(closes, 14)</code>), but what goes into the scoring function is <strong>only the last value</strong>.
+        The rest of the series is used only for the sparkline chart on screen. <strong>It contributes not even 1% to the score.</strong>
+      </p>
+      <div class="note">
+        Rules that cannot be reproduced do not go into the score — that is our principle.
+        <strong>Divergence is “the discretion of the person reading the chart,” not a “function.”</strong>
+        The moment discretion enters, the score becomes <em>a different value every time</em>, and then there is no point in publishing it.
+        <strong>This doesn’t mean divergence is useless. It means we can’t turn it into an honest number.</strong>
+      </div>
+
+      <div class="verdict">
+        <b>■ Autopsy findings</b>
+        <p>
+          If you insist on using divergence, at least use it <strong>only together with a trend filter</strong>.
+          A bullish divergence + the 50-day above the 200-day (golden state) + the MACD histogram turning up — when those three line up, it is an entirely different event from
+          <strong>a divergence in the middle of a death cross</strong>. The latter appeared countless times in 2022 and mostly failed.
+        </p>
+      </div>
+
+      <h2 id="case04">CASE 04 — A phantom signal created by the formula <span class="tag">Technical</span></h2>
+      <p>
+        So far the failures came from <strong>misreading RSI</strong>. This one is different.
+        It is a case where <strong>the signal flips entirely just because of how RSI was calculated</strong>. And most investors don’t even know it exists.
+      </p>
+      <p>
+        In practice there are two families of RSI.
+      </p>
+      <ul>
+        <li><strong>Wilder RSI</strong> — the original by its creator, J. Welles Wilder. It updates the average as <code>(previous average × 13 + today’s value) ÷ 14</code>. Because it is exponential smoothing, <strong>the past lingers forever, a little at a time.</strong></li>
+        <li><strong>Cutler RSI (simple-average RSI)</strong> — takes <strong>a plain arithmetic mean</strong> of the last 14 days. Data from 15 days ago <strong>falls completely out of the window.</strong></li>
+      </ul>
+      <p>
+        Many charting tools just label it “RSI” without saying which one. But the difference in results is <strong>anything but trivial.</strong>
+      </p>
+
+      <h3>Walkthrough: how RSI jumps from 37 to 96 in a single day</h3>
+      <p>This is a constructed example. Suppose daily price changes are as follows (units are arbitrary).</p>
+      <pre><code>Day 1 : −20    ← crash (e.g. a −25% plunge in one day)
+Days 2–15 : +1 every day    (except day 8: −0.5)
+
+In other words, after the one-day crash, nothing changes through day 15.
+Price is just quietly recovering by the same amount every day.</code></pre>
+      <p>Now compute RSI for <strong>day 14</strong> and <strong>day 15</strong> both ways.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Point</th><th>Wilder RSI</th><th>Cutler (simple-average) RSI</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Day 14</td><td>36.9</td><td>36.9 <span class="muted">(identical — both seed the first value with a simple average)</span></td></tr>
+            <tr><td><strong>Day 15</strong></td><td><strong>39.0</strong> <span class="muted">(+2.1)</span></td><td><strong>96.3</strong> <span class="muted">(+59.4)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The only thing price did on day 15 was “+1.”</strong> Exactly the same behavior as day 14.
+        Yet the simple-average RSI <strong>leapt from 36.9 to 96.3 — more than 59 points in a single day.</strong>
+      </p>
+      <p>
+        The reason is simple. The moment day 15 arrives, <strong>day 1’s −20 crash drops out of the 14-day window</strong>.
+        With the crash gone entirely from the average-loss calculation, the denominator collapsed and RSI shot to the ceiling.
+        This is called the <strong>drop-off effect</strong>.
+        <strong>The market did nothing. The calendar did it.</strong>
+      </p>
+
+      <h3>How much this phantom shakes our score</h3>
+      <p>Here is what you get when you feed both values into our model’s actual RSI conversion function. (The full function is in the Verdict section below.)</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Day-15 RSI</th><th>Short-term score contribution<br /><span class="muted">(RSI sub-score × 28%)</span></th><th>Long-term score contribution<br /><span class="muted">(RSI sub-score × 18%)</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wilder <strong>39.0</strong></td><td><code>9.1 pts</code></td><td><code>12.4 pts</code></td></tr>
+            <tr><td>Cutler <strong>96.3</strong></td><td><code>28.0 pts</code> <span class="muted">(maximum)</span></td><td><code>0.0 pts</code> <span class="muted">(minimum)</span></td></tr>
+            <tr><td><strong>Difference</strong></td><td><strong>+18.9 pts</strong></td><td><strong>−12.4 pts</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Had we used a simple-average RSI, <strong>the short-term composite score would have been inflated by nearly 19 points while the long-term composite score was cut by more than 12.</strong>
+        On a 100-point scale, 19 points means <strong>jumping an entire band, from NEUTRAL (50) to ACCUMULATE/BUY (69).</strong>
+        <strong>A buy signal switches on while price has done nothing at all.</strong>
+      </p>
+      <p>
+        That is why we <strong>use only the Wilder method.</strong> In Wilder, a crash’s impact doesn’t “drop out” of the window; it <strong>fades gradually.</strong>
+        Each day that passes, the shock shrinks by a factor of <code>13/14 ≈ 0.9286</code>. Working it out:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time since crash</th><th>Share of the shock remaining in the Wilder average</th></tr></thead>
+          <tbody>
+            <tr><td>9.4 days <span class="muted">(half-life)</span></td><td>50%</td></tr>
+            <tr><td>14 days</td><td>35.4% <span class="muted">← with a simple average, it would plunge to 0% at this point</span></td></tr>
+            <tr><td>30 days</td><td>10.8%</td></tr>
+            <tr><td>60 days</td><td>1.2%</td></tr>
+            <tr><td>90 days</td><td>0.1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The shock half-life of Wilder RSI is about 9.4 days.</strong> This matters because it means
+        <strong>a major crash still leaves roughly a 10% trace in RSI a month later</strong>.
+        That may look like a flaw, but it actually <strong>more closely resembles how markets really remember.</strong>
+        The month after a big crash is still inside “the crash’s shadow,” and we want that trace to remain in the score.
+      </p>
+
+      <div class="verdict">
+        <b>■ Autopsy findings</b>
+        <p>
+          <strong>Always check whether the RSI in your charting tool is Wilder or simple-average.</strong>
+          Same coin, same 14 days, same date — <strong>RSI 39 and RSI 96</strong> can exist at the same time.
+          And one of them is <strong>a phantom made purely by the calendar</strong>.
+        </p>
+      </div>
+
+      <h2 id="verdict">Verdict — why we give RSI 28% short-term and 18% long-term</h2>
+      <p>
+        The findings of the four autopsies above are the design rationale for our model. Here is the code, verbatim.
+      </p>
+      <pre><code>// Short-term (momentum) — the higher the RSI, the higher the score (natural direction)
+momRsi = clamp(50 + (RSI − 50) × 1.6, 0, 100)
+
+// Long-term (contrarian) — the lower the RSI, the higher the score (inverted)
+conRsi = clamp(50 + (50 − RSI) × 1.7, 0, 100)</code></pre>
+      <p>
+        <strong>The signs are opposite.</strong> The same RSI value produces opposite scores in the two tabs. A table makes it clear.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>RSI</th><th>Short-term sub-score<br /><span class="muted">momRsi</span></th><th>Short-term contribution<br /><span class="muted">×28%</span></th><th>Long-term sub-score<br /><span class="muted">conRsi</span></th><th>Long-term contribution<br /><span class="muted">×18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>15</code></td><td>0.0</td><td>0.00</td><td>100.0</td><td>18.00</td></tr>
+            <tr><td><code>25</code></td><td>10.0</td><td>2.80</td><td>92.5</td><td>16.65</td></tr>
+            <tr><td><code>30</code></td><td>18.0</td><td>5.04</td><td>84.0</td><td>15.12</td></tr>
+            <tr><td><code>50</code></td><td>50.0</td><td>14.00</td><td>50.0</td><td>9.00</td></tr>
+            <tr><td><code>70</code></td><td>82.0</td><td>22.96</td><td>16.0</td><td>2.88</td></tr>
+            <tr><td><code>80</code></td><td>98.0</td><td>27.44</td><td>0.0</td><td>0.00</td></tr>
+            <tr><td><code>90</code></td><td>100.0</td><td>28.00</td><td>0.0</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The remedy for CASE 01 is <code>momRsi</code>.</strong> In the short-term tab, RSI 80 is not “sell” but <strong>27.4 points of evidence to buy</strong>.
+        We <strong>blocked the “overbought, so sell” formula for ruin at the code level</strong>.
+        <strong>The remedy for CASE 02 is <code>conRsi</code>.</strong> In the long-term tab, RSI 25 becomes 16.7 points of evidence to buy.
+        But <strong>since it isn’t enough on its own, we pressed its weight down to 18%.</strong>
+      </p>
+
+      <h3>What “28% vs 18%” really means — a question of direction, not quality</h3>
+      <p>
+        Many people read these numbers as <em>“RSI is more accurate in the short term.”</em> <strong>That’s a misreading.</strong> The correct reading is this.
+      </p>
+      <ul>
+        <li>
+          <strong>In the short term (1–3 months), RSI can be used in its natural direction, and used that way it works well.</strong>
+          Over short stretches bitcoin behaves like a momentum asset, and RSI is <strong>the most direct measure of momentum</strong>.
+          Since there is a direction in which it’s usable, we give it a large weight (28%).
+        </li>
+        <li>
+          <strong>In the long term (1 year+), RSI’s window (14 days) is far too short.</strong>
+          It’s like trying to <strong>measure a four-year cycle with a 14-day ruler</strong>. The tool doesn’t fit the object.
+          So the main evidence for cycle judgment comes from <strong>the Mayer Multiple (based on the 200-day average, 18%)</strong> and <strong>the 365-day drawdown (14%)</strong>,
+          and RSI gets just 18% in the role of <strong>a proxy for capitulation</strong>. We didn’t set it to 0% because it is still valid in extreme zones (20 and below).
+        </li>
+      </ul>
+
+      <h3>What the weight table hides — RSI’s real dominance is greater than 28%</h3>
+      <p>
+        Here we disclose something <strong>we ourselves realized only belatedly</strong>.
+        <strong>Looking only at the weight percentages makes you under- or overestimate each indicator’s influence.</strong>
+        What matters is <strong>weight × the range that indicator actually moves through</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Short-term tab</th><th>Nominal weight</th><th>Realistic sub-score range</th><th>Effective swing in composite score</th></tr></thead>
+          <tbody>
+            <tr><td><strong>RSI</strong></td><td>28%</td><td>RSI 15–90 → <code>0 ~ 100</code> <span class="muted">(full range used)</span></td><td><strong>28.0 pts</strong></td></tr>
+            <tr><td><strong>Mayer Multiple</strong></td><td>4%</td><td>Multiple 0.5–2.5 → <code>37.5 ~ 87.5</code> <span class="muted">(only half used)</span></td><td><strong>2.0 pts</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        By weight alone, RSI is <strong>7 times</strong> Mayer (28÷4). But <strong>once you factor in the actual swing, it’s 14 times</strong>.
+        The 1.6 slope of <code>momRsi</code> <strong>amplifies RSI across the full 0–100 range</strong>, whereas
+        the slope of 25 in <code>momMayer</code> <strong>can use only half of the sub-score</strong> within the realistic multiple range (0.5–2.5).
+      </p>
+      <div class="note warn">
+        <strong>This is not good news.</strong> The short-term composite score <strong>depends on RSI more heavily</strong> than we intended.
+        And RSI, as we saw in CASE 01 and 02, is precisely the indicator that <strong>is structurally wrong in trending markets</strong>.
+        <strong>In other words, our short-term model is most heavily exposed to its weakest indicator.</strong> We keep digging into this problem in the next section.
+      </div>
+
+      <h2 id="confession">Confession — where our model still gets things wrong because of RSI</h2>
+      <p>
+        Articles that sell indicators praise indicators. We’ll do the opposite.
+        <strong>Below are flaws that actually exist in our code.</strong> Some can be fixed; some cannot.
+      </p>
+      <ol class="confess">
+        <li>
+          <strong>Saturation zones — we cannot tell RSI 82 from RSI 95.</strong><br />
+          <code>momRsi</code> gives <strong>100 points to everything at RSI 81.25 and above</strong>. <code>conRsi</code> gives <strong>100 points to everything at RSI 20.59 and below</strong>.
+          So the long-term model <strong>sees the March 2020 COVID crash (RSI in the teens) and an ordinary correction (RSI 20) as the same value.</strong>
+          It means <strong>zero resolution</strong> in the extreme zones that matter most. This is the price of clamping, and we haven’t found a better solution yet.
+        </li>
+        <li>
+          <strong>The blow-off top guard depends on the Mayer Multiple — and without it, the guard doesn’t trigger.</strong><br />
+          The short-term tab has a safety mechanism against buying the cycle top: <code>if (mayer &gt; 2.0) score × (1 − (mayer − 2.0) × 0.55)</code>.
+          Why is it needed? Because <strong>without the guard, our short-term model prints STRONG BUY at the top of a bubble.</strong> Worked out by hand:
+          <pre><code>Assumption — cycle top: RSI 88 · Fear &amp; Greed 94 · Mayer 2.5 · Drawdown −2% · golden state
+
+RSI       sub-score 100 (saturated) × 28% = 28.0   ← the biggest block
+F&amp;G       sub-score 100 (saturated) × 28% = 28.0
+Drawdown  sub-score  97.4           × 18% = 17.5
+MACD      sub-score  90             × 14% = 12.6
+Cross     sub-score  65             ×  8% =  5.2
+Mayer     sub-score  87.5           ×  4% =  3.5
+─────────────────────────────────────
+Raw score = 94.8  →  STRONG BUY (at the bubble top!)
+
+Applying the blow-off guard:
+  Mayer 2.5 → × 0.725  →  68.8
+  F&amp;G 94 ≥ 90 → − 8     →  60.8  →  NEUTRAL</code></pre>
+          The guard <strong>shaved off 34 points.</strong> But look at the code, and the condition is <code>mayer != null &amp;&amp; mayer &gt; 2.0</code>.
+          <strong>For a newly listed asset without 200 days of data, the Mayer Multiple is <code>null</code>, so this guard never runs at all.</strong>
+          If such an asset goes on a parabolic rally, <strong>our short-term score can print STRONG BUY at the top.</strong>
+          And the biggest block of that score is <strong>RSI’s 28 points</strong>. This is a known flaw, and the dashboard’s <strong>coverage indicator (<code>coverage 5/6</code>)</strong> is the only warning mechanism.
+        </li>
+        <li>
+          <strong>When the two tabs point in opposite directions, we don’t know which one is right.</strong><br />
+          Feed in a capitulation phase with RSI 14, Fear &amp; Greed 6, Mayer 0.52 and drawdown −74%, and you get this.
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>Short-term (momentum)</th><th>Long-term (contrarian)</th></tr></thead>
+              <tbody>
+                <tr><td>RSI sub-score</td><td>0.0</td><td>100.0</td></tr>
+                <tr><td>RSI contribution</td><td><code>0.0 pts</code></td><td><code>18.0 pts</code></td></tr>
+                <tr><td><strong>Composite score</strong></td><td><strong>11.7 → AVOID</strong></td><td><strong>83.5 → STRONG BUY</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <strong>Same moment, same data, a 71.8-point difference.</strong> It’s not a bug but the design — the time horizons are different.
+          But honestly, <strong>this model cannot tell you “which tab is right for you right now.”</strong>
+          That depends on your holding period and risk tolerance, and <strong>our score cannot decide it for you.</strong>
+        </li>
+        <li>
+          <strong>The 14-day period is just convention.</strong><br />
+          It’s the number Wilder chose in 1978 while looking at <strong>stock and commodity markets</strong>. It is not a value validated for crypto, which trades 24 hours a day.
+          The optimal window almost certainly differs by coin and by volatility regime. Even so, we <strong>fixed it at 14</strong>.
+          Tuning it per coin would make performance look better, but that is just <strong>overfitting</strong>, and it falls apart in the future.
+          It’s accurate to call it <strong>“a value we fixed knowing it’s second-best.”</strong>
+        </li>
+        <li>
+          <strong>The decimal places mean nothing.</strong><br />
+          RSI varies depending on <strong>which exchange’s closing price, at what time</strong>, you use. UTC midnight and KST (Korea time) midnight produce different values.
+          With different sources, <strong>a difference of 2–3 in the same day’s RSI is common.</strong>
+          That then rides the 1.6 slope of <code>momRsi</code> and automatically puts <strong>an error of about 0.9 points</strong> into the composite score.
+          <strong>The first decimal place of our score is noise.</strong> Don’t try to distinguish 68.4 from 68.9.
+        </li>
+        <li>
+          <strong>RSI creates no new information.</strong><br />
+          This may be the most important sentence in this article. RSI is <strong>a value derived from price</strong>.
+          It merely <strong>rearranges and redisplays what price has already told you</strong>; it adds no information that wasn’t already in the market.
+          <strong>RSI is a lagging indicator, and lagging indicators don’t know the future.</strong> This is not a fixable flaw but <strong>the nature of the indicator</strong>.
+        </li>
+      </ol>
+
+      <h2 id="rules">So should we throw RSI away? — No, use it like this</h2>
+      <p>
+        We’ve been through four autopsies and six confessions, but the conclusion isn’t “RSI is garbage.”
+        It’s <strong>“RSI is not a standalone signal.”</strong> Condensed into practical rules:
+      </p>
+      <ol>
+        <li>
+          <strong>Read the trend before you read RSI.</strong> First check whether the 50-day is above or below the 200-day.
+          <strong>Without knowing the trend state, an RSI value cannot be interpreted.</strong>
+        </li>
+        <li>
+          <strong>In an uptrend, RSI’s floor is 40–50, not 30.</strong> RSI 45 in this regime isn’t “oversold” but <strong>a pullback</strong>.
+          Conversely, <strong>in a downtrend, RSI’s ceiling is 50–60, not 70.</strong> In a bear market, RSI 60 may be not “overbought” but <strong>the end of a relief bounce</strong>.
+          <strong>The 30/70 numbers are for sideways markets only.</strong>
+        </li>
+        <li>
+          <strong>Between 30 and 70, RSI says almost nothing.</strong> Don’t make trading decisions on RSI moves within this range.
+          RSI only carries meaning on its own at <strong>extremes (20 and below / 85 and above)</strong>, and even there it needs other indicators to agree.
+        </li>
+        <li>
+          <strong>Check that your tool’s RSI is Wilder.</strong> As we saw in CASE 04, a simple-average RSI produces <strong>phantom signals made by the calendar</strong>.
+        </li>
+        <li>
+          <strong>Don’t be surprised when the dashboard’s two tabs disagree.</strong> That is useful information: <strong>“a phase where the short term and long term point in opposite directions.”</strong>
+          It usually shows up at <strong>bottoms (long-term buy / short-term avoid)</strong> or <strong>tops (short-term buy / long-term avoid)</strong>.
+        </li>
+        <li>
+          <strong>Check coverage.</strong> A display like <code>coverage 5/6 (82% weight)</code> means one indicator is missing,
+          and if the missing one is the Mayer Multiple, it means <strong>the blow-off guard is off</strong> (Confession no. 2).
+        </li>
+      </ol>
+
+      <div class="note">
+        <strong>This article in one line</strong><br />
+        RSI measures <strong>not “how expensive” but “how consistently it has risen lately.”</strong>
+        The moment you confuse the two — that is, the moment you translate it as <strong>“overbought = expensive = sell”</strong> — RSI becomes a loss machine.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This document is <strong>for educational and reference purposes</strong> and is <strong>not investment advice or a recommendation to buy or sell.</strong>
+        The historical accounts and RSI figures in this article are <strong>approximate values</strong> based on daily closes, and they vary by data source, exchange and reference time zone.
+        Calculations marked “Assumption” are <strong>not real market data but examples constructed to illustrate how the model behaves</strong>.
+        Crypto assets are high-risk assets with which <strong>you can lose your entire principal</strong>, and past patterns do not guarantee the future.
+        All investment decisions and their consequences are entirely the user’s own responsibility. Always do your own research (DYOR).
+      </div>
+
+      <h2>Keep reading</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoring methodology</b><span>How the 6 indicators are weighted and combined — every number disclosed</span></a>
+        <a href="/indicators"><b>The 6 indicators explained</b><span>When each of the 5 indicators besides RSI lets you down</span></a>
+        <a href="/guide-fear-greed"><b>Using the Fear Index in practice</b><span>A step-by-step plan for buying in tranches during fear, and common mistakes</span></a>
+        <a href="/glossary"><b>Glossary</b><span>Wilder smoothing, divergence, coverage…</span></a>
+        <a href="/"><b>To the dashboard</b><span>Check the current RSI and both tab scores</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></footer>
+    </main>

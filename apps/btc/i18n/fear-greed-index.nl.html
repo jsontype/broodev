@@ -1,0 +1,538 @@
+    <main class="wrap" data-title="Anatomie van de Angst- &amp; Hebzucht-index — waar dat getal van gemaakt is | broodev" data-desc="We ontleden de Crypto Fear &amp; Greed Index van Alternative.me per component: volatiliteit 25%, momentum/volume 25%, social media 15%, dominantie 10%, Google Trends 10% en de stopgezette enquête 15%. Met echte cijfers leggen we uit welke vertekening elk component veroorzaakt, waarom het in feite een BTC-index is en waarom ons model de gemiddelden over 7 en 30 dagen mengt in plaats van één enkele waarde te gebruiken.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Methodologie</a>
+        <a href="/indicators">Indicatoren</a>
+        <a href="/guide-fear-greed">Angst &amp; hebzucht-gids</a>
+        <a href="/glossary">Woordenlijst</a>
+      </nav>
+
+      <h1>Anatomie van de Angst- &amp; Hebzucht-index<br />— waar dat getal van gemaakt is</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems · Onderwerp: Alternative.me Crypto Fear &amp; Greed Index</p>
+
+      <p class="lead">
+        Stel dat de angstindex vandaag op <strong>18</strong> staat. De meeste mensen stoppen daar. “18, dus extreme angst.”
+        Maar bijna niemand weet <strong>uit welke ingrediënten dat getal 18 is opgebouwd</strong>.
+        Dit artikel gaat <em>niet</em> over hoe je de index gebruikt. Het gaat over het <strong>uit elkaar halen</strong> ervan.
+        Wat erin zit en in welke verhouding, welke vertekening elk ingrediënt veroorzaakt en wat die 18 dus precies zegt —
+        <strong>voordat je de index vertrouwt, moet je weten waar hij van gemaakt is.</strong>
+      </p>
+
+      <section class="bd-figs" aria-label="Live grafiek van de Angst- &amp; Hebzucht-index">
+        <p class="muted">Voordat we aan de ontleding beginnen, bekijken we eerst het hele lichaam van het onderzoeksobject. Dit is de volledige geschiedenis van de index, opgehaald uit de openbare API van Alternative.me op het moment van je bezoek.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-fngx-hist" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+          </div>
+          <p class="bd-cap">Volledige geschiedenis van de Angst- &amp; Hebzucht-index (vanaf 2018). Groene arcering = 25 of lager (extreme angst), rode arcering = 75 of hoger (extreme hebzucht). Zoals de tekst laat zien, is de helft van deze curve in feite de schaduw van prijsgegevens. Data: Alternative.me Fear &amp; Greed API — opgehaald en getekend op het moment van je bezoek, <strong>benaderingen, alleen ter referentie</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Eerst: de ingrediëntenlijst</h2>
+      <p>
+        Zoals bewerkte voeding een ingrediëntenlijst heeft, heeft deze index er ook een. De verhoudingen die Alternative.me heeft gepubliceerd zijn als volgt.
+        Deze tabel is de kaart van het hele artikel.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Aandeel</th><th>Grondstof (wat er als input binnenkomt)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Volatiliteit</strong></td><td><strong>25%</strong></td><td>Recente volatiliteit en maximale daling van de BTC-prijs vergeleken met de gemiddelden over 30 en 90 dagen</td><td>Actief</td></tr>
+            <tr><td><strong>Marktmomentum / volume</strong></td><td><strong>25%</strong></td><td>Volume en momentum van BTC vergeleken met de gemiddelden over 30 en 90 dagen</td><td>Actief</td></tr>
+            <tr><td><strong>Social media</strong></td><td>15%</td><td>Aantal berichten en interactiesnelheid bij hashtags rond bitcoin</td><td>Actief</td></tr>
+            <tr><td><strong>Dominantie</strong></td><td>10%</td><td>Aandeel van BTC in de totale marktkapitalisatie van crypto</td><td>Actief</td></tr>
+            <tr><td><strong>Google Trends</strong></td><td>10%</td><td>Verandering in het relatieve zoekvolume van zoektermen rond bitcoin</td><td>Actief</td></tr>
+            <tr><td><strong>Enquêtes</strong></td><td>15%</td><td>Wekelijkse beleggersenquête</td><td><strong>Stopgezet</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Kijk nog vijf seconden langer naar deze tabel en er vallen twee dingen op.
+      </p>
+      <ul>
+        <li>
+          <strong>50% van de componenten is afgeleid van de prijs.</strong> Volatiliteit 25% + momentum/volume 25%.
+          Hoewel het een “sentimentindex” heet, is <strong>de helft dus gewoon prijsdata</strong>.
+        </li>
+        <li>
+          <strong>15% is verdwenen en waar het heen is gegaan, is niet bekendgemaakt.</strong> Het enquêtecomponent is stopgezet.
+          Hoe het over de vijf resterende componenten is herverdeeld — proportioneel hergenormaliseerd of aan één bepaald component toegewezen —
+          maakt de beheerder niet bekend. <strong>De exacte verhoudingen van de index zijn vandaag van buitenaf niet te achterhalen.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        De verhoudingen in dit artikel zijn gebaseerd op <strong>de documentatie die de beheerder heeft gepubliceerd</strong>.
+        De exacte formule van elk component (welke vensters worden gebruikt, met welke functie wordt naar 0–100 omgezet) is niet openbaar.
+        <strong>We lezen het etiket van een black box; we hebben de black box niet geopend.</strong>
+        Op die beperking komen we aan het eind van het artikel uitdrukkelijk terug.
+      </div>
+
+      <h2>Ontleding ① Volatiliteit (25%) — de ruggengraat van de index</h2>
+      <p>
+        Het zwaarste component, en het component dat in feite het karakter van de index bepaalt.
+        Het vergelijkt de recente volatiliteit en maximale daling van BTC <strong>met de gemiddelden over 30 en 90 dagen</strong> en leest het als “angst” wanneer ze hoger zijn dan normaal.
+      </p>
+      <p>
+        Hier gebeurt stilletjes iets. <strong>Volatiliteit maakt van nature geen onderscheid in richting.</strong>
+        Op zichzelf neemt volatiliteit toe, of de prijs nu omhoog of omlaag schiet. Maar dit component neemt ook de <strong>maximale daling</strong> mee
+        en legt zo extra gewicht op bewegingen naar beneden. Daardoor lijkt dit component vooral op <strong>een instrument dat meet “of de prijs snel is gedaald”</strong>.
+      </p>
+      <p>
+        Daaruit volgt de eerste conclusie.
+      </p>
+      <div class="note warn">
+        <strong>De angstindex “voorspelt” een daling niet. Hij “herhaalt” haar.</strong>
+        De prijs moet dalen voordat de volatiliteit stijgt, en de volatiliteit moet stijgen voordat de index daalt.
+        <strong>De index loopt achter de prijs aan.</strong> Zodra je die volgorde omdraait, lees je deze indicator verkeerd.
+      </div>
+      <p>
+        Dit feit heeft directe gevolgen voor het ontwerp van ons model. Onze score bevat al apart de <strong>daling over 365 dagen</strong> en de <strong>RSI</strong>.
+        Maar ook de ruggengraat van de angstindex is uiteindelijk “hoe snel is het gedaald”.
+        Met andere woorden: <strong>F&amp;G · daling · RSI zijn niet onafhankelijk van elkaar.</strong> Alle drie reageren tegelijk op dezelfde gebeurtenis (een scherpe daling).
+      </p>
+      <p>
+        Dat betekent dat in de kortetermijngewichten RSI 28% + F&amp;G 28% = <strong>56%</strong> als één blok kan bewegen,
+        en dat is een <strong>bekende zwakte</strong> die we bewust accepteren. Om die overlap te compenseren nemen we er indicatoren met een tegengesteld karakter bij:
+        MACD (trend) en de golden/death cross (marktfase). Wanneer de eerste drie indicatoren in een crashfase eensgezind “kopen” roepen,
+        is het de taak van deze twee om op de rem te trappen. <strong>We hebben de dubbeltelling niet weggewerkt, maar met een tegengestelde as in toom gehouden</strong>.
+      </p>
+
+      <h2>Ontleding ② Marktmomentum / volume (25%) — een zichzelf versterkend circuit</h2>
+      <p>
+        Het op één na zwaarste component. Het vergelijkt het huidige volume en momentum met de gemiddelden over 30 en 90 dagen.
+        <strong>Komt er meer koopvolume binnen dan normaal, dan schuift de index richting hebzucht.</strong>
+      </p>
+      <p>
+        Dit component bevat een structurele terugkoppeling (feedback).
+      </p>
+      <pre><code>Prijs stijgt
+   ↓
+Volume schiet omhoog (instroom door FOMO)
+   ↓
+Momentumcomponent stijgt → index stijgt → "Hebzucht"
+   ↓
+"Het is hebzucht, zeggen ze" → verspreidt zich via media en social
+   ↓
+Nieuwe instroom → volume stijgt nog meer …</code></pre>
+      <p>
+        Dit component <strong>weerspiegelt de trend dus niet, maar doet er zelf aan mee.</strong>
+        Daarom blijft de index midden in een bullmarkt wekenlang tussen 75 en 85 hangen.
+        Heb je ooit gedacht “die hebzucht duurt wel erg lang?”, dan is de index niet kapot:
+        <strong>dan werkt het momentumcomponent precies zoals het ontworpen is</strong>.
+      </p>
+      <p>
+        In de andere richting <strong>herstelt dit component als eerste op de bodem.</strong>
+        In de fase waarin het volume aantrekt voordat de prijs stijgt — wanneer de capitulatieverkopen voorbij zijn en de accumulatie begint —
+        kruipt het momentumcomponent stilletjes omhoog. Daarom is <strong>het traject waarin de index van 15 naar 25 klimt</strong>
+        kwalitatief anders dan het traject waarin hij op 15 blijft staan. Kijk je alleen naar de losse waarde, dan vervaagt die informatie tot “nog steeds angst”.
+        <strong>Dit is een van de redenen waarom we het 7-daags gemiddelde meemengen</strong> — verderop laten we het met cijfers zien.
+      </p>
+
+      <h2>Ontleding ③ Social media (15%) — een oor dat stilte niet hoort</h2>
+      <p>
+        Kijkt naar het <strong>aantal berichten en de interactiesnelheid</strong> bij hashtags rond bitcoin.
+        Het meet hoeveel berichten er in een bepaalde tijd verschijnen en hoe snel er reacties op komen; zijn die abnormaal hoog, dan leest het dat als hebzucht.
+      </p>
+      <p>Dit component kent drie vertekeningen. We bekijken ze een voor een.</p>
+
+      <h3>Vertekening 1 — vatbaar voor bots en reclame</h3>
+      <p>
+        Het aantal berichten per hashtag is <strong>de goedkoopste data om te manipuleren</strong>.
+        Eén airdropcampagne of één promotie door een influencer volstaat om het aantal berichten bij een hashtag makkelijk te verdubbelen.
+        De index kan niet zien of een tweet door een mens of een bot is geschreven, of hij oprecht is of betaalde promotie.
+        <strong>Hij behandelt “er wordt veel over gepraat” en “er wordt veel in geloofd” als hetzelfde.</strong>
+      </p>
+
+      <h3>Vertekening 2 — een asymmetrie die alleen op stijgingen reageert</h3>
+      <p>
+        Dit is de belangrijkere vertekening. <strong>Echte capitulatie (capitulation) is niet luidruchtig, maar stil.</strong>
+        Als een crash al maanden duurt, worden mensen niet boos. <strong>Ze vertrekken.</strong>
+        Crypto verdwijnt uit de tijdlijnen en het aantal berichten bij de hashtags droogt op.
+      </p>
+      <p>
+        Maar dit component heeft geen mechanisme om te bepalen of “weinig berichten = geen interesse” gelezen moet worden <strong>als angst of als onverschilligheid</strong>.
+        Naderen de berichten nul, dan nadert ook de hoeveelheid informatie die dit component oplevert nul.
+        <strong>Juist wanneer de markt op haar laagste punt staat, heeft het sociale component het minst te zeggen.</strong>
+        Op het moment dat je het signaal het hardst nodig hebt, zwijgt een component van 15% in feite.
+      </p>
+
+      <h3>Vertekening 3 — taal en tijdzone zijn scheef verdeeld</h3>
+      <p>
+        De hashtagtelling is overweldigend <strong>Engelstalig</strong>. Het sentiment rond pieken en crashes in Korea, Japan en de Chineessprekende wereld
+        wordt niet met dezelfde intensiteit opgepikt. In het weekend daalt het totale aantal berichten structureel.
+        <strong>Dat is een van de redenen waarom de weekendwaarde van de index minder betrouwbaar is dan die op werkdagen</strong> —
+        de prijs beweegt 24/7, de tweets van mensen niet.
+      </p>
+
+      <h2>Ontleding ④ Dominantie (10%) — op een BTC-scherm draait de richting om</h2>
+      <p>
+        Dit is het meest verkeerd begrepen component. De logica is als volgt.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Waarneming</th><th>Interpretatie van de index</th><th>Onderliggende logica</th></tr></thead>
+          <tbody>
+            <tr><td>BTC-dominantie <strong>stijgt</strong></td><td>Richting angst</td><td>Geld trekt weg uit speculatieve altcoins en vlucht naar de “veilige” BTC = risicomijding</td></tr>
+            <tr><td>BTC-dominantie <strong>daalt</strong></td><td>Richting hebzucht</td><td>Kapitaal stroomt naar altcoins = speculatieve oververhitting</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Het probleem is dat deze logica <strong>alleen opgaat als je de risicobereidheid van “de hele cryptomarkt” meet</strong>.
+        Vanuit het perspectief van iemand die BTC wil kopen, wordt de richting vreemd.
+      </p>
+      <div class="note warn">
+        <strong>Stijgende BTC-dominantie = er stroomt geld naar BTC</strong> — ook dat betekent het.
+        Maar de index <strong>rekent dat als “angst” en trekt de index omlaag.</strong>
+        Op een BTC-dashboard <strong>vertaalt dit component een voor BTC gunstige kapitaalstroom dus naar angst</strong>.
+        Het is maar een component van 10%, maar dat zijn richting zelf indruist tegen het perspectief van het asset, moet gezegd worden.
+      </div>
+      <p>
+        Bovendien is dominantie <strong>een indicator waarvan de noemer voortdurend verandert</strong>.
+        Als de marktkapitalisatie van stablecoins opzwelt, als er massaal nieuwe tokens worden genoteerd of als institutioneel geld alleen in BTC-producten stroomt,
+        <strong>beweegt de dominantie zonder dat iemand bang is geworden.</strong>
+        Dat betekent dat 10% van een “sentimentindex” schommelt door <strong>veranderingen in de marktstructuur die niets met sentiment te maken hebben</strong>.
+      </p>
+
+      <h2>Ontleding ⑤ Google Trends (10%) — wie al gekocht heeft, zoekt niet meer</h2>
+      <p>
+        Kijkt naar het relatieve zoekvolume van zoektermen rond bitcoin. Omdat een piek in zoekopdrachten op zich geen richting heeft,
+        wordt de richting bepaald door <strong>welke zoektermen zijn gestegen</strong>. Schieten bijvoorbeeld zoekopdrachten als “bitcoin prijsmanipulatie” of “bitcoin oplichting” omhoog,
+        dan leest het dat als angst; schiet een simpel “hoe koop ik bitcoin” omhoog, dan als hebzucht.
+      </p>
+      <p>
+        Hier zit de fundamentele beperking van dit component. <strong>Zoeken is gedrag van nieuwkomers.</strong>
+      </p>
+      <ul>
+        <li><strong>Wie al bezit, zoekt niet.</strong> Die opent de app en kijkt naar zijn saldo.</li>
+        <li><strong>Institutionele en professionele beleggers googelen niet.</strong> Die kijken naar hun terminal.</li>
+        <li>Wat dit component werkelijk meet, is dus <strong>“hoeveel interesse mensen die crypto tot nu toe niet kenden er op dit moment voor tonen”</strong>.</li>
+      </ul>
+      <p>
+        Dat is geen slechte informatie. Integendeel, ze is behoorlijk bruikbaar om <strong>oververhitte instroom van nieuwkomers laat in de cyclus</strong> op te vangen.
+        Maar je moet wel precies weten wat die informatie is. Het Google Trends-component <strong>meet niet het sentiment van de markt,
+        maar de snelheid waarmee mensen van buiten de markt binnenkomen.</strong>
+      </p>
+      <p>
+        En dit component <strong>raakt verzadigd.</strong> Omdat het zoekvolume als relatieve waarde (0–100) wordt genormaliseerd,
+        wordt na één historische explosie vrijwel elke gewone toename van interesse geregistreerd als “laag zoekvolume”.
+        <strong>De manie van vroeger laat de manie van nu klein lijken.</strong>
+      </p>
+
+      <h2>Ontleding ⑥ Enquêtes (15%, stopgezet) — het gat dat een verdwenen component achterlaat</h2>
+      <p>
+        Het oorspronkelijke ontwerp bevatte een wekelijkse beleggersenquête met een aandeel van 15%. Het was het enige component dat <strong>mensen rechtstreeks iets vroeg</strong>,
+        en dus de enige sentimentdata die <strong>niet van de prijs was afgeleid</strong>. Nu is het stopgezet.
+      </p>
+      <p>De gevolgen van die stopzetting zijn groter dan je zou denken.</p>
+      <ol>
+        <li>
+          <strong>Het aandeel van prijsafgeleide componenten is gegroeid.</strong> Als de resterende componenten de plek van de 15% enquête onderling hebben verdeeld,
+          is het werkelijke aandeel van volatiliteit + momentum <strong>zeer waarschijnlijk hoger geworden dan de oorspronkelijke 50%.</strong>
+          Met andere woorden: de index is na verloop van tijd <strong>steeds meer een “functie van de prijs” geworden.</strong>
+        </li>
+        <li>
+          <strong>Waarden uit het verleden en van nu betekenen niet hetzelfde.</strong> Een 20 in 2018 en een 20 in 2026 zijn
+          <strong>getallen die met verschillende verhoudingen zijn gemaakt</strong>. Wanneer je op een langetermijngrafiek een backtest doet in de trant van
+          “historisch hoefde je alleen onder de 20 te kopen”, <strong>backtest je een indicator waarvan het recept onderweg is veranderd</strong>.
+        </li>
+        <li>
+          <strong>De herverdelingsmethode is niet openbaar gemaakt.</strong> Daarom kunnen beide zinnen hierboven niet verder gaan dan
+          “zeer waarschijnlijk”. Dat je het niet met zekerheid kunt zeggen, is zelf een belangrijke eigenschap van deze index.
+        </li>
+      </ol>
+
+      <h2>Het opgetelde resultaat: geen “sentimentindex”, maar een “BTC-samenvattingsindex”</h2>
+      <p>Laten we de vijf componenten opnieuw op een rij zetten en alleen vragen <strong>waar elk ervan eigenlijk over gaat</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Component</th><th>Wat het werkelijk waarneemt</th><th>Wat het zegt over de altcoin waar jij naar kijkt</th></tr></thead>
+          <tbody>
+            <tr><td>Volatiliteit 25%</td><td>BTC-prijs</td><td>Niets</td></tr>
+            <tr><td>Momentum/volume 25%</td><td>BTC-volume</td><td>Niets</td></tr>
+            <tr><td>Social 15%</td><td>Bitcoin-hashtags</td><td>Niets</td></tr>
+            <tr><td>Dominantie 10%</td><td>Aandeel van BTC in de marktkapitalisatie</td><td><strong>Wel iets, maar in omgekeerde richting</strong></td></tr>
+            <tr><td>Google Trends 10%</td><td>Bitcoin-zoektermen</td><td>Niets</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Geen enkel van de vijf componenten leest de data van de altcoin waar jij naar kijkt.</strong>
+        De index heet “Crypto Fear &amp; Greed Index”, maar de grondstoffen zijn <strong>in feite allemaal bitcoin</strong>.
+      </p>
+      <p>
+        En het enige component dat altcoins <em>überhaupt bekijkt</em>, dominantie, heeft vanuit het perspectief van een altcoinhouder de omgekeerde richting.
+        In een altseason — de fase waarin altcoins exploderen en de dominantie instort — roept het dominantiecomponent <strong>“hebzucht”</strong>,
+        en de index daalt niet maar stijgt. Voor een altcoinhouder is dat goed nieuws, maar de index zet het waarschuwingslampje aan.
+        <strong>Omgekeerd: als altcoins instorten en het geld naar BTC vlucht, spreekt de index van “angst” en geeft hij een koopsignaal — terwijl jouw altcoin aan het sterven is.</strong>
+      </p>
+      <div class="note warn">
+        Daarom is op het broodev-dashboard <strong>de F&amp;G-indicator bij het bekijken van een altcoin een “referentie”, geen “onderbouwing”.</strong>
+        Dat is ook een beperking van ons model. We gebruiken een marktsentimentindicator die voor BTC is gemaakt
+        met hetzelfde gewicht ook op altcoinschermen, en <strong>in dezelfde mate is het F&amp;G-onderdeel in de altcoinscore minder betrouwbaar.</strong>
+        Eerlijk gezegd is dit een probleem dat we nog niet hebben opgelost. Sentimentindicatoren per munt bestaan niet,
+        en om ze te maken heb je betrouwbare, genormaliseerde social- en volumedata per munt nodig, die niet gratis te krijgen zijn.
+      </div>
+
+      <h2>Daarom gebruiken we dit getal niet zoals het is</h2>
+      <p>
+        De ontleding hierboven leidt rechtstreeks naar het ontwerp van ons model. We gebruiken de waarde van de angstindex van vandaag <strong>niet zoals hij is.</strong>
+        We draaien hem ook niet simpelweg om met <code>100 − huidige waarde</code>.
+      </p>
+
+      <div class="note warn">
+        <strong>Eerst een belangrijke kanttekening — er is niet één omzettingsformule, maar twee.</strong><br />
+        Het <strong>langetermijntabblad (contrair)</strong> en het <strong>kortetermijntabblad (momentum)</strong> gebruiken <strong>verschillende functies</strong> met <strong>tegengesteld teken</strong>.
+        De <strong>structuur van menging en extremenbonus</strong>, die we in de volgende secties uitwerken, <strong>geldt alleen voor het langetermijntabblad</strong>.
+        (De vorige versie van dit document vermeldde alleen de langetermijnfunctie en liet de kortetermijnfunctie weg. Gecorrigeerd op 2026-07-14)
+      </div>
+
+      <p><strong>Langetermijnomzetting (contrair)</strong> — hoe meer angst, hoe hoger de score. Om de ruis van één dag weg te nemen, <strong>worden de gemiddelden over 7 en 30 dagen meegemengd.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − huidige waarde)
+       + 0.3 × (100 − gemiddelde laatste 7 dagen)
+       + 0.2 × (100 − gemiddelde laatste 30 dagen)
+
+huidige waarde ≤ 25 → += (25 − huidige waarde) × 0.4
+huidige waarde ≥ 75 → −= (huidige waarde − 75) × 0.4</code></pre>
+
+      <p><strong>Kortetermijnomzetting (momentum)</strong> — <strong>hoe meer hebzucht, hoe hoger de score.</strong> Er worden geen gemiddelden gemengd; alleen <strong>de huidige waarde</strong> telt.</p>
+      <pre><code>momFng = clamp(50 + (huidige waarde − 50) × 1.2,  0,  100)
+
+  angst 20 → 14    (lage score op korte termijn)
+  neutraal 50 → 50
+  hebzucht 85 → 92    (hoge score op korte termijn)</code></pre>
+      <p>
+        <strong>Waarom levert hebzucht op korte termijn punten op?</strong> In een venster van 1–3 maanden zijn fasen waarin het sentiment verbetert
+        meestal <strong>fasen waarin de trend leeft</strong>. Vanuit trendvolgend perspectief is dat een koopvriendelijk signaal.
+        Omgekeerd betekent extreme angst dat <strong>de daling nog bezig is</strong>, en dat is op korte termijn gevaarlijk.
+        <strong>Dezelfde index van 20 wordt een hoge score (≈86) op het langetermijntabblad en een lage score (≈14) op het kortetermijntabblad</strong>.
+      </p>
+      <p class="muted">
+        <strong>Alle berekeningen en scenario’s hieronder gaan uit van het langetermijntabblad (contrair).</strong> Onthoud dat op het kortetermijntabblad het teken omdraait.
+      </p>
+
+      <h3>Waarom we de dagwaarde maar half laten meetellen</h3>
+      <p>
+        <strong>Het antwoord staat in de ingrediëntenlijst.</strong> Bedenk welke componenten van dag tot dag het sterkst schommelen.
+      </p>
+      <ul>
+        <li><strong>Social (15%)</strong> — één tweet van een influencer, of gewoon het feit dat het weekend is, en het schommelt binnen een dag.</li>
+        <li><strong>Google Trends (10%)</strong> — één nieuwskop en het zoekvolume springt omhoog.</li>
+        <li><strong>Volatiliteit (25%)</strong> — één dagcandle van −8% en het reageert meteen.</li>
+      </ul>
+      <p>
+        Samen is <strong>de helft gevoelig voor “wat er gisteren gebeurde”</strong>.
+        Met andere woorden: <strong>de dagwaarde van de angstindex is eerder de nagalm van het nieuws van gisteren dan een meting van sentiment</strong>.
+      </p>
+      <p>
+        Het <strong>7-daags gemiddelde</strong> daarentegen wist een groot deel van de dagelijkse ruis van social en trends en het weekendeffect uit.
+        Het <strong>30-daags gemiddelde</strong> drukt zelfs losse pieken van het volatiliteitscomponent weg, en wat overblijft is de <strong>marktfase</strong>.
+        Daarom 0.5 / 0.3 / 0.2: <strong>de helft voor de emotie van nu, 30% voor de stemming van deze week, 20% voor de fase van deze maand</strong>.
+      </p>
+
+      <h3>Hoe verschillend dezelfde “18” kan scoren — een echte berekening</h3>
+      <p>
+        Dat klinkt abstract, dus vullen we getallen in. <strong>In alle drie de scenario’s staat de angstindex vandaag op precies 20.</strong>
+        De krantenkoppen zouden in alle drie de gevallen hetzelfde luiden: “extreme angst”.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Scenario</th><th>Huidig</th><th>7-daags gem.</th><th>30-daags gem.</th><th>F&amp;G-deelscore<br /><span class="muted">(niet de totaalscore)</span></th><th>Bijdrage aan langetermijntotaal<br /><span class="muted">× 18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A. Eerste dag van een crash</strong><br /><span class="muted">niets aan de hand tot de crash van gisteren</span></td>
+              <td>20</td><td>45</td><td>60</td>
+              <td><strong>66.5</strong></td>
+              <td>12.0 punten</td>
+            </tr>
+            <tr>
+              <td><strong>B. Aanhoudende angst</strong><br /><span class="muted">de hele week angst</span></td>
+              <td>20</td><td>22</td><td>28</td>
+              <td><strong>79.8</strong></td>
+              <td>14.4 punten</td>
+            </tr>
+            <tr>
+              <td><strong>C. Bodem van een lange malaise</strong><br /><span class="muted">al een maand op de bodem</span></td>
+              <td>20</td><td>25</td><td>20</td>
+              <td><strong>80.5</strong></td>
+              <td><strong>14.5 punten</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note warn">
+        <strong>Niet verwarren — de deelscore is niet de totaalscore.</strong><br />
+        De <strong>80.5</strong> in de tabel is <strong>de deelscore van alleen de F&amp;G-indicator</strong> en betekent niet “STRONG BUY”.
+        Op het langetermijntabblad draagt deze waarde slechts <code>80.5 × 18% = 14.5 punten</code> <strong>bij aan de totaalscore</strong>.
+        Het oordeel STRONG BUY (80 punten of meer) is een label dat alleen geldt voor de <strong>totaalscore die alle 6 indicatoren samenvoegt</strong>.
+        (De vorige versie van dit document gaf een deelscore de naam van een totaalband. Gecorrigeerd op 2026-07-14)
+      </div>
+
+      <p>Als we de berekening volledig uitschrijven, ziet het er zo uit.</p>
+      <pre><code>[A] Eerste dag van een crash
+0.5×(100−20) + 0.3×(100−45) + 0.2×(100−60)
+= 40 + 16.5 + 8.0 = 64.5
+Extremenbonus: (25−20)×0.4 = +2.0
+→ 66.5
+
+[B] Aanhoudende angst
+0.5×(100−20) + 0.3×(100−22) + 0.2×(100−28)
+= 40 + 23.4 + 14.4 = 77.8
+Extremenbonus: +2.0
+→ 79.8
+
+[C] Bodem van een lange malaise
+0.5×(100−20) + 0.3×(100−25) + 0.2×(100−20)
+= 40 + 22.5 + 16.0 = 78.5
+Extremenbonus: +2.0
+→ 80.5</code></pre>
+
+      <p>
+        <strong>Dezelfde 20, en toch 66.5 en 80.5. Een verschil van 14 punten.</strong>
+        Hadden we het simpelweg als <code>100 − 20 = 80</code> behandeld, dan scoorden alle drie 80 punten: precies hetzelfde signaal.
+      </p>
+      <p>
+        Kijk naar het verschil in betekenis. <strong>A is “een markt die tot gisteren hebzuchtig was en vandaag één dag is geschrokken”</strong>.
+        7-daags gemiddelde 45, 30-daags gemiddelde 60 — <strong>er is nog flink wat ruimte om te dalen.</strong>
+        <strong>C is “een markt waar al een maand niemand in geïnteresseerd is”</strong>. Wie wilde verkopen, heeft dat vrijwel allemaal al gedaan.
+        Deze twee als hetzelfde signaal behandelen is <strong>de reden dat “angstindex 20 = kopen” zo vaak misgaat</strong>.
+      </p>
+      <div class="note">
+        <strong>De losse waarde van deze index zegt alleen iets over de “diepte”, niet over de “duur”.</strong>
+        Het meemengen van de gemiddelden over 7 en 30 dagen is geen poging om de index te verbeteren,
+        maar <strong>een manier om de tijdsdimensie terug te halen die de index oorspronkelijk al in zich had</strong>.
+      </div>
+
+      <h3>In de andere richting is het symmetrisch</h3>
+      <pre><code>[D] Oververhitte fase — huidig 85, 7 dagen 80, 30 dagen 72   (langetermijntabblad)
+0.5×(100−85) + 0.3×(100−80) + 0.2×(100−72)
+= 7.5 + 6.0 + 5.6 = 19.1
+Extremenstraf: −(85−75)×0.4 = −4.0
+→ F&amp;G-deelscore 15.1   →   bijdrage aan langetermijntotaal 15.1 × 18% = 2.7 punten</code></pre>
+      <p>
+        Hoe <strong>dieper en langer</strong> de hebzucht aanhoudt, hoe meer de deelscore wordt gekort.
+        Bij een hebzuchtpiek van één dag (huidig 85, 7 dagen 55, 30 dagen 50) levert dezelfde berekening
+        <code>7.5 + 13.5 + 10 − 4 = 27.0</code> op.
+        <strong>Dezelfde 85, en toch 15.1 en 27.0</strong> — opnieuw maakt de duur het verschil.
+      </p>
+      <div class="note">
+        <strong>⚠ Op het kortetermijntabblad draait deze berekening volledig om.</strong>
+        Zet je dezelfde situatie (F&amp;G 85) in het kortetermijntabblad, dan krijg je <code>momFng(85) = 50 + 35×1.2 = 92</code> — <strong>bijna de maximale score</strong>.
+        Waar het langetermijntabblad zegt “oververhit, dus gevaarlijk”, zegt het kortetermijntabblad “de trend leeft”.
+        <strong>Ze hebben allebei gelijk. Alleen de tijdshorizon verschilt.</strong>
+      </div>
+
+      <h2>Waarom het extra gewicht alleen bij 25 en 75 ingaat</h2>
+      <p>
+        De bonus/straf van <code>×0.4</code> geldt <strong>alleen bij 25 of lager en bij 75 of hoger</strong>.
+        Beweegt de index in het gebied van 45–55 met 3 punten, dan reageert onze score nauwelijks. <strong>Dat negeren is bewust.</strong>
+      </p>
+      <p>De onderbouwing komt opnieuw uit de ingrediëntenlijst. <strong>Schommelingen in het middengebied en extreme waarden ontstaan via verschillende mechanismen.</strong></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Als de index schommelt tussen 48 ↔ 53</th><th>Als de index onder 25 / boven 75 komt</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Componenten die vooral bewogen</strong></td>
+              <td><strong>Lichte componenten</strong> zoals social (15%) + trends (10%). Een paar tweets of één nieuwsbericht is genoeg</td>
+              <td>Alleen bereikbaar als volatiliteit (25%) + momentum (25%) <strong>in dezelfde richting</strong> naar een extreem gaan</td>
+            </tr>
+            <tr>
+              <td><strong>Vereiste voorwaarde</strong></td>
+              <td>Er hoeft niets overeen te stemmen</td>
+              <td>Er is <strong>overeenstemming van de zware componenten (50%)</strong> nodig</td>
+            </tr>
+            <tr>
+              <td><strong>Hoeveelheid informatie</strong></td>
+              <td>Vrijwel nul — <strong>ruis</strong></td>
+              <td>Hoog — <strong>prijs, volume en sentiment in één richting</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Dit is de kern. <strong>Een index van 50 betekent “geen enkel component sprak zich sterk uit”</strong>,
+        niet “de markt is in evenwicht”. De componenten kunnen in tegengestelde richtingen hebben gewezen en elkaar hebben opgeheven,
+        of ze kunnen allemaal lauw zijn geweest. <strong>De waarde 50 maakt geen onderscheid tussen die twee.</strong>
+        Daarentegen <strong>komen extreme waarden zoals 15 of 85 alleen voor als meerdere componenten zich in dezelfde richting ophopen.</strong>
+      </p>
+      <p>
+        Daarom <strong>geven we alleen extreme waarden extra gewicht.</strong> Extreme waarden zijn <strong>een overeenstemming (consensus) tussen de componenten</strong>,
+        middenwaarden zijn <strong>het ontbreken daarvan</strong>. Eén punt aan de uitersten is veel meer waard dan één punt in het midden.
+      </p>
+      <p>
+        Hoe is de coëfficiënt <code>0.4</code> gekozen? <strong>Eerlijk gezegd is het een instelbare waarde.</strong>
+        De bedoeling was een plafond: “als de index tot 0 zakt, maximaal +10 punten erbij”
+        (<code>(25−0)×0.4 = 10</code>). 0.5 of 0.3 had ook gekund. <strong>Dit is geen principe, maar een afweging.</strong>
+      </p>
+
+      <h2>Wat deze ontleding niet heeft kunnen achterhalen</h2>
+      <p>
+        Als je tot hier hebt gelezen en het gevoel hebt “nu begrijp ik de index”, lees dan alsjeblieft ook dit laatste deel.
+        <strong>Precies weten wat we niet weten, is belangrijker dan weten wat we wel weten.</strong>
+      </p>
+      <ul>
+        <li>
+          <strong>De formules van de afzonderlijke componenten zijn niet openbaar.</strong> Met welk venster (window) de volatiliteit precies wordt gemeten,
+          met welke functie naar 0–100 wordt omgezet, hoe uitschieters worden afgekapt — niets daarvan is bekendgemaakt.
+          <strong>We kunnen deze index niet reproduceren.</strong> Een getal dat je niet kunt reproduceren, kun je niet verifiëren.
+        </li>
+        <li>
+          <strong>We weten niet waar de 15% van de stopgezette enquête is gebleven.</strong> Hierboven zeiden we dat “het werkelijke aandeel van volatiliteit + momentum hoger dan 50% zal zijn”,
+          maar dat is een <strong>schatting</strong>. Alleen de beheerder kent de exacte huidige verhoudingen.
+        </li>
+        <li>
+          <strong>De historische consistentie van de index is niet te garanderen.</strong> Als componenten en verhoudingen onderweg zijn veranderd,
+          zijn een 20 uit 2018 en een 20 van vandaag verschillende dingen. <strong>Elke langetermijnbacktest van de angstindex heeft last van dit probleem</strong> —
+          ook onze eigen backtest.
+        </li>
+        <li>
+          <strong>We zijn afhankelijk van één enkele aanbieder.</strong> Sluit Alternative.me de API of verandert het de formule opnieuw,
+          dan wordt het F&amp;G-onderdeel van onze score vanaf die dag als ontbrekend behandeld en worden de gewichten over de overige 5 indicatoren hergenormaliseerd
+          (het dashboard toont <code>coverage: 5/6</code>). <strong>Dit is een faalwijze waar het ontwerp al rekening mee houdt.</strong>
+        </li>
+        <li>
+          <strong>Ook 0.5 / 0.3 / 0.2 en 0.4 zijn getallen die wij hebben gekozen.</strong> De richting die logisch uit de componentenstructuur volgt klopt,
+          maar er is geen wiskundige noodzaak dat het precies deze waarden moeten zijn. <strong>Misschien geef jij de voorkeur aan andere waarden, en we hebben geen grond om te zeggen dat dat fout is.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        <strong>Waarom we deze index toch gebruiken.</strong>
+        Hij zit vol gebreken, maar <strong>wordt dagelijks bijgewerkt, is gratis, heeft een lange historie en is vooral, van de zes indicatoren,
+        de enige poging om ook maar een beetje te kijken naar “iets wat geen prijs is”</strong>.
+        De overige vijf indicatoren (RSI·MACD·Mayer·daling·cross) zijn allemaal pure functies van de prijs.
+        <strong>Onvolmaakte sentimentdata is beter dan helemaal geen</strong> — dat is ons oordeel,
+        maar alleen als je ze gebruikt met kennis van de precieze vorm van die onvolmaaktheid. Daarom hebben we dit artikel geschreven.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document is <strong>educatief en informatief materiaal dat de structuur van een openbare indicator analyseert, en geen beleggingsadvies of aanbeveling om te kopen of verkopen.</strong>
+        De rekenvoorbeelden in de tekst (scenario’s A·B·C·D) zijn <strong>hypothetische getallen ter uitleg</strong> en verwijzen niet naar de markt op een bepaald moment.
+        Crypto is een risicovol bezit waarbij <strong>volledig verlies van je inleg</strong> mogelijk is, en geen enkele indicator of score beschermt tegen verlies.
+        Alle beleggingsbeslissingen en de gevolgen daarvan zijn volledig de verantwoordelijkheid van de gebruiker. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/guide-fear-greed"><b>Praktische gids voor de angstindex</b><span>De ontleding is klaar — nu: hoe gebruik je hem? Gefaseerd kopen en veelgemaakte fouten</span></a>
+        <a href="/methodology"><b>Scoremethodologie</b><span>Met welke gewichten de 6 indicatoren, inclusief F&amp;G, worden samengevoegd</span></a>
+        <a href="/indicators"><b>De 6 indicatoren uitgelegd</b><span>Wat meten RSI, MACD, Mayer Multiple, daling en cross elk?</span></a>
+        <a href="/glossary"><b>Woordenlijst</b><span>Dominantie, Mayer Multiple, capitulatieverkopen…</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

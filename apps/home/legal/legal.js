@@ -6,7 +6,8 @@
      그 외 10개 언어(zh·es·pt·fr·ru·de·it·th·zh-Hant·nl)는 /legal/i18n/{doc}.{lang}.html 조각(같은 구조의 <article> 1개)을 선택 시 fetch 해서 끼워 넣는다
      — 13개를 한 파일에 다 넣으면 페이지가 10배 무거워지므로. {doc} 은 <body data-legal-doc="tokushoho|terms|privacy|refund|premium">
      조각을 못 받으면(오프라인·404) en 블록 + 그 언어로 쓴 안내(#legal-notice: 「영어판 표시 · 정본은 일본어」)로 폴백
-   - <title>·meta description 은 표시 중인 article 의 data-title / data-desc 로 교체. <html lang> 은 선택 언어(zh → zh-Hans)
+   - <title>·meta description·og:title·og:description 은 표시 중인 article 의 data-title / data-desc 로 교체. <html lang> 은 선택 언어(zh → zh-Hans)
+   - 헤더 로고·주 메뉴·하단 링크 묶음의 aria-label 은 [data-aria="home|main_nav|legal_nav"] ← ARIA (포털 i18n-data.js 의 a_home · a_main_nav 와 같은 문구)
    - [data-biz="키"] ← BIZ(언어별 '_ko' '_en' 변형 우선 · ja 외 언어에 전용 변형이 없으면 '_en') · [data-biz-href="email"] ← mailto: ·
      [data-price="utils.monthly|yearly|lifetime"] ← PLANS 경로(¥100 · ¥800 · ¥2,000) · [data-price-monthly] ← 연액 ÷ 12 반올림 · [data-plan-url] ← href
    - BIZ.invoice_no 가 자리표시자(T000…)면 [data-biz-row="invoice_no"] 숨김
@@ -14,7 +15,7 @@
 (function () {
   'use strict';
   var BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
-  var V = '20261008b';
+  var V = '20261009a';
   var LANGS = ['en', 'ja', 'ko', 'zh', 'es', 'pt', 'fr', 'ru', 'de', 'it', 'th', 'zh-Hant', 'nl'];
   var NAMES = { en: 'English', ja: '日本語', ko: '한국어', zh: '简体中文', es: 'Español', pt: 'Português', fr: 'Français', ru: 'Русский', de: 'Deutsch', it: 'Italiano', th: 'ไทย', 'zh-Hant': '繁體中文', nl: 'Nederlands' };
   var HTML_LANG = { zh: 'zh-Hans' };
@@ -35,21 +36,37 @@
     nl: 'Deze pagina is alleen beschikbaar in het Japans, Koreaans en Engels. Hieronder staat de Engelse versie; de Japanse tekst is juridisch bindend.',
     en: 'This page is available in Japanese, Korean and English only. The English version is shown below; the Japanese text is legally binding.'
   };
-  // 하단 공통 링크(.legal-foot [data-foot="키"]) 라벨 — utils js/i18n.js 의 foot_* 와 같은 문구. premium 은 「Premium · 요금」
+  // 하단 공통 링크(.legal-foot [data-foot="키"]) 라벨 — utils js/i18n.js 의 foot_* 와 같은 문구. premium 은 「Premium · 요금」 · dev 는 「개발자 소개」(dev.broodev.com — 포털 foot_dev 와 같은 뜻)
   var FOOT = {
-    ja: { premium: 'Premium · 料金', tokushoho: '特定商取引法に基づく表記', terms: '利用規約', privacy: 'プライバシーポリシー', refund: '返金・解約ポリシー', contact: 'お問い合わせ' },
-    ko: { premium: 'Premium · 요금', tokushoho: '특정상거래법 표기', terms: '이용약관', privacy: '개인정보 처리방침', refund: '환불·해지 정책', contact: '문의' },
-    en: { premium: 'Premium · Pricing', tokushoho: 'Legal notice (特定商取引法)', terms: 'Terms of Service', privacy: 'Privacy Policy', refund: 'Refund & Cancellation', contact: 'Contact' },
-    zh: { premium: 'Premium · 价格', tokushoho: '特定商取引法声明', terms: '服务条款', privacy: '隐私政策', refund: '退款与取消政策', contact: '联系我们' },
-    es: { premium: 'Premium · Precios', tokushoho: 'Aviso legal (Ley japonesa de transacciones comerciales)', terms: 'Términos del servicio', privacy: 'Política de privacidad', refund: 'Reembolsos y cancelación', contact: 'Contacto' },
-    pt: { premium: 'Premium · Preços', tokushoho: 'Aviso legal (Lei japonesa de transações comerciais)', terms: 'Termos de serviço', privacy: 'Política de privacidade', refund: 'Reembolsos e cancelamento', contact: 'Contato' },
-    fr: { premium: 'Premium · Tarifs', tokushoho: 'Mentions légales (loi japonaise sur les transactions commerciales)', terms: 'Conditions d’utilisation', privacy: 'Politique de confidentialité', refund: 'Remboursement et résiliation', contact: 'Contact' },
-    ru: { premium: 'Premium · Цены', tokushoho: 'Юридическая информация (японский закон о коммерческих сделках)', terms: 'Условия использования', privacy: 'Политика конфиденциальности', refund: 'Возврат и отмена', contact: 'Контакты' },
-    de: { premium: 'Premium · Preise', tokushoho: 'Impressum (jap. Gesetz über besondere Handelsgeschäfte)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutzerklärung', refund: 'Rückerstattung & Kündigung', contact: 'Kontakt' },
-    it: { premium: 'Premium · Prezzi', tokushoho: 'Note legali (legge giapponese sulle transazioni commerciali)', terms: 'Termini di servizio', privacy: 'Informativa sulla privacy', refund: 'Rimborsi e disdetta', contact: 'Contatti' },
-    th: { premium: 'Premium · ราคา', tokushoho: 'ประกาศตามกฎหมายธุรกรรมเฉพาะ (ญี่ปุ่น)', terms: 'ข้อกำหนดการใช้งาน', privacy: 'นโยบายความเป็นส่วนตัว', refund: 'นโยบายคืนเงินและยกเลิก', contact: 'ติดต่อ' },
-    'zh-Hant': { premium: 'Premium · 價格', tokushoho: '特定商取引法標示', terms: '服務條款', privacy: '隱私權政策', refund: '退款與取消政策', contact: '聯絡我們' },
-    nl: { premium: 'Premium · Prijzen', tokushoho: 'Wettelijke vermelding (Japanse wet op handelstransacties)', terms: 'Gebruiksvoorwaarden', privacy: 'Privacybeleid', refund: 'Terugbetaling & opzegging', contact: 'Contact' }
+    ja: { premium: 'Premium · 料金', tokushoho: '特定商取引法に基づく表記', terms: '利用規約', privacy: 'プライバシーポリシー', refund: '返金・解約ポリシー', contact: 'お問い合わせ', dev: '開発者について' },
+    ko: { premium: 'Premium · 요금', tokushoho: '특정상거래법 표기', terms: '이용약관', privacy: '개인정보 처리방침', refund: '환불·해지 정책', contact: '문의', dev: '개발자 소개' },
+    en: { premium: 'Premium · Pricing', tokushoho: 'Legal notice (特定商取引法)', terms: 'Terms of Service', privacy: 'Privacy Policy', refund: 'Refund & Cancellation', contact: 'Contact', dev: 'About the developer' },
+    zh: { premium: 'Premium · 价格', tokushoho: '特定商取引法声明', terms: '服务条款', privacy: '隐私政策', refund: '退款与取消政策', contact: '联系我们', dev: '开发者介绍' },
+    es: { premium: 'Premium · Precios', tokushoho: 'Aviso legal (Ley japonesa de transacciones comerciales)', terms: 'Términos del servicio', privacy: 'Política de privacidad', refund: 'Reembolsos y cancelación', contact: 'Contacto', dev: 'Sobre el desarrollador' },
+    pt: { premium: 'Premium · Preços', tokushoho: 'Aviso legal (Lei japonesa de transações comerciais)', terms: 'Termos de serviço', privacy: 'Política de privacidade', refund: 'Reembolsos e cancelamento', contact: 'Contato', dev: 'Sobre o desenvolvedor' },
+    fr: { premium: 'Premium · Tarifs', tokushoho: 'Mentions légales (loi japonaise sur les transactions commerciales)', terms: 'Conditions d’utilisation', privacy: 'Politique de confidentialité', refund: 'Remboursement et résiliation', contact: 'Contact', dev: 'À propos du développeur' },
+    ru: { premium: 'Premium · Цены', tokushoho: 'Юридическая информация (японский закон о коммерческих сделках)', terms: 'Условия использования', privacy: 'Политика конфиденциальности', refund: 'Возврат и отмена', contact: 'Контакты', dev: 'О разработчике' },
+    de: { premium: 'Premium · Preise', tokushoho: 'Impressum (jap. Gesetz über besondere Handelsgeschäfte)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutzerklärung', refund: 'Rückerstattung & Kündigung', contact: 'Kontakt', dev: 'Über den Entwickler' },
+    it: { premium: 'Premium · Prezzi', tokushoho: 'Note legali (legge giapponese sulle transazioni commerciali)', terms: 'Termini di servizio', privacy: 'Informativa sulla privacy', refund: 'Rimborsi e disdetta', contact: 'Contatti', dev: 'Chi è lo sviluppatore' },
+    th: { premium: 'Premium · ราคา', tokushoho: 'ประกาศตามกฎหมายธุรกรรมเฉพาะ (ญี่ปุ่น)', terms: 'ข้อกำหนดการใช้งาน', privacy: 'นโยบายความเป็นส่วนตัว', refund: 'นโยบายคืนเงินและยกเลิก', contact: 'ติดต่อ', dev: 'เกี่ยวกับนักพัฒนา' },
+    'zh-Hant': { premium: 'Premium · 價格', tokushoho: '特定商取引法標示', terms: '服務條款', privacy: '隱私權政策', refund: '退款與取消政策', contact: '聯絡我們', dev: '關於開發者' },
+    nl: { premium: 'Premium · Prijzen', tokushoho: 'Wettelijke vermelding (Japanse wet op handelstransacties)', terms: 'Gebruiksvoorwaarden', privacy: 'Privacybeleid', refund: 'Terugbetaling & opzegging', contact: 'Contact', dev: 'Over de ontwikkelaar' }
+  };
+  // aria-label([data-aria]) — home·main_nav 는 포털 i18n-data.js 의 a_home · a_main_nav 와 같은 문구, legal_nav 는 .legal-foot(법적 고지 링크 묶음)
+  var ARIA = {
+    ja: { home: 'broodev ホーム', main_nav: 'メインメニュー', legal_nav: '法的情報' },
+    ko: { home: 'broodev 홈', main_nav: '주 메뉴', legal_nav: '법적 고지' },
+    en: { home: 'broodev home', main_nav: 'Main menu', legal_nav: 'Legal' },
+    zh: { home: 'broodev 首页', main_nav: '主菜单', legal_nav: '法律信息' },
+    es: { home: 'Inicio de broodev', main_nav: 'Menú principal', legal_nav: 'Información legal' },
+    pt: { home: 'Página inicial do broodev', main_nav: 'Menu principal', legal_nav: 'Informações legais' },
+    fr: { home: 'Accueil broodev', main_nav: 'Menu principal', legal_nav: 'Informations légales' },
+    ru: { home: 'Главная broodev', main_nav: 'Главное меню', legal_nav: 'Правовая информация' },
+    de: { home: 'broodev-Startseite', main_nav: 'Hauptmenü', legal_nav: 'Rechtliches' },
+    it: { home: 'Home di broodev', main_nav: 'Menu principale', legal_nav: 'Informazioni legali' },
+    th: { home: 'หน้าแรก broodev', main_nav: 'เมนูหลัก', legal_nav: 'ข้อมูลทางกฎหมาย' },
+    'zh-Hant': { home: 'broodev 首頁', main_nav: '主選單', legal_nav: '法律資訊' },
+    nl: { home: 'broodev-startpagina', main_nav: 'Hoofdmenu', legal_nav: 'Juridisch' }
   };
   var LANG_LABEL = { ja: '言語', ko: '언어', en: 'Language', zh: '语言', es: 'Idioma', pt: 'Idioma', fr: 'Langue', ru: 'Язык', de: 'Sprache', it: 'Lingua', th: 'ภาษา', 'zh-Hant': '語言', nl: 'Taal' };
   // 상단 헤더 메뉴([data-nav]) — 포털 assets/js/i18n-data.js 의 nav_apps/nav_premium/nav_about/nav_contact 와 같은 문구
@@ -135,9 +152,13 @@
       var on = el.getAttribute('data-lang-block') === block;
       el.hidden = !on;
       if (on) {
-        if (el.getAttribute('data-title')) document.title = el.getAttribute('data-title');
+        var ttl = el.getAttribute('data-title'), dsc = el.getAttribute('data-desc');
+        if (ttl) document.title = ttl;
         var md = document.querySelector('meta[name="description"]');
-        if (md && el.getAttribute('data-desc')) md.setAttribute('content', el.getAttribute('data-desc'));
+        if (md && dsc) md.setAttribute('content', dsc);
+        var ogt = document.querySelector('meta[property="og:title"]'), ogd = document.querySelector('meta[property="og:description"]');
+        if (ogt && ttl) ogt.setAttribute('content', ttl);
+        if (ogd && dsc) ogd.setAttribute('content', dsc);
       }
     });
     if (notice) {
@@ -152,6 +173,8 @@
     var nav = NAV[lang] || NAV.en;
     each('[data-nav]', function (el) { var v = nav[el.getAttribute('data-nav')]; if (v) el.textContent = v; });
     each('#legal-lang-toggle', function (el) { el.setAttribute('aria-label', LANG_LABEL[lang] || LANG_LABEL.en); });
+    var aria = ARIA[lang] || ARIA.en;
+    each('[data-aria]', function (el) { var v = aria[el.getAttribute('data-aria')]; if (v) el.setAttribute('aria-label', v); });
     each('[data-biz]', function (el) {
       var k = el.getAttribute('data-biz');
       var v = BIZ[k + '_' + block] != null ? BIZ[k + '_' + block] : (block !== 'ja' && BIZ[k + '_en'] != null ? BIZ[k + '_en'] : BIZ[k]);

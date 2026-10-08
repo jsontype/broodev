@@ -168,7 +168,14 @@ window.HOME3_I18N = {
     mb_works: 'View works',
     mb_about: 'View about',
     mb_services: 'View services',
-    mail_subject: '[dev.broodev.com] Message from {name}'
+    mail_subject: '[dev.broodev.com] Message from {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Page not found · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'The page you requested does not exist. Return to the portfolio home of Yang Donghwa (@jsontype).',
+    nf_title: '404 — Page not found',
+    nf_desc: 'There is nothing at this address. It may have moved, or there may be a typo. <br> Please head back to the portfolio home.',
+    nf_home: 'Back to home',
+    nf_home_label: 'Home'
   },
   ko: {
     meta_title: '양동화 (@jsontype) — 포트폴리오 · Y-Systems',
@@ -334,7 +341,14 @@ window.HOME3_I18N = {
     mb_works: '업적 보기',
     mb_about: '소개 보기',
     mb_services: '하는 일 보기',
-    mail_subject: '[dev.broodev.com] {name} 님의 메시지'
+    mail_subject: '[dev.broodev.com] {name} 님의 메시지',
+    hero_name: '양동화',
+    nf_meta_title: '404 — 페이지를 찾을 수 없습니다 · 양동화 (@jsontype)',
+    nf_meta_desc: '요청한 페이지가 없습니다. 양동화(@jsontype) 포트폴리오 홈으로 돌아가세요.',
+    nf_title: '404 — 페이지가 없습니다',
+    nf_desc: '요청하신 주소에는 아무것도 없습니다. 주소가 바뀌었거나 잘못 입력됐을 수 있어요. <br> 포트폴리오 홈으로 돌아가 주세요.',
+    nf_home: '홈으로',
+    nf_home_label: '홈'
   },
   // ja
   ja: {
@@ -501,7 +515,14 @@ window.HOME3_I18N = {
     mb_works: '実績を見る',
     mb_about: '自己紹介を見る',
     mb_services: 'サービスを見る',
-    mail_subject: '[dev.broodev.com] {name} さんからのメッセージ'
+    mail_subject: '[dev.broodev.com] {name} さんからのメッセージ',
+    hero_name: 'ヤン・ドンファ',
+    nf_meta_title: '404 — ページが見つかりません · ヤン・ドンファ (@jsontype)',
+    nf_meta_desc: 'お探しのページは存在しません。ヤン・ドンファ(@jsontype)のポートフォリオのホームへお戻りください。',
+    nf_title: '404 — ページが見つかりません',
+    nf_desc: 'このアドレスには何もありません。アドレスが変わったか、入力に誤りがある可能性があります。<br> ポートフォリオのホームへお戻りください。',
+    nf_home: 'ホームへ戻る',
+    nf_home_label: 'ホーム'
   },
   // zh
   zh: {
@@ -668,7 +689,14 @@ window.HOME3_I18N = {
     mb_works: '查看作品',
     mb_about: '查看关于',
     mb_services: '查看服务',
-    mail_subject: '[dev.broodev.com] 来自 {name} 的留言'
+    mail_subject: '[dev.broodev.com] 来自 {name} 的留言',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — 找不到页面 · Yang Donghwa (@jsontype)',
+    nf_meta_desc: '您请求的页面不存在。请返回 Yang Donghwa (@jsontype) 的作品集首页。',
+    nf_title: '404 — 页面不存在',
+    nf_desc: '此地址没有任何内容。地址可能已更改，或输入有误。<br> 请返回作品集首页。',
+    nf_home: '返回首页',
+    nf_home_label: '首页'
   },
   // zh-Hant
   'zh-Hant': {
@@ -835,7 +863,14 @@ window.HOME3_I18N = {
     mb_works: '查看作品',
     mb_about: '查看關於',
     mb_services: '查看服務',
-    mail_subject: '[dev.broodev.com] 來自 {name} 的訊息'
+    mail_subject: '[dev.broodev.com] 來自 {name} 的訊息',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — 找不到頁面 · Yang Donghwa (@jsontype)',
+    nf_meta_desc: '您要求的頁面不存在。請返回 Yang Donghwa (@jsontype) 的作品集首頁。',
+    nf_title: '404 — 頁面不存在',
+    nf_desc: '此網址沒有任何內容。網址可能已變更，或輸入有誤。<br> 請返回作品集首頁。',
+    nf_home: '返回首頁',
+    nf_home_label: '首頁'
   },
   // th
   th: {
@@ -1002,7 +1037,14 @@ window.HOME3_I18N = {
     mb_works: 'ดูผลงาน',
     mb_about: 'ดูเกี่ยวกับ',
     mb_services: 'ดูบริการ',
-    mail_subject: '[dev.broodev.com] ข้อความจาก {name}'
+    mail_subject: '[dev.broodev.com] ข้อความจาก {name}',
+    hero_name: 'ยัง ดงฮวา',
+    nf_meta_title: '404 — ไม่พบหน้าที่ต้องการ · ยัง ดงฮวา (@jsontype)',
+    nf_meta_desc: 'ไม่พบหน้าที่คุณร้องขอ กรุณากลับไปที่หน้าแรกผลงานของ ยัง ดงฮวา (@jsontype)',
+    nf_title: '404 — ไม่พบหน้านี้',
+    nf_desc: 'ไม่มีอะไรอยู่ที่ที่อยู่นี้ ที่อยู่อาจถูกเปลี่ยนหรือพิมพ์ผิด <br> กรุณากลับไปที่หน้าแรกของผลงาน',
+    nf_home: 'กลับหน้าแรก',
+    nf_home_label: 'หน้าแรก'
   },
   // es
   es: {
@@ -1169,7 +1211,14 @@ window.HOME3_I18N = {
     mb_works: 'Ver proyectos',
     mb_about: 'Ver sobre mí',
     mb_services: 'Ver servicios',
-    mail_subject: '[dev.broodev.com] Mensaje de {name}'
+    mail_subject: '[dev.broodev.com] Mensaje de {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Página no encontrada · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'La página solicitada no existe. Vuelve a la página principal del portafolio de Yang Donghwa (@jsontype).',
+    nf_title: '404 — Página no encontrada',
+    nf_desc: 'No hay nada en esta dirección. Puede que haya cambiado o que tenga un error. <br> Vuelve a la página principal del portafolio.',
+    nf_home: 'Volver al inicio',
+    nf_home_label: 'Inicio'
   },
   // fr
   fr: {
@@ -1336,7 +1385,14 @@ window.HOME3_I18N = {
     mb_works: 'Voir les projets',
     mb_about: 'Voir à propos',
     mb_services: 'Voir les services',
-    mail_subject: '[dev.broodev.com] Message de {name}'
+    mail_subject: '[dev.broodev.com] Message de {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Page introuvable · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'La page demandée n\'existe pas. Revenez à l\'accueil du portfolio de Yang Donghwa (@jsontype).',
+    nf_title: '404 — Page introuvable',
+    nf_desc: 'Il n\'y a rien à cette adresse. Elle a peut-être changé ou contient une faute de frappe. <br> Revenez à l\'accueil du portfolio.',
+    nf_home: 'Retour à l\'accueil',
+    nf_home_label: 'Accueil'
   },
   // de
   de: {
@@ -1503,7 +1559,14 @@ window.HOME3_I18N = {
     mb_works: 'Projekte ansehen',
     mb_about: 'Über mich ansehen',
     mb_services: 'Leistungen ansehen',
-    mail_subject: '[dev.broodev.com] Nachricht von {name}'
+    mail_subject: '[dev.broodev.com] Nachricht von {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Seite nicht gefunden · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'Die angeforderte Seite existiert nicht. Zurück zur Startseite des Portfolios von Yang Donghwa (@jsontype).',
+    nf_title: '404 — Seite nicht gefunden',
+    nf_desc: 'Unter dieser Adresse gibt es nichts. Vielleicht wurde sie geändert oder enthält einen Tippfehler. <br> Geh bitte zurück zur Startseite des Portfolios.',
+    nf_home: 'Zur Startseite',
+    nf_home_label: 'Start'
   },
   // it
   it: {
@@ -1670,7 +1733,14 @@ window.HOME3_I18N = {
     mb_works: 'Vedi i progetti',
     mb_about: 'Vedi chi sono',
     mb_services: 'Vedi i servizi',
-    mail_subject: '[dev.broodev.com] Messaggio da {name}'
+    mail_subject: '[dev.broodev.com] Messaggio da {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Pagina non trovata · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'La pagina richiesta non esiste. Torna alla home del portfolio di Yang Donghwa (@jsontype).',
+    nf_title: '404 — Pagina non trovata',
+    nf_desc: 'Non c\'è niente a questo indirizzo. Potrebbe essere cambiato o contenere un errore di battitura. <br> Torna alla home del portfolio.',
+    nf_home: 'Torna alla home',
+    nf_home_label: 'Inizio'
   },
   // pt
   pt: {
@@ -1837,7 +1907,14 @@ window.HOME3_I18N = {
     mb_works: 'Ver projetos',
     mb_about: 'Ver sobre mim',
     mb_services: 'Ver serviços',
-    mail_subject: '[dev.broodev.com] Mensagem de {name}'
+    mail_subject: '[dev.broodev.com] Mensagem de {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Página não encontrada · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'A página pedida não existe. Volte à página inicial do portefólio de Yang Donghwa (@jsontype).',
+    nf_title: '404 — Página não encontrada',
+    nf_desc: 'Não há nada neste endereço. Pode ter mudado ou conter um erro de digitação. <br> Volte à página inicial do portefólio.',
+    nf_home: 'Voltar ao início',
+    nf_home_label: 'Início'
   },
   // ru
   ru: {
@@ -1935,7 +2012,7 @@ window.HOME3_I18N = {
     fields_sub: '15 проектов. <br> 6 отраслей. Один человек, полный цикл.',
     field_fin: 'Финтех · Страхование',
     field_edu: 'Образование · Госсектор',
-    field_legal: 'Legaltech',
+    field_legal: 'Легалтех',
     field_tel: 'Телеком · Мобильность',
     tes1_name: 'Компания N — Защита карточных платежей от мошенничества',
     tes1_duty: 'Frontend-лид · Вклад: высокий',
@@ -2004,7 +2081,14 @@ window.HOME3_I18N = {
     mb_works: 'Смотреть проекты',
     mb_about: 'Смотреть обо мне',
     mb_services: 'Смотреть услуги',
-    mail_subject: '[dev.broodev.com] Сообщение от {name}'
+    mail_subject: '[dev.broodev.com] Сообщение от {name}',
+    hero_name: 'Ян Донхва',
+    nf_meta_title: '404 — Страница не найдена · Ян Донхва (@jsontype)',
+    nf_meta_desc: 'Запрошенная страница не существует. Вернитесь на главную страницу портфолио Яна Донхва (@jsontype).',
+    nf_title: '404 — Страница не найдена',
+    nf_desc: 'По этому адресу ничего нет. Возможно, он изменился или был введён с ошибкой. <br> Вернитесь на главную страницу портфолио.',
+    nf_home: 'На главную',
+    nf_home_label: 'Главная'
   },
   // nl
   nl: {
@@ -2171,6 +2255,13 @@ window.HOME3_I18N = {
     mb_works: 'Bekijk werk',
     mb_about: 'Bekijk over mij',
     mb_services: 'Bekijk diensten',
-    mail_subject: '[dev.broodev.com] Bericht van {name}'
+    mail_subject: '[dev.broodev.com] Bericht van {name}',
+    hero_name: 'Yang Donghwa',
+    nf_meta_title: '404 — Pagina niet gevonden · Yang Donghwa (@jsontype)',
+    nf_meta_desc: 'De opgevraagde pagina bestaat niet. Ga terug naar de homepage van het portfolio van Yang Donghwa (@jsontype).',
+    nf_title: '404 — Pagina niet gevonden',
+    nf_desc: 'Op dit adres staat niets. Het is misschien verplaatst of bevat een typfout. <br> Ga terug naar de homepage van het portfolio.',
+    nf_home: 'Terug naar home',
+    nf_home_label: 'Start'
   }
 };

@@ -1,0 +1,698 @@
+<main class="wrap" data-title="手算MACD — 用42根收盘价走一遍EMA·信号线·柱状图的计算全过程 | broodev" data-desc="把42个收盘价逐一代入，一根一根地计算EMA12、EMA26、MACD线、信号线和柱状图。用真实的代码和数字说明：为什么30根K线算不出一个柱状图值，为什么用EMA而不是SMA的真正原因，以及broodev为什么看柱状图相对前一根的方向而不是绝对值。">
+      <nav class="nav">
+        <a href="/">← 仪表盘</a>
+        <a href="/methodology">评分方法论</a>
+        <a href="/indicators">指标详解</a>
+        <a href="/guide-fear-greed">恐惧指数使用指南</a>
+        <a href="/glossary">术语表</a>
+      </nav>
+
+      <h1>手算MACD<br />— 把42个收盘价一路算到底的实操演练</h1>
+      <p class="muted">最后更新：2026-07-14 · 作者：Y-Systems · 本文不是讲解，而是一份<strong>实操记录</strong></p>
+
+      <p class="lead">
+        先从失败说起。准备<strong>30个</strong>收盘价，跑一遍标准MACD（12·26·9），
+        你会得到5个MACD线值，<strong>信号线0个，柱状图也是0个</strong>。
+        一个月的数据，<em>连一根</em>MACD柱状图都算不出来。
+        知道这一点的人出乎意料地少，因为大多数人只把MACD学成了“12日线和26日线之差”。
+      </p>
+      <p>
+        所以本文不从定义讲起。<strong>我们把42个收盘价实际代入</strong>，
+        从EMA12 → EMA26 → MACD线 → 信号线 → 柱状图，一直到broodev的分项得分，
+        <strong>拿着计算器一根一根地往下算。</strong>只要有一台计算器，本文的每一个数字你都能亲手复现；
+        如果复现不出来，那就是我们错了。
+      </p>
+
+      <section class="bd-figs" aria-label="MACD 实时图表">
+        <p class="muted">进入演练之前，先看看把本文的计算套用到真实BTC数据上的结果。它和下面42个收盘价的实操用的是完全相同的公式（EMA12−EMA26，信号线EMA9）。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">正在加载图表数据…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">正在加载图表数据…</div></div>
+          </div>
+          <p class="bd-cap">最近2年的BTC价格（上）与MACD(12,26,9)（下）。柱 = 柱状图（MACD线−信号线，绿色为正／红色为负）。MACD值的绝对大小与价格水平成正比 — 这正是正文看方向而不看绝对值的原因。数据：CoinMetrics Community API，BTC日线收盘价 — 在你访问时获取并在浏览器中计算，属于<strong>近似值，仅供参考</strong>。</p>
+        </div>
+      </section>
+
+      <h2>准备工作 — 全文要用的42个收盘价</h2>
+      <p>
+        这是一个虚构的资产。它从100起步，<strong>下跌−25.7%到74.3后反弹</strong>。
+        这是加密货币里很常见的走势，同时我们特意让它包含一个计算结果会出现巨大分歧的区间（底部区域）。
+      </p>
+      <pre><code>第1~6天    100.0  99.1 100.4  98.6  99.3  97.8
+第7~14天    96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+第15~22天   88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+第23~30天   81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← 第30天为最低点（74.3）
+第31~36天   75.6  74.8  76.9  78.2  77.5  79.8
+第37~42天   81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>不用在意单位。</strong>后面我们会证明，broodev的MACD分项得分
+        <strong>对价格规模完全不变（scale-invariant）</strong>。把这42个收盘价都乘以700，
+        变成比特币的价格区间（58,730美元），<strong>分项得分直到小数点后第四位都完全一样。</strong>
+        所以我们用便于阅读的100附近的数字。
+      </div>
+
+      <p class="step">STEP 1</p>
+      <h2>为什么用EMA而不用SMA — “12天前的K线制造了今天的信号”</h2>
+      <p>
+        教科书说一句“EMA对近期价格更敏感，所以更快”就完事了。这句话<strong>只对了一半。</strong>
+        我们用同样的42个收盘价，把<strong>SMA版MACD（SMA12−SMA26）</strong>和<strong>EMA版MACD（EMA12−EMA26）</strong>
+        并排跑了一遍。
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>天数</th><th>收盘价</th><th>EMA版 MACD线</th><th>SMA版 MACD线</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← EMA低点</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← SMA低点</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>结果1 — EMA的低点早了一根</h3>
+      <p>
+        EMA版在<strong>第28天</strong>见底（−7.008）后掉头，SMA版则是在<strong>第29天</strong>（−7.201）。
+        相差一根K线。而且EMA的低点<strong>更浅</strong>（−7.008 vs −7.201）。
+        到这里为止，都和教科书说的一样。
+      </p>
+
+      <h3>结果2 — 但回到零轴却是SMA更快</h3>
+      <p>
+        看第42天。SMA版已经到了<strong>−0.006</strong>，实际上突破了零轴，而EMA版还在<strong>−1.389</strong>。
+        “EMA永远更快”的说法在这里破产了。<strong>SMA为什么会突然跳起来？</strong>
+      </p>
+      <p>
+        从第41天到第42天，SMA版MACD线<strong>从−1.036变成−0.006，一天之内变动了+1.030</strong>。
+        同一天EMA版只动了+0.565，差了将近两倍。算一算，原因就出来了。
+      </p>
+      <pre><code>SMA12(第42天) − SMA12(第41天)
+  = (新进入的第42天 86.2 − 移出窗口的第30天 74.3) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← 不是今天价格的作用，而是“第30天那根K线消失”的效果
+
+SMA26 一侧的变化 = (86.2 − 第16天 87.2) ÷ 26 = −0.0385
+
+SMA版MACD的变化 = +0.9917 − (−0.0385) = +1.030   ✅ 与表格一致</code></pre>
+      <p>
+        <strong>这才是不该用SMA的真正原因。</strong>第42天SMA信号的大部分，
+        并不是因为<em>今天价格上涨</em>，而是因为<strong>12天前（第30天）的最低价74.3一下子掉出了移动平均的窗口。</strong>
+        今天市场上什么都没发生，<strong>却是12天前发生的事制造了今天的买入信号。</strong>
+        业内把这种现象称为<strong>“出窗效应（drop-off effect）”</strong>。
+      </p>
+      <p>
+        EMA没有窗口。旧价格的权重按<code>(1−α)ⁿ</code>呈指数式<em>慢慢消退而已</em>，
+        不会在某一天突然被<strong>踢出计算。</strong>所以同一天EMA版只是平滑地移动了+0.565。
+      </p>
+      <div class="note">
+        <strong>总结一下</strong> — 用EMA的理由不是“因为它快”，而是<strong>“因为它不制造幽灵信号”</strong>。
+        SMA在拐点处慢一根，代价是会在莫名其妙的时点撒出<strong>由12天前的K线造成的虚假突变</strong>。
+        比起信号的<em>速度</em>，信号的<em>成因</em>更重要。
+      </div>
+
+      <p class="step">STEP 2</p>
+      <h2>用计算器敲出EMA12</h2>
+      <p>
+        broodev使用的EMA，是<strong>以前<code>period</code>个值的简单平均作为种子（seed）</strong>，之后再按指数方式更新。
+        <code>α = 2 ÷ (周期 + 1)</code>。EMA12的话，<code>α = 2/13 = 0.153846</code>。
+      </p>
+      <pre><code>// broodev 实际代码 (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← 种子 = 前 period 个值的简单平均
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>现在把上面的42个收盘价放进去。第12天生成一个种子，从第13天开始更新。</p>
+      <pre><code>第12天种子 = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+          = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+第13天 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+第14天 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+第15天 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+第16天 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+第17天 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        核心就一句话：<strong>“取昨天EMA的84.6%，再加上今天收盘价的15.4%”</strong>。
+        权重每天都一样，过去的数据每天被稀释为原来的84.6%。30天前收盘价的权重是
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code> — 连0.1%都不到。但<strong>它不是0。</strong>这个差别就是STEP 1的结论。
+      </p>
+
+      <p class="step">STEP 3</p>
+      <h2>EMA26与MACD线 — 第26天才出现第一个值</h2>
+      <p>EMA26的<code>α = 2/27 = 0.074074</code>。种子是第1~26天的简单平均。</p>
+      <pre><code>第26天种子 = 2341.4 ÷ 26 = <strong>90.0538</strong>
+第27天 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+第28天 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+第29天 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+第30天 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        由于EMA26的种子在第26天才首次生成，<strong>MACD线（EMA12 − EMA26）的第一个值也在第26天。</strong>
+        到第25天为止，<strong>MACD线本身根本不存在。</strong>
+      </p>
+      <pre><code>MACD线(第26天) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        第一个重要的观察就在这里。把第26天到第34天的MACD线排出来看看。
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>天数</th><th>收盘价</th><th>MACD线</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>MACD线低点</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>开始反弹</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>价格创出更低的低点，MACD却抬高了低点</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        第28天收盘75.1 → 第30天收盘74.3。<strong>价格创出了更低的低点（−1.1%）。</strong>
+        但MACD线从−7.008 → −6.851，<strong>低点反而抬高了。</strong>
+        这就叫<strong>底背离（bullish divergence）</strong>。
+        意思是“价格虽然创了新低，但下跌的<em>速度</em>已经在放缓”。
+      </p>
+      <p>
+        而在这次演练中，价格真正的底部是在<strong>第30天</strong>。
+        MACD线在<strong>第28天</strong>就已经掉头了。<strong>指标比价格早两根K线改变了方向。</strong>
+        请记住这一点 — 它是STEP 6里“为什么看方向而不是绝对值”的依据。
+      </p>
+
+      <p class="step">STEP 4</p>
+      <h2>信号线 — 30根K线就卡在这里</h2>
+      <p>
+        信号线是<strong>MACD线的EMA9</strong>，也就是<strong>EMA的EMA</strong>。
+        MACD线从第26天开始，所以信号线的种子（9个MACD值的平均）
+        要等到<strong>第26天到第34天全部凑齐</strong>才能算出来。
+      </p>
+      <pre><code>信号线种子(第34天)
+ = MACD线 第26~34天 9个值的平均
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+柱状图(第34天) = MACD线(−5.613) − 信号线(−6.6071) = <strong>+0.994</strong>   ← 第一个值！</code></pre>
+      <p>从第35天开始，用α = 0.2来更新。</p>
+      <pre><code>第35天 信号线 = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+       柱状图 = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+第36天 信号线 = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+       柱状图 = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+第37天 信号线 = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+       柱状图 = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>为什么30根K线的柱状图是0个</strong><br />
+        26（EMA26种子）+ 9（信号线种子）− 1 = <strong>34</strong>。柱状图的<strong>第一个值再早也只能出现在第34根</strong>。
+        而broodev看的是柱状图<strong>相对前一根的变化</strong>，所以需要<strong>2个</strong>值 → <strong>35根</strong>。
+        因此代码里有这样一道防护。
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← 不足35根时 MACD 分项得分 = null</code></pre>
+        当MACD为<code>null</code>时，<a href="/methodology">权重重新归一化</a>就会生效，
+        用剩下的5个指标算出得分，并显示为<code>coverage 5/6</code>。在新上市的币上经常会看到这种状态。
+      </div>
+      <p class="muted">
+        补充一句，35根是<strong>必要条件，而不是充分条件。</strong>第34天的柱状图因为信号线种子是
+        <em>9个MACD值的简单平均</em>，还是个“半生不熟”的值。实战中要看到稳定的柱状图，
+        至少需要积累<strong>60~80根</strong>。这个问题会在本文末尾的<a href="#seed">附录A</a>里用数字再讨论一次。
+      </p>
+
+      <p class="step">STEP 5</p>
+      <h2>完整计算表 — 从第26天到第42天</h2>
+      <p>
+        把到目前为止的所有数值汇总到一张表里。<strong>Δ柱状图</strong>是“相对前一根K线的柱状图变化”，
+        <strong>短期·长期</strong>是broodev据此算出的MACD分项得分（0~100）。
+        灰色行是<strong>根本无法计算的区间</strong>。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>天数</th><th>收盘价</th><th>EMA12</th><th>EMA26</th><th>MACD线</th><th>信号线</th><th>柱状图</th><th>Δ柱状图</th><th>短期得分</th><th>长期得分</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        请注意，表中<strong>MACD线直到第42天都还是负值（−1.389）</strong>。
+        如果遵循“MACD上穿零轴才买入”的规则，在这段反弹里你<strong>一次买入信号都收不到。</strong>
+        相反，<strong>柱状图在第34天就已经是正值（+0.994）</strong>。
+        柱状图衡量的是<em>MACD线是否超过了信号线</em>，所以比零轴突破快得多。
+      </p>
+      <p>
+        再看<strong>第41天</strong>。这一行就是下一个STEP的全部内容。
+      </p>
+
+      <p class="step">STEP 6</p>
+      <h2>broodev在这里与教科书分道扬镳 — 看方向，而不是绝对值</h2>
+      <p>
+        到目前为止都是标准MACD，任何看盘软件都会算出同样的值。
+        <strong>从这里开始才是broodev独有的部分。</strong>我们把柱状图（没有固定范围的实数）
+        转换成0~100分数的函数<strong>原样</strong>公开。
+      </p>
+      <pre><code>// 短期（动量）映射 — MACD 权重 14%
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① 柱状图的<strong>水平</strong>
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② 相对前一根的<strong>方向</strong>
+, 0, 100)
+
+// 长期（逆向）映射 — MACD 权重 18%
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② 相对前一根的<strong>方向</strong>
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① 柱状图的<strong>水平</strong>
+, 0, 100)</code></pre>
+      <p>
+        两个函数<strong>结构相同，系数对调。</strong>仅此而已。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>项</th><th>含义</th><th>短期（动量）系数</th><th>长期（逆向）系数</th></tr></thead>
+          <tbody>
+            <tr><td>① 水平</td><td>当前柱状图有多大（绝对值）</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② 方向</td><td>比前一根变大了还是变小了（Δ）</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>水平 : 方向 比例</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>tanh 增益</td><td>越大，越小的变化就越快饱和</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>短期模式把水平看得重两倍。</strong>因为趋势有多强才是关键。<br />
+        <strong>长期模式把方向看得重2.5倍。</strong>即使柱状图还处在很深的负值，
+        <strong>“是否比昨天好了”</strong>也会主导得分。
+      </p>
+
+      <h3>同样的柱状图，不同的方向 — 得分能差多少</h3>
+      <p>以价格100为基准，我们代入了<strong>柱状图值相同、只有相对前一根的方向不同</strong>的四种情形。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>情形</th><th>柱状图</th><th>前一根的值</th><th>短期得分</th><th>长期得分</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>深度为负，但<strong>强势向上拐头</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>深度为负，且<strong>继续下行</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>小幅为正，但<strong>正在掉头</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>小幅为正，且<strong>正在上升</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        比较第1行和第2行。<strong>柱状图值都是−0.30，完全相同。</strong>只有方向不同。
+        然而<strong>长期分项得分从22.6到58.4，拉开了35.8分。</strong>
+        只看绝对值的模型<strong>根本无法区分</strong>这两种情形，两者都是“差”。
+      </p>
+      <p>
+        可第1行恰恰就是STEP 3里看到的<strong>第28天那个位置</strong>：
+        价格正在创新低的那一刻，下跌压力<em>开始减弱</em>的那根K线。
+        如果只看绝对值，你会给那根K线打出“最差”的分数。<strong>而实际上它离底部只差两根K线。</strong>
+      </p>
+      <p>
+        第3行和第4行是反方向的同一个故事。柱状图为正（+0.10），所以<strong>在绝对值模型眼里两者都是“好”</strong>，
+        但一个正在掉头，一个正在上升。长期得分分化为<strong>37.5 vs 66.5</strong>。
+      </p>
+      <div class="note">
+        <strong>一句话概括</strong> — 柱状图的绝对值告诉你<strong>“现在有多好”</strong>，
+        相对前一根的变化告诉你<strong>“是不是正在变好”</strong>。
+        从长期囤积的角度，我们想买的不是<em>已经变好的资产</em>，而是<em>不再变坏的资产</em>。
+        所以在长期映射中，方向系数（25）压倒了水平系数（10）。
+      </div>
+
+      <h3>代价：tanh很快就饱和（第41天的教训）</h3>
+      <p>
+        天下没有免费的午餐。把方向看得很重，<strong>得分就会因极细微的噪声而大幅摆动。</strong>
+        STEP 5表中的<strong>第41天</strong>就是证据。
+      </p>
+      <pre><code>第40天: Δ柱状图 = <strong>+0.155</strong>  (相对价格 84.7 为 +0.183%)  → 长期得分 <strong>80.0</strong>
+第41天: Δ柱状图 = <strong>−0.014</strong>  (相对价格 83.9 为 −0.017%)  → 长期得分 <strong>57.4</strong>
+
+方向项计算:
+  第40天 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  第41天 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  差值 <strong>−22.5分</strong>   ← 与长期分项得分的跌幅（−22.6）一致</code></pre>
+      <p>
+        <strong>仅仅一次相当于价格0.017%的柱状图微小下降，就让长期分项得分掉了22.6分。</strong>
+        原因是<code>tanh</code>的饱和。<code>tanh(1.098) ≈ 0.80</code> — 也就是说，Δ只要达到价格的0.18%，
+        方向项就已经拿到了<strong>最大值（25分）的80%</strong>。再往后无论变得多大，也几乎不再上涨。
+        反过来，一旦符号翻转，这20分就会<strong>瞬间消失。</strong>
+      </p>
+      <p>把这条饱和曲线做成表格，一目了然。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Δ柱状图 ÷ 价格</th><th>短期方向项（最大15）</th><th>长期方向项（最大25）</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00（饱和）</td><td>25.00（饱和）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>超过0.4%以后，两项实际上都已到达最大值。</strong>再往上不会增加任何信息。
+        也就是说，<strong>“柱状图大得惊人”这一信息几乎不会反映到broodev的得分里。</strong>
+        即使在暴涨行情中，MACD分项得分也只会贴在100附近，不再上升。
+        这是有意为之的设计（防止极端值主导综合得分），但同时也是<strong>明显的信息损失</strong>。
+        我们坦白写在这里。
+      </p>
+
+      <p class="step">STEP 7</p>
+      <h2>横盘实验 — 什么都没发生，得分却在21~83之间来回</h2>
+      <p>
+        现在用<strong>数字</strong>来看最糟糕的情形。我们新建一个数据集：
+        <strong>60根K线都在98.4~101.5之间来回的完全横盘行情。</strong>整体波动幅度为<strong>±1.5%</strong>。
+        60天里，市场上实际上<strong>什么都没发生。</strong>
+      </p>
+      <p>对它跑同样的MACD（12·26·9），再套用同样的broodev映射。</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>天数</th><th>收盘价</th><th>柱状图</th><th>符号</th><th>翻转</th><th>短期得分</th><th>长期得分</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>汇总起来是这样的。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>项目</th><th>数值</th></tr></thead>
+          <tbody>
+            <tr><td>有柱状图值的K线</td><td>27根（第34~60天）</td></tr>
+            <tr class="mark"><td><strong>柱状图符号翻转次数</strong></td><td><strong>10次</strong> — 平均每2.7根翻转一次</td></tr>
+            <tr><td>柱状图最大绝对值</td><td>0.132（价格的<strong>0.13%</strong>）</td></tr>
+            <tr><td>短期分项得分范围</td><td>21.1 ~ 83.0 → <strong>幅度 61.9</strong></td></tr>
+            <tr><td>长期分项得分范围</td><td>32.8 ~ 71.2 → <strong>幅度 38.4</strong></td></tr>
+            <tr><td>短期分项得分平均</td><td>52.6（中性）</td></tr>
+            <tr><td>长期分项得分平均</td><td>50.7（中性）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>27根K线里，买卖信号翻转了10次。</strong>这就是<strong>whipsaw（来回打脸）</strong>。
+        如果照搬经典规则“柱状图上穿零轴买入、下穿零轴卖出”，
+        <strong>这27天里你会买卖10次</strong>，价格原地踏步，<strong>白白交了10次手续费</strong>。
+      </p>
+      <p>
+        更可怕的是<strong>得分的振幅</strong>。市场只动了±1.5%，
+        短期分项得分却<strong>从21.1（强烈回避）到83.0（强烈买入）</strong>来回摆动。
+        第50天的21.1和第38天的81.0之间，<strong>市场几乎没有实质差别</strong> — 收盘价只差2.6%。
+      </p>
+
+      <h3>那么最终得分会摆动多少</h3>
+      <p>MACD只是6个指标之一。乘上权重，计算它<strong>对综合得分（0~100）的实际影响</strong>。</p>
+      <pre><code>短期模式: 分项得分幅度 61.9 × 权重 <strong>0.14</strong> = <strong>8.67分</strong>
+长期模式: 分项得分幅度 38.4 × 权重 <strong>0.18</strong> = <strong>6.91分</strong></code></pre>
+      <p>
+        这里出现了一个<strong>反直觉的结果</strong>。
+        <strong>短期的权重更轻（14% &lt; 18%），最终得分的摆动反而更大（8.67 &gt; 6.91）。</strong>
+        因为水平系数30和增益800让短期映射敏感得多。
+        只看权重就得出“短期不太看重MACD”的结论是错的。<strong>必须连映射函数一起看。</strong>
+      </p>
+      <p class="muted">
+        顺带一提，两种模式的<strong>平均值都在50附近（52.6 / 50.7）</strong>。在横盘行情中，MACD分项得分
+        <em>平均而言</em>保持中性。问题在于，你是按<strong>每一天的数值、而不是平均值</strong>来交易的。
+      </p>
+
+      <p class="step">STEP 8</p>
+      <h2>权重14% vs 18% — 用计算来回答</h2>
+      <p>
+        在<a href="/methodology">方法论文档</a>公开的权重中，MACD是<strong>短期14%、长期18%</strong>。
+        “作为动量指标的MACD，为什么在动量模式（短期）里反而更轻？” — 这是我们常被问到的问题，也是个合理的问题。
+        答案是<strong>重复（redundancy）</strong>。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>模式</th><th>动量·趋势属性</th><th>逆向属性</th><th>MACD的角色</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>短期</strong></td>
+              <td>RSI 28% + F&amp;G 28% + 回撤 18% + MACD 14% + 交叉 8% = <strong>96%</strong><br /><span class="muted">在短期模式中，RSI·F&amp;G·回撤<em>全都按动量方向</em>映射</span></td>
+              <td>Mayer 4%</td>
+              <td><strong>重复。</strong>已经有96%在看趋势</td>
+            </tr>
+            <tr>
+              <td><strong>长期</strong></td>
+              <td>MACD 18% + 交叉 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + Mayer 18% + 回撤 14% = <strong>50%</strong><br />（RSI 18%为逆向映射）</td>
+              <td><strong>唯一的刹车。</strong>在68%高喊“买入”时出手拦住的32%中，它占一半以上</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>短期模式的6个指标中，实际上有5个已经按动量方向映射。</strong>
+        RSI按<code>50 + (RSI−50) × 1.6</code>映射，<em>越高得分越高</em>（超买 = 好）；
+        F&amp;G也是<em>越贪婪得分越高</em>，回撤则是<em>越浅得分越高</em>。
+        再给MACD加重权重，就等于<strong>把同一份信息数了四遍</strong>。
+        何况正如STEP 7所见，<strong>MACD是这组指标里噪声最大的</strong>（27根翻转10次）。
+        没有理由给一个噪声大又重复的指标加码。所以是14%。
+      </p>
+      <p>
+        <strong>长期模式恰恰相反。</strong>F&amp;G（18%）· Mayer（18%）· 回撤（14%） — <strong>合计50%是逆向指标</strong>，
+        而这三个指标<a href="/indicators">在熊市里会一起出错</a>。三个都在喊“便宜了，快买”，价格却还在一路下跌。
+        这时<strong>能说出“还没到时候”的指标，只有MACD（18%）和金叉/死叉（14%）</strong>。
+        而交叉用的是200日移动平均，是<strong>最慢的信号</strong>，在底部附近往往要晚上好几周。
+      </p>
+      <div class="note">
+        <strong>结论</strong> — 长期模式中MACD的18%，<strong>不是“因为更相信动量”，而是“因为刹车不够”</strong>。
+        在逆向三剑客占据50%的结构里，MACD是<strong>唯一能快速确认趋势是否真正反转的指标</strong>。
+        而这种确认不是靠<em>柱状图是否转正</em>（慢），而是靠
+        <em>柱状图是否比昨天大</em>（快） — 所以长期映射的方向系数是25。
+        <strong>18%的权重和25的方向系数，是同一个决定的两面。</strong>
+      </div>
+
+      <p class="step">附录A</p>
+      <h2 id="seed">你的图表和我们的柱状图可能不一样</h2>
+      <p>
+        这是大多数MACD文章绝不会告诉你的事实。<strong>MACD并不是一个标准规格。</strong>
+        “12·26·9”是固定的，但<strong>EMA的第一个值从什么开始（种子设定）却没有统一规定。</strong>
+      </p>
+      <ul>
+        <li><strong>broodev的做法</strong> — 用前<code>period</code>个值的<strong>简单平均</strong>作为种子（见上面的STEP 2·3）</li>
+        <li><strong>另一种常见做法</strong> — 直接用<strong>第一个收盘价本身</strong>作为种子，从第1天开始滚动计算EMA</li>
+      </ul>
+      <p>完全相同的42个收盘价，完全相同的12·26·9，柱状图却会这样分化。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>天数</th><th>收盘价</th><th>柱状图<br />（broodev · SMA种子）</th><th>柱状图<br />（首个收盘价种子）</th><th>差值</th><th>差值 ÷ 价格</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>无值</td><td><strong>+0.056</strong> ← 买入信号！</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>看第33天。</strong>用首个收盘价做种子的做法，柱状图<strong>已经是+0.056的正值</strong> —
+        也就是说，<strong>“柱状图上穿零轴，买入”</strong>的信号已经出现了。
+        同一天，broodev<strong>连值都没有</strong>（因为信号线种子要到第34天才生成）。
+        <strong>同样的数据、同样的参数，信号出现的日期却不一样。</strong>
+      </p>
+      <p>
+        差距会随时间缩小（0.82% → 0.35%）。理论上，种子对EMA的影响会指数式衰减，所以
+        <strong>只要数据足够多，两种做法就会收敛。</strong>但即使到了第42根，仍然残留着相当于价格0.35%的差距。
+      </p>
+      <p>
+        那么<strong>这个差距会有多少传导到broodev的分项得分上？</strong>这个我们也直接算了一下。
+        结果<strong>和我预想的不一样，所以更有意思。</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>天数</th><th>柱状图差值</th><th>短期得分<br />（我们 / 另一种）</th><th>Δ</th><th>长期得分<br />（我们 / 另一种）</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>分项得分的差距只有0.2~4.9分。</strong>柱状图差了多达0.82%，得分却几乎没有分化。
+        原因正是<strong>我们在STEP 6里批评为“信息损失”的那个tanh饱和</strong>。
+        在这个区间，柱状图已经足够大，水平项贴在最大值上，
+        <strong>两者都处于饱和状态，差距就传导不到得分上。</strong>
+      </p>
+      <div class="note">
+        <strong>同一个特性，既是弱点也是优点</strong><br />
+        tanh饱和<strong>丢弃了极端值的大小信息</strong>（STEP 6的缺点）。但正是因为这个特性，
+        <strong>得分对种子设定方式、数据来源差异这类实现层面的噪声也不怎么敏感</strong>（附录A的优点）。
+        得到一个，就失去一个。我们<strong>选择了稳健性。</strong>这个选择对不对，我们也不知道。
+      </div>
+      <p>
+        <strong>不过，现在放心还为时过早。</strong>上面的结果说的是柱状图<em>已经很大</em>的趋势区间。
+        如果在柱状图<strong>接近0时（= 饱和之前）</strong>放入同样0.30%的差距，就会变成这样。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>柱状图（以价格100为基准）</th><th>短期得分</th><th>长期得分</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15（分处零轴两侧）</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>柱状图一旦分处零轴两侧，短期分项得分就会相差50分。</strong>
+        而<strong>零附近恰恰是人们寻找信号的地方</strong> — 拐点、横盘行情、交叉前夕。
+        <strong>种子设定差异影响最大的区间，偏偏就是最重要的区间。</strong>
+        （这里长期映射的摆动也比短期小得多：+14.3 vs +50.0，因为它的水平系数只有10。）
+      </p>
+      <div class="note warn">
+        <strong>实战中的三点启示</strong>
+        <ul>
+          <li>
+            <strong>不要在不同网站之间比较MACD的绝对值。</strong>如果broodev的柱状图和你的看盘软件
+            算出来不一样，并不是其中一个错了，而是<strong>种子设定方式不同</strong>。这种比较本身就没有意义。
+          </li>
+          <li>
+            <strong>数据越短越要小心。</strong>新上市的币，种子的影响还没有消退。
+            在BTC这种已经积累了几百根K线的资产上，差距小到可以忽略。
+          </li>
+          <li>
+            <strong>尤其要怀疑“柱状图刚刚穿过零轴”这类信号。</strong>如上表所示，
+            零轴附近正是实现差异能把分项得分拉开多达50分的区间。
+            <strong>与其看零轴突破本身，不如看方向在多根K线上的持续性</strong>，这样要安全得多。
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">附录B</p>
+      <h2>这次演练没能证明的事（以及无法证明的事）</h2>
+      <p>
+        到目前为止，我们用42根、60根的<strong>虚构数据</strong>复现了计算过程。
+        这里把本文证明了什么、<strong>没有证明什么</strong>明确区分开来。
+      </p>
+      <h3>已经证明的</h3>
+      <ul>
+        <li>broodev的MACD计算是<strong>标准的12·26·9</strong>，用上面的数字<strong>任何人都能复现</strong>。</li>
+        <li>柱状图<strong>从第34根起</strong>才有，方向判断<strong>从第35根起</strong>才可能。所以才有<code>closes.length &gt;= 35</code>这道防护。</li>
+        <li>长期映射以<strong>方向系数25 : 水平系数10</strong>，把方向看得重2.5倍。代码里就是这么写的。</li>
+        <li>得分<strong>对价格规模不变</strong>（乘以700后到小数点后第四位都相同）。</li>
+        <li>在横盘行情中，这个指标<strong>27根K线里信号翻转10次。</strong>这是我们模型<strong>实测出来的弱点</strong>。</li>
+        <li>
+          MACD<strong>并不是标准规格。</strong>只要换一种种子设定方式，同样的数据上信号出现的日期就会改变。
+          不过由于tanh饱和，<strong>在趋势区间里</strong>这个差距几乎不会传导到分项得分上（0.2~4.9分）。
+          <strong>在零轴附近，最多会相差50分。</strong>
+        </li>
+      </ul>
+      <h3>没有证明的（重要）</h3>
+      <ul>
+        <li>
+          <strong>这不是“看方向转变就能赚钱”的证明。</strong>上面的42根K线是<em>我故意做成会反弹的</em>虚构数据。
+          做一组在底部出现方向转变之后<strong>又继续下跌−40%</strong>的数据，也同样容易。
+          <strong>计算过程的透明度</strong>和<strong>预测能力</strong>是完全不同的两回事。
+        </li>
+        <li>
+          <strong>MACD本质上是滞后指标。</strong>毕竟它是移动平均之差的移动平均。
+          等到柱状图改变方向时，<strong>行情的一部分已经走完了</strong>。
+          STEP 3中MACD线比价格早2根掉头，那是<strong>背离</strong>，不是<strong>预知能力</strong> —
+          而且背离<strong>经常失败。</strong>
+        </li>
+        <li>
+          <strong>14%/18%的权重是作者的判断。</strong>STEP 8的逻辑（避免重复、确保刹车）是有说服力的<em>设计依据</em>，
+          <strong>而不是最优值的证明。</strong>16%也许更好。数据不会给出斩钉截铁的答案。
+        </li>
+        <li>
+          <strong>tanh饱和丢弃了极端信息。</strong>正如STEP 6所见，一旦柱状图超过价格的0.4%，
+          更大的幅度就不会反映到得分里。这是<strong>有意丢弃</strong>历史性大暴跌、大暴涨<strong>强度信息</strong>的设计。
+        </li>
+        <li>
+          <strong>MACD对新闻、监管、黑客攻击、流动性一无所知。</strong>哪怕交易所正在破产，柱状图也可能漂亮地向上拐头。
+        </li>
+      </ul>
+      <p>
+        MACD分项得分只占broodev综合得分的<strong>14~18%</strong>。
+        其余的82~86%由<a href="/indicators">另外五个指标</a>构成，
+        它们的合成方式在<a href="/methodology">方法论文档</a>中全部公开。
+        <strong>任何单一指标都不能独自决定任何事。</strong>这正是设计的意图。
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ 投资提示</strong><br />
+        本文是<strong>公开计算方法的技术文档，并非投资建议。</strong>
+        正文中的收盘价与得分是为展示计算过程而设的<strong>虚构数据</strong>，不预测任何资产的未来价格。
+        加密货币是<strong>可能损失全部本金</strong>的高风险资产。
+        所有投资决策及其结果（盈亏）的责任完全由用户本人承担。请务必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸阅读</h2>
+      <div class="related">
+        <a href="/methodology"><b>评分方法论</b><span>完整公开包括MACD 14%/18%在内的6个指标权重与重新归一化</span></a>
+        <a href="/indicators"><b>6个指标详解</b><span>除了MACD，其余五个分别会在什么时候背叛你</span></a>
+        <a href="/guide-fear-greed"><b>恐惧指数实战指南</b><span>MACD需要为之踩刹车的正是这个指标</span></a>
+        <a href="/glossary"><b>术语表</b><span>EMA·柱状图·背离·来回打脸等术语整理</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 运营方 Y-Systems · <a href="/privacy">隐私政策</a> · <a href="/terms">使用条款</a></footer>
+    </main>

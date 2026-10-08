@@ -1,0 +1,754 @@
+    <main class="wrap" data-title="用TTS連發音一起背 — 為什麼效果因語言而異，以及實戰設定 | VOCA DECK" data-desc="開啟TTS語音後，每種語言得到的東西都不一樣。中文的變調、英文的同形異音詞、法文的連誦、日文的漢字讀音，以及為什麼西班牙文比較不需要TTS。括號標記規則、跟讀播放間隔的計算，到瀏覽器TTS的實際限制。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — TTS &amp; PRONUNCIATION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 單字本</a>
+          <a href="/method">記憶法原理</a>
+          <a href="/csv-guide">製作CSV</a>
+          <a href="/study-guide">學習策略</a>
+        </nav>
+
+        <h1>用TTS連發音一起背</h1>
+        <p class="muted">最後更新：2026-07-14 · 作者：Y-Systems</p>
+
+        <p class="lead">
+          「開TTS比較好」這句話<strong>只對了一半。</strong>
+          因為開啟語音後<strong>得到的東西，每種語言完全不同</strong>。
+          中文如果不用TTS背，<strong>單字有一半根本進不了記憶。</strong>
+          相反地，西班牙文<strong>就算關掉TTS，也幾乎能準確還原發音。</strong>
+          本文把這種<strong>溫差</strong>按語言拆開，說明每種語言的CSV該怎麼寫、
+          播放間隔要設幾秒才有時間跟著唸，全部用<strong>App程式碼中的實際規則與數字</strong>來整理。
+        </p>
+
+        <h2>先講結論 — 各語言對TTS的依賴度</h2>
+        <p>
+          下表是本文的摘要，也是核心。判斷標準是<strong>「關掉TTS會失去什麼」</strong>。
+          星星越多，代表不靠聲音、只用眼睛背的時候，會產生<strong>越難彌補的損失</strong>。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>語言</th>
+                <th>拼寫→發音的可預測性</th>
+                <th>關掉TTS會失去的東西</th>
+                <th>依賴度</th>
+                <th>CSV發音標記</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>中文</strong></td>
+                <td>低<br /><span class="muted">即使有拼音，也和實際聲音不同</span></td>
+                <td><strong>聲調 = 意思。</strong>而且三聲變調、一·不變調<strong>完全不會標出來</strong></td>
+                <td>★★★★★</td>
+                <td>不要加（只寫漢字）</td>
+              </tr>
+              <tr>
+                <td><strong>泰文</strong></td>
+                <td>非常低</td>
+                <td>5個聲調＋文字與聲音的對應很複雜。羅馬拼音不可靠</td>
+                <td>★★★★★</td>
+                <td>不要加（只寫泰文字母）</td>
+              </tr>
+              <tr>
+                <td><strong>英文</strong></td>
+                <td>低</td>
+                <td>重音位置、不發音字母、<strong>同形異音詞</strong>（read/lead/tear）</td>
+                <td>★★★★☆</td>
+                <td>只有同形異音詞要改寫拼法</td>
+              </tr>
+              <tr>
+                <td><strong>法文</strong></td>
+                <td>中<br /><span class="muted">讀出來有規則，反過來不行</span></td>
+                <td>字尾不發音、鼻化母音、<strong>連誦</strong>（單字單獨出現時不會發生）</td>
+                <td>★★★★☆</td>
+                <td>與其標記，不如做<strong>片語卡</strong></td>
+              </tr>
+              <tr>
+                <td><strong>日文</strong></td>
+                <td>假名有規則<br /><strong>漢字無法預測</strong></td>
+                <td>漢字讀音、高低重音（箸 / 橋）</td>
+                <td>★★★★☆</td>
+                <td><strong>括號內寫讀音假名</strong>（App支援）</td>
+              </tr>
+              <tr>
+                <td><strong>俄文</strong></td>
+                <td>中<br /><span class="muted">重音不會標出來</span></td>
+                <td>重音位置 → 會隨之<strong>改變母音本身</strong>（弱化）</td>
+                <td>★★★★☆</td>
+                <td>只標重音符號（可選）</td>
+              </tr>
+              <tr>
+                <td><strong>德文</strong></td>
+                <td>高</td>
+                <td>母音長短、ch的兩種發音、r的發音方式</td>
+                <td>★★☆☆☆</td>
+                <td>通常不需要</td>
+              </tr>
+              <tr>
+                <td><strong>義大利文</strong></td>
+                <td>非常高</td>
+                <td>幾乎沒有（少數重音例外）</td>
+                <td>★★☆☆☆</td>
+                <td>不需要</td>
+              </tr>
+              <tr>
+                <td><strong>西班牙文</strong></td>
+                <td><strong>非常高</strong><br /><span class="muted">3條規則就能決定</span></td>
+                <td><strong>幾乎沒有。</strong>拼寫實際上100%決定發音</td>
+                <td>★☆☆☆☆</td>
+                <td>不需要</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          這個排名只看一件事：<strong>「拼寫能告訴你多少發音」</strong>。
+          如果目的是聽力訓練或適應語速，<strong>TTS對所有語言都有用</strong>。
+          西班牙文只有1顆星，不是「TTS沒用」，而是<strong>「用來查發音的必要性比較低」</strong>的意思。
+        </p>
+
+        <h2>為什麼會有溫差（簡短說明）</h2>
+        <p>
+          在<a href="/method#dual">記憶法原理</a>裡，有一段我們<strong>只用一句話帶過</strong>：「開啟TTS就會多一條聽覺路徑」。
+          本文從那裡開始。不過雙重編碼的話題就不再重複了。
+          比起<strong>多了一個提取線索</strong>，更重要的是下面這件事。
+        </p>
+        <p>
+          <strong>只用眼睛</strong>背單字時，腦中也會一併存下<strong>你自己隨便唸出來的聲音</strong>。
+          不是沒有存聲音，而是<strong>存了錯誤的聲音。</strong>
+          對於把<code>colonel</code>唸成「co-lo-nel」來背的人來說，母語者實際說出的<code>colonel</code>（「ker-nel」）
+          <strong>不是認識的單字，而是第一次聽到的單字</strong>。即使完全知道意思，<strong>聽力分數也是0分</strong>。
+        </p>
+        <p>
+          而且這種錯誤<strong>抹掉的成本比學習的成本更高。</strong>
+          矯正已經定型的發音，比在一片空白時重新學要花上多得多的時間。
+          這就是為什麼<strong>TTS不是之後才開的功能，而是一開始就該開的功能</strong>。
+        </p>
+        <div class="note">
+          一句話總結 — <strong>TTS的本質不是「增加聽覺線索」，而是「事先阻止錯誤發音被存進去」。</strong>
+          所以<strong>拼寫越會背叛發音的語言</strong>，效果就越大。上表的順序正是這個順序。
+        </div>
+
+        <h2>各語言的處方</h2>
+
+        <h3>中文 — 唯一一個拼寫不告訴你實際聲音的情況</h3>
+        <p>
+          把中文排在「★★★★★」，不只是因為聲調。
+          聲調在拼音上有符號標示，如果只是這樣，用眼睛應該也能背。
+          問題在於<strong>拼音上標的聲調和實際唸出來的聲調不一樣</strong>。
+        </p>
+        <p>先來看看聲調就是意思本身。同樣是<code>ma</code>，全都是不同的字。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>聲調</th><th>拼音</th><th>漢字</th><th>意思</th></tr></thead>
+            <tbody>
+              <tr><td>一聲（高而平）</td><td>mā</td><td>妈</td><td>媽媽</td></tr>
+              <tr><td>二聲（上揚）</td><td>má</td><td>麻</td><td>麻（植物）/ 發麻</td></tr>
+              <tr><td>三聲（先降後升）</td><td>mǎ</td><td>马</td><td>馬（horse）</td></tr>
+              <tr><td>四聲（下降）</td><td>mà</td><td>骂</td><td>罵</td></tr>
+              <tr><td>輕聲</td><td>ma</td><td>吗</td><td>疑問助詞</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>實戰中漏掉聲調，就會發生這種事。</p>
+        <ul>
+          <li><code>我想问你</code> wǒ xiǎng <strong>wèn</strong> nǐ — 「我想問你」<br />
+              <code>我想吻你</code> wǒ xiǎng <strong>wěn</strong> nǐ — <strong>「我想吻你」</strong>（四聲→三聲，只差一個）</li>
+          <li><code>买</code> <strong>mǎi</strong> 買 ↔ <code>卖</code> <strong>mài</strong> 賣 — <strong>完全相反的意思</strong>只靠三聲/四聲區分。</li>
+          <li><code>睡觉</code> shuìjiào 睡覺 ↔ <code>水饺</code> shuǐjiǎo 水餃 — 聲調一含糊，「我去睡覺」就變成「我去水餃」。</li>
+        </ul>
+        <p>
+          到這裡為止，仔細看拼音就能解決。<strong>真正的問題從現在開始。</strong>
+        </p>
+        <div class="note warn">
+          <strong>變調 — 照著拼音唸就錯了</strong><br />
+          <strong>三聲＋三聲 → 二聲＋三聲。</strong><code>你好</code>的拼音寫成<strong>nǐ hǎo</strong>（三聲＋三聲），
+          實際發音卻是<strong>ní hǎo</strong>（二聲＋三聲）。<br />
+          <strong>一</strong>：本來是一聲yī，但<code>一个</code> = <strong>yí</strong> ge、<code>一起</code> = <strong>yì</strong> qǐ，會改變。<br />
+          <strong>不</strong>：本來是四聲bù，但<code>不是</code> = <strong>bú</strong> shì，會改變。<br />
+          <strong>問題是標記方式並不一致。</strong>
+          <strong>三聲變調</strong>（你好）<em>絕對不會反映在拼音上</em> — 永遠寫成<code>nǐ hǎo</code>、唸成<code>ní hǎo</code>。
+          相反地，<strong>一·不變調</strong><em>每本教材都不一樣</em> — 有的寫成變調後的形式（<code>yí ge</code>、<code>bú shì</code>），
+          有的寫原本的聲調（<code>yī ge</code>、<code>bù shì</code>）。
+          <strong>也就是說，標記不可信。</strong>最後<strong>除了用耳朵確認，沒有其他確實的方法。</strong>
+        </div>
+        <p>
+          這就是中文只用眼睛背的單字只有「一半」的原因。
+          <strong>還有一層是拼寫不會告訴你的，而那一層只以聲音的形式存在。</strong>
+          對母語沒有聲調的學習者（例如韓語或英語母語者）來說，情況更糟。因為母語沒有聲調，他們不會把聲調當成<strong>改變意思的音素</strong>，
+          而是當成<strong>語氣或語調</strong>來處理。如果不刻意把聲音放進去，
+          <strong>聲調連編碼進記憶都不會發生。</strong>
+        </p>
+        <div class="note warn">
+          <strong>對中文學習者最重要的一個設定</strong> — 請在進階設定中<strong>自己選擇語音。</strong>
+          低品質的本機中文語音<strong>會把聲調的輪廓弄糊。</strong>
+          換成其他語言只是「有點像機器人」的程度，但在中文裡，<strong>等於要學的資訊本身消失了</strong>。
+          不要交給預設的「自動」。詳細原因寫在下面的<a href="#limits">限制</a>一節。
+        </div>
+
+        <h3>英文 — 反例比規則還多的語言</h3>
+        <p>
+          英文是一種<strong>看起來像是故意設計成看拼寫猜發音就會猜錯</strong>的語言。
+          因為歷史上從許多語言借入單字，拼寫保留了原文，只有發音改變了。
+          以下是<strong>看拼寫猜發音幾乎一定會錯</strong>的單字。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>單字</th><th>照拼寫唸</th><th>實際發音</th><th>元兇</th></tr></thead>
+            <tbody>
+              <tr><td><code>colonel</code></td><td>co-lo-nel</td><td><strong>KER-nel</strong> /ˈkɜːrnəl/</td><td>出現字母裡沒有的r音</td></tr>
+              <tr><td><code>choir</code></td><td>cho-ir</td><td><strong>KWAI-er</strong> /ˈkwaɪər/</td><td>ch唸成/kw/</td></tr>
+              <tr><td><code>yacht</code></td><td>yach-t</td><td><strong>YAHT</strong> /jɑːt/</td><td>ch整個不發音</td></tr>
+              <tr><td><code>epitome</code></td><td>e-pi-tome</td><td><strong>i-PI-tə-mi</strong> /ɪˈpɪtəmi/</td><td>字尾e有發音＋重音</td></tr>
+              <tr><td><code>hyperbole</code></td><td>hy-per-bole</td><td><strong>hai-PER-bə-li</strong> /haɪˈpɜːrbəli/</td><td>同樣的原因</td></tr>
+              <tr><td><code>awry</code></td><td>AW-ri</td><td><strong>ə-RAI</strong> /əˈraɪ/</td><td>a+wry的切分錯誤</td></tr>
+              <tr><td><code>quay</code></td><td>kway</td><td><strong>KEE</strong> /kiː/</td><td>4個字母只有2個音</td></tr>
+              <tr><td><code>indict</code></td><td>in-dikt</td><td><strong>in-DAIT</strong> /ɪnˈdaɪt/</td><td>c不發音</td></tr>
+              <tr><td><code>subtle</code></td><td>sub-tle</td><td><strong>SA-tl</strong> /ˈsʌtl/</td><td>b不發音</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          不過<strong>這些其實TTS會自己處理好。</strong>英文語音引擎是全世界訓練得最多的語音，
+          把上面的單字直接丟給它，<strong>全部都能唸對。</strong>所以英文卡片
+          <strong>不需要加發音標記。</strong>只寫<code>colonel,上校</code>就夠了。
+        </p>
+        <p>
+          <strong>英文TTS會出錯的地方在別處。</strong>那就是<strong>同形異音詞（heteronym）</strong>。
+          拼寫相同、發音卻有兩種的單字。只丟一個單字過去，<strong>TTS沒辦法知道是哪一個。</strong>
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>拼寫</th><th>發音A</th><th>發音B</th></tr></thead>
+            <tbody>
+              <tr><td><code>lead</code></td><td>leed（帶領）</td><td>led（鉛）</td></tr>
+              <tr><td><code>read</code></td><td>reed（現在式）</td><td>red（過去式）</td></tr>
+              <tr><td><code>tear</code></td><td>teer（眼淚）</td><td>tair（撕裂）</td></tr>
+              <tr><td><code>wind</code></td><td>wind（風）</td><td>waind（捲繞）</td></tr>
+              <tr><td><code>live</code></td><td>liv（生活）</td><td>laiv（現場直播）</td></tr>
+              <tr><td><code>desert</code></td><td>DE-zert（沙漠）</td><td>di-<strong>ZERT</strong>（拋棄）</td></tr>
+              <tr><td><code>record</code></td><td><strong>RE</strong>-kerd（名詞）</td><td>ri-<strong>KORD</strong>（動詞）</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          下面的<a href="#paren">括號規則</a>會說明如何用App的功能強制解決這個問題。
+          <strong>在英文中使用括號的理由，實際上就只有這一個。</strong>
+        </p>
+
+        <h3>法文 — 讀得出來，但反推不回去</h3>
+        <p>
+          法文常常被誤解。<strong>「法文的拼寫和發音不一樣」這句話並不精確。</strong>
+          法文<strong>在拼寫 → 發音的方向上相當有規則</strong>。學會規則，第一次看到的單字也唸得出來。
+          問題在於<strong>發音 → 拼寫的方向幾乎不可能</strong>，而且<strong>那些規則和許多學習者的直覺正好相反</strong>。
+        </p>
+        <p>來看最強烈的例子。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>單字</th><th>字母數</th><th>實際聲音</th><th>剩下的東西</th></tr></thead>
+            <tbody>
+              <tr><td><code>eaux</code>（水，複數）</td><td>4</td><td>/o/</td><td><strong>只有1個音</strong> — 4個字母只唸一個「o」</td></tr>
+              <tr><td><code>oiseau</code>（鳥）</td><td>6</td><td>/wazo/</td><td>沒有任何字母和聲音一對一對應</td></tr>
+              <tr><td><code>beaucoup</code>（很多）</td><td>8</td><td>/boku/</td><td>字尾的p不發音</td></tr>
+              <tr><td><code>temps</code>（時間）</td><td>5</td><td>/tɑ̃/</td><td>m·p·s全都不留，只剩<strong>鼻化母音</strong></td></tr>
+              <tr><td><code>femme</code>（女人）</td><td>5</td><td>/fam/</td><td>明明是e，卻發<strong>「a」</strong>的音</td></tr>
+              <tr><td><code>monsieur</code></td><td>8</td><td>/məsjø/</td><td>和拼寫幾乎無關</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>字尾子音大多不發音</strong>（例外是c·r·f·l常常會保留 — 用英文單字「CaReFuL」來記）。
+          而<strong>鼻化母音</strong>（/ɑ̃/ /ɛ̃/ /ɔ̃/）是<strong>中文和許多語言裡都不存在的聲音</strong>。
+          不存在的聲音，<strong>原理上就沒辦法用眼睛學會。</strong>這不是努力的問題。
+        </p>
+        <div class="note">
+          <strong>法文真正的陷阱是連誦（liaison），而這連TTS也抓不到。</strong><br />
+          把<code>les</code>（le）和<code>amis</code>（a-mi）分開背，就會唸成「le a-mi」。實際上是<strong>/le.za.mi/「le-za-mi」</strong>。
+          原本不發音的s<strong>遇到後面單字的母音就會復活</strong>，唸成/z/。<br />
+          問題是 — <strong>一個字一個字唸的TTS，永遠不可能讓你聽到連誦</strong>。
+          <code>les</code>單獨唸，永遠都是「le」。<br />
+          <strong>處方：法文不要做單字卡，要做「片語」卡。</strong>
+          像<code>les amis</code>、<code>vous avez</code>、<code>petit ami</code>這樣，<strong>把2~3個單字放進一張卡</strong>，
+          TTS才會讓你聽到連誦。
+        </div>
+
+        <h3>日文 — 漢字不告訴你怎麼唸</h3>
+        <p>
+          日文<strong>用假名寫的部分幾乎完全有規則</strong>。在這一點上和西班牙文同級。
+          但是<strong>一旦混入漢字，可預測性就趨近於0</strong>。
+        </p>
+        <p>
+          一個漢字<strong>音讀、訓讀加起來有十種以上</strong>讀法是常有的事。
+          光是<code>生</code>這一個字，就有せい·しょう·なま·き·いきる·うまれる·はえる·おう…
+        </p>
+        <ul>
+          <li><code>生憎</code> = <strong>あいにく</strong>（不巧）— 從這兩個漢字的任何一個都推不出這個讀音。
+              因為這是先有聲音、<strong>後來才配上</strong>漢字的「當て字」（借字）。</li>
+          <li><code>一日</code>既是<strong>ついたち</strong>（每月的1號），也是<strong>いちにち</strong>（一天）。
+              <strong>同樣的寫法、不同的讀音、不同的意思。</strong></li>
+          <li><code>明日</code> = <strong>あした</strong> / <strong>あす</strong> / <strong>みょうにち</strong> — 依文脈和正式程度而定。</li>
+        </ul>
+        <p>
+          再加上<strong>高低重音</strong>。<code>箸</code>（筷子）和<code>橋</code>（橋）
+          都寫成<strong>はし</strong>，但<strong>音高的模式不同。</strong>
+          用文字無法區分，<strong>只能靠耳朵分辨。</strong>
+          （母語沒有高低重音的學習者，常常完全察覺不到這個差異。）
+        </p>
+        <div class="note">
+          <strong>給日文學習者的好消息</strong> — 本App的<strong>括號規則</strong>正是為了這個問題設計的。
+          在A面寫<code>生憎（あいにく）</code>，<strong>畫面上會同時顯示漢字和讀音，語音只唸あいにく。</strong>
+          下一節會詳細說明這個規則。
+        </div>
+
+        <h3>俄文 — 不知道重音，連母音是什麼都不知道</h3>
+        <p>
+          俄文有兩種背叛疊在一起。簡短說明。
+        </p>
+        <ol>
+          <li><strong>重音位置不會標出來。</strong>只有教材和辭典會標重音符號，
+              實際的俄文文件<strong>不會標。</strong>位置不規則，只能硬背。</li>
+          <li><strong>重音會改變母音的聲音（弱化）。</strong>沒有重音的<code>о</code><strong>不唸「o」，而是接近「a」</strong>。
+              <code>молоко</code>（牛奶）照拼寫是「mo-lo-ko」，實際上卻是<strong>/məlɐˈko/「mə-la-KO」</strong>。
+              不知道重音，<strong>連哪個母音會保留下來都不知道。</strong></li>
+        </ol>
+        <p>
+          而且重音位置會區分單字。<code>за́мок</code>（城堡/宮殿）和<code>замо́к</code>（鎖）
+          <strong>拼寫完全相同。</strong>只給一個單字，TTS也不知道是哪一個 —
+          和英文的同形異音詞是同一個問題，解法也一樣（有上下文的卡片）。
+        </p>
+
+        <h3>西班牙文 — 可以關掉TTS的理由</h3>
+        <p>
+          老實說。<strong>對西班牙文學習者而言，TTS作為「查發音的工具」幾乎不需要。</strong>
+          因為西班牙文<strong>的拼寫實際上完全決定了發音</strong>。
+          只要知道下面<strong>3條重音規則</strong>，第一次看到的單字也能唸對。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>規則</th><th>重音位置</th><th>例子</th></tr></thead>
+            <tbody>
+              <tr><td>以母音·n·s結尾</td><td><strong>倒數第二個</strong>音節</td><td><code>ca-sa</code> → <strong>CA</strong>-sa · <code>co-men</code> → <strong>CO</strong>-men</td></tr>
+              <tr><td>以其他子音結尾</td><td><strong>最後一個</strong>音節</td><td><code>ha-blar</code> → ha-<strong>BLAR</strong> · <code>fe-liz</code> → fe-<strong>LIZ</strong></td></tr>
+              <tr><td>上述兩條規則的例外</td><td>一定會<strong>用重音符號標出</strong></td><td><code>ca-fé</code> · <code>lá-piz</code> · <code>te-lé-fo-no</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          再加上幾條字母規則（h永遠不發音、ll·ñ、v和b實際上是同一個音、c+e/i和z依地區唸/θ/或/s/）就
+          <strong>結束了。</strong>硬要找例外的話，大概就是外來語。
+        </p>
+        <div class="note">
+          <strong>所以西班牙文學習者，請用TTS做別的事。</strong>
+          不是用來查發音，而是<strong>用來適應語速</strong>。
+          西班牙文真正的難關不是「讀」，而是<strong>母音連讀（synalepha）和說話速度</strong>。
+          單字之間的母音會糊在一起，而且語速很快。
+          <strong>把朗讀速度調到1.3~1.5倍</strong>來刷卡吧。這不是發音學習，而是<strong>聽力訓練</strong>。
+          這是把同一個TTS功能<strong>用在完全不同的目的</strong>上。
+        </div>
+
+        <h2 id="paren">App實際在做什麼 — 程式碼決定的規則</h2>
+        <p>
+          從這裡開始不是一般論，而是<strong>實際寫在VOCA DECK程式碼裡的行為</strong>。
+          知道這些，就能把CSV寫得好得多。
+        </p>
+
+        <h3>規則1 — 有括號時，A面「只唸括號裡面」</h3>
+        <p>
+          App的語音函式會在卡片文字中<strong>先找括號。</strong>
+          全形<code>（）</code>和半形<code>()</code>都能辨識。
+        </p>
+        <ul>
+          <li><strong>A面（單字）有括號時</strong> → <strong>只唸括號裡的內容</strong>。括號外面<strong>完全不唸。</strong></li>
+          <li><strong>B面（釋義）</strong> → 把括號和裡面的內容<strong>整個刪掉</strong>，只唸剩下的部分。</li>
+          <li><strong>畫面上永遠完整顯示原文。</strong>被刪掉的只有聲音。</li>
+        </ul>
+        <p>
+          這個不對稱是關鍵。因為這代表<strong>「看到的」和「聽到的」可以分開設計</strong>。
+        </p>
+        <pre><code>生憎（あいにく）,不巧
+  → 畫面: 生憎（あいにく）   (漢字和讀音都看得到)
+  → 聲音: あいにく            (只聽到讀音)
+
+买,買（mǎi）
+  → 畫面: 買（mǎi）          (看得到拼音)
+  → 聲音: "買"               (拼音不會被唸出 — B面會刪掉括號)</code></pre>
+        <p>
+          請注意第二個例子。<strong>把拼音放進B面的括號</strong>，
+          就能做到<strong>眼睛看得到拼音，耳朵卻不會被拼音打擾</strong>的狀態。
+          對中文學習者來說，這是最好的配置。
+        </p>
+
+        <h3>規則2 — 每一面的語言（語音）各自獨立</h3>
+        <p>
+          A面和B面會用<strong>不同的語音地區設定</strong>來唸。預設值是<strong>A = 日文（ja-JP）、B = 韓文（ko-KR）</strong>，
+          可以在進階設定中從<strong>13種地區設定</strong>（en-US · ja-JP · ko-KR · zh-CN · zh-TW · th-TH · es-ES · fr-FR · de-DE · it-IT · pt-PT · ru-RU · nl-NL）裡選擇。
+        </p>
+        <div class="note warn">
+          <strong>這是「沒有聲音」的頭號原因。</strong>
+          放了英文單字本，A面的地區設定卻還停在<strong>預設的日文（ja-JP）</strong>，
+          日文語音就會試著唸英文單字。<strong>聽起來怪怪的，或乾脆沒有聲音。</strong><br />
+          <strong>如果CSV是自己做的，一定要先到進階設定把A面的語言調好。</strong>
+          （套用範例單字本時，地區設定會自動設好。）
+        </div>
+
+        <h3>規則3 — 朗讀速度限制在0.5 ~ 2.0倍</h3>
+        <p>
+          A面·B面<strong>各自</strong>可以在0.5倍到2.0倍之間、<strong>以0.05為單位</strong>調整。
+          超出範圍的值會被程式碼強制截斷。
+        </p>
+        <p>
+          <strong>而這裡有一個必須老實寫出來的限制。</strong>
+          瀏覽器的速度調整是<strong>維持音高、只拉長時間的方式</strong>。
+          所以<strong>調到0.7倍以下，得到的不是「說得慢的母語者」，而是「奇怪的聲音」。</strong>
+          更重要的是，放慢之後，<strong>實際發音的核心 — 縮讀和連音 — 就會消失</strong>。
+          用0.6倍聽到的<code>water</code>，<strong>不是你在實戰中會聽到的water。</strong>
+          <strong>放慢聽是用來確認聲調和音素的，不是實戰聽力練習。</strong>
+        </p>
+
+        <h3>規則4 — 重複播放1~20次，或無限</h3>
+        <p>
+          一張卡片的同一段語音<strong>最多可以重複20次</strong>，也可以<strong>無限重複</strong>。
+          無限重複會<strong>完整唸完一次、停0.25秒</strong>後再重新開始。
+          切到下一張卡片或關掉TTS時會<strong>立即停止</strong>。
+        </p>
+        <p class="muted">
+          無限重複適合<strong>把一個聲調刻進身體，或死磕一個發不好的音</strong>的時候。
+          一般學習1~2次就夠了。
+        </p>
+
+        <h3>規則5 — 音量是相乘的（陷阱）</h3>
+        <p>
+          實際音量是這樣計算的。
+        </p>
+        <pre><code>實際音量 = (總音量 ÷ 100) × (該面音量 ÷ 100)
+
+總音量 50% + A面 50%  →  0.5 × 0.5 = 0.25  →  實際 25%</code></pre>
+        <p>
+          <strong>兩個滑桿都調低的話，會相乘而變得比預期小很多。</strong>
+          如果「聲音太小」，先從這裡檢查。
+          反過來，<strong>只把A面調大、B面調小</strong>的用法也很實用
+          （外語聽大聲一點，母語釋義當背景音）。
+        </p>
+
+        <h3>規則6 — 可以選擇要唸什麼</h3>
+        <p>
+          從<strong>只唸A面 / 只唸B面 / 兩者</strong>中選擇。
+          <strong>大部分學習者選「只唸A面」就對了。</strong>幾乎沒有理由連母語釋義都要用語音聽，
+          而且<strong>母語語音一插進來，對外語聲音的專注就會被打斷。</strong>
+          會想開B面語音的情況，大概只有做「釋義→單字」方向的輸出練習時。
+        </p>
+        <p>
+          另外還有一個<strong>「僅語音」模式</strong>。開啟後<strong>畫面上的文字會消失，只剩聲音。</strong>
+          <strong>這實際上就是聽寫（dictation）模式。</strong>
+          它會變成<strong>不依賴拼寫、只靠聲音想起意思的訓練</strong>，
+          正面擊破<a href="/method#limit">把「看了就懂」誤以為「想得起來」的問題</a>。
+          把它想成<strong>閉著眼睛做的提取練習</strong>就行了。
+        </p>
+
+        <h2>要在CSV裡寫發音，還是交給TTS？</h2>
+        <p>
+          這是我們最常被問到的問題。而且<strong>正確答案因語言而異。</strong>
+          把上面的<a href="#paren">括號規則</a>和各語言的特性組合起來，答案就出來了。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>語言</th><th>答案</th><th>請這樣寫</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>日文</strong></td>
+                <td><strong>括號內寫讀音假名</strong></td>
+                <td><code>生憎（あいにく）,不巧</code><br /><span class="muted">只給漢字的話，語音引擎會在沒有上下文的情況下猜讀音而猜錯。括號能強制給出正確答案。</span></td>
+              </tr>
+              <tr>
+                <td><strong>英文</strong></td>
+                <td><strong>大部分不需要。</strong><br />只有同形異音詞要改寫拼法</td>
+                <td><code>lead（leed）,帶領</code><br /><code>lead（led）,鉛</code><br /><span class="muted">拆成2張卡片，用括號強制指定發音。</span></td>
+              </tr>
+              <tr>
+                <td><strong>中文</strong></td>
+                <td><strong>A面禁止括號。</strong><br />拼音放在B面括號</td>
+                <td><code>买,買（mǎi）</code><br /><span class="muted">把拼音放進A面括號，中文語音會試著唸羅馬字而壞掉。只給漢字就能唸對。</span></td>
+              </tr>
+              <tr>
+                <td><strong>法文</strong></td>
+                <td><strong>用片語卡取代標記</strong></td>
+                <td><code>les amis,朋友們</code><br /><span class="muted">單字單獨出現時不會發生連誦。</span></td>
+              </tr>
+              <tr>
+                <td><strong>俄文</strong></td>
+                <td>不需要（重音符號可選）</td>
+                <td><code>молоко,牛奶</code></td>
+              </tr>
+              <tr>
+                <td><strong>西班牙文 · 義大利文</strong></td>
+                <td><strong>不需要</strong></td>
+                <td><code>hablar,說話</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>絕對不要做 ① — 在括號裡寫音標（IPA）</strong><br />
+          寫成<code>colonel（ˈkɜːrnəl）,上校</code>，依照規則1，<strong>「ˈkɜːrnəl」這串字會原封不動地傳給語音引擎。</strong>
+          引擎<strong>唸不出</strong>IPA的特殊符號（ɜ · ə · ː）。不是沉默，就是唸出符號名稱，或發出破碎的聲音。
+          <strong>IPA是給人看的符號，不是給語音引擎唸的符號。</strong><br />
+          <span class="muted">如果想用眼睛看音標，請放進<strong>B面括號</strong>。這樣畫面上看得到，聲音裡則會被拿掉。</span>
+        </div>
+
+        <div class="note warn">
+          <strong>絕對不要做 ② — 在括號裡寫中文諧音</strong><br />
+          <code>apple（艾剖）,蘋果</code> — 這是<strong>最容易犯的錯誤</strong>。
+          A面地區設定是en-US時，括號裡的「艾剖」會<strong>被傳給英文語音。</strong>
+          英文語音唸不了漢字。而且因為規則1，<strong>括號外的「apple」完全不會被唸出來。</strong>
+          結果：<strong>什麼聲音都沒有。</strong><br />
+          <strong>用中文諧音標發音，目標從一開始就錯了。</strong>「艾剖」不是apple的發音。
+          用中文字寫下中文裡沒有的聲音的那一刻，<strong>你就存進了錯誤的發音。</strong>這正是本文一開始講的那種損失。
+        </div>
+
+        <div class="note">
+          <strong>還有一個要知道的陷阱</strong> — 程式碼<strong>只會找第一個括號</strong>。
+          A面寫了兩個括號，<strong>只會唸前面那個，後面的會被忽略</strong>。
+          像<code>一日（ついたち）と一日（いちにち）</code>這樣的卡片，<strong>只會唸出ついたち。</strong>
+          <strong>一張卡片只放一個括號。</strong>有兩種讀音的話，<strong>就把卡片拆成兩張</strong>
+          （和<a href="/csv-guide#design">「一張卡片只放一個概念」</a>的原則是完全相同的結論）。
+        </div>
+
+        <h2>跟讀 — 播放間隔要設幾秒</h2>
+        <p>
+          <strong>跟讀（shadowing）</strong>是把聽到的聲音<strong>立刻跟著說出來</strong>的練習。
+          這是TTS價值最大的地方，也是<strong>大多數人失敗的地方</strong>。
+          原因很簡單 — <strong>沒有時間跟著說</strong>。
+          用預設間隔3秒自動播放，語音一結束就<strong>直接跳到下一張卡片。</strong>
+        </p>
+        <p>所以必須<strong>計算</strong>時間再設定。一張卡片的A面需要的時間由以下組成。</p>
+        <pre><code>A面所需時間
+  = 語音播放時間 × 重複次數
+  + 你反應所需的時間        (約 0.3 ~ 0.5秒)
+  + 你跟著說的時間          (≒ 語音播放時間)
+  + 餘裕                    (約 0.5秒)</code></pre>
+        <p class="muted">
+          <strong>老實說明</strong> — 這其中<strong>由程式碼決定的值只有「播放間隔·速度·重複次數」</strong>。
+          「反應時間0.3~0.5秒」、「每音節0.25~0.35秒」這類數值<strong>不是測量值，而是根據實際使用的粗估值</strong>。
+          不要當成精確的數字，請當作<strong>起點</strong>。依自己的速度調整才是對的。
+        </p>
+        <p>
+          一個英文單字（2個音節）的語音，在1.0倍速度下大約是<strong>0.6~0.8秒</strong>。
+          短例句（6~8個單字）大約是<strong>2.5~3.5秒</strong>。來算算看。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>情況</th><th>計算</th><th>所需時間</th><th>3秒夠嗎？</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>單字播放1次 + 跟著說</td>
+                <td>0.8 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 2.5秒</strong></td>
+                <td><strong>夠</strong>（預設值碰巧剛好）</td>
+              </tr>
+              <tr>
+                <td>單字播放<strong>2次</strong> + 跟著說</td>
+                <td>0.8×2 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 3.3秒</strong></td>
+                <td><strong>不夠</strong> — 會被切掉</td>
+              </tr>
+              <tr>
+                <td><strong>例句</strong>1次 + 跟著說</td>
+                <td>3.0 + 0.4 + 3.0 + 0.5</td>
+                <td><strong>≈ 7秒</strong></td>
+                <td><strong>完全不夠</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          所以App裡有<strong>分別調整A面·B面間隔時間的設定值</strong>。
+          控制面板的基本間隔保持不變，<strong>只給A面更多時間</strong>（設為0就和基本間隔相同）。
+          <strong>跟讀只在A面做，所以沒有理由增加B面的時間。</strong>
+        </p>
+        <p>以下是依目的推薦的組合。不要直接照抄，請當作<strong>起點</strong>。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>目的</th><th>速度</th><th>重複</th><th>A面總時間</th><th>原因</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>初次接觸</strong>（刻下聲音）</td><td>1.0×</td><td>2次</td><td><strong>5秒</strong></td>
+                <td>聽兩次、跟著說一次的餘裕</td>
+              </tr>
+              <tr>
+                <td><strong>跟讀（單字）</strong></td><td>0.9×</td><td>1次</td><td><strong>4秒</strong></td>
+                <td>聽一次就立刻跟著說</td>
+              </tr>
+              <tr>
+                <td><strong>跟讀（例句）</strong></td><td>0.85×</td><td>1次</td><td><strong>7~8秒</strong></td>
+                <td>句子跟著說需要時間</td>
+              </tr>
+              <tr>
+                <td><strong>聲調訓練</strong>（中文）</td><td><strong>0.7×</strong></td><td>3次</td><td><strong>6秒</strong></td>
+                <td>放慢後聲調輪廓聽起來更開。<br /><strong>不要調到0.7以下</strong></td>
+              </tr>
+              <tr>
+                <td><strong>適應聽力速度</strong></td><td>1.3~1.5×</td><td>1次</td><td><strong>3秒</strong></td>
+                <td>讓耳朵習慣實戰速度</td>
+              </tr>
+              <tr>
+                <td><strong>複習掃描</strong>（已會的單字）</td><td>1.5×</td><td>1次</td><td><strong>2秒</strong></td>
+                <td>快速掃過，只找漏洞</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>跟讀的核心是「出聲說出來」。</strong>在腦中默唸不是跟讀。
+          <strong>要實際動到嘴巴的肌肉</strong>，才會形成發音動作的記憶，而那最終會變成說話能力。
+          <strong>如果不打算開口，就沒有理由拉長間隔。</strong>直接設3秒、多刷幾輪就好。
+        </div>
+
+        <h2 id="limits">瀏覽器TTS的限制 — 老實說</h2>
+        <p>
+          這裡是本文<strong>最重要的部分</strong>。
+          瀏覽器語音合成有<strong>免費、不需安裝</strong>這個壓倒性的優點，
+          但<strong>是有代價的。</strong>知道了再用，和不知道就用，是兩回事。
+        </p>
+
+        <h3>① 每台裝置的語音都不同 — 這是最大的限制</h3>
+        <p>
+          App<strong>並不會製造語音。</strong><strong>只是借用裝置上已經安裝的語音。</strong>
+          所以<strong>同樣的CSV、同樣的設定，在手機上聽起來很自然，在電腦上卻像機器人</strong>。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>環境</th><th>狀況</th></tr></thead>
+            <tbody>
+              <tr><td><strong>iPhone / Mac</strong></td><td>內建高品質語音。不過依語言不同，可能需要<strong>在設定中另外下載</strong>。</td></tr>
+              <tr><td><strong>Android / Chrome</strong></td><td>品質大致不錯。但<strong>沒有語言包的話，該語言的語音根本不存在。</strong></td></tr>
+              <tr><td><strong>Windows + Edge</strong></td><td>使用高品質線上語音。<strong>很多時候是最好的組合。</strong></td></tr>
+              <tr><td><strong>Windows + Chrome</strong></td><td>常常只出現舊型本機語音，<strong>明顯像機器人。</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          所以App提供<strong>依地區設定自行選擇語音的功能</strong>。預設值是「自動」（由瀏覽器自行選擇）。
+          <strong>聲音不滿意的話，就放棄自動，從清單裡自己挑。</strong>通常都藏著好得多的語音。
+        </p>
+        <div class="note warn">
+          <strong>中文·泰文學習者請不要跳過這一項。</strong>
+          其他語言語音品質低，頂多是「有點彆扭」，
+          但<strong>在聲調語言裡，語音品質低就等於「要學的資訊流失了」。</strong>
+          用聲調輪廓被弄糊的語音，是學不會聲調的。<strong>選擇語音不是可選項，而是必要的。</strong>
+        </div>
+
+        <h3>② 重新整理後TTS一定是關閉的（不是bug）</h3>
+        <p>
+          App<strong>刻意不儲存TTS的狀態。</strong>其他設定都會儲存，只有這個不存。
+          <strong>因為瀏覽器會阻止在沒有使用者互動的情況下發出聲音</strong>。
+          如果把開啟狀態存起來，頁面一打開App就會想發聲、被瀏覽器擋下，
+          <strong>使用者就會遇到「明明開著卻沒有聲音」</strong>這種最糟的狀態。
+        </p>
+        <p>
+          所以永遠以關閉狀態啟動。<strong>你按下TTS核取方塊的那一下點擊，正是解開瀏覽器聲音鎖的鑰匙</strong>。
+          <strong>每次都要自己打開雖然不方便，但另一種做法更糟。</strong>
+        </p>
+
+        <h3>③ 語音清單會晚到</h3>
+        <p>
+          瀏覽器會以<strong>非同步</strong>方式載入可用的語音清單。
+          剛打開頁面時，<strong>語音選擇清單可能看起來是空的。</strong>
+          App會在清單到達時自動更新，但<strong>如果設定視窗是空的，請稍等一下再重新打開。</strong>
+        </p>
+
+        <h3>④ 離線時語音會改變或消失</h3>
+        <p>
+          <strong>本機語音</strong>離線也能運作，但<strong>高品質語音有不少是雲端的</strong>，需要網路。
+          <strong>在飛機上聲音突然變成機器人，或完全沒有聲音，就是這個原因。</strong>
+          <strong>App和單字本本身離線也能正常運作</strong>（因為只存在瀏覽器裡）。
+          <strong>只有TTS取決於作業系統和網路。</strong>
+        </p>
+
+        <h3>⑤ 單一個單字沒有上下文</h3>
+        <p>
+          這是已經出現好幾次的問題，而且<strong>在結構上無法解決。</strong>
+          英文的<code>read</code>、中文的<code>行</code>（xíng 行走 / háng 行列·銀行）、
+          俄文的<code>замок</code>（城堡 / 鎖）— <strong>TTS只能用猜的，而且常常猜錯。</strong>
+        </p>
+        <p>
+          <strong>解法只有一個：把上下文放進卡片。</strong>
+          用括號強制指定發音，或在A面放例句，二選一。
+          <strong>這是TTS的限制，不是調設定就能修好的問題。</strong>
+        </p>
+
+        <h3>⑥ 單字單獨的發音是「辭典形」 — 不是實戰發音</h3>
+        <p>
+          <strong>這是最被低估的限制。</strong>
+          TTS唸單一個單字時，發出的是<strong>一字一字清楚唸出的辭典形（citation form）</strong>。
+          但是<strong>實際對話中，單字並不是那樣發音的。</strong>
+        </p>
+        <ul>
+          <li><strong>弱讀（weak form）</strong> — <code>to</code>不是「tuu」而是/tə/「tə」，<code>can</code>不是「kæn」而是/kən/「kən」，會被含糊帶過。</li>
+          <li><strong>連音與縮讀</strong> — <code>want to</code> → 「wanna」，<code>going to</code> → 「gonna」。</li>
+          <li><strong>閃音化</strong> — 美式英文的<code>water</code>，t會變得接近/d/。</li>
+        </ul>
+        <p>
+          <strong>用TTS把單字背得完美的人，卻一句母語者對話都聽不懂，常見的原因就是這個。</strong>
+          用單字卡學到的聲音，和<strong>實戰中流動的聲音是不一樣的。</strong>
+          <strong>單字TTS只幫你抓住「發音的起點」，並不會幫你完成聽力。</strong>
+          完成它的是<strong>真實的內容（影集·Podcast·課程）</strong>。這個App無法取代它們。
+        </p>
+
+        <h3>⑦ TTS只提供輸入 — 沒有人會告訴你發音對不對</h3>
+        <p>
+          這是跟讀根本上的限制。<strong>讓你聽到正確的聲音，和確認你發出的聲音是否正確，是完全不同的兩件事。</strong>
+          <strong>App做不到後者。</strong>就算你跟著說錯了，<strong>也沒有人會指出來。</strong>
+          而且人<strong>沒辦法準確聽清自己的發音。</strong>
+        </p>
+        <p>
+          <strong>補救方法</strong>在App之外 — <strong>用手機錄下自己的聲音，和TTS交替聽聽看。</strong>
+          光是這樣，就能聽到<strong>自己絕對察覺不到的差異</strong>。
+          <strong>可以的話，請人幫你確認是最確實的。</strong>
+        </p>
+
+        <h2>總結</h2>
+        <p>
+          <strong>TTS不是「開了比較好的附加功能」，而是依語言不同，「不開就只背了一半」的功能。</strong>
+        </p>
+        <ul>
+          <li><strong>中文·泰文</strong> — 不用TTS背，<strong>單字的一半（聲調）進不了記憶。</strong>連語音品質都要顧好。</li>
+          <li><strong>英文·法文·日文·俄文</strong> — <strong>拼寫會背叛發音。</strong>TTS能阻止錯誤發音被存進去。</li>
+          <li><strong>西班牙文·義大利文</strong> — <strong>光看拼寫就能唸出發音。</strong>TTS不是用來學發音，而是<strong>用來適應速度</strong>。</li>
+          <li><strong>CSV標記</strong> — 日文<strong>括號內寫讀音假名</strong>，英文<strong>只有同形異音詞改寫拼法</strong>，
+              中文<strong>A面禁止括號·拼音放B面。</strong><strong>IPA和諧音標記絕對不要放進括號。</strong></li>
+          <li><strong>跟讀</strong> — <strong>如果要開口</strong>，A面時間設4~5秒（例句7~8秒）。<strong>不開口的話就設3秒、多刷幾輪。</strong></li>
+        </ul>
+        <div class="note">
+          最後也是最重要的 — <strong>TTS只會「讓你聽到」發音，不會幫你記住。</strong>
+          <a href="/method#fix">接觸和提取是不同的。</a>聽過一個聲音，不代表你發得出那個聲音。
+          <strong>必須開口。</strong>這一部分沒有任何工具能代勞。
+        </div>
+
+        <div class="note warn">
+          <strong>本文的範圍與限制</strong><br />
+          本文中的<strong>App行為·設定範圍·計算規則</strong>（速度0.5~2.0倍、重複1~20次、音量相乘、括號處理、13種地區設定）是
+          <strong>取自VOCA DECK實際程式碼的值</strong>。<br />
+          相對地，<strong>「每音節0.25~0.35秒」、「反應時間0.3~0.5秒」、依目的推薦的組合</strong>
+          <strong>不是測量得到的研究結果，而是根據實際使用的粗估值</strong>。個人差異很大，請<strong>只當作起點</strong>。<br />
+          各語言的發音說明以<strong>標準語（普通話·東京方言·標準法語等）為準</strong>，
+          <strong>地區變體·方言可能不同。</strong>
+          而且<strong>瀏覽器TTS不是母語者。</strong>考試或重要場合的發音，
+          <strong>請務必用辭典的語音和真正的母語者素材交叉確認。</strong>
+        </div>
+
+        <h2>延伸閱讀</h2>
+        <div class="related">
+          <a href="/method"><b>閃示單字記憶法的原理</b><span>遺忘曲線·間隔效應·雙重編碼，以及其局限</span></a>
+          <a href="/csv-guide"><b>製作CSV單字本</b><span>解決編碼亂碼＋好卡片的設計原則</span></a>
+          <a href="/study-guide"><b>學習策略指南</b><span>每天背幾個、複習週期、4週計畫</span></a>
+          <a href="/"><b>開啟單字本</b><span>打開TTS馬上開始</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 營運 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+      </div>
+    </main>

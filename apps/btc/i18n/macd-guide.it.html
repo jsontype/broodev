@@ -1,0 +1,697 @@
+    <main class="wrap" data-title="Calcolare il MACD a mano — EMA, linea del segnale e istogramma passo dopo passo su 42 chiusure | broodev" data-desc="Inseriamo 42 chiusure e calcoliamo candela per candela EMA12, EMA26, linea MACD, linea del segnale e istogramma. Perché con 30 candele si ottengono zero valori di istogramma, il vero motivo per usare l’EMA invece della SMA e perché broodev guarda la direzione rispetto al giorno prima anziché il valore assoluto dell’istogramma — verificato con il codice reale e numeri reali.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Metodologia del punteggio</a>
+        <a href="/indicators">Guida agli indicatori</a>
+        <a href="/guide-fear-greed">Come usare l’indice di paura</a>
+        <a href="/glossary">Glossario</a>
+      </nav>
+
+      <h1>Calcolare il MACD a mano<br />— 42 chiusure seguite fino in fondo</h1>
+      <p class="muted">Ultimo aggiornamento: 2026-07-14 · Autore: Y-Systems · Questo testo non è una spiegazione, ma un <strong>resoconto di un esercizio</strong></p>
+
+      <p class="lead">
+        Partiamo dal fallimento. Preparate <strong>30</strong> chiusure e applicate un MACD standard (12·26·9):
+        otterrete 5 valori della linea MACD, ma <strong>0 valori della linea del segnale e 0 valori di istogramma</strong>.
+        Con un mese di dati non si riesce a costruire <em>nemmeno una</em> barra dell’istogramma MACD.
+        Sono sorprendentemente pochi a saperlo, perché il MACD l’hanno imparato solo come «la differenza tra la media a 12 giorni e quella a 26 giorni».
+      </p>
+      <p>
+        Per questo il testo non parte da una definizione. <strong>Inseriamo davvero 42 chiusure</strong>
+        e seguiamo EMA12 → EMA26 → linea MACD → linea del segnale → istogramma → punteggio parziale di broodev
+        <strong>candela per candela, con la calcolatrice.</strong> Basta una calcolatrice per riprodurre ogni numero di questo articolo;
+        se non tornano, siamo noi ad aver sbagliato.
+      </p>
+
+      <section class="bd-figs" aria-label="Grafico MACD in tempo reale">
+        <p class="muted">Prima di entrare nel passo-passo, vediamo cosa dà questo calcolo applicato a dati BTC reali. È esattamente la stessa formula dell’esercizio con 42 chiusure qui sotto (EMA12−EMA26, segnale EMA9).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">Caricamento dei dati del grafico…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">Caricamento dei dati del grafico…</div></div>
+          </div>
+          <p class="bd-cap">Prezzo di BTC negli ultimi 2 anni (sopra) e MACD(12,26,9) (sotto). Barre = istogramma (linea MACD−linea del segnale, verde positivo / rosso negativo). L’ampiezza assoluta del MACD è proporzionale al livello di prezzo — è il motivo per cui il testo guarda la direzione invece del valore assoluto. Dati: CoinMetrics Community API, chiusure giornaliere di BTC — scaricate al momento della visita e calcolate nel browser; <strong>valori approssimativi, solo indicativi</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Il materiale — le 42 chiusure usate in tutto l’articolo</h2>
+      <p>
+        Si tratta di un asset fittizio. Parte da 100, <strong>scende del −25,7% fino a 74,3 e poi rimbalza</strong>.
+        È una forma comune nelle criptovalute, costruita apposta per includere una zona (il minimo) in cui i risultati dei calcoli divergono nettamente.
+      </p>
+      <pre><code>G1–6     100.0  99.1 100.4  98.6  99.3  97.8
+G7–14     96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+G15–22    88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+G23–30    81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← il giorno 30 è il minimo (74.3)
+G31–36    75.6  74.8  76.9  78.2  77.5  79.8
+G37–42    81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>Non preoccupatevi dell’unità di misura.</strong> Lo dimostreremo più avanti: il punteggio parziale MACD di broodev è
+        <strong>del tutto invariante rispetto alla scala (scale-invariant)</strong>. Moltiplicate queste 42 chiusure per 700 per portarle
+        al livello del bitcoin (58.730 dollari): <strong>il punteggio parziale resta identico fino alla quarta cifra decimale.</strong>
+        Per questo usiamo numeri intorno a 100, più facili da leggere.
+      </div>
+
+      <p class="step">PASSO 1</p>
+      <h2>Perché l’EMA e non la SMA — «una candela di 12 giorni fa crea il segnale di oggi»</h2>
+      <p>
+        I manuali dicono che «l’EMA è più sensibile ai prezzi recenti, quindi più veloce», e si fermano lì. Questa frase è <strong>vera solo a metà.</strong>
+        Con le stesse 42 chiusure abbiamo calcolato fianco a fianco un <strong>MACD in versione SMA (SMA12−SMA26)</strong> e un <strong>MACD in versione EMA (EMA12−EMA26)</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Giorno</th><th>Chiusura</th><th>Linea MACD (EMA)</th><th>Linea MACD (SMA)</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← minimo EMA</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← minimo SMA</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Risultato 1 — sul minimo l’EMA è stata più veloce di una candela</h3>
+      <p>
+        La versione EMA ha toccato il minimo (−7.008) il <strong>giorno 28</strong> e poi ha girato; la versione SMA il <strong>giorno 29</strong> (−7.201).
+        Una candela di differenza. Inoltre il minimo dell’EMA è <strong>meno profondo</strong> (−7.008 contro −7.201).
+        Fin qui, tutto come da manuale.
+      </p>
+
+      <h3>Risultato 2 — ma a tornare verso lo zero è stata più veloce la SMA</h3>
+      <p>
+        Guardate il giorno 42. La versione SMA è a <strong>−0.006</strong>, praticamente ha superato la linea dello zero, mentre la versione EMA è ancora a <strong>−1.389</strong>.
+        L’idea che «l’EMA sia sempre più veloce» qui crolla. <strong>Perché la SMA è balzata all’improvviso?</strong>
+      </p>
+      <p>
+        Dal giorno 41 al giorno 42 la linea MACD in versione SMA si è mossa <strong>da −1.036 a −0.006, cioè +1.030 in un solo giorno</strong>.
+        Lo stesso giorno la versione EMA si è mossa solo di +0.565. Quasi il doppio di differenza. Il calcolo rivela la causa.
+      </p>
+      <pre><code>SMA12(giorno 42) − SMA12(giorno 41)
+  = (86.2 del giorno 42 che entra − 74.3 del giorno 30 che esce dalla finestra) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← effetto non del prezzo di oggi, ma della «scomparsa della candela del giorno 30»
+
+Variazione lato SMA26 = (86.2 − 87.2 del giorno 16) ÷ 26 = −0.0385
+
+Variazione del MACD versione SMA = +0.9917 − (−0.0385) = +1.030   ✅ coincide con la tabella</code></pre>
+      <p>
+        <strong>Ecco il vero motivo per non usare la SMA.</strong> Gran parte del segnale SMA del giorno 42 non nasce
+        <em>dal rialzo del prezzo di oggi</em>, ma dal fatto che <strong>il minimo di 74.3 di 12 giorni prima (giorno 30) è uscito di colpo dalla finestra della media mobile.</strong>
+        Oggi sul mercato non è successo nulla, eppure <strong>un evento di 12 giorni fa genera il segnale d’acquisto di oggi.</strong>
+        Nel settore lo si chiama <strong>«effetto di uscita dalla finestra» (drop-off effect)</strong>.
+      </p>
+      <p>
+        L’EMA non ha una finestra. Il peso dei prezzi vecchi decade in modo esponenziale secondo <code>(1−α)ⁿ</code>; <em>svanisce solo gradualmente</em>
+        e non viene mai <strong>espulso dal calcolo</strong> da un giorno all’altro. Per questo la versione EMA, lo stesso giorno, si è mossa in modo fluido di +0.565.
+      </p>
+      <div class="note">
+        <strong>In sintesi</strong> — si usa l’EMA non «perché è veloce», ma <strong>«perché non crea segnali fantasma»</strong>.
+        La SMA è più lenta di una candela nei punti di svolta e, in cambio, sparge nei momenti sbagliati <strong>falsi scatti creati da una candela di 12 giorni prima</strong>.
+        Più della <em>velocità</em> di un segnale conta la sua <em>causa</em>.
+      </div>
+
+      <p class="step">PASSO 2</p>
+      <h2>Calcolare l’EMA12 con la calcolatrice</h2>
+      <p>
+        L’EMA usata da broodev <strong>prende come valore iniziale (seed) la media semplice dei primi <code>period</code> valori</strong> e da lì in poi aggiorna in modo esponenziale.
+        <code>α = 2 ÷ (periodo + 1)</code>. Per l’EMA12, <code>α = 2/13 = 0.153846</code>.
+      </p>
+      <pre><code>// codice reale di broodev (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← seed = media semplice dei primi period valori
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>Ora inseriamo le 42 chiusure. Il giorno 12 nasce il seed, dal giorno 13 inizia l’aggiornamento.</p>
+      <pre><code>Seed giorno 12 = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+               = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+Giorno 13 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+Giorno 14 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+Giorno 15 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+Giorno 16 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+Giorno 17 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        Il nocciolo è solo questo: <strong>«all’84,6% dell’EMA di ieri si aggiunge il 15,4% della chiusura di oggi»</strong>.
+        I pesi sono gli stessi ogni giorno e il passato viene diluito ogni giorno all’84,6%. Il peso di una chiusura di 30 giorni prima è
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code> — meno dello 0,1%. Ma <strong>non è zero.</strong> Questa differenza era la conclusione del PASSO 1.
+      </p>
+
+      <p class="step">PASSO 3</p>
+      <h2>EMA26 e linea MACD — il primo valore arriva solo il giorno 26</h2>
+      <p>Per l’EMA26, <code>α = 2/27 = 0.074074</code>. Il seed è la media semplice dei giorni da 1 a 26.</p>
+      <pre><code>Seed giorno 26 = 2341.4 ÷ 26 = <strong>90.0538</strong>
+Giorno 27 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+Giorno 28 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+Giorno 29 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+Giorno 30 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        Poiché il seed dell’EMA26 nasce solo il giorno 26, <strong>anche il primo valore della linea MACD (EMA12 − EMA26) è del giorno 26.</strong>
+        Fino al giorno 25 <strong>la linea MACD semplicemente non esiste.</strong>
+      </p>
+      <pre><code>Linea MACD (giorno 26) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        Qui arriva la prima osservazione importante. Mettete in fila la linea MACD dal giorno 26 al giorno 34.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Giorno</th><th>Chiusura</th><th>Linea MACD</th><th>Nota</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>Minimo della linea MACD</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>Inizio del rimbalzo</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>Il prezzo fa un minimo più basso, il MACD un minimo più alto</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Chiusura del giorno 28: 75.1 → chiusura del giorno 30: 74.3. <strong>Il prezzo ha fatto un minimo più basso (−1,1%).</strong>
+        La linea MACD invece è passata da −7.008 a −6.851: <strong>ha fatto un minimo più alto.</strong>
+        Si chiama <strong>divergenza rialzista (bullish divergence)</strong>.
+        Significa: «il prezzo segna un nuovo minimo, ma la <em>velocità</em> della discesa sta già rallentando».
+      </p>
+      <p>
+        In questo esercizio il vero minimo del prezzo era il <strong>giorno 30</strong>.
+        La linea MACD aveva già girato il <strong>giorno 28</strong>. <strong>L’indicatore ha cambiato direzione due candele prima del prezzo.</strong>
+        Tenetelo a mente — è la base del «perché la direzione e non il valore assoluto» del PASSO 6.
+      </p>
+
+      <p class="step">PASSO 4</p>
+      <h2>La linea del segnale — il punto in cui 30 candele non bastano</h2>
+      <p>
+        La linea del segnale è l’<strong>EMA9 della linea MACD</strong>, cioè una <strong>EMA di una EMA</strong>.
+        Dato che la linea MACD parte dal giorno 26, il seed della linea del segnale (la media di 9 valori MACD) si può calcolare
+        <strong>solo quando sono disponibili tutti i valori dal giorno 26 al giorno 34</strong>.
+      </p>
+      <pre><code>Seed del segnale (giorno 34)
+ = media dei 9 valori della linea MACD, giorni 26–34
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+Istogramma (giorno 34) = linea MACD (−5.613) − linea del segnale (−6.6071) = <strong>+0.994</strong>   ← primo valore!</code></pre>
+      <p>Dal giorno 35 si aggiorna con α = 0.2.</p>
+      <pre><code>Segnale giorno 35 = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+                    istogramma = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+Segnale giorno 36 = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+                    istogramma = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+Segnale giorno 37 = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+                    istogramma = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>Perché con 30 candele l’istogramma ha zero valori</strong><br />
+        26 (seed EMA26) + 9 (seed del segnale) − 1 = <strong>34</strong>. Il <strong>primo valore dell’istogramma cade, nel migliore dei casi, sulla 34ª candela</strong>.
+        broodev però guarda la <strong>variazione dell’istogramma rispetto al giorno prima</strong>, quindi ne servono <strong>2</strong> → <strong>35 candele</strong>.
+        Per questo nel codice c’è questa condizione di guardia.
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← sotto le 35 candele: punteggio parziale MACD = null</code></pre>
+        Quando il MACD è <code>null</code>, entra in funzione la <a href="/methodology">rinormalizzazione dei pesi</a>:
+        il punteggio viene calcolato con gli altri 5 indicatori e mostrato come <code>coverage 5/6</code>. È uno stato che si vede spesso nelle coin appena quotate.
+      </div>
+      <p class="muted">
+        Aggiungiamo che 35 candele sono una <strong>condizione minima, non sufficiente.</strong> L’istogramma del giorno 34 si basa su un seed del segnale che è
+        <em>solo una media semplice di 9 valori MACD</em>: un valore ancora «acerbo». Nella pratica, per avere un istogramma stabile servono
+        almeno <strong>60–80 candele</strong>. Ci torniamo con i numeri nell’<a href="#seed">appendice A</a> alla fine dell’articolo.
+      </p>
+
+      <p class="step">PASSO 5</p>
+      <h2>La tabella completa — dal giorno 26 al giorno 42</h2>
+      <p>
+        Tutti i valori visti finora in un’unica tabella. <strong>ΔIstogramma</strong> è la «variazione dell’istogramma rispetto alla candela precedente»,
+        <strong>breve · lungo termine</strong> sono i punteggi parziali MACD (0–100) che broodev ne ricava.
+        Le righe grigie indicano la <strong>zona in cui il calcolo è semplicemente impossibile</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>Giorno</th><th>Chiusura</th><th>EMA12</th><th>EMA26</th><th>Linea MACD</th><th>Segnale</th><th>Istogramma</th><th>ΔIstogramma</th><th>Punteggio breve termine</th><th>Punteggio lungo termine</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Notate che nella tabella <strong>la linea MACD resta negativa fino al giorno 42 (−1.389)</strong>.
+        Seguendo la regola «comprare quando il MACD sale sopra la linea dello zero», in tutto questo rimbalzo <strong>non avreste ricevuto nemmeno un segnale d’acquisto.</strong>
+        Al contrario, <strong>l’istogramma è già positivo il giorno 34 (+0.994)</strong>.
+        L’istogramma misura <em>se la linea MACD ha superato la linea del segnale</em>, quindi è molto più rapido dell’attraversamento dello zero.
+      </p>
+      <p>
+        E guardate il <strong>giorno 41</strong>. Questa sola riga è tutto il PASSO successivo.
+      </p>
+
+      <p class="step">PASSO 6</p>
+      <h2>Qui broodev si separa dal manuale — la direzione, non il valore assoluto</h2>
+      <p>
+        Fin qui era MACD standard: qualsiasi software di grafici dà gli stessi valori.
+        <strong>Da qui in poi inizia la parte propria di broodev.</strong> Ecco, <strong>così com’è nel codice sorgente</strong>, la funzione che trasforma
+        l’istogramma (un numero reale senza limiti) in un punteggio da 0 a 100.
+      </p>
+      <pre><code>// mapping breve termine (momentum) — peso MACD 14%
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① <strong>livello</strong> dell’istogramma
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② <strong>direzione</strong> rispetto al giorno prima
+, 0, 100)
+
+// mapping lungo termine (contrarian) — peso MACD 18%
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② <strong>direzione</strong> rispetto al giorno prima
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① <strong>livello</strong> dell’istogramma
+, 0, 100)</code></pre>
+      <p>
+        Le due funzioni hanno <strong>la stessa struttura con i coefficienti invertiti.</strong> Tutto qui.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Termine</th><th>Significato</th><th>Coefficiente breve termine (momentum)</th><th>Coefficiente lungo termine (contrarian)</th></tr></thead>
+          <tbody>
+            <tr><td>① Livello</td><td>Quanto è grande adesso l’istogramma (valore assoluto)</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② Direzione</td><td>Se è cresciuto o calato rispetto alla candela precedente (Δ)</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>Rapporto livello : direzione</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>Guadagno della tanh</td><td>Più è grande, prima si satura con piccole variazioni</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La modalità a breve termine pesa il livello il doppio.</strong> Conta quanto è forte il trend.<br />
+        <strong>La modalità a lungo termine pesa la direzione 2,5 volte di più.</strong> Anche se l’istogramma è ancora molto negativo,
+        a dominare il punteggio è <strong>«va meglio di ieri?»</strong>.
+      </p>
+
+      <h3>Stesso istogramma, direzione diversa — quanto divergono i punteggi?</h3>
+      <p>Con un prezzo di 100 abbiamo provato quattro situazioni in cui <strong>il valore dell’istogramma è uguale e cambia solo la direzione rispetto al giorno prima</strong>.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Situazione</th><th>Istogramma</th><th>Valore precedente</th><th>Punteggio breve termine</th><th>Punteggio lungo termine</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>Molto negativo ma <strong>in forte inversione al rialzo</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>Molto negativo e <strong>ancora in calo</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>Leggermente positivo ma <strong>in flessione</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>Leggermente positivo e <strong>in salita</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Confrontate le righe 1 e 2. <strong>Il valore dell’istogramma è identico, −0.30.</strong> Cambia solo la direzione.
+        Eppure <strong>il punteggio parziale a lungo termine passa da 22.6 a 58.4, con 35.8 punti di scarto.</strong>
+        Un modello che guarda solo il valore assoluto <strong>non distinguerebbe</strong> le due situazioni: entrambe sarebbero «negative».
+      </p>
+      <p>
+        Ma la riga 1 è <strong>proprio il giorno 28</strong> visto al PASSO 3:
+        la candela in cui, mentre il prezzo segnava un nuovo minimo, la pressione ribassista <em>cominciava ad attenuarsi</em>.
+        Guardando solo il valore assoluto, quella candela sarebbe stata valutata «la peggiore». <strong>In realtà mancavano due candele al minimo.</strong>
+      </p>
+      <p>
+        Le righe 3 e 4 raccontano la stessa storia al contrario. L’istogramma è positivo (+0.10), quindi <strong>per un modello basato sul valore assoluto sono entrambe «positive»</strong>,
+        ma una sta flettendo e l’altra sta salendo. I punteggi a lungo termine si separano: <strong>37.5 contro 66.5</strong>.
+      </p>
+      <div class="note">
+        <strong>In una frase</strong> — il valore assoluto dell’istogramma dice <strong>«quanto va bene adesso»</strong>,
+        la variazione rispetto al giorno prima dice <strong>«se sta migliorando»</strong>.
+        In un’ottica di accumulo a lungo termine, ciò che vogliamo comprare non è un <em>asset che va già bene</em>, ma un <em>asset che ha smesso di peggiorare</em>.
+        Per questo nel mapping a lungo termine il coefficiente di direzione (25) sovrasta quello di livello (10).
+      </div>
+
+      <h3>Il prezzo da pagare: la tanh si satura in fretta (la lezione del giorno 41)</h3>
+      <p>
+        Niente è gratis. Pesare molto la direzione <strong>fa oscillare forte il punteggio anche per il minimo rumore.</strong>
+        Il <strong>giorno 41</strong> della tabella del PASSO 5 ne è la prova.
+      </p>
+      <pre><code>Giorno 40: ΔIstogramma = <strong>+0.155</strong>  (+0.183% sul prezzo 84.7)  → punteggio lungo termine <strong>80.0</strong>
+Giorno 41: ΔIstogramma = <strong>−0.014</strong>  (−0.017% sul prezzo 83.9)  → punteggio lungo termine <strong>57.4</strong>
+
+Calcolo del termine di direzione:
+  Giorno 40 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  Giorno 41 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  Differenza <strong>−22.5 punti</strong>   ← coincide con il calo del punteggio parziale a lungo termine (−22.6)</code></pre>
+      <p>
+        <strong>Un minuscolo calo dell’istogramma, pari allo 0,017% del prezzo, ha fatto perdere 22.6 punti al punteggio parziale a lungo termine.</strong>
+        La causa è la saturazione della <code>tanh</code>. <code>tanh(1.098) ≈ 0.80</code> — cioè, basta che Δ arrivi allo 0,18% del prezzo perché
+        il termine di direzione prenda già <strong>l’80% del suo massimo (25 punti)</strong>. Oltre, per quanto cresca, non sale più.
+        Al contrario, se il segno si inverte, quei 20 punti <strong>spariscono all’istante.</strong>
+      </p>
+      <p>In forma di tabella questa curva di saturazione è evidente.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>ΔIstogramma ÷ prezzo</th><th>Termine di direzione breve termine (max 15)</th><th>Termine di direzione lungo termine (max 25)</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00 (saturo)</td><td>25.00 (saturo)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Oltre lo 0,4% entrambi i termini sono praticamente al massimo.</strong> Al di sopra non aggiungono alcuna informazione.
+        In altre parole, <strong>l’informazione «l’istogramma è enorme» non si riflette quasi per niente nel punteggio di broodev.</strong>
+        Anche in un rally esplosivo il punteggio parziale MACD resta incollato intorno a 100 e non sale oltre.
+        È una scelta voluta (impedire che i valori estremi dominino il punteggio complessivo), ma al tempo stesso è una <strong>evidente perdita di informazione</strong>.
+        Lo scriviamo apertamente.
+      </p>
+
+      <p class="step">PASSO 7</p>
+      <h2>Esperimento in mercato laterale — non succede nulla, ma il punteggio oscilla tra 21 e 83</h2>
+      <p>
+        Vediamo ora lo scenario peggiore <strong>in numeri</strong>. Creiamo un nuovo set di dati:
+        <strong>un mercato perfettamente laterale che oscilla tra 98.4 e 101.5 per 60 candele.</strong> L’escursione complessiva è di <strong>±1,5%</strong>.
+        Per 60 giorni sul mercato non è successo praticamente <strong>nulla</strong>.
+      </p>
+      <p>Applichiamo lo stesso MACD (12·26·9) e lo stesso mapping di broodev.</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Giorno</th><th>Chiusura</th><th>Istogramma</th><th>Segno</th><th>Inversione</th><th>Punteggio breve termine</th><th>Punteggio lungo termine</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Riassumendo, il quadro è questo.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Voce</th><th>Valore</th></tr></thead>
+          <tbody>
+            <tr><td>Candele con un valore di istogramma</td><td>27 candele (giorni 34–60)</td></tr>
+            <tr class="mark"><td><strong>Numero di inversioni di segno dell’istogramma</strong></td><td><strong>10 volte</strong> — in media una ogni 2,7 candele</td></tr>
+            <tr><td>Valore assoluto massimo dell’istogramma</td><td>0.132 (<strong>0,13%</strong> del prezzo)</td></tr>
+            <tr><td>Intervallo del punteggio parziale a breve termine</td><td>21.1–83.0 → <strong>ampiezza 61.9</strong></td></tr>
+            <tr><td>Intervallo del punteggio parziale a lungo termine</td><td>32.8–71.2 → <strong>ampiezza 38.4</strong></td></tr>
+            <tr><td>Media del punteggio parziale a breve termine</td><td>52.6 (neutrale)</td></tr>
+            <tr><td>Media del punteggio parziale a lungo termine</td><td>50.7 (neutrale)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>In 27 candele il segnale di acquisto/vendita si è invertito 10 volte.</strong> Questo è il <strong>whipsaw</strong> (falsi segnali a ripetizione).
+        Seguendo alla lettera la regola classica «comprare quando l’istogramma supera lo zero verso l’alto, vendere quando lo buca verso il basso»,
+        <strong>in questi 27 giorni avreste comprato e venduto 10 volte</strong> e, con il prezzo fermo, <strong>pagato commissioni 10 volte</strong>.
+      </p>
+      <p>
+        Ancora più preoccupante è <strong>l’ampiezza del punteggio</strong>. Il mercato si è mosso solo del ±1,5%, eppure
+        il punteggio parziale a breve termine ha oscillato <strong>da 21.1 (forte invito a evitare) a 83.0 (forte acquisto)</strong>.
+        Tra il 21.1 del giorno 50 e l’81.0 del giorno 38 <strong>non c’è praticamente alcuna differenza reale di mercato</strong>: il 2,6% di scarto sulla chiusura.
+      </p>
+
+      <h3>Quindi, quanto oscilla il punteggio finale?</h3>
+      <p>Il MACD è solo uno dei 6 indicatori. Moltiplicando per il peso si ottiene il suo <strong>impatto reale sul punteggio complessivo (0–100)</strong>.</p>
+      <pre><code>Modalità breve termine: ampiezza del punteggio parziale 61.9 × peso <strong>0.14</strong> = <strong>8.67 punti</strong>
+Modalità lungo termine: ampiezza del punteggio parziale 38.4 × peso <strong>0.18</strong> = <strong>6.91 punti</strong></code></pre>
+      <p>
+        Ecco un <strong>risultato controintuitivo</strong>:
+        <strong>il breve termine ha un peso minore (14% &lt; 18%), ma fa oscillare di più il punteggio finale (8.67 &gt; 6.91).</strong>
+        Il coefficiente di livello 30 e il guadagno 800 rendono il mapping a breve termine molto più sensibile.
+        Concludere, guardando solo il peso, che «nel breve termine il MACD conta meno» sarebbe sbagliato. <strong>Bisogna guardare anche la funzione di mapping.</strong>
+      </p>
+      <p class="muted">
+        Per inciso, in entrambe le modalità <strong>la media è intorno a 50 (52.6 / 50.7)</strong>. In un mercato laterale il punteggio parziale MACD resta
+        neutrale <em>in media</em>. Il problema è che si opera <strong>non sulla media, ma sul valore del giorno</strong>.
+      </p>
+
+      <p class="step">PASSO 8</p>
+      <h2>Peso 14% contro 18% — una risposta con i calcoli</h2>
+      <p>
+        Nei pesi pubblicati nel <a href="/methodology">documento sulla metodologia</a>, il MACD vale <strong>14% nel breve termine e 18% nel lungo termine</strong>.
+        «Perché il MACD, che è un indicatore di momentum, pesa meno proprio nella modalità momentum (breve termine)?» — è una domanda frequente, e legittima.
+        La risposta è la <strong>ridondanza</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Modalità</th><th>Natura momentum/trend</th><th>Natura contrarian</th><th>Ruolo del MACD</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Breve termine</strong></td>
+              <td>RSI 28% + F&amp;G 28% + ribasso 18% + MACD 14% + croce 8% = <strong>96%</strong><br /><span class="muted">nella modalità a breve termine RSI, F&amp;G e ribasso sono <em>tutti mappati nella direzione del momentum</em></span></td>
+              <td>Mayer 4%</td>
+              <td><strong>Ridondante.</strong> Il 96% guarda già il trend</td>
+            </tr>
+            <tr>
+              <td><strong>Lungo termine</strong></td>
+              <td>MACD 18% + croce 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + Mayer 18% + ribasso 14% = <strong>50%</strong><br />(RSI 18% con mapping contrarian)</td>
+              <td><strong>L’unico freno.</strong> Più della metà di quel 32% che frena quando il 68% grida «compra»</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Dei 6 indicatori della modalità a breve termine, in pratica 5 sono già mappati nella direzione del momentum.</strong>
+        L’RSI, tramite <code>50 + (RSI−50) × 1.6</code>, dà <em>un punteggio tanto più alto quanto più è alto</em> (ipercomprato = buono),
+        il F&amp;G <em>un punteggio tanto più alto quanto più c’è avidità</em>, e il ribasso <em>un punteggio tanto più alto quanto più è contenuto</em>.
+        Caricare pesantemente anche il MACD significherebbe <strong>contare la stessa informazione quattro volte</strong>.
+        Inoltre, come visto al PASSO 7, <strong>il MACD è l’indicatore più rumoroso del gruppo</strong> (10 inversioni in 27 candele).
+        Non c’è motivo di dare più peso a un indicatore ridondante e rumoroso. Da qui il 14%.
+      </p>
+      <p>
+        <strong>La modalità a lungo termine è l’esatto opposto.</strong> F&amp;G (18%) · Mayer (18%) · ribasso (14%) — <strong>in totale il 50% sono indicatori contrarian</strong>,
+        e questi tre <a href="/indicators">sbagliano tutti insieme nei mercati ribassisti</a>. Tutti e tre gridano «costa poco, compra» mentre il prezzo continua a scendere.
+        In quel momento <strong>gli unici indicatori in grado di dire «non ancora» sono il MACD (18%) e la croce golden/death (14%)</strong>.
+        Ma la croce, che usa la media mobile a 200 giorni, è <strong>il segnale più lento</strong>: vicino al minimo arriva con settimane di ritardo.
+      </p>
+      <div class="note">
+        <strong>Conclusione</strong> — nella modalità a lungo termine il 18% del MACD non c’è <strong>«perché ci fidiamo di più del momentum», ma «perché mancano i freni»</strong>.
+        In una struttura in cui il trio contrarian vale il 50%, il MACD è <strong>l’unico indicatore rapido che conferma che il trend si è davvero invertito</strong>.
+        E questa conferma non passa da <em>l’istogramma è diventato positivo?</em> (lento),
+        ma da <em>l’istogramma è più grande di ieri?</em> (veloce) — ecco perché il coefficiente di direzione nel mapping a lungo termine è 25.
+        <strong>Il peso del 18% e il coefficiente di direzione 25 sono due facce della stessa decisione.</strong>
+      </div>
+
+      <p class="step">Appendice A</p>
+      <h2 id="seed">Il vostro grafico e il nostro istogramma possono non coincidere</h2>
+      <p>
+        È un fatto che la maggior parte degli articoli sul MACD non dice mai: <strong>il MACD non è uno standard normato.</strong>
+        «12·26·9» è fissato, ma <strong>con quale valore far partire l’EMA (il seeding) non lo è.</strong>
+      </p>
+      <ul>
+        <li><strong>Metodo broodev</strong> — come seed si usa la <strong>media semplice</strong> dei primi <code>period</code> valori (PASSI 2·3 qui sopra)</li>
+        <li><strong>Un altro metodo diffuso</strong> — come seed si usa <strong>la prima chiusura stessa</strong>, facendo girare l’EMA dal giorno 1</li>
+      </ul>
+      <p>Stesse 42 chiusure, stesso 12·26·9, eppure l’istogramma diverge così.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Giorno</th><th>Chiusura</th><th>Istogramma<br />(broodev · seed SMA)</th><th>Istogramma<br />(seed prima chiusura)</th><th>Differenza</th><th>Differenza ÷ prezzo</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>nessun valore</td><td><strong>+0.056</strong> ← segnale d’acquisto!</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Guardate il giorno 33.</strong> Con il seed sulla prima chiusura l’istogramma è <strong>già positivo a +0.056</strong> —
+        cioè è comparso il segnale <strong>«l’istogramma supera lo zero verso l’alto, compra»</strong>.
+        Lo stesso giorno broodev <strong>non ha nemmeno un valore</strong> (il seed del segnale nasce il giorno 34).
+        <strong>Stessi dati, stessi parametri, ma giorno del segnale diverso.</strong>
+      </p>
+      <p>
+        La differenza si riduce col tempo (0,82% → 0,35%). In teoria l’influenza del seed su un’EMA si estingue in modo esponenziale,
+        quindi <strong>con abbastanza dati i due metodi convergono.</strong> Ma anche alla 42ª candela resta una differenza dello 0,35% del prezzo.
+      </p>
+      <p>
+        <strong>Quanto si trasferisce allora questa differenza sul punteggio parziale di broodev?</strong> Abbiamo semplicemente fatto il calcolo anche qui.
+        Il risultato <strong>è stato diverso da quanto mi aspettavo, e proprio per questo più interessante.</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Giorno</th><th>Differenza di istogramma</th><th>Punteggio breve termine<br />(noi / alternativa)</th><th>Δ</th><th>Punteggio lungo termine<br />(noi / alternativa)</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La differenza nei punteggi parziali è di appena 0.2–4.9 punti.</strong> L’istogramma si è scostato fino allo 0,82%, ma i punteggi quasi non si separano.
+        Il motivo è <strong>proprio la saturazione della tanh che al PASSO 6 avevamo criticato come «perdita di informazione»</strong>.
+        In questa zona l’istogramma è già abbastanza grande da tenere il termine di livello incollato al massimo;
+        <strong>essendo entrambi saturi, la differenza non riesce a trasferirsi sul punteggio.</strong>
+      </p>
+      <div class="note">
+        <strong>La stessa proprietà è insieme debolezza e forza</strong><br />
+        La saturazione della tanh <strong>butta via l’informazione sull’entità dei valori estremi</strong> (il difetto del PASSO 6). Ma è proprio grazie a questa proprietà che
+        <strong>il punteggio risente poco del rumore di implementazione, come il metodo di seeding o la fonte dei dati</strong> (il pregio dell’appendice A).
+        Si guadagna da una parte e si perde dall’altra. Noi abbiamo <strong>scelto la robustezza.</strong> Se sia stata la scelta giusta, non lo sappiamo.
+      </div>
+      <p>
+        <strong>Però è presto per tranquillizzarsi.</strong> Il risultato qui sopra riguarda una fase di trend in cui l’istogramma è <em>già grande</em>.
+        Se si inserisce la stessa differenza dello 0,30% <strong>quando l’istogramma è vicino a 0 (= prima della saturazione)</strong>, succede questo.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Istogramma (prezzo 100)</th><th>Punteggio breve termine</th><th>Punteggio lungo termine</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15 (a cavallo della linea dello zero)</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Se gli istogrammi finiscono ai due lati della linea dello zero, il punteggio parziale a breve termine si separa di 50 punti.</strong>
+        E <strong>la zona vicina allo 0 è esattamente quella in cui si cercano i segnali</strong> — punti di svolta, mercati laterali, l’attimo prima di un incrocio.
+        <strong>La zona in cui la differenza di seeding pesa di più è, guarda caso, la più importante.</strong>
+        (Anche qui il mapping a lungo termine oscilla molto meno di quello a breve: +14.3 contro +50.0, perché il suo coefficiente di livello è solo 10.)
+      </p>
+      <div class="note warn">
+        <strong>Tre implicazioni pratiche</strong>
+        <ul>
+          <li>
+            <strong>Non confrontate i valori assoluti del MACD tra siti diversi.</strong> Se l’istogramma di broodev è diverso da quello del vostro software di grafici,
+            non è che uno dei due sbagli: <strong>è diverso il metodo di seeding</strong>. Il confronto in sé non ha senso.
+          </li>
+          <li>
+            <strong>Più lo storico è corto, più serve cautela.</strong> Nelle coin appena quotate l’influenza del seed non si è ancora esaurita.
+            Su asset come BTC, con centinaia di candele, la differenza è trascurabile.
+          </li>
+          <li>
+            <strong>Diffidate in particolare del segnale «l’istogramma ha appena superato lo zero».</strong> Come mostra la tabella qui sopra,
+            vicino allo zero le differenze di implementazione possono separare il punteggio parziale fino a 50 punti.
+            <strong>Più che l’attraversamento dello zero in sé, è molto più sicuro guardare la persistenza della direzione su più candele.</strong>
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">Appendice B</p>
+      <h2>Cosa questo esercizio non ha dimostrato (e non può dimostrare)</h2>
+      <p>
+        Finora abbiamo riprodotto il calcolo con <strong>dati fittizi</strong> di 42 e 60 candele.
+        Distinguiamo con chiarezza ciò che questo articolo ha dimostrato da ciò che <strong>non ha dimostrato</strong>.
+      </p>
+      <h3>Cosa è dimostrato</h3>
+      <ul>
+        <li>Il calcolo del MACD di broodev è lo <strong>standard 12·26·9</strong> e, con i numeri qui sopra, <strong>chiunque può riprodurlo</strong>.</li>
+        <li>L’istogramma esiste <strong>dalla 34ª candela</strong>, la valutazione della direzione <strong>dalla 35ª</strong>. Per questo c’è la condizione <code>closes.length &gt;= 35</code>.</li>
+        <li>Il mapping a lungo termine pesa la direzione 2,5 volte di più, con <strong>coefficiente di direzione 25 : coefficiente di livello 10</strong>. È scritto così nel codice.</li>
+        <li>Il punteggio è <strong>invariante rispetto al livello di prezzo</strong> (identico fino alla quarta cifra decimale anche ×700).</li>
+        <li>In un mercato laterale questo indicatore <strong>inverte il segnale 10 volte in 27 candele.</strong> È una <strong>debolezza misurata</strong> del nostro modello.</li>
+        <li>
+          Il MACD <strong>non è uno standard normato.</strong> Basta cambiare il metodo di seeding perché, sugli stessi dati, cambi il giorno del segnale.
+          Tuttavia, grazie alla saturazione della tanh, <strong>nelle fasi di trend</strong> questa differenza quasi non si trasferisce sul punteggio parziale (0.2–4.9 punti).
+          <strong>Vicino alla linea dello zero può arrivare fino a 50 punti.</strong>
+        </li>
+      </ul>
+      <h3>Cosa non è dimostrato (importante)</h3>
+      <ul>
+        <li>
+          <strong>Non è una prova che «seguire i cambi di direzione faccia guadagnare».</strong> Le 42 candele qui sopra sono dati fittizi <em>che ho costruito perché rimbalzassero</em>.
+          Sarebbe altrettanto facile costruire dati che, dopo un cambio di direzione sul minimo, <strong>scendono di un altro −40%</strong>.
+          <strong>La trasparenza del calcolo</strong> e <strong>la capacità predittiva</strong> sono questioni del tutto diverse.
+        </li>
+        <li>
+          <strong>Il MACD è per natura un indicatore ritardato.</strong> È una media mobile della differenza tra medie mobili.
+          Quando l’istogramma cambia direzione, <strong>una parte del movimento è già passata</strong>.
+          Il fatto che al PASSO 3 la linea MACD abbia girato 2 candele prima del prezzo è una <strong>divergenza</strong>, non una <strong>capacità divinatoria</strong> —
+          e le divergenze <strong>falliscono spesso.</strong>
+        </li>
+        <li>
+          <strong>I pesi 14%/18% sono una valutazione dell’autore.</strong> La logica del PASSO 8 (evitare la ridondanza, assicurarsi un freno) è una <em>motivazione progettuale</em> convincente,
+          <strong>non una prova del valore ottimale.</strong> Il 16% potrebbe funzionare meglio. I dati non danno una risposta netta.
+        </li>
+        <li>
+          <strong>La saturazione della tanh butta via l’informazione estrema.</strong> Come visto al PASSO 6, oltre lo 0,4% del prezzo
+          l’entità dell’istogramma non si riflette più nel punteggio. È un progetto che <strong>scarta deliberatamente l’informazione sull’intensità</strong> dei crolli e dei rally storici.
+        </li>
+        <li>
+          <strong>Il MACD non sa nulla di notizie, regolamentazione, attacchi hacker o liquidità.</strong> Anche mentre un exchange sta fallendo, l’istogramma può disegnare una bella inversione al rialzo.
+        </li>
+      </ul>
+      <p>
+        Il punteggio parziale MACD è solo il <strong>14–18%</strong> del punteggio complessivo di broodev.
+        Il restante 82–86% viene dagli <a href="/indicators">altri cinque indicatori</a>,
+        e il modo in cui vengono combinati è interamente pubblicato nel <a href="/methodology">documento sulla metodologia</a>.
+        <strong>Nessun singolo indicatore decide qualcosa da solo.</strong> È questa l’intenzione del progetto.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avvertenza sugli investimenti</strong><br />
+        Questo documento è un <strong>documento tecnico che rende pubblico un metodo di calcolo e non costituisce consulenza finanziaria.</strong>
+        Le chiusure e i punteggi del testo sono <strong>dati fittizi</strong> che servono a mostrare il procedimento di calcolo e non prevedono il prezzo futuro di alcun asset.
+        Le criptovalute sono asset ad alto rischio con cui è possibile <strong>perdere l’intero capitale</strong>.
+        Ogni decisione di investimento e i suoi risultati (guadagni e perdite) sono interamente responsabilità dell’utente. Fate sempre le vostre ricerche (DYOR).
+      </div>
+
+      <h2>Continua a leggere</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodologia del punteggio</b><span>Pesi dei 6 indicatori, incluso il 14%/18% del MACD, e rinormalizzazione, tutto pubblicato</span></a>
+        <a href="/indicators"><b>I 6 indicatori spiegati</b><span>Quando ciascuno degli altri cinque, oltre al MACD, vi tradisce</span></a>
+        <a href="/guide-fear-greed"><b>L’indice di paura nella pratica</b><span>Proprio l’indicatore che il MACD deve frenare</span></a>
+        <a href="/glossary"><b>Glossario</b><span>EMA, istogramma, divergenza, whipsaw: i termini in breve</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · gestito da Y-Systems · <a href="/privacy">Informativa sulla privacy</a> · <a href="/terms">Termini di servizio</a></footer>
+    </main>

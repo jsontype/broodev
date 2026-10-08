@@ -1,0 +1,321 @@
+    <main class="wrap" data-title="Como identificar o fundo do Bitcoin — capitalização de mercado vs custo médio de compra | broodev" data-desc="O fundo do Bitcoin não se identifica pelo preço, mas por a capitalização de mercado ter caído abaixo do custo médio de compra dos investidores (realized cap). Reconstruímos com gráficos ao vivo como o MVRV caiu de facto abaixo de 1 nos cinco fundos de 2011, 2015, 2018, 2020 e 2022, e publicamos na íntegra as fórmulas do score de fundo da broodev (BOTTOM RADAR), que também incorpora o Thermocap (recompensas de mineração acumuladas).">
+      <nav class="nav">
+        <a href="/">← Painel</a>
+        <a href="/methodology">Metodologia do score</a>
+        <a href="/indicators">Guia dos indicadores</a>
+        <a href="/bitcoin-bottom">Sinais de fundo</a>
+        <a href="/glossary">Glossário</a>
+      </nav>
+
+      <h1>Como identificar o fundo do Bitcoin<br />— capitalização de mercado vs custo médio de compra</h1>
+      <p class="muted">Última atualização: 2026-07-22 · Autor: Y-Systems · Âmbito: as componentes on-chain do score de fundo da broodev (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Todas as tentativas de encontrar o fundo do Bitcoin pelo preço falharam. O fundo de 2018 foi de 3.150 dólares e o de 2022 de 15.500 dólares — <strong>uma diferença de cinco vezes.</strong>
+        Mas os dois fundos tinham algo em comum que não era o preço: <strong>a capitalização de mercado do Bitcoin tinha caído abaixo da soma do que todos os investidores pagaram efetivamente (o custo médio de compra total)</strong>.
+        Este artigo desenha essa observação diretamente com dados ao vivo, acompanha por ordem cronológica como o sinal se manifestou nos cinco fundos
+        e publica, fórmulas incluídas, com que pesos o <strong>score de fundo (BOTTOM RADAR)</strong> da broodev o combina.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Índice</div>
+        <ol>
+          <li><a href="#concept">Porque é que o «custo médio de compra» revela o fundo — a realized cap</a></li>
+          <li><a href="#chart-mc">Gráfico ao vivo ① — capitalização de mercado vs custo médio de compra (2010–hoje)</a></li>
+          <li><a href="#history">Cinco fundos — os dias em que o MVRV caiu abaixo de 1</a></li>
+          <li><a href="#mvrv-z">Gráfico ao vivo ② — padronizar com o MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Gráfico ao vivo ③ — Thermocap, o fundo segundo o custo de mineração</a></li>
+          <li><a href="#divergence">Como ler os momentos em que os dois indicadores divergem</a></li>
+          <li><a href="#limits">Os limites destes indicadores — uma amostra de 4 ciclos, a era dos ETF</a></li>
+          <li><a href="#radar">Como é composto o score de fundo da broodev (BOTTOM RADAR) — pesos publicados</a></li>
+          <li><a href="#faq">Perguntas frequentes</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Sobre os números deste artigo.</strong> Os gráficos abaixo são <strong>dados reais obtidos diretamente da CoinMetrics Community API e do blockchain.info e desenhados no navegador</strong> quando a página abre (cache de 6 horas).
+        Já os valores de MVRV nos fundos passados e os retornos posteriores mostrados nas tabelas são <strong>aproximações reconstruídas</strong> — as casas decimais variam conforme a fonte de dados e o dia escolhido como mínimo.
+        A tese deste artigo não está nas casas decimais, mas no <strong>padrão recorrente de que «os períodos em que a capitalização caiu abaixo do custo coincidiram com os fundos»</strong>.
+      </div>
+
+      <h2 id="concept">Porque é que o «custo médio de compra» revela o fundo — a realized cap</h2>
+      <p>
+        Toda a gente conhece a capitalização de mercado: <code>preço atual × oferta em circulação</code>. É um número que <em>pressupõe</em> que um único último preço negociado representa o valor de todas as moedas.
+        Mas nos dados on-chain há outro número, muito mais interessante: a <strong>capitalização realizada (Realized Cap)</strong>.
+      </p>
+      <pre><code>Cap. de mercado  = preço atual × oferta em circulação      (cada moeda avaliada ao «preço de agora»)
+Realized cap     = Σ (cada moeda × preço do dia em que se moveu pela última vez)
+                 = soma do que os investidores pagaram efetivamente ≈ custo médio de compra de todo o mercado × oferta em circulação</code></pre>
+      <p>
+        A blockchain regista <strong>quando cada moeda mudou de carteira pela última vez</strong>. Se se considerar o preço do dia desse movimento como o «custo de aquisição» da moeda e se somar tudo,
+        obtém-se o total de dinheiro que o mercado inteiro colocou efetivamente no Bitcoin. Em termos de ações, equivale a <strong>multiplicar o preço médio de compra de todos os acionistas pelo número de ações</strong>.
+        Por isso, neste artigo chamamos à realized cap <strong>«custo médio de compra (total)»</strong>.
+      </p>
+      <p>A razão entre os dois números é o famoso <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = cap. de mercado ÷ realized cap
+
+MVRV 2.0  → o detentor médio tem o dobro do capital investido (todos em lucro)
+MVRV 1.0  → o mercado no seu conjunto está exatamente no ponto de equilíbrio
+MVRV 0.8  → o detentor médio está com −20% de perda (todos em perda)</code></pre>
+      <p>
+        Daqui surge a lógica do fundo. <strong>Um MVRV abaixo de 1 significa que, em média, o conjunto dos detentores de Bitcoin está em perda.</strong>
+        Historicamente, nesta zona aconteceram duas coisas. Primeiro, a <strong>capitulação (capitulation)</strong> dos investidores que já não aguentam as perdas atinge o auge.
+        Segundo, quem absorve essas moedas são os detentores de longo prazo, indiferentes a lucros e perdas. É o momento em que as moedas <strong>passam de mãos fracas para mãos fortes</strong>,
+        e em quatro ciclos esse momento <strong>coincidiu sempre com o grande fundo.</strong> Pode confirmá-lo diretamente no gráfico abaixo.
+      </p>
+
+      <h2 id="chart-mc">Gráfico ao vivo ① — capitalização de mercado vs custo médio de compra<span class="info-tip" tabindex="0" role="note" aria-label="Explicação: capitalização de mercado vs custo médio de compra">ⓘ<span class="tip-bubble"><b>Capitalização de mercado vs custo médio de compra</b>A linha azul é o custo médio de compra dos investidores. Quando a capitalização de mercado (branca) cai abaixo desta linha, o investidor médio está em perda — historicamente, foi uma zona de fundo.</span></span></h2>
+      <p>
+        A linha branca é a <strong>capitalização de mercado</strong> e a azul o <strong>custo médio de compra (realized cap)</strong>. A escala é logarítmica e as linhas tracejadas laranja marcam os quatro halvings.
+        Ao passar o rato aparecem a data e os dois valores. Só há uma coisa a observar — <strong>os trechos em que a linha branca mergulha abaixo da azul</strong>. Todos foram fundos.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">A carregar os dados e a desenhar o gráfico… (pode demorar alguns segundos)</div></div>
+      <p class="chart-src">Dados: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, histórico diário completo · realized cap = cap. de mercado ÷ MVRV) · cache local de 6 horas · escala logarítmica</p>
+      <p>
+        Repare numa propriedade da linha azul: <strong>quase nunca desce.</strong> Mesmo enquanto a capitalização despenca −80%, o custo médio de compra desce apenas suavemente.
+        Isto porque o custo <em>só é atualizado quando há realmente uma transação</em>. Mesmo num mercado tomado pelo medo, a maioria das moedas fica parada, e o custo de uma moeda parada não muda.
+        Assim, a linha azul comporta-se <strong>não como uma linha de gravidade do preço, mas como o valor contabilístico do mercado</strong>. É raro a capitalização romper o valor contabilístico para baixo — e é por ser raro que é um sinal.
+      </p>
+
+      <h2 id="history">Cinco fundos — os dias em que o MVRV caiu abaixo de 1</h2>
+      <p>
+        Na história do Bitcoin, as fases em que a capitalização caiu abaixo do custo médio de compra (MVRV &lt; 1) contam-se pelos dedos. Eis os registos que coincidiram com os cinco grandes fundos.
+        Todos os valores são <strong>aproximações</strong> — variam conforme o dia escolhido como mínimo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fase de fundo</th><th>Preço na altura (aprox.)</th><th>MVRV mínimo (aprox.)</th><th>1 ano depois (aprox.)</th><th>2 anos depois (aprox.)</th></tr></thead>
+          <tbody>
+            <tr><td>novembro de 2011</td><td>cerca de $2</td><td><code>0.4~0.6</code></td><td>cerca de $11 (+400% ou mais)</td><td>cerca de $1.000 (centenas de vezes)</td></tr>
+            <tr><td>janeiro de 2015</td><td>cerca de $170~230</td><td><code>0.55~0.7</code></td><td>cerca de $380~430 (+90~130%)</td><td>cerca de $900 (+300% ou mais)</td></tr>
+            <tr><td>dezembro de 2018</td><td>cerca de $3.200</td><td><code>~0.7</code></td><td>cerca de $7.200 (+120% ou mais)</td><td>cerca de $23.000 (+600% ou mais)</td></tr>
+            <tr><td>março de 2020</td><td>cerca de $3.800~5.000</td><td><code>0.85~0.95</code> (durante alguns dias)</td><td>cerca de $58.000 (+1.000% ou mais)</td><td>cerca de $44.000 (+700% ou mais)</td></tr>
+            <tr><td>novembro de 2022</td><td>cerca de $15.500</td><td><code>0.75~0.85</code></td><td>cerca de $37.000 (+130% ou mais)</td><td>cerca de $90.000 (+480% ou mais)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Os cinco fundos tiveram causas totalmente diferentes: o rebentamento da primeira bolha (2011), as consequências da Mt. Gox (2015), a liquidação da bolha das ICO (2018), o pânico da pandemia (2020) e a falência da FTX (2022).
+        Entre $2 e $15.500 o preço difere <strong>7.750 vezes</strong>. E, no entanto, <strong>o MVRV esteve abaixo de 1 nas cinco ocasiões, em geral na faixa de 0,7–0,9</strong>.
+        Se medirmos não o preço absoluto, mas <strong>«quanto está descontado face ao custo de todo o mercado»</strong>, cinco fundos completamente diferentes caem quase no mesmo ponto.
+      </p>
+      <div class="note warn">
+        <strong>Atenção: o inverso não é verdade.</strong> «MVRV &lt; 1 = fundo imediato» é falso.
+        Em 2011, em 2014–2015 e no final de 2018, o MVRV permaneceu abaixo de 1 durante <strong>semanas a meses</strong>, e durante esse tempo o preço continuou a cair.
+        O que o indicador diz não é «este é o ponto mais baixo», mas uma informação de zona: <strong>«historicamente, quem comprou de forma faseada nesta faixa ganhou muito 1–2 anos depois»</strong>.
+        Leia-o não como uma ferramenta de timing, mas como <strong>uma ferramenta de zona</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Gráfico ao vivo ② — padronizar com o MVRV Z-Score</h2>
+      <p>
+        A razão MVRV tem um ponto fraco: <strong>a altura dos topos muda de ciclo para ciclo</strong>. No topo de 2011 o MVRV passou de 7; em 2021 não chegou a 4.
+        Quanto maior o mercado, mais a amplitude se comprime. Por isso o motor da broodev usa o <strong>Z-Score</strong> em vez da razão — um método que mede quantos desvios-padrão
+        a <em>diferença</em> entre a capitalização de mercado e a realized cap se afasta face à volatilidade histórica da capitalização.
+      </p>
+      <pre><code>MVRV Z-Score = (cap. de mercado − realized cap) ÷ σ(cap. de mercado)
+               σ = desvio-padrão da cap. de mercado em todo o histórico
+
+z &lt; 0   → cap. de mercado abaixo do custo médio de compra (zona de fundo histórico)
+z ≈ 1~2 → zona normal
+z &gt; 5   → zona de topo histórico (os picos de 2011·2013·2017)</code></pre>
+      <p>
+        O gráfico abaixo mostra o MVRV Z-Score em todo o histórico. O sombreado verde indica <strong>z &lt; 0 (zona de fundo)</strong> e o vermelho <strong>z &gt; 5 (zona de sobreaquecimento)</strong>.
+        Os fundos de 2011·2015·2018·2022 mergulharam todos abaixo de zero (março de 2020 apenas roçou a linha do zero), e os grandes topos de 2011·2013·2017 tocaram todos o sombreado vermelho com z entre 7 e 9.
+        Mas <strong>no topo de 2021 o z ficou-se pelos 3,5</strong> — quanto maior o mercado, mais se comprime a amplitude para cima, um tema que voltará na secção sobre limites.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">A carregar os dados e a desenhar o gráfico…</div></div>
+      <p class="chart-src">Dados: calculados a partir da CoinMetrics Community API com a mesma fonte do gráfico anterior · z = (cap. − realized cap) ÷ σ(cap.) · σ sobre todo o histórico até cada ponto (janela expansiva) · cache local de 6 horas</p>
+      <div class="note">
+        <strong>Publicamos o cálculo tal como é.</strong> O MVRV Z do painel da broodev obtém-se derivando,
+        a partir de <code>CapMrktCurUSD</code> (capitalização de mercado) e <code>CapMVRVCur</code> (razão MVRV) da CoinMetrics Community API,
+        a <code>realized cap = cap. de mercado ÷ MVRV</code>, e padronizando depois com a <strong>σ(cap. de mercado) de todo o histórico</strong>.
+        No gráfico acima, os trechos passados são calculados com a <strong>σ disponível até esse momento</strong> (janela expansiva) — para desenhar «o valor que o investidor desse dia podia ver».
+        O último ponto coincide, por definição, exatamente com o valor atual do painel. A API é gratuita e não exige chave, por isso qualquer pessoa pode reproduzir os mesmos números.
+      </div>
+
+      <h2 id="thermocap">Gráfico ao vivo ③ — Thermocap, o fundo segundo o custo de mineração</h2>
+      <p>
+        Se a realized cap é o <strong>custo dos investidores</strong>, o Bitcoin tem ainda outro custo: o <strong>custo dos produtores</strong>, ou seja, o custo de mineração.
+        O <strong>Thermocap</strong> é o <strong>total acumulado (em USD) das recompensas pagas aos mineradores (recompensa de bloco + taxas)</strong> desde o lançamento do Bitcoin.
+        É a soma do dinheiro investido até hoje na segurança da rede — por outras palavras, <strong>o custo total de criar este ativo</strong>.
+      </p>
+      <pre><code>Thermocap    = Σ (receita diária dos mineradores em USD)  ← acumulada desde 2009
+Thermocap Z  = z-score of ln(cap. de mercado ÷ Thermocap)   [sobre todo o histórico]
+
+Historicamente, a razão cap. de mercado/Thermocap oscila entre poucas vezes e várias dezenas de vezes.
+Quanto mais baixo o z do logaritmo padronizado da razão, mais «subavaliado face ao custo de produção».</code></pre>
+      <p>
+        É normal que a capitalização de mercado negocie a um múltiplo do Thermocap (é a natureza de um ativo com tendência de alta). O que importa é <strong>em que ponto do intervalo histórico</strong> esse múltiplo se encontra,
+        e ao padronizar o logaritmo do múltiplo como z-score torna-se possível comparar ciclos. No gráfico abaixo vê-se que <strong>os trechos em que z cai abaixo de 0</strong> coincidem com as zonas de fundo histórico.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">A carregar os dados e a desenhar o gráfico…</div></div>
+      <p class="chart-src">Dados: blockchain.info charts/miners-revenue (período completo) — acumulados ponderando o intervalo de amostragem em dias (aproximação integral) · alinhados por data com a cap. de mercado diária da CoinMetrics · z = z-score de ln(cap./Thermocap) sobre todo o histórico · cache local de 6 horas</p>
+      <p>
+        O denominador do Thermocap difere radicalmente da realized cap: <strong>nunca diminui e só cresce um pouco por dia, independentemente do mercado.</strong>
+        Mesmo que os investidores vendam as moedas em pânico, o acumulado das recompensas de mineração não se mexe. Por isso o Thermocap Z torna-se, face aos indicadores baseados na realized cap,
+        <strong>uma linha de referência de fundo mais lenta e mais teimosa</strong>. Este indicador é <strong>exclusivo do Bitcoin</strong>, para o qual existem dados de recompensas de mineração — não pode ser calculado para altcoins.
+      </p>
+
+      <h2 id="divergence">Como ler os momentos em que os dois indicadores divergem</h2>
+      <p>
+        São ambos indicadores de «custo» — porquê olhar para os dois? <strong>Porque os seus denominadores se movem a velocidades diferentes.</strong>
+        A realized cap (o denominador do MVRV) é atualizada sempre que uma moeda muda de mãos — se o mercado de alta se prolonga, o próprio custo sobe, e quando a capitulação termina o custo assenta.
+        O Thermocap limita-se a acumular. É esta diferença de velocidade que gera o sinal.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinação</th><th>Interpretação</th><th>Exemplos históricos (aprox.)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z baixo + Thermocap Z baixo</td><td><strong>Zona de fundo profundo.</strong> Perto tanto do custo dos investidores como do custo de produção</td><td>2015 · final de 2018 · final de 2022</td></tr>
+            <tr><td>MVRV Z baixo + Thermocap Z normal</td><td>Queda abrupta a meio do ciclo. Houve capitulação, mas o fundo estrutural não está confirmado</td><td>março de 2020 · julho de 2021</td></tr>
+            <tr><td>MVRV Z normal + Thermocap Z alto</td><td>Fase final do mercado de alta. O custo já subiu muito e olhar só para o MVRV engana</td><td>novembro de 2021 (segundo topo)</td></tr>
+            <tr><td>Ambos altos</td><td><strong>Zona de topo histórico.</strong> A pior altura para novas compras</td><td>final de 2013 · final de 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A terceira linha é especialmente importante. Quando um mercado de alta dura mais de um ano, <strong>a realized cap sobe atrás do preço e o MVRV parece «normal».</strong>
+        No topo do ciclo de novembro de 2021, o MVRV estava muito abaixo dos topos de 2011–2017. É exatamente o mesmo tipo de silêncio do Múltiplo de Mayer, que <a href="/mayer-multiple">em novembro de 2021 dizia neutro</a>.
+        Nesse momento, um indicador <strong>cujo denominador não sobe atrás do preço</strong>, como o Thermocap, cumpre o papel de verificação cruzada.
+      </p>
+
+      <h2 id="limits">Os limites destes indicadores — uma amostra de 4 ciclos, a era dos ETF</h2>
+      <p>Escrevemo-lo com honestidade: até onde são válidos os argumentos deste artigo.</p>
+      <ul>
+        <li>
+          <strong>A amostra é de apenas 4 ciclos.</strong> A observação «MVRV &lt; 1 marcou o fundo» assenta em cinco fases, ou seja, quatro ciclos completos.
+          É um tamanho que mal se pode chamar estatística, e <strong>uma observação não é uma lei.</strong> Nada garante que o próximo ciclo pare no mesmo ponto.
+        </li>
+        <li>
+          <strong>Possível distorção na era dos ETF.</strong> Desde 2024, grandes quantidades de moedas ficaram retidas em ETF à vista e em custodiantes institucionais.
+          As unidades dos ETF mudam de mãos sem movimentos on-chain, pelo que <strong>mesmo havendo negociação real, a realized cap (o custo) pode não ser atualizada.</strong>
+          É uma mudança estrutural em que o custo on-chain se vai tornando mais antigo do que o custo real de mercado, e turva a comparação direta com ciclos anteriores.
+        </li>
+        <li>
+          <strong>A realized cap pode ser distorcida por movimentos internos das exchanges.</strong> Quando uma exchange reorganiza as suas cold wallets e move moedas,
+          o «custo» desse volume é registado de novo ao preço do dia do movimento, mesmo sem compras reais. Pelo contrário, as moedas que mudam de mãos <em>dentro</em> de uma exchange não deixam rasto on-chain e o seu custo não é atualizado.
+        </li>
+        <li>
+          <strong>O problema das moedas adormecidas para sempre.</strong> As moedas mineradas nos primeiros tempos e nunca mais movidas (como as de Satoshi, estimadas em vários milhões)
+          têm um custo calculado perto de 0. É um enviesamento que leva a realized cap a ser estruturalmente subestimada.
+        </li>
+        <li>
+          <strong>A natureza da σ sobre todo o histórico.</strong> Como a σ(cap. de mercado), denominador do MVRV Z, é calculada sobre todo o histórico, quanto maior o mercado maior também a σ, e
+          <strong>a amplitude do z nos ciclos recentes fica comprimida face ao passado.</strong> Significa que «valores extremos como z &gt; 7 podem não voltar a aparecer», e é por isso que os limiares não devem ser usados como critérios absolutos.
+        </li>
+      </ul>
+
+      <h2 id="radar">Como é composto o score de fundo da broodev (BOTTOM RADAR) — pesos publicados</h2>
+      <p>
+        O <strong>BOTTOM RADAR</strong> do painel da broodev é um score composto separado que não responde a «se comprar agora, vai subir?», mas apenas a uma pergunta: <strong>«estamos agora numa zona de fundo histórico?»</strong>.
+        Os próprios pesos são diferentes dos scores de curto e longo prazo. O ponto-chave é concentrar 55% nos dois indicadores on-chain de custo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicador</th><th>Peso</th><th>Porquê este peso</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Face ao custo médio de compra dos investidores. O sinal principal, que funcionou nos cinco fundos</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Face ao custo de produção (mineração). Verificação cruzada quando o denominador do MVRV cria uma ilusão</td></tr>
+            <tr><td>Múltiplo de Mayer</td><td>15%</td><td>Preço face à média de 200 dias. Um eixo de preço puro que o on-chain não vê</td></tr>
+            <tr><td>Queda desde o máximo de 365d</td><td>15%</td><td>Profundidade da queda desde o máximo. O denominador é um máximo fixo, por isso não se cala nem na fase final de um mercado de baixa</td></tr>
+            <tr><td>Índice de Medo e Ganância</td><td>15%</td><td>O termómetro da psicologia de capitulação. O fundo chegou sempre acompanhado de medo extremo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A soma dos cinco elementos é <strong>1,00</strong>. Cada indicador usa o score normalizado de longo prazo (contrário) — os dois on-chain mapeiam o valor z para 0–100 com a tabela de âncoras abaixo —
+        e os indicadores sem dados não recebem 0 pontos: <strong>são excluídos do cálculo e os pesos restantes são renormalizados para um total de 100%</strong>.
+        Nas moedas que não são BTC o Thermocap é sempre excluído, e nas não suportadas pela CoinMetrics também o MVRV, por isso verifique sempre a indicação de cobertura.
+      </p>
+      <pre><code>mapeamento z → score (Z_ANCHORS, interpolação linear por troços)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>O score composto interpreta-se em cinco faixas.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Score de fundo</th><th>Avaliação</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Zona de fundo histórico — o mesmo ponto dos grandes fundos passados</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Subavaliado — zona de desconto face ao custo</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutro</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Sobreavaliado — zona de prémio face ao custo</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Zona de topo · sobreaquecimento — o mesmo ponto dos grandes topos passados</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Não há prova de que os pesos 35·20·15·15·15 sejam ótimos. A única certeza é a direção — na avaliação do fundo, <strong>os indicadores on-chain baseados no custo mostraram melhor reprodutibilidade entre ciclos do que os baseados no preço</strong>,
+        e por isso receberam a maioria do peso. Todo o sistema de score (a combinação de 8 indicadores dos separadores de curto e longo prazo) está publicado na íntegra no <a href="/methodology">documento de metodologia do score</a>.
+      </p>
+
+      <h2 id="faq">Perguntas frequentes</h2>
+      <dl>
+        <dt>Se o MVRV cair abaixo de 1, é sempre o fundo?</dt>
+        <dd>
+          Não. Historicamente, as zonas de MVRV &lt; 1 coincidiram com os grandes fundos, mas <em>mesmo dentro delas</em> o preço chegou a cair mais 20–40% (2011, 2015).
+          Deve ser lido não como «sinal do ponto mais baixo», mas como «zona de compra faseada que historicamente teve bons resultados 1–2 anos depois», e a amostra é de apenas quatro ciclos.
+        </dd>
+        <dt>Onde posso ver a realized cap (custo médio de compra)?</dt>
+        <dd>
+          Os gráficos desta página derivam e desenham diretamente a realized cap a partir da capitalização de mercado e do MVRV da CoinMetrics Community API (gratuita, sem chave).
+          Os cartões MVRV·Z do painel da broodev e o score de fundo (BOTTOM RADAR) também usam os mesmos dados e as mesmas fórmulas.
+        </dd>
+        <dt>Este método pode ser usado em altcoins?</dt>
+        <dd>
+          Só em parte. A broodev calcula o MVRV Z para as 10 moedas para as quais a CoinMetrics fornece MVRV (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA);
+          nas moedas não suportadas o indicador fica N/A e os pesos são renormalizados. O Thermocap (recompensas de mineração acumuladas) é exclusivo do Bitcoin.
+        </dd>
+        <dt>Porque é que é fundo quando a capitalização cai abaixo do custo médio de compra?</dt>
+        <dd>
+          Uma capitalização abaixo da realized cap significa que, em média, o conjunto dos detentores está em perda. Nesta zona, a venda em pânico de quem já não aguenta as perdas atinge o auge,
+          e à medida que essas moedas passam para detentores de longo prazo a pressão vendedora esgota-se. Trata-se, porém, de uma observação dos últimos quatro ciclos, não de uma lei garantida.
+        </dd>
+      </dl>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Se o MVRV cair abaixo de 1, é sempre o fundo?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Não. Historicamente, as zonas de MVRV < 1 coincidiram com os grandes fundos, mas mesmo dentro delas o preço chegou a cair mais 20–40% (2011, 2015). Deve ser lido não como sinal do ponto mais baixo, mas como zona de compra faseada que historicamente teve bons resultados 1–2 anos depois, e a amostra é de apenas quatro ciclos." }
+          },
+          {
+            "@type": "Question",
+            "name": "Onde posso ver a realized cap (custo médio de compra)?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Os gráficos da página btc.broodev.com/bitcoin-bottom derivam e desenham diretamente a realized cap a partir da capitalização de mercado e do MVRV da CoinMetrics Community API (gratuita, sem chave). Os cartões MVRV·Z do painel da broodev e o score de fundo (BOTTOM RADAR) também usam os mesmos dados e as mesmas fórmulas." }
+          },
+          {
+            "@type": "Question",
+            "name": "Este método pode ser usado em altcoins?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Só em parte. A broodev calcula o MVRV Z-Score para as 10 moedas para as quais a CoinMetrics fornece MVRV (BTC, ETH, XRP, DOGE, BCH, LINK, XLM, LTC, DOT, MANA); nas moedas não suportadas o indicador fica N/A e os pesos são renormalizados. O Thermocap (recompensas de mineração acumuladas) é exclusivo do Bitcoin." }
+          },
+          {
+            "@type": "Question",
+            "name": "Porque é que é fundo quando a capitalização cai abaixo do custo médio de compra?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Uma capitalização abaixo da realized cap significa que, em média, o conjunto dos detentores está em perda. Nesta zona, a venda em pânico de quem já não aguenta as perdas atinge o auge, e à medida que essas moedas passam para detentores de longo prazo a pressão vendedora esgota-se. Trata-se, porém, de uma observação dos últimos quatro ciclos, não de uma lei garantida." }
+          }
+        ]
+      }
+      </script>
+
+      <div class="note warn">
+        <strong>⚠ Aviso sobre investimentos</strong><br />
+        Este documento e os scores da broodev são <strong>material de referência que combina indicadores públicos e não constituem aconselhamento de investimento.</strong>
+        Os valores históricos de MVRV e os retornos citados no texto são <strong>aproximações que podem variar consoante a fonte de dados, e os padrões do passado não garantem o futuro.</strong>
+        As criptomoedas são ativos de alto risco com os quais <strong>é possível perder a totalidade do capital</strong>.
+        Todas as decisões de investimento e os seus resultados (lucros e perdas) são da exclusiva responsabilidade do utilizador. Faça sempre a sua própria pesquisa (DYOR).
+      </div>
+
+      <h2>Continue a ler</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodologia do score</b><span>Com que pesos são combinados os 8 indicadores (todos os valores publicados)</span></a>
+        <a href="/indicators"><b>Guia dos 8 indicadores</b><span>Incluindo MVRV e Thermocap: quando é que cada indicador falha</span></a>
+        <a href="/mayer-multiple"><b>A história do Múltiplo de Mayer</b><span>O que a média de 200 dias disse em cada ciclo — o indicador de fundo no eixo do preço</span></a>
+        <a href="/"><b>Ir para o painel</b><span>Ver agora o score de fundo (BOTTOM RADAR)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · operado pela Y-Systems · <a href="/privacy">Política de privacidade</a> · <a href="/terms">Termos de utilização</a></footer>
+    </main>

@@ -1,5 +1,5 @@
 /* 하단 SEO 본문 다국어 데이터 + 렌더러 (btc의 seo-i18n.js 컨벤션).
-   언어 전환 시 window.renderSEO(lang) 호출 → section.seo 를 해당 언어로 다시 그림.
+   언어 전환 시 window.renderSEO(lang) 호출 → section.seo(+aria-label)와 하단 푸터를 해당 언어로 다시 그림.
    기본 정적 HTML(한국어)은 무JS 크롤러용 폴백으로 남겨두고, JS 실행 시 현재 언어로 교체. */
 (function () {
   var SEO = {
@@ -785,6 +785,48 @@
     }
   };
 
+  /* section.seo 의 aria-label + 하단 푸터(가이드 링크 3 · 홈/약관/문의 · 소개 문단) 13개 언어.
+     index.html 푸터의 data-fk 키와 1:1 (g0~g2 = 헤더 내비 라벨과 같은 표기) */
+  var FOOT = {
+    ko: { seoAria: '깜빡이 단어암기장 안내', aria: '사이트 정보', g: ['암기법 원리', 'CSV 만들기', '학습 전략'], home: '홈', privacy: '개인정보처리방침', terms: '이용약관', contact: '📮 문의 & 버그 신고',
+      desc: 'broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. VOCA DECK의 암기장 데이터는 이용자의 브라우저에만 저장됩니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.' },
+    en: { seoAria: 'About the VOCA DECK flashing vocabulary memorizer', aria: 'Site information', g: ['How It Works', 'Make CSV', 'Study Guide'], home: 'Home', privacy: 'Privacy Policy', terms: 'Terms of Service', contact: '📮 Contact & Bug Report',
+      desc: 'broodev is an app portfolio of free web apps that run right in your browser with no install. VOCA DECK keeps your deck data only in your own browser. Ads may be served through Google AdSense.' },
+    ja: { seoAria: '点滅式単語暗記 VOCA DECK のご案内', aria: 'サイト情報', g: ['暗記の原理', 'CSV作成', '学習法'], home: 'ホーム', privacy: 'プライバシーポリシー', terms: '利用規約', contact: '📮 お問い合わせ & バグ報告',
+      desc: 'broodevは、インストール不要でブラウザからすぐに使える無料Webアプリを制作するアプリポートフォリオです。VOCA DECKの暗記帳データは利用者のブラウザにのみ保存されます。広告はGoogle AdSenseを通じて掲載される場合があります。' },
+    zh: { seoAria: '闪示单词记忆 VOCA DECK 简介', aria: '网站信息', g: ['记忆原理', '制作CSV', '学习策略'], home: '首页', privacy: '隐私政策', terms: '使用条款', contact: '📮 联系与错误报告',
+      desc: 'broodev 是一个应用作品集，打造无需安装、在浏览器中即可直接使用的免费网页应用。VOCA DECK 的记忆卡数据只保存在用户自己的浏览器中。广告可能通过 Google AdSense 投放。' },
+    'zh-Hant': { seoAria: '閃示單字記憶 VOCA DECK 介紹', aria: '網站資訊', g: ['記憶原理', '製作CSV', '學習策略'], home: '首頁', privacy: '隱私權政策', terms: '使用條款', contact: '📮 聯絡與錯誤回報',
+      desc: 'broodev 是一個應用程式作品集，打造免安裝、在瀏覽器中即可直接使用的免費網頁應用程式。VOCA DECK 的記憶卡資料只儲存在使用者自己的瀏覽器中。廣告可能透過 Google AdSense 刊登。' },
+    th: { seoAria: 'แนะนำ VOCA DECK โปรแกรมท่องศัพท์แบบแฟลช', aria: 'ข้อมูลเว็บไซต์', g: ['หลักการจำ', 'สร้าง CSV', 'กลยุทธ์เรียน'], home: 'หน้าแรก', privacy: 'นโยบายความเป็นส่วนตัว', terms: 'ข้อกำหนดการใช้งาน', contact: '📮 ติดต่อและรายงานบั๊ก',
+      desc: 'broodev คือพอร์ตโฟลิโอแอปที่สร้างเว็บแอปฟรีซึ่งใช้งานได้ทันทีในเบราว์เซอร์โดยไม่ต้องติดตั้ง ข้อมูลชุดคำของ VOCA DECK จะถูกเก็บไว้ในเบราว์เซอร์ของผู้ใช้เท่านั้น โฆษณาอาจแสดงผ่าน Google AdSense' },
+    es: { seoAria: 'Acerca de VOCA DECK, el memorizador de vocabulario', aria: 'Información del sitio', g: ['Cómo funciona', 'Crear CSV', 'Guía de estudio'], home: 'Inicio', privacy: 'Política de privacidad', terms: 'Términos de uso', contact: '📮 Contacto e informe de errores',
+      desc: 'broodev es un portafolio de apps web gratuitas que funcionan directamente en el navegador, sin instalación. Los mazos de VOCA DECK se guardan solo en tu navegador. Es posible que se muestren anuncios a través de Google AdSense.' },
+    fr: { seoAria: 'À propos de VOCA DECK, la mémorisation de vocabulaire', aria: 'Informations sur le site', g: ['Principe', 'Créer un CSV', 'Guide d’étude'], home: 'Accueil', privacy: 'Politique de confidentialité', terms: 'Conditions d’utilisation', contact: '📮 Contact & signalement de bug',
+      desc: 'broodev est un portfolio d’applications web gratuites qui fonctionnent directement dans le navigateur, sans installation. Les paquets de VOCA DECK sont enregistrés uniquement dans votre navigateur. Des annonces peuvent être diffusées via Google AdSense.' },
+    de: { seoAria: 'Über VOCA DECK, den Vokabeltrainer mit Blitzanzeige', aria: 'Website-Informationen', g: ['Prinzip', 'CSV erstellen', 'Lernleitfaden'], home: 'Startseite', privacy: 'Datenschutzerklärung', terms: 'Nutzungsbedingungen', contact: '📮 Kontakt & Fehlerbericht',
+      desc: 'broodev ist ein App-Portfolio kostenloser Web-Apps, die ohne Installation direkt im Browser laufen. Die Decks von VOCA DECK werden nur in Ihrem Browser gespeichert. Werbung kann über Google AdSense eingeblendet werden.' },
+    it: { seoAria: 'Informazioni su VOCA DECK, il memorizzatore di vocaboli', aria: 'Informazioni sul sito', g: ['Come funziona', 'Crea CSV', 'Guida allo studio'], home: 'Pagina iniziale', privacy: 'Informativa sulla privacy', terms: 'Termini di utilizzo', contact: '📮 Contatto e segnalazione bug',
+      desc: 'broodev è un portfolio di web app gratuite che funzionano direttamente nel browser, senza installazione. I mazzi di VOCA DECK vengono salvati solo nel tuo browser. Gli annunci possono essere pubblicati tramite Google AdSense.' },
+    pt: { seoAria: 'Sobre o VOCA DECK, memorizador de vocabulário', aria: 'Informações do site', g: ['Como funciona', 'Criar CSV', 'Guia de estudo'], home: 'Início', privacy: 'Política de privacidade', terms: 'Termos de utilização', contact: '📮 Contacto e relatório de erros',
+      desc: 'O broodev é um portefólio de aplicações web gratuitas que funcionam diretamente no navegador, sem instalação. Os baralhos do VOCA DECK ficam guardados apenas no seu navegador. Podem ser apresentados anúncios através do Google AdSense.' },
+    ru: { seoAria: 'О тренажёре слов VOCA DECK', aria: 'Информация о сайте', g: ['Как это работает', 'Создать CSV', 'Руководство'], home: 'Главная', privacy: 'Политика конфиденциальности', terms: 'Условия использования', contact: '📮 Связь и сообщения об ошибках',
+      desc: 'broodev — портфолио бесплатных веб-приложений, которые работают прямо в браузере без установки. Колоды VOCA DECK хранятся только в вашем браузере. Реклама может показываться через Google AdSense.' },
+    nl: { seoAria: 'Over VOCA DECK, de flits-woordjestrainer', aria: 'Website-informatie', g: ['Hoe het werkt', 'CSV maken', 'Studiegids'], home: 'Start', privacy: 'Privacybeleid', terms: 'Gebruiksvoorwaarden', contact: '📮 Contact & bugmelding',
+      desc: 'broodev is een portfolio van gratis webapps die zonder installatie direct in je browser werken. De decks van VOCA DECK worden alleen in je eigen browser opgeslagen. Advertenties kunnen via Google AdSense worden getoond.' }
+  };
+  function renderFoot(f) {
+    var foot = document.querySelector('footer.site-foot');
+    if (!foot) return;
+    foot.setAttribute('aria-label', f.aria);
+    var els = foot.querySelectorAll('[data-fk]');
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute('data-fk');
+      var v = k.charAt(0) === 'g' && k.length === 2 ? f.g[+k.charAt(1)] : f[k];
+      if (v) els[i].textContent = v;
+    }
+  }
+
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function build(d) {
     var li = function (a) { return a.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join(''); };
@@ -810,7 +852,9 @@
     try {
       var d = SEO[lang] || SEO.en;
       var sec = document.querySelector('section.seo');
-      if (sec) { sec.innerHTML = build(d); sec.setAttribute('lang', lang); }
+      var f = FOOT[lang] || FOOT.en;
+      if (sec) { sec.innerHTML = build(d); sec.setAttribute('lang', lang); sec.setAttribute('aria-label', f.seoAria); }
+      renderFoot(f);
     } catch (e) {}
   };
 })();

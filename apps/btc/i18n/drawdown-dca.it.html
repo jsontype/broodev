@@ -1,0 +1,501 @@
+<main class="wrap" data-title="La matematica del ribasso e dell’acquisto scaglionato — per recuperare un −50% serve un +100% | broodev" data-desc="Calcola in tabelle l’asimmetria del recupero delle perdite. Come cambiano prezzo medio e risultato quando gli stessi 12 milioni di won vengono investiti in un’unica soluzione, in 4 rate uguali o con uno scaglionamento pesato sul ribasso, in tre scenari di calo; l’aritmetica dell’esaurimento delle munizioni; e perché un indicatore di ribasso sbaglia al 100%, con coerenza, su un asset che va a zero.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Metodologia del punteggio</a>
+        <a href="/indicators">Guida agli indicatori</a>
+        <a href="/guide-fear-greed">Come usare l’indice di paura</a>
+        <a href="/glossary">Glossario</a>
+      </nav>
+
+      <h1>La matematica del ribasso e dell’acquisto scaglionato</h1>
+      <p class="muted">Ultimo aggiornamento: 2026-07-14 · Autore: Y-Systems · Questo articolo è fatto solo di calcoli</p>
+
+      <p class="lead">
+        In questo articolo non ci sono consigli. <strong>Ci sono solo calcoli.</strong>
+        Mostra soltanto con i numeri perché «è sceso tanto, quindi è a buon mercato» è pericoloso, e che cosa l’acquisto scaglionato fa davvero e che cosa <em>non fa</em>.
+        Scrivo subito la conclusione —
+        <strong>l’acquisto scaglionato non è una tecnica per aumentare i rendimenti. È una tecnica per restringere l’ampiezza dei risultati.</strong>
+        La tabella a nove caselle più sotto lo dimostra.
+      </p>
+
+      <section class="bd-figs" aria-label="Grafico live del ribasso">
+        <p class="muted">Prima di entrare nei calcoli, vediamo che aspetto ha avuto nella storia reale di BTC il protagonista di questo articolo, il «ribasso dal massimo storico». La linea dello 0% significa che si stanno segnando nuovi massimi, e ogni singola valle è un periodo in cui si è dovuto pagare il «rialzo necessario per recuperare» delle tabelle del testo.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">Caricamento dei dati del grafico…</div></div>
+          </div>
+          <p class="bd-cap">Ribasso di BTC dal massimo storico (ATH), intero periodo. Linee tratteggiate = −30% (il punto in cui il modello accende l’«interesse») e −50% (la zona «fortemente favorevole all’acquisto»). Tratteggio arancione = halving. Il punto più profondo è circa −93% nel 2011. Dati: CoinMetrics Community API, chiusure giornaliere di BTC — scaricati al momento della visita e calcolati nel browser, quindi <strong>approssimativi e solo indicativi</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="c1">Calcolo 1 — L’asimmetria del pareggio</h2>
+      <p>
+        Partiamo dalla formula più semplice e più crudele. Per un asset che ha subito un ribasso <code>d</code>,
+        <strong>il rialzo necessario per tornare al capitale iniziale</strong> non è <code>d</code>.
+      </p>
+      <pre><code>rialzo necessario = d ÷ (1 − d)
+
+con −50%      0.50 ÷ 0.50 = +100%
+con −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        Quando scende, la perdita si calcola <strong>su quanto resta</strong>; quando sale, il guadagno si calcola <strong>sulla somma già ridotta</strong>.
+        Per questa sola differenza di denominatore, perdita e recupero non saranno mai simmetrici. Ecco la tabella completa.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Ribasso</th><th>Rialzo necessario per il pareggio</th><th>Quanto resta di 10 milioni di won</th><th>Percezione</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>9 milioni</td><td>Quasi simmetrico. Fin qui l’intuito funziona</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>8 milioni</td><td>Il divario comincia ad allargarsi</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>7 milioni</td><td>Il punto in cui il nostro modello accende l’«interesse»</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>6 milioni</td><td>−40, ma per recuperare serve +67. Già 1,7 volte</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>5 milioni</td><td>Il punto che il nostro modello considera «fortemente favorevole all’acquisto»</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>4 milioni</td><td>Serve 2,5 volte</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>3 milioni</td><td>3,3 volte</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>2 milioni</td><td>5 volte. Bisogna aspettare un intero ciclo</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>1 milione</td><td>10 volte</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>500.000</td><td>20 volte. In pratica diventa un altro asset</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Nella tabella non conta il valore, ma <strong>la distanza</strong>.
+        Mentre il ribasso si approfondisce di 40 punti percentuali, da −10% a −50%, il recupero necessario passa da 11% a 100%: <strong>89 punti</strong> in più.
+        Ma da −50% a −90%, con altri 40 punti esatti di ribasso, il recupero necessario passa da 100% a 900%: <strong>800 punti</strong> in più.
+        <strong>Stessi 40 punti, danno 9 volte maggiore.</strong> Il ribasso cresce in modo lineare, ma il suo prezzo cresce in modo esplosivo.
+      </p>
+
+      <div class="note">
+        Da qui la prima implicazione pratica. <strong>«Tanto è già sceso molto, se scende ancora non cambia granché» è un equivoco totale.</strong>
+        Passare da −50% a −70% non significa «20 punti in più di calo»: è un evento in cui l’onere del recupero <strong>passa da +100% a +233%, cioè 2,3 volte</strong>.
+        Ogni ulteriore calo costa sempre più del precedente.
+      </div>
+
+      <h2 id="c2">Calcolo 2 — I cali non si sommano, si moltiplicano</h2>
+      <p>
+        La seconda trappola è che la gente calcola i ribassi <strong>per somma</strong>.
+        «Ho preso −30% e poi un altro −30%, quindi −60%.» No. I ribassi si moltiplicano.
+      </p>
+      <pre><code>ribasso cumulato = (1 − d₁) × (1 − d₂) × … − 1
+
+−30% due volte  →  0.7 × 0.7 = 0.49  →  −51%
+−50% due volte  →  0.5 × 0.5 = 0.25  →  −75%  (serve +300% per recuperare)</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cali consecutivi</th><th>Calcolati per somma</th><th>Ribasso cumulato reale</th><th>Per il pareggio</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5 volte</td><td>−100% (perdita totale?)</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2 volte</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3 volte</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2 volte</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La natura moltiplicativa è al tempo stesso una buona e una cattiva notizia.
+        Quella buona: <strong>anche con cinque cali del −20% non si arriva a zero</strong> — la moltiplicazione tende a zero senza mai raggiungerlo.
+        Quella cattiva: <strong>i rimbalzi intermedi restituiscono molto meno di quanto si pensi</strong>.
+        Dopo un −50%, anche un rimbalzo del +30% dà <code>0.5 × 1.3 = 0.65</code>: si è ancora a −35%.
+        Perché in un mercato ribassista il sollievo del «finalmente rimbalza» venga tradito così spesso: la risposta sta in questa moltiplicazione.
+      </p>
+
+      <h2 id="c3">Calcolo 3 — Perché proprio il massimo a 365 giorni</h2>
+      <p>
+        Per misurare un ribasso bisogna decidere <strong>da dove è iniziata la discesa</strong>. Se cambia il punto di riferimento, lo stesso prezzo dà un ribasso diverso.
+        Il nostro modello usa il <strong>massimo a 365 giorni</strong>, non il massimo storico (ATH). Questa scelta ha un costo, e lo scriviamo qui.
+      </p>
+      <p>
+        Supponiamo che una moneta sia arrivata a 2 milioni di won tre anni fa, che il massimo dell’ultimo anno sia 1 milione di won e che oggi valga 600.000 won.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Riferimento</th><th>Calcolo del ribasso</th><th>Risultato</th><th>Che cosa dice questo numero</th></tr></thead>
+          <tbody>
+            <tr><td>Massimo storico: 2 milioni</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>«Zona di crollo storico»</td></tr>
+            <tr><td>Massimo a 365 giorni: 1 milione</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>«Correzione profonda rispetto all’ultimo anno»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Stessa moneta, stesso prezzo, numeri che differiscono quasi del doppio. Abbiamo scelto i 365 giorni per un solo motivo:
+        <strong>con il passare del tempo, il ribasso dall’ATH smette di essere un indicatore e diventa una costante.</strong>
+        Se si prende per sempre come riferimento il massimo del 2021, certe monete risultano «sottovalutate del −70%» da cinque anni.
+        Un indicatore che dà un segnale d’acquisto ogni giorno è un indicatore che non contiene alcuna informazione.
+      </p>
+      <div class="note warn">
+        <strong>Il costo — la finestra di 365 giorni si azzera da sola nei mercati ribassisti lunghi.</strong>
+        Se il calo dura più di un anno, <strong>il massimo a 365 giorni stesso scende dentro la fase di ribasso.</strong>
+        Supponiamo che il prezzo sia sceso da 100 a 30 in 14 mesi. Ora il massimo dell’«ultimo anno» non è più 100, ma, diciamo, 55.
+        Il ribasso viene calcolato come <code>30 ÷ 55 − 1 = −45%</code>. Rispetto all’ATH è −70%, ma il nostro indicatore dice −45%.
+        <strong>Esiste una fase in cui, proprio quando il calo è più profondo, il punteggio del ribasso appare invece attenuato.</strong>
+        Non è un bug, ma un limite strutturale del metodo a finestra (window). Bisogna saperlo quando lo si usa.
+      </div>
+      <p>
+        Anche <strong>le soglie del −30% e del −50%</strong> sono state fissate con la stessa logica.
+        Nelle criptovalute le correzioni del −30% sono frequenti <em>anche nel pieno di un mercato rialzista</em>. Per questo −30% non significa «compra», ma «comincia a guardare» (onere di recupero +43%, zona ancora sostenibile).
+        Il −50%, invece, è il punto in cui per recuperare serve <strong>+100%</strong>, e storicamente si è presentato più spesso nei cambi di ciclo che nelle correzioni dei mercati rialzisti.
+        <strong>Le due soglie non sono fissate sul prezzo, ma sul «punto in cui l’onere del recupero raddoppia».</strong>
+      </p>
+
+      <h2 id="c4">Calcolo 4 — Gli stessi 12 milioni di won, tre metodi</h2>
+      <p>
+        Veniamo al punto. Abbiamo un budget di <strong>12 milioni di won</strong>. All’inizio una moneta costa <strong>1 milione di won</strong>.
+        Ci sono 9 momenti di osservazione, da t0 a t8 (pensateli come mesi). Confrontiamo tre modalità di esecuzione.
+      </p>
+      <ul>
+        <li><strong>Strategia A — Unica soluzione.</strong> A t0 si comprano tutti i 12 milioni di won.</li>
+        <li><strong>Strategia B — 4 rate uguali.</strong> 3 milioni di won ciascuna a t0·t2·t4·t6. Meccanicamente, <em>indipendentemente dal prezzo</em>.</li>
+        <li><strong>Strategia C — Scaglionamento pesato sul ribasso.</strong> I 12 milioni di won vengono divisi in <strong>12 tranche</strong> da 1 milione, eseguite <strong>solo al primo ingresso</strong> del ribasso dal massimo a 365 giorni in ciascuna fascia:</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fascia di ribasso</th><th>Tranche eseguite</th><th>Importo</th><th>Budget usato (cumulato)</th></tr></thead>
+          <tbody>
+            <tr><td>0 ~ −20%</td><td>0 tranche</td><td>0 won</td><td>0%</td></tr>
+            <tr><td>−20 ~ −35%</td><td>1 tranche</td><td>1 milione</td><td>8.3%</td></tr>
+            <tr><td>−35 ~ −50%</td><td>2 tranche</td><td>2 milioni</td><td>25.0%</td></tr>
+            <tr><td>−50 ~ −65%</td><td>4 tranche</td><td>4 milioni</td><td>58.3%</td></tr>
+            <tr><td>−65% e oltre</td><td>5 tranche</td><td>5 milioni</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        Questa suddivisione in fasce e tranche è <strong>un esempio per mostrare il calcolo</strong> e non raccomanda alcuna allocazione specifica.
+        Il punto non sono i numeri in sé, ma la forma <em>«più si scende, più si assegna»</em>.
+      </p>
+
+      <h3>Scenario ① — Crollo profondo, poi recupero parziale</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Momento</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prezzo (×10.000 won)</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>Ribasso a 365 giorni</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Mettiamo in fila che cosa ha effettivamente comprato ciascuna strategia. <strong>Quantità = importo ÷ prezzo</strong> (importi e prezzi in unità da 10.000 won).</p>
+      <pre><code>Strategia A  t0: 1,200 ÷ 100 = 12.0000 monete
+             totale 12.0000 monete · prezzo medio 100.00
+
+Strategia B  t0:  300 ÷ 100 =  3.0000 monete
+             t2:  300 ÷  74 =  4.0541 monete
+             t4:  300 ÷  55 =  5.4545 monete
+             t6:  300 ÷  38 =  7.8947 monete
+             totale 20.4033 monete · prezzo medio 1,200 ÷ 20.4033 = 58.81
+
+Strategia C  t2(−26%): 100 ÷ 74 =  1.3514 monete   ← primo ingresso in −20~−35
+             t3(−38%): 200 ÷ 62 =  3.2258 monete   ← primo ingresso in −35~−50
+             t5(−56%): 400 ÷ 44 =  9.0909 monete   ← primo ingresso in −50~−65
+             (−65% e oltre non raggiunto → 5 tranche, 500, non eseguite)
+             totale 13.6681 monete · investiti 700 · prezzo medio 51.21 · liquidità residua 500</code></pre>
+      <p>
+        Guardando solo il prezzo medio, la classifica è chiara. <strong>C(51.21) &lt; B(58.81) &lt; A(100.00)</strong>.
+        Il metodo pesato sul ribasso ha abbassato il prezzo medio <strong>quasi della metà</strong> rispetto all’unica soluzione.
+        Qui la maggior parte degli articoli si chiude con «visto? L’acquisto scaglionato è la risposta». <strong>Noi non ci fermiamo qui.</strong>
+      </p>
+      <p>
+        Prima c’è una cosa da sottolineare. <strong>La strategia C non è riuscita a spendere tutti i 12 milioni di won.</strong> Ne ha investiti solo 7 milioni.
+        Con il metodo pesato sul ribasso, la premessa stessa «si investe lo stesso importo totale» <strong>non regge.</strong>
+        Se il mercato non scende abbastanza in profondità, il budget avanza. Non è un effetto collaterale: è la definizione di quella strategia.
+        Per un confronto equo, quindi, bisogna guardare <strong>il patrimonio totale, liquidità residua compresa</strong>.
+      </p>
+
+      <h2 id="c5">Calcolo 5 — Tre strategie × tre scenari: la verità in nove caselle</h2>
+      <p>
+        Se si calcola solo lo scenario ①, la conclusione è truccata. <strong>Perché il percorso di discesa l’ho disegnato io.</strong>
+        Per essere onesti bisogna calcolare anche <strong>i percorsi in cui l’acquisto scaglionato perde</strong>. Ne costruiamo altri due.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① Calo poi recupero parziale</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② Calo senza recupero</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ Rialzo senza cali</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Lo scenario ② è <strong>identico</strong> all’① fino a t6. Da t7, invece di rimbalzare, continua a scendere.
+        Qui la strategia C a t7 (−67%) esegue le ultime 5 tranche, 5 milioni di won, come <code>500 ÷ 33 = 15.1515 monete</code>, e <strong>esaurisce tutto il budget</strong>.
+        Nello scenario ③ il ribasso massimo si ferma a −7% e <strong>non raggiunge nemmeno la prima soglia della strategia C (−20%).</strong> C <strong>non compra nemmeno una moneta.</strong>
+      </p>
+      <p>Rendimento calcolato sul patrimonio totale a t8 (valore delle monete + liquidità residua). Il budget è identico per tutte e tre le strategie: 12 milioni di won.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Strategia</th><th>① Calo poi recupero<br />(t8 = 61)</th><th>② Nessun recupero<br />(t8 = 29)</th><th>③ Rialzo senza cali<br />(t8 = 168)</th><th>Migliore − peggiore<br />(ampiezza dei risultati)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A Unica soluzione</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0 pp</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B 4 rate uguali</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0 pp</td>
+            </tr>
+            <tr>
+              <td><strong>C Pesata sul ribasso</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5 pp</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Leggete con calma queste nove caselle. <strong>Nessuna strategia è prima in tutti e tre gli scenari.</strong>
+      </p>
+      <ul>
+        <li><strong>La strategia C stravince in ① e ②.</strong> E <strong>in ③ è ultima.</strong> Rendimento 0%. Mentre il mercato saliva del 68%, è rimasta a guardare con la liquidità in mano.</li>
+        <li><strong>La strategia A vince solo in ③.</strong> E con un margine schiacciante (+68%). In cambio, in ② incassa un <strong>−71%</strong>. Secondo la tabella del calcolo 1, è una buca da cui si esce solo con un <strong>+245%</strong>.</li>
+        <li><strong>La strategia B non è mai prima e non è mai ultima.</strong></li>
+      </ul>
+      <p>
+        La colonna più a destra è la conclusione di tutto l’articolo. <strong>Ampiezza dei risultati: A 139 pp, B 83 pp, C 41.5 pp.</strong>
+        Più si frammentano gli acquisti e più li si pesa sul ribasso, <strong>più si taglia il massimo e più si alza il minimo.</strong>
+        Ciò che fa l’acquisto scaglionato non è <em>alzare la media</em>, ma <strong>restringere la distribuzione</strong>.
+        Non è una questione di gusti, è il risultato dell’aritmetica. È uno scambio: si rinuncia alla parte alta per comprare protezione sulla parte bassa.
+      </p>
+      <div class="note">
+        <strong>«Con l’acquisto scaglionato si guadagna di più» è sbagliato. «Con l’acquisto scaglionato si muore di meno» è giusto.</strong>
+        Che C abbia vinto ① e ② nella tabella è anche <strong>perché ho disegnato due percorsi di discesa e uno solo di salita</strong>.
+        Con due percorsi di salita, la classifica media si ribalterebbe. <strong>Se cambiano i percorsi, cambia la classifica.</strong>
+        L’unica cosa che non cambia è <strong>che l’«ampiezza» segue l’ordine A &gt; B &gt; C</strong>, ed è l’unico risultato affidabile di questa simulazione.
+      </div>
+
+      <h2 id="c6">Calcolo 6 — L’aritmetica dell’esaurimento delle munizioni</h2>
+      <p>
+        Il punto in cui la maggior parte di chi dice di comprare a scaglioni fallisce davvero non è la tabella di allocazione.
+        È <strong>spendere tutto troppo in alto</strong>. Fissiamolo con i numeri.
+      </p>
+      <p>
+        Aggiungiamo la <strong>strategia D</strong>. Traduce fedelmente la psicologia comune di chi, per paura, «vuole caricare in fretta».
+        Appena inizia il calo mette <strong>4 milioni di won ciascuno a t1 (−12%)·t2 (−26%)·t3 (−38%)</strong> e <strong>esaurisce tutto il budget a −38%</strong>.
+        Calcoliamo sullo scenario ① (che poi scende ancora fino a −62% e recupera a 61).
+      </p>
+      <pre><code>Strategia D  t1: 400 ÷ 88 =  4.5455 monete
+             t2: 400 ÷ 74 =  5.4054 monete
+             t3: 400 ÷ 62 =  6.4516 monete
+             totale 16.4025 monete · prezzo medio 73.16 · munizioni residue 0
+
+             t4(−45%) · t5(−56%) · t6(−62%) ← resta solo a guardare</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategia</th><th>Prezzo più basso pagato (×10.000 won)</th><th>Prezzo medio (×10.000 won)</th><th>Quantità totale</th><th>Risultato nello scenario ①</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D Esaurimento precoce</strong> (tutto a −38%)</td><td>62</td><td><strong>73.16</strong></td><td>16.4025 monete</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C Pesata sul ribasso</strong> (munizioni conservate)</td><td>44</td><td><strong>51.21</strong></td><td>13.6681 monete</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Stesso calo, stesso budget, stesso «acquisto scaglionato». Eppure <strong>il prezzo medio si divide tra 731.600 e 512.100 won</strong>.
+        <strong>La differenza è di 219.500 won, ben il 30%.</strong> I risultati, −16.6% e +11.1%, distano <strong>27.7 pp</strong>.
+      </p>
+      <p>
+        L’errore della strategia D non è <em>non aver scaglionato</em>. Anche D ha comprato in 3 volte.
+        L’errore di D è <strong>aver finito i soldi prima che arrivasse la fascia più conveniente</strong>.
+        Nella simulazione D non ha comprato nemmeno una moneta al minimo di 380.000 won.
+        <strong>Il prezzo di aver speso tutto il budget a −38% è restare a guardare il −62%.</strong>
+      </p>
+      <div class="note warn">
+        <strong>L’unica regola per distribuire le munizioni — più si scende, più deve restarne.</strong>
+        È il motivo per cui l’allocazione della strategia C (0 · 1 · 2 · 4 · 5 tranche) <strong>non è una progressione aritmetica, ma cresce verso il fondo</strong>.
+        Più il ribasso si approfondisce, <strong>più cresce esponenzialmente la quantità acquistabile con la stessa somma</strong>.
+        Con 1 milione di won si comprano <strong>1.35 monete al prezzo 74</strong> e <strong>2.63 monete al prezzo 38</strong> — <strong>quasi il doppio</strong>.
+        Gli acquisti più potenti avvengono sempre nella fase più spaventosa, e se in quel momento il saldo è zero, quella fase <strong>è come se non fosse mai esistita.</strong>
+      </div>
+
+      <h2 id="c7">Calcolo 7 — Che cosa significa non avere un pavimento</h2>
+      <p>
+        Sotto tutti i calcoli fatti finora c’era <strong>una premessa mai dichiarata</strong>:
+        <strong>che l’asset sopravviva.</strong> Se questa premessa salta, tutte le tabelle precedenti si capovolgono.
+      </p>
+      <p>Mettiamo nel calcolo il percorso tipico di una moneta destinata al delisting. 8 momenti, partendo da un prezzo di 1 milione di won.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Momento</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prezzo (×10.000 won)</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>Ribasso a 365 giorni</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>Sotto-punteggio del ribasso</strong></td><td>basso</td><td>interesse</td><td><strong>massimo</strong></td><td><strong>massimo</strong></td><td><strong>massimo</strong></td><td><strong>massimo</strong></td><td><strong>massimo</strong></td><td><strong>massimo</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Guardate l’ultima riga.</strong> Da t2 a t7, <strong>per tutto il tempo</strong> in cui l’asset moriva, l’indicatore di ribasso ha dato il punteggio massimo.
+        A −55% «acquisto forte», a −95% «acquisto forte», a −99% «acquisto forte».
+        <strong>Qui l’indicatore di ribasso non ha azzeccato una sola volta. Ha sbagliato al 100%, con perfetta coerenza.</strong>
+        E poiché è <strong>una struttura che «dice di comprare con più forza quanto più si scende»</strong>, più sbagliava, più sbagliava in grande.
+      </p>
+      <p>Facciamo percorrere questo cammino alle tre strategie. Il prezzo finale è 3.000 won.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategia</th><th>Quantità totale</th><th>Prezzo medio (×10.000 won)</th><th>Valore finale (×10.000 won)</th><th>Risultato</th><th>Rialzo necessario per il pareggio</th></tr></thead>
+          <tbody>
+            <tr><td>A Unica soluzione</td><td>12.00 monete</td><td>100.00</td><td>3.6</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B 4 rate uguali</td><td>234.67 monete</td><td>5.11</td><td>70.4</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C Pesata sul ribasso</td><td>34.76 monete</td><td>34.52</td><td>10.4</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Emergono due cose. Primo, <strong>sono morte tutte e tre le strategie.</strong>
+        Secondo, il risultato della strategia <strong>«migliore» è −94.1%</strong>.
+        Riprendendo la formula del calcolo 1, anche questo risultato migliore richiede un <strong>+1,595%</strong> per tornare in pari.
+        <strong>In questa tabella non ci sono vincitori. Ci sono solo perdenti meno disastrosi.</strong>
+      </p>
+      <p>
+        Guardate la strategia C. Il metodo pesato sul ribasso era così superiore negli scenari ① e ②, e qui
+        <strong>ha seguito il segnale «è a buon mercato», ha riversato il 91.7% del budget nelle fasce −55% e −75% ed è finito a −99.1%.</strong>
+        Pesare sul ribasso significa <strong>«più scende, più compro»</strong>, e
+        <strong>su un asset che va a zero è un algoritmo che massimizza le perdite.</strong>
+        La stessa proprietà che ha reso C vincente nello scenario ① qui la condanna a morte. <strong>È la stessa proprietà.</strong>
+      </p>
+      <div class="note warn">
+        <strong>La condizione preliminare dell’indicatore di ribasso — «questo asset esisterà ancora tra cinque anni».</strong>
+        Il ribasso presuppone che <strong>il prezzo tornerà verso la media</strong>. Per un asset che ci tornerà è un buon indicatore;
+        per un asset destinato a sparire è <strong>l’indicatore più pericoloso</strong>. E <strong>il grafico non sa distinguere i due casi.</strong>
+        Il grafico di un bitcoin a −80% e quello di un’altcoin a −80% alla vigilia del delisting <strong>sono identici.</strong>
+        La differenza non sta nell’indicatore, ma in <strong>fondamentali, liquidità, team e token in sblocco</strong>, e il nostro modello non guarda nessuna di queste cose.
+        Le migliaia di altcoin oggi scomparse <strong>sono passate tutte, senza eccezione, per la fascia del −90%, e in ognuna di quelle fasi l’indicatore di ribasso ha dato il punteggio massimo.</strong>
+      </div>
+
+      <h2 id="c8">Calcolo 8 — Ecco perché al ribasso diamo solo il 18% e il 14%</h2>
+      <p>
+        Il calcolo 7 qui sopra è il motivo per cui nel nostro modello <strong>il ribasso non ha il peso più alto tra i 6 indicatori in nessuna modalità</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modalità</th><th>Peso del ribasso</th><th>Posizione su 6</th><th>Indicatore al 1° posto</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Breve termine</strong> (momentum)</td><td><strong>18%</strong></td><td>3°</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>Lungo termine</strong> (contrarian)</td><td><strong>14%</strong></td><td>5° a pari merito</td><td>RSI · MACD · F&amp;G · Mayer 18% ciascuno</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La parte sorprendente è che <strong>nel lungo termine è addirittura più basso</strong> (18% → 14%).
+        «Ma non è proprio l’investimento a lungo termine quello che dovrebbe guardare il ribasso?» Il motivo è il <strong>doppio conteggio</strong>.
+      </p>
+      <p>
+        <strong>Il ribasso e il multiplo di Mayer pongono in sostanza la stessa domanda</strong> — <em>«il prezzo attuale è sotto una linea di riferimento del passato?»</em>
+        Cambia solo il riferimento: il ribasso usa il <strong>massimo a 365 giorni</strong>, Mayer la <strong>media mobile a 200 giorni</strong>.
+        Nella modalità a lungo termine il multiplo di Mayer pesa il <strong>18%</strong>, nel gruppo di testa.
+        Se anche al ribasso si desse il 18%, <strong>si concentrerebbe il 36% su uno stesso punto di vista (la valutazione)</strong>.
+        Si usano 6 indicatori <strong>proprio per mescolare punti di vista diversi</strong>: così quel disegno crollerebbe.
+        Perciò nel lungo termine <strong>si dà peso a Mayer, che usa un riferimento più stabile (la media a 200 giorni), e si abbassa il ribasso, che dipende da un singolo massimo.</strong>
+        Il massimo a 365 giorni è <strong>il valore di un solo giorno</strong>, e se quel giorno è stato un picco anomalo, il ribasso dell’anno successivo ne risulta interamente distorto.
+        Una <em>media</em> a 200 giorni non ha questa debolezza.
+      </p>
+
+      <h3>Il ribasso da solo non può produrre uno STRONG BUY</h3>
+      <p>Verifichiamo con un calcolo che cosa significhi in pratica aver fissato così i pesi. Quando il ribasso ha <strong>il punteggio massimo (100 punti)</strong>, il contributo al totale è questo.</p>
+      <pre><code>Breve:  100 punti × 0.18 = 18 punti di contributo (il restante 82% viene dagli altri 5 indicatori)
+Lungo:  100 punti × 0.14 = 14 punti di contributo (il restante 86% viene dagli altri 5 indicatori)
+
+Per superare la soglia di STRONG BUY (80 punti), la media ponderata degli altri 5 indicatori deve essere
+
+  Breve:  (80 − 18) ÷ 0.82 = almeno 75.6 punti
+  Lungo:  (80 − 14) ÷ 0.86 = almeno 76.7 punti</code></pre>
+      <p>
+        In altre parole, <strong>anche se un crollo del −70% porta il ribasso al massimo, se RSI·MACD·indice di paura·Mayer·incroci non superano in media 75 punti,
+        il punteggio non raggiungerà mai 80 (STRONG BUY).</strong>
+      </p>
+      <p>
+        Più all’estremo — <strong>se solo il ribasso vale 100 punti e gli altri cinque indicatori valgono tutti 0, il totale è 18 punti nel breve e 14 nel lungo termine</strong>.
+        Entrambi cadono nella <strong>fascia 0~25</strong>, quindi la scheda a lungo termine mostra <strong>OVERHEATED</strong> e quella a breve <strong>AVOID (forte trend ribassista)</strong>.
+        «È sceso del −70% e la scheda a lungo termine dice surriscaldato?» Sembra strano, ma è <strong>esattamente il comportamento voluto</strong>.
+        È sceso solo il prezzo: il trend è morto, il sentiment non è migliorato e rispetto alla media a 200 giorni è ancora caro —
+        <strong>il percorso verso il delisting del calcolo 7 ha esattamente questo aspetto.</strong>
+        Impedire che il solo ribasso batta gli altri cinque: ecco la ragione d’essere dei pesi 18%/14%.
+      </p>
+      <p class="muted">
+        Nota: per le monete quotate da meno di un anno <strong>il massimo a 365 giorni non esiste, quindi il ribasso manca</strong>.
+        In quel caso il ribasso viene escluso, i pesi degli altri indicatori vengono rinormalizzati e la dashboard mostra <code>coverage: 5/6</code>.
+        Il calcolo dettagliato è nella voce sulla rinormalizzazione di <a href="/methodology">Metodologia del punteggio</a>.
+      </p>
+
+      <h2 id="c9">Dove questi calcoli mentono</h2>
+      <p>Fin qui vi ho mostrato otto tabelle. Ora scrivo <strong>perché non dovete fidarvi di quelle tabelle</strong>.</p>
+      <ul>
+        <li>
+          <strong>I tre scenari li ho creati io.</strong> Non sono un backtest, ma <strong>percorsi ipotetici</strong>.
+          Basta cambiare un po’ i numeri e la classifica delle strategie si ribalta senza problemi. L’unica cosa che questa simulazione dimostra non è
+          <strong>«C è buona», ma «più si scagliona, più si restringe l’ampiezza dei risultati»</strong>.
+        </li>
+        <li>
+          <strong>Il prezzo medio non è un indicatore di performance.</strong> Nel calcolo 7 il prezzo medio della strategia B era <strong>51.100 won</strong>, il più basso dei tre.
+          E <strong>è finita a −94.1%.</strong> Un prezzo medio basso non significa <em>aver comprato a buon mercato</em>, ma solo
+          <strong>aver continuato a comprare mentre scendeva</strong>. Se l’asset muore, qualunque sia il prezzo medio il risultato è zero.
+        </li>
+        <li>
+          <strong>Commissioni, slippage e tasse sono tutti posti a zero.</strong> In realtà l’acquisto scaglionato, <strong>con più operazioni, paga più commissioni.</strong>
+          Una parte delle differenze nelle tabelle si riduce così nella realtà.
+        </li>
+        <li>
+          <strong>Il costo opportunità è posto a zero.</strong> Che la strategia C nello scenario ③ faccia «0.0%» presuppone
+          <strong>che la liquidità residua non renda nulla</strong>. Con gli interessi di un deposito andrebbe un po’ meglio;
+          al contrario, <strong>se in quell’anno altri asset sono saliti, è una perdita reale</strong>.
+        </li>
+        <li>
+          <strong>Nei mercati ribassisti lunghi la finestra di 365 giorni fa sembrare il ribasso meno profondo</strong> (l’avvertenza del calcolo 3).
+          Nella fase più profonda l’indicatore può diventare il meno sensibile.
+        </li>
+        <li>
+          <strong>La suddivisione in fasce e tranche della strategia C (0·1·2·4·5) è un esempio di calcolo.</strong>
+          Non raccomandiamo questa allocazione e non sosteniamo che sia ottimale.
+          Se si spostano le fasce a −25/−40/−55, cambiano anche i risultati. <strong>Non esiste una risposta giusta.</strong>
+        </li>
+        <li>
+          <strong>La variabile più importante non è nel calcolo.</strong> Questo asset esisterà tra cinque anni?
+          La risposta non sta nelle tabelle, ma nella <strong>sostanza del progetto</strong>, e il nostro modello non la guarda.
+        </li>
+      </ul>
+
+      <p>
+        Riassumendo. <strong>Il ribasso non misura «quanto è a buon mercato». Misura solo «quanto è sceso».</strong>
+        Le due cose coincidono solo se l’asset sopravvive; altrimenti dicono l’esatto contrario.
+        <strong>Il momento in cui questo indicatore grida «compra» più forte è indistinguibile dal momento in cui l’asset sta morendo</strong> —
+        è tutto ciò che c’è da sapere sul ribasso.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avvertenza sugli investimenti</strong><br />
+        Tutti gli scenari, i prezzi, le allocazioni e i rendimenti di questo documento sono <strong>esempi ipotetici per spiegare i principi di calcolo</strong>,
+        non dati reali di mercato né risultati di backtest. Non raccomandiamo alcuna strategia, allocazione o titolo specifico.
+        Questo documento ha <strong>finalità educative e informative e non costituisce consulenza d’investimento.</strong>
+        Le criptovalute sono asset ad alto rischio con cui <strong>è possibile perdere l’intero capitale</strong> e, come nel calcolo 7,
+        <strong>esistono molti casi in cui il valore è sceso fino a zero.</strong>
+        Nessuna tecnica, acquisto scaglionato compreso, impedisce le perdite.
+        Ogni decisione d’investimento e le sue conseguenze sono interamente responsabilità dell’utente. Fate sempre le vostre ricerche (DYOR).
+      </div>
+
+      <h2>Continua a leggere</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodologia del punteggio</b><span>Tutti e 6 i pesi, compreso il 18%/14% del ribasso, e il calcolo della rinormalizzazione</span></a>
+        <a href="/indicators"><b>Guida ai 6 indicatori</b><span>Che cosa guardano gli altri cinque oltre al ribasso</span></a>
+        <a href="/guide-fear-greed"><b>Guida pratica all’indice di paura</b><span>Se questo articolo è la «matematica», quello è la «procedura»</span></a>
+        <a href="/glossary"><b>Glossario</b><span>Definizioni di ribasso, prezzo medio e multiplo di Mayer</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · gestito da Y-Systems · <a href="/privacy">Informativa sulla privacy</a> · <a href="/terms">Termini di servizio</a></footer>
+    </main>

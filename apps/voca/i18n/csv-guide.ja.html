@@ -1,0 +1,160 @@
+<main class="wrap" data-title="CSV単語帳の作り方 — Excel・Googleスプレッドシートで自分だけの暗記帳を作る | VOCA DECK" data-desc="Excel・Googleスプレッドシート・メモ帳でCSV単語帳を作る実践ガイド。文字化け（エンコーディング）の直し方、カンマ・引用符の扱い、良い単語カードを設計する5つの原則とよくある失敗。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — CSV GUIDE</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 単語帳</a>
+          <a href="/method">暗記法の原理</a>
+          <a href="/study-guide">学習戦略</a>
+        </nav>
+
+        <h1>CSV単語帳の作り方</h1>
+        <p class="muted">最終更新：2026-07-14 · 作成：Y-Systems</p>
+
+        <p class="lead">
+          VOCA DECKは<strong>あなたが作った単語帳</strong>で動きます。他人が作った5,000語のリストよりも、
+          <strong>自分が実際に知らなかった200語</strong>のほうがはるかに強力です。
+          この記事では<strong>CSVの作り方</strong>と、誰もが一度は必ずぶつかる<strong>文字化けの問題</strong>を解決します。
+        </p>
+
+        <div class="toc">
+          <div class="toc-title">目次</div>
+          <ol>
+            <li><a href="#format">CSVって何？（いちばん単純な形式）</a></li>
+            <li><a href="#excel">Excel / Googleスプレッドシートで作る</a></li>
+            <li><a href="#encoding">⚠ 文字化けしたとき — エンコーディングの問題</a></li>
+            <li><a href="#comma">意味にカンマが入るとき</a></li>
+            <li><a href="#design">良い単語カードを作る5つの原則</a></li>
+            <li><a href="#mistakes">よくある失敗</a></li>
+          </ol>
+        </div>
+
+        <h2 id="format">CSVって何？（いちばん単純な形式）</h2>
+        <p>
+          CSVは<strong>Comma-Separated Values</strong>、つまりカンマで区切られた値という意味です。
+          大げさに聞こえますが、<strong>メモ帳で作れるテキストファイル</strong>にすぎません。1行に1枚のカード、カンマで表と裏を分けます。
+        </p>
+        <pre><code>apple,りんご
+diligent,勤勉な
+procrastinate,先延ばしにする
+serendipity,思いがけない幸運</code></pre>
+        <p>
+          <strong>左が表面（単語）、右が裏面（意味）</strong>です。これで全部です。
+          メモ帳に上のように書いて<code>単語帳.csv</code>として保存すれば完成です。
+        </p>
+        <div class="note">
+          「英単語–日本語」である必要はありません。<strong>左に問い、右に答え</strong>なら何でも構いません。
+          漢字–読み、歴史の年号–出来事、化学式–名称、人の顔の特徴–名前……構造さえ合っていれば、すべて暗記帳になります。
+        </div>
+
+        <h2 id="excel">Excel / Googleスプレッドシートで作る</h2>
+        <p>単語が多いなら、表で管理するほうがずっと楽です。</p>
+        <ol>
+          <li><strong>A列に単語、B列に意味</strong>を入力します。（見出し行はなくても構いません）</li>
+          <li>
+            <strong>Googleスプレッドシート</strong>：ファイル → ダウンロード → <strong>カンマ区切り形式（.csv）</strong><br />
+            <span class="muted">Googleスプレッドシートは常にUTF-8で保存するので、<strong>文字化けしません。いちばん安全な方法です。</strong></span>
+          </li>
+          <li>
+            <strong>Excel</strong>：ファイル → 名前を付けて保存 → <strong>CSV UTF-8（コンマ区切り）</strong>を選択<br />
+            <span class="muted">⚠ ただの「CSV（コンマ区切り）」を選ぶと文字化けすることがあります。必ず<strong>UTF-8</strong>の付いた項目を選んでください。</span>
+          </li>
+        </ol>
+
+        <h2 id="encoding">⚠ 文字化けしたとき — エンコーディングの問題</h2>
+        <p>
+          単語帳を開いたら意味が<code>ì‚¬ê³¼</code>のように化けて見える場合は、<strong>エンコーディング</strong>の問題です。
+          ファイルが<strong>UTF-8ではない別の方式（主にWindowsのCP949/ANSI）</strong>で保存されています。
+        </p>
+        <p><strong>解決法（簡単な順）</strong></p>
+        <ol>
+          <li>
+            <strong>メモ帳で保存し直す</strong> — ファイルをメモ帳で開き、
+            <strong>ファイル → 名前を付けて保存 → エンコードを「UTF-8」に</strong>変えて保存します。ほとんどはこれで直ります。
+          </li>
+          <li>
+            <strong>Excelなら</strong> — 「CSV UTF-8（コンマ区切り）（*.csv）」形式で保存し直します。
+          </li>
+          <li>
+            <strong>それでもだめならGoogleスプレッドシートを経由してください</strong> — Googleスプレッドシートに貼り付けてCSVでダウンロードすれば、UTF-8が保証されます。
+          </li>
+        </ol>
+        <div class="note warn">
+          <strong>なぜこうなるの？</strong> 文字はコンピューターの中で数値として保存されますが、その<strong>変換ルールが何種類もあります</strong>。
+          UTF-8は世界標準で、CP949は古いWindowsの韓国語用の方式です。保存したときと読み込むときのルールが違うと、文字が化けます。
+          <strong>UTF-8に統一すれば解決です。</strong>
+        </div>
+
+        <h2 id="comma">意味にカンマが入るとき</h2>
+        <p>
+          CSVはカンマでセルを区切ります。では、<strong>意味そのものにカンマがある</strong>とどうなるでしょうか？
+        </p>
+        <pre><code>bank,銀行, 土手          ← ✗ セルが3つに分かれる</code></pre>
+        <p>そんなときは<strong>ダブルクォーテーションで囲めば</strong>大丈夫です。</p>
+        <pre><code>bank,"銀行, 土手"        ← ✓ 意味がひとつのまま保たれる</code></pre>
+        <p>
+          ExcelやGoogleスプレッドシートで作れば、<strong>この処理は自動でやってくれます。</strong>手でメモ帳に書くときだけ気をつければ十分です。
+          もっと簡単なのは、<strong>カンマの代わりにスラッシュやセミコロン</strong>を使う方法です：<code>bank,銀行 / 土手</code>
+        </p>
+
+        <h2 id="design">良い単語カードを作る5つの原則</h2>
+        <p>形式よりも<strong>中身の設計</strong>が暗記の効率を左右します。</p>
+
+        <h3>① 1枚のカードに1つの概念だけ</h3>
+        <p>
+          意味を5つも詰め込むと<strong>何ひとつ覚えられません。</strong>
+          <code>run,走る/運営する/立候補する/流れる/作動する</code>のようなカードは最悪です。
+          <strong>いちばんよく使う意味ひとつ</strong>から始め、ほかの意味が必要になったら<strong>別のカード</strong>にしてください。
+        </p>
+
+        <h3>② 知らなかった単語だけを入れる</h3>
+        <p>
+          すでに知っている単語が混ざると、<strong>それを飛ばす時間はすべて無駄</strong>になります。
+          市販の単語帳を丸ごと入れるのではなく、<strong>読んでいてつまずいた単語</strong>をその都度追加してください。
+          <strong>200語の自分の単語帳は、5,000語の他人の単語帳に勝ちます。</strong>
+        </p>
+
+        <h3>③ 文脈（例文）を短く添える</h3>
+        <p>
+          単語だけを覚えると<strong>「意味はわかるのに使えない」</strong>状態になります。裏面に短い例文を添えると
+          <a href="/method">二重符号化</a>が強まり、実際に使えるところまでつながります。
+        </p>
+        <pre><code>procrastinate,"先延ばしにする — Stop procrastinating and start now."</code></pre>
+
+        <h3>④ 方向を決める（単語→意味 vs 意味→単語）</h3>
+        <p>
+          <strong>読む・聞くが目標</strong>なら<code>単語,意味</code>の方向で十分です。<br />
+          <strong>話す・書くが目標</strong>なら<code>意味,単語</code>の方向が必要です。ずっと難しいですが、実際のアウトプット力はこちらから生まれます。
+        </p>
+
+        <h3>⑤ デッキを小さく分ける</h3>
+        <p>
+          1,000語をひとかたまりにすると、<strong>一周するだけで疲れ果てます。</strong>
+          <strong>50〜100語単位</strong>に分ければ反復の周期が短くなり、<a href="/method#spacing">間隔効果</a>をずっと頻繁に受けられます。
+        </p>
+
+        <h2 id="mistakes">よくある失敗</h2>
+        <ul>
+          <li><strong>ネットで拾った5,000語リストをそのまま使う</strong> — 90%はすでに知っているか、一生使わない単語です。</li>
+          <li><strong>1枚のカードに意味が5つ</strong> — 何も残りません。</li>
+          <li><strong>Excelで通常のCSVとして保存</strong> — 文字化けします。必ず<strong>CSV UTF-8</strong>で。</li>
+          <li><strong>デッキが大きすぎる</strong> — 一周が長いと、同じ単語に再会するまでに時間がかかりすぎます。</li>
+          <li><strong>作って使わない</strong> — いちばんよくあり、いちばん致命的です。完璧な単語帳作りに3時間かけるより、<strong>30語で今日始めましょう。</strong></li>
+        </ul>
+
+        <div class="note">
+          単語帳は<strong>ブラウザ（localStorage）にだけ保存</strong>され、サーバーには送信されません。
+          端末を変えるとCSVファイルを開き直す必要があるので、<strong>元のCSVは別に保管</strong>しておいてください。
+        </div>
+
+        <h2>続けて読む</h2>
+        <div class="related">
+          <a href="/method"><b>点滅式単語帳の暗記法の原理</b><span>なぜ繰り返し見ることが効くのか、そしてその限界</span></a>
+          <a href="/study-guide"><b>学習戦略ガイド</b><span>1日に何語、復習の周期、よくある失敗</span></a>
+          <a href="/"><b>単語帳を開く</b><span>作ったCSVですぐに始める</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 運営：Y-Systems · <a href="/privacy">プライバシーポリシー</a> · <a href="/terms">利用規約</a></footer>
+      </div>
+    </main>

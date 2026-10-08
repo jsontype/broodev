@@ -1,0 +1,481 @@
+    <main class="wrap" data-title="5 equivoci sul golden cross — perché è un filtro di tendenza e non un segnale d’acquisto | broodev" data-desc="Il golden cross non è un segnale d’acquisto. Smontiamo in 5 luoghi comuni l’indicatore più abusato dai media e mostriamo perché il modello broodev gli assegna solo l’8% nel breve termine e il 14% nel lungo, con la tabella dei punteggi a 4 stati del codice reale e un calcolo passo per passo.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Metodologia del punteggio</a>
+        <a href="/indicators">Guida agli indicatori</a>
+        <a href="/guide-fear-greed">Guida all’indice della paura</a>
+        <a href="/glossary">Glossario</a>
+      </nav>
+
+      <h1>5 equivoci sul golden cross</h1>
+      <p class="muted">Ultimo aggiornamento: 2026-07-14 · Autore: Y-Systems · Ambito: punteggio di timing d’acquisto broodev v2 (indicatore GC_DC)</p>
+
+      <p class="lead">
+        «Bitcoin, golden cross in arrivo… segnale rialzista»: questo titolo ritorna a ogni ciclo.
+        E <strong>quasi sempre viene usato nel modo sbagliato.</strong>
+        Il golden cross è, fra i 6 indicatori di cui ci occupiamo, <strong>il più frainteso</strong>,
+        e allo stesso tempo quello a cui il nostro modello <strong>ha dato il peso più basso</strong>. Le due cose non sono scollegate.
+      </p>
+      <p>
+        Questo articolo non ripete la definizione. Che il golden cross sia la media a 50 giorni che sfonda al rialzo quella a 200 giorni
+        lo trovate nel <a href="/glossary">glossario</a>, e come entri nel punteggio è spiegato nella
+        <a href="/methodology">metodologia</a>. Qui invece <strong>smontiamo uno per uno cinque luoghi comuni molto diffusi</strong>
+        e al loro posto mettiamo <strong>ciò che il nostro codice fa davvero</strong>.
+        Alla fine <strong>confessiamo due difetti noti</strong> del nostro modello.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Cosa si dice di solito</th><th>Come stanno le cose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① «È uscito il golden cross = compra adesso»</a></td><td>Per costruzione è <strong>il segnale più lento</strong>. Non annuncia il rialzo: ne è la <strong>ricevuta</strong></td></tr>
+            <tr><td><a href="#m2">② «Death cross = inizia il crollo»</a></td><td>I nuovi incroci (whipsaw) sono frequenti. Nel nostro modello <strong>il punteggio dell’evento dura un giorno</strong></td></tr>
+            <tr><td><a href="#m3">③ «50 e 200 sono i numeri giusti»</a></td><td>È una <strong>convenzione sui giorni di borsa</strong> del mercato azionario trapiantata senza correzioni in un mercato aperto 365 giorni</td></tr>
+            <tr><td><a href="#m4">④ «Più è ampio il divario, più il segnale è forte»</a></td><td>Il nostro modello <strong>calcola il divario ma non lo usa nel punteggio</strong> (semplificazione voluta)</td></tr>
+            <tr><td><a href="#m5">⑤ «Un peso dell’8% è come non usarlo»</a></td><td>Qui la prospettiva si ribalta. L’incrocio <strong>non porta punti: è un dispositivo che li toglie</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="Grafico live del golden cross">
+        <p class="muted">Prima di leggere i cinque equivoci, guardiamo dove sono effettivamente caduti i golden cross (▲) e i death cross (▼) lungo tutta la storia. Si vede a colpo d’occhio che l’incrocio arriva sempre «dopo che il movimento è già avvenuto da un pezzo» e quanto siano frequenti i nuovi incroci (whipsaw).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">Caricamento dei dati del grafico…</div></div>
+          </div>
+          <p class="bd-cap">Prezzo BTC (scala logaritmica, grigio) con SMA50 (blu) e SMA200 (rosso), intero periodo. ▲ = golden cross (la media a 50 giorni supera al rialzo quella a 200), ▼ = death cross. Linea tratteggiata arancione = halving. Dati: CoinMetrics Community API, chiusure giornaliere di BTC — scaricati al momento della visita e calcolati nel browser; sono <strong>valori approssimativi, solo a titolo indicativo</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="m1">Equivoco ① «È uscito il golden cross = compra adesso»</h2>
+
+      <h3>Cosa si dice</h3>
+      <p>
+        È la frase preferita di articoli e miniature di YouTube. Il golden cross viene trattato come <strong>un razzo di segnalazione che annuncia il futuro</strong>.
+        E arriva sempre accompagnato da una statistica del tipo «storicamente, dopo un golden cross, rialzo medio del X%».
+      </p>
+
+      <h3>Perché è sbagliato — l’aritmetica non lo permette</h3>
+      <p>
+        Perché ci sia un golden cross, <strong>il prezzo medio degli ultimi 50 giorni deve superare il prezzo medio degli ultimi 200 giorni</strong>.
+        Fermatevi un attimo a pensare a cosa significa.
+      </p>
+      <p>
+        La media a 200 giorni è <strong>la somma di 200 giorni di prezzi divisa per 200</strong>. Anche se ieri il prezzo è salito del 20% in un giorno,
+        quel balzo pesa solo per un duecentesimo. Per <strong>spostare questa linea in modo significativo servono decine di giorni di prezzi stabilmente alti</strong>.
+        Lo stesso vale per la media a 50 giorni, che porta con sé l’inerzia di 50 giorni.
+      </p>
+      <p>
+        Quindi <strong>il fatto stesso che due corpi così pesanti e inerti si siano incrociati è la prova che «si sale già da parecchio tempo»</strong>.
+        Il golden cross non <em>preannuncia</em> il rialzo. Si limita a <em>confermare a posteriori che il rialzo è in corso già da abbastanza tempo</em>.
+      </p>
+      <div class="note">
+        <strong>In metafora, il golden cross non è una previsione del tempo: è una ricevuta.</strong>
+        La ricevuta vi dice con precisione che cosa avete comprato, ma esce <strong>dopo che il pagamento è concluso</strong>.
+        Guardare la ricevuta e dire «allora adesso compro» significa invertire l’ordine delle cose.
+      </div>
+      <p>
+        È anche il motivo per cui le statistiche sul «rendimento medio dopo un golden cross» sembrano convincenti.
+        Il golden cross <strong>per definizione si verifica solo nei mercati rialzisti</strong>. È inevitabile che i rendimenti successivi siano buoni.
+        Non è capacità predittiva dell’indicatore, ma <strong>il risultato di un campione già selezionato (selection effect)</strong>.
+        È come sostenere che l’ombrello prevede la pioggia con la statistica «nei giorni in cui ho aperto l’ombrello è piovuto».
+      </p>
+
+      <h3>Come stanno le cose</h3>
+      <p>
+        Quando un golden cross si conferma dopo un minimo, <strong>il prezzo è già salito parecchio rispetto al minimo.</strong>
+        Vuol dire che è salito abbastanza da far superare alla media a 50 giorni una linea di riferimento pesante come quella a 200.
+        Per questo il nostro modello <strong>non tratta questo indicatore come uno strumento per scegliere il momento d’entrata.</strong>
+        Lo usa solo come strumento che risponde non a «compra adesso», ma a <strong>«in che fase siamo adesso»</strong>.
+      </p>
+
+      <h2 id="m2">Equivoco ② «Death cross = inizia il crollo»</h2>
+
+      <h3>Cosa si dice</h3>
+      <p>
+        Il death cross è sinistro fin dal nome. Con un’etichetta come «croce della morte»
+        viene consumato come <strong>un innesco di paura del tipo «ora arriva il grande crollo»</strong>. Appena esce la notizia del death cross, partono le vendite di panico.
+      </p>
+
+      <h3>Perché è sbagliato — gli incroci si ripetono</h3>
+      <p>
+        Basta rovesciare la logica dell’equivoco ① per avere la risposta. <strong>Anche il death cross è un segnale altrettanto lento.</strong>
+        Quando il death cross si conferma, <strong>buona parte del ribasso è già avvenuta</strong>.
+        Più che «l’inizio del crollo», è un attestato che «il ribasso dura già da tempo».
+        Ecco perché non è raro che subito dopo un death cross arrivi invece un rimbalzo: il cosiddetto <strong>whipsaw</strong>.
+      </p>
+      <p>
+        Immaginate le due medie mobili <strong>quasi appiccicate l’una all’altra</strong>. In quella situazione basta una piccola oscillazione del prezzo
+        perché la media a 50 giorni scenda sotto quella a 200 e qualche giorno dopo risalga sopra.
+        <strong>L’incrocio non è un evento unico, ma un evento che può ripetersi più volte</strong>.
+      </p>
+
+      <h3>Come stanno le cose — come il nostro codice gestisce il problema (confessione inclusa)</h3>
+      <p>
+        Il nostro modello stabilisce l’incrocio <strong>confrontando solo due giorni: ieri e oggi</strong>.
+      </p>
+      <pre><code>ieri: media 50g ≤ media 200g   →   oggi: media 50g &gt; media 200g   ⇒  GOLDEN_CROSS
+ieri: media 50g ≥ media 200g   →   oggi: media 50g &lt; media 200g   ⇒  DEATH_CROSS
+altrimenti                                                      ⇒  NONE (resta solo lo stato)</code></pre>
+      <p>
+        Di conseguenza <strong>l’«evento di incrocio» è vero (true) per un solo giorno.</strong>
+        Il giorno dopo l’evento scompare e resta soltanto un anonimo valore di stato, «stato golden / stato death».
+      </p>
+      <div class="note">
+        <strong>È una scelta progettuale voluta.</strong> I media sfruttano un singolo golden cross per settimane,
+        ma nel nostro modello <strong>la notizia dell’incrocio scade dopo 24 ore</strong>.
+        Come vedremo nella tabella dei punteggi più sotto, il premio del giorno dell’evento (85 punti nel lungo termine) <strong>scende a 60 punti già il giorno successivo.</strong>
+        Il fatto che «ieri è uscito un golden cross» non aggiunge alcun punto extra al punteggio di oggi.
+      </div>
+      <div class="note warn">
+        <strong>Confessione — anche il nostro modello viene scosso dai whipsaw.</strong>
+        Se le medie a 50 e a 200 giorni sono quasi attaccate e si incrociano su e giù nel giro di due settimane,
+        anche il nostro punteggio oscilla <strong>85 → 60 → 15 → 35</strong>. Non c’è modo di eliminare questo difetto.
+        Quello che abbiamo fatto è stato solo <strong>mettere un tetto all’ampiezza dell’oscillazione</strong>:
+        quel tetto è proprio <strong>il peso basso dell’8% e del 14%</strong>. Più avanti calcoleremo quanti punti significano davvero questi numeri.
+      </div>
+
+      <h2 id="m3">Equivoco ③ «50 e 200 sono i numeri giusti»</h2>
+
+      <h3>Cosa si dice</h3>
+      <p>
+        Se ne parla come se 50 e 200 avessero una qualche necessità matematica.
+        E siccome sono i valori predefiniti dei software di grafici, ci si crede ancora di più.
+      </p>
+
+      <h3>Perché è sbagliato — è una convenzione del mercato azionario, e per giunta trapiantata male</h3>
+      <p>
+        <strong>Non esiste una giustificazione accademica soddisfacente</strong> per 50 e 200. È una convenzione.
+        Nei grafici azionari tradizionali <strong>200 è un arrotondamento a occhio di circa un anno di giorni di borsa (per l’esattezza circa 252)</strong>
+        e <strong>50 è l’arrotondamento di circa un trimestre (circa 63 giorni di borsa)</strong>.
+      </p>
+      <p>
+        Ma qui nasce <strong>un problema che esiste solo nelle criptovalute</strong>, e che quasi nessuno fa notare.
+      </p>
+      <p>
+        <strong>Il mercato azionario è aperto 5 giorni a settimana, le criptovalute 7.</strong>
+        La «media a 200 giorni» delle azioni copre <strong>200 giorni di borsa</strong>, cioè <strong>circa 280 giorni di calendario (circa 9.2 mesi)</strong>.
+        Nelle criptovalute invece si forma una candela giornaliera ogni giorno, quindi la «media a 200 giorni» copre <strong>200 giorni di calendario, ovvero circa 6.6 mesi</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Media</th><th>Azioni (5 giorni/sett.)</th><th>Cripto (7 giorni/sett.)</th><th>Differenza reale</th></tr></thead>
+          <tbody>
+            <tr><td>Media a 200 giorni</td><td>200 giorni di borsa ≈ <strong>280 giorni di calendario</strong></td><td>200 giorni di calendario = <strong>200 giorni di calendario</strong></td><td>Lato cripto <strong>circa il 29% più corta</strong></td></tr>
+            <tr><td>Media a 50 giorni</td><td>50 giorni di borsa ≈ <strong>70 giorni di calendario</strong></td><td>50 giorni di calendario = <strong>50 giorni di calendario</strong></td><td>Lato cripto <strong>circa il 29% più corta</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Riassumendo, <strong>la «media a 200 giorni» delle criptovalute sembra la stessa convenzione azionaria, ma in realtà è una finestra (window) molto più corta</strong>.
+        Per coprire lo stesso periodo di calendario di 200 giorni di borsa, nelle cripto servirebbe <strong>una media a circa 280 giorni</strong>.
+        <strong>L’intero settore non applica questa correzione.</strong>
+      </p>
+
+      <h3>Come stanno le cose — e allora perché anche noi usiamo semplicemente 200</h3>
+      <p>
+        Anche il nostro codice usa <strong>200 giorni di calendario</strong>. Non applichiamo correzioni. Ecco onestamente perché.
+      </p>
+      <ul>
+        <li>
+          <strong>Primo, l’essere osservata dà forza di per sé.</strong> 50/200 non funziona perché sia «giusto»:
+          funziona in parte <strong>perché moltissimi partecipanti guardano la stessa linea e reagiscono nello stesso punto</strong>.
+          Se passassimo da soli a una media a 280 giorni, <strong>perderemmo questa natura autoavverante.</strong> Una linea che nessun altro guarda non fa da supporto.
+        </li>
+        <li>
+          <strong>Secondo, dobbiamo condividere il denominatore con il multiplo di Mayer.</strong> Il multiplo di Mayer è per definizione <code>prezzo attuale ÷ media mobile a 200 giorni</code>.
+          Se passassimo a 280 giorni solo per l’incrocio, <strong>nello stesso modello ci sarebbero due «linee di lungo periodo» diverse</strong> e l’interpretazione non tornerebbe.
+        </li>
+        <li>
+          <strong>Terzo, conosciamo la direzione di questa distorsione.</strong> La media a 200 giorni delle cripto è <strong>più corta della convenzione, quindi più sensibile, e si incrocia più spesso</strong>.
+          Incroci frequenti significano <strong>più falsi segnali</strong>. Per questo abbiamo fissato fin dall’inizio un peso basso per questo indicatore.
+          <strong>Invece di correggerlo, abbiamo scelto di non fidarci troppo.</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        Sapere o non sapere che non si tratta di numeri giusti ma di <strong>una convenzione condivisa</strong> fa una grande differenza.
+        Se si crede che 50/200 siano costanti sacre, si finisce per attribuire agli incroci un significato eccessivo.
+      </p>
+
+      <h2 id="m4">Equivoco ④ «Più è ampio il divario, più il segnale è forte»</h2>
+
+      <h3>Cosa si dice</h3>
+      <p>
+        È l’interpretazione «la media a 50 giorni si è allontanata molto sopra quella a 200, quindi il trend rialzista è forte».
+        Intuitivamente è plausibile, e in effetti ha un fondo di verità.
+      </p>
+
+      <h3>Perché è sbagliato — per la precisione, noi questa informazione non la usiamo</h3>
+      <p>
+        Il nostro codice <strong>calcola effettivamente</strong> la distanza fra le due linee.
+      </p>
+      <pre><code>gapPct = (media 50g ÷ media 200g − 1) × 100</code></pre>
+      <p>
+        E la <strong>mostra persino</strong> nella scheda della dashboard, come <code>gap +12.4%</code>.
+        Eppure <strong>questo valore non entra in alcun modo nel calcolo del punteggio.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Confessione ─ una semplificazione nota.</strong>
+        Nel nostro modello <strong>uno stato golden con divario +0.3% e uno stato golden con divario +42% ricevono esattamente lo stesso punteggio</strong>
+        (60 punti nel lungo termine, 65 nel breve). Il divario <strong>viene mostrato ma non valutato.</strong>
+      </div>
+      <p>
+        Spiego perché l’abbiamo lasciato così. Per inserire il divario nel punteggio bisognerebbe <strong>stabilire «quanti % sono un divario ampio»</strong>.
+        Ma questa soglia <strong>cambia completamente da un asset all’altro.</strong> Un divario del +10% su una moneta poco volatile
+        e un divario del +10% su una memecoin estremamente volatile significano cose del tutto diverse.
+        Onestamente, <strong>non siamo riusciti a fissare con sicurezza un criterio di normalizzazione valido per tutte le monete.</strong>
+        Piuttosto che inserire una costante senza fondamento, abbiamo scelto <strong>di non usarlo affatto</strong>.
+      </p>
+
+      <h3>Come stanno le cose — questa informazione è lasciata alle persone</h3>
+      <p>
+        Se non abbiamo tolto il divario dallo schermo è <strong>perché siete voi a guardarlo e giudicare</strong>.
+        <strong>Più il divario è vicino a 0, più le due linee sono attaccate, e quindi maggiore è il rischio di un nuovo incrocio (whipsaw)</strong>.
+        Uno stato golden con <code>gap +0.4%</code> è un <strong>golden instabile</strong>, che può trasformarsi in death in qualsiasi momento.
+        Il punteggio non conosce questa differenza, ma <strong>voi potete conoscerla.</strong> È per questo che il valore è visualizzato.
+      </p>
+
+      <h2 id="m5">Equivoco ⑤ «Un peso dell’8% non è come non usarlo affatto?»</h2>
+      <p>
+        Qui la direzione di questo articolo si ribalta. I quattro punti precedenti servivano a <strong>ridimensionare</strong> l’incrocio.
+        Eppure noi questo indicatore <strong>non l’abbiamo scartato.</strong> Perché?
+      </p>
+
+      <h3>Quello che la maggior parte delle persone non sa — l’incrocio non ha 2 livelli, ma 4</h3>
+      <p>
+        «Golden cross o death cross?»: <strong>questa dicotomia è sbagliata in partenza.</strong>
+        Il nostro codice distingue <strong>quattro stati</strong>, perché <em>il momento esatto dell’incrocio</em> e <em>lo stato che persiste dopo l’incrocio</em> sono cose completamente diverse.
+        Qui sotto la vera tabella dei punteggi parziali del nostro modello.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Stato</th><th>Significato</th><th>Punteggio breve termine</th><th>Punteggio lungo termine</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>Incrocio al rialzo oggi (evento, valido un solo giorno)</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>Persiste lo stato 50 &gt; 200 già in essere</td><td>65</td><td>60</td></tr>
+            <tr><td><em>Nessun dato</em></td><td>Non ci sono nemmeno 50 giorni di dati</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>Persiste lo stato 50 &lt; 200 già in essere</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>Incrocio al ribasso oggi (evento, valido un solo giorno)</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        In questa tabella <strong>la riga più importante è «persistenza dello stato DEATH»</strong>. Il punteggio <strong>non è 50, ma 35 (lungo)·40 (breve)</strong>.
+      </p>
+      <p>
+        <strong>Il neutro è 50.</strong> Lo stato di death cross però è <strong>più basso del neutro.</strong>
+        Che cosa significa? Significa che <strong>in stato di death cross questo indicatore «tira verso il basso» il punteggio composito</strong>.
+        Non resta fermo: <strong>toglie punti</strong>.
+      </p>
+      <div class="note">
+        <strong>Ecco la ragion d’essere di questo indicatore.</strong>
+        Il golden cross <strong>non è una fonte di punti che fa salire il punteggio.</strong>
+        È il death cross a fare da <strong>freno che riduce il punteggio</strong>.
+        Quando indice della paura, multiplo di Mayer e ribasso gridano tutti insieme «costa poco, compra» —
+        <a href="/indicators">nei mercati ribassisti i 3 indicatori contrarian sbagliano tutti insieme</a> —
+        serviva <strong>un dispositivo che da solo tirasse il freno dicendo «il trend punta ancora verso il basso»</strong>, ed è l’incrocio.
+      </div>
+
+      <h2 id="walk">Quindi quanti punti sposta davvero — calcolo passo per passo</h2>
+      <p>
+        Basta con i discorsi astratti: <strong>facciamo il calcolo con numeri veri</strong>.
+        Siamo nella <strong>scheda di lungo termine (contrarian)</strong> e la situazione è <strong>nel pieno di un profondo mercato ribassista</strong>.
+        È la fase in cui gli indicatori contrarian gridano all’unisono «questa è l’occasione».
+      </p>
+      <p>I pesi di lungo termine sono <strong>RSI 18% · MACD 18% · Paura e Avidità 18% · Mayer 18% · ribasso 14% · incrocio 14%</strong>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicatore</th><th>Valore osservato</th><th>Punteggio parziale</th><th>Peso</th><th>Contributo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24 (ipervenduto)</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>Multiplo di Mayer</td><td>0.75× (sconto del 25% rispetto alla media a 200 giorni)</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>Paura e Avidità</td><td>attuale 18 / 7 giorni 22 / 30 giorni 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>Ribasso a 365 giorni</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>negativo · ancora in peggioramento</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>Incrocio</strong></td><td><strong>Persistenza dello stato DEATH</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>Punteggio composito</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        (Il valore 81.8 di Paura e Avidità è dato da <code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code> più
+        il bonus per valori estremi che scatta quando il valore attuale è pari o inferiore a 25, <code>(25−18)×0.4 = 2.8</code>.)
+      </p>
+
+      <h3>Cambiando solo l’incrocio</h3>
+      <p>Teniamo <strong>fermi tutti</strong> gli altri 5 indicatori e cambiamo solo lo stato dell’incrocio: vediamo cosa succede al punteggio composito.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stato dell’incrocio</th><th>Punteggio parziale</th><th>Contributo</th><th>Punteggio composito</th><th>Verdetto</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS (il giorno stesso)</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>GOLDEN persistente</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH persistente <em>(scenario reale)</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS (il giorno stesso)</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La differenza fra il massimo e il minimo è di 9.8 punti.</strong> (85 − 15) × 14% = 9.8.
+        E <strong>in tutti e quattro i casi il verdetto resta lo stesso: ACCUMULATE.</strong>
+      </p>
+
+      <h3>Cosa dice questo numero — l’incrocio da solo non può cambiare il verdetto</h3>
+      <p>Qui <strong>l’intento progettuale</strong> del nostro modello <strong>viene dimostrato con l’aritmetica</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Escursione del punteggio</th><th>Peso</th><th>Impatto massimo sul punteggio composito</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Breve termine (momentum)</strong></td><td>75 − 30 = 45 punti</td><td>8%</td><td><strong>±3.6 punti</strong></td></tr>
+            <tr><td><strong>Lungo termine (contrarian)</strong></td><td>85 − 15 = 70 punti</td><td>14%</td><td><strong>±9.8 punti</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Ora confrontatelo con le <a href="/methodology">fasce di verdetto</a>.
+        La fascia più stretta è <strong>ACCUMULATE (65~80), ampia 15 punti</strong>.
+      </p>
+      <div class="note">
+        <strong>Impatto massimo nella scheda di lungo termine 9.8 punti &lt; ampiezza minima di fascia 15 punti.</strong><br />
+        <strong>Impatto massimo nella scheda di breve termine 3.6 punti &lt; ampiezza minima di fascia 15 punti.</strong><br /><br />
+        In altre parole <strong>l’incrocio, in nessuna delle due schede, può da solo far cambiare il verdetto di un livello.</strong>
+        Non è un caso, ma <strong>il risultato di come abbiamo progettato i pesi</strong>.
+        L’incrocio ha un tetto: <strong>può spingere o tirare il punteggio, ma non può dominare la conclusione</strong>.
+      </div>
+      <p>
+        <strong>Anche il divario fra breve e lungo termine si verifica con il calcolo.</strong> 9.8 ÷ 3.6 ≈ <strong>2.7 volte</strong>.
+        Nella scheda di lungo termine l’influenza effettiva dell’incrocio è circa 2.7 volte quella della scheda di breve termine.
+        Guardando solo la tabella dei pesi (8% contro 14%) sembra una differenza di 1.75 volte, ma <strong>moltiplicando anche per l’escursione del punteggio il divario reale sale a 2.7 volte.</strong>
+        È un aspetto che sfugge se si confrontano soltanto i pesi.
+      </p>
+      <p>
+        Il motivo è proprio quello spiegato nella <a href="/methodology">metodologia</a>.
+        <strong>L’incrocio 50/200 è troppo lento per operazioni su orizzonti di 1~3 mesi.</strong> Quando arriva il segnale, per un trader di breve è già tardi.
+        Per questo nella scheda di breve termine gli abbiamo dato solo <strong>un 8% quasi decorativo</strong>.
+        Al contrario, <strong>è utile per distinguere la fase del ciclo (mercato rialzista o ribassista)</strong>, quindi nella scheda di lungo termine lo abbiamo alzato al 14%.
+      </p>
+
+      <h2 id="danger">La combinazione in cui il nostro modello può sbagliare di più</h2>
+      <p>
+        Riguardate <strong>la prima riga (GOLDEN_CROSS, 79.2 punti)</strong> della tabella del calcolo qui sopra.
+        In realtà in quella riga <strong>si nasconde una contraddizione interna.</strong>
+      </p>
+      <p>
+        Un multiplo di Mayer di 0.75 significa che <strong>il prezzo attuale è del 25% sotto la media a 200 giorni</strong>.
+        È naturale che lo stesso giorno <strong>la media a 50 giorni salga sopra quella a 200 (golden cross)</strong>?
+        Di solito è una contraddizione. Con il prezzo molto al di sotto della media a 200 giorni, è difficile che la media a 50 giorni stia sopra quella a 200.
+      </p>
+      <p>
+        Eppure <strong>c’è esattamente una fase in cui questa combinazione si presenta davvero.</strong>
+        <strong>Il momento in cui un crollo dal massimo è appena cominciato</strong>.
+        Il prezzo è già precipitato in verticale sotto la media a 200 giorni, ma <strong>la media a 50 giorni, per inerzia, resta ancora sopra quella a 200</strong>.
+        In quel momento il nostro modello ragiona così.
+      </p>
+      <ul>
+        <li>Mayer 0.75 → «sottovalutazione storica!» <strong>100 punti</strong></li>
+        <li>RSI 24 → «ipervenduto estremo!» <strong>94 punti</strong></li>
+        <li>Ribasso −58% → «zona di forte acquisto!» <strong>81 punti</strong></li>
+        <li>Incrocio → ancora <strong>in stato GOLDEN</strong>, quindi il freno non scatta <strong>60 punti</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>Risultato: proprio nel punto in cui il crollo è appena iniziato, il modello assegna circa 75 punti (ACCUMULATE).</strong>
+        E <strong>questo è il momento in cui si afferra il «coltello che cade» non per il manico, ma dalla lama</strong>.
+        Il freno (death cross) scatta <strong>solo decine di giorni dopo</strong>, quando il prezzo è già sceso parecchio.
+        <strong>È l’angolo cieco più pericoloso di questo modello, e non siamo riusciti a risolverlo del tutto.</strong>
+        Finché si usa un indicatore lento come dispositivo di sicurezza, <strong>anche il dispositivo di sicurezza è lento.</strong>
+      </div>
+      <p>
+        Perciò, se sulla dashboard <strong>il multiplo di Mayer crolla rapidamente mentre l’incrocio è ancora GOLDEN</strong>,
+        non va letto come «sottovalutazione», ma come <strong>un avvertimento: «potrebbe essere l’inizio di un crollo».</strong>
+        Il punteggio non sa distinguerlo. Deve farlo una persona.
+      </p>
+
+      <h2 id="asym">Ancora una cosa — solo l’incrocio gestisce i dati mancanti in modo diverso</h2>
+      <p>
+        Come scritto nella <a href="/methodology">metodologia</a>, quando un indicatore manca <strong>non lo trattiamo come 0 punti: lo escludiamo dal calcolo e rinormalizziamo i pesi rimanenti</strong>.
+        Perché «non lo so» e «va male» non sono la stessa cosa.
+      </p>
+      <p>
+        Ma <strong>l’incrocio è un’eccezione.</strong> Riportando il codice così com’è:
+      </p>
+      <pre><code>// gli altri 5 indicatori
+sLong: mm == null ? null : conMayer(...)   ← se null: escluso + rinormalizzazione
+
+// solo l’incrocio
+sLong: gc == null ? 50 : ...               ← anche se manca, restituisce 50 punti</code></pre>
+      <div class="note warn">
+        <strong>Confessione ─ un’asimmetria.</strong>
+        Anche senza dati, l’incrocio restituisce <strong>non null ma 50 (neutro)</strong>.
+        Per questo <strong>l’incrocio non manca mai nell’indicatore di copertura.</strong>
+        Anche se compare <code>coverage 5/6</code>, quello mancante non è l’incrocio: l’incrocio rientra sempre nel conteggio.
+        Significa che <strong>sulle monete quotate da meno di un anno, un «50 punti che non sa nulla» occupa silenziosamente il posto del 14% (lungo termine)</strong>.
+      </div>
+      <p>
+        E c’è dell’altro. Se i dati <strong>coprono meno di 200 giorni</strong>, il nostro codice calcola la media con quelli disponibili
+        (<code>Math.min(200, lunghezza dei dati)</code>). Quindi <strong>la «media a 200 giorni» di una moneta quotata da 150 giorni è in realtà una media a 150 giorni</strong>.
+        Inoltre, poiché il rilevamento dell’<em>evento</em> di incrocio richiede almeno 201 giorni di dati,
+        <strong>sulle monete quotate da meno di un anno gli eventi GOLDEN_CROSS·DEATH_CROSS non si verificano affatto.</strong>
+        Compaiono solo i valori di stato (GOLDEN/DEATH).
+      </p>
+      <p>
+        <strong>In sintesi, questo indicatore funziona pienamente solo su asset con una lunga storia di dati, come il bitcoin.</strong>
+        Quando guardate la scheda dell’incrocio di un’altcoin appena quotata, tenetene sempre conto.
+      </p>
+
+      <h2 id="conclusion">Conclusione</h2>
+      <p>
+        Attraversando i cinque equivoci, l’incrocio è stato ridimensionato di continuo.
+        È il più lento, si ripete, i suoi numeri sono una convenzione arbitraria, il divario non viene nemmeno valutato e il peso è il più basso dei 6.
+        Eppure questo indicatore l’avevamo tolto e poi <strong>l’abbiamo rimesso.</strong> Il motivo è uno solo.
+      </p>
+      <div class="note">
+        <strong>Il golden cross non è un segnale d’acquisto, ma uno strumento per confermare la fase di mercato.</strong><br /><br />
+        Se a questo indicatore chiedete <strong>«quando comprare», la risposta arriva sempre in ritardo</strong>.
+        Ma se gli chiedete <strong>«verso dove punta il trend adesso»</strong>, la risposta è lenta ma <strong>raramente bugiarda</strong>.
+        <br /><br />
+        Quando gli altri cinque indicatori si agitano gridando «costa poco, fa paura, è sceso tanto»,
+        <strong>togliere in silenzio qualche punto dicendo «però il trend punta ancora verso il basso»</strong>: è l’unico compito che abbiamo affidato a questo indicatore.
+        <strong>Non è una fonte di punti, è un freno.</strong> E un buon freno è quello che non si deve pestare spesso.
+      </div>
+      <p>
+        Quindi, la prossima volta che vedete il titolo «Golden cross in arrivo!», chiedetevi:
+        <strong>«Mi sta dicendo di comprare adesso, o che è già salito parecchio?»</strong>
+        Aritmeticamente è <strong>sempre la seconda</strong>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avvertenza sugli investimenti</strong><br />
+        Questo documento ha <strong>finalità educative e informative</strong> e <strong>non costituisce consulenza sugli investimenti né sollecitazione all’acquisto o alla vendita.</strong>
+        Punteggi, pesi e scenari presentati nel testo sono <strong>solo esempi per spiegare il funzionamento del modello</strong> e non raccomandano alcun asset o strategia specifica.
+        Le criptovalute sono <strong>asset ad alto rischio che possono comportare la perdita dell’intero capitale</strong>, e gli indicatori tecnici non prevedono il futuro.
+        Come spiegato nel testo, questo indicatore <strong>presenta angoli ciechi strutturali.</strong>
+        Ogni decisione d’investimento e le sue conseguenze sono di esclusiva responsabilità dell’utente. Fate sempre le vostre ricerche (DYOR).
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Avvertenza sugli investimenti</strong><br />
+        Questo documento e i punteggi sono <strong>materiale di riferimento che combina indicatori pubblici e non costituiscono consulenza sugli investimenti né sollecitazione all’acquisto.</strong>
+        I casi storici e i valori nel testo sono ricostruzioni approssimative e <strong>i risultati passati non garantiscono quelli futuri.</strong>
+        Le criptovalute sono asset ad alto rischio che possono comportare <strong>la perdita dell’intero capitale</strong>.
+        Ogni decisione d’investimento e le sue conseguenze sono di esclusiva responsabilità dell’utente. Fate sempre le vostre ricerche (DYOR).
+      </div>
+
+      <h2>Continua a leggere</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodologia del punteggio</b><span>Con quali pesi si combinano i 6 indicatori — fino a rinormalizzazione e fasce</span></a>
+        <a href="/indicators"><b>Analisi approfondita dei 6 indicatori</b><span>Quando RSI, MACD, Mayer e ribasso tradiscono, ciascuno a modo suo</span></a>
+        <a href="/guide-fear-greed"><b>Guida pratica all’indice della paura</b><span>Le fasi in cui gli indicatori contrarian sbagliano tutti insieme e gli acquisti frazionati</span></a>
+        <a href="/glossary"><b>Glossario</b><span>Medie mobili, incroci, multiplo di Mayer: i termini spiegati</span></a>
+        <a href="/"><b>Alla dashboard</b><span>Controlla ora lo stato dell’incrocio e il gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · gestito da Y-Systems · <a href="/privacy">Informativa sulla privacy</a> · <a href="/terms">Termini di servizio</a></footer>
+    </main>

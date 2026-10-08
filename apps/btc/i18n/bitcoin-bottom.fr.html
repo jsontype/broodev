@@ -1,0 +1,293 @@
+<main class="wrap" data-title="Comment repérer le plancher du Bitcoin — capitalisation boursière vs coût moyen d’achat | broodev" data-desc="Le plancher du Bitcoin ne se repère pas au prix, mais au fait que la capitalisation boursière passe sous le coût moyen d’achat des investisseurs (la capitalisation réalisée). Nous reconstituons avec des graphiques en direct comment le MVRV est réellement passé sous 1 lors des cinq planchers de 2011, 2015, 2018, 2020 et 2022, et publions l’intégralité des formules du score de plancher de broodev (BOTTOM RADAR), qui intègre aussi la Thermocap (récompenses de minage cumulées).">
+      <nav class="nav">
+        <a href="/">← Tableau de bord</a>
+        <a href="/methodology">Méthodologie du score</a>
+        <a href="/indicators">Indicateurs expliqués</a>
+        <a href="/bitcoin-bottom">Signaux de plancher</a>
+        <a href="/glossary">Glossaire</a>
+      </nav>
+
+      <h1>Comment repérer le plancher du Bitcoin<br />— capitalisation boursière vs coût moyen d’achat</h1>
+      <p class="muted">Dernière mise à jour : 2026-07-22 · Auteur : Y-Systems · Périmètre : les composantes on-chain du score de plancher de broodev (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Chaque tentative de trouver le plancher du Bitcoin à partir du prix a échoué. Le plancher de 2018 était à 3,150 dollars, celui de 2022 à 15,500 dollars — <strong>un écart de cinq fois.</strong>
+        Pourtant, ces deux planchers avaient un point commun qui n’était pas le prix. <strong>La capitalisation boursière du Bitcoin était passée sous la somme de ce que tous les investisseurs avaient réellement payé (le coût moyen d’achat total)</strong>.
+        Cet article trace cette observation directement à partir de données en direct, suit dans l’ordre chronologique la manière dont ce signal s’est réellement manifesté lors des cinq planchers,
+        et publie, formules comprises, les pondérations avec lesquelles le <strong>score de plancher (BOTTOM RADAR)</strong> de broodev le combine.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Sommaire</div>
+        <ol>
+          <li><a href="#concept">Pourquoi le « coût moyen d’achat » révèle le plancher — la capitalisation réalisée</a></li>
+          <li><a href="#chart-mc">Graphique en direct ① — capitalisation boursière vs coût moyen d’achat (de 2010 à aujourd’hui)</a></li>
+          <li><a href="#history">Cinq planchers — les jours où le MVRV est passé sous 1</a></li>
+          <li><a href="#mvrv-z">Graphique en direct ② — standardiser avec le MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Graphique en direct ③ — la Thermocap, le plancher selon le coût de minage</a></li>
+          <li><a href="#divergence">Comment lire les moments où les deux indicateurs divergent</a></li>
+          <li><a href="#limits">Les limites de ces indicateurs — un échantillon de 4 cycles, l’ère des ETF</a></li>
+          <li><a href="#radar">La composition du score de plancher de broodev (BOTTOM RADAR) — pondérations publiées</a></li>
+          <li><a href="#faq">Questions fréquentes</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>À propos des chiffres de cet article.</strong> Les graphiques ci-dessous sont <strong>des données réelles téléchargées directement depuis CoinMetrics Community API et blockchain.info et tracées dans votre navigateur</strong> à l’ouverture de cette page (cache de 6 heures).
+        En revanche, les valeurs de MVRV aux planchers passés et les rendements ultérieurs indiqués dans les tableaux sont des <strong>approximations reconstituées</strong> — les décimales varient selon la source de données et le jour retenu comme point bas.
+        Le propos de cet article ne tient pas aux décimales, mais au <strong>schéma récurrent selon lequel « les périodes où la capitalisation est passée sous le coût ont coïncidé avec les planchers »</strong>.
+      </div>
+
+      <h2 id="concept">Pourquoi le « coût moyen d’achat » révèle le plancher — la capitalisation réalisée</h2>
+      <p>
+        Tout le monde connaît la capitalisation boursière : <code>prix actuel × offre en circulation</code>. C’est un chiffre qui <em>suppose</em> qu’un seul dernier prix d’échange représente la valeur de toutes les pièces.
+        Mais les données on-chain contiennent un autre chiffre, bien plus intéressant : la <strong>capitalisation réalisée (Realized Cap)</strong>.
+      </p>
+      <pre><code>Capitalisation   = prix actuel × offre en circulation        (valorise chaque pièce au 'prix du jour')
+Cap. réalisée    = Σ (chaque pièce × prix du jour où elle a bougé pour la dernière fois)
+                 = total de ce que les investisseurs ont réellement payé ≈ coût moyen d’achat du marché × offre en circulation</code></pre>
+      <p>
+        La blockchain enregistre <strong>quand chaque pièce a changé de portefeuille pour la dernière fois</strong>. Si l’on considère le prix du jour de ce mouvement comme le « coût d’acquisition » de la pièce et qu’on additionne le tout,
+        on obtient le montant total que l’ensemble du marché a réellement investi dans le Bitcoin. Pour une action, cela revient à <strong>multiplier le prix moyen d’achat de tous les actionnaires par le nombre d’actions</strong>.
+        C’est pourquoi cet article appelle la capitalisation réalisée le <strong>« coût moyen d’achat (total) »</strong>.
+      </p>
+      <p>Le rapport entre ces deux chiffres est le fameux <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = capitalisation ÷ capitalisation réalisée
+
+MVRV 2.0  → le détenteur moyen a doublé sa mise (zone de gains généralisés)
+MVRV 1.0  → le marché dans son ensemble est exactement à l’équilibre
+MVRV 0.8  → le détenteur moyen perd −20% (zone de pertes généralisées)</code></pre>
+      <p>
+        C’est de là que vient la logique du plancher. <strong>Un MVRV sous 1 signifie que l’ensemble des détenteurs de bitcoin est, en moyenne, en perte.</strong>
+        Historiquement, deux choses se sont produites dans cette zone. D’abord, la <strong>capitulation (capitulation)</strong> des investisseurs qui ne supportent plus leurs pertes atteint son paroxysme.
+        Ensuite, ceux qui absorbent ces volumes sont des détenteurs de long terme que les gains et pertes n’ébranlent pas. C’est <strong>le moment où les pièces passent des mains faibles aux mains fortes</strong>,
+        et au cours des quatre cycles, ce moment <strong>a toujours coïncidé avec un grand plancher.</strong> Vous pouvez le vérifier vous-même sur le graphique ci-dessous.
+      </p>
+
+      <h2 id="chart-mc">Graphique en direct ① — capitalisation boursière vs coût moyen d’achat<span class="info-tip" tabindex="0" role="note" aria-label="Explication : capitalisation boursière vs coût moyen d’achat">ⓘ<span class="tip-bubble"><b>Capitalisation boursière vs coût moyen d’achat</b>La ligne bleue est le coût moyen d’achat des investisseurs. Quand la capitalisation (en blanc) passe sous cette ligne, le marché est en moyenne en perte, ce qui a historiquement correspondu à une zone de plancher.</span></span></h2>
+      <p>
+        La ligne blanche est la <strong>capitalisation boursière</strong>, la bleue le <strong>coût moyen d’achat (capitalisation réalisée)</strong>. L’échelle est logarithmique, et les pointillés orange marquent les quatre halvings.
+        Au survol de la souris s’affichent la date et les deux valeurs. Il n’y a qu’une chose à regarder — <strong>les périodes où la ligne blanche plonge sous la bleue</strong>. Ce furent toutes des planchers.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">Chargement des données et tracé du graphique… (cela peut prendre quelques secondes)</div></div>
+      <p class="chart-src">Données : CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, bougies journalières sur tout l’historique · capitalisation réalisée = capitalisation ÷ MVRV) · cache local de 6 heures · échelle logarithmique</p>
+      <p>
+        Remarquez une propriété de la ligne bleue : <strong>elle ne baisse presque jamais.</strong> Pendant que la capitalisation s’effondre de −80%, le coût moyen d’achat ne descend que doucement.
+        C’est que le coût n’est mis à jour <em>que lorsqu’une transaction a réellement lieu</em>. Même dans un marché saisi par la peur, la plupart des pièces ne bougent pas, et le coût des pièces immobiles reste inchangé.
+        La ligne bleue se comporte donc <strong>non pas comme une ligne de gravité du prix, mais comme la valeur comptable du marché</strong>. Que la capitalisation passe sous cette valeur comptable est rare — et c’est justement parce que c’est rare que c’est un signal.
+      </p>
+
+      <h2 id="history">Cinq planchers — les jours où le MVRV est passé sous 1</h2>
+      <p>
+        Dans l’histoire du Bitcoin, les phases où la capitalisation est passée sous le coût moyen d’achat (MVRV &lt; 1) se comptent sur les doigts de la main. Voici le relevé de celles qui ont coïncidé avec les cinq grands planchers.
+        Tous les chiffres sont <strong>approximatifs</strong> — ils dépendent du jour retenu comme point bas.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Phase de plancher</th><th>Prix à l’époque (approx.)</th><th>MVRV minimum (approx.)</th><th>1 an après (approx.)</th><th>2 ans après (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>Novembre 2011</td><td>environ $2</td><td><code>0.4~0.6</code></td><td>environ $11 (+400% et plus)</td><td>environ $1,000 (des centaines de fois)</td></tr>
+            <tr><td>Janvier 2015</td><td>environ $170~230</td><td><code>0.55~0.7</code></td><td>environ $380~430 (+90~130%)</td><td>environ $900 (+300% et plus)</td></tr>
+            <tr><td>Décembre 2018</td><td>environ $3,200</td><td><code>0.7 environ</code></td><td>environ $7,200 (+120% et plus)</td><td>environ $23,000 (+600% et plus)</td></tr>
+            <tr><td>Mars 2020</td><td>environ $3,800~5,000</td><td><code>0.85~0.95</code> (quelques jours)</td><td>environ $58,000 (+1,000% et plus)</td><td>environ $44,000 (+700% et plus)</td></tr>
+            <tr><td>Novembre 2022</td><td>environ $15,500</td><td><code>0.75~0.85</code></td><td>environ $37,000 (+130% et plus)</td><td>environ $90,000 (+480% et plus)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Les cinq planchers avaient des causes toutes différentes : l’éclatement de sa propre bulle (2011), les suites de Mt. Gox (2015), la purge de la bulle des ICO (2018), la panique de la pandémie (2020) et la faillite de FTX (2022).
+        Les prix vont de $2 à $15,500, soit un écart de <strong>7,750 fois</strong>. Et pourtant, <strong>les cinq fois, le MVRV était sous 1, généralement dans la fourchette 0.7~0.9</strong>.
+        Si l’on mesure non pas le prix absolu mais <strong>« la décote par rapport au coût de l’ensemble du marché »</strong>, cinq planchers totalement différents tombent presque au même endroit.
+      </p>
+      <div class="note warn">
+        <strong>Attention : la réciproque est fausse.</strong> « MVRV &lt; 1 = plancher immédiat » n’est pas vrai.
+        En 2011, en 2014~2015 et fin 2018, le MVRV est resté sous 1 pendant <strong>des semaines, voire des mois</strong>, et le prix a continué de baisser pendant ce temps.
+        Ce que dit cet indicateur, ce n’est pas « voici le point le plus bas », mais une information de zone : <strong>« historiquement, ceux qui ont acheté de façon échelonnée dans cette zone ont largement gagné un ou deux ans plus tard »</strong>.
+        Lisez-le non comme un outil de timing, mais comme un <strong>outil de zone</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Graphique en direct ② — standardiser avec le MVRV Z-Score</h2>
+      <p>
+        Le ratio MVRV a un point faible : <strong>la hauteur des sommets varie d’un cycle à l’autre</strong>. Au sommet de 2011, le MVRV a dépassé 7, mais en 2021 il n’a même pas atteint 4.
+        Plus le marché grandit, plus l’amplitude se comprime. C’est pourquoi le moteur de broodev utilise non pas le ratio mais le <strong>Z-Score</strong> — une façon de mesurer de combien d’écarts-types
+        la <em>différence</em> entre la capitalisation et la capitalisation réalisée s’est écartée, au regard de la volatilité historique de la capitalisation.
+      </p>
+      <pre><code>MVRV Z-Score = (capitalisation − cap. réalisée) ÷ σ(capitalisation)
+               σ = écart-type de la capitalisation sur tout l’historique
+
+z &lt; 0   → capitalisation sous le coût moyen d’achat (zone de plancher historique)
+z ≈ 1~2 → zone normale
+z &gt; 5   → zone de sommet historique (pics de 2011·2013·2017)</code></pre>
+      <p>
+        Le graphique ci-dessous montre le MVRV Z-Score sur tout l’historique. La zone verte correspond à <strong>z &lt; 0 (zone de plancher)</strong>, la zone rouge à <strong>z &gt; 5 (zone de surchauffe)</strong>.
+        Les planchers de 2011·2015·2018·2022 ont tous plongé sous la ligne 0 (mars 2020 l’a seulement effleurée), et les grands sommets de 2011·2013·2017 ont tous atteint la zone rouge avec un z de 7~9.
+        En revanche, <strong>le z du sommet de 2021 s’est arrêté vers 3.5</strong> — un point qui reviendra dans la section sur les limites : plus le marché grandit, plus l’amplitude vers le haut se comprime.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">Chargement des données et tracé du graphique…</div></div>
+      <p class="chart-src">Données : calculées à partir de la même source CoinMetrics Community API que le graphique précédent · z = (capitalisation − cap. réalisée) ÷ σ(capitalisation) · σ sur tout l’historique jusqu’à chaque date (fenêtre croissante) · cache local de 6 heures</p>
+      <div class="note">
+        <strong>Nous publions la méthode de calcul telle quelle.</strong> Le MVRV Z du tableau de bord de broodev
+        est obtenu à partir de <code>CapMrktCurUSD</code> (capitalisation) et <code>CapMVRVCur</code> (ratio MVRV) de CoinMetrics Community API,
+        en dérivant <code>cap. réalisée = capitalisation ÷ MVRV</code>, puis en standardisant par la <strong>σ(capitalisation) sur tout l’historique</strong>.
+        Les périodes passées du graphique sont calculées avec <strong>la σ disponible jusqu’à cette date</strong> (fenêtre croissante), afin de tracer « la valeur que l’investisseur de ce jour-là pouvait voir ».
+        Par définition, le dernier point correspond exactement à la valeur actuelle du tableau de bord. L’API est gratuite et ne nécessite pas de clé : tout le monde peut reproduire les mêmes chiffres.
+      </div>
+
+      <h2 id="thermocap">Graphique en direct ③ — la Thermocap, le plancher selon le coût de minage</h2>
+      <p>
+        Si la capitalisation réalisée est <strong>le coût de l’investisseur</strong>, le Bitcoin possède un autre coût : <strong>le coût du producteur</strong>, autrement dit le coût de minage.
+        La <strong>Thermocap</strong> est le <strong>montant cumulé (en USD) des récompenses versées aux mineurs (récompense de bloc + frais)</strong> depuis le lancement du Bitcoin.
+        C’est la somme de tout l’argent consacré jusqu’ici à la sécurité du réseau — en quelque sorte, <strong>le coût total de fabrication de cet actif</strong>.
+      </p>
+      <pre><code>Thermocap    = Σ (revenus journaliers des mineurs en USD)  ← cumulés depuis 2009
+Thermocap Z  = z-score of ln(capitalisation ÷ Thermocap)   [sur tout l’historique]
+
+Le ratio capitalisation/Thermocap a historiquement oscillé entre quelques fois et quelques dizaines de fois.
+Plus le z (logarithme du ratio standardisé) est bas, plus la 'sous-évaluation par rapport au coût de production' est forte.</code></pre>
+      <p>
+        Il est normal que la capitalisation s’échange plusieurs fois au-dessus de la Thermocap (c’est le propre d’un actif à tendance haussière). Ce qui compte, c’est <strong>où se situe ce multiple dans sa fourchette historique</strong>,
+        et en standardisant le logarithme du multiple en z-score, on peut comparer les cycles entre eux. Le graphique ci-dessous montre que <strong>les périodes où z passe sous 0</strong> coïncident avec les zones de plancher historiques.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">Chargement des données et tracé du graphique…</div></div>
+      <p class="chart-src">Données : blockchain.info charts/miners-revenue (toute la période) — cumul pondéré par le nombre de jours entre échantillons (approximation de l’intégrale) · aligné par date sur la capitalisation journalière de CoinMetrics · z = z-score de ln(capitalisation/Thermocap) sur tout l’historique · cache local de 6 heures</p>
+      <p>
+        Le dénominateur de la Thermocap diffère de façon décisive de celui de la capitalisation réalisée : <strong>il ne diminue jamais et n’augmente qu’un peu chaque jour, indépendamment du marché.</strong>
+        Même quand les investisseurs bradent leurs pièces dans la panique, le cumul des récompenses de minage ne bouge pas. La Thermocap Z constitue donc, par rapport aux indicateurs fondés sur la capitalisation réalisée,
+        <strong>une ligne de référence de plancher plus lente et plus obstinée</strong>. Cet indicateur est <strong>propre au Bitcoin</strong>, pour lequel les données de récompenses de minage existent — il ne peut pas être calculé pour les altcoins.
+      </p>
+
+      <h2 id="divergence">Comment lire les moments où les deux indicateurs divergent</h2>
+      <p>
+        S’il s’agit dans les deux cas d’indicateurs de « coût », pourquoi regarder les deux ? <strong>Parce que leurs dénominateurs ne bougent pas à la même vitesse.</strong>
+        La capitalisation réalisée (le dénominateur du MVRV) est mise à jour chaque fois qu’une pièce change de mains — quand un marché haussier se prolonge, le coût lui-même monte, et quand la capitulation prend fin, il retombe.
+        La Thermocap, elle, ne fait que s’accumuler. C’est cette différence de vitesse qui crée le signal.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinaison</th><th>Interprétation</th><th>Exemples historiques (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z bas + Thermocap Z bas</td><td><strong>Zone de plancher profond.</strong> Proche à la fois du coût des investisseurs et du coût de production</td><td>2015 · fin 2018 · fin 2022</td></tr>
+            <tr><td>MVRV Z bas + Thermocap Z normal</td><td>Chute brutale en milieu de cycle. La capitulation a eu lieu, mais le plancher structurel n’est pas confirmé</td><td>mars 2020 · juillet 2021</td></tr>
+            <tr><td>MVRV Z normal + Thermocap Z élevé</td><td>Fin de marché haussier. Le coût a déjà beaucoup monté, si bien que le MVRV seul fait illusion</td><td>novembre 2021 (second sommet)</td></tr>
+            <tr><td>Les deux élevés</td><td><strong>Zone de sommet historique.</strong> Le pire moment pour acheter</td><td>fin 2013 · fin 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La troisième ligne est particulièrement importante. Quand un marché haussier dure plus d’un an, <strong>la capitalisation réalisée monte avec le prix et le MVRV paraît « normal ».</strong>
+        Au sommet du cycle de novembre 2021, le MVRV était nettement inférieur à ceux des sommets de 2011~2017. C’est exactement le même silence structurel que celui du multiple de Mayer, qui <a href="/mayer-multiple">indiquait la neutralité en novembre 2021</a>.
+        Dans ce cas, un indicateur comme la Thermocap, <strong>dont le dénominateur ne suit pas la hausse</strong>, sert de vérification croisée.
+      </p>
+
+      <h2 id="limits">Les limites de ces indicateurs — un échantillon de 4 cycles, l’ère des ETF</h2>
+      <p>Nous l’écrivons honnêtement : jusqu’où le raisonnement de cet article reste valable.</p>
+      <ul>
+        <li>
+          <strong>L’échantillon ne compte que 4 cycles.</strong> L’observation « MVRV &lt; 1 a été le plancher » repose sur cinq phases et, en cycles complets, sur quatre seulement.
+          C’est une taille qu’on aurait honte d’appeler une statistique, et <strong>une observation n’est pas une loi.</strong> Rien ne garantit que le prochain cycle s’arrêtera au même endroit.
+        </li>
+        <li>
+          <strong>Une distorsion possible à l’ère des ETF.</strong> Depuis 2024, une grande quantité de pièces est immobilisée dans les ETF au comptant et chez les dépositaires institutionnels.
+          Les parts d’ETF changent de mains sans mouvement on-chain, si bien que <strong>même lorsque de vraies transactions ont lieu, la capitalisation réalisée (le coût) peut ne pas être mise à jour.</strong>
+          C’est un changement structurel qui rend le coût on-chain de plus en plus dépassé par rapport au coût réel du marché, et qui brouille la comparaison directe avec les cycles passés.
+        </li>
+        <li>
+          <strong>La capitalisation réalisée peut être faussée par les mouvements internes des plateformes d’échange.</strong> Quand une plateforme réorganise ses portefeuilles à froid et déplace des pièces,
+          le « coût » de ces volumes est réécrit au prix du jour du mouvement, même sans achat réel. À l’inverse, les pièces qui changent de mains <em>au sein</em> d’une plateforme ne laissent aucune trace on-chain, et leur coût n’est pas mis à jour.
+        </li>
+        <li>
+          <strong>Le problème des pièces endormies pour toujours.</strong> Les pièces minées aux débuts et qui n’ont jamais bougé (plusieurs millions selon les estimations, dont celles de Satoshi)
+          sont comptées avec un coût proche de 0. C’est un biais qui tend à sous-estimer structurellement la capitalisation réalisée.
+        </li>
+        <li>
+          <strong>La nature de la σ calculée sur tout l’historique.</strong> Comme la σ(capitalisation), dénominateur du MVRV Z, est calculée sur tout l’historique, elle grandit avec la taille du marché,
+          et <strong>l’amplitude du z des cycles récents est plus écrasée que par le passé.</strong> Cela signifie que « des valeurs extrêmes comme z &gt; 7 pourraient ne plus se reproduire », et c’est pourquoi il ne faut pas utiliser les seuils comme des références absolues.
+        </li>
+      </ul>
+
+      <h2 id="radar">La composition du score de plancher de broodev (BOTTOM RADAR) — pondérations publiées</h2>
+      <p>
+        Le <strong>BOTTOM RADAR</strong> du tableau de bord de broodev est un score composite distinct qui ne répond pas à « est-ce que ça va monter si j’achète maintenant ? », mais à une seule question : <strong>« sommes-nous actuellement dans une zone de plancher historique ? »</strong>.
+        Ses pondérations diffèrent de celles des scores de court et de long terme. L’essentiel est qu’il concentre 55% sur les deux indicateurs on-chain de coût.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicateur</th><th>Pondération</th><th>Pourquoi ce poids</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Par rapport au coût moyen d’achat des investisseurs. Le signal numéro un, qui a fonctionné lors des cinq planchers</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Par rapport au coût de production (minage). Une vérification croisée quand le dénominateur du MVRV crée une illusion</td></tr>
+            <tr><td>Multiple de Mayer</td><td>15%</td><td>Prix par rapport à la moyenne sur 200 jours. Un axe de prix pur que l’on-chain ne voit pas</td></tr>
+            <tr><td>Repli depuis le plus haut sur 365j</td><td>15%</td><td>Profondeur de la baisse depuis le sommet. Le dénominateur étant un sommet fixe, il ne se tait pas, même en fin de marché baissier</td></tr>
+            <tr><td>Indice Peur &amp; Avidité</td><td>15%</td><td>Le thermomètre de l’humeur de capitulation. Le plancher est toujours arrivé accompagné d’une peur extrême</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        La somme des cinq composantes vaut <strong>1.00</strong>. Chaque indicateur utilise son score normalisé de long terme (à contre-courant) — les deux indicateurs on-chain convertissent leur valeur z en 0~100 via la table d’ancres ci-dessous —
+        et les indicateurs sans données ne reçoivent pas 0 point : <strong>ils sont exclus du calcul, et les pondérations restantes sont renormalisées pour totaliser 100%</strong>.
+        Pour les pièces autres que le BTC, la Thermocap est toujours exclue, et pour celles non prises en charge par CoinMetrics, le MVRV l’est aussi : vérifiez donc toujours l’indicateur de couverture.
+      </p>
+      <pre><code>correspondance z → score (Z_ANCHORS, interpolation linéaire par segments)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>Le score composite s’interprète en cinq tranches.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Score de plancher</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Zone de plancher historique — au même niveau que les grands planchers passés</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Sous-évalué — zone de décote par rapport au coût</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutre</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Surévalué — zone de prime par rapport au coût</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Zone de sommet / surchauffe — au même niveau que les grands sommets passés</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Rien ne prouve que les pondérations 35·20·15·15·15 soient optimales. La seule certitude est la direction — pour juger du plancher, <strong>les indicateurs on-chain fondés sur le coût se sont mieux reproduits d’un cycle à l’autre que les indicateurs fondés sur le prix</strong>,
+        c’est pourquoi ils reçoivent la majorité du poids. L’ensemble du système de score (la combinaison des 8 indicateurs des onglets court et long terme) est intégralement publié dans le <a href="/methodology">document de méthodologie du score</a>.
+      </p>
+
+      <h2 id="faq">Questions fréquentes</h2>
+      <dl>
+        <dt>Si le MVRV passe sous 1, est-ce forcément le plancher ?</dt>
+        <dd>
+          Non. Historiquement, les zones de MVRV &lt; 1 ont coïncidé avec de grands planchers, mais <em>à l’intérieur</em> de ces zones, le prix a parfois encore baissé de 20~40% (2011, 2015).
+          Il faut le lire non comme un « signal de point bas », mais comme « une zone d’achat échelonné qui, historiquement, a donné de bons résultats un ou deux ans plus tard » — et l’échantillon ne compte que quatre cycles.
+        </dd>
+        <dt>Où peut-on consulter la capitalisation réalisée (le coût moyen d’achat) ?</dt>
+        <dd>
+          Les graphiques de cette page dérivent directement la capitalisation réalisée de la capitalisation et du MVRV fournis par CoinMetrics Community API (gratuite, sans clé) et la tracent.
+          Les cartes MVRV·Z et le score de plancher (BOTTOM RADAR) du tableau de bord de broodev utilisent les mêmes données et les mêmes formules.
+        </dd>
+        <dt>Peut-on appliquer cette méthode aux altcoins ?</dt>
+        <dd>
+          En partie seulement. broodev calcule le MVRV Z pour les 10 pièces pour lesquelles CoinMetrics fournit le MVRV (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA) ;
+          les pièces non prises en charge sont marquées N/A et les pondérations renormalisées. La Thermocap (récompenses de minage cumulées) est propre au Bitcoin.
+        </dd>
+        <dt>Pourquoi est-ce un plancher quand la capitalisation passe sous le coût moyen d’achat ?</dt>
+        <dd>
+          Une capitalisation inférieure à la capitalisation réalisée signifie que l’ensemble des détenteurs est, en moyenne, en perte. Dans cette zone, la capitulation de ceux qui ne supportent plus leurs pertes atteint son paroxysme,
+          et à mesure que ces volumes passent aux détenteurs de long terme, la pression vendeuse s’épuise. Il s’agit toutefois d’une observation tirée des quatre derniers cycles, et non d’une loi garantie.
+        </dd>
+      </dl>
+
+      <div class="note warn">
+        <strong>⚠ Avertissement sur l’investissement</strong><br />
+        Ce document et les scores de broodev sont <strong>des documents de référence combinant des indicateurs publics, et non un conseil en investissement.</strong>
+        Les valeurs historiques de MVRV et les rendements cités dans le texte sont <strong>des approximations susceptibles de varier selon la source de données, et les schémas passés ne garantissent pas l’avenir.</strong>
+        Les cryptomonnaies sont des actifs à haut risque pouvant entraîner <strong>la perte totale du capital</strong>.
+        Toute décision d’investissement et ses résultats (gains ou pertes) relèvent de la seule responsabilité de l’utilisateur. Faites toujours vos propres recherches (DYOR).
+      </div>
+
+      <h2>À lire ensuite</h2>
+      <div class="related">
+        <a href="/methodology"><b>Méthodologie du score</b><span>Avec quelles pondérations les 8 indicateurs sont combinés (tous les chiffres publiés)</span></a>
+        <a href="/indicators"><b>Les 8 indicateurs expliqués</b><span>MVRV et Thermocap compris : quand chaque indicateur vous trahit</span></a>
+        <a href="/mayer-multiple"><b>L’histoire du multiple de Mayer</b><span>Ce que la moyenne sur 200 jours a dit à chaque cycle — un indicateur de plancher sur l’axe du prix</span></a>
+        <a href="/"><b>Vers le tableau de bord</b><span>Consulter maintenant le score de plancher (BOTTOM RADAR)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Exploité par Y-Systems · <a href="/privacy">Politique de confidentialité</a> · <a href="/terms">Conditions d’utilisation</a></footer>
+    </main>

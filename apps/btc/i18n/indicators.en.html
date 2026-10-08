@@ -1,0 +1,213 @@
+    <main class="wrap" data-title="8 Crypto Indicators in Depth — RSI · MACD · Mayer Multiple · Drawdown · Golden Cross · MVRV · Thermocap | broodev" data-desc="A one-by-one walkthrough of the 8 indicators behind the buy-timing score, including two on-chain metrics (MVRV Z-Score · Thermocap Z) — formulas, how to read them, their strengths, and when each one betrays you (the traps).">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/bitcoin-bottom">Bottom signals</a>
+        <a href="/glossary">Glossary</a>
+        <a href="/guide-fear-greed">Using the Fear Index</a>
+      </nav>
+
+      <h1>The 8 Indicators in Depth</h1>
+      <p class="muted">Last updated: 2026-07-22 · By Y-Systems</p>
+
+      <p class="lead">
+        Eight indicators go into the buy-timing score — six technical indicators and two on-chain indicators (MVRV Z-Score · Thermocap Z).
+        Each one is covered in the same order: <strong>what it measures · how it is calculated · how to read it · when it betrays you</strong>.
+        The last item matters most. Every indicator has <strong>phases in which it is structurally wrong</strong>, and if you don't know them, the indicator ends up magnifying your losses.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Contents</div>
+        <ol>
+          <li><a href="#fng">Fear &amp; Greed Index</a></li>
+          <li><a href="#rsi">RSI — Relative Strength Index</a></li>
+          <li><a href="#macd">MACD — Moving Average Convergence Divergence</a></li>
+          <li><a href="#mayer">Mayer Multiple</a></li>
+          <li><a href="#dd">Drawdown from the 365-day high</a></li>
+          <li><a href="#cross">Golden Cross · Death Cross</a></li>
+          <li><a href="#mvrv">MVRV Z-Score — market cap vs average cost basis (on-chain)</a></li>
+          <li><a href="#therm">Thermocap Z — market cap vs cumulative mining rewards (on-chain)</a></li>
+          <li><a href="#combine">Why you need all 8</a></li>
+        </ol>
+      </div>
+
+      <h2 id="fng">1. Fear &amp; Greed Index</h2>
+      <p><strong>What it measures</strong> — not price, but <strong>the psychology of market participants</strong>. It is a single number from 0 (extreme fear) to 100 (extreme greed).</p>
+      <p><strong>How it is built</strong> — this site uses the Crypto Fear &amp; Greed Index published by Alternative.me. The index blends several factors.</p>
+      <ul>
+        <li><strong>Volatility</strong> — recent volatility and maximum drawdown above normal levels are read as fear</li>
+        <li><strong>Market momentum / volume</strong> — strong buying pressure pushes it toward greed</li>
+        <li><strong>Social media</strong> — mentions of and interactions with related hashtags</li>
+        <li><strong>Dominance</strong> — a rising BTC share is often a sign of money fleeing altcoins (risk-off)</li>
+        <li><strong>Google Trends</strong> — spikes in searches like “bitcoin crash” signal fear</li>
+      </ul>
+      <p><strong>How to read it</strong> — it is a <strong>contrarian indicator</strong>. Warren Buffett's “be fearful when others are greedy, and greedy when others are fearful” applies directly. Historically, extreme fear at 25 or below has been a zone worth considering for staged (DCA) buying.</p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>fear doesn't only show up at the bottom; it also shows up when a decline is just starting.</strong>
+        An index reading of 20 does not mean the bottom is in. There really are phases, like 2022, where it <strong>sits at 20–30 for months while the price keeps falling</strong>.
+        “Low fear index = buy now” is the most common recipe for going broke. Always read it together with trend indicators (MACD · crosses).
+      </div>
+
+      <h2 id="rsi">2. RSI — Relative Strength Index</h2>
+      <p><strong>What it measures</strong> — the speed of recent moves: whether the price has <strong>risen or fallen too fast</strong>. 0–100.</p>
+      <p><strong>How it is calculated</strong> — this site uses the standard <strong>14-day RSI with Wilder smoothing</strong>.</p>
+      <pre><code>RS  = (14-day average gain) ÷ (14-day average loss)   ← Wilder smoothing
+RSI = 100 − 100 / (1 + RS)</code></pre>
+      <p><strong>How to read it</strong> — conventionally, <strong>below 30 is oversold</strong> (fallen too far → a rebound is likely) and <strong>above 70 is overbought</strong> (risen too far → caution).</p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>in strongly trending markets, RSI stays at extremes for a long time.</strong>
+        In a powerful bull market RSI can stick above 70 for weeks while the price keeps climbing. That is exactly when “it's overbought, so sell” becomes the worst possible move.
+        Symmetrically, in a bear market it keeps hovering below 30. <strong>RSI works well in sideways markets and fails in trending ones.</strong>
+      </div>
+
+      <h2 id="macd">3. MACD — Moving Average Convergence Divergence</h2>
+      <p><strong>What it measures</strong> — <strong>the strength of a trend and changes in its direction</strong>.</p>
+      <p><strong>How it is calculated</strong> — the standard 12·26·9 settings.</p>
+      <pre><code>MACD line   = EMA(12) − EMA(26)
+Signal line = EMA(9) of MACD line
+Histogram   = MACD line − Signal line   ← the value this site uses</code></pre>
+      <p>
+        <strong>How to read it</strong> — this model cares more about <strong>changes in direction than the absolute value</strong> of the histogram.
+        The strongest buy-momentum signal is <strong>“the histogram is still negative but has started growing compared with the previous bar.”</strong>
+        That is the moment when downward pressure <em>starts to ease</em>. Conversely, a positive histogram that is shrinking means upward momentum is cooling.
+      </p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — because MACD is <strong>built on moving averages, it is inherently lagging</strong>. By the time a signal appears, part of the move is already over.
+        It also produces <strong>frequent false signals (whipsaws) in sideways markets</strong>: the histogram oscillates around 0 and keeps generating buy/sell signals.
+      </div>
+
+      <h2 id="mayer">4. Mayer Multiple</h2>
+      <p><strong>What it measures</strong> — <strong>whether the current price is expensive or cheap relative to the long-term trend line</strong>; in other words, a kind of valuation.</p>
+      <pre><code>Mayer Multiple = current price ÷ 200-day moving average</code></pre>
+      <p>
+        <strong>How to read it</strong> — <strong>1.0 is the baseline</strong>. Below 1 means the price is cheaper than its 200-day average.
+        The metric was popularized by bitcoin investor Trace Mayer, who pointed out that <strong>buying when the multiple is above roughly 2.4 has historically led to much worse long-term returns</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Multiple</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>&lt; 0.8</td><td>20%+ discount to the 200-day MA. Historically undervalued · bottom zone</td></tr>
+            <tr><td>0.8 ~ 1.4</td><td>Normal range</td></tr>
+            <tr><td>1.4 ~ 2.4</td><td>Entering overheated territory</td></tr>
+            <tr><td>&gt; 2.4</td><td>Historical top zone. Risky for new entries</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>it is almost useless in the short term.</strong> Being expensive doesn't mean it will fall next week; it can stay expensive and keep rising for months.
+        That's why this model <strong>keeps its weight to a minimal 4% on the short-term tab</strong> and gives it a large 13% on the long-term tab (it was 18% before the on-chain MVRV was added, but the largest share went to MVRV, which plays the same 'price vs cost' role more directly).
+        Also, <strong>it simply cannot be calculated for newly listed coins without 200 days of data</strong>.
+      </div>
+
+      <h2 id="dd">5. Drawdown from the 365-day high</h2>
+      <p><strong>What it measures</strong> — <strong>how far</strong> the current price has fallen from its highest price over the past year.</p>
+      <pre><code>Drawdown(%) = (current price − 365-day high) ÷ 365-day high × 100</code></pre>
+      <p><strong>How to read it</strong> — in crypto, −30% corrections are common even in bull markets. This model treats <strong>−30% as the start of interest and −50% or deeper as strongly buy-favorable</strong>. The deeper the drawdown, the more it is treated as a staged-buying zone.</p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>drawdown has no floor.</strong> You can buy at −50% and watch it go to −80%, which is a further −60% loss on your position.
+        “It has fallen a lot, so it's cheap” is <strong>fatal for an asset heading to zero</strong>. Most of the altcoins that disappeared passed through the −90% zone.
+        This indicator only means something <strong>for assets that will survive</strong>.
+      </div>
+
+      <h2 id="cross">6. Golden Cross · Death Cross (50/200 moving averages)</h2>
+      <p><strong>What it measures</strong> — the <strong>relative position</strong> of the medium-term (50-day) and long-term (200-day) trends.</p>
+      <ul>
+        <li><strong>Golden cross</strong> — the 50-day MA crosses <strong>above</strong> the 200-day MA. A signal of a shift to an uptrend</li>
+        <li><strong>Death cross</strong> — the 50-day MA crosses <strong>below</strong> the 200-day MA. A signal of a shift to a downtrend</li>
+      </ul>
+      <p><strong>How to read it</strong> — in this model it is a <strong>trend filter</strong>. Even when other indicators say “buy,” a death cross makes the score conservatively lower. It is a safety device against catching a “falling knife.”</p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>it is the slowest signal.</strong> Because it uses the 200-day average, the big move is often already over by the time the cross is confirmed.
+        When a golden cross appears after a bottom, the price has usually already risen considerably from the low. <strong>Use it to confirm the market phase, not as a timing tool.</strong>
+      </div>
+
+      <h2 id="mvrv">7. MVRV Z-Score — market cap vs average cost basis (on-chain)</h2>
+      <p>
+        <strong>What it measures</strong> — how far the market cap has drifted from <strong>the total amount investors actually paid (realized cap ≈ aggregate average cost basis)</strong>.
+        Unlike the previous six indicators, which are all derived from price, this one comes from <strong>the blockchain ledger</strong>.
+      </p>
+      <p><strong>How it is calculated</strong> — realized cap values each coin at 'the price on the day it last moved' and sums them all up. This site derives it from the market cap and MVRV ratio provided by the CoinMetrics Community API (free · no key required).</p>
+      <pre><code>Realized cap = market cap ÷ MVRV ratio   (CoinMetrics CapMrktCurUSD · CapMVRVCur)
+MVRV Z-Score = (market cap − realized cap) ÷ σ(market cap, full history)</code></pre>
+      <p>
+        <strong>How to read it (thresholds)</strong> — <strong>z below 0</strong> means the market cap is below the average cost basis, i.e. holders as a whole are, on average, at a loss.
+        The major bottoms of 2011 · 2015 · 2018 · 2022 all formed in this zone. A z of 1–2 is the normal range, while <strong>z above 5</strong> is the historically overheated zone where the major tops of 2011 · 2013 · 2017 were printed.
+        The scoring engine maps z onto 0–100 using an anchor table (z ≤ −1 → 100 points … z ≥ 8 → 0 points, with linear interpolation between anchors).
+      </p>
+      <p>
+        <strong>Reading the dashboard card</strong> — the large number on the <code>MVRV·Z</code> card is the MVRV <strong>ratio</strong> (e.g. <code>1.25×</code> = 1.25 times the average cost basis),
+        and the small text below, <code>z 0.45</code>, is the Z-Score that actually goes into the score. When the ratio drops below 1, a <strong>⚑ flag</strong> appears — a sign that the market as a whole is below its average cost.
+        For coins CoinMetrics doesn't support (AVAX · SHIB · PEPE · GRT · SAND), it shows <code>N/A</code> and the weights are renormalized.
+      </p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>realized cap only updates when coins actually move.</strong>
+        Coins that change hands inside an exchange, or exposure traded as ETF shares, leave no trace on-chain, so their cost basis stays stale;
+        conversely, when an exchange reshuffles its cold wallets, the cost basis gets re-stamped without any real buying. And because it divides by the full-history σ,
+        the amplitude of z gets compressed as the market grows, so <strong>past extremes like z&gt;7 may never be seen again.</strong> Read its relative position rather than absolute thresholds.
+        The fundamental limitation that the sample covers only four cycles also remains.
+      </div>
+
+      <h2 id="therm">8. Thermocap Z — market cap vs cumulative mining rewards (on-chain · BTC only)</h2>
+      <p>
+        <strong>What it measures</strong> — how many times <strong>the total cost poured into the bitcoin network so far (cumulative mining rewards, Thermocap)</strong> the market cap is trading at.
+        If MVRV is 'the investors' cost basis,' this is <strong>'the producers' cost basis.'</strong>
+      </p>
+      <p><strong>How it is calculated</strong> — miner revenue from blockchain.info (full history) is weighted by the sampling interval (in days) and accumulated (an integral approximation), then aligned with market cap by date, and the logarithm of the ratio is standardized.</p>
+      <pre><code>Thermocap   = Σ (daily miner revenue USD)   ← cumulative since 2009
+Thermocap Z = full-history z-score of ln(market cap ÷ Thermocap)</code></pre>
+      <p>
+        <strong>How to read it (thresholds)</strong> — it is normal for market cap to move at several to several dozen times Thermocap; what matters is where that multiple sits within its historical range.
+        <strong>z below 0</strong> means undervalued relative to production cost, while <strong>z of 1.5–2 or higher</strong> overlaps with historical top zones. The score mapping uses the same anchor table as MVRV Z.
+        Because the denominator (cumulative rewards) never shrinks, it serves as a <strong>cross-check</strong> late in bull markets, when realized cap can create an illusion.
+      </p>
+      <p>
+        <strong>Reading the dashboard card</strong> — the large number on the <code>THERM·Z</code> card is the Z-Score (e.g. <code>z 0.44</code>), and the small text below such as <code>×14</code> shows how many times Thermocap the current market cap is.
+        <strong>The card exists only on the BTC screen</strong> — accumulated mining rewards is a concept specific to PoW bitcoin, so it cannot be calculated for altcoins and is treated as missing (renormalized) in the composite.
+      </p>
+      <div class="note warn">
+        <strong>When it betrays you</strong> — <strong>it is the slowest indicator.</strong> Because the denominator is cumulative, it barely reacts to short-term swings and is useless for short-term timing (hence its 4% short-term weight).
+        Miner revenue data is aggregated slightly differently by each source, and the reward structure changes with every halving, so cross-cycle comparisons always carry some error.
+        Crucially, <strong>the causal claim that "mining cost supports the bottom" has never been proven</strong> — all we have are correlations observed over four cycles.
+      </div>
+
+      <h2 id="combine">Why you need all 8</h2>
+      <p>
+        Re-read the “when it betrays you” sections above and a pattern emerges. <strong>The contrarian indicators (fear index · Mayer · drawdown) are all wrong together in a downtrend.</strong>
+        All three shout “it's cheap, buy,” yet the price keeps falling.
+      </p>
+      <p>
+        What stops this are the <strong>trend indicators (MACD · golden cross)</strong>. When the contrarian indicators are screaming buy, the trend indicators put on the brakes with “not yet.”
+        Conversely, in a strong trend, when RSI says “overbought, sell,” the momentum indicators hold you back with “the trend is still alive.”
+      </p>
+      <p>
+        The two on-chain indicators add <strong>a third axis</strong>. Even in phases where all six price-derived indicators are wavering —
+        say, late in a bear market when the Mayer Multiple stays silent at “normal” — <strong>a baseline outside price, namely cost (investors' average cost · cumulative mining cost)</strong>, still remains.
+        At spots like the November 2021 cycle top, where the price indicators all said neutral in unison, the cost-based indicators were telling a different story.
+      </p>
+      <p>
+        <strong>No single indicator is right in every phase.</strong> The point of a composite score is not to raise accuracy but
+        <strong>to limit the damage when one indicator is badly wrong</strong>. Read the score not as “the answer” but as “a summary of several perspectives.”
+      </p>
+      <p>
+        Why each indicator carries the weight it does is disclosed down to the numbers in the <a href="/methodology">scoring methodology document</a>.
+        How the two on-chain indicators actually performed at identifying bottoms is verified with live charts in <a href="/bitcoin-bottom">How to spot a bitcoin bottom</a>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This document and the score are <strong>reference material that combines public indicators, not investment advice.</strong>
+        You can lose your entire principal in crypto. All decisions and responsibility rest with you (DYOR).
+      </div>
+
+      <h2>Keep reading</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoring methodology</b><span>How the 8 indicators are weighted and combined (numbers disclosed)</span></a>
+        <a href="/bitcoin-bottom"><b>How to spot a bitcoin bottom</b><span>MVRV · Thermocap on live charts — the basis of the bottom radar</span></a>
+        <a href="/guide-fear-greed"><b>Using the Fear Index in practice</b><span>Staged buying during fear and common mistakes</span></a>
+        <a href="/"><b>To the dashboard</b><span>Check all 8 indicators live right now</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></footer>
+    </main>

@@ -1,0 +1,793 @@
+<main class="wrap" data-title="间隔重复算法对比 — 莱特纳 · SM-2 · FSRS，以及我们为什么不用算法 | VOCA DECK" data-desc="用真实数字对比莱特纳盒（1972）、SM-2（1987，EF 2.5）和FSRS（稳定性 S）的复习日计算公式。包括对同一个单词追踪30天的模拟、FSRS目标记忆保持率与间隔的换算表，以及VOCA DECK放弃个性化、选择均匀循环所付出的代价——一直公开到代码层面。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 单词本</a>
+          <a href="/method">记忆法原理</a>
+          <a href="/study-guide">学习策略</a>
+          <a href="/csv-guide">制作CSV</a>
+        </nav>
+
+        <h1>间隔重复算法对比</h1>
+        <p class="muted">莱特纳 · SM-2 · FSRS，以及我们为什么不用算法 · 最后更新：2026-07-14 · 作者：Y-Systems</p>
+
+        <p class="lead">
+          这篇文章<strong>先从我们的应用落败的项目讲起。</strong>
+          下表中VOCA DECK一栏有好几个“✗”。我们没有删掉它们。
+          <strong>间隔重复（spaced repetition）的核心是“由谁、如何计算复习日”</strong>，
+          而我们<strong>选择了不做这个计算</strong>。
+          本文会把真正做这项计算的三种算法<strong>拆解到公式和数字层面</strong>，
+          并<strong>直接从代码里拿出来给你看</strong>：我们为了得到什么，放弃了什么。
+        </p>
+
+        <h2 id="spec">先看规格表 — 表中的每一格就是本文的目录</h2>
+        <p>
+          在读解释之前，<strong>先看结论表</strong>。下文会逐行拆解。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>项目</th>
+                <th><a href="#leitner" style="color:#22dd22">莱特纳盒</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki 变体</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(闪示单词)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>调度单位</strong></td>
+                <td>天（按盒）</td>
+                <td>天</td>
+                <td>分钟 + 天</td>
+                <td>天（含小数）</td>
+                <td><strong>秒</strong></td>
+              </tr>
+              <tr>
+                <td><strong>卡片记住的状态</strong></td>
+                <td>1个盒子编号<br />(1~5)</td>
+                <td>EF · 重复次数 · 间隔<br />（3个实数）</td>
+                <td>ease · 间隔 · 失败次数</td>
+                <td>难度 D · 稳定性 S<br />（潜变量）</td>
+                <td><strong>1个布尔值</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>答题质量等级</strong></td>
+                <td>○/✗ 两级</td>
+                <td>q = 0~5（六级）</td>
+                <td>四级（Again~Easy）</td>
+                <td>四级</td>
+                <td><strong>✗ 无</strong></td>
+              </tr>
+              <tr>
+                <td><strong>复习记录的保存</strong></td>
+                <td>实体盒子</td>
+                <td>每张卡的状态</td>
+                <td>完整复习日志</td>
+                <td>必须有日志（用于训练）</td>
+                <td><strong>✗ 不保存</strong></td>
+              </tr>
+              <tr>
+                <td><strong>用个人数据学习</strong></td>
+                <td>✗</td>
+                <td>✗（常数靠手工）</td>
+                <td>✗</td>
+                <td><strong>○（参数优化）</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>逐卡个性化</strong></td>
+                <td>△（压缩成5级）</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗（全部相同）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>保证全覆盖</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>（仅正向 ○，<br />随机 ✗）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>账号 · 安装 · 同步</strong></td>
+                <td>纸盒</td>
+                <td>需要</td>
+                <td>需要</td>
+                <td>需要</td>
+                <td><strong>◎ 全都不需要</strong></td>
+              </tr>
+              <tr>
+                <td><strong>积压复习的“炸弹”</strong></td>
+                <td>有</td>
+                <td>有</td>
+                <td><strong>有（流失原因第1位）</strong></td>
+                <td>有</td>
+                <td><strong>◎ 无</strong></td>
+              </tr>
+              <tr>
+                <td><strong>成熟卡片的长期保持</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗（盲区）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>单次学习内的呈现密度</strong></td>
+                <td>低</td>
+                <td>低</td>
+                <td>低</td>
+                <td>低</td>
+                <td><strong>◎ 6秒/张</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>用一句话读这张表</strong> — 前四栏是解决<strong>“几天后再看”</strong>的工具，
+          最右一栏是解决<strong>“眼下这6秒看什么”</strong>的工具。
+          <strong>它们不是解决同一个问题的竞争对手。</strong>本文的结论已经写在这里了。
+        </div>
+
+        <h2 id="leitner">1972 — 莱特纳：“挪动盒子，本身就是算法”</h2>
+
+        <h3>那个时代想解决的问题</h3>
+        <p>
+          那时没有计算机。德国记者<strong>塞巴斯蒂安·莱特纳（Sebastian Leitner）</strong>
+          在1972年的著作中提出的，是<strong>无需计算的间隔重复</strong>。
+          不需要铅笔，也不需要推算日期。<strong>物理上挪动卡片这个动作本身，就是状态的保存</strong>。
+        </p>
+
+        <h3>怎么解决的</h3>
+        <ul>
+          <li>把带隔板的盒子分成<strong>5格</strong>。</li>
+          <li>所有新卡都从<strong>第1格</strong>开始。</li>
+          <li>答对了就<strong>向前移一格</strong>。</li>
+          <li>答错了，<strong>不管原来在第几格，一律跌回第1格</strong>。</li>
+          <li>每一格的复习周期不同。常见的安排如下。</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>格</th><th>复习周期</th><th>在这一格的含义</th><th>答错时</th></tr></thead>
+            <tbody>
+              <tr><td>第1格</td><td><strong>每天</strong></td><td>还不会 / 刚答错</td><td>留在第1格</td></tr>
+              <tr><td>第2格</td><td>每2天</td><td>答对过一次</td><td><strong>→ 跌回第1格</strong></td></tr>
+              <tr><td>第3格</td><td>每4天</td><td>连续答对两次</td><td><strong>→ 跌回第1格</strong></td></tr>
+              <tr><td>第4格</td><td>每8天</td><td>连续三次</td><td><strong>→ 跌回第1格</strong></td></tr>
+              <tr><td>第5格</td><td>每16天</td><td>基本记住了</td><td><strong>→ 跌回第1格</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          严格来说，<strong>莱特纳的原始方案不是按日期，而是“格子满了就清空”的容量制</strong>。
+          上面的1·2·4·8·16天是后来固定下来的<strong>日历版</strong>。
+          很多文章把这两者混为一谈，所以在此说明。
+        </p>
+
+        <h3>哪里出了问题</h3>
+        <p>
+          莱特纳的致命弱点是<strong>“跌落太残酷”</strong>。
+          一张在第5格<strong>只失手一次的卡片</strong>，会和“一次都没答对过的新卡”
+          <strong>受到完全相同的待遇</strong>，跌回第1格。
+          实际上那张卡几乎已经记住了，但盒子没有办法表达这一点。
+          <strong>状态只有一个整数，所以没有地方存放“基本记住了，只是今天有点混淆”。</strong>
+        </p>
+        <p>
+          而且<strong>所有卡片都爬同一架梯子。</strong>
+          简单的单词也得把5格走完，怎么也记不住的单词同样是5格。
+          人们需要的是<strong>每张卡以不同速度攀爬的梯子</strong>。它在15年后出现了。
+        </p>
+
+        <h2 id="sm2">1987 — SM-2：把整数换成实数的15年</h2>
+
+        <h3>那个时代想解决的问题</h3>
+        <p>
+          波兰的<strong>彼得·沃兹尼亚克（Piotr Woźniak）</strong>在开发SuperMemo时发表的
+          <strong>SM-2</strong>，把莱特纳的“格子编号（整数）”换成了<strong>“难易系数（实数）”</strong>。
+          核心发明只有一个：<strong>EF（Easiness Factor，难易系数）</strong>。
+        </p>
+
+        <h3>怎么解决的 — 实际公式</h3>
+        <p>SM-2在每次复习时让你自己按<strong>q = 0~5</strong>六个等级打分（5 = 完美，0 = 一片空白）。然后这样更新EF。</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+EF 初始值 = 2.5   ·   EF 下限 = 1.3 (不会再往下降)</code></pre>
+        <p>这个公式实际给出的值如下。<strong>这是手算填出来的表。</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q（自评）</th><th>含义</th><th>EF 变化量</th><th>从 EF 2.5 开始</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>完美想起</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>答对了，但犹豫了一下</td><td><strong>±0.00</strong></td><td>2.50（不变）</td></tr>
+              <tr><td><strong>3</strong></td><td>勉强答对</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>答错了，但看到答案就明白</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>答错了，看了答案也觉得陌生</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>完全空白</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>q=4 恰好为0，正是这个公式的设计意图</strong>。
+          “顺利答对”是<strong>不改变难度评估的中立点</strong>，
+          比它好就上调，比它差就下调。常数 0.1 · 0.08 · 0.02
+          <strong>不是从理论推导出来的，而是沃兹尼亚克手工调出来的值</strong>。这一点后面会变得很重要。
+        </p>
+        <p>接着这样确定下一个间隔。</p>
+        <pre><code>I(1) = 1天
+I(2) = 6天
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+若 q &lt; 3 → 把重复次数 n 重置为 1 (间隔回到1天)</code></pre>
+        <p>
+          <strong>EF是乘法倍数。</strong>所以EF 2.5的简单卡和EF 1.3的地狱卡
+          <strong>会呈指数级拉开差距。</strong>复习次数相同，达到的间隔却完全不同。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>复习轮次</th><th>EF 2.5（简单卡）</th><th>EF 1.9（普通）</th><th>EF 1.3（地狱卡）</th></tr></thead>
+            <tbody>
+              <tr><td>第1次</td><td>1天</td><td>1天</td><td>1天</td></tr>
+              <tr><td>第2次</td><td>6天</td><td>6天</td><td>6天</td></tr>
+              <tr><td>第3次</td><td>15天</td><td>11天</td><td>8天</td></tr>
+              <tr><td>第4次</td><td>38天</td><td>22天</td><td>10天</td></tr>
+              <tr><td>第5次</td><td>94天</td><td>41天</td><td>13天</td></tr>
+              <tr><td>第6次</td><td><strong>235天</strong></td><td>78天</td><td>17天</td></tr>
+              <tr><td>第7次</td><td><strong>587天（1.6年）</strong></td><td>148天</td><td><strong>22天</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          到第7次时是<strong>587天对22天 — 相差27倍</strong>。
+          这就是SM-2胜过莱特纳的地方。它把简单卡<strong>一次收起一年半，眼不见为净</strong>，
+          把这些时间全部用在难卡上。
+        </p>
+
+        <h3>哪里出了问题</h3>
+        <p><strong>① 六级自评对人来说太难了。</strong>
+          每张卡都要判断 q=3 和 q=4 到底差在哪里。实际上大多数用户
+          <strong>只会反复按其中两三个等级。</strong>六级设计实际上塌缩成了三级。</p>
+        <p><strong>② 失败时的处理含糊不清。</strong>原文说“若 q&lt;3，<em>不改变EF</em>，从头开始重复”，
+          可同一份文档里的伪代码却<strong>对所有 q 都更新EF</strong>。不同实现的解读各不相同。
+          <strong>一个用了30多年的算法，其核心分支在文档上竟然是含糊的</strong>——如实写下来才算诚实。
+          （本文的模拟采用了<strong>“EF也更新”</strong>的解读。）</p>
+        <p><strong>③ 常数没有依据地被固定下来。</strong>为什么 I(2) 是6天？为什么偏偏是 0.08？
+          <strong>1987年一个人用自己的数据手工调出的数字</strong>，被原封不动地套用到全世界所有学习者身上。
+          这就是FSRS出现的原因。</p>
+
+        <h2 id="anki">Anki的变体 — 以及“ease地狱（ease hell）”</h2>
+        <p>
+          Anki并没有原样使用SM-2。它<strong>把等级减为四个</strong>（Again / Hard / Good / Easy），
+          把EF称为<strong>ease</strong>，并重新调整了调节幅度。以默认预设为准，实际行为如下。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>按钮</th><th>ease 变化</th><th>下一个间隔</th><th>备注</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong>（失败）</td><td><strong>−0.20</strong></td><td>上一个间隔 <strong>× 0%</strong> → 最少1天<br />（+ 重新学习10分钟）</td><td>间隔<strong>被打回谷底</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>上一个间隔 × <strong>1.2</strong></td><td>与ease无关的固定倍数</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>上一个间隔 × <strong>ease</strong></td><td>中立点（相当于SM-2的 q=4）</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>上一个间隔 × ease × <strong>1.3</strong></td><td>简单奖励</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          其他默认值：学习步长 <code>1m 10m</code> · 毕业间隔 <strong>1天</strong> · 简单间隔 <strong>4天</strong> ·
+          起始 ease <strong>2.50</strong> · <strong>ease 下限 1.30</strong> · 难记卡（leech）阈值 <strong>失败8次</strong>。
+          Anki的默认值可能因版本和预设而不同，<strong>请在牌组选项中亲自确认。</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>所谓“ease地狱”</strong> — 反复按Again（−0.20）和Hard（−0.15）的卡片，
+          ease会<strong>粘在下限1.30上下不来。</strong>这样一来，下一个间隔每次只能<strong>× 1.3</strong>地增长，
+          1天 → 2天 → 3天 → 4天……<strong>龟速爬行。</strong>而且Again还会把间隔再次打回1天。
+          结果就是<strong>少数几张卡永远霸占每天的复习队列</strong>。<br />
+          <strong>能提高ease的途径只有Easy（+0.15）一个，可你根本不会对地狱卡按Easy。</strong>
+          <strong>往下的门有四扇，往上的门只有一扇</strong>——这就是SM-2家族的结构性缺陷，
+          也是Anki用户说“8张难记卡毁了我的人生”的原因。
+        </div>
+        <p>
+          对策大多在<strong>算法之外</strong>。删掉卡片、拆分卡片、给它加上例句（“是卡片不好，
+          不是我笨”），或者<strong>手动重置ease</strong>。
+          <strong>这意味着人在亲手修补算法修不好的东西</strong>，而正是这种自觉催生了下一代。
+        </p>
+
+        <h2 id="fsrs">FSRS — 唯一能准确回答“S到底是什么”的算法</h2>
+        <p>
+          <strong>FSRS（Free Spaced Repetition Scheduler）</strong>抛弃了手工调参的常数，
+          <strong>用你实际的复习日志来拟合参数</strong>。它的基础是<strong>DSR模型</strong>。
+        </p>
+        <ul>
+          <li><strong>D（Difficulty，难度）</strong> — 这张卡本质上有多难</li>
+          <li><strong>S（Stability，稳定性）</strong> — 记忆能维持多久</li>
+          <li><strong>R（Retrievability，可提取性）</strong> — <strong>此时此刻</strong>能想起来的概率</li>
+        </ul>
+        <p>它这样定义遗忘曲线（以FSRS-4.5 / 5为准，<strong>DECAY = −0.5</strong>，<strong>FACTOR = 19/81</strong>）。</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>这里有一个几乎没人点明的事实</h3>
+        <p><strong>我们把 t = S 代入看看。</strong>也就是说：“稳定性为 S 的卡片，正好在 S 天后再看，会怎样？”</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← 正好 90%</code></pre>
+        <p>
+          <strong>这不是巧合。FACTOR = 19/81 和 DECAY = −0.5 正是为了得出这个值而反推出来的常数。</strong>
+          因此，<strong>S的真面目可以用一句话来定义。</strong>
+        </p>
+        <div class="note">
+          <strong>S（稳定性）=“想起的概率下降到90%所需的天数”</strong><br />
+          S = 30 的意思是：“30天后再遇到这张卡，十次里能答对九次。”
+          <strong>它不是抽象的内部变量，而是可以用天数来解读的物理量。</strong>
+          SM-2的EF做不到这样的解读。问“EF 2.5”是什么意思，答案只能是“一个用来乘的数”。
+        </div>
+
+        <h3>改变目标保持率，复习量会如何变化 — 换算表</h3>
+        <p>
+          FSRS允许你直接设定<strong>目标保持率（desired retention）</strong>（默认<strong>0.90</strong>）。
+          把上面的公式对 t 求解，间隔如下。
+        </p>
+        <pre><code>间隔 t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>下面是把数字代入这个公式算出的结果。<strong>这张表可能是本文最实用的部分。</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>目标保持率 R</th><th>间隔（相对 S 的倍数）</th><th>若是 S=30天 的卡片</th><th>复习负担</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14天</td><td><strong>暴增约2.2倍</strong></td></tr>
+              <tr><td><strong>0.90</strong>（默认）</td><td><strong>× 1.00</strong></td><td>30天</td><td>基准</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49天</td><td>减少约40%</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72天</td><td><strong>减少约58%</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133天</td><td>减少约77%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          读法：<strong>把保持率从0.90提高到0.95，“只多了5个百分点”，间隔就会缩短到一半以下</strong>，
+          <strong>复习量翻倍。</strong>反过来，降到0.80时<strong>复习量会降到一半以下，
+          而正确率只损失10个百分点</strong>。正因为曲线如此陡峭，
+          <strong>“保持率越高越好”的直觉在这里崩塌了。</strong>
+          如果考试不是近在眼前，0.85~0.90 区间通常比较合理。
+        </p>
+        <p class="muted">
+          准确性说明：上述推导以<strong>DECAY固定为−0.5的FSRS-4.5 / 5</strong>为准。
+          <strong>从FSRS-6开始，DECAY本身也成了需要学习的参数</strong>，因此“S = 90%间隔”这个等式
+          可能不再严格成立。参数个数也随版本从<strong>17 → 19 → 21个</strong>逐步增加。
+          <strong>请不要在未确认版本的情况下直接引用这些数字。</strong>
+        </p>
+
+        <h3>FSRS做不到的事</h3>
+        <p>
+          FSRS<strong>要有你的日志，才会变成属于你的算法。</strong>
+          在复习记录<strong>积累到几百到1,000条左右之前，它使用默认参数</strong>运行，
+          而那终究是<strong>“别人的平均值”</strong>。也就是说，<strong>刚开始第一个月的FSRS并没有个性化。</strong>
+          而且留下日志，也意味着<strong>所有复习记录都被保存在某个地方</strong>。
+        </p>
+
+        <h2 id="sim">把同一个单词追踪30天 — 模拟</h2>
+        <p>
+          把抽象的公式换成实物看看。把单词 <code>ubiquitous</code> 这一张卡，按下面的情景放进三个系统。
+        </p>
+        <div class="note">
+          <strong>情景</strong> — 第1天新学 → <strong>第一次复习失败</strong>（SM-2 q=2 / Anki Again）
+          → 此后一直顺利答对（q=4 / Good）。
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>日期</th><th>莱特纳（1·2·4·8·16天）</th><th>SM-2（EF 2.5 起步）</th><th>Anki（ease 2.50 起步）</th></tr></thead>
+            <tbody>
+              <tr><td><strong>第1天</strong></td><td>学习 · 第1格</td><td>学习 · I=1天</td><td>学习（1分钟→10分钟）· 毕业 1天</td></tr>
+              <tr><td><strong>第2天</strong></td><td><strong>失败</strong> · 留在第1格</td><td><strong>失败 q=2</strong> · EF 2.50→<strong>2.18</strong> · 重置</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · 间隔 1天</td></tr>
+              <tr><td><strong>第3天</strong></td><td>成功 → <strong>第2格</strong></td><td>成功 · I=1天</td><td>Good · 1 × 2.30 = <strong>2天</strong></td></tr>
+              <tr><td><strong>第4天</strong></td><td>—</td><td>成功 · I=<strong>6天</strong></td><td>—</td></tr>
+              <tr><td><strong>第5天</strong></td><td>成功 → <strong>第3格</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5天</strong></td></tr>
+              <tr><td><strong>第9天</strong></td><td>成功 → <strong>第4格</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>第10天</strong></td><td>—</td><td>成功 · 6 × 2.18 = <strong>13天</strong></td><td>Good · 5 × 2.30 = <strong>12天</strong></td></tr>
+              <tr><td><strong>第17天</strong></td><td>成功 → <strong>第5格</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>第22天</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28天</strong></td></tr>
+              <tr><td><strong>第23天</strong></td><td>—</td><td>成功 · 13 × 2.18 = <strong>28天</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>30天内<br />总复习次数</strong></td>
+                <td><strong>6次</strong></td><td><strong>6次</strong></td><td><strong>6次</strong></td>
+              </tr>
+              <tr>
+                <td><strong>下次复习日</strong></td>
+                <td>第33天</td>
+                <td><strong>第51天</strong></td>
+                <td><strong>第50天</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>这里真正该看的数字不是“6次”，而是“33对51”。</strong>
+          三个系统在30天里都让你<strong>同样复习了6次</strong>。工作量是一样的。
+          可是<strong>莱特纳在第33天再叫你回来，SM-2则在第51天。</strong>
+          同样用掉6次，SM-2却<strong>多推远了18天。</strong>
+          这个差距会随着轮次<strong>以乘法方式扩大。</strong>一年后，莱特纳仍然每16天问你一次，
+          而SM-2早已达到以年计的间隔。
+        </p>
+        <p>
+          <strong>而且这张表里没有VOCA DECK一栏。</strong>因为根本放不进去。
+          我们的应用<strong>根本没有“第几天”这个概念。</strong>原因见下一章。
+        </p>
+
+        <h2 id="voca">拆解VOCA DECK — 我们的代码实际在做什么</h2>
+        <p>
+          现在轮到我们了。<strong>不加包装，照代码原样</strong>写出来。
+        </p>
+
+        <h3>卡片保存的内容：就这些</h3>
+        <pre><code>{ a: "ubiquitous", b: "无处不在的", mem: false }</code></pre>
+        <p>
+          <strong>这就是一张卡片的全部。</strong>正面、背面，再加<strong>一个布尔值。</strong>
+          <strong>复习的时间、错了几次、有多混淆，一概不保存。</strong>
+        </p>
+        <p>
+          所以<strong>即使我们想加上SM-2，也加不上。</strong>
+          SM-2至少需要 <code>EF · 重复次数 · 上次复习日</code>，
+          FSRS则必须有<strong>完整的复习日志</strong>才能拟合参数。
+          我们<strong>没有账号，没有服务器，也没有复习日志。</strong>
+          单词本和已记标记<strong>只保存在浏览器的 <code>localStorage</code> 里</strong>，不会发送到服务器。
+          <strong>这不是做不出来，而是有意这样做。代价就是放弃个性化。</strong>
+        </p>
+
+        <h3>调度器的真面目：一行取模运算</h3>
+        <p>
+          我们决定“下一张卡”的方式是<strong>循环（cyclic）索引</strong>。
+          根据 <code>order</code> 设置分为三种。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>设置</th><th>行为</th><th>再次相遇的间隔</th><th>覆盖率</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> 正向（默认）</td><td>索引按 +1 循环</td><td><strong>恰好每 N 张一次</strong>（均匀）</td><td><strong>保证 100%</strong></td></tr>
+              <tr><td><code>rev</code> 反向</td><td>索引按 −1 循环</td><td><strong>恰好每 N 张一次</strong>（均匀）</td><td><strong>保证 100%</strong></td></tr>
+              <tr><td><code>rnd</code> 随机</td><td><strong>每一步独立均匀抽取</strong><br />（只排除当前卡）</td><td>期望值 N−1 张，<br /><strong>方差大</strong></td><td><strong>无保证 ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>随机模式不是洗牌——这一点我们必须说清楚。</strong><br />
+          它不是把卡片打乱后走一轮（不放回抽样），而是<strong>每次都从其余卡片中重新抽一张</strong>。
+          所以<strong>同一张卡可能连续出现三次，也可能整整一轮都不出现一次。</strong>
+        </div>
+
+        <h3>我们把这个代价算成了数字</h3>
+        <p>
+          假设把100张的单词本（N=100）用随机模式跑<strong>99步</strong>（= 正向一轮的量）。
+          某张特定卡片在一步中被抽中的概率是<strong>1/(N−1) = 1/99</strong>。
+          那么这张卡<strong>在99步里一次都不出现的概率</strong>是：
+        </p>
+        <pre><code>P(出现0次) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>出现次数的分布近似服从泊松分布（λ=1）。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>一轮的量（99步）内出现次数</th><th>概率</th><th>含义</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0次</strong></td><td><strong>约37%</strong></td><td><strong>单词本的三分之一整个没出现</strong></td></tr>
+              <tr><td>1次</td><td>约37%</td><td>符合预期</td></tr>
+              <tr><td>2次</td><td>约18%</td><td>浪费</td></tr>
+              <tr><td>3次以上</td><td>约8%</td><td>总是同一张卡</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>也就是说，用随机模式跑一轮的量，单词本里约37%的卡那天连面都见不着。</strong>
+          跑两轮的量（198步）仍有<strong>约13%</strong>没出现，
+          <strong>要跑到三轮的量</strong>，未出现的比例才会降到<strong>5%以下</strong>。
+        </p>
+        <div class="note">
+          <strong>所以请这样用（这是从代码推出的处方）</strong>
+          <ul>
+            <li><strong>第一遍 · 考前一天全面检查</strong> → <strong>正向</strong>。这是需要100%覆盖的时刻。用随机跑会漏掉三分之一。</li>
+            <li><strong>第三遍之后，需要打破顺序线索时</strong> → 请先用<strong>反向</strong>。
+              <strong>既打破顺序线索，又保持100%覆盖</strong>。大多数人都直接忽略了这个选项。</li>
+            <li><strong>真正的随机提取训练</strong> → <strong>随机</strong>。但要<strong>做好把单词本跑三轮的心理准备</strong>再用。</li>
+          </ul>
+        </div>
+
+        <h3>时间单位：我们调度器的刻度是“秒”</h3>
+        <p>
+          默认间隔是<strong>3秒</strong>（控制面板中可设1~60秒）。一张卡要经过<strong>正面 · 背面两个阶段</strong>，所以
+          <strong>默认是每张6秒</strong>。另外计时器设有<strong>0.5秒的下限</strong>
+          （无论设得多短，都不会低于这个值）。
+        </p>
+        <p>由此马上可以得出<strong>单词本大小的物理上限</strong>。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>单词本大小 N</th><th>一轮耗时<br />（默认每张6秒）</th><th>与同一张卡再次相遇的间隔</th><th>判定</th></tr></thead>
+            <tbody>
+              <tr><td>30张</td><td><strong>3分钟</strong></td><td>3分钟</td><td>◎ 单次学习内重复很密集</td></tr>
+              <tr><td>100张</td><td><strong>10分钟</strong></td><td>10分钟</td><td>○ 实用的上限</td></tr>
+              <tr><td>300张</td><td><strong>30分钟</strong></td><td>30分钟</td><td>△ 一轮已经是负担</td></tr>
+              <tr><td>500张</td><td><strong>50分钟</strong></td><td>50分钟</td><td>✗ 单次学习内重复的效果消失</td></tr>
+              <tr><td>2,000张</td><td><strong>3小时20分钟</strong></td><td>3小时20分钟</td><td><strong>✗ 实际上不可能</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>闪示单词的诚实界限：请把单词本拆分到300张以内。</strong>
+          如果做一个2,000张的单词本，<strong>跑一轮要3小时20分钟</strong>。
+          那已经不是“快速重复呈现”了，只是<strong>慢吞吞地读列表</strong>。
+          <strong>如果你需要管理2,000张卡，那是Anki的工作，不是这个应用的工作。</strong>
+        </div>
+
+        <h3>间隔就是“提取窗口”的长度 — 请非对称地设置</h3>
+        <p>
+          如果只把间隔当作“速度调节”，那你只用到了一半。
+          <strong>正面停留在屏幕上的那几秒，是你努力回想答案的唯一时间</strong>。
+          所以我们让正面和背面的间隔可以<strong>分别</strong>设置（高级设置，0~60秒）。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>情况</th><th>正面间隔</th><th>背面间隔</th><th>每张</th><th>意图</th></tr></thead>
+            <tbody>
+              <tr><td><strong>第一遍</strong>（满是不认识的单词）</td><td>2秒</td><td>4秒</td><td>6秒</td><td>没什么可回想的，所以<strong>多看一会儿词义</strong></td></tr>
+              <tr><td><strong>第2~3遍</strong>（提取训练）</td><td><strong>5秒</strong></td><td>1.5秒</td><td>6.5秒</td><td><strong>争取回想的时间</strong>，确认一闪而过</td></tr>
+              <tr><td><strong>考前冲刺</strong></td><td>1.5秒</td><td>1.5秒</td><td>3秒</td><td>全面扫描 — 100张<strong>5分钟</strong>过完</td></tr>
+              <tr><td><strong>TTS 听觉学习</strong></td><td>3秒</td><td>3秒</td><td>6秒</td><td>留出语音播完的时间</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>第2~3遍的“正面5秒 / 背面1.5秒”是本应用中最接近提取练习的设置</strong>。
+          <strong>遍数越往后，越要延长正面、缩短背面。</strong>
+          大多数人正好反过来，结果从头到尾都只是<strong>被动地看</strong>。
+        </p>
+
+        <h2 id="mem">“已记标记”的真面目 — 只有2个盒子的莱特纳</h2>
+        <p>
+          我们唯一的个性化机制只有一个：<strong>已记标记</strong>。
+          把它翻译成算法语言，确切地说就是这样。
+        </p>
+        <div class="note">
+          <strong>已记标记 = 只有2个盒子的莱特纳盒。</strong>不过<strong>它不是梯子，而是一扇门。</strong><br />
+          盒子1 = <code>mem: false</code>（持续循环）· 盒子2 = <code>mem: true</code>（从循环中排除）<br />
+          而<strong>显示范围</strong>设置用来选择盒子 —
+          <strong>排除已记</strong>（默认）/ <strong>仅已记</strong> / <strong>全部</strong>。
+        </div>
+
+        <h3>仅凭这一点能得到什么（比你想的多）</h3>
+        <p>
+          个性化算法所做的事情里，<strong>最大的一块其实是“不给你看已经会的卡”</strong>。
+          SM-2把EF 2.5的卡推到587天后，归根结底也是<strong>为了现在不给你看</strong>。
+          已记标记拿到的是这个效果中<strong>最粗暴、但也最大的那一块</strong>。
+        </p>
+        <p>
+          用数字来看。在100张的单词本中<strong>给40张打上已记标记</strong>，参与循环的就剩60张。
+          一轮从<strong>10分钟 → 6分钟</strong>，<strong>不会的卡的再次相遇间隔也从10分钟 → 6分钟</strong>。
+          <strong>同样花20分钟，遇到难卡的次数变成了1.67倍</strong>。
+          <strong>白白得来的1.67倍。</strong>只凭一个复选框。
+        </p>
+
+        <h3>与真正的SM-2相比欠缺的地方（这里很重要）</h3>
+        <p><strong>① 没有等级——非0即1。</strong>
+          SM-2会区分“EF 2.5（非常简单）”“EF 1.6（有点难）”和“EF 1.3（地狱）”，
+          并以<strong>各自不同的频率</strong>呈现。我们只有<strong>“看 / 不看”</strong>两种。
+          <strong>在还没记住的60张里，所有卡都完全平等。</strong>
+          昨天第一次见的单词，和看了40遍都记不住的单词，会以<strong>完全相同的频率</strong>出现。
+          <strong>这是我们输给SM-2最明显的地方。</strong></p>
+
+        <p><strong>② 没有时间——所以无法计算“什么时候再看”。</strong>
+          <code>mem</code> 是布尔值。<strong>我们不保存你是什么时候标记的。</strong>
+          所以“这张卡标记已经40天了，该再确认一下了”这种判断，
+          <strong>应用从原理上就做不到。</strong>因为没有时间戳。</p>
+
+        <p><strong>③ 由此产生的盲区——被标记的卡会悄悄腐烂。</strong></p>
+        <div class="note warn">
+          <strong>这是本文最重要的警告。</strong><br />
+          已记标记是一扇<strong>单向门</strong>。卡片一旦去了盒子2，
+          <strong>就没有自己回来的路。</strong>
+          SM-2即使是587天的卡，<strong>总有一天也一定会再叫回来</strong>——为了抓住遗忘。
+          我们则<strong>永远不会叫回来。</strong><br />
+          <strong>也就是说，“标记为已记的卡其实已经忘了，而你却不知道”的状态会不断累积。</strong>
+          然后你会在考场上才发现。
+        </div>
+
+        <h3>手工填补这个盲区的步骤</h3>
+        <p>
+          算法不帮你做，<strong>就只能由人来做。</strong>幸好并不难，应用里也已经有这个功能。
+          <strong>把显示范围切换为“仅已记”</strong>，正是为了这个用途而存在的。
+        </p>
+        <ol>
+          <li><strong>每周一次，定好日子。</strong>（例：星期日）</li>
+          <li>把显示范围切换为<strong>“仅已记”</strong>。→ 只有打了已记标记的卡参与循环。</li>
+          <li><strong>顺序设为随机</strong>，<strong>正面间隔调长到4~5秒</strong>。——这是在测试真正的提取。</li>
+          <li><strong>遇到想不起来的卡，当场取消已记标记</strong>。→ 降级到盒子1。<strong>这是在亲手为它打开回来的门。</strong></li>
+          <li>再切回“排除已记”，照常运行。</li>
+        </ol>
+        <p>
+          <strong>这5个步骤，就是手动模仿SM-2“成熟卡片复习”的全部内容。</strong>
+          因为不是自动的，所以较差，但<strong>比什么都不做要好得多。</strong>
+          <strong>如果不做这件事，已记标记就会变成“把假装会的卡藏起来的功能”。</strong>
+        </p>
+
+        <h2 id="which">那么该用什么 — 诚实的处方</h2>
+        <p>
+          <strong>“请用我们的应用”是正确答案的情况，连一半都不到。</strong>我们照实写出来。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>你的情况</th><th>推荐</th><th>理由（用数字说）</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>词汇2,000~10,000个，<br />维持6个月到数年</strong><br />（韩国高考·托业·GRE等持久战）</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">（不是我们的应用）</span></td>
+                <td>闪示单词跑2,000张一轮要<strong>3小时20分钟</strong>。物理上不可能。
+                  而且它不会把成熟卡片叫回来，<strong>长期保持会失败</strong>。</td>
+              </tr>
+              <tr>
+                <td><strong>距考试14天 · 临时突击</strong><br />单词200~300个</td>
+                <td><strong>闪示单词</strong></td>
+                <td>SM-2的间隔是<strong>1天 → 6天 → 15天</strong>。
+                  <strong>14天内只能复习3次</strong>。以天为单位的调度器
+                  <strong>在剩余时间很短时毫无用处</strong>。每天刷3轮更胜一筹。</td>
+              </tr>
+              <tr>
+                <td><strong>无法每天打开的人</strong><br />（一断就是3天）</td>
+                <td><strong>闪示单词</strong></td>
+                <td>在Anki里断3天，就会积压<strong>几百张到期卡</strong>。
+                  这是<strong>放弃SRS的头号原因</strong>。闪示单词里<strong>根本没有积压卡片这个概念。</strong>
+                  随时打开，随时关闭都行。</td>
+              </tr>
+              <tr>
+                <td><strong>单词本30~300张，<br />一个CSV文件</strong></td>
+                <td><strong>闪示单词</strong></td>
+                <td>安装Anki + 笔记类型 + 牌组选项 + 同步账号，这些设置的<strong>麻烦大于收益。</strong>
+                  打开CSV，<strong>3秒后就开始学习</strong>。</td>
+              </tr>
+              <tr>
+                <td><strong>洗碗 · 通勤时<br />只用耳朵学</strong></td>
+                <td><strong>闪示单词（TTS 仅语音）</strong></td>
+                <td>Anki要<strong>看着屏幕按按钮</strong>才会进入下一张。
+                  闪示单词用<strong>自动播放 + 仅语音</strong>模式，<strong>手和眼都不用动。</strong></td>
+              </tr>
+              <tr>
+                <td><strong>不想留下复习记录<br />不想注册账号</strong></td>
+                <td><strong>闪示单词</strong></td>
+                <td>单词本和已记标记<strong>只保存在浏览器的localStorage里</strong>，
+                  <strong>不会发送到服务器。</strong>相应地，<strong>也没有跨设备同步。</strong>（原因相同。）</td>
+              </tr>
+              <tr>
+                <td><strong>怎么也记不住的<br />30个地狱单词</strong></td>
+                <td><strong>闪示单词</strong></td>
+                <td>在Anki里，这些卡会<strong>掉进ease地狱，粘在 ease 1.30 上。</strong>
+                  不如<strong>单独导出成CSV，做成30张的单词本（一轮3分钟）</strong>，每天跑五轮。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">最准确的答案：两者处于不同的层次</h2>
+        <p>
+          读到这里，下面这句话你应该能理解了。
+        </p>
+        <div class="note">
+          <strong>Anki决定“今天看哪些卡”。（以天为单位）</strong><br />
+          <strong>闪示单词决定“现在如何呈现这些卡”。（以秒为单位）</strong><br />
+          <strong>两者不是在为同一个问题争斗，而是上下叠加在一起。</strong>
+        </div>
+        <p>同时使用两者的人实际采用的组合如下。</p>
+        <ol>
+          <li><strong>长期计划交给Anki。</strong>5,000词的牌组中“今天要看的120张”由FSRS帮你挑出来。</li>
+          <li><strong>把在Anki里反复答错的卡（难记卡、ease接近1.3的卡）导出为CSV。</strong>
+            通常会有<strong>30~80张</strong>。</li>
+          <li><strong>把这个CSV放进闪示单词，每天跑两三轮。</strong>
+            80张的话<strong>一轮8分钟</strong>。正面5秒 / 背面1.5秒，做提取练习。</li>
+          <li><strong>在闪示单词里已经牢固的卡，用已记标记移出</strong>，并在Anki里重置那张卡的ease。</li>
+        </ol>
+        <p>
+          <strong>Anki做不到的由闪示单词来做，闪示单词做不到的由Anki来做。</strong>
+          Anki做不出<strong>单次学习内的高密度呈现</strong>（它不会一天给你看同一张卡20次），
+          闪示单词则算不出<strong>6个月后的复习日</strong>。
+          <strong>一个文件（CSV）就把两个工具连接起来。</strong>
+          制作方法见<a href="/csv-guide">制作CSV单词本</a>。
+        </p>
+
+        <h2 id="qa">简短问答 Q&amp;A</h2>
+
+        <h3>Q. FSRS总是比SM-2好吗？</h3>
+        <p>
+          <strong>在积累了足够的复习日志之后，大体如此。</strong>但<strong>刚开始的第一个月并不是。</strong>
+          FSRS要<strong>用你的日志拟合参数</strong>后才属于你，在那之前它用的是<strong>别人的平均值</strong>。
+          而且FSRS建立在<strong>你会诚实按按钮的假设</strong>之上。
+          <strong>如果你随手只按Good，精巧的算法就会精巧地出错。</strong>
+          <strong>垃圾进，垃圾出——这是算法无法替你修正的。</strong>
+        </p>
+
+        <h3>Q. 目标保持率设成多少合适？</h3>
+        <p>
+          请再看一遍上面的<a href="#fsrs">换算表</a>。<strong>0.90 → 0.95 会让复习量翻倍。</strong>
+          为了买5个百分点的正确率，要付出<strong>两倍的时间</strong>。大多数情况下是亏的。
+          <strong>考试还远就设0.85~0.90，考试近在眼前就设0.90~0.95</strong>，这是比较合理的起点。
+          <strong>不过，这只是“起点”，不是“正确答案”。</strong>
+        </p>
+
+        <h3>Q. 闪示单词的间隔设几秒合适？</h3>
+        <p>
+          <strong>“合适的值”每一遍都不同。</strong>默认的3秒只是<strong>适合第一遍的稳妥值</strong>。
+          <strong>遍数越多，越要延长正面（回想的时间）、缩短背面（只用来确认）。</strong>
+          正面5秒 / 背面1.5秒是<strong>最接近提取练习的设置</strong>。
+          详细的配置见<a href="#voca">上面的表</a>。
+        </p>
+
+        <h3>Q. 随机模式不是总比正向好吗？毕竟能打破顺序线索。</h3>
+        <p>
+          <strong>不是，这正是本文算出来的陷阱。</strong>随机<strong>不保证覆盖率</strong>
+          （一轮的量里<strong>约37%不出现</strong>）。如果既想打破顺序线索又想保住覆盖率，
+          请用<strong>反向</strong>。<strong>大多数用户都不知道这个选项为什么存在。</strong>
+        </p>
+
+        <h3>Q. 全部打上已记标记后单词本空了。这就算结束了吗？</h3>
+        <p>
+          <strong>不。从那时起才是开始。</strong>请把显示范围切换为<strong>“仅已记”</strong>，
+          <strong>每周检查一次</strong>。想不起来的卡请<strong>取消标记</strong>，让它回去。
+          <strong>如果不做这个步骤，已记标记就会变成掩盖遗忘的功能。</strong>步骤写在<a href="#mem">上面</a>。
+        </p>
+
+        <h3>Q. 那VOCA DECK将来会加入SM-2吗？</h3>
+        <p>
+          <strong>要加入，就得保存复习日志；这样存储会变大，就会想要跨设备同步，
+          然后就需要账号。</strong>那一刻，<strong>这个应用唯一的优点“零摩擦”就消失了。</strong>
+          <strong>那等于把Anki重做成一个更差的版本。</strong>
+          <strong>我们并不想成为Anki。</strong>目前没有加入的计划，
+          <strong>不加入的理由已经贯穿写在整篇文章里了。</strong>
+        </p>
+
+        <h2 id="closing">最后 — 算法管不到你打开应用这一步</h2>
+        <p>
+          FSRS是<strong>世界上最好的调度器</strong>。但<strong>如果你3天不打开应用，它就什么都不是。</strong>
+          它只是按完美的间隔摆出<strong>“今天要复习的卡340张”</strong>等着你，
+          而看到这个数字的人会<strong>关掉应用。</strong>
+        </p>
+        <p>
+          间隔重复算法50年的历史，是一场<strong>“把复习降到最少的竞赛”</strong>。
+          莱特纳靠5个格子，SM-2靠EF乘法，FSRS靠你的日志。
+          <strong>大家朝着同一个目标——删掉不必要的复习。</strong>
+        </p>
+        <p>
+          <strong>可是，人们真正失败的地方并不在那里。</strong>
+          <strong>人们不是因为“复习太多”而放弃，而是因为“今天没打开”而放弃。</strong>
+          这就是我们整个放弃个性化、<strong>把一切押在把摩擦降到零上的原因</strong>。
+          <strong>我们并不确定这是正确的选择。</strong>
+          <strong>但这是我们做出的选择，而它的代价，我们在本文中一点也没有隐瞒。</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>声明</strong><br />
+          本文是<strong>关于学习方法的信息提供</strong>，<strong>不构成教育或医学上的建议。</strong>
+          学习效果<strong>因人而异，差异很大</strong>，这里写的任何方法都<strong>不保证特定的成绩或结果。</strong><br />
+          <strong>第三方工具（Anki · SuperMemo · FSRS）的默认值和公式会因版本而异。</strong>
+          本文中的数字<strong>以广为人知的默认预设为准</strong>，
+          <strong>请务必在你所使用版本的设置界面和官方文档中亲自确认。</strong>
+          FSRS相关公式<strong>以DECAY = −0.5固定的FSRS-4.5 / 5为准</strong>，
+          <strong>在FSRS-6及以上版本中可能不成立。</strong><br />
+          有关VOCA DECK的数值<strong>以本文撰写时的实际实现为准</strong>，可能随更新而变化。
+        </div>
+
+        <h2>继续阅读</h2>
+        <div class="related">
+          <a href="/method"><b>闪示单词记忆法的原理</b><span>遗忘曲线·间隔效应·双重编码 — 为什么反复呈现有效</span></a>
+          <a href="/study-guide"><b>背单词的学习策略</b><span>每天背几个、何时复习、4周计划</span></a>
+          <a href="/csv-guide"><b>制作CSV单词本</b><span>把从Anki导出的地狱卡转到闪示单词的方法</span></a>
+          <a href="/"><b>打开单词本</b><span>亲手试试间隔、顺序和显示范围</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 运营：Y-Systems · <a href="/privacy">隐私政策</a> · <a href="/terms">使用条款</a></footer>
+      </div>
+    </main>

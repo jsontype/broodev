@@ -1,0 +1,481 @@
+<main class="wrap" data-title="关于金叉的5个误解 — 为什么它是趋势过滤器而不是买入信号 | broodev" data-desc="金叉不是买入信号。本文把大众媒体最常误用的这个指标拆成5个常见说法逐一反驳，并用实际代码中的4档评分表和计算演示，公开broodev模型为何只给它短期8%、长期14%的权重。">
+      <nav class="nav">
+        <a href="/">← 仪表盘</a>
+        <a href="/methodology">评分方法</a>
+        <a href="/indicators">指标解读</a>
+        <a href="/guide-fear-greed">恐惧指数使用指南</a>
+        <a href="/glossary">术语表</a>
+      </nav>
+
+      <h1>关于金叉的5个误解</h1>
+      <p class="muted">最后更新：2026-07-14 · 作者：Y-Systems · 对象：broodev买入时机评分 v2（GC_DC指标）</p>
+
+      <p class="lead">
+        “比特币金叉在即……看涨信号”——这样的标题每个周期都会重演。
+        而<strong>这句话几乎总是被用错。</strong>
+        在我们处理的6个指标中，金叉是<strong>最常被误解的指标</strong>，
+        同时也是我们的模型<strong>给出权重最低的指标</strong>。这两个事实并非毫无关联。
+      </p>
+      <p>
+        本文不再重复定义。50日均线向上穿越200日均线就是金叉，这一点写在
+        <a href="/glossary">术语表</a>里；它如何计入评分，则写在
+        <a href="/methodology">评分方法</a>里。这里我们要做的是<strong>逐一打破五个流传甚广的说法</strong>，
+        并在原处放上<strong>我们的代码实际在做的事</strong>。
+        最后，我们会<strong>坦白模型的两个已知缺陷</strong>。
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>常见说法</th><th>实际情况</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① “出现金叉＝现在就买”</a></td><td>从结构上看是<strong>最慢的信号</strong>。不是上涨的预告，而是<strong>收据</strong></td></tr>
+            <tr><td><a href="#m2">② “死叉＝暴跌开始”</a></td><td>反复交叉（假信号）很常见。在我们的模型里，<strong>事件得分只有一天寿命</strong></td></tr>
+            <tr><td><a href="#m3">③ “50和200是标准答案”</a></td><td>把股市的<strong>交易日惯例</strong>不加修正地移植到全年无休的市场</td></tr>
+            <tr><td><a href="#m4">④ “两线拉开越大，信号越强”</a></td><td>我们的模型<strong>计算了间距却不计入评分</strong>（有意为之的简化）</td></tr>
+            <tr><td><a href="#m5">⑤ “权重8%等于没用”</a></td><td>论述在这里反转。交叉<strong>不是加分项，而是扣分装置</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="金叉实时图表">
+        <p class="muted">在阅读五个误解之前，先看看在整个历史中金叉（▲）和死叉（▼）实际出现在哪里。交叉总是在“行情已经走了一大段之后”才到来，以及反复交叉（假信号）有多常见，一眼就能看出来。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">正在加载图表数据…</div></div>
+          </div>
+          <p class="bd-cap">BTC价格（对数，灰色）与SMA50（蓝色）·SMA200（红色），全部期间。▲＝金叉（50日均线上穿200日均线），▼＝死叉。橙色虚线＝减半。数据：CoinMetrics Community API，BTC日线收盘价——在访问时获取并在浏览器中计算的<strong>近似值，仅供参考</strong>。</p>
+        </div>
+      </section>
+
+      <h2 id="m1">误解① “出现金叉＝现在就买”</h2>
+
+      <h3>常见说法</h3>
+      <p>
+        这是新闻报道和YouTube缩略图最爱用的一句话。它把金叉当成<strong>预告未来的信号弹</strong>。
+        往往还附带一个统计：“历史上金叉之后平均上涨X%”。
+      </p>
+
+      <h3>错在哪里——算术本身就不允许</h3>
+      <p>
+        金叉要成立，<strong>最近50日的平均价必须超过最近200日的平均价</strong>。
+        请在这里停一下，想想这意味着什么。
+      </p>
+      <p>
+        200日均价是<strong>把200天的价格全部加起来再除以200得到的值</strong>。就算昨天一天暴涨20%，
+        这次暴涨也只占200分之一的份额。要<strong>让这条线有意义地抬升，价格必须连续几十天维持在高位</strong>。
+        50日均线同样带着50天的惯性。
+      </p>
+      <p>
+        也就是说，<strong>两个沉重的惯性体发生交叉这一事实本身，就是“已经涨了很久”的证据</strong>。
+        金叉并不<em>预告</em>上涨，它只是<em>在事后确认上涨已经持续得足够久</em>。
+      </p>
+      <div class="note">
+        <strong>打个比方，金叉不是天气预报，而是收据。</strong>
+        收据能准确告诉你买了什么，但它是在<strong>付款完成之后</strong>才打印出来的。
+        看着收据说“现在该买了”，顺序就弄反了。
+      </div>
+      <p>
+        “金叉之后平均涨幅”这类统计看起来很有说服力，原因也在这里。
+        金叉<strong>按定义只会出现在上涨行情中</strong>，所以其后的收益自然不会差。
+        这不是指标的预测能力，而是<strong>样本早已被筛选过的结果（选择效应）</strong>。
+        这就好比拿“打伞的日子都在下雨”的统计，来证明雨伞能预测降雨。
+      </p>
+
+      <h3>实际情况</h3>
+      <p>
+        等到从底部确认金叉时，<strong>价格早已从低点涨了不少。</strong>
+        毕竟这意味着价格涨到足以让50日均线越过200日均线这条沉重的基准线。
+        因此我们的模型<strong>不把这个指标当作把握入场时机的工具。</strong>
+        它只用来回答<strong>“现在处于什么阶段”</strong>，而不是“现在就买”。
+      </p>
+
+      <h2 id="m2">误解② “死叉＝暴跌开始”</h2>
+
+      <h3>常见说法</h3>
+      <p>
+        死叉光听名字就很不吉利。再加上“死亡十字”这样的译名，
+        它被当作<strong>“大暴跌要来了”的恐慌触发器</strong>来消费。死叉的新闻一出，恐慌性抛售就跟着来。
+      </p>
+
+      <h3>错在哪里——交叉会反复</h3>
+      <p>
+        把误解①的逻辑反过来，答案就出来了。<strong>死叉同样是一个缓慢的信号。</strong>
+        等到死叉确认时，<strong>下跌往往已经走完了相当一部分</strong>。
+        它与其说是“暴跌的开始”，不如说是“下跌已经持续很久”的确认书。
+        所以死叉刚出现就反弹的情况——<strong>假信号（whipsaw）</strong>——并不少见。
+      </p>
+      <p>
+        想象一下两条移动平均线<strong>几乎贴在一起的状态</strong>。这时价格只要稍有波动，
+        50日均线就会跌到200日均线下方，过几天又重新回到上方。
+        <strong>交叉不是一次性事件，而是可能反复发生多次的事件</strong>。
+      </p>
+
+      <h3>实际情况——我们的代码如何处理这个问题（含坦白）</h3>
+      <p>
+        我们模型的交叉判定<strong>只比较昨天和今天这两天</strong>。
+      </p>
+      <pre><code>昨天: 50日均线 ≤ 200日均线   →   今天: 50日均线 &gt; 200日均线   ⇒  GOLDEN_CROSS
+昨天: 50日均线 ≥ 200日均线   →   今天: 50日均线 &lt; 200日均线   ⇒  DEATH_CROSS
+其他情况                                                      ⇒  NONE（仅维持状态）</code></pre>
+      <p>
+        结果，<strong>“交叉事件”恰好只在一天里为真（true）。</strong>
+        到了第二天事件就消失了，只剩下“金叉状态／死叉状态”这种平淡的状态值。
+      </p>
+      <div class="note">
+        <strong>这是有意的设计。</strong>媒体会把一次金叉炒上好几个星期，
+        但在我们的模型里，<strong>交叉新闻的保质期只有24小时</strong>。
+        后面的评分表会显示，事件当天的溢价（长期85分）<strong>第二天就会立即降到60分。</strong>
+        “昨天出现了金叉”这一事实，不会给今天的评分带来任何额外加分。
+      </div>
+      <div class="note warn">
+        <strong>坦白——我们的模型也会被假信号晃动。</strong>
+        如果50日均线和200日均线几乎贴在一起，在两周内上下反复交叉，
+        我们的评分也会<strong>85 → 60 → 15 → 35</strong>这样剧烈波动。这个缺陷没有办法消除。
+        我们所做的只是<strong>给波动幅度加了一个上限</strong>——
+        这个上限正是<strong>8%·14%这样的低权重</strong>。后面我们会算一算这些数字实际意味着多少分。
+      </div>
+
+      <h2 id="m3">误解③ “50和200是标准答案”</h2>
+
+      <h3>常见说法</h3>
+      <p>
+        人们说起来，仿佛50和200有某种数学上的必然性。
+        图表软件的默认值就是这么设的，于是大家更加深信不疑。
+      </p>
+
+      <h3>错在哪里——这是股市的惯例，而且还被错误地移植了</h3>
+      <p>
+        能为50和200提供依据的<strong>令人满意的学术理由并不存在。</strong>这只是惯例。
+        在传统股票图表中，<strong>200大致是把一年的交易日（准确地说约252天）粗略取整得到的数</strong>，
+        <strong>50则是把大约一个季度（约63个交易日）取整得到的数</strong>。
+      </p>
+      <p>
+        但这里出现了一个<strong>只有加密货币才有的问题</strong>，几乎没有人指出过。
+      </p>
+      <p>
+        <strong>股市每周开放5天，加密货币每周交易7天。</strong>
+        股票的“200日均线”是<strong>200个交易日</strong>，相当于日历上的<strong>约280天（约9.2个月）</strong>。
+        而加密货币每天都会生成日K线，所以它的“200日均线”是<strong>200个日历日，也就是约6.6个月</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>均线</th><th>股票（每周5天）</th><th>加密货币（每周7天）</th><th>实际差异</th></tr></thead>
+          <tbody>
+            <tr><td>200日均线</td><td>200个交易日 ≈ <strong>日历280天</strong></td><td>200个日历日 = <strong>日历200天</strong></td><td>加密货币<strong>约短29%</strong></td></tr>
+            <tr><td>50日均线</td><td>50个交易日 ≈ <strong>日历70天</strong></td><td>50个日历日 = <strong>日历50天</strong></td><td>加密货币<strong>约短29%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        总结一下，<strong>加密货币的“200日均线”看似原封不动照搬了股市惯例，实际上却是一个短得多的窗口（window）</strong>。
+        要与股票200个交易日的日历跨度对齐，加密货币需要用<strong>约280日均线</strong>。
+        <strong>整个行业都没有做这个修正。</strong>
+      </p>
+
+      <h3>实际情况——那我们为什么也照用200</h3>
+      <p>
+        我们的代码同样使用<strong>200个日历日</strong>，不做修正。下面如实写出理由。
+      </p>
+      <ul>
+        <li>
+          <strong>第一，被人关注本身就是一种力量。</strong>50/200之所以在某种程度上有效，并不是因为它“正确”，
+          而是<strong>因为无数参与者盯着同样的均线，在同样的位置做出反应</strong>。
+          如果只有我们改用280日均线，就会<strong>失去这种自我实现的特性。</strong>没人看的均线起不到支撑作用。
+        </li>
+        <li>
+          <strong>第二，它必须与梅耶倍数共用分母。</strong>梅耶倍数从定义上就是<code>现价 ÷ 200日移动平均</code>。
+          如果只把交叉改成280日均线，<strong>同一个模型里就会出现两条不同的“长期均线”</strong>，解读就会错位。
+        </li>
+        <li>
+          <strong>第三，因为我们清楚这种偏差的方向。</strong>加密货币的200日均线比惯例<strong>更短，因此更敏感，也更常交叉</strong>。
+          交叉频繁就<strong>意味着假信号更多</strong>。所以我们从一开始就把这个指标的权重定得很低。
+          <strong>我们选择的不是修正它，而是不太信任它。</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        知道它不是标准答案而是<strong>共同的惯例</strong>，与不知道这一点，差别很大。
+        如果把50/200当作神圣的常数，就会赋予交叉过多的意义。
+      </p>
+
+      <h2 id="m4">误解④ “两线拉开越大，信号越强”</h2>
+
+      <h3>常见说法</h3>
+      <p>
+        这种解读是：“50日均线远远高于200日均线，所以上涨趋势很强”。
+        直觉上说得通，实际上也有一定道理。
+      </p>
+
+      <h3>错在哪里——准确地说，是我们没有使用这个信息</h3>
+      <p>
+        我们的代码<strong>确实计算了</strong>两条线之间的间距。
+      </p>
+      <pre><code>gapPct = (50日均线 ÷ 200日均线 − 1) × 100</code></pre>
+      <p>
+        并且还在仪表盘卡片上像<code>gap +12.4%</code>这样<strong>显示了出来。</strong>
+        然而<strong>这个值完全没有进入评分计算。</strong>
+      </p>
+      <div class="note warn">
+        <strong>坦白 ─ 已知的简化。</strong>
+        在我们的模型里，<strong>间距+0.3%的金叉状态和间距+42%的金叉状态得到完全相同的分数</strong>
+        （长期60分，短期65分）。间距<strong>只显示，不打分。</strong>
+      </div>
+      <p>
+        下面解释为什么这样处理。要把间距计入评分，就必须<strong>先规定“多少%算大间距”</strong>。
+        可这个标准<strong>因资产而完全不同。</strong>低波动币种的+10%间距，
+        和波动极其剧烈的迷因币的+10%间距，意义截然不同。
+        老实说，我们<strong>没能有把握地定出一个适用于所有币种的标准化基准。</strong>
+        与其塞进一个没有根据的常数，我们<strong>宁可不用</strong>。
+      </p>
+
+      <h3>实际情况——这个信息是留给人来用的</h3>
+      <p>
+        之所以没有把间距从界面上删掉，是<strong>希望你亲眼看一看、自己判断</strong>。
+        <strong>间距越接近0，说明两条线越贴近，也就意味着反复交叉（假信号）的风险越大</strong>。
+        <code>gap +0.4%</code>的金叉状态，是随时可能翻转为死叉的<strong>不稳定金叉</strong>。
+        评分分辨不出这种差别，但<strong>你可以。</strong>这正是把这个值显示出来的原因。
+      </p>
+
+      <h2 id="m5">误解⑤ “权重8%岂不等于没用”</h2>
+      <p>
+        本文的方向在这里反转。前面四条都在<strong>贬低</strong>交叉。
+        但我们<strong>并没有抛弃这个指标。</strong>为什么？
+      </p>
+
+      <h3>大多数人不知道的事——交叉不是2档，而是4档</h3>
+      <p>
+        “是金叉还是死叉”这种<strong>二分法本身就错了。</strong>
+        我们的代码区分<strong>四种状态</strong>，因为<em>交叉发生的那一刻</em>和<em>交叉之后保持的状态</em>是完全不同的两回事。
+        下面是我们模型实际使用的分项评分表。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>状态</th><th>含义</th><th>短期评分</th><th>长期评分</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>今天向上交叉（事件，仅当天有效）</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>已经维持在50 &gt; 200的状态</td><td>65</td><td>60</td></tr>
+            <tr><td><em>无数据</em></td><td>连50天的数据都没有</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>已经维持在50 &lt; 200的状态</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>今天向下交叉（事件，仅当天有效）</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        这张表中<strong>最重要的一行是“维持DEATH状态”</strong>。分数<strong>不是50，而是35（长期）·40（短期）</strong>。
+      </p>
+      <p>
+        <strong>中性是50。</strong>然而死叉状态<strong>低于中性。</strong>
+        这意味着——<strong>在死叉状态下，这个指标会把综合评分“往下拉”</strong>。
+        它不是按兵不动，而是在<strong>扣分</strong>。
+      </p>
+      <div class="note">
+        <strong>这就是这个指标存在的理由。</strong>
+        金叉<strong>不是帮你挣分的加分项。</strong>
+        死叉才是<strong>削减分数的刹车</strong>。
+        当恐惧指数、梅耶倍数、回撤一起高喊“便宜，快买”的时候——
+        <a href="/indicators">三个逆向指标在下跌行情中会一起出错</a>——
+        需要一个<strong>独自踩下刹车、提醒“趋势仍然向下”的装置</strong>，那就是交叉。
+      </div>
+
+      <h2 id="walk">那它实际能改变多少分——计算演示</h2>
+      <p>
+        抽象的讨论到此为止，下面<strong>代入真实数字来计算</strong>。
+        这是<strong>长期（逆向）标签页</strong>，情境是<strong>深度熊市的正中央</strong>，
+        也就是逆向指标齐声高喊“现在是机会”的阶段。
+      </p>
+      <p>长期权重为<strong>RSI 18% · MACD 18% · 恐惧与贪婪 18% · 梅耶 18% · 回撤 14% · 交叉 14%</strong>。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>指标</th><th>观测值</th><th>分项评分</th><th>权重</th><th>贡献</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24（超卖）</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>梅耶倍数</td><td>0.75×（较200日均线折价25%）</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>恐惧与贪婪</td><td>当前 18 / 7日 22 / 30日 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>365日回撤</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>为负 · 仍在恶化</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>交叉</strong></td><td><strong>维持DEATH状态</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>综合评分</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        （恐惧与贪婪的81.8，是在<code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code>的基础上，
+        加上当前值在25及以下时附加的极端奖励<code>(25−18)×0.4 = 2.8</code>得到的。）
+      </p>
+
+      <h3>只改变交叉的话</h3>
+      <p>把其他5个指标<strong>全部固定</strong>，只替换交叉的状态，看看综合评分会怎样变化。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>交叉状态</th><th>分项评分</th><th>贡献</th><th>综合评分</th><th>判定</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS（当天）</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>维持GOLDEN</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>维持DEATH <em>（实际情境）</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS（当天）</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>最高与最低之间相差9.8分。</strong>(85 − 15) × 14% = 9.8。
+        而且<strong>四种情况下的判定都一样，都是ACCUMULATE。</strong>
+      </p>
+
+      <h3>这些数字说明了什么——交叉无法单独改变判定</h3>
+      <p>在这里，我们模型的<strong>设计意图用算术得到了证明</strong>。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>评分跨度</th><th>权重</th><th>对综合评分的最大影响</th></tr></thead>
+          <tbody>
+            <tr><td><strong>短期（动量）</strong></td><td>75 − 30 = 45分</td><td>8%</td><td><strong>±3.6分</strong></td></tr>
+            <tr><td><strong>长期（逆向）</strong></td><td>85 − 15 = 70分</td><td>14%</td><td><strong>±9.8分</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        现在拿它和<a href="/methodology">判定区间</a>比较一下。
+        最窄的区间是<strong>ACCUMULATE（65~80），宽度为15分</strong>。
+      </p>
+      <div class="note">
+        <strong>长期标签页最大影响9.8分 &lt; 最小区间宽度15分。</strong><br />
+        <strong>短期标签页最大影响3.6分 &lt; 最小区间宽度15分。</strong><br /><br />
+        也就是说，<strong>无论在哪个标签页，交叉都无法单凭自身把判定翻转一档。</strong>
+        这不是巧合，而是<strong>权重刻意这样设计的结果</strong>。
+        交叉被加了上限，<strong>它可以推高或拉低分数，却无法主导结论</strong>。
+      </div>
+      <p>
+        <strong>短期与长期之间的差距也可以通过计算确认。</strong>9.8 ÷ 3.6 ≈ <strong>2.7倍</strong>。
+        在长期标签页中，交叉的实际影响力约为短期标签页的2.7倍。
+        只看权重表（8% vs 14%），差距似乎是1.75倍，但<strong>把评分跨度也乘进去，实际上会扩大到2.7倍。</strong>
+        这是只比较权重数字时容易忽略的部分。
+      </p>
+      <p>
+        原因正如<a href="/methodology">评分方法</a>中所说明的。
+        <strong>50/200交叉对于以1~3个月为单位的交易来说太慢了。</strong>等信号出来时，对短线交易者来说已经晚了。
+        所以在短期标签页里只给了<strong>几乎近于装饰的8%</strong>。
+        反过来，它<strong>对区分周期阶段（牛市还是熊市）是有效的</strong>，所以在长期标签页里提高到了14%。
+      </p>
+
+      <h2 id="danger">我们的模型可能错得最离谱的组合</h2>
+      <p>
+        请再看一眼上面演示表中的<strong>第一行（GOLDEN_CROSS，79.2分）</strong>。
+        其实那一行<strong>隐藏着内在矛盾。</strong>
+      </p>
+      <p>
+        梅耶倍数0.75意味着<strong>现价比200日均线低25%</strong>。
+        那么同一天<strong>50日均线却上穿200日均线（金叉）</strong>，这合理吗？
+        通常这是矛盾的。价格远在200日均线之下，50日均价却在200日均价之上，这很难成立。
+      </p>
+      <p>
+        但<strong>恰恰有一个阶段会真实出现这种组合：</strong>
+        <strong>从顶部开始急跌的那一刻</strong>。
+        价格已经垂直跌穿200日均线，<strong>50日均线却还凭着惯性停留在200日均线上方</strong>。
+        这时我们的模型是这样看的。
+      </p>
+      <ul>
+        <li>梅耶 0.75 → “历史性低估！” <strong>100分</strong></li>
+        <li>RSI 24 → “极度超卖！” <strong>94分</strong></li>
+        <li>回撤 −58% → “强力买入区间！” <strong>81分</strong></li>
+        <li>交叉 → 仍处于<strong>GOLDEN状态</strong>，刹车没有踩下 <strong>60分</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>结果：在暴跌刚刚开始的位置，模型给出75分左右（ACCUMULATE）。</strong>
+        而<strong>这时你抓住的恰恰不是“下落的刀”的刀柄，而是刀刃</strong>。
+        刹车（死叉）要到<strong>几十天之后</strong>才会踩下——那时已经跌去了一大截。
+        <strong>这是这个模型最危险的盲区，我们并没有完全解决它。</strong>
+        只要把慢指标当作安全装置，<strong>安全装置本身也会慢。</strong>
+      </div>
+      <p>
+        所以如果在仪表盘上看到<strong>梅耶倍数急剧下降，而交叉仍是GOLDEN</strong>，
+        <strong>应该把它读作“可能是急跌初期”的警告，而不是“被低估”。</strong>
+        评分分辨不出这一点，必须由人来分辨。
+      </p>
+
+      <h2 id="asym">还有一点——只有交叉的缺失值处理方式不同</h2>
+      <p>
+        正如<a href="/methodology">评分方法</a>中所写，指标缺失时，我们<strong>不会把它记为0分，而是将其排除在计算之外，再对剩余权重重新归一化</strong>。
+        因为“不知道”和“不好”是两回事。
+      </p>
+      <p>
+        但<strong>交叉是个例外。</strong>把代码原样搬过来是这样的。
+      </p>
+      <pre><code>// 其他5个指标
+sLong: mm == null ? null : conMayer(...)   ← 为 null 则排除 + 重新归一化
+
+// 只有交叉
+sLong: gc == null ? 50 : ...               ← 即使缺失也返回50分</code></pre>
+      <div class="note warn">
+        <strong>坦白 ─ 不对称。</strong>
+        即使没有数据，交叉返回的也是<strong>50（中性）而不是null</strong>。
+        因此<strong>交叉永远不会从覆盖率显示中缺席。</strong>
+        即使显示<code>coverage 5/6</code>，缺的那一个也不是交叉——交叉总是被计入。
+        <strong>这意味着在上市不满一年的币种上，一个“什么都不知道的50分”正悄悄占据着14%（长期）的位置</strong>。
+      </div>
+      <p>
+        此外还有一点。数据<strong>不满200天时</strong>，我们的代码会用现有的数据来求平均
+        （<code>Math.min(200, 数据长度)</code>）。也就是说，<strong>上市150天的币种的“200日均线”其实是150日均线</strong>。
+        再加上交叉<em>事件</em>的判定至少需要201天的数据才能运作，
+        <strong>所以在上市不满一年的币种上，GOLDEN_CROSS·DEATH_CROSS事件根本不会发生。</strong>
+        只会出现状态值（GOLDEN/DEATH）。
+      </p>
+      <p>
+        <strong>总之，这个指标只有在像比特币这样数据足够长的资产上才能完整发挥作用。</strong>
+        在新上市山寨币的页面上看交叉卡片时，请务必考虑到这一点。
+      </p>
+
+      <h2 id="conclusion">结论</h2>
+      <p>
+        一路走过五个误解，交叉一直在被削弱。
+        它最慢、会反复交叉、数字是随意的惯例、间距连分都不打、权重在6个指标中垫底。
+        即便如此，我们曾把这个指标删掉，后来又<strong>把它加了回来。</strong>理由只有一个。
+      </p>
+      <div class="note">
+        <strong>金叉不是买入信号，而是确认市场阶段的工具。</strong><br /><br />
+        问这个指标<strong>“什么时候买”，得到的永远是迟到的答案</strong>。
+        但如果问它<strong>“现在趋势朝向哪一边”</strong>，得到的答案虽慢，却<strong>很少说谎</strong>。
+        <br /><br />
+        当其余五个指标兴奋地喊着“便宜、可怕、跌了很多”时，
+        <strong>以“可趋势还在向下”为由悄悄扣掉一些分数</strong>——这就是我们交给这个指标的唯一工作。
+        <strong>它不是加分项，而是刹车。</strong>而好的刹车，是不需要经常踩的刹车。
+      </div>
+      <p>
+        所以下次再看到“金叉在即！”的标题时，不妨这样反问一句：
+        <strong>“所以它是叫我现在买，还是说已经涨了很多？”</strong>
+        从算术上说，<strong>永远是后者</strong>。
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ 投资提示</strong><br />
+        本文仅供<strong>教育和参考</strong>，<strong>不构成投资建议或买卖推荐。</strong>
+        文中的评分、权重和情境只是<strong>用来说明模型运作方式的示例</strong>，并不推荐任何特定币种或策略。
+        加密货币是<strong>可能损失全部本金的高风险资产</strong>，技术指标无法预测未来。
+        正如正文所述，这个指标<strong>存在结构性盲区。</strong>
+        一切投资决策及其后果均由用户本人全权负责。请务必自行研究（DYOR）。
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ 投资提示</strong><br />
+        本文与评分是综合公开指标得出的<strong>参考资料，不构成投资建议或买入推荐。</strong>
+        文中的历史案例与数值均为大致重建，<strong>过去不代表未来。</strong>
+        加密货币是可能<strong>损失全部本金</strong>的高风险资产。
+        一切投资决策及其后果均由用户本人全权负责。请务必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸阅读</h2>
+      <div class="related">
+        <a href="/methodology"><b>评分方法</b><span>6个指标以怎样的权重合成——直到重新归一化与区间</span></a>
+        <a href="/indicators"><b>6个指标深度解读</b><span>RSI、MACD、梅耶、回撤各自会在什么时候失灵</span></a>
+        <a href="/guide-fear-greed"><b>恐惧指数实战指南</b><span>逆向指标一起出错的阶段与分批买入</span></a>
+        <a href="/glossary"><b>术语表</b><span>移动平均、交叉、梅耶倍数等术语整理</span></a>
+        <a href="/"><b>前往仪表盘</b><span>查看当前的交叉状态与gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 运营方 Y-Systems · <a href="/privacy">隐私政策</a> · <a href="/terms">使用条款</a></footer>
+    </main>

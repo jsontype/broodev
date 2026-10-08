@@ -1,0 +1,321 @@
+<main class="wrap" data-title="How to Spot a Bitcoin Bottom — Market Cap vs Average Cost Basis | broodev" data-desc="Bitcoin bottoms are defined not by price but by whether market cap has fallen below investors' average cost basis (realized cap). We rebuild, with live charts, the record of MVRV actually dropping below 1 at the five bottoms of 2011, 2015, 2018, 2020 and 2022, and publish every formula behind the broodev bottom score (BOTTOM RADAR), which also blends in Thermocap (cumulative mining rewards).">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/indicators">Indicator guide</a>
+        <a href="/bitcoin-bottom">Bottom signals</a>
+        <a href="/glossary">Glossary</a>
+      </nav>
+
+      <h1>How to Spot a Bitcoin Bottom<br />— Market Cap vs Average Cost Basis</h1>
+      <p class="muted">Last updated: 2026-07-22 · Author: Y-Systems · Scope: the on-chain components of the broodev bottom score (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Every attempt to find Bitcoin's bottom by price has failed. The 2018 bottom was $3,150; the 2022 bottom was $15,500 — <strong>a fivefold difference.</strong>
+        Yet the two bottoms shared one thing that had nothing to do with price. <strong>Bitcoin's market cap had fallen below the sum of what every investor actually paid (the total average cost basis).</strong>
+        This article draws that observation directly from live data, walks chronologically through how the signal actually printed at five bottoms,
+        and publishes, formulas and all, the weights with which broodev's <strong>bottom score (BOTTOM RADAR)</strong> blends it in.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Contents</div>
+        <ol>
+          <li><a href="#concept">Why the "average cost basis" tells you about bottoms — realized cap</a></li>
+          <li><a href="#chart-mc">Live chart ① — market cap vs average cost basis (2010–present)</a></li>
+          <li><a href="#history">Five bottoms — the days MVRV fell below 1</a></li>
+          <li><a href="#mvrv-z">Live chart ② — standardizing with the MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Live chart ③ — Thermocap: the bottom according to mining cost</a></li>
+          <li><a href="#divergence">How to read the moments when the two indicators diverge</a></li>
+          <li><a href="#limits">Limits of these indicators — a 4-cycle sample, the ETF era</a></li>
+          <li><a href="#radar">How the broodev bottom score (BOTTOM RADAR) is built — weights disclosed</a></li>
+          <li><a href="#faq">Frequently asked questions</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>About the numbers in this article.</strong> The charts below are <strong>real data fetched directly from the CoinMetrics Community API and blockchain.info and drawn in your browser</strong> when this page opens (6-hour cache).
+        By contrast, the MVRV values at past bottoms and the subsequent returns in the tables are <strong>reconstructed approximations</strong> — the decimals shift depending on the data source and on which day you count as the low.
+        The argument of this article lies not in the decimals but in <strong>the recurring pattern that "the stretches when market cap fell below cost coincided with bottoms."</strong>
+      </div>
+
+      <h2 id="concept">Why the "average cost basis" tells you about bottoms — realized cap</h2>
+      <p>
+        Everyone knows market cap: <code>current price × circulating supply</code>. It is a number that <em>assumes</em> a single last traded price represents the value of every coin in existence.
+        But on-chain data holds another number that is far more interesting than market cap: <strong>realized cap</strong>.
+      </p>
+      <pre><code>Market cap    = current price × circulating supply       (every coin valued at "today's price")
+Realized cap  = Σ (each coin × the price on the day that coin last moved)
+              = total amount investors actually paid ≈ market-wide average cost basis × circulating supply</code></pre>
+      <p>
+        The blockchain records <strong>when every coin last moved between wallets</strong>. Treat the price on the day a coin moved as that coin's "acquisition cost," add them all up,
+        and you get the total amount of money the whole market has actually put into Bitcoin. In stock terms, it is <strong>every shareholder's average purchase price multiplied by the share count</strong>.
+        That is why this article calls realized cap the <strong>"average cost basis (total)."</strong>
+      </p>
+      <p>The ratio of the two numbers is the famous <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = market cap ÷ realized cap
+
+MVRV 2.0  → the average holder has doubled their money (everyone in profit)
+MVRV 1.0  → the market as a whole is exactly at breakeven
+MVRV 0.8  → the average holder is down −20% (everyone underwater)</code></pre>
+      <p>
+        This is where the logic of the bottom comes from. <strong>MVRV dropping below 1 means Bitcoin holders as a whole are, on average, underwater.</strong>
+        Historically, two things have happened in this zone. First, <strong>capitulation</strong> by investors who can no longer stand their losses reaches its peak.
+        Second, the buyers absorbing that supply are long-term holders who are not shaken by gains and losses. It is <strong>the moment coins pass from weak hands to strong hands</strong>,
+        and in all four cycles that moment <strong>coincided with a major bottom.</strong> You can check it yourself in the chart below.
+      </p>
+
+      <h2 id="chart-mc">Live chart ① — market cap vs average cost basis<span class="info-tip" tabindex="0" role="note" aria-label="About market cap vs average cost basis">ⓘ<span class="tip-bubble"><b>Market cap vs average cost basis</b>The blue line is investors' average cost basis. When market cap (white) drops below it, the market is on average at a loss — historically a bottom zone.</span></span></h2>
+      <p>
+        The white line is <strong>market cap</strong> and the blue line is the <strong>average cost basis (realized cap)</strong>. The scale is logarithmic, and the orange dashed lines mark the four halvings.
+        Hover to see the date and both values. There is only one thing to look for — <strong>the stretches where the white line dives below the blue line</strong>. Every one of them was a bottom.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">Loading data and drawing the chart… (this may take a few seconds)</div></div>
+      <p class="chart-src">Data: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, full daily history · realized cap = market cap ÷ MVRV) · 6-hour local cache · log scale</p>
+      <p>
+        Notice one property of the blue line: <strong>it barely falls.</strong> Even while market cap crashes −80%, the average cost basis only drifts down gently.
+        That is because cost is updated <em>only when a transaction actually happens</em>. Even in a terrified market most coins do not move, and the cost of a coin that has not moved stays the same.
+        So the blue line behaves <strong>not like a gravitational line for price but like the market's book value</strong>. Market cap breaking below book value is rare, and because it is rare, it is a signal.
+      </p>
+
+      <h2 id="history">Five bottoms — the days MVRV fell below 1</h2>
+      <p>
+        In Bitcoin's history, the phases in which market cap fell below the average cost basis (MVRV &lt; 1) can be counted on one hand. Here is the record of how they coincided with five major bottoms.
+        All figures are <strong>approximations</strong> — they vary depending on which day you count as the low.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bottom phase</th><th>Price at the time (approx.)</th><th>MVRV low (approx.)</th><th>1 year later (approx.)</th><th>2 years later (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>November 2011</td><td>about $2</td><td><code>0.4~0.6</code></td><td>about $11 (+400% range)</td><td>about $1,000 (hundreds of times)</td></tr>
+            <tr><td>January 2015</td><td>about $170~230</td><td><code>0.55~0.7</code></td><td>about $380~430 (+90~130%)</td><td>about $900 (+300% range)</td></tr>
+            <tr><td>December 2018</td><td>about $3,200</td><td><code>around 0.7</code></td><td>about $7,200 (+120% range)</td><td>about $23,000 (+600% range)</td></tr>
+            <tr><td>March 2020</td><td>about $3,800~5,000</td><td><code>0.85~0.95</code> (for a few days)</td><td>about $58,000 (+1,000% range)</td><td>about $44,000 (+700% range)</td></tr>
+            <tr><td>November 2022</td><td>about $15,500</td><td><code>0.75~0.85</code></td><td>about $37,000 (+130% range)</td><td>about $90,000 (+480% range)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Each of the five bottoms had a completely different cause: the collapse of its own bubble (2011), the aftermath of Mt. Gox (2015), the unwinding of the ICO bubble (2018), the pandemic panic (2020), and the FTX bankruptcy (2022).
+        Prices range from $2 to $15,500 — a <strong>7,750-fold</strong> difference. And yet <strong>MVRV was below 1 all five times, mostly in the 0.7–0.9 range</strong>.
+        Measure not by absolute price but by <strong>"how deep a discount to the whole market's cost,"</strong> and five utterly different bottoms land in almost the same place.
+      </p>
+      <div class="note warn">
+        <strong>The converse, however, does not hold.</strong> "MVRV &lt; 1 = an immediate bottom" is not true.
+        In 2011, in 2014–2015 and at the end of 2018, MVRV stayed below 1 for <strong>weeks to months</strong>, and prices fell further even within that window.
+        What this indicator tells you is not "this is the lowest point" but zone information: <strong>"historically, people who accumulated in stages within this zone won big 1–2 years later."</strong>
+        Read it as <strong>a zone tool, not a timing tool</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Live chart ② — standardizing with the MVRV Z-Score</h2>
+      <p>
+        The MVRV ratio has one weakness: <strong>the height of the peaks differs from cycle to cycle</strong>. MVRV at the 2011 peak exceeded 7, but in 2021 it fell short of 4.
+        The amplitude compresses as the market grows. So the broodev engine uses a <strong>Z-Score</strong> instead of the ratio — a measure of how many standard deviations
+        the <em>difference</em> between market cap and realized cap has opened up, relative to market cap's historical volatility.
+      </p>
+      <pre><code>MVRV Z-Score = (market cap − realized cap) ÷ σ(market cap)
+               σ = standard deviation of market cap over its full history
+
+z &lt; 0   → market cap below the average cost basis (historical bottom zone)
+z ≈ 1~2 → normal range
+z &gt; 5   → historical top zone (the 2011·2013·2017 peaks)</code></pre>
+      <p>
+        The chart below shows the MVRV Z-Score over Bitcoin's full history. Green shading is <strong>z &lt; 0 (bottom zone)</strong>, red shading is <strong>z &gt; 5 (overheated zone)</strong>.
+        The 2011·2015·2018·2022 bottoms all dipped below the zero line (March 2020 only grazed it), and the major tops of 2011·2013·2017 all reached the red shading at z 7–9.
+        Yet <strong>the z at the 2021 peak stopped around 3.5</strong> — a sign that the upside amplitude compresses as the market grows, a story we return to in the limits section.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">Loading data and drawing the chart…</div></div>
+      <p class="chart-src">Data: computed from the same CoinMetrics Community API source as the chart above · z = (market cap − realized cap) ÷ σ(market cap) · σ uses the full history up to each point (expanding window) · 6-hour local cache</p>
+      <div class="note">
+        <strong>We publish the calculation exactly as it is.</strong> The MVRV Z on the broodev dashboard is derived from the CoinMetrics Community API's
+        <code>CapMrktCurUSD</code> (market cap) and <code>CapMVRVCur</code> (MVRV ratio) as
+        <code>realized cap = market cap ÷ MVRV</code>, then standardized by dividing by <strong>σ(market cap) over the full history</strong>.
+        Past stretches of the chart above are computed with <strong>σ up to that point</strong> (expanding window) — to draw "the value an investor could have seen on that day."
+        By definition, the last point matches the dashboard's current value exactly. The API is free and needs no key, so anyone can reproduce the same numbers.
+      </div>
+
+      <h2 id="thermocap">Live chart ③ — Thermocap: the bottom according to mining cost</h2>
+      <p>
+        If realized cap is <strong>the investors' cost</strong>, Bitcoin has one more cost: <strong>the producers' cost</strong>, i.e. the cost of mining.
+        <strong>Thermocap</strong> is <strong>the cumulative total (USD) of rewards paid to miners (block rewards + fees)</strong> since Bitcoin launched.
+        It is the sum of all the money spent so far on securing the network — <strong>the total cost of producing this asset</strong>, so to speak.
+      </p>
+      <pre><code>Thermocap    = Σ (daily miner revenue USD)  ← accumulated since 2009
+Thermocap Z  = z-score of ln(market cap ÷ Thermocap)   [over full history]
+
+Historically, the market cap / Thermocap ratio swings between several times and several tens of times.
+The lower the z of the ratio's standardized logarithm, the more undervalued relative to production cost.</code></pre>
+      <p>
+        Market cap trading at some multiple above Thermocap is the normal state (a property of an asset in a long-term uptrend). What matters is <strong>where that multiple sits within its historical range</strong>,
+        and standardizing the log of the multiple as a z-score makes cross-cycle comparison possible. In the chart below you can see that <strong>the stretches where z fell below 0</strong> coincide with historical bottom zones.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">Loading data and drawing the chart…</div></div>
+      <p class="chart-src">Data: blockchain.info charts/miners-revenue (full period) — accumulated with each sample weighted by its interval in days (integral approximation) · date-aligned with CoinMetrics daily market cap · z = full-history z-score of ln(market cap/Thermocap) · 6-hour local cache</p>
+      <p>
+        Thermocap's denominator differs decisively from realized cap. <strong>It never shrinks, and it grows only a little each day regardless of the market.</strong>
+        Investors can dump coins in a panic and the cumulative mining reward will not budge. That makes Thermocap Z
+        <strong>a slower, more stubborn bottom baseline</strong> than indicators based on realized cap. This indicator is <strong>Bitcoin-only</strong>, since it needs mining reward data — it cannot be calculated for altcoins.
+      </p>
+
+      <h2 id="divergence">How to read the moments when the two indicators diverge</h2>
+      <p>
+        Both are "cost" indicators, so why watch both? <strong>Because their denominators move at different speeds.</strong>
+        Realized cap (MVRV's denominator) is updated every time coins change hands — when a bull market drags on, the cost itself rises, and once capitulation ends, the cost settles lower.
+        Thermocap has none of that; it only accumulates. This difference in speed is what creates the signal.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combination</th><th>Interpretation</th><th>Historical examples (approx.)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z low + Thermocap Z low</td><td><strong>Deep bottom zone.</strong> Close to both investor cost and production cost</td><td>2015 · late 2018 · late 2022</td></tr>
+            <tr><td>MVRV Z low + Thermocap Z normal</td><td>A mid-cycle crash. Capitulation has happened, but a structural bottom is not confirmed</td><td>March 2020 · July 2021</td></tr>
+            <tr><td>MVRV Z normal + Thermocap Z high</td><td>Late bull market. Cost has already risen a lot, so MVRV alone gives a false picture</td><td>November 2021 (second peak)</td></tr>
+            <tr><td>Both high</td><td><strong>Historical top zone.</strong> The worst zone for new buying</td><td>late 2013 · late 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The third row matters most. When a bull market lasts more than a year, <strong>realized cap climbs along with price, and MVRV looks "normal."</strong>
+        At the cycle high in November 2021, MVRV was far lower than at the 2011–2017 peaks. It is a silence with exactly the same structure as
+        the Mayer Multiple <a href="/mayer-multiple">calling November 2021 neutral</a>. That is when an indicator like Thermocap, <strong>whose denominator does not climb along</strong>, serves as a cross-check.
+      </p>
+
+      <h2 id="limits">Limits of these indicators — a 4-cycle sample, the ETF era</h2>
+      <p>To be honest about it: here is how far the argument of this article holds.</p>
+      <ul>
+        <li>
+          <strong>The sample is only 4 cycles.</strong> The sample behind the observation that "MVRV &lt; 1 was the bottom" is five phases, or four completed cycles.
+          That is an embarrassingly small size to call statistics, and <strong>an observation is not a law.</strong> There is no guarantee the next cycle will stop in the same place.
+        </li>
+        <li>
+          <strong>Possible distortion in the ETF era.</strong> Since 2024, large amounts of coins have been locked up in spot ETFs and custodians.
+          ETF shares change hands without any on-chain movement, so <strong>realized cap (cost) may not update even when real trading happens.</strong>
+          It is a structural change in which on-chain cost becomes increasingly stale relative to the real market's cost, and it muddies direct comparison with past cycles.
+        </li>
+        <li>
+          <strong>Realized cap can be distorted by internal exchange transfers.</strong> When an exchange reshuffles its cold wallets and moves coins,
+          the "cost" of that supply is re-stamped at the price on the day of the move, even though no real buying occurred. Conversely, coins that change hands <em>inside</em> an exchange leave no on-chain trace, so their cost is not updated.
+        </li>
+        <li>
+          <strong>The problem of coins asleep forever.</strong> Coins mined early and never moved since (Satoshi's stash and others, estimated in the millions)
+          are counted with a cost near 0. This biases realized cap structurally to the low side.
+        </li>
+        <li>
+          <strong>The nature of a full-history σ.</strong> σ(market cap), the denominator of MVRV Z, is computed over the full history, so as the market grows σ grows too, and
+          <strong>the z amplitude of recent cycles is squeezed compared with the past.</strong> It means "extreme values like z &gt; 7 may never appear again," and it is why the thresholds must not be used as absolute standards.
+        </li>
+      </ul>
+
+      <h2 id="radar">How the broodev bottom score (BOTTOM RADAR) is built — weights disclosed</h2>
+      <p>
+        The <strong>BOTTOM RADAR</strong> on the broodev dashboard is a separate composite score that answers only one question — not "will it go up if I buy now?" but <strong>"are we in a historical bottom zone right now?"</strong>
+        Its weights differ entirely from the short-term and long-term scores. The key is that 55% is concentrated on the two on-chain cost indicators.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicator</th><th>Weight</th><th>Why this weight</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Relative to investors' average cost basis. The number-one signal, which worked at all five bottoms</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Relative to production (mining) cost. A cross-check for when MVRV's denominator gives a false picture</td></tr>
+            <tr><td>Mayer Multiple</td><td>15%</td><td>Price relative to the 200-day moving average. A pure price axis that on-chain data cannot see</td></tr>
+            <tr><td>365-day drawdown</td><td>15%</td><td>Depth of the decline from the high. Its denominator is a fixed high, so it does not go quiet late in a bear market</td></tr>
+            <tr><td>Fear &amp; Greed Index</td><td>15%</td><td>A thermometer for capitulation sentiment. Bottoms have always arrived with extreme fear</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The five weights sum to <strong>1.00</strong>. Each indicator uses its long-term (contrarian) normalized score — the two on-chain indicators map z to 0–100 via the anchor table below —
+        and an indicator with no data is not scored as 0 but <strong>excluded from the calculation, with the remaining weights renormalized to sum to 100%</strong>.
+        On coins other than BTC, Thermocap is always dropped, and on coins CoinMetrics does not cover, MVRV is dropped too, so be sure to check the coverage indicator.
+      </p>
+      <pre><code>z → score mapping (Z_ANCHORS, piecewise linear interpolation)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>The composite score is interpreted in five bands.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bottom score</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Historical bottom zone — the same place as past major bottoms</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Undervalued — trading at a discount to cost</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutral</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Overvalued — trading at a premium to cost</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Top zone / overheated — the same place as past major tops</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        There is no proof that the 35·20·15·15·15 weights are optimal. Only the direction is certain — for judging bottoms, <strong>cost-based on-chain indicators reproduced across cycles better than price-based indicators</strong>,
+        so we gave them the majority. The full scoring system (the 8-indicator composite of the short-term and long-term tabs) is published in full in the <a href="/methodology">scoring methodology document</a>.
+      </p>
+
+      <h2 id="faq">Frequently asked questions</h2>
+      <dl>
+        <dt>Is it always the bottom when MVRV drops below 1?</dt>
+        <dd>
+          No. Historically, MVRV &lt; 1 stretches have coincided with major bottoms, but <em>even within</em> those stretches price has fallen a further 20–40% (2011, 2015).
+          Read it not as a "lowest-point signal" but as "a zone for accumulating in stages that historically paid off well 1–2 years later," and remember the sample is only four cycles.
+        </dd>
+        <dt>Where can I see realized cap (the average cost basis)?</dt>
+        <dd>
+          The charts on this page derive realized cap directly from market cap and MVRV in the CoinMetrics Community API (free, no key required) and draw it.
+          The MVRV·Z card and the bottom score (BOTTOM RADAR) on the broodev dashboard use the same data and the same formulas.
+        </dd>
+        <dt>Can I use this method on altcoins too?</dt>
+        <dd>
+          Only partially. broodev calculates MVRV Z for the 10 coins for which CoinMetrics provides MVRV (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA),
+          and for unsupported coins marks it N/A and renormalizes the weights. Thermocap (cumulative mining rewards) is Bitcoin-only.
+        </dd>
+        <dt>Why is it a bottom when market cap falls below the average cost basis?</dt>
+        <dd>
+          Market cap below realized cap means holders as a whole are, on average, at a loss. In this zone, capitulation by those who cannot bear their losses peaks,
+          and as that supply passes to long-term holders, selling pressure is exhausted. That said, this is an observation from four past cycles, not a guaranteed law.
+        </dd>
+      </dl>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is it always the bottom when MVRV drops below 1?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Historically, MVRV < 1 stretches have coincided with major bottoms, but even within those stretches price has fallen a further 20–40% (2011, 2015). Read it not as a lowest-point signal but as a zone for accumulating in stages that historically paid off well 1–2 years later, and remember the sample is only four cycles." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where can I see realized cap (the average cost basis)?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The charts on the btc.broodev.com/bitcoin-bottom page derive realized cap directly from market cap and MVRV in the CoinMetrics Community API (free, no key required) and draw it. The MVRV·Z card and the bottom score (BOTTOM RADAR) on the broodev dashboard use the same data and the same formulas." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use this method on altcoins too?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Only partially. broodev calculates the MVRV Z-Score for the 10 coins for which CoinMetrics provides MVRV (BTC, ETH, XRP, DOGE, BCH, LINK, XLM, LTC, DOT, MANA), and for unsupported coins marks it N/A and renormalizes the weights. Thermocap (cumulative mining rewards) is Bitcoin-only." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why is it a bottom when market cap falls below the average cost basis?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Market cap below realized cap means holders as a whole are, on average, at a loss. In this zone, capitulation by those who cannot bear their losses peaks, and as that supply passes to long-term holders, selling pressure is exhausted. That said, this is an observation from four past cycles, not a guaranteed law." }
+          }
+        ]
+      }
+      </script>
+
+      <div class="note warn">
+        <strong>⚠ Investment caution</strong><br />
+        This document and broodev's scores are <strong>reference material synthesized from public indicators, not investment advice.</strong>
+        The past MVRV values and returns in this article are <strong>approximations that can vary by data source, and past patterns do not guarantee the future.</strong>
+        Crypto assets are high-risk assets in which <strong>you can lose your entire principal</strong>.
+        Responsibility for every investment decision and its outcome (gains or losses) rests entirely with you. Always do your own research (DYOR).
+      </div>
+
+      <h2>Read next</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoring methodology</b><span>How the 8 indicators are blended and weighted (every number disclosed)</span></a>
+        <a href="/indicators"><b>The 8 indicators explained</b><span>Including MVRV and Thermocap — when each indicator lets you down</span></a>
+        <a href="/mayer-multiple"><b>A history of the Mayer Multiple</b><span>What the 200-day line said in every cycle — the bottom indicator on the price axis</span></a>
+        <a href="/"><b>To the dashboard</b><span>Check the current bottom score (BOTTOM RADAR)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a></footer>
+    </main>

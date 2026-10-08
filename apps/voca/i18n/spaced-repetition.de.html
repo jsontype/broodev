@@ -1,0 +1,793 @@
+<main class="wrap" data-title="Spaced-Repetition-Algorithmen im Vergleich — Leitner · SM-2 · FSRS, und warum wir keinen davon nutzen | VOCA DECK" data-desc="Die Formeln, mit denen die Leitner-Kartei (1972), SM-2 (1987, EF 2.5) und FSRS (Stabilität S) den Wiederholungstermin berechnen, mit echten Zahlen verglichen. Eine Simulation, die ein einzelnes Wort 30 Tage lang verfolgt, eine Umrechnungstabelle von Zielbehaltensquote zu Intervall in FSRS und, offengelegt bis auf Code-Ebene, der Preis dafür, dass VOCA DECK statt Personalisierung einen gleichmäßigen Umlauf gewählt hat.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Vokabelheft</a>
+          <a href="/method">Wie es funktioniert</a>
+          <a href="/study-guide">Lernstrategie</a>
+          <a href="/csv-guide">CSV erstellen</a>
+        </nav>
+
+        <h1>Spaced-Repetition-Algorithmen im Vergleich</h1>
+        <p class="muted">Leitner · SM-2 · FSRS, und warum wir keinen davon nutzen · Zuletzt aktualisiert: 2026-07-14 · Verfasst von Y-Systems</p>
+
+        <p class="lead">
+          Dieser Artikel <strong>beginnt mit den Punkten, in denen unsere App verliert.</strong>
+          In der Tabelle unten stehen in der Spalte VOCA DECK mehrere „✗“. Wir haben sie nicht gelöscht.
+          <strong>Der Kern der verteilten Wiederholung (Spaced Repetition) ist die Frage: „Wer berechnet den Wiederholungstermin, und wie?“</strong> –
+          und wir haben uns <strong>bewusst entschieden, diese Berechnung nicht durchzuführen</strong>.
+          Dieser Artikel <strong>seziert die drei Algorithmen, die sie tatsächlich durchführen, bis auf Formel- und Zahlenebene</strong>
+          und <strong>zeigt direkt aus unserem Code</strong>, was wir aufgegeben haben, um was zu gewinnen.
+        </p>
+
+        <h2 id="spec">Zuerst das Datenblatt — jede Zelle der Tabelle ist ein Kapitel dieses Artikels</h2>
+        <p>
+          Bevor du die Erklärungen liest, <strong>zuerst die Ergebnistabelle</strong>. Jede Zeile wird weiter unten einzeln seziert.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kriterium</th>
+                <th><a href="#leitner" style="color:#22dd22">Leitner-Kartei</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki-Variante</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(Blitz-Vokabeltrainer)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Planungseinheit</strong></td>
+                <td>Tag (pro Fach)</td>
+                <td>Tag</td>
+                <td>Minute + Tag</td>
+                <td>Tag (mit Nachkommastellen)</td>
+                <td><strong>Sekunde</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Zustand, den die Karte speichert</strong></td>
+                <td>1 Fachnummer<br />(1~5)</td>
+                <td>EF · Wiederholungszahl · Intervall<br />(3 reelle Zahlen)</td>
+                <td>Ease · Intervall · Fehlerzahl</td>
+                <td>Schwierigkeit D · Stabilität S<br />(latente Variablen)</td>
+                <td><strong>1 Boolean</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>Bewertung der Antwortqualität</strong></td>
+                <td>○/✗ 2 Stufen</td>
+                <td>q = 0~5 (6 Stufen)</td>
+                <td>4 Stufen (Again~Easy)</td>
+                <td>4 Stufen</td>
+                <td><strong>✗ Keine</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Speicherung des Wiederholungsverlaufs</strong></td>
+                <td>Physische Kartei</td>
+                <td>Zustand pro Karte</td>
+                <td>Vollständiges Review-Log</td>
+                <td>Log zwingend (zum Lernen)</td>
+                <td><strong>✗ Wird nicht gespeichert</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Lernt aus deinen Daten</strong></td>
+                <td>✗</td>
+                <td>✗ (Konstanten von Hand gesetzt)</td>
+                <td>✗</td>
+                <td><strong>○ (Parameteroptimierung)</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>Personalisierung pro Karte</strong></td>
+                <td>△ (auf 5 Stufen verdichtet)</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗ (alle gleich)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Garantierte vollständige Abdeckung</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>(nur vorwärts ○,<br />zufällig ✗)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Konto · Installation · Synchronisierung</strong></td>
+                <td>Papierkarton</td>
+                <td>Nötig</td>
+                <td>Nötig</td>
+                <td>Nötig</td>
+                <td><strong>◎ Alles unnötig</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Lawine überfälliger Wiederholungen</strong></td>
+                <td>Ja</td>
+                <td>Ja</td>
+                <td><strong>Ja (häufigster Abbruchgrund)</strong></td>
+                <td>Ja</td>
+                <td><strong>◎ Nein</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Langzeiterhalt reifer Karten</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗ (blinder Fleck)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Kontaktdichte innerhalb einer Sitzung</strong></td>
+                <td>Gering</td>
+                <td>Gering</td>
+                <td>Gering</td>
+                <td>Gering</td>
+                <td><strong>◎ 6 s/Karte</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>Die Tabelle in einem Satz</strong> — die ersten vier Spalten sind Werkzeuge für die Frage <strong>„In wie vielen Tagen schaue ich sie wieder an?“</strong>,
+          die Spalte ganz rechts ist ein Werkzeug für die Frage <strong>„Was schaue ich in genau diesen 6 Sekunden an?“</strong>.
+          <strong>Es sind keine Konkurrenten, die dasselbe Problem lösen.</strong> Das Fazit dieses Artikels steckt bereits hier.
+        </div>
+
+        <h2 id="leitner">1972 — Leitner: „Die Karte umstecken, das ist der Algorithmus“</h2>
+
+        <h3>Das Problem der damaligen Zeit</h3>
+        <p>
+          Es gab keine Computer. Was der deutsche Journalist <strong>Sebastian Leitner</strong>
+          1972 in einem Buch vorschlug, war <strong>eine verteilte Wiederholung, die ohne jede Berechnung auskommt</strong>.
+          Kein Bleistift, keine Datumsrechnung. <strong>Allein das physische Umstecken der Karte speichert ihren Zustand.</strong>
+        </p>
+
+        <h3>Die Lösung</h3>
+        <ul>
+          <li>Ein Karteikasten mit Trennwänden wird in <strong>5 Fächer</strong> unterteilt.</li>
+          <li>Jede neue Karte beginnt in <strong>Fach 1</strong>.</li>
+          <li>Bei richtiger Antwort <strong>rückt sie ein Fach vor</strong>.</li>
+          <li>Bei falscher Antwort <strong>fällt sie, egal in welchem Fach sie war, zurück in Fach 1</strong>.</li>
+          <li>Jedes Fach hat einen eigenen Wiederholungsrhythmus. Eine verbreitete Aufteilung sieht so aus.</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Fach</th><th>Wiederholungsrhythmus</th><th>Was es bedeutet, hier zu sein</th><th>Bei einem Fehler</th></tr></thead>
+            <tbody>
+              <tr><td>Nr. 1</td><td><strong>Täglich</strong></td><td>Noch unbekannt / gerade falsch</td><td>Bleibt in Nr. 1</td></tr>
+              <tr><td>Nr. 2</td><td>Alle 2 Tage</td><td>Einmal richtig</td><td><strong>→ Absturz in Nr. 1</strong></td></tr>
+              <tr><td>Nr. 3</td><td>Alle 4 Tage</td><td>Zweimal hintereinander richtig</td><td><strong>→ Absturz in Nr. 1</strong></td></tr>
+              <tr><td>Nr. 4</td><td>Alle 8 Tage</td><td>Dreimal hintereinander</td><td><strong>→ Absturz in Nr. 1</strong></td></tr>
+              <tr><td>Nr. 5</td><td>Alle 16 Tage</td><td>Fast auswendig</td><td><strong>→ Absturz in Nr. 1</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Genau genommen war <strong>Leitners ursprüngliches Konzept nicht datums-, sondern kapazitätsbasiert: „Ist ein Fach voll, wird es geleert.“</strong>
+          Die 1 · 2 · 4 · 8 · 16 Tage oben sind eine später etablierte <strong>Kalenderversion</strong>.
+          Viele Texte werfen beides in einen Topf, deshalb weisen wir darauf hin.
+        </p>
+
+        <h3>Was nicht funktionierte</h3>
+        <p>
+          Leitners fatale Schwäche: <strong>„Der Absturz ist zu brutal.“</strong>
+          Eine Karte in Fach 5, die <strong>ein einziges Mal danebenliegt</strong>, wird <strong>genau so behandelt</strong>
+          wie eine neue Karte, die „noch nie richtig war“, und fällt zurück in Fach 1.
+          In Wirklichkeit sitzt diese Karte fast, aber der Kasten kann das nicht ausdrücken.
+          <strong>Da der Zustand nur eine einzige ganze Zahl ist, gibt es keinen Platz für „fast gekonnt, aber heute verwechselt“.</strong>
+        </p>
+        <p>
+          Und <strong>alle Karten steigen dieselbe Leiter hinauf.</strong>
+          Ein leichtes Wort muss alle 5 Fächer durchlaufen, ein Wort, das einfach nicht hängen bleibt, ebenfalls alle 5.
+          <strong>Gebraucht wurde eine Leiter, die jede Karte in ihrem eigenen Tempo erklimmt.</strong> Die kam 15 Jahre später.
+        </p>
+
+        <h2 id="sm2">1987 — SM-2: 15 Jahre, um aus einer ganzen Zahl eine reelle zu machen</h2>
+
+        <h3>Das Problem der damaligen Zeit</h3>
+        <p>
+          Der Pole <strong>Piotr Woźniak</strong> veröffentlichte bei der Entwicklung von SuperMemo
+          <strong>SM-2</strong>, das Leitners „Fachnummer (ganze Zahl)“ durch einen <strong>„Leichtigkeitsfaktor (reelle Zahl)“</strong> ersetzt.
+          Die zentrale Erfindung ist ein einziges Element: der <strong>EF (Easiness Factor, Leichtigkeitsfaktor)</strong>.
+        </p>
+
+        <h3>Die Lösung — die tatsächliche Formel</h3>
+        <p>Bei jeder Wiederholung bewertest du dich selbst in sechs Stufen, <strong>q = 0~5</strong> (5 = perfekt, 0 = komplettes Blackout). Dann wird der EF so aktualisiert.</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+EF-Startwert = 2.5   ·   EF-Untergrenze = 1.3 (fällt nie darunter)</code></pre>
+        <p>Das sind die Werte, die diese Formel tatsächlich ausspuckt. <strong>Die Tabelle wurde von Hand ausgerechnet.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q (Selbstbewertung)</th><th>Bedeutung</th><th>Änderung des EF</th><th>Ausgehend von EF 2.5</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>Perfekt erinnert</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>Richtig, aber kurz gezögert</td><td><strong>±0.00</strong></td><td>2.50 (unverändert)</td></tr>
+              <tr><td><strong>3</strong></td><td>Gerade noch richtig</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>Falsch, aber mit der Lösung klar</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>Falsch, Lösung wirkt fremd</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>Totales Blackout</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Dass q=4 genau 0 ergibt, ist die Designabsicht dieser Formel.</strong>
+          „Problemlos richtig“ ist ein <strong>neutraler Punkt, der die Schwierigkeitseinschätzung nicht verändert</strong>;
+          wer besser abschneidet, steigt, wer schlechter abschneidet, sinkt. Die Konstanten 0.1 · 0.08 · 0.02
+          <strong>sind nicht aus einer Theorie abgeleitet, sondern von Woźniak von Hand eingestellt</strong>. Das wird weiter unten wichtig.
+        </p>
+        <p>Das nächste Intervall wird dann so festgelegt.</p>
+        <pre><code>I(1) = 1 Tag
+I(2) = 6 Tage
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+wenn q &lt; 3 → Wiederholungszahl n wird auf 1 zurückgesetzt (Intervall springt auf 1 Tag zurück)</code></pre>
+        <p>
+          <strong>Der EF ist ein Multiplikator.</strong> Eine leichte Karte mit EF 2.5 und eine Höllenkarte mit EF 1.3
+          <strong>driften deshalb exponentiell auseinander.</strong> Bei gleich vielen Wiederholungen sind die erreichten Intervalle völlig verschieden.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Wiederholung</th><th>EF 2.5 (leichte Karte)</th><th>EF 1.9 (mittel)</th><th>EF 1.3 (Höllenkarte)</th></tr></thead>
+            <tbody>
+              <tr><td>1.</td><td>1 Tag</td><td>1 Tag</td><td>1 Tag</td></tr>
+              <tr><td>2.</td><td>6 Tage</td><td>6 Tage</td><td>6 Tage</td></tr>
+              <tr><td>3.</td><td>15 Tage</td><td>11 Tage</td><td>8 Tage</td></tr>
+              <tr><td>4.</td><td>38 Tage</td><td>22 Tage</td><td>10 Tage</td></tr>
+              <tr><td>5.</td><td>94 Tage</td><td>41 Tage</td><td>13 Tage</td></tr>
+              <tr><td>6.</td><td><strong>235 Tage</strong></td><td>78 Tage</td><td>17 Tage</td></tr>
+              <tr><td>7.</td><td><strong>587 Tage (1.6 Jahre)</strong></td><td>148 Tage</td><td><strong>22 Tage</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Bei der 7. Wiederholung: <strong>587 Tage gegen 22 — ein 27-facher Unterschied</strong>.
+          Genau hier schlägt SM-2 Leitner. Leichte Karten werden <strong>für anderthalb Jahre aus dem Blickfeld geräumt</strong>,
+          und die ganze Zeit fließt in die schweren Karten.
+        </p>
+
+        <h3>Was nicht funktionierte</h3>
+        <p><strong>① Die Selbstbewertung in 6 Stufen ist für Menschen zu schwer.</strong>
+          Bei jeder Karte musst du entscheiden, was q=3 von q=4 unterscheidet. In der Praxis
+          <strong>drücken die meisten Nutzer immer wieder nur zwei oder drei Stufen.</strong> Das 6-Stufen-Design schrumpft faktisch auf 3 Stufen.</p>
+        <p><strong>② Der Umgang mit Fehlern ist unklar.</strong> Der Originaltext sagt: „Wenn q&lt;3, von vorn wiederholen, <em>ohne den EF zu ändern</em>“, aber
+          der Pseudocode im selben Dokument <strong>aktualisiert den EF für alle q</strong>. Die Implementierungen interpretieren es unterschiedlich.
+          <strong>Dass ein zentraler Verzweigungspunkt eines seit über 30 Jahren genutzten Algorithmus im Dokument mehrdeutig ist</strong>, sollte man ehrlicherweise so festhalten.
+          (Die Simulation in diesem Artikel folgt der Variante <strong>„Auch der EF wird aktualisiert“</strong>.)</p>
+        <p><strong>③ Die Konstanten sind ohne Begründung fixiert.</strong> Warum ist I(2) 6 Tage? Warum ausgerechnet 0.08?
+          <strong>Zahlen, die eine einzelne Person 1987 mit ihren eigenen Daten von Hand eingestellt hat,</strong> gelten unverändert für alle Lernenden der Welt.
+          Genau deshalb ist FSRS entstanden.</p>
+
+        <h2 id="anki">Ankis Variante — und die „Ease Hell“</h2>
+        <p>
+          Anki übernimmt SM-2 nicht unverändert. Es <strong>reduziert die Bewertung auf 4 Stufen</strong> (Again / Hard / Good / Easy),
+          nennt den EF <strong>Ease</strong> und hat die Anpassungsschritte neu justiert. So verhält es sich tatsächlich mit der Standardvoreinstellung.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Taste</th><th>Ease-Änderung</th><th>Nächstes Intervall</th><th>Anmerkung</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong> (Fehler)</td><td><strong>−0.20</strong></td><td>Vorheriges Intervall <strong>× 0%</strong> → mindestens 1 Tag<br />(+ 10 Min. Neulernen)</td><td>Intervall wird <strong>auf den Boden zurückgesetzt</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>Vorheriges Intervall × <strong>1.2</strong></td><td>Fester Faktor, unabhängig von Ease</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>Vorheriges Intervall × <strong>Ease</strong></td><td>Neutraler Punkt (das q=4 von SM-2)</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>Vorheriges Intervall × Ease × <strong>1.3</strong></td><td>Easy-Bonus</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Weitere Standardwerte: Lernschritte <code>1m 10m</code> · Abschlussintervall <strong>1 Tag</strong> · Easy-Intervall <strong>4 Tage</strong> ·
+          Start-Ease <strong>2.50</strong> · <strong>Ease-Untergrenze 1.30</strong> · Leech-Schwelle <strong>8 Fehler</strong>.
+          Ankis Standardwerte können je nach Version und Voreinstellung abweichen – <strong>prüfe sie selbst in den Stapeloptionen.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Was ist die „Ease Hell“?</strong> — Bei einer Karte, auf der immer wieder Again (−0.20) und Hard (−0.15) gedrückt wird,
+          <strong>klebt die Ease an der Untergrenze von 1.30 fest.</strong> Dann wächst das nächste Intervall nur noch um <strong>× 1.3</strong>
+          und <strong>kriecht</strong>: 1 Tag → 2 Tage → 3 Tage → 4 Tage … Und Again wirft das Intervall obendrein wieder auf 1 Tag zurück.
+          Das Ergebnis: <strong>Ein paar Karten besetzen für immer die tägliche Wiederholungswarteschlange</strong>.<br />
+          <strong>Der einzige Weg, die Ease wieder anzuheben, ist Easy (+0.15) – und bei einer Höllenkarte drückt niemand Easy.</strong>
+          <strong>Vier Türen nach unten, nur eine nach oben</strong> – das ist der strukturelle Fehler der SM-2-Familie
+          und der Grund, warum Anki-Nutzer sagen: „8 Leech-Karten ruinieren mein Leben.“
+        </div>
+        <p>
+          Die Abhilfen liegen meist <strong>außerhalb des Algorithmus</strong>: Karte löschen, aufteilen, einen Satz ergänzen („Die Karte ist schlecht,
+          nicht ich dumm“) oder <strong>die Ease manuell zurücksetzen</strong>.
+          <strong>Das heißt: Der Mensch repariert von Hand, was der Algorithmus nicht reparieren kann</strong> – und genau diese Erkenntnis brachte die nächste Generation hervor.
+        </p>
+
+        <h2 id="fsrs">FSRS — der einzige Algorithmus, der genau beantworten kann, „was S eigentlich ist“</h2>
+        <p>
+          <strong>FSRS (Free Spaced Repetition Scheduler)</strong> verwirft handgetunte Konstanten und
+          <strong>passt seine Parameter an dein tatsächliches Review-Log an</strong>. Grundlage ist das <strong>DSR-Modell</strong>.
+        </p>
+        <ul>
+          <li><strong>D (Difficulty, Schwierigkeit)</strong> — wie schwer diese Karte an sich ist</li>
+          <li><strong>S (Stability, Stabilität)</strong> — wie lange die Erinnerung hält</li>
+          <li><strong>R (Retrievability, Abrufbarkeit)</strong> — die Wahrscheinlichkeit, sich <strong>genau jetzt</strong> zu erinnern</li>
+        </ul>
+        <p>Die Vergessenskurve ist so definiert (nach FSRS-4.5 / 5, <strong>DECAY = −0.5</strong>, <strong>FACTOR = 19/81</strong>).</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>Eine Tatsache, auf die kaum jemand hinweist</h3>
+        <p><strong>Setzen wir t = S ein.</strong> Also: „Was passiert, wenn man eine Karte mit Stabilität S genau nach S Tagen wieder sieht?“</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← genau 90 %</code></pre>
+        <p>
+          <strong>Das ist kein Zufall. FACTOR = 19/81 und DECAY = −0.5 sind Konstanten, die genau so zurückgerechnet wurden, dass dieser Wert herauskommt.</strong>
+          <strong>Deshalb lässt sich S in einem einzigen Satz definieren.</strong>
+        </p>
+        <div class="note">
+          <strong>S (Stabilität) = „die Anzahl Tage, bis die Erinnerungswahrscheinlichkeit auf 90 % gefallen ist“</strong><br />
+          S = 30 bedeutet: „Wenn dir diese Karte in 30 Tagen wieder begegnet, weißt du sie in neun von zehn Fällen.“
+          <strong>Keine abstrakte interne Variable, sondern eine physikalische Größe, die sich in Tagen lesen lässt.</strong>
+          Beim EF von SM-2 ist eine solche Deutung unmöglich. Fragt man, was „EF 2.5“ bedeutet, lautet die einzige Antwort: „eine Zahl, mit der multipliziert wird“.
+        </div>
+
+        <h3>Wie sich das Wiederholungspensum mit der Zielbehaltensquote ändert — Umrechnungstabelle</h3>
+        <p>
+          In FSRS legst du die <strong>Zielbehaltensquote (desired retention)</strong> selbst fest (Standard <strong>0.90</strong>).
+          Löst man die obige Formel nach t auf, ergibt sich das Intervall so.
+        </p>
+        <pre><code>Intervall t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>Das Ergebnis, wenn man Zahlen einsetzt. <strong>Diese Tabelle ist vielleicht der praktischste Teil des Artikels.</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Zielbehaltensquote R</th><th>Intervall (Vielfaches von S)</th><th>Bei einer Karte mit S=30 Tagen</th><th>Wiederholungslast</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14 Tage</td><td><strong>Explodiert auf etwa das 2.2-Fache</strong></td></tr>
+              <tr><td><strong>0.90</strong> (Standard)</td><td><strong>× 1.00</strong></td><td>30 Tage</td><td>Referenz</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49 Tage</td><td>Etwa 40 % weniger</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72 Tage</td><td><strong>Etwa 58 % weniger</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133 Tage</td><td>Etwa 77 % weniger</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          So liest man sie: <strong>Hebt man die Behaltensquote von 0.90 auf 0.95 – „nur 5 Prozentpunkte“ –, schrumpft das Intervall auf weniger als die Hälfte</strong>
+          und <strong>das Wiederholungspensum verdoppelt sich.</strong> Senkt man sie umgekehrt auf 0.80, <strong>fällt das Pensum unter die Hälfte,
+          während die Trefferquote nur 10 Prozentpunkte verliert</strong>. Weil die Kurve so steil ist,
+          <strong>bricht hier die Intuition „je höher die Behaltensquote, desto besser“ zusammen.</strong>
+          Steht die Prüfung nicht unmittelbar bevor, ist der Bereich 0.85~0.90 meist vernünftig.
+        </p>
+        <p class="muted">
+          Hinweis zur Genauigkeit: Die obige Herleitung gilt für <strong>FSRS-4.5 / 5, bei dem DECAY auf −0.5 festgelegt ist</strong>.
+          <strong>Ab FSRS-6 ist DECAY selbst ein gelernter Parameter</strong>, sodass die Gleichung „S = Intervall bei 90 %“
+          nicht mehr exakt gelten muss. Auch die Zahl der Parameter ist je nach Version gestiegen: <strong>17 → 19 → 21</strong>.
+          <strong>Zitiere diese Zahlen nicht unverändert, ohne die Version zu prüfen.</strong>
+        </p>
+
+        <h3>Was FSRS nicht kann</h3>
+        <p>
+          FSRS <strong>wird erst mit deinem Log zu deinem.</strong>
+          <strong>Bis sich einige Hundert bis gut 1.000 Reviews angesammelt haben, läuft es mit den Standardparametern</strong>,
+          und das ist letztlich <strong>„der Durchschnitt anderer“</strong>. Das heißt: <strong>Im ersten Monat ist FSRS nicht personalisiert.</strong>
+          Und ein Log zu führen bedeutet auch, dass <strong>dein gesamter Wiederholungsverlauf irgendwo gespeichert wird</strong>.
+        </p>
+
+        <h2 id="sim">Ein einzelnes Wort 30 Tage lang verfolgt — Simulation</h2>
+        <p>
+          Machen wir die abstrakten Formeln greifbar. Eine einzige Karte, das Wort <code>ubiquitous</code>, durchläuft mit folgendem Szenario drei Systeme.
+        </p>
+        <div class="note">
+          <strong>Szenario</strong> — an Tag 1 neu gelernt → <strong>bei der ersten Wiederholung falsch</strong> (SM-2 q=2 / Anki Again)
+          → danach jedes Mal problemlos richtig (q=4 / Good).
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Datum</th><th>Leitner (1 · 2 · 4 · 8 · 16 Tage)</th><th>SM-2 (Start-EF 2.5)</th><th>Anki (Start-Ease 2.50)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Tag 1</strong></td><td>Lernen · Fach 1</td><td>Lernen · I=1 Tag</td><td>Lernen (1 Min.→10 Min.) · Abschluss 1 Tag</td></tr>
+              <tr><td><strong>Tag 2</strong></td><td><strong>Falsch</strong> · bleibt in Fach 1</td><td><strong>Falsch q=2</strong> · EF 2.50→<strong>2.18</strong> · Reset</td><td><strong>Again</strong> · Ease 2.50→<strong>2.30</strong> · Intervall 1 Tag</td></tr>
+              <tr><td><strong>Tag 3</strong></td><td>Richtig → <strong>Fach 2</strong></td><td>Richtig · I=1 Tag</td><td>Good · 1 × 2.30 = <strong>2 Tage</strong></td></tr>
+              <tr><td><strong>Tag 4</strong></td><td>—</td><td>Richtig · I=<strong>6 Tage</strong></td><td>—</td></tr>
+              <tr><td><strong>Tag 5</strong></td><td>Richtig → <strong>Fach 3</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5 Tage</strong></td></tr>
+              <tr><td><strong>Tag 9</strong></td><td>Richtig → <strong>Fach 4</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Tag 10</strong></td><td>—</td><td>Richtig · 6 × 2.18 = <strong>13 Tage</strong></td><td>Good · 5 × 2.30 = <strong>12 Tage</strong></td></tr>
+              <tr><td><strong>Tag 17</strong></td><td>Richtig → <strong>Fach 5</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>Tag 22</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28 Tage</strong></td></tr>
+              <tr><td><strong>Tag 23</strong></td><td>—</td><td>Richtig · 13 × 2.18 = <strong>28 Tage</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>Wiederholungen<br />in 30 Tagen</strong></td>
+                <td><strong>6</strong></td><td><strong>6</strong></td><td><strong>6</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Nächster Termin</strong></td>
+                <td>Tag 33</td>
+                <td><strong>Tag 51</strong></td>
+                <td><strong>Tag 50</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Die Zahl, auf die es hier wirklich ankommt, ist nicht „6“, sondern „33 gegen 51“.</strong>
+          Alle drei Systeme haben in 30 Tagen <strong>genau 6-mal</strong> wiederholen lassen. Der Aufwand ist derselbe.
+          Trotzdem <strong>ruft Leitner die Karte an Tag 33 wieder auf, SM-2 erst an Tag 51.</strong>
+          Mit denselben 6 Wiederholungen hat SM-2 sie <strong>18 Tage weiter hinausgeschoben.</strong>
+          Dieser Abstand <strong>wächst mit jeder Runde multiplikativ.</strong> Nach einem Jahr fragt Leitner immer noch alle 16 Tage ab,
+          während SM-2 längst Intervalle von einem Jahr erreicht hat.
+        </p>
+        <p>
+          <strong>Und in dieser Tabelle fehlt eine Spalte für VOCA DECK.</strong> Weil man keine einfügen kann.
+          In unserer App <strong>gibt es den Begriff „Tag n“ überhaupt nicht.</strong> Warum, erklärt das nächste Kapitel.
+        </p>
+
+        <h2 id="voca">VOCA DECK seziert — was unser Code tatsächlich tut</h2>
+        <p>
+          Jetzt sind wir dran. Wir schreiben es <strong>ohne Verpackung, genau so, wie es im Code steht</strong>.
+        </p>
+
+        <h3>Was eine Karte speichert: das ist alles</h3>
+        <pre><code>{ a: "ubiquitous", b: "allgegenwärtig", mem: false }</code></pre>
+        <p>
+          <strong>Das ist alles, was eine Karte enthält.</strong> Vorderseite, Rückseite und <strong>ein Boolean.</strong>
+          <strong>Weder der Zeitpunkt der Wiederholung noch die Zahl der Fehler noch der Grad der Unsicherheit wird gespeichert.</strong>
+        </p>
+        <p>
+          Deshalb <strong>könnten wir SM-2 nicht einbauen, selbst wenn wir wollten.</strong>
+          SM-2 braucht mindestens <code>EF · Wiederholungszahl · letzter Wiederholungstag</code>,
+          und FSRS braucht das <strong>vollständige Review-Log</strong>, um seine Parameter anzupassen.
+          Wir haben <strong>weder ein Konto noch einen Server noch ein Review-Log.</strong>
+          Deck und Merk-Markierungen bleiben <strong>nur im <code>localStorage</code> des Browsers</strong> und werden nicht an einen Server gesendet.
+          <strong>Das ist kein Unvermögen, sondern Absicht. Der Preis dafür ist der Verzicht auf Personalisierung.</strong>
+        </p>
+
+        <h3>Was der Scheduler wirklich ist: eine Zeile Modulo-Arithmetik</h3>
+        <p>
+          Die „nächste Karte“ bestimmen wir über einen <strong>zyklischen (cyclic) Index</strong>.
+          Je nach Einstellung <code>order</code> gibt es drei Varianten.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Einstellung</th><th>Verhalten</th><th>Abstand bis zum Wiedersehen</th><th>Abdeckung</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> Vorwärts (Standard)</td><td>Index +1 im Kreis</td><td><strong>Genau alle N Karten</strong> (gleichmäßig)</td><td><strong>100 % garantiert</strong></td></tr>
+              <tr><td><code>rev</code> Rückwärts</td><td>Index −1 im Kreis</td><td><strong>Genau alle N Karten</strong> (gleichmäßig)</td><td><strong>100 % garantiert</strong></td></tr>
+              <tr><td><code>rnd</code> Zufällig</td><td><strong>Bei jedem Schritt unabhängige Gleichverteilungsziehung</strong><br />(nur die aktuelle Karte ausgeschlossen)</td><td>Erwartungswert N−1 Karten,<br /><strong>hohe Varianz</strong></td><td><strong>Keine Garantie ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>Der Zufallsmodus ist kein Mischen — und das müssen auch wir klar sagen.</strong><br />
+          Es wird nicht ein gemischter Stapel einmal durchlaufen (Ziehen ohne Zurücklegen), sondern <strong>jedes Mal neu aus den übrigen Karten gezogen</strong>.
+          <strong>Dieselbe Karte kann also dreimal hintereinander kommen – oder eine ganze Runde lang kein einziges Mal.</strong>
+        </div>
+
+        <h3>Wir haben diesen Preis in Zahlen ausgerechnet</h3>
+        <p>
+          Angenommen, ein Deck mit 100 Karten (N=100) läuft im Zufallsmodus <strong>99 Schritte</strong> lang (= eine Runde im Vorwärtsmodus).
+          Die Wahrscheinlichkeit, dass eine bestimmte Karte bei einem Schritt gezogen wird, ist <strong>1/(N−1) = 1/99</strong>.
+          Die Wahrscheinlichkeit, dass diese Karte <strong>in 99 Schritten kein einziges Mal erscheint</strong>, ist dann:
+        </p>
+        <pre><code>P(0-mal erschienen) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>Die Anzahl der Auftritte folgt nahezu einer Poisson-Verteilung (λ=1).</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Auftritte während einer Runde (99 Schritte)</th><th>Wahrscheinlichkeit</th><th>Bedeutung</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0-mal</strong></td><td><strong>Etwa 37 %</strong></td><td><strong>Ein Drittel des Decks kommt überhaupt nicht</strong></td></tr>
+              <tr><td>1-mal</td><td>Etwa 37 %</td><td>Wie beabsichtigt</td></tr>
+              <tr><td>2-mal</td><td>Etwa 18 %</td><td>Verschwendung</td></tr>
+              <tr><td>3-mal oder öfter</td><td>Etwa 8 %</td><td>Immer dieselbe Karte</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Mit anderen Worten: Spielst du eine Runde im Zufallsmodus ab, bekommst du rund 37 % des Decks an diesem Tag gar nicht zu sehen.</strong>
+          Selbst nach zwei Runden (198 Schritte) fehlen noch <strong>etwa 13 %</strong>, und
+          <strong>erst nach drei Runden</strong> sinkt der Anteil ungesehener Karten <strong>unter 5 %</strong>.
+        </p>
+        <div class="note">
+          <strong>So solltest du es deshalb nutzen (ein Rezept, das direkt aus dem Code folgt)</strong>
+          <ul>
+            <li><strong>Erster Durchgang · Komplettcheck am Tag vor der Prüfung</strong> → <strong>Vorwärts</strong>. Das ist der Moment, in dem du 100 % Abdeckung brauchst. Im Zufallsmodus würdest du ein Drittel auslassen.</li>
+            <li><strong>Ab dem 3. Durchgang, wenn Reihenfolge-Hinweise gebrochen werden sollen</strong> → nimm zuerst <strong>Rückwärts</strong>.
+              <strong>Es bricht die Reihenfolge-Hinweise und hält die Abdeckung trotzdem bei 100 %.</strong> Die meisten übersehen diese Option einfach.</li>
+            <li><strong>Echtes Training für zufälliges Abrufen</strong> → <strong>Zufällig</strong>. Aber nur, <strong>wenn du bereit bist, das Deck drei Runden lang laufen zu lassen</strong>.</li>
+          </ul>
+        </div>
+
+        <h3>Zeiteinheit: Die Skala unseres Schedulers ist die „Sekunde“</h3>
+        <p>
+          Das Standardintervall beträgt <strong>3 Sekunden</strong> (im Bedienfeld 1 bis 60 Sekunden). Jede Karte durchläuft <strong>zwei Phasen, Vorderseite · Rückseite</strong>,
+          also <strong>standardmäßig 6 s/Karte</strong>. Außerdem hat der Timer eine <strong>Untergrenze von 0.5 Sekunden</strong>
+          (egal wie kurz du es einstellst, darunter geht es nicht).
+        </p>
+        <p>Daraus ergibt sich unmittelbar <strong>die physikalische Obergrenze der Deckgröße</strong>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Deckgröße N</th><th>Dauer einer Runde<br />(Standard 6 s/Karte)</th><th>Abstand bis zum Wiedersehen derselben Karte</th><th>Urteil</th></tr></thead>
+            <tbody>
+              <tr><td>30 Karten</td><td><strong>3 Min.</strong></td><td>3 Min.</td><td>◎ Dichte Wiederholung in der Sitzung</td></tr>
+              <tr><td>100 Karten</td><td><strong>10 Min.</strong></td><td>10 Min.</td><td>○ Praktische Obergrenze</td></tr>
+              <tr><td>300 Karten</td><td><strong>30 Min.</strong></td><td>30 Min.</td><td>△ Schon eine Runde ist mühsam</td></tr>
+              <tr><td>500 Karten</td><td><strong>50 Min.</strong></td><td>50 Min.</td><td>✗ Wiederholungseffekt in der Sitzung verschwindet</td></tr>
+              <tr><td>2.000 Karten</td><td><strong>3 Std. 20 Min.</strong></td><td>3 Std. 20 Min.</td><td><strong>✗ Praktisch unmöglich</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>Die ehrliche Grenze des Blitz-Vokabeltrainers: Teile deine Decks in Portionen von höchstens 300 Karten.</strong>
+          Ein einzelnes Deck mit 2.000 Karten braucht <strong>3 Std. 20 Min. pro Runde</strong>.
+          Das ist keine „schnelle, wiederholte Darbietung“ mehr. Das ist einfach <strong>langsames Listenlesen</strong>.
+          <strong>Wenn du 2.000 Karten verwalten musst, ist das ein Job für Anki, nicht für diese App.</strong>
+        </div>
+
+        <h3>Das Intervall ist die Länge des „Abruffensters“ — nutze es asymmetrisch</h3>
+        <p>
+          Wer das Intervall nur als „Tempoeinstellung“ betrachtet, nutzt es nur halb.
+          <strong>Die paar Sekunden, in denen die Vorderseite zu sehen ist, sind die einzige Zeit, in der du dich anstrengen kannst, die Antwort abzurufen.</strong>
+          Deshalb lassen sich die Intervalle für Vorder- und Rückseite <strong>getrennt</strong> einstellen (erweiterte Einstellungen, 0 bis 60 Sekunden).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Situation</th><th>Intervall Vorderseite</th><th>Intervall Rückseite</th><th>Pro Karte</th><th>Absicht</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Erster Durchgang</strong> (lauter unbekannte Wörter)</td><td>2 s</td><td>4 s</td><td>6 s</td><td>Es gibt nichts abzurufen, also <strong>die Bedeutung lange ansehen</strong></td></tr>
+              <tr><td><strong>2.~3. Durchgang</strong> (Abruftraining)</td><td><strong>5 s</strong></td><td>1.5 s</td><td>6.5 s</td><td><strong>Zeit zum Abrufen gewinnen</strong>, im Nu überprüfen</td></tr>
+              <tr><td><strong>Endspurt kurz vor der Prüfung</strong></td><td>1.5 s</td><td>1.5 s</td><td>3 s</td><td>Kompletter Scan — 100 Karten in <strong>5 Minuten</strong></td></tr>
+              <tr><td><strong>Lernen nach Gehör mit TTS</strong></td><td>3 s</td><td>3 s</td><td>6 s</td><td>Zeit, bis die Sprachausgabe fertig ist</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>„Vorderseite 5 s / Rückseite 1.5 s“ im 2.~3. Durchgang ist in dieser App die Einstellung, die dem Abruftraining am nächsten kommt.</strong>
+          <strong>Je weiter die Durchgänge fortschreiten, desto länger die Vorderseite und desto kürzer die Rückseite.</strong>
+          Die meisten machen es umgekehrt – und <strong>schauen dann bis zum Schluss nur passiv zu</strong>.
+        </p>
+
+        <h2 id="mem">Was die „Merk-Markierung“ wirklich ist — eine Leitner-Kartei mit nur 2 Fächern</h2>
+        <p>
+          Unser einziges Personalisierungswerkzeug ist die <strong>Merk-Markierung</strong>.
+          In die Sprache der Algorithmen übersetzt ist sie genau das.
+        </p>
+        <div class="note">
+          <strong>Merk-Markierung = eine Leitner-Kartei mit 2 Fächern.</strong> Aber <strong>sie ist keine Leiter, sondern eine Tür.</strong><br />
+          Fach 1 = <code>mem: false</code> (läuft weiter im Umlauf) · Fach 2 = <code>mem: true</code> (aus dem Umlauf genommen)<br />
+          Und die Einstellung <strong>Bereich</strong> wählt das Fach aus —
+          <strong>Gemerkte auslassen</strong> (Standard) / <strong>Nur gemerkte</strong> / <strong>Alle</strong>.
+        </div>
+
+        <h3>Was allein das schon bringt (mehr, als man denkt)</h3>
+        <p>
+          <strong>Der größte Teil dessen, was ein Personalisierungsalgorithmus leistet, ist in Wahrheit: „bekannte Karten nicht zeigen“</strong>.
+          Wenn SM-2 eine Karte mit EF 2.5 um 587 Tage nach hinten schiebt, geht es letztlich darum, <strong>sie jetzt nicht zu zeigen</strong>.
+          Die Merk-Markierung holt sich <strong>das plumpeste, aber größte Stück</strong> dieses Effekts.
+        </p>
+        <p>
+          Schauen wir auf die Zahlen. Wenn du in einem Deck mit 100 Karten <strong>40 Karten als gemerkt markierst</strong>, bleiben 60 im Umlauf.
+          Eine Runde schrumpft von <strong>10 Min. → 6 Min.</strong>, und <strong>der Abstand bis zum Wiedersehen unbekannter Karten von 10 Min. → 6 Min.</strong>
+          <strong>In denselben 20 Minuten begegnest du den schweren Karten 1.67-mal so oft.</strong>
+          <strong>Ein Faktor 1.67 – gratis.</strong> Mit einem einzigen Häkchen.
+        </p>
+
+        <h3>Was im Vergleich zu echtem SM-2 fehlt (hier wird es wichtig)</h3>
+        <p><strong>① Es gibt keine Stufen — nur 0 oder 1.</strong>
+          SM-2 unterscheidet „EF 2.5 (sehr leicht)“, „EF 1.6 (ziemlich schwer)“ und „EF 1.3 (Hölle)“
+          und zeigt sie <strong>jeweils unterschiedlich oft</strong>. Wir haben nur <strong>„zeigen / nicht zeigen“</strong>.
+          <strong>Innerhalb der 60 nicht gemerkten Karten sind alle vollkommen gleichberechtigt.</strong>
+          Ein Wort, das du gestern zum ersten Mal gesehen hast, und eines, das nach 40 Durchgängen immer noch nicht sitzt, kommen <strong>exakt gleich oft</strong>.
+          <strong>Das ist der Punkt, an dem wir SM-2 am deutlichsten unterlegen sind.</strong></p>
+
+        <p><strong>② Es gibt keine Zeit — deshalb lässt sich nicht berechnen, „wann man sie wiedersehen sollte“.</strong>
+          <code>mem</code> ist ein Boolean. <strong>Wann markiert wurde, wird nicht gespeichert.</strong>
+          Ein Urteil wie „Diese Karte ist seit 40 Tagen markiert, Zeit, sie noch einmal zu prüfen“
+          <strong>kann die App grundsätzlich nicht fällen.</strong> Es gibt ja keinen Zeitstempel.</p>
+
+        <p><strong>③ Daraus entsteht ein blinder Fleck — markierte Karten verrotten still und leise.</strong></p>
+        <div class="note warn">
+          <strong>Das ist die wichtigste Warnung dieses Artikels.</strong><br />
+          Die Merk-Markierung ist eine <strong>Einbahn-Tür</strong>. Ist eine Karte einmal in Fach 2 gewandert,
+          <strong>gibt es keinen Weg, von selbst zurückzukommen.</strong>
+          SM-2 <strong>ruft irgendwann garantiert jede Karte wieder auf</strong>, selbst eine mit 587 Tagen – um das Vergessen abzufangen.
+          Wir <strong>rufen sie nie wieder auf.</strong><br />
+          <strong>Es häufen sich also Karten an, die „als gekonnt markiert, in Wahrheit aber vergessen sind – ohne dass du es merkst“.</strong>
+          Und du merkst es im Prüfungsraum.
+        </div>
+
+        <h3>Das Verfahren, um diesen blinden Fleck von Hand zu schließen</h3>
+        <p>
+          Da der Algorithmus es nicht tut, <strong>musst du es tun.</strong> Zum Glück ist es nicht schwer, und die Funktion steckt bereits in der App.
+          <strong>Den Bereich auf „Nur gemerkte“ umzustellen</strong> gibt es genau für diesen Zweck.
+        </p>
+        <ol>
+          <li><strong>Leg einmal pro Woche einen festen Tag fest.</strong> (Zum Beispiel: Sonntag)</li>
+          <li>Stell den Bereich auf <strong>„Nur gemerkte“</strong>. → Nur die markierten Karten laufen im Umlauf.</li>
+          <li><strong>Reihenfolge zufällig</strong>, <strong>Intervall der Vorderseite lang, 4~5 Sekunden</strong>. — Hier wird echtes Abrufen geprüft.</li>
+          <li><strong>Kommt eine Karte, die dir nicht einfällt, hebst du ihre Merk-Markierung sofort auf</strong>. → Herabgestuft in Fach 1. <strong>Du öffnest die Rückkehrtür von Hand.</strong></li>
+          <li>Stell wieder auf „Gemerkte auslassen“ zurück und lern wie gewohnt weiter.</li>
+        </ol>
+        <p>
+          <strong>Diese 5 Schritte sind alles, was es braucht, um SM-2s „Wiederholung reifer Karten“ von Hand nachzuahmen.</strong>
+          Weil es nicht automatisch ist, ist es unterlegen, aber <strong>um Welten besser, als es gar nicht zu tun.</strong>
+          <strong>Ohne das wird die Merk-Markierung zu einer „Funktion, die Karten versteckt, die nur so tun, als säßen sie“.</strong>
+        </p>
+
+        <h2 id="which">Was soll ich also nutzen — ein ehrliches Rezept</h2>
+        <p>
+          <strong>„Nutze unsere App“ ist in weniger als der Hälfte der Fälle die richtige Antwort.</strong> Wir schreiben es, wie es ist.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Deine Situation</th><th>Empfehlung</th><th>Begründung (in Zahlen)</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>2.000~10.000 Wörter<br />6 Monate bis mehrere Jahre behalten</strong><br />(Langstrecken wie der koreanische CSAT, TOEIC oder GRE)</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">(nicht unsere App)</span></td>
+                <td>Beim Blitz-Vokabeltrainer dauert eine Runde mit 2.000 Karten <strong>3 Std. 20 Min.</strong> Das ist physisch unmöglich.
+                  Außerdem werden reife Karten nie wieder aufgerufen, also <strong>scheitert das Langzeitbehalten</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Prüfung in 14 Tagen · Last-Minute-Pauken</strong><br />200~300 Wörter</td>
+                <td><strong>Blitz-Vokabeltrainer</strong></td>
+                <td>Die Intervalle von SM-2 sind <strong>1 Tag → 6 Tage → 15 Tage</strong>.
+                  <strong>In 14 Tagen schafft man gerade einmal 3 Durchgänge.</strong> Ein Scheduler auf Tagesbasis
+                  <strong>ist nutzlos, wenn wenig Zeit bleibt</strong>. Drei Runden am Tag gewinnen.</td>
+              </tr>
+              <tr>
+                <td><strong>Du kannst die App nicht jeden Tag öffnen</strong><br />(du fällst 3 Tage am Stück aus)</td>
+                <td><strong>Blitz-Vokabeltrainer</strong></td>
+                <td>Fällst du in Anki 3 Tage aus, stauen sich <strong>Hunderte überfällige Karten</strong>.
+                  Das ist <strong>der häufigste Grund, mit SRS aufzuhören</strong>. Der Blitz-Vokabeltrainer <strong>kennt keine überfälligen Karten.</strong>
+                  Öffne ihn, wann du willst, und schließ ihn, wann du willst.</td>
+              </tr>
+              <tr>
+                <td><strong>Deck mit 30~300 Karten,<br />eine einzige CSV-Datei</strong></td>
+                <td><strong>Blitz-Vokabeltrainer</strong></td>
+                <td>Anki installieren, Notiztyp, Stapeloptionen und ein Sync-Konto einrichten: <strong>Die Reibung ist größer als der Nutzen.</strong>
+                  Öffne die CSV, und <strong>3 Sekunden später geht das Lernen los</strong>.</td>
+              </tr>
+              <tr>
+                <td><strong>Beim Abwasch · auf dem Arbeitsweg<br />nur mit den Ohren lernen</strong></td>
+                <td><strong>Blitz-Vokabeltrainer (TTS, nur Ton)</strong></td>
+                <td>In Anki musst du <strong>auf den Bildschirm schauen und eine Taste drücken</strong>, um weiterzukommen.
+                  Der Blitz-Vokabeltrainer braucht im Modus <strong>automatische Wiedergabe + nur Ton</strong> <strong>weder Hände noch Augen.</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Du willst keinen Review-Verlauf hinterlassen<br />und kein Konto anlegen</strong></td>
+                <td><strong>Blitz-Vokabeltrainer</strong></td>
+                <td>Deck und Merk-Markierungen werden <strong>nur im localStorage des Browsers</strong> gespeichert und
+                  <strong>nicht an einen Server gesendet.</strong> Dafür <strong>gibt es auch keine Synchronisierung zwischen Geräten.</strong> (Aus demselben Grund.)</td>
+              </tr>
+              <tr>
+                <td><strong>30 Höllenwörter,<br />die einfach nicht hängen bleiben</strong></td>
+                <td><strong>Blitz-Vokabeltrainer</strong></td>
+                <td>In Anki <strong>landen diese Karten in der Ease Hell und kleben bei einer Ease von 1.30 fest.</strong>
+                  Besser: <strong>Exportiere sie in eine eigene CSV und mach daraus ein Deck mit 30 Karten (3 Minuten pro Runde)</strong>, das du fünfmal am Tag durchläufst.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">Die genaueste Antwort: Die beiden arbeiten auf verschiedenen Ebenen</h2>
+        <p>
+          Wenn du bis hierher gelesen hast, wird dieser Satz jetzt verständlich sein.
+        </p>
+        <div class="note">
+          <strong>Anki entscheidet, „welche Karten du heute siehst“. (auf Tagesbasis)</strong><br />
+          <strong>Der Blitz-Vokabeltrainer entscheidet, „wie diese Karte jetzt gezeigt wird“. (auf Sekundenbasis)</strong><br />
+          <strong>Die beiden streiten nicht um dasselbe Problem, sondern stapeln sich übereinander.</strong>
+        </div>
+        <p>So sieht die Kombination aus, die Leute, die beides nutzen, tatsächlich verwenden.</p>
+        <ol>
+          <li><strong>Überlass die Langzeitplanung Anki.</strong> Bei einem Deck mit 5.000 Wörtern wählt FSRS „die 120 Karten für heute“ aus.</li>
+          <li><strong>Exportiere die Karten, die du in Anki immer wieder falsch hast (Leeches · Ease um 1.3), als CSV.</strong>
+            Meist sind das <strong>30~80 Karten</strong>.</li>
+          <li><strong>Lade diese CSV in den Blitz-Vokabeltrainer und lass sie zwei- bis dreimal am Tag durchlaufen.</strong>
+            Bei 80 Karten dauert <strong>eine Runde 8 Minuten</strong>. Vorderseite 5 s / Rückseite 1.5 s für Abruftraining.</li>
+          <li><strong>Nimm Karten, die im Blitz-Vokabeltrainer sicher sitzen, per Merk-Markierung heraus</strong>, und setze in Anki die Ease dieser Karten zurück.</li>
+        </ol>
+        <p>
+          <strong>Der Blitz-Vokabeltrainer macht, was Anki nicht kann, und Anki macht, was der Blitz-Vokabeltrainer nicht kann.</strong>
+          Anki kann keine <strong>hochdichte Darbietung innerhalb einer Sitzung</strong> erzeugen (es zeigt dir dieselbe Karte nicht 20-mal am Tag),
+          und der Blitz-Vokabeltrainer kann keinen <strong>Wiederholungstermin in 6 Monaten</strong> berechnen.
+          <strong>Eine einzige Datei (CSV) verbindet die beiden Werkzeuge.</strong>
+          Wie das geht, steht in <a href="/csv-guide">CSV-Vokabelliste erstellen</a>.
+        </p>
+
+        <h2 id="qa">Kurze Fragen und Antworten</h2>
+
+        <h3>F. Ist FSRS immer besser als SM-2?</h3>
+        <p>
+          <strong>Sobald sich genug Review-Log angesammelt hat, meistens ja.</strong> Aber <strong>nicht im ersten Monat.</strong>
+          FSRS wird erst zu deinem, wenn es <strong>seine Parameter an dein Log angepasst hat</strong>; bis dahin läuft es mit dem <strong>Durchschnitt anderer</strong>.
+          Außerdem beruht FSRS auf der <strong>Annahme, dass du die Tasten ehrlich drückst</strong>.
+          <strong>Drückst du aus Bequemlichkeit nur Good, liegt ein ausgefeilter Algorithmus ausgefeilt daneben.</strong>
+          <strong>Mist rein, Mist raus – das kann kein Algorithmus für dich reparieren.</strong>
+        </p>
+
+        <h3>F. Welche Zielbehaltensquote ist richtig?</h3>
+        <p>
+          Schau dir noch einmal die <a href="#fsrs">Umrechnungstabelle</a> oben an. <strong>0.90 → 0.95 verdoppelt das Wiederholungspensum.</strong>
+          Du zahlst <strong>doppelt so viel Zeit</strong> für 5 Prozentpunkte Trefferquote. In den meisten Fällen ein Verlustgeschäft.
+          <strong>Ist die Prüfung weit weg, 0.85~0.90, steht sie unmittelbar bevor, 0.90~0.95</strong> – das ist ein vernünftiger Ausgangspunkt.
+          <strong>Allerdings ist das keine „richtige Antwort“, sondern ein „Ausgangspunkt“.</strong>
+        </p>
+
+        <h3>F. Welches Intervall ist beim Blitz-Vokabeltrainer richtig?</h3>
+        <p>
+          <strong>Der „richtige Wert“ ist bei jedem Durchgang ein anderer.</strong> Die standardmäßigen 3 Sekunden sind nur <strong>ein solider Wert für den ersten Durchgang</strong>.
+          <strong>Je mehr Durchgänge du hinter dir hast, desto länger die Vorderseite (Zeit zum Abrufen) und desto kürzer die Rückseite (nur prüfen).</strong>
+          Vorderseite 5 s / Rückseite 1.5 s ist <strong>die Einstellung, die dem Abruftraining am nächsten kommt</strong>.
+          Die genaue Aufteilung steht in <a href="#voca">der Tabelle oben</a>.
+        </p>
+
+        <h3>F. Ist der Zufallsmodus nicht immer besser als vorwärts? Er bricht ja die Reihenfolge-Hinweise.</h3>
+        <p>
+          <strong>Nein, genau das ist die Falle, die dieser Artikel ausgerechnet hat.</strong> Der Zufallsmodus <strong>garantiert keine Abdeckung</strong>
+          (<strong>etwa 37 % ungesehen</strong> bei einer Runde). Wenn du Reihenfolge-Hinweise brechen und trotzdem die Abdeckung halten willst,
+          nimm <strong>Rückwärts</strong>. <strong>Die meisten Nutzer wissen nicht, wozu es diese Option gibt.</strong>
+        </p>
+
+        <h3>F. Ich habe alles als gemerkt markiert, und das Deck ist leer. Bin ich fertig?</h3>
+        <p>
+          <strong>Nein. Jetzt fängt es erst an.</strong> Stell den Bereich auf <strong>„Nur gemerkte“</strong> und
+          <strong>prüfe einmal pro Woche</strong>. Karten, die dir nicht einfallen, <strong>entmarkierst du</strong> und schickst sie zurück.
+          <strong>Ohne dieses Verfahren wird die Merk-Markierung zu einer Funktion, die das Vergessen versteckt.</strong> Das Verfahren steht <a href="#mem">weiter oben</a>.
+        </p>
+
+        <h3>F. Wird VOCA DECK irgendwann SM-2 einbauen?</h3>
+        <p>
+          <strong>Dafür müssten wir ein Review-Log speichern, dadurch wüchse der Speicher, man würde sich Synchronisierung zwischen Geräten wünschen,
+          und dann bräuchte es ein Konto.</strong> In diesem Moment <strong>verschwände der einzige Vorteil dieser App: „null Reibung“.</strong>
+          <strong>Das hieße, Anki in einer schlechteren Version nachzubauen.</strong>
+          <strong>Wir wollen nicht Anki werden.</strong> Derzeit ist es nicht geplant, und
+          <strong>die Gründe dafür stehen über diesen ganzen Artikel verteilt.</strong>
+        </p>
+
+        <h2 id="closing">Zum Schluss — ein Algorithmus kann die App nicht für dich öffnen</h2>
+        <p>
+          FSRS ist <strong>der beste Scheduler der Welt</strong>. Und <strong>wenn du die App 3 Tage nicht öffnest, ist er nichts wert.</strong>
+          Er zeigt mit perfektem Intervall <strong>„340 Karten heute fällig“</strong> an und wartet,
+          und wer diese Zahl sieht, <strong>schließt die App.</strong>
+        </p>
+        <p>
+          Die 50-jährige Geschichte der Spaced-Repetition-Algorithmen war <strong>„ein Wettlauf um möglichst wenige Wiederholungen“</strong>.
+          Leitner mit 5 Fächern, SM-2 mit EF-Multiplikation, FSRS mit deinem Log.
+          <strong>Alle verfolgten dasselbe Ziel: unnötige Wiederholungen zu streichen.</strong>
+        </p>
+        <p>
+          <strong>Doch dort scheitern die Menschen in Wirklichkeit gar nicht.</strong>
+          <strong>Man hört nicht auf, „weil es zu viele Wiederholungen sind“, sondern „weil man die App heute nicht geöffnet hat“.</strong>
+          Deshalb haben wir komplett auf Personalisierung verzichtet und <strong>alles darauf gesetzt, die Reibung auf null zu bringen</strong>.
+          <strong>Ob das die richtige Entscheidung ist, wissen wir nicht sicher.</strong>
+          <strong>Aber es ist die Entscheidung, die wir getroffen haben, und wir haben in diesem Artikel keinen einzigen Preis dafür verschwiegen.</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>Hinweis</strong><br />
+          Dieser Artikel ist eine <strong>Information über Lernmethoden</strong> und <strong>keine pädagogische oder medizinische Beratung.</strong>
+          Lerneffekte <strong>unterscheiden sich individuell stark</strong>, und keine der hier beschriebenen Methoden <strong>garantiert eine bestimmte Note oder ein bestimmtes Ergebnis.</strong><br />
+          <strong>Standardwerte und Formeln von Drittanbieter-Tools (Anki · SuperMemo · FSRS) ändern sich je nach Version.</strong>
+          Die Zahlen in diesem Artikel <strong>beruhen auf den weithin bekannten Standardvoreinstellungen</strong>;
+          <strong>prüfe sie unbedingt selbst im Einstellungsbildschirm und in der offiziellen Dokumentation der Version, die du nutzt.</strong>
+          Die Formeln zu FSRS <strong>beruhen auf FSRS-4.5 / 5 mit DECAY fest auf −0.5</strong> und
+          <strong>gelten unter FSRS-6 oder neuer möglicherweise nicht.</strong><br />
+          Die Angaben zu VOCA DECK <strong>beziehen sich auf die tatsächliche Implementierung zum Zeitpunkt der Erstellung</strong> und können sich durch Updates ändern.
+        </div>
+
+        <h2>Weiterlesen</h2>
+        <div class="related">
+          <a href="/method"><b>Das Prinzip hinter dem Blitz-Vokabeltrainer</b><span>Vergessenskurve · Spacing-Effekt · duale Kodierung — warum wiederholtes Sehen wirkt</span></a>
+          <a href="/study-guide"><b>Lernstrategien zum Vokabellernen</b><span>Wie viele pro Tag, wann wiederholen, ein 4-Wochen-Plan</span></a>
+          <a href="/csv-guide"><b>CSV-Vokabelliste erstellen</b><span>So überträgst du Höllenkarten aus Anki in den Blitz-Vokabeltrainer</span></a>
+          <a href="/"><b>Vokabelheft öffnen</b><span>Intervall, Reihenfolge und Bereich selbst ausprobieren</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+      </div>
+    </main>

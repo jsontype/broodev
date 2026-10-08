@@ -1,0 +1,481 @@
+    <main class="wrap" data-title="5 misverstanden over de golden cross — waarom het een trendfilter is en geen koopsignaal | broodev" data-desc="De golden cross is geen koopsignaal. We ontkrachten aan de hand van 5 hardnekkige mythes de indicator die de media het vaakst verkeerd gebruiken, en laten zien waarom het broodev-model hem maar 8% op korte en 14% op lange termijn geeft — met de scoretabel met 4 toestanden uit de echte code en een stapsgewijze berekening.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoremethodologie</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/guide-fear-greed">Gids angstindex</a>
+        <a href="/glossary">Woordenlijst</a>
+      </nav>
+
+      <h1>5 misverstanden over de golden cross</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems · Betreft: broodev-score voor het koopmoment v2 (indicator GC_DC)</p>
+
+      <p class="lead">
+        ‘Bitcoin staat op het punt van een golden cross… stijgingssignaal’ — die kop komt elke cyclus terug.
+        En <strong>die zin wordt bijna altijd verkeerd gebruikt.</strong>
+        Van de 6 indicatoren die we behandelen is de golden cross <strong>de meest onbegrepen indicator</strong>,
+        en tegelijk de indicator waaraan ons model <strong>het laagste gewicht heeft gegeven</strong>. Die twee feiten staan niet los van elkaar.
+      </p>
+      <p>
+        Dit stuk legt de definitie niet opnieuw uit. Dat een golden cross betekent dat het 50-daags gemiddelde het 200-daags gemiddelde naar boven doorbreekt,
+        staat in de <a href="/glossary">woordenlijst</a>, en hoe hij in de score meetelt, staat in de
+        <a href="/methodology">methodologie</a>. In plaats daarvan <strong>ontkrachten we hier één voor één vijf wijdverbreide mythes</strong>
+        en zetten we er <strong>neer wat onze code werkelijk doet</strong>.
+        Aan het eind <strong>bekennen we twee bekende gebreken</strong> van ons model.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Wat er vaak gezegd wordt</th><th>Hoe het werkelijk zit</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① ‘Golden cross verschenen = nu kopen’</a></td><td>Structureel <strong>het traagste signaal</strong>. Geen aankondiging van de stijging, maar het <strong>bonnetje</strong></td></tr>
+            <tr><td><a href="#m2">② ‘Death cross = begin van de crash’</a></td><td>Herhaalde kruisingen (whipsaw) zijn gewoon. In ons model <strong>leeft de score van de gebeurtenis één dag</strong></td></tr>
+            <tr><td><a href="#m3">③ ‘50 en 200 zijn de juiste getallen’</a></td><td>Een <strong>handelsdagconventie</strong> van de aandelenmarkt, zonder correctie overgeplant naar een markt die 365 dagen open is</td></tr>
+            <tr><td><a href="#m4">④ ‘Hoe groter het verschil, hoe sterker het signaal’</a></td><td>Ons model <strong>berekent het verschil wel, maar gebruikt het niet in de score</strong> (bewuste vereenvoudiging)</td></tr>
+            <tr><td><a href="#m5">⑤ ‘Een gewicht van 8% is hetzelfde als niet gebruiken’</a></td><td>Hier draait het om. De kruising is <strong>geen puntenbron, maar een strafmechanisme</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="Live grafiek van de golden cross">
+        <p class="muted">Voordat je de vijf misverstanden leest, kijken we waar golden crosses (▲) en death crosses (▼) in de hele geschiedenis werkelijk zijn gevallen. In één oogopslag zie je dat de kruising altijd komt ‘nadat de beweging al een flink eind gevorderd is’, en hoe vaak er herhaalde kruisingen (whipsaw) voorkomen.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+          </div>
+          <p class="bd-cap">BTC-prijs (logaritmisch, grijs) met SMA50 (blauw) en SMA200 (rood), volledige periode. ▲ = golden cross (50-daags gemiddelde kruist het 200-daags gemiddelde naar boven), ▼ = death cross. Oranje stippellijn = halvering. Gegevens: CoinMetrics Community API, dagelijkse slotkoersen van BTC — opgehaald op het moment van je bezoek en in de browser berekend; het gaat om <strong>benaderingen, alleen ter referentie</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="m1">Misverstand ① ‘Golden cross verschenen = nu kopen’</h2>
+
+      <h3>Wat er gezegd wordt</h3>
+      <p>
+        Het is de lievelingszin van nieuwsartikelen en YouTube-thumbnails. De golden cross wordt behandeld als <strong>een lichtkogel die de toekomst aankondigt</strong>.
+        Er hoort steevast een statistiek bij als ‘historisch gezien gemiddeld X% stijging na een golden cross’.
+      </p>
+
+      <h3>Waarom het niet klopt — de rekenkunde laat het niet toe</h3>
+      <p>
+        Voor een golden cross moet <strong>de gemiddelde prijs van de afgelopen 50 dagen boven de gemiddelde prijs van de afgelopen 200 dagen uitkomen</strong>.
+        Sta daar even bij stil en bedenk wat dat betekent.
+      </p>
+      <p>
+        Het 200-daags gemiddelde is <strong>de som van 200 dagen aan prijzen, gedeeld door 200</strong>. Ook als de prijs gisteren in één dag 20% steeg,
+        telt die sprong maar voor één tweehonderdste mee. Om <strong>deze lijn merkbaar omhoog te krijgen, moet de prijs tientallen dagen achter elkaar hoog blijven</strong>.
+        Het 50-daags gemiddelde draagt op dezelfde manier de traagheid van 50 dagen in zich.
+      </p>
+      <p>
+        Met andere woorden: <strong>het feit dat twee zware, trage lichamen elkaar hebben gekruist, is op zich al het bewijs dat ‘het al lang stijgt’</strong>.
+        De golden cross <em>voorspelt</em> de stijging niet. Hij <em>bevestigt achteraf alleen dat de stijging al lang genoeg gaande is</em>.
+      </p>
+      <div class="note">
+        <strong>Bij wijze van beeldspraak: de golden cross is geen weersverwachting, maar een bonnetje.</strong>
+        Het bonnetje vertelt je precies wat je hebt gekocht, maar komt pas <strong>nadat de betaling is afgerond</strong>.
+        Naar het bonnetje kijken en zeggen ‘nu ga ik kopen’ is de volgorde omdraaien.
+      </div>
+      <p>
+        Dat is ook waarom statistieken over het ‘gemiddelde rendement na een golden cross’ overtuigend lijken.
+        Een golden cross <strong>ontstaat per definitie alleen in een stijgende markt</strong>. Het rendement daarna kan dus haast niet anders dan goed zijn.
+        Dat is geen voorspellende kracht van de indicator, maar <strong>het gevolg van een al geselecteerde steekproef (selection effect)</strong>.
+        Het is alsof je met de statistiek ‘op dagen dat ik een paraplu bij me had, regende het’ beweert dat de paraplu regen voorspelt.
+      </p>
+
+      <h3>Hoe het werkelijk zit</h3>
+      <p>
+        Tegen de tijd dat een golden cross na een bodem bevestigd is, <strong>is de prijs al flink gestegen ten opzichte van het dieptepunt.</strong>
+        Hij is immers zo ver gestegen dat het 50-daags gemiddelde een zware referentielijn als het 200-daags gemiddelde heeft ingehaald.
+        Daarom <strong>behandelt ons model deze indicator niet als instrument om het instapmoment te bepalen.</strong>
+        We gebruiken hem alleen als instrument dat geen antwoord geeft op ‘nu kopen’, maar op <strong>‘in welke fase zitten we nu’</strong>.
+      </p>
+
+      <h2 id="m2">Misverstand ② ‘Death cross = begin van de crash’</h2>
+
+      <h3>Wat er gezegd wordt</h3>
+      <p>
+        De death cross klinkt al onheilspellend door de naam. Met een label als ‘doodskruis’
+        wordt hij geconsumeerd als <strong>een angsttrigger van het type ‘nu komt de grote crash’</strong>. Zodra het nieuws over een death cross verschijnt, volgen paniekverkopen.
+      </p>
+
+      <h3>Waarom het niet klopt — kruisingen herhalen zich</h3>
+      <p>
+        Draai de logica van misverstand ① om en je hebt het antwoord. <strong>Ook de death cross is een even traag signaal.</strong>
+        Tegen de tijd dat een death cross bevestigd is, <strong>is een groot deel van de daling al achter de rug</strong>.
+        Het is eerder een bewijs dat ‘de daling al lang aanhoudt’ dan ‘het begin van de crash’.
+        Daarom komt het niet zelden voor dat er direct na een death cross juist een opleving volgt — een zogeheten <strong>whipsaw</strong>.
+      </p>
+      <p>
+        Stel je voor dat de twee voortschrijdende gemiddelden <strong>bijna tegen elkaar aan liggen</strong>. Dan is een kleine schommeling van de prijs genoeg
+        om het 50-daags gemiddelde onder het 200-daags gemiddelde te laten zakken, en een paar dagen later weer erboven te laten uitkomen.
+        <strong>Een kruising is geen eenmalige gebeurtenis, maar een gebeurtenis die zich vaker kan herhalen</strong>.
+      </p>
+
+      <h3>Hoe het werkelijk zit — hoe onze code dit probleem aanpakt (bekentenis inbegrepen)</h3>
+      <p>
+        Ons model bepaalt een kruising door <strong>maar twee dagen te vergelijken: gisteren en vandaag</strong>.
+      </p>
+      <pre><code>gisteren: gem. 50d ≤ gem. 200d   →   vandaag: gem. 50d &gt; gem. 200d   ⇒  GOLDEN_CROSS
+gisteren: gem. 50d ≥ gem. 200d   →   vandaag: gem. 50d &lt; gem. 200d   ⇒  DEATH_CROSS
+anders                                                              ⇒  NONE (alleen toestand blijft)</code></pre>
+      <p>
+        Het gevolg is dat <strong>de ‘kruisingsgebeurtenis’ precies één dag waar (true) is.</strong>
+        De volgende dag is de gebeurtenis verdwenen en blijft alleen een kale toestandswaarde over: ‘golden-toestand / death-toestand’.
+      </p>
+      <div class="note">
+        <strong>Dit is een bewuste ontwerpkeuze.</strong> De media melken één golden cross wekenlang uit,
+        maar in ons model <strong>is het nieuws van een kruising na 24 uur verlopen</strong>.
+        Zoals je hieronder in de scoretabel ziet, <strong>zakt de premie van de dag van de gebeurtenis (85 punten op lange termijn) de dag erna meteen naar 60 punten.</strong>
+        Het feit dat ‘er gisteren een golden cross was’ levert de score van vandaag geen enkel extra punt op.
+      </div>
+      <div class="note warn">
+        <strong>Bekentenis — ook ons model wordt heen en weer geslingerd door whipsaws.</strong>
+        Als het 50- en het 200-daags gemiddelde bijna tegen elkaar aan liggen en binnen twee weken op en neer kruisen,
+        schommelt ook onze score <strong>85 → 60 → 15 → 35</strong>. Er is geen manier om dit gebrek weg te nemen.
+        Het enige wat we hebben gedaan is <strong>een plafond zetten op de uitslag van de schommeling</strong> —
+        dat plafond is precies <strong>het lage gewicht van 8% en 14%</strong>. Verderop rekenen we uit hoeveel punten die getallen in de praktijk betekenen.
+      </div>
+
+      <h2 id="m3">Misverstand ③ ‘50 en 200 zijn de juiste getallen’</h2>
+
+      <h3>Wat er gezegd wordt</h3>
+      <p>
+        Er wordt over gepraat alsof 50 en 200 een of andere wiskundige noodzaak hebben.
+        En omdat het de standaardwaarden van grafiekprogramma’s zijn, gelooft men dat nog sterker.
+      </p>
+
+      <h3>Waarom het niet klopt — het is een gewoonte van de aandelenmarkt, en nog verkeerd overgenomen ook</h3>
+      <p>
+        Er bestaat <strong>geen bevredigende wetenschappelijke onderbouwing</strong> voor 50 en 200. Het is een conventie.
+        In traditionele aandelengrafieken is <strong>200 een op het oog afgeronde waarde voor ongeveer een jaar aan handelsdagen (precies: ongeveer 252)</strong>,
+        en is <strong>50 de afronding van ongeveer een kwartaal (ongeveer 63 handelsdagen)</strong>.
+      </p>
+      <p>
+        Maar hier ontstaat <strong>een probleem dat alleen bij crypto bestaat</strong>. Bijna niemand wijst erop.
+      </p>
+      <p>
+        <strong>De aandelenmarkt is 5 dagen per week open, crypto 7 dagen.</strong>
+        De ‘200-daagse lijn’ bij aandelen omvat <strong>200 handelsdagen</strong>, wat neerkomt op <strong>ongeveer 280 kalenderdagen (ongeveer 9.2 maanden)</strong>.
+        Bij crypto ontstaat er elke dag een daggrafiekkaars, dus de ‘200-daagse lijn’ omvat <strong>200 kalenderdagen, oftewel ongeveer 6.6 maanden</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Lijn</th><th>Aandelen (5 dagen/week)</th><th>Crypto (7 dagen/week)</th><th>Werkelijk verschil</th></tr></thead>
+          <tbody>
+            <tr><td>200-daagse lijn</td><td>200 handelsdagen ≈ <strong>280 kalenderdagen</strong></td><td>200 kalenderdagen = <strong>200 kalenderdagen</strong></td><td>Bij crypto <strong>ongeveer 29% korter</strong></td></tr>
+            <tr><td>50-daagse lijn</td><td>50 handelsdagen ≈ <strong>70 kalenderdagen</strong></td><td>50 kalenderdagen = <strong>50 kalenderdagen</strong></td><td>Bij crypto <strong>ongeveer 29% korter</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Samengevat: <strong>de ‘200-daagse lijn’ van crypto lijkt rechtstreeks overgenomen van de aandelenconventie, maar is in werkelijkheid een veel korter venster (window)</strong>.
+        Om dezelfde kalenderperiode te dekken als 200 handelsdagen bij aandelen, zou je bij crypto <strong>een lijn van ongeveer 280 dagen</strong> moeten gebruiken.
+        <strong>De hele sector voert deze correctie niet uit.</strong>
+      </p>
+
+      <h3>Hoe het werkelijk zit — waarom gebruiken wij dan toch gewoon 200</h3>
+      <p>
+        Ook onze code gebruikt <strong>200 kalenderdagen</strong>. We corrigeren niet. Hier is eerlijk waarom.
+      </p>
+      <ul>
+        <li>
+          <strong>Ten eerste: zichtbaarheid is op zich al een kracht.</strong> 50/200 werkt niet omdat het ‘juist’ is,
+          maar werkt tot op zekere hoogte <strong>omdat talloze marktdeelnemers naar dezelfde lijn kijken en op dezelfde plek reageren</strong>.
+          Als wij in ons eentje overstappen op een 280-daagse lijn, <strong>verliezen we die zelfvervullende eigenschap.</strong> Een lijn waar niemand anders naar kijkt, werkt niet als steun.
+        </li>
+        <li>
+          <strong>Ten tweede: we moeten de noemer delen met de Mayer Multiple.</strong> De Mayer Multiple is per definitie <code>huidige prijs ÷ 200-daags voortschrijdend gemiddelde</code>.
+          Als we alleen de kruising naar 280 dagen omzetten, <strong>ontstaan er binnen hetzelfde model twee verschillende ‘langetermijnlijnen’</strong> en loopt de interpretatie uit de pas.
+        </li>
+        <li>
+          <strong>Ten derde: we kennen de richting van deze vertekening.</strong> De 200-daagse lijn van crypto is <strong>korter dan de conventie, dus gevoeliger, en kruist vaker</strong>.
+          Vaker kruisen betekent <strong>meer valse signalen</strong>. Daarom hebben we het gewicht van deze indicator vanaf het begin laag gehouden.
+          <strong>In plaats van te corrigeren, hebben we ervoor gekozen hem niet te vertrouwen.</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        Het maakt een groot verschil of je wel of niet weet dat het geen juiste getallen zijn, maar <strong>een gedeelde conventie</strong>.
+        Wie gelooft dat 50/200 heilige constanten zijn, kent kruisingen al snel te veel betekenis toe.
+      </p>
+
+      <h2 id="m4">Misverstand ④ ‘Hoe groter het verschil, hoe sterker het signaal’</h2>
+
+      <h3>Wat er gezegd wordt</h3>
+      <p>
+        Het is de lezing ‘het 50-daags gemiddelde ligt ver boven het 200-daags gemiddelde, dus de opwaartse trend is sterk’.
+        Intuïtief klinkt dat aannemelijk, en er zit ook wel iets in.
+      </p>
+
+      <h3>Waarom het niet klopt — preciezer gezegd: wij gebruiken deze informatie niet</h3>
+      <p>
+        Onze code <strong>berekent de afstand tussen de twee lijnen wel degelijk.</strong>
+      </p>
+      <pre><code>gapPct = (gem. 50d ÷ gem. 200d − 1) × 100</code></pre>
+      <p>
+        En <strong>toont hem zelfs</strong> op de dashboardkaart, als <code>gap +12.4%</code>.
+        Maar <strong>deze waarde telt helemaal niet mee in de berekening van de score.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Bekentenis ─ een bekende vereenvoudiging.</strong>
+        In ons model <strong>krijgen een golden-toestand met een verschil van +0.3% en een golden-toestand met een verschil van +42% precies dezelfde score</strong>
+        (60 punten op lange termijn, 65 punten op korte termijn). Het verschil <strong>wordt alleen getoond, niet gescoord.</strong>
+      </div>
+      <p>
+        We leggen uit waarom we het zo gelaten hebben. Om het verschil in de score op te nemen, zou je <strong>moeten vastleggen ‘hoeveel procent een groot verschil is’</strong>.
+        Maar die maatstaf <strong>verschilt per asset volledig.</strong> Een verschil van +10% bij een weinig volatiele munt
+        en een verschil van +10% bij een extreem volatiele memecoin betekenen iets totaal anders.
+        Eerlijk gezegd <strong>is het ons niet gelukt om met vertrouwen een normalisatiemaatstaf vast te stellen die voor alle munten geldt.</strong>
+        In plaats van een ongefundeerde constante in te voeren, hebben we ervoor gekozen <strong>het dan maar niet te gebruiken</strong>.
+      </p>
+
+      <h3>Hoe het werkelijk zit — deze informatie is bedoeld voor de mens</h3>
+      <p>
+        Dat we het verschil niet van het scherm hebben gehaald, is <strong>zodat jij er zelf naar kunt kijken en kunt oordelen</strong>.
+        <strong>Hoe dichter het verschil bij 0 ligt, hoe dichter de twee lijnen tegen elkaar aan liggen, en hoe groter het risico op een herhaalde kruising (whipsaw)</strong>.
+        Een golden-toestand met <code>gap +0.4%</code> is een <strong>instabiele golden</strong> die op elk moment kan omslaan naar death.
+        De score kent dat verschil niet, maar <strong>jij kunt het wel zien.</strong> Daarom wordt de waarde getoond.
+      </p>
+
+      <h2 id="m5">Misverstand ⑤ ‘Een gewicht van 8% is toch hetzelfde als niet gebruiken?’</h2>
+      <p>
+        Hier draait de richting van dit stuk om. De vier vorige punten gingen erover de kruising <strong>te relativeren</strong>.
+        En toch hebben we deze indicator <strong>niet weggegooid.</strong> Waarom niet?
+      </p>
+
+      <h3>Wat de meeste mensen niet weten — de kruising kent geen 2 niveaus, maar 4</h3>
+      <p>
+        ‘Golden cross of death cross?’ — <strong>die tweedeling klopt van meet af aan niet.</strong>
+        Onze code onderscheidt <strong>vier toestanden</strong>, omdat <em>het moment van de kruising zelf</em> en <em>de toestand die na de kruising blijft bestaan</em> totaal verschillende dingen zijn.
+        Hieronder staat de echte tabel met deelscores van ons model.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Toestand</th><th>Betekenis</th><th>Score korte termijn</th><th>Score lange termijn</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>Vandaag naar boven gekruist (gebeurtenis, slechts één dag geldig)</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>De bestaande toestand 50 &gt; 200 houdt aan</td><td>65</td><td>60</td></tr>
+            <tr><td><em>Geen gegevens</em></td><td>Er zijn nog niet eens 50 dagen aan gegevens</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>De bestaande toestand 50 &lt; 200 houdt aan</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>Vandaag naar beneden gekruist (gebeurtenis, slechts één dag geldig)</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>De belangrijkste regel in deze tabel is ‘DEATH-toestand houdt aan’</strong>. De score is <strong>niet 50, maar 35 (lang)·40 (kort)</strong>.
+      </p>
+      <p>
+        <strong>Neutraal is 50.</strong> Maar de death-cross-toestand <strong>ligt lager dan neutraal.</strong>
+        Wat dat betekent? Dat <strong>deze indicator in de death-cross-toestand de samengestelde score ‘omlaag trekt’</strong>.
+        Hij blijft niet stil staan, hij <strong>trekt punten af</strong>.
+      </p>
+      <div class="note">
+        <strong>Dat is de bestaansreden van deze indicator.</strong>
+        De golden cross is <strong>geen puntenbron die de score opdrijft.</strong>
+        De death cross is <strong>een rem die punten afsnoept</strong>.
+        Wanneer angstindex, Mayer Multiple en daling allemaal tegelijk roepen ‘goedkoop, kopen’ —
+        <a href="/indicators">in een dalende markt zitten de 3 contraire indicatoren er allemaal tegelijk naast</a> —
+        was er <strong>een mechanisme nodig dat in z’n eentje op de rem trapt met ‘de trend wijst nog steeds omlaag’</strong>, en dat is de kruising.
+      </div>
+
+      <h2 id="walk">Hoeveel punten verschuift hij dan echt — stapsgewijze berekening</h2>
+      <p>
+        Genoeg abstracte praat: <strong>laten we rekenen met echte getallen</strong>.
+        Dit is het <strong>tabblad lange termijn (contrair)</strong>, en de situatie is <strong>midden in een diepe berenmarkt</strong>.
+        Het is de fase waarin de contraire indicatoren in koor roepen ‘nu is de kans’.
+      </p>
+      <p>De gewichten op lange termijn zijn <strong>RSI 18% · MACD 18% · angst & hebzucht 18% · Mayer 18% · daling 14% · kruising 14%</strong>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicator</th><th>Waargenomen waarde</th><th>Deelscore</th><th>Gewicht</th><th>Bijdrage</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24 (oververkocht)</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>Mayer Multiple</td><td>0.75× (25% korting ten opzichte van de 200-daagse lijn)</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>Angst & hebzucht</td><td>nu 18 / 7 dagen 22 / 30 dagen 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>Daling over 365 dagen</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>negatief · nog steeds verslechterend</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>Kruising</strong></td><td><strong>DEATH-toestand houdt aan</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>Samengestelde score</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        (De 81.8 voor angst & hebzucht is <code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code> plus
+        de extremenbonus die geldt wanneer de huidige waarde 25 of lager is, <code>(25−18)×0.4 = 2.8</code>.)
+      </p>
+
+      <h3>Alleen de kruising veranderen</h3>
+      <p>We houden de andere 5 indicatoren <strong>allemaal vast</strong> en wisselen alleen de toestand van de kruising, om te zien wat er met de samengestelde score gebeurt.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Toestand kruising</th><th>Deelscore</th><th>Bijdrage</th><th>Samengestelde score</th><th>Oordeel</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS (op de dag zelf)</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>GOLDEN houdt aan</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH houdt aan <em>(werkelijk scenario)</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS (op de dag zelf)</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Het verschil tussen hoogste en laagste is 9.8 punten.</strong> (85 − 15) × 14% = 9.8.
+        En <strong>in alle vier de gevallen is het oordeel hetzelfde: ACCUMULATE.</strong>
+      </p>
+
+      <h3>Wat dit getal zegt — de kruising kan het oordeel niet in z’n eentje veranderen</h3>
+      <p>Hier wordt <strong>de ontwerpbedoeling</strong> van ons model <strong>met rekenkunde bewezen</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Spreiding van de score</th><th>Gewicht</th><th>Maximale invloed op de samengestelde score</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Korte termijn (momentum)</strong></td><td>75 − 30 = 45 punten</td><td>8%</td><td><strong>±3.6 punten</strong></td></tr>
+            <tr><td><strong>Lange termijn (contrair)</strong></td><td>85 − 15 = 70 punten</td><td>14%</td><td><strong>±9.8 punten</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Vergelijk dat nu met de <a href="/methodology">oordeelsbanden</a>.
+        De smalste band is <strong>ACCUMULATE (65~80), 15 punten breed</strong>.
+      </p>
+      <div class="note">
+        <strong>Maximale invloed op het tabblad lange termijn 9.8 punten &lt; minimale bandbreedte 15 punten.</strong><br />
+        <strong>Maximale invloed op het tabblad korte termijn 3.6 punten &lt; minimale bandbreedte 15 punten.</strong><br /><br />
+        Met andere woorden: <strong>op geen van beide tabbladen kan de kruising het oordeel in z’n eentje één niveau laten omslaan.</strong>
+        Dat is geen toeval, maar <strong>het resultaat van hoe we de gewichten hebben ontworpen</strong>.
+        De kruising heeft een plafond: <strong>hij kan de score duwen of trekken, maar de conclusie niet beheersen</strong>.
+      </div>
+      <p>
+        <strong>Ook het verschil tussen korte en lange termijn is met een berekening te bevestigen.</strong> 9.8 ÷ 3.6 ≈ <strong>2.7 keer</strong>.
+        Op het tabblad lange termijn is de werkelijke invloed van de kruising ongeveer 2.7 keer zo groot als op het tabblad korte termijn.
+        Kijk je alleen naar de gewichtentabel (8% tegenover 14%), dan lijkt het verschil 1.75 keer, maar <strong>als je ook de spreiding van de score meeneemt, loopt het in werkelijkheid op tot 2.7 keer.</strong>
+        Dat mis je als je alleen de gewichten vergelijkt.
+      </p>
+      <p>
+        De reden is precies wat we in de <a href="/methodology">methodologie</a> hebben uitgelegd.
+        <strong>De 50/200-kruising is te traag voor handel op een termijn van 1~3 maanden.</strong> Tegen de tijd dat het signaal komt, is het voor een kortetermijnhandelaar al te laat.
+        Daarom hebben we hem op het tabblad korte termijn <strong>slechts een bijna decoratieve 8%</strong> gegeven.
+        Omgekeerd <strong>is hij wel nuttig om de cyclusfase (stijgende of dalende markt) te onderscheiden</strong>, en daarom hebben we hem op het tabblad lange termijn opgetrokken naar 14%.
+      </p>
+
+      <h2 id="danger">De combinatie waarin ons model het grootst kan misgaan</h2>
+      <p>
+        Kijk nog eens naar <strong>de eerste regel (GOLDEN_CROSS, 79.2 punten)</strong> in de berekeningstabel hierboven.
+        In die regel <strong>zit eigenlijk een interne tegenstrijdigheid verborgen.</strong>
+      </p>
+      <p>
+        Een Mayer Multiple van 0.75 betekent dat <strong>de huidige prijs 25% onder de 200-daagse lijn ligt</strong>.
+        Is het dan logisch dat op dezelfde dag <strong>het 50-daags gemiddelde boven het 200-daags gemiddelde uitkomt (golden cross)</strong>?
+        Normaal gesproken is dat tegenstrijdig. Als de prijs ver onder de 200-daagse lijn ligt, kan het 50-daags gemiddelde moeilijk boven het 200-daags gemiddelde liggen.
+      </p>
+      <p>
+        Toch is er <strong>precies één fase waarin deze combinatie echt voorkomt.</strong>
+        <strong>Het moment waarop een val vanaf de top net is begonnen</strong>.
+        De prijs is al loodrecht onder de 200-daagse lijn gezakt, maar <strong>het 50-daags gemiddelde ligt door de traagheid nog boven het 200-daags gemiddelde</strong>.
+        Op dat moment ziet ons model het zo.
+      </p>
+      <ul>
+        <li>Mayer 0.75 → ‘historische onderwaardering!’ <strong>100 punten</strong></li>
+        <li>RSI 24 → ‘extreem oververkocht!’ <strong>94 punten</strong></li>
+        <li>Daling −58% → ‘sterke koopzone!’ <strong>81 punten</strong></li>
+        <li>Kruising → nog <strong>in GOLDEN-toestand</strong>, dus de rem grijpt niet in <strong>60 punten</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>Resultaat: precies op het punt waar de crash net begonnen is, geeft het model zo’n 75 punten (ACCUMULATE).</strong>
+        En <strong>dit is precies het moment waarop je het ‘vallende mes’ niet bij het heft, maar bij het lemmet grijpt</strong>.
+        De rem (death cross) grijpt pas <strong>tientallen dagen later</strong> in — als het al flink gezakt is.
+        <strong>Dit is de gevaarlijkste blinde vlek van dit model, en we hebben hem niet volledig kunnen oplossen.</strong>
+        Zolang je een trage indicator als beveiliging gebruikt, <strong>is ook de beveiliging traag.</strong>
+      </div>
+      <p>
+        Dus als op het dashboard <strong>de Mayer Multiple snel daalt terwijl de kruising nog op GOLDEN staat</strong>,
+        moet je dat niet lezen als ‘onderwaardering’, maar als <strong>een waarschuwing dat ‘dit het begin van een crash kan zijn’.</strong>
+        De score kan dat onderscheid niet maken. Dat moet een mens doen.
+      </p>
+
+      <h2 id="asym">Nog één ding — alleen de kruising gaat anders om met ontbrekende gegevens</h2>
+      <p>
+        Zoals beschreven in de <a href="/methodology">methodologie</a>, <strong>behandelen we een ontbrekende indicator niet als 0 punten, maar laten we hem weg uit de berekening en hernormaliseren we de resterende gewichten</strong>.
+        Want ‘weet ik niet’ en ‘slecht’ zijn niet hetzelfde.
+      </p>
+      <p>
+        Maar <strong>de kruising is een uitzondering.</strong> Als we de code letterlijk overnemen, ziet het er zo uit:
+      </p>
+      <pre><code>// de andere 5 indicatoren
+sLong: mm == null ? null : conMayer(...)   ← bij null: weglaten + hernormaliseren
+
+// alleen de kruising
+sLong: gc == null ? 50 : ...               ← ook als gegevens ontbreken: geeft 50 punten terug</code></pre>
+      <div class="note warn">
+        <strong>Bekentenis ─ een asymmetrie.</strong>
+        Ook zonder gegevens geeft de kruising <strong>niet null, maar 50 (neutraal)</strong> terug.
+        Daardoor <strong>valt de kruising nooit weg uit de dekkingsweergave.</strong>
+        Ook als er <code>coverage 5/6</code> staat, is de ontbrekende indicator niet de kruising — de kruising telt altijd mee.
+        Dat betekent dat <strong>bij munten die minder dan een jaar genoteerd zijn een ‘50 punten die niets weten’ stilletjes de plek van 14% (lange termijn) inneemt</strong>.
+      </div>
+      <p>
+        En er is nog iets. Als er <strong>minder dan 200 dagen aan gegevens</strong> zijn, berekent onze code het gemiddelde met wat er is
+        (<code>Math.min(200, lengte van de gegevens)</code>). <strong>De ‘200-daagse lijn’ van een munt die 150 dagen genoteerd is, is dus eigenlijk een 150-daagse lijn</strong>.
+        Bovendien werkt de bepaling van een kruisings<em>gebeurtenis</em> pas vanaf minstens 201 dagen aan gegevens,
+        dus <strong>bij munten die minder dan een jaar genoteerd zijn, treden de gebeurtenissen GOLDEN_CROSS·DEATH_CROSS helemaal niet op.</strong>
+        Alleen de toestandswaarden (GOLDEN/DEATH) verschijnen.
+      </p>
+      <p>
+        <strong>Kortom: deze indicator werkt alleen volledig bij assets met een lange gegevensgeschiedenis, zoals bitcoin.</strong>
+        Houd hier altijd rekening mee als je de kruisingskaart van een pas genoteerde altcoin bekijkt.
+      </p>
+
+      <h2 id="conclusion">Conclusie</h2>
+      <p>
+        In de loop van de vijf misverstanden is de kruising steeds verder gerelativeerd.
+        Hij is de traagste, kruist herhaaldelijk, de getallen zijn een willekeurige conventie, het verschil wordt niet eens gescoord, en het gewicht is het laagste van de 6.
+        Toch hebben we deze indicator eerst geschrapt en daarna <strong>weer teruggezet.</strong> Daar is maar één reden voor.
+      </p>
+      <div class="note">
+        <strong>De golden cross is geen koopsignaal, maar een instrument om de marktfase te bevestigen.</strong><br /><br />
+        Vraag je deze indicator <strong>‘wanneer moet ik kopen’, dan krijg je altijd een te laat antwoord</strong>.
+        Maar vraag je <strong>‘welke kant wijst de trend nu op’</strong>, dan krijg je een traag antwoord dat <strong>zelden liegt</strong>.
+        <br /><br />
+        Wanneer de andere vijf indicatoren opgewonden roepen ‘goedkoop, eng, flink gedaald’,
+        <strong>stilletjes punten aftrekken met ‘maar de trend wijst nog omlaag’</strong> — dat is de enige taak die we deze indicator hebben gegeven.
+        <strong>Geen puntenbron, maar een rem.</strong> En een goede rem is er een die je niet vaak hoeft in te trappen.
+      </div>
+      <p>
+        Dus zie je de volgende keer de kop ‘Golden cross op komst!’, vraag jezelf dan af:
+        <strong>‘Zeggen ze nu dat ik moet kopen, of dat het al flink gestegen is?’</strong>
+        Rekenkundig is het <strong>altijd het laatste</strong>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document is bedoeld <strong>voor educatieve en informatieve doeleinden</strong> en <strong>is geen beleggingsadvies of aanbeveling om te kopen of te verkopen.</strong>
+        De scores, gewichten en scenario’s in de tekst zijn <strong>slechts voorbeelden om de werking van het model uit te leggen</strong> en vormen geen aanbeveling voor een specifiek asset of strategie.
+        Crypto is <strong>een risicovol asset waarbij je je volledige inleg kunt verliezen</strong>, en technische indicatoren voorspellen de toekomst niet.
+        Zoals in de tekst uitgelegd, <strong>heeft deze indicator structurele blinde vlekken.</strong>
+        Alle beleggingsbeslissingen en de gevolgen daarvan zijn volledig voor rekening van de gebruiker. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document en de scores zijn <strong>referentiemateriaal dat openbare indicatoren combineert, en geen beleggingsadvies of koopaanbeveling.</strong>
+        De historische voorbeelden en cijfers in de tekst zijn ruwe reconstructies, en <strong>resultaten uit het verleden bieden geen garantie voor de toekomst.</strong>
+        Crypto is een risicovol asset waarbij je <strong>je volledige inleg kunt verliezen</strong>.
+        Alle beleggingsbeslissingen en de gevolgen daarvan zijn volledig voor rekening van de gebruiker. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoremethodologie</b><span>Met welke gewichten de 6 indicatoren worden gecombineerd — inclusief hernormalisatie en banden</span></a>
+        <a href="/indicators"><b>De 6 indicatoren uitgediept</b><span>Wanneer RSI, MACD, Mayer en daling je elk op hun eigen manier in de steek laten</span></a>
+        <a href="/guide-fear-greed"><b>Praktijkgids angstindex</b><span>De fasen waarin contraire indicatoren er samen naast zitten, en gespreid kopen</span></a>
+        <a href="/glossary"><b>Woordenlijst</b><span>Voortschrijdende gemiddelden, kruisingen en Mayer Multiple uitgelegd</span></a>
+        <a href="/"><b>Naar het dashboard</b><span>Bekijk nu de toestand van de kruising en de gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

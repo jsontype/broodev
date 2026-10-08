@@ -1,0 +1,453 @@
+    <main class="wrap" data-title="Hoe de koop-timing-score wordt berekend — methodologie voor het samenvoegen van 8 indicatoren | broodev" data-desc="Het ontwerpdocument van de koop-timing-score van broodev (0–100). Hierin maken we openbaar met welke functies 8 indicatoren, waaronder 2 on-chainindicatoren (MVRV Z · Thermocap Z), worden genormaliseerd tot deelscores van 0–100, de twee gewichtensets voor kort (momentum) en lang (contrair), de aparte samenstelling van de BOTTOM RADAR, de hernormalisatie bij ontbrekende indicatoren, de 5 beoordelingsbanden en de beperkingen van dit model.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/bitcoin-bottom">Bodemsignalen</a>
+        <a href="/glossary">Woordenlijst</a>
+        <a href="/guide-fear-greed">De angstindex gebruiken</a>
+      </nav>
+
+      <h1>Hoe de koop-timing-score wordt berekend</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-22 · Auteur: Y-Systems · Onderwerp: koop-timing-score van broodev v2 (8 indicatoren, waaronder 2 on-chain)</p>
+
+      <p class="lead">
+        De <strong>koop-timing-score van 0–100</strong> op het dashboard van broodev is geen black box.
+        Het is het gewogen gemiddelde van 8 openbare indicatoren — 6 technische indicatoren plus 2 on-chainindicatoren (MVRV Z-Score · Thermocap Z) — nadat elk ervan is omgezet in een deelscore van 0–100.
+        Dit document laat openlijk zien <strong>met welke functies we normaliseren, welke gewichten we gebruiken en waarom we daarvoor hebben gekozen</strong>.
+        Wie wil beoordelen of een getal te vertrouwen is, moet volgens ons immers de formule erachter kunnen zien.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Inhoud</div>
+        <ol>
+          <li><a href="#design">Ontwerpprincipes — waarom één indicator niet genoeg is</a></li>
+          <li><a href="#normalize">Stap 1: de 8 indicatoren normaliseren naar 0–100</a></li>
+          <li><a href="#onchain">De 2 on-chainindicatoren — MVRV Z · Thermocap Z (definitie · bron · dekking)</a></li>
+          <li><a href="#weights">Stap 2: twee gewichtensets (kort · lang)</a></li>
+          <li><a href="#missing">Stap 3: ontbrekende indicatoren en hernormalisatie van gewichten</a></li>
+          <li><a href="#bands">Stap 4: de 5 beoordelingsbanden</a></li>
+          <li><a href="#bottom">Aparte samenstelling: BOTTOM RADAR</a></li>
+          <li><a href="#limits">De beperkingen van dit model (verplichte kost)</a></li>
+        </ol>
+      </div>
+
+      <h2 id="design">Ontwerpprincipes — waarom één indicator niet genoeg is</h2>
+      <p>
+        „De angstindex staat op de bodem, dus koop nu” is maar half waar. Angst <strong>verschijnt op de bodem, maar ook midden in een crash.</strong>
+        Wie alleen op de angstindex instapt, belandt in wat men <strong>„een vallend mes opvangen”</strong> noemt.
+      </p>
+      <p>
+        Daarom mengt dit model indicatoren van verschillende aard. Grofweg zijn er drie groepen.
+      </p>
+      <ul>
+        <li><strong>Contrair (mean-reversion)</strong> — Angst-&amp;-Hebzucht-index, Mayer Multiple, daling over 365 dagen. De as van „als anderen verkopen, is dat de kans”.</li>
+        <li><strong>Momentum (trend-following)</strong> — MACD, golden/death cross. De as van „een trend zet door”.</li>
+        <li><strong>Overkocht/oververkocht</strong> — RSI. Een buffer die aan beide kanten wordt gebruikt.</li>
+        <li><strong>On-chainwaardering (ten opzichte van de kostprijs)</strong> — MVRV Z-Score (ten opzichte van de gemiddelde aankoopprijs van beleggers), Thermocap Z (ten opzichte van de cumulatieve miningkosten). Anders dan de drie hierboven komt deze as <strong>niet uit de prijs, maar uit het grootboek van de blockchain</strong>.</li>
+      </ul>
+      <p>
+        Deze twee assen <strong>wijzen vaak in tegengestelde richtingen.</strong> Dat is precies de kern.
+        Kijk je alleen naar contraire indicatoren, dan blijft er in een dalende markt een „koop”-signaal verschijnen; kijk je alleen naar momentum, dan komt het „koop”-signaal op de toppen.
+        Pas door ze te mengen kun je fases onderscheiden als <em>„er is angst, maar de trend is al gekeerd”</em>.
+      </p>
+
+      <h2 id="normalize">Stap 1: de 8 indicatoren normaliseren naar 0–100 — <em>in twee versies</em></h2>
+      <p>Om indicatoren met verschillende eenheden te combineren (RSI loopt van 0 tot 100, de Mayer Multiple van 0,5 tot 3, de daling is in %) moeten ze eerst naar een gemeenschappelijke schaal. De omzetting is zo dat <strong>hoe dichter bij 100, hoe gunstiger om te kopen</strong>.</p>
+
+      <div class="note">
+        <strong>Dit is het punt in het model dat het vaakst verkeerd wordt begrepen.</strong><br />
+        Elke indicator heeft <strong>niet één, maar twee normalisatiefuncties</strong>.
+        <strong>Het korte tabblad (momentum) en het lange tabblad (contrair) gebruiken verschillende functies.</strong>
+        Het is <strong>niet</strong> zo dat dezelfde indicator „één keer naar 0–100 wordt omgezet en alleen een ander gewicht krijgt”.
+        <strong>Soms is zelfs het teken omgekeerd.</strong>
+      </div>
+
+      <p>
+        De reden staat in de vorige paragraaf: crypto gedraagt zich <strong>op korte termijn als momentum en op lange termijn als terugkeer naar het gemiddelde</strong>.
+        Daarom is <strong>„onderwaardering” op het lange tabblad een pluspunt, maar op het korte tabblad een minpunt</strong>. Het is geen bug, maar een bewuste ontwerpkeuze.
+      </p>
+
+      <h3>Mayer Multiple — de indicator waarbij de twee functies het sterkst verschillen</h3>
+      <p>De Mayer Multiple is <code>huidige prijs ÷ 200-daags voortschrijdend gemiddelde</code>. Onder 1 staat de prijs onder de langetermijntrendlijn, dus relatief ondergewaardeerd.</p>
+
+      <p><strong>Lang (contrair) — hoe goedkoper, hoe hoger de score.</strong> Geen lineaire, maar een stuksgewijs niet-lineaire omzetting.</p>
+      <pre><code>conMayer(m):
+  m ≤ 0.8  →  100
+  m ≤ 1.4  →  50 + ((1.4 − m) / 0.6) × 50     // 100 → 50
+  m ≤ 2.4  →  10 + ((2.4 − m) / 1.0) × 40     // 50 → 10
+  m &gt; 2.4  →  10 − (m − 2.4) × 25             // 10 → 0</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Deelscore lang</th><th>Interpretatie</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100</td><td>20% of meer korting op het 200-daags gemiddelde — zone van historische onderwaardering</td></tr>
+            <tr><td><code>1.0</code></td><td>83.3</td><td>Gelijk aan het 200-daags gemiddelde</td></tr>
+            <tr><td><code>1.4</code></td><td>50</td><td>Grens tussen normaal en overgewaardeerd</td></tr>
+            <tr><td><code>2.4</code></td><td>10</td><td>Begin van extreme oververhitting</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>Zone van historische toppen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Kort (momentum) — hoe duurder, hoe hoger de score. Het teken is precies omgekeerd.</strong></p>
+      <pre><code>momMayer(m) = clamp(50 + (m − 1) × 25, 0, 100)
+
+  m = 0.75 → 43.75   (ondergewaardeerd = op korte termijn juist een minpunt)
+  m = 1.0  → 50
+  m = 1.6  → 65
+  m = 2.6  → 90      (oververhit = op korte termijn een pluspunt)</code></pre>
+      <p>
+        „Waarom een pluspunt als het duur is?” — Omdat <strong>op korte termijn een grote afstand boven het 200-daags gemiddelde neerkomt op een sterke opwaartse trend</strong>.
+        Vanuit trendvolgend perspectief is dat een koopgunstig signaal. Omgekeerd wijst een prijs die ver onder het 200-daags gemiddelde is weggezakt op een <strong>neerwaartse trend</strong>, en dat is op korte termijn riskant.
+      </p>
+
+      <h3>Blow-off-topbeveiliging — de zekering van de kortetermijnscore</h3>
+      <p>
+        Met alleen momMayer zou <strong>de kortetermijnscore op de top van een bubbel blijven stijgen</strong>.
+        Daarom wordt <strong>na afloop van de samenstelling een aparte demping op de totale kortetermijnscore</strong> toegepast. De beveiliging heeft twee termen —
+        <strong>① bij een Mayer Multiple &gt; 2.0 een vermenigvuldigende demping</strong>, <strong>② bij een Angst-&amp;-Hebzucht-index ≥ 90 (extreme hebzucht) een puntenaftrek</strong>.
+        Gelden beide voorwaarden tegelijk, dan worden beide toegepast, en de eindscore wordt begrensd tot 0–100.
+      </p>
+      <pre><code>// ① demping Mayer Multiple (vermenigvuldiging)
+if (mayer &gt; 2.0):
+    totaal_kort × = clamp(1 − (mayer − 2.0) × 0.55,  0.25,  1)
+
+  mayer 2.0 → ×1.00 (geen demping)
+  mayer 2.5 → ×0.725  (totaal 27.5% lager)
+  mayer 3.0 → ×0.45
+  mayer 3.4 of hoger → ×0.25 (ondergrens)
+
+// ② aftrek bij extreme angst/hebzucht (aftrekking)
+if (F&amp;G ≥ 90):
+    totaal_kort − = (F&amp;G − 90) × 2.0
+
+  F&amp;G 90 → −0 punten
+  F&amp;G 95 → −10 punten
+  F&amp;G 100 → −20 punten</code></pre>
+      <p>
+        Waarom ② nodig is: momFng beloont hebzucht zelf al (kort = meebewegen met de trend), dus ook in de <strong>historische extremen</strong>
+        waarin de F&amp;G boven 90 komt, zou de kortetermijnscore hoog blijven. Statistisch ligt die zone vaak
+        rond de cyclustop, daarom wordt <strong>rechtstreeks van het totaal</strong> afgetrokken en niet van de deelscore.
+      </p>
+      <div class="note warn">
+        <strong>Correctie (2026-07-14)</strong> — De vorige versie van dit document bevatte alleen de lange (contraire) normalisatiefuncties en
+        <strong>liet de korte (momentum) functies en de blow-off-topbeveiliging weg</strong>. Daardoor werd de kortetermijnbijdrage van de Mayer Multiple
+        <strong>met het omgekeerde teken</strong> beschreven. We hebben dit op basis van de code rechtgezet.
+      </div>
+
+      <h3>Angst-&amp;-Hebzucht-index (F&amp;G)</h3>
+      <p><strong>Lang (contrair) — hoe meer angst, hoe hoger de score.</strong> De waarde van één dag bevat veel ruis, daarom <strong>worden de gemiddelden over 7 en 30 dagen bijgemengd.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − huidige_waarde)
+       + 0.3 × (100 − gemiddelde laatste 7 dagen)
+       + 0.2 × (100 − gemiddelde laatste 30 dagen)
+
+// extra gewicht alleen in de extreme zones
+huidige_waarde ≤ 25 (extreme angst)     → += (25 − huidige_waarde) × 0.4
+huidige_waarde ≥ 75 (extreme hebzucht)  → −= (huidige_waarde − 75) × 0.4</code></pre>
+      <p>
+        De bedoeling is tweeledig. Ten eerste <strong>onderscheid maken tussen „gisteren één dag angst” en „al een maand angst”</strong> — het tweede is een veel sterker signaal.
+        Ten tweede <strong>alleen in de extreme zones extra gewicht</strong> geven, onder 25 en boven 75. Kleine schommelingen in de middenzone (40–60) betekenen vrijwel niets.
+      </p>
+      <p><strong>Kort (momentum) — hoe meer hebzucht, hoe hoger de score.</strong> Geen gemiddelden: <strong>alleen de huidige waarde</strong> telt.</p>
+      <pre><code>momFng = clamp(50 + (huidige_waarde − 50) × 1.2, 0, 100)
+
+  angst 20     → 14   (op korte termijn een lage score)
+  neutraal 50  → 50
+  hebzucht 85  → 92   (op korte termijn een hoge score)</code></pre>
+
+      <h3>RSI(14, Wilder)</h3>
+      <p>De standaard 14-daagse RSI volgens Wilder. <strong>Ook hier is het teken omgekeerd.</strong></p>
+      <pre><code>conRsi(r) = clamp(50 + (50 − r) × 1.7, 0, 100)   // lang: hoe meer oververkocht (lage RSI), hoe hoger de score
+momRsi(r) = clamp(50 + (r − 50) × 1.6, 0, 100)   // kort: hoe sterker (hoge RSI), hoe hoger de score</code></pre>
+      <p>
+        Op het lange tabblad geeft een RSI van 25 een hoge score (<code>50 + 25×1.7 = 92.5</code>),
+        maar op het korte tabblad geeft dezelfde RSI 25 een lage score (<code>50 − 25×1.6 = 10</code>). <strong>Dezelfde waarde, tegengestelde lezing.</strong>
+      </p>
+
+      <h3>MACD(12·26·9)-histogram</h3>
+      <p>
+        Bij het MACD-histogram kijken we <strong>niet naar de absolute waarde, maar naar de richtingsverandering</strong>. Het sterkste koopmomentumsignaal is dus „het histogram is negatief, maar groter geworden dan de vorige bar” (opwaartse wending vanaf de bodem).
+        Omdat er wordt genormaliseerd door te delen door de prijsschaal, zijn munten met heel verschillende prijsniveaus vergelijkbaar. De MACD is van nature een trendindicator, dus <strong>de twee modi verschillen in richting niet veel.</strong>
+      </p>
+
+      <h3>Daling vanaf de 365-daagse top (Drawdown)</h3>
+      <p>Hoeveel de prijs is gezakt vanaf de hoogste koers van het afgelopen jaar. We zien <strong>vanaf −30% interesse, en vanaf −50% een sterk koopgunstig signaal</strong> (vanuit langetermijnperspectief). Hoe dieper de daling, hoe meer we het als zone voor gespreide aankopen behandelen.</p>
+
+      <h3>Golden/death cross (voortschrijdende gemiddelden 50/200)</h3>
+      <p>Staat het 50-daags gemiddelde boven het 200-daagse (golden-crosstoestand), dan is de trend gunstig; staat het eronder (death cross), dan ongunstig. Het dient als <strong>trendfilter</strong>.</p>
+
+      <h2 id="onchain">De 2 on-chainindicatoren — MVRV Z-Score · Thermocap Z</h2>
+      <p>
+        Dit zijn de twee indicatoren die in v2 zijn toegevoegd. Anders dan de 6 hierboven, die allemaal <strong>van de prijs zijn afgeleid</strong>, komen deze twee uit het <strong>grootboek van de blockchain (wie welke munten tegen welke prijs heeft verworven, hoeveel er voor mining is uitbetaald)</strong>.
+        Voor het eerst komt er informatie van buiten de prijs in de score.
+      </p>
+
+      <h3>MVRV Z-Score (marktkapitalisatie vs gemiddelde aankoopprijs)</h3>
+      <pre><code>Gerealiseerde kap. (Realized Cap) = totale waarde van elke munt tegen de 'prijs op de dag dat hij voor het laatst bewoog'
+                                  ≈ totale gemiddelde aankoopprijs van de hele markt
+MVRV Z-Score = (marktkap. − gerealiseerde kap.) ÷ σ(marktkap., volledige historie)</code></pre>
+      <p>
+        <strong>Databron:</strong> uit de CoinMetrics Community API (gratis · geen sleutel nodig) halen we <code>CapMrktCurUSD</code> (marktkapitalisatie) en <code>CapMVRVCur</code> (MVRV-ratio) op als dagcandles over de volledige historie,
+        en leiden we <code>gerealiseerde kap. = marktkap. ÷ MVRV</code> af.
+      </p>
+      <p>
+        <strong>Dekking:</strong> wordt alleen berekend voor de <strong>10 munten</strong> waarvoor CoinMetrics Community de MVRV levert —
+        <code>BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA</code>.
+        Bij niet-ondersteunde munten (AVAX·SHIB·PEPE·GRT·SAND) wordt hij als N/A behandeld en worden daarna <a href="#missing">de gewichten gehernormaliseerd</a>.
+      </p>
+
+      <h3>Thermocap Z (marktkapitalisatie vs cumulatieve miningbeloning) — alleen BTC</h3>
+      <pre><code>Thermocap   = cumulatief totaal van de minerinkomsten sinds 2009 (blokbeloning + fees, USD)
+Thermocap Z = z-score over de volledige historie van ln(marktkap. ÷ Thermocap)</code></pre>
+      <p>
+        <strong>Databron:</strong> blockchain.info <code>charts/miners-revenue</code> (volledige periode). Omdat de tussenruimte tussen de meetpunten niet constant is,
+        wordt elk meetpunt gewogen naar de tussenruimte (in dagen) en pas dan opgeteld (benadering van de integraal). Daarna worden de datums uitgelijnd met de dagelijkse marktkapitalisatie van CoinMetrics om de ratio te bepalen.
+        Het begrip miningbeloning hoort bij de PoW-bitcoin, dus <strong>deze indicator wordt alleen op het BTC-scherm berekend en ontbreekt bij altcoins altijd (hernormalisatie)</strong>.
+      </p>
+
+      <h3>Mapping z → deelscore (Z_ANCHORS)</h3>
+      <p>
+        De lange (contraire) deelscores van beide on-chainindicatoren gebruiken dezelfde mapping. Hoe lager z (hoe goedkoper ten opzichte van de kostprijs), hoe hoger de score; tussen de ankers hieronder wordt lineair geïnterpoleerd.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>z</th><th>≤ −1</th><th>0</th><th>0.5</th><th>1</th><th>2</th><th>3</th><th>4</th><th>6</th><th>≥ 8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Deelscore</strong></td><td>100</td><td>88</td><td>72</td><td>58</td><td>42</td><td>28</td><td>16</td><td>4</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        De ankers zijn gebaseerd op de historische verdeling van de MVRV-Z van BTC — bodems lagen op z &lt; 0, normale fases op 1–2, en oververhitting ging boven 5.
+        Dat de resolutie in de lage zone (0–1) met dichte stappen van 0.5 is geconcentreerd, volgt hetzelfde principe als de functie van de Mayer Multiple: <em>de score moet betekenisvol bewegen in de zone waar de markt het grootste deel van de tijd doorbrengt.</em>
+      </p>
+      <p><strong>Ook hier heeft de korte (momentum) functie een ander teken.</strong> Een prijs die ver boven de totale gemiddelde aankoopprijs staat, wordt gelezen als trendkracht.</p>
+      <pre><code>// kort (momentum)
+momMvrv  = clamp(50 + (MVRV_ratio − 1) × 28, 0, 100)   // boven de gem. aankoopprijs = trendkracht = pluspunt
+momTherm = clamp(50 + ThermocapZ × 14, 0, 100)
+
+// lang (contrair) — beide via de Z_ANCHORS-mapping hierboven
+conMvrv  = zToScore(MVRV Z)
+conTherm = zToScore(Thermocap Z)</code></pre>
+      <p>
+        <em>Waarom</em> deze twee indicatoren op de bodem werken, en hoe ze zich bij de vijf bodems daadwerkelijk gedroegen, behandelen we met live grafieken
+        in de aparte uitleg <a href="/bitcoin-bottom">Hoe je de bodem van bitcoin herkent — marktkapitalisatie vs gemiddelde aankoopprijs</a>.
+      </p>
+
+      <h2 id="weights">Stap 2: twee gewichtensets (kort · lang)</h2>
+      <p>
+        Dit is de kern van het model, en het punt waarop het zich onderscheidt van de meeste „angstindexsites”.
+        <strong>Dezelfde indicator moet omgekeerd worden gelezen als de beleggingshorizon verandert.</strong>
+      </p>
+      <p>
+        Crypto vertoont <strong>op korte termijn een momentumkarakter (trendvolgend)</strong> en <strong>over lange cycli een karakter van terugkeer naar het gemiddelde (contrair)</strong>.
+        Over 1–3 maanden stijgt wat stijgt vaak verder; over een jaar of langer veren extreme angst en onderwaardering uiteindelijk terug.
+        Daarom <strong>gebruiken de twee tabbladen (kort · lang) elk andere gewichten</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicator</th><th>Kort (momentum · 1–3 maanden)</th><th>Lang (contrair · 1 jaar+)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Angst-&amp;-Hebzucht-index</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Daling over 365 dagen</td><td>15%</td><td>10%</td></tr>
+            <tr><td>MACD</td><td>12%</td><td>13%</td></tr>
+            <tr><td>MVRV Z-Score</td><td>10%</td><td><strong>18%</strong></td></tr>
+            <tr><td>Golden/death cross</td><td>7%</td><td>10%</td></tr>
+            <tr><td>Mayer Multiple</td><td><strong>4%</strong></td><td>13%</td></tr>
+            <tr><td>Thermocap Z</td><td>4%</td><td>10%</td></tr>
+            <tr><td><strong>Totaal (controle)</strong></td><td><strong>100%</strong> <span class="muted">(24+12+24+4+15+7+10+4)</span></td><td><strong>100%</strong> <span class="muted">(13+13+13+13+10+10+18+10)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Twee keuzes springen het meest in het oog — <strong>het grootste gewicht op lange termijn is MVRV Z (18%)</strong>, en <strong>de 4% van de Mayer Multiple op korte termijn</strong> is gebleven.</p>
+      <ul>
+        <li>
+          <strong>De eerste plaats op lange termijn is van Mayer naar MVRV gegaan.</strong> In de versie van vóór de on-chainuitbreiding stond de Mayer Multiple met 18% bovenaan op lange termijn.
+          Maar beide indicatoren beantwoorden dezelfde vraag („is het duur ten opzichte van de kostprijs/referentielijn?”): MVRV gebruikt de <em>echte aanschafprijs</em>, Mayer een <em>vervanger in de vorm van het 200-daags gemiddelde</em>.
+          Bij dezelfde rol is het logisch de directere meer gewicht te geven. Vandaar <strong>MVRV 18%</strong>, terwijl Mayer is teruggebracht naar 13%, gelijk met RSI · MACD · angstindex.
+        </li>
+        <li>
+          <strong>Thermocap weegt 10% op lange termijn.</strong> De reproduceerbaarheid over cycli is goed, maar omdat hij alleen voor BTC geldt, ontbreekt hij op altcoinschermen altijd,
+          en de noemer (cumulatieve miningbeloning) verandert bij elke halving een beetje van karakter; daarom staat hij een trede lager dan MVRV.
+        </li>
+        <li>
+          <strong>Op korte termijn werken ook de on-chainindicatoren als „trendkracht”.</strong> Een prijs ver boven de totale gemiddelde aankoopprijs betekent op korte termijn een sterke trend (momMvrv).
+          Die informatie overlapt echter met RSI (24%) · daling (15%) · MACD (12%), dus kregen MVRV 10% en Thermocap 4% —
+          hetzelfde <strong>principe van overlappende signalen</strong> waardoor de Mayer Multiple op 4% is gehouden.
+        </li>
+        <li>
+          <strong>Bescherming tegen oververhitting blijft de taak van de beveiliging, niet van de gewichten.</strong>
+          De <a href="#normalize">blow-off-topbeveiliging</a> is ongewijzigd — boven een Mayer van 2.0 wordt <strong>de totale kortetermijnscore zelf gedempt</strong> (tot 75% lager).
+        </li>
+      </ul>
+      <p>
+        <strong>De golden/death cross weegt nog steeds zwaarder op lange termijn (7% → 10%)</strong>. De 50/200-kruising is een traag signaal, te laat voor kortetermijnhandel,
+        maar nuttig om cyclusfases van elkaar te scheiden.
+      </p>
+
+      <div class="note">
+        <strong>Op het korte tabblad draait de lezing van RSI · angstindex · Mayer · MVRV volledig om.</strong>
+        In de lange (contraire) modus geldt „angst = kopen, onderwaardering = kopen”,
+        maar in de korte (momentum) modus gaat de hoge score naar <strong>situaties waarin de trend leeft en het sentiment verbetert</strong>.
+        Dezelfde angstindex van 20 geeft <em>een hoge score op het lange tabblad (≈86) en een lage op het korte (≈14)</em>.
+        <strong>Het is geen bug, maar een bewuste ontwerpkeuze.</strong> De exacte functies staan allemaal in <a href="#normalize">stap 1</a>.
+      </div>
+
+      <p class="muted">
+        Deze gewichten zijn gebaseerd op een eigen backtest (dagcandles van BTC sinds 2017), waaruit bleek dat op korte horizonten de momentumrichting en op lange horizonten de contraire richting
+        beter aansluit bij de rendementen daarna. Het gaat echter om een backtest van één enkel activum met een beperkte steekproef, en
+        <strong>aansluiting in het verleden is geen garantie voor de toekomst.</strong>
+      </p>
+
+      <h2 id="missing">Stap 3: ontbrekende indicatoren en hernormalisatie van gewichten</h2>
+      <p>
+        Databronnen reageren niet altijd. Momenteel gebruikt dit model vijf bronnen —
+        <strong>CoinGecko·Binance</strong> (prijs · dagcandles), <strong>Alternative.me</strong> (Angst-&amp;-Hebzucht-index),
+        <strong>CoinMetrics Community</strong> (on-chain: marktkapitalisatie · MVRV, gratis · geen sleutel nodig), <strong>blockchain.info</strong> (minerinkomsten → Thermocap).
+        In sommige regio’s wordt de API van Binance geblokkeerd, en nieuw genoteerde munten hebben geen 200 dagen aan data, waardoor de Mayer Multiple niet te berekenen is.
+      </p>
+      <p>
+        De 2 on-chainindicatoren hebben bovendien <strong>structurele gaten</strong>. MVRV wordt alleen berekend voor de 10 munten die CoinMetrics ondersteunt (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA),
+        Thermocap <strong>alleen voor BTC</strong>. De score op altcoinschermen is dus van meet af aan geen samenstelling van 8, maar van 6–7 indicatoren.
+      </p>
+      <p>
+        In zulke gevallen <strong>mag een ontbrekende indicator niet als 0 punten worden behandeld.</strong> 0 punten betekent „heel slecht”, niet „onbekend”.
+        Anders zou de score instorten louter omdat er data ontbreken.
+      </p>
+      <p>
+        Daarom worden ontbrekende indicatoren <strong>uit de berekening weggelaten, en worden de gewichten van de overige indicatoren zo gehernormaliseerd dat ze samen 100% zijn</strong>.
+        Ontbreekt bijvoorbeeld op het lange tabblad MVRV (18%), dan worden de gewichten van de overige 7 indicatoren door <code>82%</code> gedeeld en opnieuw geschaald.
+      </p>
+      <p>
+        In ruil daarvoor <strong>tonen we de dekking op het dashboard en in de terminal</strong> (<code>coverage: 7/8 indicators (82% weight)</code>).
+        Een score met lage dekking is navenant minder betrouwbaar — controleer die dus altijd.
+      </p>
+
+      <h2 id="bands">Stap 4: de 5 beoordelingsbanden</h2>
+      <p>
+        De samengestelde score van 0–100 wordt in vijf banden verdeeld, elk met een eigen interpretatie.
+        <strong>De bandgrenzen zijn op beide tabbladen gelijk, maar de namen verschillen in drie banden (65–80, 25–45, 0–25)</strong> — omdat dezelfde score per tabblad iets anders betekent.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Score</th><th>Oordeel lang (contrair)</th><th>Oordeel kort (momentum)</th><th>Betekenis</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td><strong>STRONG BUY</strong></td><td>Meerdere signalen komen samen</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong><br /><span class="muted">gunstig voor gespreid opbouwen</span></td><td><strong>BUY</strong><br /><span class="muted">opwaartse trend overheerst</span></td><td>Koopgunstige zone</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td><strong>NEUTRAL</strong></td><td>Geen duidelijk voordeel. Afwachten</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong><br /><span class="muted">begin van hebzucht · overwaardering</span></td><td><strong>WEAK</strong><br /><span class="muted">neerwaarts momentum overheerst</span></td><td>Geen nieuwe of najagende aankopen</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong><br /><span class="muted">oververhit · dicht bij de top</span></td><td><strong>AVOID</strong><br /><span class="muted">sterke neerwaartse trend</span></td><td>Geen nieuwe aankopen</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>Waarom verschillen de namen?</strong> Omdat bij dezelfde score de <em>oorzaak</em> van een lage score per tabblad verschilt.
+        Het lange tabblad kijkt „contrair”, dus lage score = <em>de markt is te heet</em>;
+        het korte tabblad kijkt „trendvolgend”, dus lage score = <em>er loopt een neerwaartse trend</em>.<br />
+        <strong>0–25 punten op het lange tabblad</strong> = de angstindex staat op hebzucht en de Mayer is hoog → <strong>oververhitting (OVERHEATED)</strong>. Pas op, de top is nabij.<br />
+        <strong>0–25 punten op het korte tabblad</strong> = de RSI zit op de bodem en de trend is ingestort → <strong>neerwaartse trend (AVOID)</strong>. Niet kopen vóór een ommekeer.<br />
+        Zo lees je 65–80 ook als ACCUMULATE (gespreid opbouwen) op lange termijn vs BUY (trendvolgend kopen) op korte termijn,
+        en 25–45 als CAUTION (waakzaam bij beginnende oververhitting) op lange termijn vs WEAK (neerwaarts momentum overheerst) op korte termijn.
+        Er zijn maar twee banden met dezelfde naam: 80–100 (STRONG BUY) en 45–65 (NEUTRAL).
+      </div>
+      <p>
+        De grenzen zijn <strong>geforceerde knippen in een doorlopende score</strong>. 79 en 81 punten zijn in de praktijk hetzelfde.
+        Gebruik de banden alleen als ruwe indeling van fases en kijk ook naar <strong>het verloop van de score (stijgt hij of daalt hij?)</strong>.
+      </p>
+
+      <h2 id="bottom">Aparte samenstelling: BOTTOM RADAR</h2>
+      <p>
+        Naast de korte en lange score heeft het dashboard de <strong>BOTTOM RADAR</strong>.
+        Dit is een score die maar één vraag beantwoordt — <strong>„zitten we nu in een historische bodemzone?”</strong> — en niet „stijgt het als ik nu koop?”, en daarom gebruikt hij een eigen gewichtenset.
+        Momentumindicatoren (RSI · MACD · crosses) zijn volledig weggelaten, en <strong>55% gaat naar de 2 on-chainindicatoren die op de kostprijs zijn gebaseerd</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicator</th><th>Gewicht</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td></tr>
+            <tr><td>Mayer Multiple</td><td>15%</td></tr>
+            <tr><td>Daling over 365 dagen</td><td>15%</td></tr>
+            <tr><td>Angst-&amp;-Hebzucht-index</td><td>15%</td></tr>
+            <tr><td><strong>Totaal (controle)</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Elke indicator <strong>hergebruikt de lange (contraire) deelscore ongewijzigd en weegt die opnieuw</strong> — er zijn geen nieuwe normalisatiefuncties gemaakt.
+        Ook de omgang met ontbrekende data is gelijk: ontbrekende indicatoren worden weggelaten en er wordt gehernormaliseerd; bij een andere munt dan BTC valt Thermocap altijd weg, en bij munten die CoinMetrics niet ondersteunt ook MVRV.
+        De beoordelingsbanden zijn vijf andere dan die voor kort en lang.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bodemscore</th><th>Oordeel</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Historische bodemzone</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Ondergewaardeerd</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutraal</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Overgewaardeerd</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Topzone · oververhit</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Waarom de meerderheid naar on-chain gaat — en hoe deze indicatoren zich bij de vijf bodems daadwerkelijk gedroegen — controleren we met live grafieken in
+        <a href="/bitcoin-bottom">Hoe je de bodem van bitcoin herkent</a>.
+      </p>
+
+      <h2 id="limits">De beperkingen van dit model (verplichte kost)</h2>
+      <p>We schrijven het eerlijk op. Het is belangrijker om te weten wat deze score <strong>niet kan</strong>.</p>
+      <ul>
+        <li>
+          <strong>Hij voorspelt de prijs niet.</strong> De score vat alleen samen „of de huidige markt naar oververkocht · angst neigt of naar oververhit · hebzucht”.
+          Een score van 90 betekent niet „het gaat stijgen”, maar „historisch was dit zo’n fase”.
+        </li>
+        <li>
+          <strong>Technische indicatoren zitten in sterke trends lang ernaast.</strong> In een sterke bearmarkt kan de RSI wekenlang onder 30 blijven.
+          Niet „oververkocht dus herstel”, maar „oververkocht en nog verder omlaag” komt vaak voor.
+        </li>
+        <li>
+          <strong>Hij weet niets van fundamentals, nieuws of regelgeving.</strong> Gebeurtenissen als het faillissement van een exchange, een aankondiging van een toezichthouder of een hack worden niet meteen in deze 8 indicatoren weerspiegeld.
+          De grafiek kan er mooi uitzien terwijl het bedrijf aan het instorten is.
+        </li>
+        <li>
+          <strong>On-chainindicatoren hebben hun eigen on-chainvertekeningen.</strong> De gerealiseerde kapitalisatie (de noemer van MVRV) wordt al bijgewerkt zonder enige echte aankoop <strong>wanneer een exchange alleen maar munten verplaatst om zijn cold wallets te herschikken</strong>;
+          omgekeerd laten munten die <em>binnen</em> een exchange van eigenaar wisselen of volumes die als ETF-aandelen worden verhandeld geen on-chainspoor na en werken ze haar niet bij.
+          Voorgoed slapende munten van vroege miners staan geboekt met een kostprijs rond 0 en drukken de gerealiseerde kapitalisatie structureel omlaag.
+          Bovendien groeit de noemer van MVRV Z, de σ (marktkap.) over de volledige historie, mee met de markt, zodat <strong>de z-uitslag in recente cycli kleiner is dan vroeger</strong> — extremen uit het verleden zoals z&gt;7 komen mogelijk niet meer terug.
+        </li>
+        <li>
+          <strong>De Angst-&amp;-Hebzucht-index is een indicator voor de hele markt.</strong> De F&amp;G van Alternative.me is in feite het marktsentiment rond BTC
+          en weerspiegelt niet de eigen situatie van afzonderlijke altcoins. Op altcoinschermen heeft deze indicator minder zeggingskracht dan bij BTC.
+        </li>
+        <li>
+          <strong>Altcoins hebben weinig datahistorie.</strong> Bij een korte noteringsperiode zijn het 200-daags gemiddelde en de 365-daagse top onnauwkeurig of helemaal afwezig. Controleer altijd de dekkingsindicatie.
+        </li>
+        <li>
+          <strong>De gewichten zijn het oordeel van de auteur.</strong> De backtest bevestigde de richting, maar de data zeggen niet eenduidig of 24% of 20% juist is.
+        </li>
+      </ul>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Deze score is een <strong>referentiesignaal dat openbare indicatoren samenvoegt en geen beleggingsadvies.</strong>
+        Crypto is een activum met hoog risico waarbij je je volledige inleg kunt verliezen. Alle beleggingsbeslissingen en de gevolgen daarvan zijn volledig voor rekening van de gebruiker zelf. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/indicators"><b>De 8 indicatoren in detail</b><span>Wat RSI · MACD · Mayer Multiple · daling · crosses · MVRV · Thermocap elk vertellen</span></a>
+        <a href="/bitcoin-bottom"><b>Hoe je de bodem van bitcoin herkent</b><span>Marktkapitalisatie vs gemiddelde aankoopprijs — de onderbouwing van de BOTTOM RADAR in live grafieken</span></a>
+        <a href="/guide-fear-greed"><b>De angstindex in de praktijk</b><span>Gespreid kopen in angstzones en veelgemaakte fouten</span></a>
+        <a href="/"><b>Naar het dashboard</b><span>Bekijk de huidige score (15 munten)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

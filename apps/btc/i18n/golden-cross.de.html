@@ -1,0 +1,481 @@
+    <main class="wrap" data-title="5 Irrtümer über das Golden Cross — warum es ein Trendfilter und kein Kaufsignal ist | broodev" data-desc="Das Golden Cross ist kein Kaufsignal. Wir widerlegen den von den Medien am häufigsten missbrauchten Indikator anhand von fünf Irrtümern und zeigen mit der echten vierstufigen Punktetabelle aus dem Code und einer Beispielrechnung, warum das broodev-Modell ihm kurzfristig nur 8 % und langfristig nur 14 % Gewicht gibt.">
+      <nav class="nav">
+        <a href="/">← Übersicht</a>
+        <a href="/methodology">Score-Methodik</a>
+        <a href="/indicators">Indikatoren erklärt</a>
+        <a href="/guide-fear-greed">Angst-Index richtig nutzen</a>
+        <a href="/glossary">Glossar</a>
+      </nav>
+
+      <h1>5 Irrtümer über das Golden Cross</h1>
+      <p class="muted">Zuletzt aktualisiert: 2026-07-14 · Autor: Y-Systems · Gegenstand: broodev Kauf-Timing-Score v2 (Indikator GC_DC)</p>
+
+      <p class="lead">
+        „Bitcoin: Golden Cross steht bevor … Aufwärtssignal“ — diese Schlagzeile wiederholt sich in jedem Zyklus.
+        Und <strong>dieser Satz wird fast immer falsch verwendet.</strong>
+        Das Golden Cross ist von unseren 6 Indikatoren <strong>der am meisten missverstandene</strong>
+        und zugleich <strong>der, dem unser Modell das geringste Gewicht gibt</strong>. Diese beiden Tatsachen hängen zusammen.
+      </p>
+      <p>
+        Dieser Artikel erklärt die Definition nicht noch einmal. Dass ein Golden Cross vorliegt, wenn die 50-Tage-Linie die 200-Tage-Linie von unten nach oben durchbricht,
+        steht im <a href="/glossary">Glossar</a>, und wie es in den Score einfließt, steht in der
+        <a href="/methodology">Methodik</a>. Stattdessen werden wir hier <strong>fünf weit verbreitete Irrtümer einen nach dem anderen widerlegen</strong>
+        und an ihre Stelle <strong>das setzen, was unser Code tatsächlich tut</strong>.
+        Am Ende <strong>gestehen wir zwei bekannte Schwächen</strong> unseres Modells ein.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Was man oft hört</th><th>Tatsächlich</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① „Golden Cross da = jetzt kaufen“</a></td><td>Strukturell <strong>das langsamste Signal</strong>. Keine Ankündigung des Anstiegs, sondern die <strong>Quittung</strong></td></tr>
+            <tr><td><a href="#m2">② „Death Cross = der Crash beginnt“</a></td><td>Erneute Kreuzungen (Whipsaw) sind häufig. In unserem Modell <strong>lebt der Ereignis-Score nur einen Tag</strong></td></tr>
+            <tr><td><a href="#m3">③ „50 und 200 sind die richtigen Zahlen“</a></td><td>Eine <strong>Handelstag-Konvention</strong> des Aktienmarkts, unkorrigiert auf einen Markt übertragen, der 365 Tage offen ist</td></tr>
+            <tr><td><a href="#m4">④ „Je größer der Abstand, desto stärker das Signal“</a></td><td>Unser Modell <strong>berechnet den Abstand, nutzt ihn aber nicht für den Score</strong> (bewusste Vereinfachung)</td></tr>
+            <tr><td><a href="#m5">⑤ „8 % Gewicht ist so gut wie gar nicht genutzt“</a></td><td>Hier dreht sich die Richtung. Das Kreuz ist <strong>keine Punktequelle, sondern ein Abzugsmechanismus</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="Live-Chart zum Golden Cross">
+        <p class="muted">Bevor Sie die fünf Irrtümer lesen, sehen wir uns an, wo Golden Crosses (▲) und Death Crosses (▼) über die gesamte Historie tatsächlich aufgetreten sind. Auf einen Blick sieht man, dass die Kreuzung immer erst kommt, „wenn sich der Kurs schon lange bewegt hat“, und wie häufig erneute Kreuzungen (Whipsaw) sind.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">Chartdaten werden geladen …</div></div>
+          </div>
+          <p class="bd-cap">BTC-Kurs (logarithmisch, grau) mit SMA50 (blau) und SMA200 (rot), gesamter Zeitraum. ▲ = Golden Cross (50-Tage-Linie kreuzt die 200-Tage-Linie nach oben), ▼ = Death Cross. Orange gestrichelte Linie = Halving. Daten: CoinMetrics Community API, BTC-Tagesschlusskurse — beim Aufruf abgerufen und im Browser berechnet; <strong>Näherungswerte, nur zur Orientierung</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="m1">Irrtum ① „Golden Cross da = jetzt kaufen“</h2>
+
+      <h3>Was man sagt</h3>
+      <p>
+        Das ist der Lieblingssatz von Artikeln und YouTube-Thumbnails. Das Golden Cross wird wie <strong>eine Leuchtrakete behandelt, die die Zukunft ankündigt</strong>.
+        Dazu kommt eine Statistik wie „historisch nach einem Golden Cross im Schnitt X % Anstieg“.
+      </p>
+
+      <h3>Warum das falsch ist — die Arithmetik lässt es nicht zu</h3>
+      <p>
+        Damit ein Golden Cross entsteht, <strong>muss der Durchschnittskurs der letzten 50 Tage den der letzten 200 Tage übersteigen</strong>.
+        Halten Sie kurz inne und überlegen Sie, was das bedeutet.
+      </p>
+      <p>
+        Der 200-Tage-Durchschnitt ist <strong>die Summe von 200 Tageskursen geteilt durch 200</strong>. Selbst wenn der Kurs gestern an einem einzigen Tag um 20 % gestiegen ist,
+        zählt dieser Sprung nur mit 1/200. Um <strong>diese Linie spürbar anzuheben, muss der Kurs über Dutzende Tage hinweg hoch bleiben</strong>.
+        Ebenso trägt die 50-Tage-Linie die Trägheit von 50 Tagen.
+      </p>
+      <p>
+        Das heißt: <strong>Allein die Tatsache, dass sich zwei so träge Körper kreuzen, ist der Beweis dafür, dass es „schon lange gestiegen ist“</strong>.
+        Das Golden Cross <em>kündigt</em> den Anstieg nicht an. Es <em>bestätigt nur im Nachhinein, dass der Anstieg schon lange genug läuft</em>.
+      </p>
+      <div class="note">
+        <strong>Bildlich gesprochen ist das Golden Cross keine Vorhersage, sondern eine Quittung.</strong>
+        Die Quittung sagt Ihnen genau, was Sie gekauft haben, aber sie kommt <strong>erst nach der Bezahlung</strong>.
+        Die Quittung anzusehen und zu sagen „jetzt kaufe ich“, ist die verkehrte Reihenfolge.
+      </div>
+      <p>
+        Deshalb wirken auch die Statistiken zum „durchschnittlichen Anstieg nach einem Golden Cross“ so überzeugend.
+        Ein Golden Cross <strong>entsteht per Definition nur im Aufwärtsmarkt</strong>. Die Renditen danach können also gar nicht anders als gut sein.
+        Das ist keine Vorhersagekraft des Indikators, sondern <strong>das Ergebnis einer bereits ausgewählten Stichprobe (selection effect)</strong>.
+        Es ist, als wollte man mit der Statistik „an Tagen, an denen ein Schirm aufgespannt war, hat es geregnet“ die Regenprognose-Fähigkeit des Schirms belegen.
+      </p>
+
+      <h3>Tatsächlich</h3>
+      <p>
+        Bis sich ein Golden Cross nach einem Tief bestätigt, <strong>ist der Kurs vom Tiefpunkt aus bereits deutlich gestiegen.</strong>
+        Er ist ja so weit gestiegen, dass die 50-Tage-Linie die schwere Referenzlinie der 200 Tage übertrifft.
+        Deshalb <strong>behandelt unser Modell diesen Indikator nicht als Werkzeug für das Einstiegs-Timing.</strong>
+        Wir nutzen ihn nicht für „jetzt kaufen“, sondern nur als Antwort auf <strong>„In welcher Phase befinden wir uns gerade?“</strong>.
+      </p>
+
+      <h2 id="m2">Irrtum ② „Death Cross = der Crash beginnt“</h2>
+
+      <h3>Was man sagt</h3>
+      <p>
+        Das Death Cross klingt schon vom Namen her unheilvoll. Mit dem Etikett „Todeskreuz“
+        wird es als <strong>Angstauslöser nach dem Motto „jetzt kommt der große Absturz“</strong> konsumiert. Sobald die Death-Cross-Meldung erscheint, folgen Panikverkäufe.
+      </p>
+
+      <h3>Warum das falsch ist — Kreuze kreuzen sich erneut</h3>
+      <p>
+        Man muss nur die Logik von Irrtum ① umdrehen. <strong>Das Death Cross ist ein ebenso langsames Signal.</strong>
+        Bis es sich bestätigt, <strong>ist ein großer Teil des Rückgangs bereits gelaufen</strong>.
+        Es ist weniger „der Beginn des Crashs“ als vielmehr eine Bescheinigung, dass „der Rückgang schon lange andauert“.
+        Deshalb ist es nicht selten, dass direkt nach einem Death Cross eine Gegenbewegung folgt — ein <strong>Whipsaw</strong>.
+      </p>
+      <p>
+        Stellen Sie sich vor, die beiden gleitenden Durchschnitte liegen <strong>fast aufeinander</strong>. Dann genügt ein kleines Schwanken des Kurses,
+        damit die 50-Tage-Linie unter die 200-Tage-Linie fällt und wenige Tage später wieder darüber steigt.
+        <strong>Eine Kreuzung ist kein einmaliges Ereignis, sondern eines, das sich mehrfach wiederholen kann</strong>.
+      </p>
+
+      <h3>Tatsächlich — wie unser Code mit diesem Problem umgeht (inklusive Geständnis)</h3>
+      <p>
+        Unser Modell bestimmt die Kreuzung, <strong>indem es nur zwei Tage vergleicht: gestern und heute</strong>.
+      </p>
+      <pre><code>gestern: 50T-Linie ≤ 200T-Linie   →   heute: 50T-Linie &gt; 200T-Linie   ⇒  GOLDEN_CROSS
+gestern: 50T-Linie ≥ 200T-Linie   →   heute: 50T-Linie &lt; 200T-Linie   ⇒  DEATH_CROSS
+sonst                                                                  ⇒  NONE (nur der Zustand bleibt)</code></pre>
+      <p>
+        Folglich <strong>ist das „Kreuzungsereignis“ nur einen einzigen Tag lang wahr (true).</strong>
+        Am nächsten Tag verschwindet das Ereignis, und es bleibt nur ein nüchterner Zustandswert: „Golden-Zustand / Death-Zustand“.
+      </p>
+      <div class="note">
+        <strong>Das ist bewusst so gestaltet.</strong> Die Medien schlachten ein Golden Cross wochenlang aus,
+        doch in unserem Modell <strong>ist die Kreuzungsnachricht nach 24 Stunden abgelaufen</strong>.
+        Wie die Punktetabelle unten zeigt, <strong>sinkt die Prämie am Ereignistag (langfristig 85 Punkte) schon am nächsten Tag auf 60 Punkte.</strong>
+        Dass „gestern ein Golden Cross auftrat“, bringt dem heutigen Score keinerlei Zusatzpunkte.
+      </div>
+      <div class="note warn">
+        <strong>Geständnis — auch unser Modell wird vom Whipsaw durchgeschüttelt.</strong>
+        Liegen 50-Tage- und 200-Tage-Linie fast aufeinander und kreuzen sich innerhalb von zwei Wochen mehrmals auf und ab,
+        schwankt auch unser Score <strong>85 → 60 → 15 → 35</strong>. Diese Schwäche lässt sich nicht beseitigen.
+        Wir haben lediglich <strong>die Amplitude der Schwankung gedeckelt</strong> —
+        und dieser Deckel ist genau <strong>das niedrige Gewicht von 8 % bzw. 14 %</strong>. Weiter unten rechnen wir aus, wie viele Punkte diese Zahl tatsächlich bedeutet.
+      </div>
+
+      <h2 id="m3">Irrtum ③ „50 und 200 sind die richtigen Zahlen“</h2>
+
+      <h3>Was man sagt</h3>
+      <p>
+        Man spricht darüber, als hätten 50 und 200 eine mathematische Notwendigkeit.
+        Und weil Chartprogramme sie als Standardwerte vorgeben, glaubt man es umso mehr.
+      </p>
+
+      <h3>Warum das falsch ist — das ist eine Aktienmarkt-Konvention, und noch dazu falsch übertragen</h3>
+      <p>
+        Es gibt <strong>keine befriedigende wissenschaftliche Begründung</strong> für 50 und 200. Es ist eine Konvention.
+        In klassischen Aktiencharts ist <strong>200 eine grob gerundete Zahl für ein Jahr an Handelstagen (genau etwa 252)</strong>
+        und <strong>50 die gerundete Zahl für ein Quartal (etwa 63 Handelstage)</strong>.
+      </p>
+      <p>
+        Doch hier entsteht <strong>ein Problem, das es nur bei Kryptowährungen gibt</strong> — und auf das fast niemand hinweist.
+      </p>
+      <p>
+        <strong>Der Aktienmarkt hat 5 Tage pro Woche geöffnet, Kryptowährungen 7 Tage.</strong>
+        Die „200-Tage-Linie“ bei Aktien umfasst <strong>200 Handelstage</strong>, was <strong>etwa 280 Kalendertagen (rund 9,2 Monaten)</strong> entspricht.
+        Bei Kryptowährungen entsteht dagegen jeden Tag eine Tageskerze, die „200-Tage-Linie“ umfasst also <strong>200 Kalendertage, das heißt rund 6,6 Monate</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Linie</th><th>Aktien (5 Tage/Woche)</th><th>Krypto (7 Tage/Woche)</th><th>Tatsächlicher Unterschied</th></tr></thead>
+          <tbody>
+            <tr><td>200-Tage-Linie</td><td>200 Handelstage ≈ <strong>280 Kalendertage</strong></td><td>200 Kalendertage = <strong>200 Kalendertage</strong></td><td>Bei Krypto <strong>rund 29 % kürzer</strong></td></tr>
+            <tr><td>50-Tage-Linie</td><td>50 Handelstage ≈ <strong>70 Kalendertage</strong></td><td>50 Kalendertage = <strong>50 Kalendertage</strong></td><td>Bei Krypto <strong>rund 29 % kürzer</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Zusammengefasst: <strong>Die „200-Tage-Linie“ bei Kryptowährungen scheint die Aktienkonvention einfach zu übernehmen, ist in Wirklichkeit aber ein deutlich kürzeres Fenster (window)</strong>.
+        Um denselben Kalenderzeitraum wie 200 Aktien-Handelstage abzudecken, müsste man bei Krypto <strong>eine etwa 280-Tage-Linie</strong> verwenden.
+        <strong>Die gesamte Branche nimmt diese Korrektur nicht vor.</strong>
+      </p>
+
+      <h3>Tatsächlich — warum nutzen wir dann trotzdem einfach 200?</h3>
+      <p>
+        Auch unser Code verwendet <strong>200 Kalendertage</strong>. Ohne Korrektur. Den Grund schreiben wir ehrlich auf.
+      </p>
+      <ul>
+        <li>
+          <strong>Erstens: Beobachtbarkeit hat an sich schon Kraft.</strong> 50/200 funktioniert nicht, weil es „richtig“ ist,
+          sondern bis zu einem gewissen Grad, <strong>weil unzählige Marktteilnehmer auf dieselbe Linie schauen und an derselben Stelle reagieren</strong>.
+          Würden wir im Alleingang auf eine 280-Tage-Linie umstellen, <strong>verlören wir diese selbsterfüllende Eigenschaft.</strong> Eine Linie, auf die niemand schaut, wirkt nicht als Unterstützung.
+        </li>
+        <li>
+          <strong>Zweitens: Der Nenner muss mit dem Mayer Multiple übereinstimmen.</strong> Das Mayer Multiple ist schon per Definition <code>aktueller Kurs ÷ 200-Tage-Durchschnitt</code>.
+          Würde nur das Kreuz auf 280 Tage umgestellt, gäbe es <strong>zwei verschiedene „Langfristlinien“ im selben Modell</strong>, und die Interpretation liefe auseinander.
+        </li>
+        <li>
+          <strong>Drittens: weil wir die Richtung dieser Verzerrung kennen.</strong> Die 200-Tage-Linie bei Krypto ist <strong>kürzer als die Konvention, damit empfindlicher, und kreuzt häufiger</strong>.
+          Häufigere Kreuzungen <strong>bedeuten mehr Fehlsignale</strong>. Deshalb haben wir das Gewicht dieses Indikators von Anfang an niedrig angesetzt.
+          <strong>Statt zu korrigieren, haben wir uns entschieden, ihm nicht zu vertrauen.</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        Es macht einen großen Unterschied, ob man weiß, dass es keine richtige Zahl, sondern <strong>eine gemeinsame Konvention</strong> ist.
+        Wer 50/200 für heilige Konstanten hält, misst dem Kreuz übermäßige Bedeutung bei.
+      </p>
+
+      <h2 id="m4">Irrtum ④ „Je größer der Abstand, desto stärker das Signal“</h2>
+
+      <h3>Was man sagt</h3>
+      <p>
+        Das ist die Deutung: „Die 50-Tage-Linie liegt weit über der 200-Tage-Linie, also ist der Aufwärtstrend stark.“
+        Das klingt intuitiv plausibel und ist auch tatsächlich nicht ganz falsch.
+      </p>
+
+      <h3>Warum das falsch ist — genauer: Wir nutzen diese Information nicht</h3>
+      <p>
+        Unser Code <strong>berechnet den Abstand der beiden Linien tatsächlich.</strong>
+      </p>
+      <pre><code>gapPct = (50T-Linie ÷ 200T-Linie − 1) × 100</code></pre>
+      <p>
+        Und er <strong>zeigt ihn sogar an</strong>, etwa als <code>gap +12.4%</code> auf der Dashboard-Karte.
+        Doch <strong>dieser Wert fließt überhaupt nicht in die Score-Berechnung ein.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Geständnis ─ eine bekannte Vereinfachung.</strong>
+        In unserem Modell <strong>erhalten ein Golden-Zustand mit +0.3% Abstand und ein Golden-Zustand mit +42% Abstand exakt denselben Score</strong>
+        (langfristig 60 Punkte, kurzfristig 65 Punkte). Der Abstand wird <strong>nur angezeigt, nicht bewertet.</strong>
+      </div>
+      <p>
+        Wir erklären, warum wir es so belassen haben. Um den Abstand in den Score aufzunehmen, müsste man <strong>festlegen, „ab wie viel Prozent ein Abstand groß ist“</strong>.
+        Dieses Kriterium <strong>ist aber von Asset zu Asset völlig unterschiedlich.</strong> +10 % Abstand bei einem Coin mit geringer Volatilität
+        und +10 % Abstand bei einem extrem volatilen Memecoin bedeuten etwas ganz anderes.
+        Ehrlich gesagt <strong>konnten wir kein Normalisierungskriterium, das für alle Coins gleichermaßen gilt, mit Überzeugung festlegen.</strong>
+        Statt eine unbegründete Konstante einzubauen, <strong>haben wir uns entschieden, ihn lieber gar nicht zu verwenden</strong>.
+      </p>
+
+      <h3>Tatsächlich — diese Information ist für Menschen gedacht</h3>
+      <p>
+        Dass wir den Abstand nicht vom Bildschirm entfernt haben, <strong>soll Sie dazu einladen, selbst hinzuschauen und zu urteilen</strong>.
+        <strong>Je näher der Abstand an 0 liegt, desto enger liegen die beiden Linien beieinander und desto größer ist das Risiko einer erneuten Kreuzung (Whipsaw)</strong>.
+        Ein Golden-Zustand mit <code>gap +0.4%</code> ist <strong>ein instabiles Golden</strong>, das jederzeit in Death umschlagen kann.
+        Der Score kennt diesen Unterschied nicht, aber <strong>Sie können ihn erkennen.</strong> Genau dafür wird der Wert angezeigt.
+      </p>
+
+      <h2 id="m5">Irrtum ⑤ „8 % Gewicht ist doch so gut wie gar nicht genutzt“</h2>
+      <p>
+        Hier dreht sich die Richtung dieses Artikels. Die vier vorherigen Punkte haben das Kreuz <strong>abgewertet</strong>.
+        Und doch haben wir diesen Indikator <strong>nicht verworfen.</strong> Warum?
+      </p>
+
+      <h3>Was die meisten nicht wissen — das Kreuz hat nicht 2, sondern 4 Stufen</h3>
+      <p>
+        Die Zweiteilung „Golden Cross oder Death Cross?“ <strong>ist von vornherein falsch.</strong>
+        Unser Code unterscheidet <strong>vier Zustände</strong>, denn <em>der Moment der Kreuzung</em> und <em>der Zustand, der nach der Kreuzung anhält</em> sind etwas völlig anderes.
+        Unten steht die tatsächliche Teilpunktetabelle unseres Modells.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Zustand</th><th>Bedeutung</th><th>Kurzfristiger Score</th><th>Langfristiger Score</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>Heute nach oben gekreuzt (Ereignis, nur einen Tag gültig)</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>Zustand 50 &gt; 200 hält bereits an</td><td>65</td><td>60</td></tr>
+            <tr><td><em>Keine Daten</em></td><td>Nicht einmal 50 Tage an Daten</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>Zustand 50 &lt; 200 hält bereits an</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>Heute nach unten gekreuzt (Ereignis, nur einen Tag gültig)</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Die wichtigste Zeile dieser Tabelle ist „DEATH-Zustand hält an“</strong>. Der Score beträgt <strong>nicht 50, sondern 35 (langfristig) bzw. 40 (kurzfristig)</strong>.
+      </p>
+      <p>
+        <strong>Neutral ist 50.</strong> Der Death-Cross-Zustand liegt aber <strong>unter neutral.</strong>
+        Das bedeutet: <strong>Im Death-Cross-Zustand „zieht“ dieser Indikator den Gesamtscore „nach unten“</strong>.
+        Er bleibt nicht untätig, sondern <strong>zieht Punkte ab</strong>.
+      </p>
+      <div class="note">
+        <strong>Das ist die Daseinsberechtigung dieses Indikators.</strong>
+        Das Golden Cross <strong>ist keine Quelle, die Punkte einbringt.</strong>
+        Das Death Cross ist <strong>eine Bremse, die Punkte abzieht</strong>.
+        Wenn Angst-Index, Mayer Multiple und Rückgang alle gemeinsam „billig, kaufen!“ rufen —
+        <a href="/indicators">die 3 antizyklischen Indikatoren irren sich im Bärenmarkt gemeinsam</a> —,
+        brauchte es <strong>einen Mechanismus, der als Einziger bremst und sagt „der Trend zeigt noch nach unten“</strong>, und das ist das Kreuz.
+      </div>
+
+      <h2 id="walk">Wie viele Punkte bewegt es also tatsächlich? — eine Beispielrechnung</h2>
+      <p>
+        Genug der Abstraktion: <strong>Rechnen wir mit echten Zahlen</strong>.
+        Es geht um den <strong>Langfrist-Tab (antizyklisch)</strong>, und die Lage ist <strong>mitten in einem tiefen Bärenmarkt</strong>.
+        Es ist die Phase, in der alle antizyklischen Indikatoren gleichzeitig „Jetzt ist die Chance!“ rufen.
+      </p>
+      <p>Die Langfrist-Gewichte sind <strong>RSI 18 % · MACD 18 % · Angst &amp; Gier 18 % · Mayer 18 % · Rückgang 14 % · Kreuz 14 %</strong>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indikator</th><th>Beobachteter Wert</th><th>Teilscore</th><th>Gewicht</th><th>Beitrag</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24 (überverkauft)</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>Mayer Multiple</td><td>0.75× (25 % unter der 200-Tage-Linie)</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>Angst &amp; Gier</td><td>aktuell 18 / 7 Tage 22 / 30 Tage 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>Rückgang über 365 Tage</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>negativ · verschlechtert sich noch</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>Kreuz</strong></td><td><strong>DEATH-Zustand hält an</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>Gesamtscore</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        (Die 81.8 bei Angst &amp; Gier ergeben sich aus <code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code> plus
+        dem Extrembonus, der hinzukommt, wenn der aktuelle Wert bei 25 oder darunter liegt: <code>(25−18)×0.4 = 2.8</code>.)
+      </p>
+
+      <h3>Wenn man nur das Kreuz austauscht</h3>
+      <p>Sehen wir uns an, was mit dem Gesamtscore passiert, wenn wir <strong>die anderen 5 Indikatoren komplett festhalten</strong> und nur den Kreuz-Zustand austauschen.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kreuz-Zustand</th><th>Teilscore</th><th>Beitrag</th><th>Gesamtscore</th><th>Urteil</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS (am selben Tag)</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>GOLDEN hält an</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH hält an <em>(tatsächliches Szenario)</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS (am selben Tag)</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Der Unterschied zwischen Höchst- und Tiefstwert beträgt 9.8 Punkte.</strong> (85 − 15) × 14% = 9.8.
+        Und <strong>in allen vier Fällen ist das Urteil gleich: ACCUMULATE.</strong>
+      </p>
+
+      <h3>Was diese Zahlen sagen — das Kreuz kann das Urteil nicht allein ändern</h3>
+      <p>Hier wird <strong>die Designabsicht unseres Modells arithmetisch bewiesen</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Score-Spanne</th><th>Gewicht</th><th>Maximaler Einfluss auf den Gesamtscore</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Kurzfristig (Momentum)</strong></td><td>75 − 30 = 45 Punkte</td><td>8%</td><td><strong>±3.6 Punkte</strong></td></tr>
+            <tr><td><strong>Langfristig (antizyklisch)</strong></td><td>85 − 15 = 70 Punkte</td><td>14%</td><td><strong>±9.8 Punkte</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Vergleichen Sie das nun mit den <a href="/methodology">Urteilsbändern</a>.
+        Das schmalste Band ist <strong>ACCUMULATE (65~80) mit einer Breite von 15 Punkten</strong>.
+      </p>
+      <div class="note">
+        <strong>Maximaler Einfluss im Langfrist-Tab 9.8 Punkte &lt; minimale Bandbreite 15 Punkte.</strong><br />
+        <strong>Maximaler Einfluss im Kurzfrist-Tab 3.6 Punkte &lt; minimale Bandbreite 15 Punkte.</strong><br /><br />
+        Das heißt: <strong>In keinem Tab kann das Kreuz aus eigener Kraft das Urteil um eine Stufe verschieben.</strong>
+        Das ist kein Zufall, sondern <strong>das Ergebnis der bewussten Gewichtung</strong>.
+        Das Kreuz ist gedeckelt, sodass es <strong>den Score zwar schieben oder ziehen, aber das Ergebnis nicht dominieren kann</strong>.
+      </div>
+      <p>
+        <strong>Auch der Unterschied zwischen kurz- und langfristig lässt sich rechnerisch belegen.</strong> 9.8 ÷ 3.6 ≈ <strong>2.7-fach</strong>.
+        Im Langfrist-Tab ist der tatsächliche Einfluss des Kreuzes etwa 2.7-mal so groß wie im Kurzfrist-Tab.
+        Betrachtet man nur die Gewichtstabelle (8 % vs. 14 %), wirkt es wie ein Unterschied von 1.75-fach, aber <strong>multipliziert man auch die Score-Spanne mit, wächst er tatsächlich auf das 2.7-Fache.</strong>
+        Das übersieht man, wenn man nur die Gewichtszahlen vergleicht.
+      </p>
+      <p>
+        Der Grund ist genau der, der in der <a href="/methodology">Methodik</a> dargelegt wird.
+        <strong>Das 50/200-Kreuz ist für Trades im Zeitraum von 1–3 Monaten zu langsam.</strong> Bis das Signal kommt, ist es für kurzfristige Trader bereits zu spät.
+        Deshalb haben wir ihm im Kurzfrist-Tab nur <strong>8 % gegeben, praktisch Dekoration</strong>.
+        Da es dagegen <strong>zur Unterscheidung der Zyklusphase (Bullen- oder Bärenmarkt?) durchaus taugt</strong>, haben wir es im Langfrist-Tab auf 14 % angehoben.
+      </p>
+
+      <h2 id="danger">Die Kombination, bei der unser Modell am stärksten danebenliegen kann</h2>
+      <p>
+        Schauen Sie sich noch einmal <strong>die erste Zeile (GOLDEN_CROSS, 79.2 Punkte)</strong> der obigen Beispielrechnung an.
+        Tatsächlich <strong>verbirgt sich in dieser Zeile ein innerer Widerspruch.</strong>
+      </p>
+      <p>
+        Ein Mayer Multiple von 0.75 bedeutet, dass <strong>der aktuelle Kurs 25 % unter der 200-Tage-Linie liegt</strong>.
+        Ist es da natürlich, dass am selben Tag <strong>die 50-Tage-Linie über die 200-Tage-Linie steigt (Golden Cross)</strong>?
+        Normalerweise ist das ein Widerspruch. Liegt der Kurs weit unter der 200-Tage-Linie, kann der 50-Tage-Durchschnitt kaum über dem 200-Tage-Durchschnitt liegen.
+      </p>
+      <p>
+        Doch <strong>in genau einer Phase tritt diese Kombination tatsächlich auf.</strong>
+        <strong>Im Moment, in dem ein Absturz vom Hoch gerade erst begonnen hat</strong>.
+        Der Kurs ist bereits senkrecht unter die 200-Tage-Linie gefallen, aber <strong>die 50-Tage-Linie liegt aus Trägheit noch über der 200-Tage-Linie</strong>.
+        In diesem Moment sieht unser Modell Folgendes.
+      </p>
+      <ul>
+        <li>Mayer 0.75 → „historisch unterbewertet!“ <strong>100 Punkte</strong></li>
+        <li>RSI 24 → „extrem überverkauft!“ <strong>94 Punkte</strong></li>
+        <li>Rückgang −58 % → „starke Kaufzone!“ <strong>81 Punkte</strong></li>
+        <li>Kreuz → noch im <strong>GOLDEN-Zustand</strong>, also greift die Bremse nicht <strong>60 Punkte</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>Ergebnis: Genau dort, wo der Absturz gerade beginnt, vergibt das Modell rund 75 Punkte (ACCUMULATE).</strong>
+        Und <strong>genau dann greift man beim „fallenden Messer“ nicht nach dem Griff, sondern nach der Klinge</strong>.
+        Die Bremse (Death Cross) greift erst <strong>Dutzende Tage später</strong> — wenn es bereits stark gefallen ist.
+        <strong>Das ist der gefährlichste blinde Fleck dieses Modells, und wir haben ihn nicht vollständig gelöst.</strong>
+        Solange man einen langsamen Indikator als Sicherung verwendet, <strong>ist auch die Sicherung langsam.</strong>
+      </div>
+      <p>
+        Wenn also im Dashboard <strong>das Mayer Multiple stark fällt, das Kreuz aber noch GOLDEN zeigt</strong>,
+        <strong>sollten Sie das nicht als „Unterbewertung“, sondern als Warnung lesen: „Das könnte der Beginn eines Absturzes sein.“</strong>
+        Der Score kann das nicht unterscheiden. Ein Mensch muss es unterscheiden.
+      </p>
+
+      <h2 id="asym">Noch eins — nur das Kreuz behandelt fehlende Daten anders</h2>
+      <p>
+        Wie in der <a href="/methodology">Methodik</a> beschrieben, <strong>werten wir einen fehlenden Indikator nicht mit 0 Punkten, sondern nehmen ihn aus der Berechnung und renormalisieren die verbleibenden Gewichte</strong>.
+        Denn „unbekannt“ ist nicht dasselbe wie „schlecht“.
+      </p>
+      <p>
+        Doch <strong>das Kreuz ist die Ausnahme.</strong> Direkt aus dem Code übertragen sieht das so aus.
+      </p>
+      <pre><code>// die anderen 5 Indikatoren
+sLong: mm == null ? null : conMayer(...)   ← bei null ausgeschlossen + Renormalisierung
+
+// nur das Kreuz
+sLong: gc == null ? 50 : ...               ← liefert auch bei fehlenden Daten 50 Punkte</code></pre>
+      <div class="note warn">
+        <strong>Geständnis ─ eine Asymmetrie.</strong>
+        Auch ohne Daten liefert das Kreuz <strong>nicht null, sondern 50 (neutral)</strong>.
+        Deshalb <strong>fällt das Kreuz nie aus der Abdeckungsanzeige heraus.</strong>
+        Selbst wenn <code>coverage 5/6</code> angezeigt wird, ist der fehlende Indikator nicht das Kreuz — das Kreuz wird immer mitgezählt.
+        Das bedeutet: <strong>Bei Coins, die seit weniger als einem Jahr gelistet sind, belegen „50 Punkte, die nichts wissen“ still und leise die 14 % (langfristig)</strong>.
+      </div>
+      <p>
+        Und noch etwas. Gibt es <strong>weniger als 200 Tage an Daten</strong>, bildet unser Code den Durchschnitt aus dem, was vorhanden ist
+        (<code>Math.min(200, Datenlänge)</code>). <strong>Die „200-Tage-Linie“ eines Coins, der seit 150 Tagen gelistet ist, ist also in Wahrheit eine 150-Tage-Linie</strong>.
+        Zudem braucht die Erkennung eines Kreuzungs-<em>Ereignisses</em> mindestens 201 Tage an Daten, daher
+        <strong>treten bei Coins, die seit weniger als einem Jahr gelistet sind, die Ereignisse GOLDEN_CROSS und DEATH_CROSS überhaupt nicht auf.</strong>
+        Es erscheinen nur die Zustandswerte (GOLDEN/DEATH).
+      </p>
+      <p>
+        <strong>Kurz gesagt: Dieser Indikator funktioniert nur bei Assets mit langer Datenhistorie wie Bitcoin vollständig.</strong>
+        Berücksichtigen Sie das unbedingt, wenn Sie die Kreuz-Karte bei einem frisch gelisteten Altcoin betrachten.
+      </p>
+
+      <h2 id="conclusion">Fazit</h2>
+      <p>
+        Im Laufe der fünf Irrtümer wurde das Kreuz immer weiter abgewertet.
+        Es ist am langsamsten, kreuzt sich erneut, seine Zahlen sind eine willkürliche Konvention, sein Abstand wird nicht einmal bewertet, und sein Gewicht ist das niedrigste der 6.
+        Trotzdem haben wir diesen Indikator entfernt und <strong>wieder aufgenommen.</strong> Aus einem einzigen Grund.
+      </p>
+      <div class="note">
+        <strong>Das Golden Cross ist kein Kaufsignal, sondern ein Werkzeug zur Bestätigung der Phase.</strong><br /><br />
+        Fragt man diesen Indikator <strong>„Wann soll ich kaufen?“, kommt die Antwort immer zu spät</strong>.
+        Fragt man ihn aber <strong>„In welche Richtung zeigt der Trend gerade?“</strong>, kommt eine langsame, aber <strong>selten gelogene Antwort</strong> zurück.
+        <br /><br />
+        Wenn die übrigen fünf Indikatoren aufgeregt rufen „billig, beängstigend, stark gefallen“,
+        <strong>still Punkte abzuziehen und zu sagen „aber der Trend zeigt noch nach unten“</strong> — das ist die einzige Aufgabe, die wir diesem Indikator übertragen haben.
+        <strong>Keine Punktequelle, sondern eine Bremse.</strong> Und eine gute Bremse ist eine, die man nicht oft treten muss.
+      </div>
+      <p>
+        Wenn Sie also das nächste Mal die Schlagzeile „Golden Cross steht bevor!“ sehen, fragen Sie zurück:
+        <strong>„Soll ich also jetzt kaufen, oder heißt das, dass es schon stark gestiegen ist?“</strong>
+        Arithmetisch ist es <strong>immer Letzteres</strong>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis zu Investitionen</strong><br />
+        Dieses Dokument dient <strong>Bildungs- und Informationszwecken</strong> und ist <strong>keine Anlageberatung und keine Kauf- oder Verkaufsempfehlung.</strong>
+        Die Scores, Gewichte und Szenarien im Text sind lediglich <strong>Beispiele zur Erläuterung der Funktionsweise des Modells</strong> und empfehlen keine bestimmten Werte oder Strategien.
+        Kryptowährungen sind <strong>Hochrisiko-Assets, bei denen ein Totalverlust des Kapitals möglich ist</strong>, und technische Indikatoren sagen die Zukunft nicht voraus.
+        Wie im Text dargelegt, <strong>weist dieser Indikator strukturelle blinde Flecken auf.</strong>
+        Alle Anlageentscheidungen und deren Folgen liegen ausschließlich in der Verantwortung des Nutzers. Recherchieren Sie stets selbst (DYOR).
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis zu Investitionen</strong><br />
+        Dieses Dokument und die Scores sind <strong>Referenzmaterial, das öffentliche Indikatoren kombiniert, und keine Anlageberatung oder Kaufempfehlung.</strong>
+        Die historischen Fälle und Zahlen im Text sind grobe Rekonstruktionen, und <strong>die Vergangenheit ist keine Garantie für die Zukunft.</strong>
+        Kryptowährungen sind Hochrisiko-Assets, bei denen ein <strong>Totalverlust des Kapitals</strong> möglich ist.
+        Alle Anlageentscheidungen und deren Folgen liegen ausschließlich in der Verantwortung des Nutzers. Recherchieren Sie stets selbst (DYOR).
+      </div>
+
+      <h2>Weiterlesen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Score-Methodik</b><span>Mit welchen Gewichten die 6 Indikatoren kombiniert werden — inklusive Renormalisierung und Bänder</span></a>
+        <a href="/indicators"><b>Die 6 Indikatoren im Detail</b><span>Wann RSI, MACD, Mayer und Rückgang Sie jeweils im Stich lassen</span></a>
+        <a href="/guide-fear-greed"><b>Angst-Index in der Praxis</b><span>Phasen, in denen alle antizyklischen Indikatoren gemeinsam irren, und gestaffeltes Kaufen</span></a>
+        <a href="/glossary"><b>Glossar</b><span>Gleitende Durchschnitte, Kreuze und Mayer Multiple im Überblick</span></a>
+        <a href="/"><b>Zum Dashboard</b><span>Aktuellen Kreuz-Zustand und gap% prüfen</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+    </main>

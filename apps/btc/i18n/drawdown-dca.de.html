@@ -1,0 +1,501 @@
+    <main class="wrap" data-title="Die Mathematik von Rückgang und gestaffeltem Kauf — ein −50% aufzuholen braucht +100% | broodev" data-desc="Wir berechnen in Tabellen die Asymmetrie beim Aufholen von Verlusten. Wie Durchschnittspreis und Ergebnis derselben 12 Mio. KRW auseinanderlaufen — als Einmalanlage, in 4 gleichen Tranchen oder in rückgangsgewichteten Tranchen — in drei Abwärtsszenarien; die Arithmetik leerer Munition und warum ein Rückgangsindikator bei einem Asset, das gegen null geht, zu 100% konsequent falschliegt.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Score-Methodik</a>
+        <a href="/indicators">Indikatoren erklärt</a>
+        <a href="/guide-fear-greed">Angst-Index richtig nutzen</a>
+        <a href="/glossary">Glossar</a>
+      </nav>
+
+      <h1>Die Mathematik von Rückgang und gestaffeltem Kauf</h1>
+      <p class="muted">Zuletzt aktualisiert: 2026-07-14 · Autor: Y-Systems · Dieser Artikel besteht nur aus Rechnungen</p>
+
+      <p class="lead">
+        In diesem Artikel gibt es keine Ratschläge. <strong>Nur Rechnungen.</strong>
+        Wir zeigen ausschließlich mit Zahlen, warum „es ist stark gefallen, also ist es billig“ gefährlich ist und was gestaffeltes Kaufen tatsächlich leistet — und was es <em>nicht leistet</em>.
+        Das Fazit vorweg:
+        <strong>Gestaffeltes Kaufen ist keine Technik, um mehr zu verdienen. Es ist eine Technik, um die Bandbreite der Ergebnisse zu verengen.</strong>
+        Die Tabelle mit neun Feldern weiter unten beweist das.
+      </p>
+
+      <section class="bd-figs" aria-label="Live-Chart des Rückgangs">
+        <p class="muted">Bevor wir rechnen, sehen wir uns an, wie der Hauptdarsteller dieses Artikels, der „Rückgang vom Allzeithoch“, in der echten Geschichte von BTC aussah. Die 0%-Linie bedeutet, dass gerade neue Hochs erreicht werden; jedes Tal ist eine Phase, in der der „nötige Wiederanstieg“ aus der Tabelle im Text bezahlt werden musste.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">Chartdaten werden geladen…</div></div>
+          </div>
+          <p class="bd-cap">Rückgang von BTC vom Allzeithoch (ATH), gesamter Zeitraum. Gestrichelte Linien = −30% (Punkt, an dem das Modell „Interesse“ signalisiert) und −50% (Zone „stark kauffreundlich“). Orange gestrichelt = Halvings. Der tiefste Punkt liegt bei etwa −93% im Jahr 2011. Daten: CoinMetrics Community API, tägliche BTC-Schlusskurse — beim Besuch abgerufen und im Browser berechnet; <strong>Näherungswerte, nur zur Orientierung</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="c1">Rechnung 1 — Die Asymmetrie des Break-even</h2>
+      <p>
+        Beginnen wir mit der einfachsten und grausamsten Formel. Der <strong>Anstieg, den ein Asset nach einem Rückgang <code>d</code> braucht, um wieder beim Einsatz anzukommen</strong>,
+        ist nicht <code>d</code>.
+      </p>
+      <pre><code>nötiger Anstieg = d ÷ (1 − d)
+
+bei einem Rückgang von −50%      0.50 ÷ 0.50 = +100%
+bei einem Rückgang von −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        Beim Fallen wird <strong>vom verbleibenden Betrag</strong> abgezogen, beim Steigen wird <strong>auf den geschrumpften Betrag</strong> aufgeschlagen.
+        Allein wegen dieses Unterschieds im Nenner sind Verlust und Erholung nie symmetrisch. Die vollständige Tabelle sieht so aus.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Rückgang</th><th>Nötiger Anstieg bis Break-even</th><th>Was von 10 Mio. KRW übrig bleibt</th><th>Gefühl</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>9 Mio.</td><td>Fast symmetrisch. Bis hier stimmt die Intuition</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>8 Mio.</td><td>Die Schere öffnet sich langsam</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>7 Mio.</td><td>Punkt, an dem unser Modell „Interesse“ signalisiert</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>6 Mio.</td><td>−40 gefallen, +67 nötig. Schon das 1.7-Fache</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>5 Mio.</td><td>Punkt, den unser Modell als „stark kauffreundlich“ einstuft</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>4 Mio.</td><td>2.5-Fache nötig</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>3 Mio.</td><td>3.3-Fache</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>2 Mio.</td><td>5-Fache. Man muss einen ganzen Zyklus abwarten</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>1 Mio.</td><td>10-Fache</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>0.5 Mio.</td><td>20-Fache. Praktisch wird es ein anderes Asset</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Worauf man in der Tabelle achten muss, sind nicht die Werte, sondern die <strong>Abstände</strong>.
+        Während der Rückgang von −10% auf −50% um 40 Prozentpunkte tiefer wird, steigt der nötige Wiederanstieg von 11% auf 100% — um <strong>89 Pp.</strong>
+        Wird er dagegen von −50% auf −90% um ebenfalls 40 Pp. tiefer, steigt der nötige Wiederanstieg von 100% auf 900% — um <strong>800 Pp.</strong>
+        <strong>Dieselben 40 Pp., aber neunfacher Schaden.</strong> Der Rückgang wächst linear, sein Preis aber explosionsartig.
+      </p>
+
+      <div class="note">
+        Daraus folgt die erste praktische Konsequenz. <strong>„Es ist ohnehin schon stark gefallen, da macht ein bisschen mehr auch nichts“ ist ein völliges Missverständnis.</strong>
+        Von −50% auf −70% zu fallen heißt nicht „20 Pp. mehr verloren“, sondern ist ein Ereignis, bei dem sich die Aufholhürde <strong>von +100% auf +233% um das 2.3-Fache erhöht</strong>.
+        Jeder weitere Rückgang ist immer teurer als der vorherige.
+      </div>
+
+      <h2 id="c2">Rechnung 2 — Rückgänge addieren sich nicht, sie multiplizieren sich</h2>
+      <p>
+        Die zweite Falle: Viele rechnen Rückgänge per <strong>Addition</strong>.
+        „Erst −30%, dann noch einmal −30%, also −60%.“ Falsch. Rückgänge multiplizieren sich.
+      </p>
+      <pre><code>kumulierter Rückgang = (1 − d₁) × (1 − d₂) × … − 1
+
+zweimal −30%  →  0.7 × 0.7 = 0.49  →  −51%
+zweimal −50%  →  0.5 × 0.5 = 0.25  →  −75%  (+300% bis Break-even nötig)</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aufeinanderfolgende Rückgänge</th><th>Per Addition gerechnet</th><th>Tatsächlicher kumulierter Rückgang</th><th>Bis Break-even</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5-mal</td><td>−100% (Totalverlust?)</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2-mal</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3-mal</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2-mal</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Dass es sich um eine Multiplikation handelt, ist eine gute und eine schlechte Nachricht zugleich.
+        Die gute: <strong>Selbst fünfmal −20% führen nicht auf null</strong> — eine Multiplikation nähert sich 0 nur an, ohne sie zu erreichen.
+        Die schlechte: <strong>Zwischenzeitliche Erholungen geben viel weniger zurück, als man denkt.</strong>
+        Kommt nach −50% eine Erholung um +30%, ergibt das <code>0.5 × 1.3 = 0.65</code> — immer noch −35%.
+        Warum die Erleichterung „endlich geht es wieder hoch“ im Bärenmarkt so oft enttäuscht wird, beantwortet diese Multiplikation.
+      </p>
+
+      <h2 id="c3">Rechnung 3 — Warum ausgerechnet das 365-Tage-Hoch</h2>
+      <p>
+        Um einen Rückgang zu messen, muss man festlegen, <strong>wovon aus gefallen wurde</strong>. Ändert sich der Bezugspunkt, ergibt derselbe Preis einen anderen Rückgang.
+        Unser Modell verwendet das <strong>365-Tage-Hoch</strong>, nicht das Allzeithoch (ATH). Diese Wahl hat ihren Preis, und den schreiben wir hier auf.
+      </p>
+      <p>
+        Angenommen, ein Coin stand vor drei Jahren bei 2 Mio. KRW, das Hoch des letzten Jahres liegt bei 1 Mio. KRW, und aktuell notiert er bei 600,000 KRW.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bezugspunkt</th><th>Berechnung des Rückgangs</th><th>Ergebnis</th><th>Was diese Zahl aussagt</th></tr></thead>
+          <tbody>
+            <tr><td>Allzeithoch 2 Mio.</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>„Historischer Crash-Bereich“</td></tr>
+            <tr><td>365-Tage-Hoch 1 Mio.</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>„Tiefe Korrektur, gemessen am letzten Jahr“</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Derselbe Coin, derselbe Preis, eine fast doppelt so unterschiedliche Zahl. Wir haben 365 Tage aus einem einzigen Grund gewählt:
+        <strong>Der Rückgang vom ATH wird mit der Zeit vom Indikator zur Konstante.</strong>
+        Nimmt man das Hoch von 2021 auf ewig als Bezug, wird mancher Coin fünf Jahre lang als „−70% unterbewertet“ angezeigt.
+        Ein Indikator, der jeden Tag ein Kaufsignal gibt, ist ein Indikator ohne Information.
+      </p>
+      <div class="note warn">
+        <strong>Der Preis — im langen Bärenmarkt setzt sich das 365-Tage-Fenster selbst zurück.</strong>
+        Dauert der Abwärtstrend länger als ein Jahr, <strong>sinkt das 365-Tage-Hoch selbst in die Abwärtsphase hinein.</strong>
+        Angenommen, der Preis fällt über 14 Monate von 100 → 30. Das Hoch des „letzten Jahres“ ist nun nicht mehr 100, sondern zum Beispiel 55.
+        Der Rückgang wird mit <code>30 ÷ 55 − 1 = −45%</code> berechnet. Gemessen am ATH sind es −70%, unser Indikator sagt −45%.
+        <strong>Es gibt Phasen, in denen der Rückgangs-Score ausgerechnet am tiefsten Punkt milder wirkt.</strong>
+        Das ist kein Bug, sondern eine strukturelle Grenze der Fenster-Methode (window). Man sollte es wissen, wenn man ihn nutzt.
+      </div>
+      <p>
+        <strong>Die Schwellen −30% und −50%</strong> wurden nach derselben Logik festgelegt.
+        Bei Kryptowährungen sind Korrekturen von −30% <em>selbst mitten im Bullenmarkt</em> üblich. Deshalb bedeutet −30% nicht „kaufen“, sondern „anfangen hinzuschauen“ (Aufholhürde +43%, noch tragbar).
+        −50% dagegen ist der Punkt, an dem die Erholung <strong>+100%</strong> erfordert, und er trat historisch häufiger bei Zykluswechseln als bei Bullenmarkt-Korrekturen auf.
+        <strong>Beide Schwellen orientieren sich nicht am Preis, sondern am „Punkt, an dem sich die Aufholhürde verdoppelt“.</strong>
+      </p>
+
+      <h2 id="c4">Rechnung 4 — Dieselben 12 Mio. KRW, drei Methoden</h2>
+      <p>
+        Jetzt zum Kern. Wir haben ein Budget von <strong>12 Mio. KRW</strong> (1,200 in Einheiten zu 10,000 KRW). Ein Coin kostet anfangs <strong>1 Mio. KRW</strong> (100 in diesen Einheiten).
+        Es gibt 9 Beobachtungszeitpunkte von t0 bis t8 (denken Sie an Monate). Wir vergleichen drei Arten der Ausführung.
+      </p>
+      <ul>
+        <li><strong>Strategie A — Einmalanlage.</strong> Kauf der gesamten 12 Mio. KRW zu t0.</li>
+        <li><strong>Strategie B — 4 gleiche Tranchen.</strong> Je 3 Mio. KRW zu t0, t2, t4 und t6. Mechanisch, <em>unabhängig vom Preis</em>.</li>
+        <li><strong>Strategie C — Rückgangsgewichtete Tranchen.</strong> Die 12 Mio. KRW werden in <strong>12 Lose</strong> zu je 1 Mio. aufgeteilt und nur ausgeführt, <strong>wenn der Rückgang vom 365-Tage-Hoch erstmals</strong> in eine Zone eintritt:</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rückgangszone</th><th>Ausgeführte Lose</th><th>Betrag</th><th>Kumulierter Verbrauch</th></tr></thead>
+          <tbody>
+            <tr><td>0 ~ −20%</td><td>0 Lose</td><td>0 KRW</td><td>0%</td></tr>
+            <tr><td>−20 ~ −35%</td><td>1 Los</td><td>1 Mio.</td><td>8.3%</td></tr>
+            <tr><td>−35 ~ −50%</td><td>2 Lose</td><td>2 Mio.</td><td>25.0%</td></tr>
+            <tr><td>−50 ~ −65%</td><td>4 Lose</td><td>4 Mio.</td><td>58.3%</td></tr>
+            <tr><td>−65% und tiefer</td><td>5 Lose</td><td>5 Mio.</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        Diese Aufteilung nach Zonen und Losen ist <strong>ein Beispiel zur Veranschaulichung der Rechnung</strong> und keine Empfehlung für eine bestimmte Aufteilung.
+        Entscheidend sind nicht die Zahlen selbst, sondern die Form: <em>„je tiefer, desto mehr wird zugeteilt“</em>.
+      </p>
+
+      <h3>Szenario ① — Tiefer Fall, dann teilweise Erholung</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Zeitpunkt</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Preis (10,000 KRW)</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>365-Tage-Rückgang</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Wir legen offen, was jede Strategie tatsächlich gekauft hat. <strong>Menge = Betrag ÷ Preis</strong> (Beträge und Preise in Einheiten zu 10,000 KRW).</p>
+      <pre><code>Strategie A  t0: 1,200 ÷ 100 = 12.0000 Stk.
+             gesamt 12.0000 Stk. · Ø-Preis 100.00
+
+Strategie B  t0:  300 ÷ 100 =  3.0000 Stk.
+             t2:  300 ÷  74 =  4.0541 Stk.
+             t4:  300 ÷  55 =  5.4545 Stk.
+             t6:  300 ÷  38 =  7.8947 Stk.
+             gesamt 20.4033 Stk. · Ø-Preis 1,200 ÷ 20.4033 = 58.81
+
+Strategie C  t2(−26%): 100 ÷ 74 =  1.3514 Stk.   ← erster Eintritt in −20~−35
+             t3(−38%): 200 ÷ 62 =  3.2258 Stk.   ← erster Eintritt in −35~−50
+             t5(−56%): 400 ÷ 44 =  9.0909 Stk.   ← erster Eintritt in −50~−65
+             (−65% und tiefer nicht erreicht → 5 Lose, 500, nicht ausgeführt)
+             gesamt 13.6681 Stk. · investiert 700 · Ø-Preis 51.21 · 500 in bar übrig</code></pre>
+      <p>
+        Nur nach dem Durchschnittspreis ist die Reihenfolge klar: <strong>C(51.21) &lt; B(58.81) &lt; A(100.00)</strong>.
+        Die Rückgangsgewichtung hat den Durchschnittspreis gegenüber der Einmalanlage <strong>fast halbiert</strong>.
+        Hier enden die meisten Artikel mit „Seht ihr, gestaffeltes Kaufen ist die Lösung“. <strong>Wir hören hier nicht auf.</strong>
+      </p>
+      <p>
+        Zuerst ein wichtiger Punkt. <strong>Strategie C hat die 12 Mio. KRW nicht ausgegeben.</strong> Sie hat nur 7 Mio. investiert.
+        Die Prämisse „gleiche Gesamtsumme investieren“ gilt bei der rückgangsgewichteten Methode <strong>gar nicht.</strong>
+        Fällt der Markt nicht tief genug, bleibt Budget übrig. Das ist keine Nebenwirkung, sondern die Definition dieser Strategie.
+        Für einen fairen Vergleich muss man deshalb das <strong>Gesamtvermögen einschließlich des übrigen Bargelds</strong> betrachten.
+      </p>
+
+      <h2 id="c5">Rechnung 5 — Drei Strategien × drei Szenarien: die Wahrheit der neun Felder</h2>
+      <p>
+        Wer nur Szenario ① rechnet, manipuliert das Ergebnis. <strong>Denn den Abwärtspfad habe ich selbst gezeichnet.</strong>
+        Um ehrlich zu sein, muss man auch <strong>Pfade rechnen, auf denen gestaffeltes Kaufen verliert</strong>. Wir bauen zwei weitere.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Szenario</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① Fall, dann teilweise Erholung</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② Fall ohne Erholung</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ Anstieg ohne Rückgang</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Szenario ② ist bis t6 <strong>exakt identisch</strong> mit ①. Ab t7 fällt es weiter, statt sich zu erholen.
+        Strategie C führt hier zu t7 (−67%) die letzten 5 Lose, 5 Mio. KRW, mit <code>500 ÷ 33 = 15.1515 Stk.</code> aus und <strong>verbraucht das gesamte Budget</strong>.
+        In Szenario ③ bleibt der maximale Rückgang bei −7% und <strong>erreicht nicht einmal die erste Schwelle von Strategie C (−20%)</strong>. C <strong>kauft kein einziges Stück</strong>.
+      </p>
+      <p>Rendite auf das Gesamtvermögen zu t8 (Wert der Coins + übriges Bargeld). Das Budget ist bei allen drei Strategien gleich: 12 Mio. KRW.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Strategie</th><th>① Fall, dann Erholung<br />(t8 = 61)</th><th>② Keine Erholung<br />(t8 = 29)</th><th>③ Anstieg ohne Rückgang<br />(t8 = 168)</th><th>Bestes − schlechtestes<br />(Ergebnisbandbreite)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A Einmalanlage</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0 Pp.</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B 4 gleiche Tranchen</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0 Pp.</td>
+            </tr>
+            <tr>
+              <td><strong>C Rückgangsgewichtet</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5 Pp.</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Lesen Sie diese neun Felder langsam. <strong>Keine Strategie ist in allen drei Szenarien die beste.</strong>
+      </p>
+      <ul>
+        <li><strong>Strategie C gewinnt in ① und ② klar.</strong> Und <strong>ist in ③ Letzte.</strong> Rendite 0%. Während der Markt um 68% stieg, sah sie mit Bargeld in der Hand zu.</li>
+        <li><strong>Strategie A gewinnt nur in ③.</strong> Dafür aber überwältigend (+68%). Im Gegenzug kassiert sie in ② <strong>−71%</strong>. Laut der Tabelle aus Rechnung 1 ist das ein Loch, das <strong>+245%</strong> bis zum Break-even erfordert.</li>
+        <li><strong>Strategie B ist nirgends die beste und nirgends die schlechteste.</strong></li>
+      </ul>
+      <p>
+        Die Spalte ganz rechts ist das Fazit des gesamten Artikels. <strong>Ergebnisbandbreite: A 139 Pp., B 83 Pp., C 41.5 Pp.</strong>
+        Je feiner man staffelt und je stärker man nach Rückgang gewichtet, <strong>desto mehr wird das Maximum gekappt und desto höher steigt das Minimum.</strong>
+        Gestaffeltes Kaufen <em>erhöht nicht den Durchschnitt</em>, sondern <strong>verengt die Verteilung</strong>.
+        Das ist keine Geschmacksfrage, sondern ein Ergebnis der Arithmetik. Es ist ein Tausch: Man gibt das obere Ende auf und kauft sich dafür das untere.
+      </p>
+      <div class="note">
+        <strong>„Mit gestaffeltem Kaufen verdient man mehr“ ist falsch. Richtig ist: „Mit gestaffeltem Kaufen verliert man weniger.“</strong>
+        Dass C in der Tabelle ① und ② gewonnen hat, liegt auch daran, <strong>dass ich zwei Abwärtspfade und nur einen Aufwärtspfad gezeichnet habe</strong>.
+        Mit zwei Aufwärtspfaden würde sich die durchschnittliche Reihenfolge umkehren. <strong>Andere Pfade, andere Reihenfolge.</strong>
+        Unverändert bleibt nur, <strong>dass die „Bandbreite“ der Reihenfolge A &gt; B &gt; C folgt</strong> — und das ist das einzige verlässliche Ergebnis dieser Simulation.
+      </div>
+
+      <h2 id="c6">Rechnung 6 — Die Arithmetik leerer Munition</h2>
+      <p>
+        Die meisten, die sagen, sie kaufen gestaffelt, scheitern in Wahrheit nicht an der Aufteilungstabelle.
+        Sondern daran, <strong>zu weit oben schon alles auszugeben</strong>. Das nageln wir mit Zahlen fest.
+      </p>
+      <p>
+        Wir fügen <strong>Strategie D</strong> hinzu. Sie bildet die verbreitete Psychologie ab, aus Angst „schnell einsteigen zu wollen“.
+        Sobald der Rückgang beginnt, investiert sie <strong>je 4 Mio. KRW zu t1 (−12%), t2 (−26%) und t3 (−38%)</strong> und <strong>hat bei −38% das gesamte Budget verbraucht</strong>.
+        Gerechnet wird auf Szenario ① (danach weiter bis −62% gefallen, dann auf 61 erholt).
+      </p>
+      <pre><code>Strategie D  t1: 400 ÷ 88 =  4.5455 Stk.
+             t2: 400 ÷ 74 =  5.4054 Stk.
+             t3: 400 ÷ 62 =  6.4516 Stk.
+             gesamt 16.4025 Stk. · Ø-Preis 73.16 · Restmunition 0
+
+             t4(−45%) · t5(−56%) · t6(−62%) ← nur zugeschaut</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategie</th><th>Günstigster Kaufpreis (10,000 KRW)</th><th>Ø-Preis (10,000 KRW)</th><th>Gesamtmenge</th><th>Ergebnis Szenario ①</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D Früh verbraucht</strong> (alles bei −38%)</td><td>62</td><td><strong>73.16</strong></td><td>16.4025 Stk.</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C Rückgangsgewichtet</strong> (Munition bewahrt)</td><td>44</td><td><strong>51.21</strong></td><td>13.6681 Stk.</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Derselbe Rückgang, dasselbe Budget, dasselbe „gestaffelte Kaufen“. Und doch <strong>trennen sich die Durchschnittspreise: 731,600 KRW gegenüber 512,100 KRW</strong>.
+        <strong>Der Unterschied beträgt 219,500 KRW — ganze 30%.</strong> Beim Ergebnis −16.6% gegenüber +11.1%: <strong>27.7 Pp.</strong> Abstand.
+      </p>
+      <p>
+        Der Fehler von Strategie D war nicht, <em>nicht gestaffelt zu haben</em>. Auch D hat in drei Schritten gestaffelt.
+        Ihr Fehler war, <strong>das Geld aufzubrauchen, bevor die billigste Zone kam</strong>.
+        In der Simulation kaufte D kein einziges Stück zum Tiefstpreis von 380,000 KRW.
+        <strong>Der Preis dafür, bei −38% das Budget aufzubrauchen, ist, bei −62% nur zuschauen zu können.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Die einzige Regel der Munitionsverteilung — je tiefer, desto mehr muss noch übrig sein.</strong>
+        Deshalb ist die Aufteilung von Strategie C (0 · 1 · 2 · 4 · 5 Lose) <strong>keine arithmetische Folge, sondern wächst nach hinten an</strong>.
+        Je tiefer der Rückgang, <strong>desto mehr Stück bekommt man für dasselbe Geld — und zwar überproportional</strong>.
+        Mit 1 Mio. KRW kauft man <strong>zum Preis von 74 1.35 Stück</strong>, <strong>zum Preis von 38 2.63 Stück</strong> — <strong>fast das Doppelte</strong>.
+        Der stärkste Kauf findet immer in der beängstigendsten Zone statt, und wenn das Guthaben dann bei 0 steht, <strong>hat es diese Zone praktisch nie gegeben.</strong>
+      </div>
+
+      <h2 id="c7">Rechnung 7 — Was es heißt, keinen Boden zu haben</h2>
+      <p>
+        Unter allen bisherigen Rechnungen lag <strong>eine unausgesprochene Prämisse</strong>.
+        <strong>Dass das Asset überlebt.</strong> Fällt diese Prämisse, kehren sich alle obigen Tabellen um.
+      </p>
+      <p>Wir rechnen den typischen Pfad eines Coins auf dem Weg zum Delisting durch. 8 Zeitpunkte, Startpreis 1 Mio. KRW.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Zeitpunkt</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Preis (10,000 KRW)</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>365-Tage-Rückgang</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>Rückgangs-Teilscore</strong></td><td>Niedrig</td><td>Interesse</td><td><strong>Maximum</strong></td><td><strong>Maximum</strong></td><td><strong>Maximum</strong></td><td><strong>Maximum</strong></td><td><strong>Maximum</strong></td><td><strong>Maximum</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Sehen Sie sich die unterste Zeile an.</strong> Von t2 bis t7, <strong>während der gesamten</strong> Agonie des Assets, vergab der Rückgangsindikator die Höchstpunktzahl.
+        „Starker Kauf“ bei −55%, „starker Kauf“ bei −95%, „starker Kauf“ bei −99%.
+        <strong>Der Rückgangsindikator lag hier kein einziges Mal richtig. Er lag zu 100% konsequent falsch.</strong>
+        Und weil er so gebaut ist, <strong>„je tiefer der Fall, desto lauter zum Kauf zu raten“</strong>, lag er umso gröber daneben, je mehr er danebenlag.
+      </p>
+      <p>Wir schicken die drei Strategien über diesen Pfad. Der Endpreis beträgt 3,000 KRW.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategie</th><th>Gesamtmenge</th><th>Ø-Preis (10,000 KRW)</th><th>Endwert (10,000 KRW)</th><th>Ergebnis</th><th>Nötiger Anstieg bis Break-even</th></tr></thead>
+          <tbody>
+            <tr><td>A Einmalanlage</td><td>12.00 Stk.</td><td>100.00</td><td>3.6</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B 4 gleiche Tranchen</td><td>234.67 Stk.</td><td>5.11</td><td>70.4</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C Rückgangsgewichtet</td><td>34.76 Stk.</td><td>34.52</td><td>10.4</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Hier zeigen sich zwei Dinge. Erstens: <strong>Alle drei Strategien sind gestorben.</strong>
+        Zweitens: Das Ergebnis der <strong>„besten“ Strategie liegt bei −94.1%</strong>.
+        Holt man die Formel aus Rechnung 1 wieder hervor, braucht selbst dieses beste Ergebnis <strong>+1,595%</strong> bis zum Break-even.
+        <strong>In dieser Tabelle gibt es keinen Gewinner. Nur weniger katastrophale Verlierer.</strong>
+      </p>
+      <p>
+        Sehen Sie sich Strategie C an. Die rückgangsgewichtete Methode, in den Szenarien ① und ② so überlegen, hat hier
+        <strong>dem Signal „es ist billig“ folgend 91.7% des Budgets in die Zonen −55% und −75% gepumpt und mit −99.1% geendet.</strong>
+        Nach Rückgang zu gewichten heißt <strong>„je tiefer der Fall, desto mehr kaufen“</strong>, und
+        <strong>bei einem Asset, das gegen null geht, ist das ein Algorithmus zur Verlustmaximierung.</strong>
+        Genau die Eigenschaft, die C in Szenario ① zum Sieger machte, ist hier ihr Todesurteil. <strong>Es ist dieselbe Eigenschaft.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Die Voraussetzung des Rückgangsindikators — „dieses Asset existiert auch in 5 Jahren noch“.</strong>
+        Der Rückgang unterstellt, <strong>dass der Preis zurückkehrt</strong>. Für ein Asset, das zurückkehrt, ist er ein guter Indikator;
+        für ein Asset, das verschwindet, ist er <strong>der gefährlichste Indikator</strong>. Und <strong>der Chart kann beides nicht unterscheiden.</strong>
+        Ein Bitcoin-Chart bei −80% und der Chart eines Altcoins bei −80% kurz vor dem Delisting <strong>sehen genau gleich aus.</strong>
+        Der Unterschied liegt nicht im Indikator, sondern in <strong>Fundamentaldaten, Liquidität, Team und Token-Unlocks</strong> — und unser Modell betrachtet nichts davon.
+        Die Tausenden heute verschwundenen Altcoins <strong>durchliefen ausnahmslos die −90%-Zone, und in jeder dieser Phasen vergab der Rückgangsindikator die Höchstpunktzahl.</strong>
+      </div>
+
+      <h2 id="c8">Rechnung 8 — Deshalb geben wir dem Rückgang nur 18% und 14%</h2>
+      <p>
+        Rechnung 7 ist der Grund, warum der <strong>Rückgang in unserem Modell in keinem Modus das höchste Gewicht unter den 6 Indikatoren hat</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modus</th><th>Gewicht des Rückgangs</th><th>Rang unter 6</th><th>Indikator auf Platz 1</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Kurzfristig</strong> (Momentum)</td><td><strong>18%</strong></td><td>Platz 3</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>Langfristig</strong> (antizyklisch)</td><td><strong>14%</strong></td><td>geteilter Platz 5</td><td>RSI · MACD · F&amp;G · Mayer je 18%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Überraschend ist, dass es <strong>langfristig sogar niedriger ist</strong> (18% → 14%).
+        „Sollte gerade die langfristige Anlage nicht auf den Rückgang achten?“, mag man denken — der Grund ist aber die <strong>Doppelzählung</strong>.
+      </p>
+      <p>
+        <strong>Rückgang und Mayer-Multiple stellen im Grunde dieselbe Frage</strong> — <em>„Liegt der aktuelle Preis unter einer früheren Bezugslinie?“</em>
+        Der Rückgang nimmt nur das <strong>365-Tage-Hoch</strong>, das Mayer-Multiple den <strong>gleitenden 200-Tage-Durchschnitt</strong> als Bezugslinie.
+        Im Langfrist-Modus gehört das Mayer-Multiple mit <strong>18%</strong> zur Spitzengruppe.
+        Gäbe man hier auch dem Rückgang 18%, <strong>würde man 36% auf dieselbe Perspektive (Bewertung) bündeln</strong>.
+        Der Grund für 6 Indikatoren ist, <strong>unterschiedliche Perspektiven zu mischen</strong> — dieses Design würde damit zusammenbrechen.
+        Langfristig <strong>geben wir daher dem Mayer-Multiple mit seiner stabileren Bezugslinie (200-Tage-Durchschnitt) Gewicht und senken den Rückgang, der von einem einzigen Hoch abhängt.</strong>
+        Das 365-Tage-Hoch ist <strong>der Wert eines einzigen Tages</strong>; war dieser Tag ein Ausreißer nach oben, ist der Rückgang des ganzen folgenden Jahres verzerrt.
+        Der 200-Tage-<em>Durchschnitt</em> hat diese Schwäche nicht.
+      </p>
+
+      <h3>Der Rückgang allein kann kein STRONG BUY erzeugen</h3>
+      <p>Was diese Gewichtung praktisch bedeutet, prüfen wir rechnerisch. Erreicht der Rückgang die <strong>Höchstpunktzahl (100 Punkte)</strong>, trägt er so zur Gesamtpunktzahl bei.</p>
+      <pre><code>Kurzfristig: 100 Punkte × 0.18 = 18 Punkte Beitrag (die übrigen 82% kommen von den 5 anderen Indikatoren)
+Langfristig: 100 Punkte × 0.14 = 14 Punkte Beitrag (die übrigen 86% kommen von den 5 anderen Indikatoren)
+
+Um die STRONG-BUY-Schwelle (80 Punkte) zu überschreiten, muss der gewichtete Durchschnitt der übrigen 5 Indikatoren betragen
+
+  Kurzfristig:  (80 − 18) ÷ 0.82 = mindestens 75.6 Punkte
+  Langfristig:  (80 − 14) ÷ 0.86 = mindestens 76.7 Punkte</code></pre>
+      <p>
+        Das heißt: <strong>Selbst wenn der Rückgang durch einen −70%-Crash die Höchstpunktzahl erhält, erreicht der Score niemals 80 (STRONG BUY),
+        solange RSI, MACD, Angst-Index, Mayer und Kreuzungen im Schnitt nicht über 75 Punkte kommen.</strong>
+      </p>
+      <p>
+        Noch extremer — <strong>hat nur der Rückgang 100 Punkte und stehen die übrigen fünf Indikatoren alle auf 0, beträgt die Gesamtpunktzahl kurzfristig 18 und langfristig 14 Punkte</strong>.
+        Beide liegen im <strong>Bereich 0~25</strong>, daher zeigt der Langfrist-Tab <strong>OVERHEATED</strong> und der Kurzfrist-Tab <strong>AVOID (starker Abwärtstrend)</strong>.
+        „−70% gefallen und der Langfrist-Tab sagt überhitzt?“ Das wirkt seltsam, ist aber <strong>genau das beabsichtigte Verhalten</strong>.
+        Nur der Preis ist gefallen; der Trend ist tot, die Stimmung hat sich nicht verbessert, und gemessen an der 200-Tage-Linie ist es immer noch teuer —
+        <strong>genau so sieht der Delisting-Pfad aus Rechnung 7 aus.</strong>
+        Zu verhindern, dass der Rückgang allein die anderen fünf überstimmt, ist der Daseinszweck der Gewichte 18%/14%.
+      </p>
+      <p class="muted">
+        Hinweis: Bei Coins, die weniger als ein Jahr gelistet sind, <strong>existiert kein 365-Tage-Hoch, daher fehlt der Rückgang</strong>.
+        In diesem Fall wird der Rückgang ausgeklammert, die Gewichte der übrigen Indikatoren werden renormiert, und das Dashboard zeigt <code>coverage: 5/6</code>.
+        Die genaue Rechnung steht im Abschnitt zur Renormierung in der <a href="/methodology">Score-Methodik</a>.
+      </p>
+
+      <h2 id="c9">Wo diese Rechnungen lügen</h2>
+      <p>Bis hierher haben wir acht Tabellen gezeigt. Jetzt schreiben wir auf, <strong>warum man ihnen nicht glauben sollte</strong>.</p>
+      <ul>
+        <li>
+          <strong>Die drei Szenarien habe ich selbst erfunden.</strong> Es ist kein Backtest, sondern <strong>hypothetische Pfade</strong>.
+          Schon kleine Änderungen an den Zahlen können die Reihenfolge der Strategien umkehren. Diese Simulation beweist nur eines:
+          <strong>nicht „C ist gut“, sondern „je stärker gestaffelt, desto enger die Ergebnisbandbreite“</strong>.
+        </li>
+        <li>
+          <strong>Der Durchschnittspreis ist keine Erfolgskennzahl.</strong> In Rechnung 7 lag der Durchschnittspreis von Strategie B bei <strong>51,100 KRW</strong> — der niedrigste der drei.
+          Und sie <strong>endete bei −94.1%.</strong> Ein niedriger Durchschnittspreis bedeutet nicht, <em>günstig gekauft</em> zu haben, sondern nur,
+          <strong>während des Falls immer weiter gekauft zu haben</strong>. Stirbt das Asset, ist das Ergebnis 0 — egal wie hoch der Durchschnittspreis war.
+        </li>
+        <li>
+          <strong>Gebühren, Slippage und Steuern wurden alle auf 0 gesetzt.</strong> In Wirklichkeit <strong>zahlt gestaffeltes Kaufen wegen der höheren Zahl an Transaktionen mehr Gebühren.</strong>
+          Ein Teil der Unterschiede in den Tabellen schmilzt in der Realität genau so ab.
+        </li>
+        <li>
+          <strong>Opportunitätskosten wurden auf 0 gesetzt.</strong> Dass Strategie C in Szenario ③ „0.0%“ erzielt, setzt voraus, dass
+          <strong>das übrige Bargeld nichts verdient</strong>. Mit Zinsen auf ein Sparkonto sieht es etwas besser aus;
+          umgekehrt ist es, <strong>wenn in diesem Jahr andere Assets gestiegen sind, ein realer Verlust</strong>.
+        </li>
+        <li>
+          <strong>Das 365-Tage-Fenster lässt den Rückgang in langen Bärenmärkten flacher erscheinen</strong> (Warnung aus Rechnung 3).
+          Gerade in der tiefsten Zone kann der Indikator am unempfindlichsten werden.
+        </li>
+        <li>
+          <strong>Die Zonen- und Losaufteilung von Strategie C (0·1·2·4·5) ist ein Rechenbeispiel.</strong>
+          Wir empfehlen diese Aufteilung nicht und behaupten auch nicht, sie sei optimal.
+          Ändert man die Zonen auf −25/−40/−55, ändert sich auch das Ergebnis. <strong>Es gibt keine richtige Antwort.</strong>
+        </li>
+        <li>
+          <strong>Die wichtigste Variable steht nicht in der Rechnung.</strong> Existiert dieses Asset in 5 Jahren noch?
+          Die Antwort liegt nicht in Tabellen, sondern in <strong>der tatsächlichen Substanz des Projekts</strong> — und unser Modell betrachtet sie nicht.
+        </li>
+      </ul>
+
+      <p>
+        Zusammengefasst: <strong>Der Rückgang misst nicht, „wie billig“ etwas ist. Er misst nur, „wie tief es gefallen ist“.</strong>
+        Beides bedeutet nur dann dasselbe, wenn das Asset überlebt; andernfalls bedeutet es das genaue Gegenteil.
+        <strong>Dass der Moment, in dem dieser Indikator am lautesten „kaufen“ ruft, nicht von dem Moment zu unterscheiden ist, in dem das Asset stirbt</strong> —
+        das ist alles, was man über den Rückgang wissen muss.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis zur Geldanlage</strong><br />
+        Alle Szenarien, Preise, Aufteilungen und Renditen in diesem Dokument sind <strong>hypothetische Beispiele zur Erläuterung der Rechenprinzipien</strong>
+        und keine echten Marktdaten oder Backtest-Ergebnisse. Es wird keine bestimmte Strategie, Aufteilung oder kein bestimmter Wert empfohlen.
+        Dieses Dokument dient <strong>Bildungs- und Informationszwecken und ist keine Anlageberatung.</strong>
+        Kryptowährungen sind Hochrisiko-Assets, bei denen <strong>ein Totalverlust des eingesetzten Kapitals möglich ist</strong>, und tatsächlich gibt es, wie in Rechnung 7,
+        <strong>zahlreiche Fälle, in denen der Wert gegen 0 konvergiert ist.</strong>
+        Keine Technik, auch nicht gestaffeltes Kaufen, verhindert Verluste.
+        Die Verantwortung für alle Anlageentscheidungen und deren Folgen liegt allein beim Nutzer. Recherchieren Sie immer selbst (DYOR).
+      </div>
+
+      <h2>Weiterlesen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Score-Methodik</b><span>Alle 6 Gewichte inklusive 18%/14% für den Rückgang und die Renormierung</span></a>
+        <a href="/indicators"><b>Die 6 Indikatoren erklärt</b><span>Worauf die anderen fünf neben dem Rückgang schauen</span></a>
+        <a href="/guide-fear-greed"><b>Praxisleitfaden zum Angst-Index</b><span>Ist dieser Artikel „die Mathematik“, ist jener „das Verfahren“</span></a>
+        <a href="/glossary"><b>Glossar</b><span>Definitionen von Rückgang, Durchschnittspreis und Mayer-Multiple</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+    </main>

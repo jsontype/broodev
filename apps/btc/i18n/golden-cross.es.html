@@ -1,0 +1,481 @@
+    <main class="wrap" data-title="5 malentendidos sobre el cruce dorado — por qué es un filtro de tendencia y no una señal de compra | broodev" data-desc="El cruce dorado no es una señal de compra. Desmontamos, en cinco mitos, el indicador que más malinterpretan los medios y mostramos por qué el modelo de broodev solo le asigna un 8% a corto plazo y un 14% a largo plazo, con la tabla real de 4 niveles del código y un cálculo paso a paso.">
+      <nav class="nav">
+        <a href="/">← Panel</a>
+        <a href="/methodology">Metodología de la puntuación</a>
+        <a href="/indicators">Indicadores explicados</a>
+        <a href="/guide-fear-greed">Cómo usar el índice de miedo</a>
+        <a href="/glossary">Glosario</a>
+      </nav>
+
+      <h1>5 malentendidos sobre el cruce dorado</h1>
+      <p class="muted">Última actualización: 2026-07-14 · Autor: Y-Systems · Ámbito: puntuación de momento de compra v2 de broodev (indicador GC_DC)</p>
+
+      <p class="lead">
+        «Bitcoin, a punto de un cruce dorado… señal alcista»: este titular se repite en cada ciclo.
+        Y <strong>esa frase casi siempre se usa de forma equivocada.</strong>
+        De los 6 indicadores que manejamos, el cruce dorado es <strong>el más malinterpretado</strong>
+        y, al mismo tiempo, <strong>el que menos peso recibe</strong> en nuestro modelo. Ambos hechos no son ajenos entre sí.
+      </p>
+      <p>
+        Este artículo no vuelve a explicar la definición. Que el cruce dorado es cuando la media de 50 días corta al alza la de 200 días
+        está en el <a href="/glossary">glosario</a>, y cómo entra en la puntuación se explica en la
+        <a href="/methodology">metodología</a>. Aquí, en cambio, vamos a <strong>derribar uno a uno cinco mitos muy extendidos</strong>
+        y a poner en su lugar <strong>lo que nuestro código hace realmente</strong>.
+        Al final <strong>confesamos dos defectos conocidos</strong> de nuestro modelo.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Lo que se suele decir</th><th>En realidad</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① «Ha salido el cruce dorado = compra ya»</a></td><td>Es, por construcción, <strong>la señal más lenta</strong>. No anuncia la subida: es el <strong>recibo</strong></td></tr>
+            <tr><td><a href="#m2">② «Cruce de la muerte = empieza el desplome»</a></td><td>Los recruces (whipsaw) son frecuentes. En nuestro modelo, <strong>la puntuación del evento dura un solo día</strong></td></tr>
+            <tr><td><a href="#m3">③ «50 y 200 son los números correctos»</a></td><td>Es una <strong>convención de días hábiles</strong> de la bolsa trasplantada sin ajustar a un mercado que abre 365 días</td></tr>
+            <tr><td><a href="#m4">④ «Cuanto mayor la separación, más fuerte la señal»</a></td><td>Nuestro modelo <strong>calcula la brecha pero no la usa en la puntuación</strong> (simplificación deliberada)</td></tr>
+            <tr><td><a href="#m5">⑤ «Un peso del 8% es como no usarlo»</a></td><td>Aquí se invierte la dirección. El cruce <strong>no suma puntos: es un mecanismo para restar</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="Gráfico en vivo del cruce dorado">
+        <p class="muted">Antes de leer los cinco malentendidos, veamos dónde se produjeron realmente los cruces dorados (▲) y los cruces de la muerte (▼) a lo largo de toda la historia. Se aprecia de un vistazo que el cruce siempre llega «cuando el precio ya se ha movido mucho» y lo frecuentes que son los recruces (whipsaw).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">Cargando datos del gráfico…</div></div>
+          </div>
+          <p class="bd-cap">Precio de BTC (logarítmico, gris) con SMA50 (azul) y SMA200 (rojo), periodo completo. ▲ = cruce dorado (la media de 50 días supera al alza la de 200 días), ▼ = cruce de la muerte. Línea discontinua naranja = halving. Datos: CoinMetrics Community API, cierre diario de BTC; se descargan al visitar la página y se calculan en el navegador, por lo que son <strong>aproximados y solo orientativos</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="m1">Malentendido ① «Ha salido el cruce dorado = compra ya»</h2>
+
+      <h3>Lo que se dice</h3>
+      <p>
+        Es la frase favorita de los artículos y de las miniaturas de YouTube. Tratan el cruce dorado como <strong>una bengala que anuncia el futuro</strong>.
+        Y siempre lo acompaña una estadística del tipo «históricamente, tras un cruce dorado sube de media un X%».
+      </p>
+
+      <h3>Por qué es falso: la aritmética no lo permite</h3>
+      <p>
+        Para que se produzca un cruce dorado, <strong>el precio medio de los últimos 50 días tiene que superar el de los últimos 200 días</strong>.
+        Deténgase un momento a pensar qué significa eso.
+      </p>
+      <p>
+        La media de 200 días es <strong>la suma de 200 días de precios dividida entre 200</strong>. Aunque ayer el precio subiera un 20% en un solo día,
+        ese salto solo pesa 1/200. Para <strong>elevar esta línea de forma significativa, el precio tiene que mantenerse alto durante decenas de días</strong>.
+        La media de 50 días tiene, igualmente, la inercia de 50 días.
+      </p>
+      <p>
+        Es decir, <strong>el mero hecho de que se crucen dos cuerpos con tanta inercia es la prueba de que «ya lleva mucho tiempo subiendo»</strong>.
+        El cruce dorado no <em>anuncia</em> la subida. Solo <em>confirma a posteriori que la subida ya lleva bastante tiempo en marcha</em>.
+      </p>
+      <div class="note">
+        <strong>Por decirlo con una metáfora, el cruce dorado no es un pronóstico, sino un recibo.</strong>
+        El recibo te dice exactamente qué has comprado, pero sale <strong>después de haber pagado</strong>.
+        Mirar el recibo y decir «ahora sí, voy a comprar» es invertir el orden.
+      </div>
+      <p>
+        Por eso parecen tan convincentes las estadísticas de «subida media tras un cruce dorado».
+        El cruce dorado <strong>solo ocurre, por definición, en mercados alcistas</strong>. Así que la rentabilidad posterior no puede sino ser buena.
+        Eso no es poder predictivo del indicador, sino <strong>el resultado de una muestra ya seleccionada (selection effect)</strong>.
+        Es como afirmar que el paraguas predice la lluvia porque «los días en que se usó paraguas llovió».
+      </p>
+
+      <h3>En realidad</h3>
+      <p>
+        Para cuando se confirma un cruce dorado desde un suelo, <strong>el precio ya ha subido bastante desde el mínimo.</strong>
+        Significa que ha subido lo suficiente como para que la media de 50 días supere esa pesada línea de referencia que es la de 200 días.
+        Por eso nuestro modelo <strong>no trata este indicador como una herramienta para elegir el momento de entrada.</strong>
+        Solo lo usamos para responder a <strong>«¿en qué fase estamos?»</strong>, no a «compra ya».
+      </p>
+
+      <h2 id="m2">Malentendido ② «Cruce de la muerte = empieza el desplome»</h2>
+
+      <h3>Lo que se dice</h3>
+      <p>
+        El cruce de la muerte ya suena siniestro por su nombre. Con esa etiqueta
+        se consume como <strong>un detonante de miedo que anuncia «ahora llega el gran desplome»</strong>. En cuanto sale la noticia, aparecen las ventas de pánico.
+      </p>
+
+      <h3>Por qué es falso: los cruces vuelven a cruzarse</h3>
+      <p>
+        Basta con invertir la lógica del malentendido ①. <strong>El cruce de la muerte es una señal igual de lenta.</strong>
+        Para cuando se confirma, <strong>buena parte de la caída ya se ha producido</strong>.
+        Se parece más a un certificado de que «la caída ya dura mucho» que al «inicio del desplome».
+        Por eso no es raro que justo después de un cruce de la muerte llegue un rebote: el <strong>whipsaw</strong>.
+      </p>
+      <p>
+        Imagine que las dos medias móviles están <strong>casi pegadas</strong>. En ese caso, basta un pequeño vaivén del precio para que
+        la media de 50 días baje por debajo de la de 200 y, pocos días después, vuelva a subir por encima.
+        <strong>Un cruce no es un suceso único, sino algo que puede repetirse varias veces</strong>.
+      </p>
+
+      <h3>En realidad: cómo trata nuestro código este problema (confesión incluida)</h3>
+      <p>
+        Nuestro modelo determina el cruce <strong>comparando solo dos días: ayer y hoy</strong>.
+      </p>
+      <pre><code>ayer: media 50d ≤ media 200d   →   hoy: media 50d &gt; media 200d   ⇒  GOLDEN_CROSS
+ayer: media 50d ≥ media 200d   →   hoy: media 50d &lt; media 200d   ⇒  DEATH_CROSS
+en otro caso                                                     ⇒  NONE (solo se mantiene el estado)</code></pre>
+      <p>
+        En consecuencia, <strong>el «evento de cruce» solo es verdadero (true) durante un día.</strong>
+        Al día siguiente el evento desaparece y solo queda un valor de estado sin más: «estado dorado / estado de muerte».
+      </p>
+      <div class="note">
+        <strong>Es un diseño intencionado.</strong> Los medios exprimen un cruce dorado durante semanas,
+        pero en nuestro modelo <strong>la noticia del cruce caduca a las 24 horas</strong>.
+        Como veremos en la tabla de puntuación, la prima del día del evento (85 puntos a largo plazo) <strong>baja a 60 puntos al día siguiente.</strong>
+        Que «ayer hubo un cruce dorado» no añade ningún punto extra a la puntuación de hoy.
+      </div>
+      <div class="note warn">
+        <strong>Confesión: nuestro modelo también se ve sacudido por el whipsaw.</strong>
+        Si las medias de 50 y 200 días están casi pegadas y se recruzan arriba y abajo en dos semanas,
+        nuestra puntuación también oscila <strong>85 → 60 → 15 → 35</strong>. No hay forma de eliminar este defecto.
+        Lo único que hicimos fue <strong>poner un techo a la amplitud de la oscilación</strong>,
+        y ese techo es precisamente <strong>el bajo peso del 8% y el 14%</strong>. Más adelante calcularemos cuántos puntos supone realmente.
+      </div>
+
+      <h2 id="m3">Malentendido ③ «50 y 200 son los números correctos»</h2>
+
+      <h3>Lo que se dice</h3>
+      <p>
+        Se habla como si 50 y 200 tuvieran alguna necesidad matemática.
+        Y como son los valores por defecto de los programas de gráficos, uno se lo cree aún más.
+      </p>
+
+      <h3>Por qué es falso: es una convención bursátil, y además mal trasladada</h3>
+      <p>
+        <strong>No existe una justificación académica satisfactoria</strong> para 50 y 200. Es una convención.
+        En los gráficos bursátiles tradicionales, <strong>200 es un redondeo a ojo de un año de sesiones (en rigor, unas 252)</strong>
+        y <strong>50 es el redondeo de un trimestre (unas 63 sesiones)</strong>.
+      </p>
+      <p>
+        Pero aquí surge <strong>un problema exclusivo de las criptomonedas</strong>, algo que casi nadie señala.
+      </p>
+      <p>
+        <strong>La bolsa abre 5 días a la semana; las criptomonedas, 7.</strong>
+        La «media de 200 días» bursátil son <strong>200 sesiones</strong>, lo que equivale a <strong>unos 280 días naturales (unos 9,2 meses)</strong>.
+        En cambio, la «media de 200 días» de las criptomonedas, con una vela diaria cada día, son <strong>200 días naturales, es decir, unos 6,6 meses</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Línea</th><th>Acciones (5 días/semana)</th><th>Cripto (7 días/semana)</th><th>Diferencia real</th></tr></thead>
+          <tbody>
+            <tr><td>Media de 200 días</td><td>200 sesiones ≈ <strong>280 días naturales</strong></td><td>200 días naturales = <strong>200 días naturales</strong></td><td>La de cripto es <strong>un 29% más corta</strong></td></tr>
+            <tr><td>Media de 50 días</td><td>50 sesiones ≈ <strong>70 días naturales</strong></td><td>50 días naturales = <strong>50 días naturales</strong></td><td>La de cripto es <strong>un 29% más corta</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        En resumen, <strong>la «media de 200 días» de las criptomonedas parece una copia de la convención bursátil, pero en realidad es una ventana (window) mucho más corta</strong>.
+        Para cubrir el mismo periodo natural que 200 sesiones bursátiles, en cripto habría que usar <strong>una media de unos 280 días</strong>.
+        <strong>Todo el sector omite este ajuste.</strong>
+      </p>
+
+      <h3>En realidad: entonces, ¿por qué nosotros también usamos 200?</h3>
+      <p>
+        Nuestro código también usa <strong>200 días naturales</strong>. No lo ajustamos. Explicamos el motivo con franqueza.
+      </p>
+      <ul>
+        <li>
+          <strong>Primero, la observabilidad tiene fuerza por sí misma.</strong> 50/200 no funciona porque sea «correcto»,
+          sino que funciona hasta cierto punto <strong>porque muchísimos participantes miran la misma línea y reaccionan en el mismo sitio</strong>.
+          Si cambiáramos por nuestra cuenta a una media de 280 días, <strong>perderíamos ese carácter autocumplido.</strong> Una línea que nadie mira no actúa como soporte.
+        </li>
+        <li>
+          <strong>Segundo, tiene que compartir denominador con el múltiplo de Mayer.</strong> El múltiplo de Mayer se define como <code>precio actual ÷ media móvil de 200 días</code>.
+          Si solo el cruce pasara a 280 días, <strong>habría dos «líneas de largo plazo» distintas dentro del mismo modelo</strong> y la interpretación se descuadraría.
+        </li>
+        <li>
+          <strong>Tercero, porque conocemos la dirección de esta distorsión.</strong> La media de 200 días en cripto es más <strong>corta que la convención, por lo tanto más sensible, y se cruza con más frecuencia</strong>.
+          Cruces más frecuentes <strong>significan más señales falsas</strong>. Por eso fijamos desde el principio un peso bajo para este indicador.
+          <strong>En lugar de ajustarlo, optamos por no fiarnos de él.</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        Saber que no es un número correcto sino <strong>una convención compartida</strong> marca una gran diferencia.
+        Si se cree que 50/200 son constantes sagradas, se le da al cruce un significado excesivo.
+      </p>
+
+      <h2 id="m4">Malentendido ④ «Cuanto mayor la separación, más fuerte la señal»</h2>
+
+      <h3>Lo que se dice</h3>
+      <p>
+        Es la lectura de que «como la media de 50 días se ha separado mucho por encima de la de 200, la tendencia alcista es fuerte».
+        Resulta intuitiva y, de hecho, tiene algo de razón.
+      </p>
+
+      <h3>Por qué es falso; más exactamente: nosotros no usamos esta información</h3>
+      <p>
+        Nuestro código <strong>sí calcula</strong> la distancia entre las dos líneas.
+      </p>
+      <pre><code>gapPct = (media 50d ÷ media 200d − 1) × 100</code></pre>
+      <p>
+        Y hasta <strong>la muestra</strong> en la tarjeta del panel, como <code>gap +12.4%</code>.
+        Sin embargo, <strong>este valor no entra para nada en el cálculo de la puntuación.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Confesión: una simplificación conocida.</strong>
+        En nuestro modelo, <strong>un estado dorado con una brecha de +0.3% y otro con una brecha de +42% reciben exactamente la misma puntuación</strong>
+        (60 puntos a largo plazo, 65 a corto plazo). La brecha <strong>se muestra, pero no se puntúa.</strong>
+      </div>
+      <p>
+        Explicamos por qué lo dejamos así. Para meter la brecha en la puntuación habría que <strong>decidir «qué porcentaje es una brecha grande»</strong>.
+        Pero ese criterio <strong>cambia por completo de un activo a otro.</strong> Una brecha de +10% en una moneda de baja volatilidad
+        y una brecha de +10% en una memecoin extremadamente volátil significan cosas totalmente distintas.
+        Para ser sinceros, <strong>no logramos fijar con confianza un criterio de normalización común a todas las monedas.</strong>
+        Antes que meter una constante sin fundamento, <strong>preferimos no usarla</strong>.
+      </p>
+
+      <h3>En realidad: esta información está ahí para que la use una persona</h3>
+      <p>
+        Si no borramos la brecha de la pantalla es <strong>para que usted la mire y juzgue por sí mismo</strong>.
+        <strong>Cuanto más cerca de 0 está la brecha, más pegadas están las dos líneas y mayor es el riesgo de un recruce (whipsaw)</strong>.
+        Un estado dorado con <code>gap +0.4%</code> es <strong>un dorado inestable</strong> que puede volverse de muerte en cualquier momento.
+        La puntuación no distingue esa diferencia, pero <strong>usted sí puede.</strong> Para eso mostramos el valor.
+      </p>
+
+      <h2 id="m5">Malentendido ⑤ «Con un peso del 8%, ¿no es como no usarlo?»</h2>
+      <p>
+        Aquí el artículo cambia de dirección. Los cuatro anteriores iban de <strong>rebajar</strong> el cruce.
+        Y, sin embargo, <strong>no hemos descartado</strong> este indicador. ¿Por qué?
+      </p>
+
+      <h3>Lo que casi nadie sabe: el cruce no tiene 2 niveles, sino 4</h3>
+      <p>
+        La dicotomía «¿cruce dorado o cruce de la muerte?» <strong>es errónea desde el principio.</strong>
+        Nuestro código distingue <strong>cuatro estados</strong>, porque <em>el instante del cruce</em> y <em>el estado que se mantiene tras cruzar</em> son cosas completamente distintas.
+        Esta es la tabla real de puntuaciones parciales de nuestro modelo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Estado</th><th>Significado</th><th>Puntuación a corto plazo</th><th>Puntuación a largo plazo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>Hoy cruza al alza (evento, válido solo un día)</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>Se mantiene el estado de 50 &gt; 200</td><td>65</td><td>60</td></tr>
+            <tr><td><em>Sin datos</em></td><td>Ni siquiera hay 50 días de datos</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>Se mantiene el estado de 50 &lt; 200</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>Hoy cruza a la baja (evento, válido solo un día)</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La fila más importante de esta tabla es «se mantiene DEATH»</strong>. La puntuación es <strong>35 (largo plazo) y 40 (corto plazo), no 50</strong>.
+      </p>
+      <p>
+        <strong>El neutro es 50.</strong> Pero el estado de cruce de la muerte <strong>queda por debajo del neutro.</strong>
+        ¿Qué significa? Que <strong>en estado de cruce de la muerte este indicador «tira hacia abajo» de la puntuación compuesta</strong>.
+        No se queda quieto: <strong>resta puntos</strong>.
+      </p>
+      <div class="note">
+        <strong>Esta es la razón de ser de este indicador.</strong>
+        El cruce dorado <strong>no es una fuente que aporte puntos.</strong>
+        El cruce de la muerte es <strong>un freno que los resta</strong>.
+        Cuando el índice de miedo, el múltiplo de Mayer y la caída gritan a la vez «está barato, compra»
+        —<a href="/indicators">los 3 indicadores contrarios se equivocan juntos en los mercados bajistas</a>—,
+        hacía falta <strong>un mecanismo que frenara en solitario diciendo «la tendencia aún apunta hacia abajo»</strong>, y ese es el cruce.
+      </div>
+
+      <h2 id="walk">Entonces, ¿cuántos puntos mueve en realidad? Cálculo paso a paso</h2>
+      <p>
+        Basta de abstracciones: <strong>calculemos con números de verdad</strong>.
+        Es la <strong>pestaña de largo plazo (contraria)</strong> y la situación es <strong>en pleno mercado bajista profundo</strong>.
+        Es la fase en que todos los indicadores contrarios gritan a la vez «ahora es la oportunidad».
+      </p>
+      <p>Los pesos a largo plazo son <strong>RSI 18% · MACD 18% · miedo y codicia 18% · Mayer 18% · caída 14% · cruce 14%</strong>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicador</th><th>Valor observado</th><th>Puntuación parcial</th><th>Peso</th><th>Aportación</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24 (sobreventa)</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>Múltiplo de Mayer</td><td>0.75× (25% por debajo de la media de 200 días)</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>Miedo y codicia</td><td>actual 18 / 7 días 22 / 30 días 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>Caída en 365 días</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>negativo · aún empeorando</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>Cruce</strong></td><td><strong>se mantiene DEATH</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>Puntuación compuesta</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        (El 81.8 de miedo y codicia es <code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code> más
+        la bonificación por extremo que se añade cuando el valor actual es 25 o menos, <code>(25−18)×0.4 = 2.8</code>.)
+      </p>
+
+      <h3>Si solo cambiamos el cruce</h3>
+      <p>Veamos qué ocurre con la puntuación compuesta si <strong>fijamos los otros 5 indicadores</strong> y solo cambiamos el estado del cruce.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Estado del cruce</th><th>Puntuación parcial</th><th>Aportación</th><th>Puntuación compuesta</th><th>Veredicto</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS (ese día)</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>se mantiene GOLDEN</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>se mantiene DEATH <em>(escenario real)</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS (ese día)</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La diferencia entre el máximo y el mínimo es de 9.8 puntos.</strong> (85 − 15) × 14% = 9.8.
+        Y <strong>en los cuatro casos el veredicto es el mismo: ACCUMULATE.</strong>
+      </p>
+
+      <h3>Lo que dicen estos números: el cruce no puede cambiar el veredicto por sí solo</h3>
+      <p>Aquí la <strong>intención de diseño de nuestro modelo queda demostrada aritméticamente</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Rango de puntuación</th><th>Peso</th><th>Impacto máximo en la puntuación compuesta</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Corto plazo (momentum)</strong></td><td>75 − 30 = 45 puntos</td><td>8%</td><td><strong>±3.6 puntos</strong></td></tr>
+            <tr><td><strong>Largo plazo (contrario)</strong></td><td>85 − 15 = 70 puntos</td><td>14%</td><td><strong>±9.8 puntos</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Compárelo ahora con las <a href="/methodology">bandas de veredicto</a>.
+        La banda más estrecha es <strong>ACCUMULATE (65~80), con 15 puntos de ancho</strong>.
+      </p>
+      <div class="note">
+        <strong>Impacto máximo en la pestaña de largo plazo: 9.8 puntos &lt; ancho mínimo de banda: 15 puntos.</strong><br />
+        <strong>Impacto máximo en la pestaña de corto plazo: 3.6 puntos &lt; ancho mínimo de banda: 15 puntos.</strong><br /><br />
+        Es decir, <strong>en ninguna pestaña puede el cruce, por sí solo, cambiar el veredicto ni un escalón.</strong>
+        No es casualidad, sino <strong>el resultado de haber diseñado así los pesos</strong>.
+        El cruce tiene un techo para que <strong>pueda empujar o tirar de la puntuación, pero no dominar la conclusión</strong>.
+      </div>
+      <p>
+        <strong>La diferencia entre corto y largo plazo también se confirma con el cálculo.</strong> 9.8 ÷ 3.6 ≈ <strong>2.7 veces</strong>.
+        En la pestaña de largo plazo, la influencia real del cruce es unas 2.7 veces la de la pestaña de corto plazo.
+        Si solo se mira la tabla de pesos (8% frente a 14%) parece una diferencia de 1.75 veces, pero <strong>al multiplicar también por el rango de puntuación, la distancia real se amplía a 2.7 veces.</strong>
+        Es algo que se pasa por alto si solo se comparan los porcentajes de peso.
+      </p>
+      <p>
+        El motivo es el que se expone en la <a href="/methodology">metodología</a>.
+        <strong>El cruce 50/200 es demasiado lento para operar a 1–3 meses vista.</strong> Cuando aparece la señal, para un trader de corto plazo ya es tarde.
+        Por eso en la pestaña de corto plazo solo le dimos <strong>un 8%, prácticamente decorativo</strong>.
+        En cambio, como <strong>sí es útil para distinguir la fase del ciclo (¿mercado alcista o bajista?)</strong>, en la pestaña de largo plazo lo subimos al 14%.
+      </p>
+
+      <h2 id="danger">La combinación en la que nuestro modelo puede equivocarse más</h2>
+      <p>
+        Vuelva a mirar <strong>la primera fila (GOLDEN_CROSS, 79.2 puntos)</strong> de la tabla del cálculo anterior.
+        En realidad, esa fila <strong>esconde una contradicción interna.</strong>
+      </p>
+      <p>
+        Un múltiplo de Mayer de 0.75 significa que <strong>el precio actual está un 25% por debajo de la media de 200 días</strong>.
+        ¿Es natural que ese mismo día <strong>la media de 50 días suba por encima de la de 200 (cruce dorado)</strong>?
+        Normalmente es una contradicción. Es difícil que la media de 50 días esté por encima de la de 200 cuando el precio está muy por debajo de esta última.
+      </p>
+      <p>
+        Pero <strong>hay una única fase en la que esta combinación aparece de verdad.</strong>
+        <strong>El momento en que acaba de empezar un desplome desde el máximo</strong>.
+        El precio ya se ha desplomado en vertical por debajo de la media de 200 días, pero <strong>la de 50 días, por inercia, sigue aún por encima de la de 200</strong>.
+        En ese momento, nuestro modelo lo ve así:
+      </p>
+      <ul>
+        <li>Mayer 0.75 → «¡infravaloración histórica!» <strong>100 puntos</strong></li>
+        <li>RSI 24 → «¡sobreventa extrema!» <strong>94 puntos</strong></li>
+        <li>Caída −58% → «¡zona de compra fuerte!» <strong>81 puntos</strong></li>
+        <li>Cruce → aún en <strong>estado GOLDEN</strong>, así que el freno no actúa <strong>60 puntos</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>Resultado: justo cuando empieza el desplome, el modelo da unos 75 puntos (ACCUMULATE).</strong>
+        Y <strong>ese es justo el momento en que se agarra el «cuchillo que cae» por la hoja, no por el mango</strong>.
+        El freno (cruce de la muerte) no actúa hasta <strong>decenas de días después</strong>, cuando ya ha caído mucho.
+        <strong>Este es el ángulo muerto más peligroso del modelo, y no lo hemos resuelto del todo.</strong>
+        Mientras se use un indicador lento como mecanismo de seguridad, <strong>el mecanismo de seguridad también será lento.</strong>
+      </div>
+      <p>
+        Por eso, si en el panel ve que <strong>el múltiplo de Mayer cae en picado mientras el cruce sigue en GOLDEN</strong>,
+        <strong>debe leerlo no como «infravaloración», sino como una advertencia de «puede ser el inicio de un desplome».</strong>
+        La puntuación no sabe distinguirlo. Tiene que distinguirlo una persona.
+      </p>
+
+      <h2 id="asym">Una cosa más: solo el cruce trata de forma distinta los datos faltantes</h2>
+      <p>
+        Como explicamos en la <a href="/methodology">metodología</a>, cuando falta un indicador <strong>no lo tratamos como 0 puntos, sino que lo excluimos del cálculo y renormalizamos los pesos restantes</strong>.
+        Porque «no saber» no es lo mismo que «ser malo».
+      </p>
+      <p>
+        Pero <strong>el cruce es la excepción.</strong> Trasladado tal cual del código, queda así:
+      </p>
+      <pre><code>// los otros 5 indicadores
+sLong: mm == null ? null : conMayer(...)   ← si es null, se excluye + renormalización
+
+// solo el cruce
+sLong: gc == null ? 50 : ...               ← aunque falte, devuelve 50 puntos</code></pre>
+      <div class="note warn">
+        <strong>Confesión: una asimetría.</strong>
+        Aunque no haya datos, el cruce devuelve <strong>50 (neutro) en lugar de null</strong>.
+        Por eso <strong>el cruce nunca desaparece del indicador de cobertura.</strong>
+        Aunque aparezca <code>coverage 5/6</code>, el que falta no es el cruce: el cruce siempre cuenta.
+        Esto significa que, <strong>en monedas con menos de un año en el mercado, «50 puntos que no saben nada» ocupan en silencio el 14% (largo plazo)</strong>.
+      </div>
+      <p>
+        Y una cosa más. Si <strong>no hay 200 días de datos</strong>, nuestro código promedia con los que haya
+        (<code>Math.min(200, longitud de los datos)</code>). Así que <strong>la «media de 200 días» de una moneda que cotiza desde hace 150 días es en realidad una media de 150 días</strong>.
+        Además, la detección del <em>evento</em> de cruce necesita al menos 201 días de datos, por lo que
+        <strong>en monedas con menos de un año en el mercado los eventos GOLDEN_CROSS y DEATH_CROSS no se producen nunca.</strong>
+        Solo aparecen los valores de estado (GOLDEN/DEATH).
+      </p>
+      <p>
+        <strong>En resumen, este indicador solo funciona plenamente en activos con un historial largo de datos, como bitcoin.</strong>
+        Téngalo muy en cuenta al mirar la tarjeta del cruce en la pantalla de una altcoin recién listada.
+      </p>
+
+      <h2 id="conclusion">Conclusión</h2>
+      <p>
+        A lo largo de los cinco malentendidos, el cruce no ha dejado de perder puntos.
+        Es el más lento, se recruza, sus números son una convención arbitraria, su brecha ni siquiera se puntúa y su peso es el más bajo de los 6.
+        Aun así, quitamos este indicador y <strong>volvimos a incluirlo.</strong> Por una sola razón.
+      </p>
+      <div class="note">
+        <strong>El cruce dorado no es una señal de compra, sino una herramienta para confirmar la fase.</strong><br /><br />
+        Si a este indicador se le pregunta <strong>«¿cuándo compro?», siempre responde tarde</strong>.
+        Pero si se le pregunta <strong>«¿hacia dónde apunta ahora la tendencia?»</strong>, devuelve una respuesta lenta pero que <strong>rara vez miente</strong>.
+        <br /><br />
+        Cuando los otros cinco indicadores se exaltan diciendo «está barato, da miedo, ha caído mucho»,
+        <strong>restar puntos en silencio diciendo «pero la tendencia todavía es bajista»</strong>: esa es la única tarea que le hemos encomendado.
+        <strong>No es una fuente de puntos, sino un freno.</strong> Y un buen freno es el que no hay que pisar a menudo.
+      </div>
+      <p>
+        Así que la próxima vez que vea el titular «¡cruce dorado inminente!», hágase esta pregunta:
+        <strong>«Entonces, ¿me dicen que compre ahora, o que ya ha subido mucho?»</strong>
+        Aritméticamente, <strong>siempre es lo segundo</strong>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Advertencia sobre inversiones</strong><br />
+        Este documento tiene <strong>fines educativos e informativos</strong> y <strong>no constituye asesoramiento de inversión ni una recomendación de compra o venta.</strong>
+        Las puntuaciones, pesos y escenarios del texto son solo <strong>ejemplos para explicar cómo funciona el modelo</strong> y no recomiendan ningún activo ni estrategia concretos.
+        Las criptomonedas son <strong>activos de alto riesgo en los que se puede perder todo el capital</strong>, y los indicadores técnicos no predicen el futuro.
+        Como se explica en el texto, este indicador <strong>tiene ángulos muertos estructurales.</strong>
+        Toda decisión de inversión y sus consecuencias son responsabilidad exclusiva del usuario. Investigue siempre por su cuenta (DYOR).
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Advertencia sobre inversiones</strong><br />
+        Este documento y las puntuaciones son <strong>material de referencia que combina indicadores públicos y no constituyen asesoramiento de inversión ni una recomendación de compra.</strong>
+        Los casos y cifras históricos del texto son reconstrucciones aproximadas y <strong>el pasado no garantiza el futuro.</strong>
+        Las criptomonedas son activos de alto riesgo en los que se puede <strong>perder todo el capital</strong>.
+        Toda decisión de inversión y sus consecuencias son responsabilidad exclusiva del usuario. Investigue siempre por su cuenta (DYOR).
+      </div>
+
+      <h2>Sigue leyendo</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodología de la puntuación</b><span>Con qué pesos se combinan los 6 indicadores, incluida la renormalización y las bandas</span></a>
+        <a href="/indicators"><b>Los 6 indicadores en profundidad</b><span>Cuándo te traiciona cada uno: RSI, MACD, Mayer y caída</span></a>
+        <a href="/guide-fear-greed"><b>Guía práctica del índice de miedo</b><span>Las fases en que todos los indicadores contrarios fallan a la vez y la compra escalonada</span></a>
+        <a href="/glossary"><b>Glosario</b><span>Medias móviles, cruces y múltiplo de Mayer, explicados</span></a>
+        <a href="/"><b>Ir al panel</b><span>Consulta el estado actual del cruce y el gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operado por Y-Systems · <a href="/privacy">Política de privacidad</a> · <a href="/terms">Términos de uso</a></footer>
+    </main>

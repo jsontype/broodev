@@ -1,0 +1,538 @@
+    <main class="wrap" data-title="Dissecting the Fear &amp; Greed Index — What Is That Number Made Of? | broodev" data-desc="A component-by-component breakdown of the Alternative.me Crypto Fear &amp; Greed Index: volatility 25%, momentum/volume 25%, social 15%, dominance 10%, Google Trends 10%, plus the discontinued 15% survey. Using real numbers, we explain the bias each component creates, why this is effectively a BTC index, and why our model blends 7-day and 30-day averages instead of using a single value.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/indicators">Indicator guide</a>
+        <a href="/guide-fear-greed">Using the Fear Index</a>
+        <a href="/glossary">Glossary</a>
+      </nav>
+
+      <h1>Dissecting the Fear &amp; Greed Index<br />— What Is That Number Made Of?</h1>
+      <p class="muted">Last updated: 2026-07-14 · Author: Y-Systems · Subject: Alternative.me Crypto Fear &amp; Greed Index</p>
+
+      <p class="lead">
+        Say today's Fear Index reads <strong>18</strong>. Most people stop right there: “18 — so that's extreme fear.”
+        But almost nobody knows <strong>what ingredients actually went into that 18</strong>.
+        This article is <em>not</em> about how to use the index. It is about <strong>taking it apart</strong>.
+        What went in and in what proportion, what distortion each ingredient introduces, and therefore what that 18 is really telling you —
+        <strong>before you trust the index, you need to know what it is made of.</strong>
+      </p>
+
+      <section class="bd-figs" aria-label="Fear &amp; Greed Index live chart">
+        <p class="muted">Before we start the dissection, let's look at the whole body on the table. This is the index's complete history, fetched from the public Alternative.me API at the moment you opened this page.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-fngx-hist" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+          </div>
+          <p class="bd-cap">Full history of the Fear &amp; Greed Index (2018–). Green shading = 25 or below (extreme fear), red shading = 75 or above (extreme greed). As the article explains, half of this curve is essentially a shadow of price data. Data: Alternative.me Fear &amp; Greed API — fetched and drawn at visit time, so treat it as an <strong>approximation for reference only</strong>.</p>
+        </div>
+      </section>
+
+      <h2>First: the ingredient list</h2>
+      <p>
+        Just as packaged food has an ingredient label, so does this index. The weights published by Alternative.me are as follows.
+        This table is the map for the entire article.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Weight</th><th>Raw input (what it measures)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Volatility</strong></td><td><strong>25%</strong></td><td>Recent BTC price volatility and max drawdown, compared with 30-day and 90-day averages</td><td>Active</td></tr>
+            <tr><td><strong>Market momentum / volume</strong></td><td><strong>25%</strong></td><td>BTC volume and momentum, compared with 30-day and 90-day averages</td><td>Active</td></tr>
+            <tr><td><strong>Social media</strong></td><td>15%</td><td>Post volume and interaction speed on Bitcoin-related hashtags</td><td>Active</td></tr>
+            <tr><td><strong>Dominance</strong></td><td>10%</td><td>BTC's share of total crypto market capitalization</td><td>Active</td></tr>
+            <tr><td><strong>Google Trends</strong></td><td>10%</td><td>Changes in relative search volume for Bitcoin-related queries</td><td>Active</td></tr>
+            <tr><td><strong>Surveys</strong></td><td>15%</td><td>Weekly investor poll</td><td><strong>Discontinued</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Look at this table for five more seconds and two things jump out.
+      </p>
+      <ul>
+        <li>
+          <strong>50% of it is derived from price.</strong> Volatility 25% + momentum/volume 25%.
+          In other words, it is called a “sentiment index,” but <strong>half of it is simply price data</strong>.
+        </li>
+        <li>
+          <strong>15% has vanished, and nobody has said where it went.</strong> The survey component was discontinued.
+          How its weight was redistributed among the remaining five components — proportional renormalization, or piled onto one in particular —
+          the operator does not disclose. <strong>Today, the exact weights of this index cannot be known from the outside.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        The weights cited in this article are <strong>based on the operator's published documentation</strong>.
+        The exact formula for each component (which window it uses, which function maps it onto 0–100) is not public.
+        We are <strong>reading the label on a black box, not opening the box.</strong>
+        We come back to confront this limitation head-on at the end of the article.
+      </div>
+
+      <h2>Dissection ① Volatility (25%) — the backbone of the index</h2>
+      <p>
+        This is the heaviest component, and the one that effectively determines the character of the index.
+        It <strong>compares</strong> BTC's recent volatility and max drawdown <strong>with the 30-day and 90-day averages</strong>, and reads anything larger than usual as “fear.”
+      </p>
+      <p>
+        Something happens quietly here. <strong>Volatility by nature does not distinguish direction.</strong>
+        Volatility itself grows whether price spikes up or down. But this component also feeds in <strong>max drawdown</strong>,
+        which puts weight on downside moves. The result is that this component is closer to <strong>a device that measures “did price fall fast?”</strong>
+      </p>
+      <p>
+        Which leads to the first conclusion.
+      </p>
+      <div class="note warn">
+        <strong>The Fear Index does not “predict” declines. It “echoes” them.</strong>
+        Price has to fall for volatility to rise, and volatility has to rise for the index to drop.
+        <strong>The index follows price.</strong> The moment you flip that order in your head, you start misreading this indicator.
+      </div>
+      <p>
+        This fact directly shapes our model's design. Our score already includes <strong>365-day drawdown</strong> and <strong>RSI</strong>
+        as separate inputs. Yet the backbone of the Fear Index also boils down to “how fast did it fall?”
+        In other words, <strong>F&amp;G, drawdown and RSI are not independent of each other.</strong> All three react at once to the same event (a sharp drop).
+      </p>
+      <p>
+        In the short-term weights, RSI 28% + F&amp;G 28% = <strong>56%</strong> can move as a single block,
+        and this is a <strong>known weakness</strong> we have chosen to accept. To offset that overlap, we add two inputs of the opposite character:
+        MACD (trend) and the golden/death cross (regime). When the first three indicators shout “buy” in unison during a crash,
+        it is these two that apply the brakes. <strong>We did not remove the double counting; we pressed it down with an opposing axis.</strong>
+      </p>
+
+      <h2>Dissection ② Market momentum / volume (25%) — a self-reinforcing loop</h2>
+      <p>
+        The second-heaviest component. It compares current volume and momentum with the 30-day and 90-day averages.
+        <strong>When unusually large buying volume shows up, the index is pushed toward greed.</strong>
+      </p>
+      <p>
+        This component has a structural feedback loop built in.
+      </p>
+      <pre><code>Price rises
+   ↓
+Volume surges (FOMO inflow)
+   ↓
+Momentum component up → index up → "Greed"
+   ↓
+"It says greed" → spreads through media &amp; social
+   ↓
+New inflows → volume rises further …</code></pre>
+      <p>
+        In other words, this component <strong>does not reflect the trend — it takes part in it.</strong>
+        That is why, in the middle of a bull market, the index can sit at 75–85 for weeks at a time.
+        If you have ever felt “greed has lasted way too long,” the index is not broken —
+        <strong>the momentum component is working exactly as designed.</strong>
+      </p>
+      <p>
+        In the opposite direction, this component <strong>recovers first at the bottom.</strong>
+        In the phase where volume picks up before price has risen — when capitulation selling is over and accumulation begins —
+        the momentum component quietly ticks up. That is why <strong>the stretch where the index climbs from 15 to 25</strong>
+        is qualitatively different from a stretch where it sits at 15. Looking at a single value flattens this into “still fear.”
+        <strong>This is one of the reasons we blend in the 7-day average</strong> — we'll show it with numbers later.
+      </p>
+
+      <h2>Dissection ③ Social media (15%) — an ear that cannot hear silence</h2>
+      <p>
+        It looks at the <strong>post volume and interaction speed</strong> of Bitcoin-related hashtags.
+        It measures how many posts pour out over a given period and how quickly reactions pile on, and reads abnormally high levels as greed.
+      </p>
+      <p>This component has three biases. Let's take them one at a time.</p>
+
+      <h3>Bias 1 — wide open to bots and ads</h3>
+      <p>
+        Hashtag post volume is <strong>the cheapest data there is to manipulate</strong>.
+        A single airdrop campaign or one influencer promotion can easily double the post count for a given hashtag.
+        The index cannot tell whether a tweet was written by a person or a bot, or whether it was sincere or paid promotion.
+        <strong>It treats “a lot of people are talking” and “a lot of people believe” as the same thing.</strong>
+      </p>
+
+      <h3>Bias 2 — an asymmetry that only reacts to rallies</h3>
+      <p>
+        This is the more important bias. <strong>Real capitulation is not loud — it is quiet.</strong>
+        When a crash drags on for months, people do not get angry. <strong>They leave.</strong>
+        Crypto talk disappears from timelines and hashtag post volume dries up.
+      </p>
+      <p>
+        Yet this component has no mechanism to decide whether “few posts = no interest” should be <strong>read as fear or as indifference</strong>.
+        As post volume approaches zero, the information this component produces approaches zero too.
+        <strong>In other words, when the market is at its very bottom, the social component has the least to say.</strong>
+        At the exact moment a signal is needed most, a 15% component effectively goes silent.
+      </p>
+
+      <h3>Bias 3 — skewed toward one language and one time zone</h3>
+      <p>
+        Hashtag counts are overwhelmingly <strong>English-language</strong>. Sentiment swings in Korea, Japan and the Chinese-speaking world
+        are not captured with the same intensity. On weekends, overall post volume structurally declines.
+        This is one of <strong>the reasons the index's weekend values are less trustworthy than weekday values</strong> —
+        price moves 24/7, but people's tweets do not.
+      </p>
+
+      <h2>Dissection ④ Dominance (10%) — on a BTC screen, the direction is inverted</h2>
+      <p>
+        This is the most misunderstood component. The logic goes like this.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Observation</th><th>How the index reads it</th><th>Underlying logic</th></tr></thead>
+          <tbody>
+            <tr><td>BTC dominance <strong>rises</strong></td><td>Toward fear</td><td>Money leaves speculative alts and shelters in “safe” BTC = risk aversion</td></tr>
+            <tr><td>BTC dominance <strong>falls</strong></td><td>Toward greed</td><td>Capital flows into alts = speculative sentiment overheating</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The problem is that this logic <strong>only holds from the perspective of measuring risk appetite across “the crypto market as a whole.”</strong>
+        From the standpoint of someone looking to buy BTC, the direction becomes odd.
+      </p>
+      <div class="note warn">
+        <strong>Rising BTC dominance also means money is flowing into BTC.</strong>
+        Yet the index <strong>counts that as “fear” and drags the index down.</strong>
+        On a BTC dashboard, this component is effectively <strong>translating capital flows that favor BTC into fear</strong>.
+        It is only a 10% component, but the fact that its direction runs against the asset's own perspective deserves to be pointed out.
+      </div>
+      <p>
+        On top of that, dominance is <strong>an indicator whose denominator keeps changing</strong>.
+        When stablecoin market cap swells, when new tokens list en masse, or when institutional money flows only into BTC products,
+        <strong>dominance moves even though nobody has become psychologically afraid.</strong>
+        It means 10% of a “sentiment index” is shaken by <strong>changes in market structure that have nothing to do with sentiment</strong>.
+      </p>
+
+      <h2>Dissection ⑤ Google Trends (10%) — people who already bought don't search</h2>
+      <p>
+        It looks at the relative search volume for Bitcoin-related queries. Since a search spike has no direction by itself,
+        it determines direction by <strong>which queries increased</strong>. For example, a surge in queries like “bitcoin price manipulation” or “bitcoin scam”
+        is read as fear, while a surge in a plain “how to buy bitcoin” is read as greed.
+      </p>
+      <p>
+        This is where the fundamental limitation of this component comes from. <strong>Searching is the behavior of newcomers.</strong>
+      </p>
+      <ul>
+        <li><strong>People who already hold don't search.</strong> They open the app and check their balance.</li>
+        <li><strong>Institutional and professional investors don't search on Google.</strong> They look at their terminals.</li>
+        <li>So what this component actually measures is <strong>“how much interest people who didn't know about crypto are showing right now.”</strong></li>
+      </ul>
+      <p>
+        That is not bad information. In fact, it is quite effective at catching <strong>the overheating of new inflows late in the cycle</strong>.
+        But you need to know exactly what that information is. The Google Trends component <strong>does not measure market sentiment —
+        it measures how fast people from outside the market are coming in.</strong>
+      </p>
+      <p>
+        And this component <strong>saturates.</strong> Because search volume is normalized as a relative value (0–100),
+        once a historic explosion occurs, most later increases in interest register as “low search volume.”
+        <strong>Past manias make present manias look small.</strong>
+      </p>
+
+      <h2>Dissection ⑥ Surveys (15%, discontinued) — the hole left by a missing component</h2>
+      <p>
+        The original design included a weekly investor survey at 15%. It was the only component that <strong>asked people directly</strong> —
+        in other words, the only sentiment data <strong>not derived from price</strong>. It has since been discontinued.
+      </p>
+      <p>The consequences of that discontinuation are larger than you might think.</p>
+      <ol>
+        <li>
+          <strong>The price-derived share has grown.</strong> If the remaining components split up the space left by the 15% survey,
+          the effective weight of volatility + momentum is <strong>very likely higher</strong> than the original 50%.
+          That is, over time the index has <strong>drifted ever closer to being “a function of price.”</strong>
+        </li>
+        <li>
+          <strong>Past values and present values mean different things.</strong> A 20 in 2018 and a 20 in 2026 are
+          <strong>numbers made with different recipes</strong>. When you backtest something like “historically, buying below 20 worked” on a long-term chart,
+          <strong>you are backtesting an indicator whose recipe changed partway through.</strong>
+        </li>
+        <li>
+          <strong>The redistribution method has not been disclosed.</strong> That is why both statements above can only go as far as
+          “very likely.” The very fact that nothing can be stated definitively is an important property of this index.
+        </li>
+      </ol>
+
+      <h2>The sum: this is not a “sentiment index” but a “BTC summary index”</h2>
+      <p>Line the five components back up and ask just one question of each: <strong>what is it actually talking about?</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Component</th><th>What it actually observes</th><th>What it tells you about the altcoin you're watching</th></tr></thead>
+          <tbody>
+            <tr><td>Volatility 25%</td><td>BTC price</td><td>Nothing</td></tr>
+            <tr><td>Momentum/volume 25%</td><td>BTC volume</td><td>Nothing</td></tr>
+            <tr><td>Social 15%</td><td>Bitcoin hashtags</td><td>Nothing</td></tr>
+            <tr><td>Dominance 10%</td><td>BTC market-cap share</td><td><strong>Something, but in the opposite direction</strong></td></tr>
+            <tr><td>Google Trends 10%</td><td>Bitcoin search queries</td><td>Nothing</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Not one of the five components reads any data from the altcoin you are looking at.</strong>
+        The index is called the “Crypto Fear &amp; Greed Index,” but its raw material is <strong>effectively all Bitcoin</strong>.
+      </p>
+      <p>
+        And dominance, the only component that <em>does at least look at</em> alts, points the opposite way from an alt holder's point of view.
+        In an altseason — a phase where alts soar and dominance plunges — the dominance component shouts <strong>“greed,”</strong>
+        and the index goes up, not down. It is good news for alt holders, yet the index switches on a warning light.
+        <strong>Conversely, when alts collapse and money flees into BTC, the index calls it “fear” and flashes a buy signal — while your alt is dying.</strong>
+      </p>
+      <div class="note warn">
+        That is why, on the broodev dashboard, <strong>the F&amp;G indicator is a “reference,” not a “basis,” when you look at altcoins.</strong>
+        This is also a limitation of our model. We are using a market-sentiment indicator built for BTC
+        on alt screens with the same weight, and <strong>the F&amp;G item in alt scores is correspondingly less reliable.</strong>
+        To be honest, this is a problem we have not solved yet. Per-coin sentiment indicators do not exist,
+        and building one would require reliable per-coin normalized social and volume data, which is not available for free.
+      </div>
+
+      <h2>So we don't use this number as is</h2>
+      <p>
+        The dissection above leads straight into our model's design. We <strong>do not use</strong> today's Fear Index value <strong>as is</strong>.
+        Nor do we simply flip it as <code>100 − current</code>.
+      </p>
+
+      <div class="note warn">
+        <strong>First things first — there is not one transformation but two.</strong><br />
+        The <strong>long-term (contrarian) tab</strong> and the <strong>short-term (momentum) tab</strong> use <strong>different functions</strong>, with <strong>opposite signs</strong>.
+        The <strong>blend-plus-extreme-bonus structure</strong> covered in detail in the sections below is <strong>exclusive to the long-term tab</strong>.
+        (An earlier version of this document listed only the long-term function and omitted the short-term one. Corrected 2026-07-14)
+      </div>
+
+      <p><strong>Long-term (contrarian) transformation</strong> — the more fear, the higher the score. To kill single-day noise, we <strong>blend in the 7-day and 30-day averages.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − current)
+       + 0.3 × (100 − last 7-day avg)
+       + 0.2 × (100 − last 30-day avg)
+
+current ≤ 25 → += (25 − current) × 0.4
+current ≥ 75 → −= (current − 75) × 0.4</code></pre>
+
+      <p><strong>Short-term (momentum) transformation</strong> — <strong>the more greed, the higher the score.</strong> No averages are blended in; it uses <strong>the current value only</strong>.</p>
+      <pre><code>momFng = clamp(50 + (current − 50) × 1.2,  0,  100)
+
+  Fear 20    → 14    (low score short-term)
+  Neutral 50 → 50
+  Greed 85   → 92    (high score short-term)</code></pre>
+      <p>
+        <strong>Why is greed a plus in the short term?</strong> Over a 1–3 month window, a phase where sentiment is improving
+        is usually <strong>a phase where the trend is alive</strong>. From a trend-following perspective, that is a buy-friendly signal.
+        Conversely, extreme fear means <strong>a decline is underway</strong>, which is dangerous in the short term.
+        <strong>The same index reading of 20 becomes a high score (≈86) on the long-term tab and a low score (≈14) on the short-term tab.</strong>
+      </p>
+      <p class="muted">
+        <strong>All calculations and scenarios below are based on the long-term (contrarian) tab.</strong> Remember that the sign flips on the short-term tab.
+      </p>
+
+      <h3>Why we cut the single-day value to half</h3>
+      <p>
+        <strong>The ingredient list gives the answer.</strong> Think about which components swing the most from one day to the next.
+      </p>
+      <ul>
+        <li><strong>Social (15%)</strong> — swings within a day on a single influencer tweet or simply because it's the weekend.</li>
+        <li><strong>Google Trends (10%)</strong> — search volume jumps on a single news headline.</li>
+        <li><strong>Volatility (25%)</strong> — reacts immediately to a single −8% daily candle.</li>
+      </ul>
+      <p>
+        Together, <strong>half of the index is made of components sensitive to “what happened yesterday.”</strong>
+        In other words, <strong>a single day's Fear Index reading is less a measurement of sentiment than an afterimage of yesterday's news</strong>.
+      </p>
+      <p>
+        The <strong>7-day average</strong>, by contrast, wipes out much of the day-to-day noise from social and trends as well as the weekend effect.
+        The <strong>30-day average</strong> even flattens one-off spikes in the volatility component, so what remains is <strong>the regime</strong>.
+        Hence 0.5 / 0.3 / 0.2. <strong>Half today's emotion, 30% this week's mood, 20% this month's regime</strong>.
+      </p>
+
+      <h3>How differently the same “18” can score — an actual calculation</h3>
+      <p>
+        That sounds abstract, so let's plug in numbers. <strong>In all three scenarios, today's Fear Index is exactly the same: 20.</strong>
+        Newspaper headlines would print all three identically as “extreme fear.”
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Scenario</th><th>Current</th><th>7-day avg</th><th>30-day avg</th><th>F&amp;G partial score<br /><span class="muted">(not the composite score)</span></th><th>Contribution to long-term total<br /><span class="muted">× 18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A. Day one of a crash</strong><br /><span class="muted">Fine until a crash yesterday</span></td>
+              <td>20</td><td>45</td><td>60</td>
+              <td><strong>66.5</strong></td>
+              <td>12.0 pts</td>
+            </tr>
+            <tr>
+              <td><strong>B. Persistent fear</strong><br /><span class="muted">Fear all week</span></td>
+              <td>20</td><td>22</td><td>28</td>
+              <td><strong>79.8</strong></td>
+              <td>14.4 pts</td>
+            </tr>
+            <tr>
+              <td><strong>C. Bottom of a long slump</strong><br /><span class="muted">A month at the bottom</span></td>
+              <td>20</td><td>25</td><td>20</td>
+              <td><strong>80.5</strong></td>
+              <td><strong>14.5 pts</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note warn">
+        <strong>Don't confuse them — a partial score is not the composite score.</strong><br />
+        The <strong>80.5</strong> in the table above is <strong>the partial score of the single F&amp;G indicator</strong>; it does not mean “STRONG BUY.”
+        On the long-term tab, this value merely <strong>contributes</strong> <code>80.5 × 18% = 14.5 pts</code> <strong>to the composite score</strong>.
+        The STRONG BUY verdict (80 points or more) is a label attached only to <strong>the composite score that combines all six indicators</strong>.
+        (An earlier version of this document attached a composite band name to a partial score. Corrected 2026-07-14)
+      </div>
+
+      <p>Laid out step by step, the calculation looks like this.</p>
+      <pre><code>[A] Day one of a crash
+0.5×(100−20) + 0.3×(100−45) + 0.2×(100−60)
+= 40 + 16.5 + 8.0 = 64.5
+Extreme bonus: (25−20)×0.4 = +2.0
+→ 66.5
+
+[B] Persistent fear
+0.5×(100−20) + 0.3×(100−22) + 0.2×(100−28)
+= 40 + 23.4 + 14.4 = 77.8
+Extreme bonus: +2.0
+→ 79.8
+
+[C] Bottom of a long slump
+0.5×(100−20) + 0.3×(100−25) + 0.2×(100−20)
+= 40 + 22.5 + 16.0 = 78.5
+Extreme bonus: +2.0
+→ 80.5</code></pre>
+
+      <p>
+        <strong>The same 20, yet 66.5 versus 80.5. A 14-point gap.</strong>
+        Had we simply computed <code>100 − 20 = 80</code>, all three would score 80 — exactly the same signal.
+      </p>
+      <p>
+        Look at the difference in meaning. <strong>A is “a market that was greedy until yesterday and got scared for one day.”</strong>
+        7-day average 45, 30-day average 60 — <strong>there is still a long way left to fall.</strong>
+        <strong>C is “a market nobody has cared about for a month.”</strong> It is close to a state where everyone who was going to sell has already sold.
+        Treating these two as the same signal is <strong>why “Fear Index 20 = buy” is wrong so often</strong>.
+      </p>
+      <div class="note">
+        <strong>A single value of this index tells you only the “depth,” not the “duration.”</strong>
+        Blending in the 7-day and 30-day averages is not an attempt to improve the index;
+        it is <strong>a way of restoring the time dimension the index originally carried</strong>.
+      </div>
+
+      <h3>The opposite direction is symmetric</h3>
+      <pre><code>[D] Overheated phase — current 85, 7-day 80, 30-day 72   (long-term tab)
+0.5×(100−85) + 0.3×(100−80) + 0.2×(100−72)
+= 7.5 + 6.0 + 5.6 = 19.1
+Extreme penalty: −(85−75)×0.4 = −4.0
+→ F&amp;G partial score 15.1   →   contribution to long-term total 15.1 × 18% = 2.7 pts</code></pre>
+      <p>
+        The <strong>deeper and longer-lasting</strong> the greed, the more the partial score is cut.
+        For a one-day greed spike (current 85, 7-day 55, 30-day 50), the same calculation gives
+        <code>7.5 + 13.5 + 10 − 4 = 27.0</code>.
+        <strong>The same 85, yet 15.1 versus 27.0</strong> — once again, persistence decides the value.
+      </p>
+      <div class="note">
+        <strong>⚠ On the short-term tab, this whole calculation flips.</strong>
+        Put the same situation (F&amp;G 85) into the short-term tab and you get <code>momFng(85) = 50 + 35×1.2 = 92</code> — <strong>almost a perfect score</strong>.
+        When the long-term tab says “overheated, so risky,” the short-term tab says “the trend is alive.”
+        <strong>Both are right. They just have different time horizons.</strong>
+      </div>
+
+      <h2>Why the extra weighting kicks in only at 25 and 75</h2>
+      <p>
+        The <code>×0.4</code> bonus/penalty applies <strong>only at 25 or below and 75 or above</strong>.
+        If the index moves 3 points within the 45–55 range, our score barely reacts. <strong>That is deliberate neglect.</strong>
+      </p>
+      <p>The rationale comes, once again, from the ingredient list. <strong>Mid-range wobbles and extreme values are generated by different mechanisms.</strong></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>When the index wobbles between 48 ↔ 53</th><th>When the index goes below 25 / above 75</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Components that mainly moved</strong></td>
+              <td><strong>Light components</strong> like social (15%) + trends (10%). A few tweets or one news item is enough</td>
+              <td>Reached only when volatility (25%) + momentum (25%) go to extremes <strong>in the same direction</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Required condition</strong></td>
+              <td>Nothing needs to agree</td>
+              <td>Requires <strong>agreement among the heavy 50% of components</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Information content</strong></td>
+              <td>Almost none — <strong>noise</strong></td>
+              <td>High — <strong>price, volume and sentiment point the same way</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        This is the crux. <strong>An index of 50 means “no component spoke strongly,”</strong>
+        not “the market is in balance.” The components may have pointed in opposite directions and cancelled each other out,
+        or they may all have been lukewarm. <strong>The value 50 does not distinguish between the two.</strong>
+        By contrast, <strong>extreme values like 15 or 85 only appear when several components crowd in the same direction.</strong>
+      </p>
+      <p>
+        That is why we <strong>add extra weight only to extreme values.</strong> An extreme value is <strong>a consensus among components</strong>,
+        while a middle value is <strong>the absence of consensus</strong>. A single point at the extremes is worth far more than a point in the middle.
+      </p>
+      <p>
+        How did we pick the coefficient <code>0.4</code>? <strong>To be frank, it is a tunable value.</strong>
+        The intent was to set a cap: “when the index goes all the way to 0, add at most +10 points”
+        (<code>(25−0)×0.4 = 10</code>). 0.5 or 0.3 would also have been possible. <strong>This is a judgment call, not a principle.</strong>
+      </p>
+
+      <h2>What this dissection could not uncover</h2>
+      <p>
+        If you have read this far and feel “now I understand the index,” please read this last part carefully.
+        <strong>Knowing precisely what we don't know matters more than knowing what we know.</strong>
+      </p>
+      <ul>
+        <li>
+          <strong>The formula for each component is not public.</strong> Exactly which window volatility is measured over,
+          which function maps it onto 0–100, how outliers are trimmed — none of it has been disclosed.
+          <strong>We cannot reproduce this index.</strong> A number that cannot be reproduced cannot be verified.
+        </li>
+        <li>
+          <strong>We don't know where the discontinued 15% survey weight went.</strong> Above we said “the effective weight of volatility + momentum is probably above 50%,”
+          but that is an <strong>estimate</strong>. Only the operator knows the exact current weights.
+        </li>
+        <li>
+          <strong>The historical consistency of the index cannot be guaranteed.</strong> If the components and weights changed along the way,
+          a 20 in 2018 and a 20 today are different things. <strong>Any long-term Fear Index backtest carries this problem</strong> —
+          ours is no exception.
+        </li>
+        <li>
+          <strong>It depends on a single provider.</strong> If Alternative.me shuts its API or changes the formula again,
+          the F&amp;G item in our score will be treated as missing from that day on, and the weights will be renormalized across the remaining 5 indicators
+          (shown on the dashboard as <code>coverage: 5/6</code>). <strong>This is a failure mode already built into the design.</strong>
+        </li>
+        <li>
+          <strong>0.5 / 0.3 / 0.2 and 0.4 are numbers we chose.</strong> The direction is logically derived from the component structure,
+          but there is no mathematical necessity for exactly those values. <strong>You may prefer different values, and we have no grounds to say you're wrong.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        <strong>Why we use this index anyway.</strong>
+        It is riddled with flaws, but <strong>it updates daily, it's free, it has a long history, and above all, of our six indicators,
+        it is the only attempt to look, even a little, at “something other than price.”</strong>
+        The other five indicators (RSI, MACD, Mayer, drawdown, cross) are all pure functions of price.
+        Our judgment is that <strong>imperfect sentiment data is better than none</strong> —
+        but only when you use it knowing the exact shape of that imperfection. That is why we wrote this article.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This document is <strong>educational and reference material analyzing the structure of a public indicator; it is not investment advice or a recommendation to buy or sell.</strong>
+        The calculation examples in the text (scenarios A, B, C and D) are <strong>hypothetical figures for illustration</strong> and do not refer to the market at any specific point in time.
+        Crypto assets are high-risk assets in which <strong>you can lose your entire principal</strong>, and no indicator or score protects you from losses.
+        You alone are fully responsible for all investment decisions and their outcomes. Always do your own research (DYOR).
+      </div>
+
+      <h2>Read next</h2>
+      <div class="related">
+        <a href="/guide-fear-greed"><b>Using the Fear Index in practice</b><span>The dissection is done — now, how to use it: a staged-buying procedure and common mistakes</span></a>
+        <a href="/methodology"><b>Scoring methodology</b><span>How six indicators, including F&amp;G, are combined and with what weights</span></a>
+        <a href="/indicators"><b>The six indicators explained</b><span>What RSI, MACD, the Mayer Multiple, drawdown and the crosses each measure</span></a>
+        <a href="/glossary"><b>Glossary</b><span>Dominance, Mayer Multiple, capitulation selling…</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></footer>
+    </main>

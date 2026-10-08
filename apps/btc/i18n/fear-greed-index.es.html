@@ -1,0 +1,538 @@
+    <main class="wrap" data-title="Anatomía del índice de miedo y codicia — ¿de qué está hecho ese número? | broodev" data-desc="Desglosamos componente por componente el Crypto Fear &amp; Greed Index de Alternative.me: volatilidad 25 %, momentum/volumen 25 %, redes sociales 15 %, dominancia 10 %, Google Trends 10 % y la encuesta suspendida 15 %. Explicamos con cifras reales los sesgos que introduce cada componente, por qué en la práctica es un índice de BTC y por qué nuestro modelo mezcla las medias de 7 y 30 días en lugar de usar un único valor.">
+      <nav class="nav">
+        <a href="/">← Panel</a>
+        <a href="/methodology">Metodología</a>
+        <a href="/indicators">Indicadores</a>
+        <a href="/guide-fear-greed">Guía de miedo y codicia</a>
+        <a href="/glossary">Glosario</a>
+      </nav>
+
+      <h1>Anatomía del índice de miedo y codicia<br />— ¿de qué está hecho ese número?</h1>
+      <p class="muted">Última revisión: 2026-07-14 · Autor: Y-Systems · Objeto: Alternative.me Crypto Fear &amp; Greed Index</p>
+
+      <p class="lead">
+        Supongamos que hoy el índice de miedo marca <strong>18</strong>. Casi todo el mundo se detiene ahí: «18, miedo extremo».
+        Pero casi nadie sabe <strong>con qué ingredientes se fabricó ese 18</strong>.
+        Este artículo <em>no</em> trata de cómo usar el índice. Trata de <strong>desmontarlo</strong>.
+        Qué lleva y en qué proporción, qué distorsión introduce cada ingrediente y, por tanto, qué dice exactamente ese 18:
+        <strong>antes de fiarte del índice, tienes que saber de qué está hecho.</strong>
+      </p>
+
+      <section class="bd-figs" aria-label="Gráfico en vivo del índice de miedo y codicia">
+        <p class="muted">Antes de diseccionarlo, veamos el cuerpo entero. Es el historial completo del índice, descargado de la API pública de Alternative.me en el momento de tu visita.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-fngx-hist" class="bd-pane"><div class="bd-loading">Cargando los datos del gráfico…</div></div>
+          </div>
+          <p class="bd-cap">Historial completo del índice de miedo y codicia (2018~). Sombreado verde = 25 o menos (miedo extremo); sombreado rojo = 75 o más (codicia extrema). Como veremos en el texto, la mitad de esta curva es en la práctica la sombra de los datos de precio. Datos: Alternative.me Fear &amp; Greed API — obtenidos y dibujados al visitar la página; <strong>valores aproximados, solo de referencia</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Primero: la lista de ingredientes</h2>
+      <p>
+        Igual que un alimento procesado lleva su etiqueta de ingredientes, este índice también la tiene. Las proporciones publicadas por Alternative.me son las siguientes.
+        Esta tabla es el mapa de todo el artículo.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Componente</th><th>Proporción</th><th>Materia prima (qué recibe como entrada)</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Volatilidad</strong></td><td><strong>25%</strong></td><td>Volatilidad reciente y caída máxima del precio de BTC frente a sus medias de 30 y 90 días</td><td>Activo</td></tr>
+            <tr><td><strong>Momentum / volumen de mercado</strong></td><td><strong>25%</strong></td><td>Volumen y momentum de BTC frente a sus medias de 30 y 90 días</td><td>Activo</td></tr>
+            <tr><td><strong>Redes sociales</strong></td><td>15%</td><td>Número de publicaciones y velocidad de interacción en hashtags relacionados con Bitcoin</td><td>Activo</td></tr>
+            <tr><td><strong>Dominancia</strong></td><td>10%</td><td>Peso de BTC en la capitalización total del mercado cripto</td><td>Activo</td></tr>
+            <tr><td><strong>Google Trends</strong></td><td>10%</td><td>Variación del volumen relativo de búsquedas relacionadas con Bitcoin</td><td>Activo</td></tr>
+            <tr><td><strong>Encuestas</strong></td><td>15%</td><td>Encuesta semanal a inversores</td><td><strong>Suspendido</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Si miras la tabla cinco segundos más, saltan a la vista dos cosas.
+      </p>
+      <ul>
+        <li>
+          <strong>El 50 % de los componentes se deriva del precio.</strong> Volatilidad 25 % + momentum/volumen 25 %.
+          Es decir, se le llama «índice de sentimiento», pero <strong>la mitad son simplemente datos de precio</strong>.
+        </li>
+        <li>
+          <strong>Ha desaparecido un 15 % y no se ha publicado adónde ha ido.</strong> El componente de encuestas se suspendió.
+          Cómo se redistribuyó entre los cinco restantes —si con una renormalización proporcional o cargándolo en algún componente concreto—
+          el operador no lo explica. <strong>Hoy, desde fuera, no se pueden conocer las proporciones exactas de este índice.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        Las proporciones que presentamos aquí se basan <strong>en la documentación publicada por el operador</strong>.
+        La fórmula exacta de cada componente (qué ventana usa, con qué función se mapea a 0~100) no es pública.
+        <strong>Estamos leyendo la etiqueta de la caja negra, no hemos abierto la caja negra.</strong>
+        Volveremos a afrontar esta limitación de frente al final del artículo.
+      </div>
+
+      <h2>Disección ① Volatilidad (25 %) — la columna vertebral del índice</h2>
+      <p>
+        Es el componente de más peso y el que, en la práctica, define el carácter del índice.
+        Compara la volatilidad reciente y la caída máxima de BTC <strong>con sus medias de 30 y 90 días</strong> y, si son mayores de lo habitual, lo interpreta como «miedo».
+      </p>
+      <p>
+        Aquí ocurre algo de forma silenciosa. <strong>La volatilidad, por naturaleza, no distingue de dirección.</strong>
+        En sí misma crece tanto si el precio salta hacia arriba como hacia abajo. Pero este componente incluye además la <strong>caída máxima</strong>,
+        con lo que carga el peso en los movimientos a la baja. Al final, este componente se parece más a <strong>un aparato que mide «¿ha caído el precio rápidamente?»</strong>.
+      </p>
+      <p>
+        De ahí sale la primera conclusión.
+      </p>
+      <div class="note warn">
+        <strong>El índice de miedo no «predice» las caídas. Las «repite».</strong>
+        El precio tiene que caer para que aumente la volatilidad, y la volatilidad tiene que aumentar para que baje el índice.
+        <strong>El índice va detrás del precio.</strong> En cuanto inviertes el orden mentalmente, empiezas a malinterpretar este indicador.
+      </div>
+      <p>
+        Esto afecta directamente al diseño de nuestro modelo. Nuestra puntuación ya incluye por separado la <strong>caída de 365 días</strong> y el <strong>RSI</strong>.
+        Pero la columna vertebral del índice de miedo también es, al fin y al cabo, «qué tan rápido ha caído».
+        Es decir, <strong>F&amp;G, caída y RSI no son independientes entre sí.</strong> Los tres indicadores reaccionan a la vez al mismo suceso (un desplome).
+      </p>
+      <p>
+        Significa que, en las ponderaciones de corto plazo, RSI 28 % + F&amp;G 28 % = <strong>56 %</strong> pueden moverse como un solo bloque,
+        y esa es una <strong>debilidad conocida</strong> que hemos decidido asumir. Para compensar esa redundancia incluimos
+        MACD (tendencia) y los cruces dorado/de la muerte (fase), de carácter justo opuesto. Cuando en un desplome los tres primeros indicadores gritan al unísono «compra»,
+        el papel de estos dos es frenar. <strong>No hemos eliminado el doble conteo; lo hemos contenido con un eje opuesto.</strong>
+      </p>
+
+      <h2>Disección ② Momentum / volumen de mercado (25 %) — un circuito que se refuerza a sí mismo</h2>
+      <p>
+        El segundo componente más pesado. Compara el volumen y el momentum actuales con sus medias de 30 y 90 días.
+        <strong>Cuando aparece un volumen comprador mayor de lo habitual, empuja hacia la codicia.</strong>
+      </p>
+      <p>
+        Este componente tiene una retroalimentación (feedback) estructural.
+      </p>
+      <pre><code>Sube el precio
+   ↓
+Se dispara el volumen (entra el FOMO)
+   ↓
+Sube el componente de momentum → sube el índice → "codicia"
+   ↓
+"Dicen que hay codicia" → se difunde en medios y redes
+   ↓
+Entran nuevos inversores → el volumen sube aún más …</code></pre>
+      <p>
+        Es decir, este componente <strong>no refleja la tendencia: participa en ella.</strong>
+        Por eso, a mitad de un mercado alcista, el índice se queda varias semanas clavado entre 75 y 85.
+        Si alguna vez has pensado «¿no dura demasiado esta codicia?», no es que el índice esté roto:
+        <strong>es el componente de momentum funcionando tal como fue diseñado</strong>.
+      </p>
+      <p>
+        En sentido contrario, este componente <strong>es el primero en recuperarse en el suelo.</strong>
+        En la fase en que el volumen aparece antes de que suba el precio —cuando termina la venta por capitulación y empieza la acumulación—
+        el componente de momentum asoma discretamente. Por eso <strong>el tramo en que el índice sube de 15 a 25</strong> es
+        cualitativamente distinto del tramo en que se queda en 15. Es información que, mirando un solo valor, se aplasta en un «sigue habiendo miedo».
+        <strong>Esta es una de las razones por las que mezclamos la media de 7 días</strong>: más adelante lo mostramos con números.
+      </p>
+
+      <h2>Disección ③ Redes sociales (15 %) — un oído que no sabe leer el silencio</h2>
+      <p>
+        Observa el <strong>número de publicaciones y la velocidad de interacción</strong> en hashtags relacionados con Bitcoin.
+        Mide cuántas publicaciones se acumulan en un periodo y lo rápido que llegan las reacciones; si es anormalmente alto, lo interpreta como codicia.
+      </p>
+      <p>Este componente tiene tres sesgos. Veámoslos uno por uno.</p>
+
+      <h3>Sesgo 1 — Está expuesto a bots y publicidad</h3>
+      <p>
+        El volumen de publicaciones con un hashtag es <strong>el dato más barato de manipular</strong>.
+        Basta una campaña de airdrop o una promoción de un influencer para duplicar fácilmente las publicaciones de un hashtag.
+        El índice no distingue si ese tuit lo escribió una persona o un bot, ni si es sincero o promoción pagada.
+        <strong>Trata «se habla mucho» y «se cree mucho» como si fueran lo mismo.</strong>
+      </p>
+
+      <h3>Sesgo 2 — Una asimetría que solo reacciona a las subidas</h3>
+      <p>
+        Es el sesgo más importante. <strong>La verdadera capitulación (capitulation) no es ruidosa, es silenciosa.</strong>
+        Cuando el desplome dura meses, la gente no se enfada. <strong>Se va.</strong>
+        Las criptomonedas desaparecen del timeline y el volumen de publicaciones con hashtags se seca.
+      </p>
+      <p>
+        Pero este componente no tiene ningún mecanismo para decidir si «pocas publicaciones = falta de interés» debe leerse <strong>como miedo o como indiferencia</strong>.
+        Cuando el volumen de publicaciones tiende a 0, la información que genera este componente también tiende a 0.
+        <strong>Es decir, cuando el mercado está más en el suelo, el componente social es el que menos tiene que decir.</strong>
+        Justo en el momento en que más se necesita la señal, un componente del 15 % queda prácticamente mudo.
+      </p>
+
+      <h3>Sesgo 3 — El idioma y la franja horaria están desequilibrados</h3>
+      <p>
+        El recuento de hashtags es abrumadoramente <strong>anglófono</strong>. El sentimiento ante las subidas y caídas bruscas en Corea, Japón o el mundo sinoparlante
+        no se capta con la misma intensidad. Los fines de semana el volumen total de publicaciones cae de forma estructural.
+        <strong>Esa es una de las razones por las que el valor del índice en fin de semana es menos fiable que el de los días laborables</strong>:
+        el precio se mueve 24/7, pero los tuits de la gente no.
+      </p>
+
+      <h2>Disección ④ Dominancia (10 %) — en una pantalla de BTC la dirección se invierte</h2>
+      <p>
+        Es el componente peor entendido. La lógica es esta.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Observación</th><th>Interpretación del índice</th><th>Lógica de fondo</th></tr></thead>
+          <tbody>
+            <tr><td>La dominancia de BTC <strong>sube</strong></td><td>Hacia el miedo</td><td>El dinero sale de las altcoins especulativas y se refugia en el BTC «seguro» = aversión al riesgo</td></tr>
+            <tr><td>La dominancia de BTC <strong>baja</strong></td><td>Hacia la codicia</td><td>Los fondos fluyen hacia las altcoins = euforia especulativa</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        El problema es que esta lógica <strong>solo se sostiene desde el punto de vista que mide el apetito de riesgo de «todo el mercado cripto»</strong>.
+        Desde la perspectiva de quien quiere comprar BTC, la dirección resulta extraña.
+      </p>
+      <div class="note warn">
+        <strong>Que suba la dominancia de BTC también significa que está entrando dinero en BTC.</strong>
+        Pero el índice <strong>lo computa como «miedo» y tira el índice hacia abajo.</strong>
+        En un panel de BTC, este componente está <strong>traduciendo como miedo un flujo de fondos favorable a BTC</strong>.
+        Es un componente del 10 %, pero hay que señalar que su propia dirección choca con la perspectiva del activo.
+      </div>
+      <p>
+        Además, la dominancia es <strong>un indicador cuyo denominador cambia continuamente</strong>.
+        Si crece la capitalización de las stablecoins, si se listan masivamente tokens nuevos o si el dinero institucional entra solo en productos de BTC,
+        <strong>la dominancia se mueve sin que nadie se haya asustado psicológicamente.</strong>
+        Significa que el 10 % de un «índice de sentimiento» oscila por <strong>cambios en la estructura del mercado que no tienen nada que ver con el sentimiento</strong>.
+      </p>
+
+      <h2>Disección ⑤ Google Trends (10 %) — quien ya ha comprado no busca</h2>
+      <p>
+        Observa el volumen relativo de búsquedas relacionadas con Bitcoin. Como un pico de búsquedas en sí no tiene dirección,
+        la dirección se determina por <strong>qué búsquedas han aumentado</strong>. Por ejemplo, si se disparan consultas como «manipulación del precio de Bitcoin» o «estafa Bitcoin»,
+        se lee como miedo; si se dispara un simple «cómo comprar Bitcoin», se lee como codicia.
+      </p>
+      <p>
+        De aquí sale la limitación fundamental de este componente. <strong>Buscar es un comportamiento de los recién llegados.</strong>
+      </p>
+      <ul>
+        <li><strong>Quien ya tiene BTC no lo busca.</strong> Abre la app y mira su saldo.</li>
+        <li><strong>Los inversores institucionales y profesionales no buscan en Google.</strong> Miran su terminal.</li>
+        <li>Por tanto, lo que este componente mide en realidad es <strong>«cuánto interés tiene ahora la gente que no conocía las criptomonedas»</strong>.</li>
+      </ul>
+      <p>
+        No es mala información. Al contrario, es bastante útil para detectar <strong>el recalentamiento por entrada de recién llegados al final del ciclo</strong>.
+        Pero hay que saber exactamente qué es esa información. El componente de Google Trends <strong>no mide el sentimiento del mercado:
+        mide la velocidad a la que entra la gente que estaba fuera del mercado.</strong>
+      </p>
+      <p>
+        Y este componente <strong>se satura.</strong> Como el volumen de búsquedas se normaliza en valores relativos (0~100),
+        una vez que se produce una explosión histórica, casi cualquier aumento de interés posterior queda registrado como «volumen de búsqueda bajo».
+        <strong>Las fiebres del pasado hacen que la fiebre actual parezca pequeña.</strong>
+      </p>
+
+      <h2>Disección ⑥ Encuestas (15 %, suspendido) — el hueco que deja un componente desaparecido</h2>
+      <p>
+        El diseño original incluía una encuesta semanal a inversores con un peso del 15 %. Era el único componente que <strong>preguntaba directamente a las personas</strong>,
+        es decir, el único dato de sentimiento <strong>no derivado del precio</strong>. Hoy está suspendido.
+      </p>
+      <p>Las consecuencias de esa suspensión son mayores de lo que parece.</p>
+      <ol>
+        <li>
+          <strong>El peso derivado del precio ha aumentado.</strong> Si los componentes restantes se repartieron el hueco del 15 % de las encuestas,
+          el peso efectivo de volatilidad + momentum <strong>probablemente es superior</strong> al 50 % original.
+          Es decir, con el tiempo el índice <strong>se ha ido pareciendo cada vez más a una «función del precio»</strong>.
+        </li>
+        <li>
+          <strong>Los valores pasados y actuales no significan lo mismo.</strong> Un 20 de 2018 y un 20 de 2026 son
+          <strong>números fabricados con proporciones distintas</strong>. Cuando haces un backtest sobre el gráfico de largo plazo del tipo «históricamente bastaba con comprar por debajo de 20»,
+          <strong>estás haciendo el backtest de un indicador cuya receta cambió por el camino</strong>.
+        </li>
+        <li>
+          <strong>No se ha publicado el método de redistribución.</strong> Por eso, de las dos afirmaciones anteriores solo podemos decir
+          que son «probables». No poder afirmarlo con certeza es en sí una propiedad importante de este índice.
+        </li>
+      </ol>
+
+      <h2>Resultado agregado: no es un «índice de sentimiento», es un «índice resumen de BTC»</h2>
+      <p>Pongamos de nuevo en fila los cinco componentes y preguntemos solo <strong>sobre qué está hablando</strong> cada uno.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Componente</th><th>Lo que observa realmente</th><th>Lo que te dice sobre la altcoin que estás mirando</th></tr></thead>
+          <tbody>
+            <tr><td>Volatilidad 25%</td><td>Precio de BTC</td><td>Nada</td></tr>
+            <tr><td>Momentum/volumen 25%</td><td>Volumen de BTC</td><td>Nada</td></tr>
+            <tr><td>Redes sociales 15%</td><td>Hashtags de Bitcoin</td><td>Nada</td></tr>
+            <tr><td>Dominancia 10%</td><td>Cuota de capitalización de BTC</td><td><strong>Algo, pero en sentido contrario</strong></td></tr>
+            <tr><td>Google Trends 10%</td><td>Búsquedas de Bitcoin</td><td>Nada</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Ninguno de los cinco componentes lee datos de la altcoin que estás mirando.</strong>
+        Este índice se llama «índice de miedo y codicia cripto», pero su materia prima es <strong>prácticamente todo Bitcoin</strong>.
+      </p>
+      <p>
+        Y la dominancia, el único componente que <em>sí mira</em> las altcoins, apunta en sentido contrario desde la perspectiva de quien las tiene.
+        En una altseason —cuando las altcoins se disparan y la dominancia se desploma— el componente de dominancia grita <strong>«codicia»</strong>
+        y el índice no baja, sino que sube. Es una buena noticia para quien tiene altcoins, pero el índice enciende la luz de alarma.
+        <strong>Y al revés: cuando las altcoins se hunden y el dinero huye a BTC, el índice dice «miedo» y da una señal de compra, mientras tu altcoin se está muriendo.</strong>
+      </p>
+      <div class="note warn">
+        Por eso, en el panel de broodev, <strong>cuando miras una altcoin el indicador F&amp;G es una «referencia», no un «fundamento».</strong>
+        Es también una limitación de nuestro modelo. Usamos un indicador de sentimiento de mercado hecho para BTC
+        con la misma ponderación en las pantallas de altcoins, y <strong>en esa medida el apartado F&amp;G de la puntuación de las altcoins es menos fiable.</strong>
+        Siendo francos, es un problema que todavía no hemos resuelto. No existen indicadores de sentimiento por moneda, y
+        construirlos requeriría datos fiables y normalizados de redes sociales y volumen por moneda, que no se consiguen gratis.
+      </div>
+
+      <h2>Por eso no usamos este número tal cual</h2>
+      <p>
+        La disección anterior lleva directamente al diseño de nuestro modelo. <strong>No usamos tal cual</strong> el valor del índice de miedo de hoy.
+        Tampoco nos limitamos a invertirlo con <code>100 − valor actual</code>.
+      </p>
+
+      <div class="note warn">
+        <strong>Lo primero que hay que aclarar: no hay una fórmula de conversión, sino dos.</strong><br />
+        <strong>La pestaña de largo plazo (contraria)</strong> y <strong>la de corto plazo (momentum)</strong> usan <strong>funciones distintas</strong>, con <strong>signos opuestos</strong>.
+        <strong>La estructura de mezcla y bonificación por extremos</strong> que detallamos en los apartados siguientes <strong>es exclusiva de la pestaña de largo plazo</strong>.
+        (La versión anterior de este documento solo incluía la función de largo plazo y omitía la de corto plazo. Corregido el 2026-07-14)
+      </div>
+
+      <p><strong>Conversión de largo plazo (contraria)</strong>: más puntuación cuanto más miedo. Para eliminar el ruido de un solo día, <strong>mezclamos las medias de 7 y 30 días.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − valor actual)
+       + 0.3 × (100 − media de los últimos 7 días)
+       + 0.2 × (100 − media de los últimos 30 días)
+
+valor actual ≤ 25 → += (25 − valor actual) × 0.4
+valor actual ≥ 75 → −= (valor actual − 75) × 0.4</code></pre>
+
+      <p><strong>Conversión de corto plazo (momentum)</strong>: <strong>más puntuación cuanta más codicia.</strong> No se mezclan medias; solo se usa <strong>el valor actual</strong>.</p>
+      <pre><code>momFng = clamp(50 + (valor actual − 50) × 1.2,  0,  100)
+
+  miedo 20  → 14    (puntuación baja en corto plazo)
+  neutral 50 → 50
+  codicia 85 → 92   (puntuación alta en corto plazo)</code></pre>
+      <p>
+        <strong>¿Por qué en el corto plazo la codicia suma puntos?</strong> En una ventana de 1~3 meses, las fases en que mejora el sentimiento
+        suelen ser <strong>fases con la tendencia viva</strong>. Desde el punto de vista del seguimiento de tendencia, eso es una señal favorable para comprar.
+        En cambio, el miedo extremo significa que <strong>la caída sigue en curso</strong>, lo que a corto plazo es peligroso.
+        <strong>Un mismo índice de 20 da una puntuación alta (≈86) en la pestaña de largo plazo y una baja (≈14) en la de corto plazo.</strong>
+      </p>
+      <p class="muted">
+        <strong>Todos los cálculos y escenarios que siguen se refieren a la pestaña de largo plazo (contraria).</strong> Recuerda que en la pestaña de corto plazo el signo se invierte.
+      </p>
+
+      <h3>¿Por qué reducimos a la mitad el valor del día?</h3>
+      <p>
+        <strong>La respuesta está en la lista de ingredientes.</strong> Piensa qué componentes son los que más oscilan día a día.
+      </p>
+      <ul>
+        <li><strong>Redes sociales (15 %)</strong>: se agitan en un solo día por un tuit de un influencer o por ser fin de semana.</li>
+        <li><strong>Google Trends (10 %)</strong>: un solo titular dispara las búsquedas.</li>
+        <li><strong>Volatilidad (25 %)</strong>: reacciona al instante a una sola vela diaria de −8 %.</li>
+      </ul>
+      <p>
+        En conjunto, <strong>la mitad son componentes sensibles a «qué pasó ayer»</strong>.
+        Es decir, <strong>el índice de miedo de un día es más la estela de las noticias de ayer que una medición del sentimiento</strong>.
+      </p>
+      <p>
+        En cambio, <strong>la media de 7 días</strong> borra buena parte del ruido diario de redes y búsquedas y el efecto fin de semana.
+        <strong>La media de 30 días</strong> aplasta incluso los picos aislados del componente de volatilidad, y lo que queda es <strong>la fase</strong>.
+        Por eso 0.5 / 0.3 / 0.2. <strong>La mitad, la emoción del momento; un 30 %, el ambiente de la semana; un 20 %, la fase del mes</strong>.
+      </p>
+
+      <h3>Qué puntuaciones tan distintas puede dar el mismo «18»: cálculo real</h3>
+      <p>
+        Suena abstracto, así que metamos números. <strong>En los tres escenarios el índice de miedo de hoy es exactamente 20.</strong>
+        Los titulares de prensa dirán en los tres casos lo mismo: «miedo extremo».
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Escenario</th><th>Actual</th><th>Media 7 días</th><th>Media 30 días</th><th>Subpuntuación F&amp;G<br /><span class="muted">(no es la puntuación global)</span></th><th>Aporte al total de largo plazo<br /><span class="muted">× 18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A. Primer día del desplome</strong><br /><span class="muted">todo bien hasta el desplome de ayer</span></td>
+              <td>20</td><td>45</td><td>60</td>
+              <td><strong>66.5</strong></td>
+              <td>12.0 pts</td>
+            </tr>
+            <tr>
+              <td><strong>B. Miedo persistente</strong><br /><span class="muted">miedo toda la semana</span></td>
+              <td>20</td><td>22</td><td>28</td>
+              <td><strong>79.8</strong></td>
+              <td>14.4 pts</td>
+            </tr>
+            <tr>
+              <td><strong>C. Suelo de un estancamiento prolongado</strong><br /><span class="muted">un mes en el suelo</span></td>
+              <td>20</td><td>25</td><td>20</td>
+              <td><strong>80.5</strong></td>
+              <td><strong>14.5 pts</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note warn">
+        <strong>Ojo con la confusión: la subpuntuación no es la puntuación global.</strong><br />
+        El <strong>80.5</strong> de la tabla es <strong>la subpuntuación de un solo indicador, el F&amp;G</strong>, y no significa «STRONG BUY».
+        Ese valor solo <strong>aporta a la puntuación global</strong> <code>80.5 × 18% = 14.5 pts</code> en la pestaña de largo plazo.
+        La etiqueta STRONG BUY (80 puntos o más) solo se asigna a <strong>la puntuación global que combina los 6 indicadores</strong>.
+        (La versión anterior de este documento ponía nombres de banda global a subpuntuaciones. Corregido el 2026-07-14)
+      </div>
+
+      <p>Desplegando el cálculo tal cual, queda así.</p>
+      <pre><code>[A] Primer día del desplome
+0.5×(100−20) + 0.3×(100−45) + 0.2×(100−60)
+= 40 + 16.5 + 8.0 = 64.5
+Bonificación por extremo: (25−20)×0.4 = +2.0
+→ 66.5
+
+[B] Miedo persistente
+0.5×(100−20) + 0.3×(100−22) + 0.2×(100−28)
+= 40 + 23.4 + 14.4 = 77.8
+Bonificación por extremo: +2.0
+→ 79.8
+
+[C] Suelo de un estancamiento prolongado
+0.5×(100−20) + 0.3×(100−25) + 0.2×(100−20)
+= 40 + 22.5 + 16.0 = 78.5
+Bonificación por extremo: +2.0
+→ 80.5</code></pre>
+
+      <p>
+        <strong>El mismo 20 da 66.5 y 80.5. Una diferencia de 14 puntos.</strong>
+        Si simplemente hubiéramos hecho <code>100 − 20 = 80</code>, los tres darían 80 puntos: exactamente la misma señal.
+      </p>
+      <p>
+        Fíjate en la diferencia de significado. <strong>A es «un mercado que hasta ayer era codicioso y hoy se ha asustado un día»</strong>.
+        Media de 7 días 45, media de 30 días 60: <strong>aún le queda mucho recorrido a la baja.</strong>
+        <strong>C es «un mercado que lleva un mes sin interesar a nadie»</strong>. Está cerca del punto en que ya ha vendido todo el que tenía que vender.
+        Tratar ambos como la misma señal es <strong>la razón por la que «índice de miedo 20 = comprar» falla tan a menudo</strong>.
+      </p>
+      <div class="note">
+        <strong>Un único valor de este índice solo habla de «profundidad», no de «duración».</strong>
+        Mezclar las medias de 7 y 30 días no pretende mejorar el índice, sino
+        <strong>recuperar la dimensión temporal que el índice contenía de origen</strong>.
+      </div>
+
+      <h3>En la dirección contraria también es simétrico</h3>
+      <pre><code>[D] Fase de recalentamiento — actual 85, 7 días 80, 30 días 72   (pestaña de largo plazo)
+0.5×(100−85) + 0.3×(100−80) + 0.2×(100−72)
+= 7.5 + 6.0 + 5.6 = 19.1
+Penalización por extremo: −(85−75)×0.4 = −4.0
+→ Subpuntuación F&amp;G 15.1   →   aporte al total de largo plazo 15.1 × 18% = 2.7 pts</code></pre>
+      <p>
+        Cuanto <strong>más profunda y más duradera</strong> es la codicia, más se recorta la subpuntuación.
+        Con un pico de codicia de un solo día (actual 85, 7 días 55, 30 días 50), el mismo cálculo da
+        <code>7.5 + 13.5 + 10 − 4 = 27.0</code>.
+        <strong>El mismo 85 da 15.1 y 27.0</strong>: de nuevo, la duración decide el valor.
+      </p>
+      <div class="note">
+        <strong>⚠ En la pestaña de corto plazo este cálculo se invierte por completo.</strong>
+        Si metes la misma situación (F&amp;G 85) en la pestaña de corto plazo, <code>momFng(85) = 50 + 35×1.2 = 92</code>: <strong>casi la puntuación máxima</strong>.
+        Cuando la pestaña de largo plazo dice «recalentamiento, peligro», la de corto plazo dice «la tendencia está viva».
+        <strong>Las dos tienen razón. Solo cambia el horizonte temporal.</strong>
+      </div>
+
+      <h2>¿Por qué el peso adicional solo se aplica en 25 y 75?</h2>
+      <p>
+        La bonificación/penalización <code>×0.4</code> solo se aplica <strong>en 25 o menos y en 75 o más</strong>.
+        Aunque el índice se mueva 3 puntos en la zona 45~55, nuestra puntuación apenas reacciona. <strong>Es una omisión deliberada.</strong>
+      </p>
+      <p>La razón vuelve a estar en la lista de ingredientes. <strong>Las oscilaciones de la zona media y los valores extremos se generan con mecanismos distintos.</strong></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Cuando el índice oscila entre 48 ↔ 53</th><th>Cuando el índice baja de 25 / sube de 75</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Componentes que más se movieron</strong></td>
+              <td><strong>Componentes ligeros</strong> como redes sociales (15 %) + tendencias (10 %). Bastan unos cuantos tuits o una noticia</td>
+              <td>Solo se alcanza si volatilidad (25 %) + momentum (25 %) van al extremo <strong>en la misma dirección</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Condición necesaria</strong></td>
+              <td>No hace falta que nada coincida</td>
+              <td>Hace falta <strong>el consenso del 50 % formado por los componentes pesados</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Cantidad de información</strong></td>
+              <td>Casi ninguna: <strong>ruido</strong></td>
+              <td>Alta: <strong>precio, volumen y sentimiento en la misma dirección</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Esta es la clave. <strong>Un índice de 50 significa «ningún componente ha hablado con fuerza»</strong>,
+        no «el mercado está en equilibrio». Puede que los componentes apuntaran en direcciones opuestas y se anularan,
+        o que todos estuvieran tibios. <strong>El valor 50 no distingue entre ambos casos.</strong>
+        En cambio, <strong>los valores extremos como 15 u 85 solo aparecen cuando varios componentes se agolpan en la misma dirección.</strong>
+      </p>
+      <p>
+        Por eso <strong>solo damos peso adicional a los valores extremos.</strong> Los extremos son <strong>el consenso (consensus) de los componentes</strong>;
+        los valores intermedios, <strong>la ausencia de consenso</strong>. Un mismo punto vale mucho más en el extremo.
+      </p>
+      <p>
+        ¿Cómo se decidió el coeficiente <code>0.4</code>? <strong>Para ser sinceros, es un valor ajustable.</strong>
+        La intención era fijar un techo: «cuando el índice llega a 0, se suman como máximo +10 puntos»
+        (<code>(25−0)×0.4 = 10</code>). También podría haber sido 0.5 o 0.3. <strong>No es un principio, es una decisión.</strong>
+      </p>
+
+      <h2>Lo que esta disección no ha podido averiguar</h2>
+      <p>
+        Si has llegado hasta aquí y sientes que «ahora entiendo el índice», lee por favor esta última parte.
+        <strong>Saber con precisión lo que no sabemos es más importante que saber lo que sabemos.</strong>
+      </p>
+      <ul>
+        <li>
+          <strong>La fórmula de cada componente no es pública.</strong> Con qué ventana (window) exacta se mide la volatilidad,
+          con qué función se mapea a 0~100, cómo se recortan los valores atípicos: nada de eso se ha publicado.
+          <strong>No podemos reproducir este índice.</strong> Un número que no se puede reproducir no se puede verificar.
+        </li>
+        <li>
+          <strong>No sabemos adónde fue el 15 % de las encuestas suspendidas.</strong> Antes dijimos que «el peso efectivo de volatilidad + momentum probablemente supera el 50 %»,
+          pero es una <strong>estimación</strong>. Las proporciones actuales exactas solo las conoce el operador.
+        </li>
+        <li>
+          <strong>No se puede garantizar la coherencia histórica del índice.</strong> Si los componentes y las proporciones cambiaron por el camino,
+          el 20 de 2018 y el 20 de hoy son cosas distintas. <strong>Todo backtest de largo plazo del índice de miedo arrastra este problema</strong>,
+          y el nuestro no es una excepción.
+        </li>
+        <li>
+          <strong>Dependemos de un único proveedor.</strong> Si Alternative.me cierra la API o vuelve a cambiar la fórmula,
+          el apartado F&amp;G de nuestra puntuación pasa ese mismo día a tratarse como dato ausente y las ponderaciones se renormalizan entre los 5 indicadores restantes
+          (el panel lo muestra como <code>coverage: 5/6</code>). <strong>Es un modo de fallo que ya está contemplado en el diseño.</strong>
+        </li>
+        <li>
+          <strong>Tanto 0.5 / 0.3 / 0.2 como 0.4 son números elegidos por nosotros.</strong> La dirección deducida lógicamente de la estructura de componentes es correcta,
+          pero no hay ninguna necesidad matemática de que sean exactamente esos valores. <strong>Puedes preferir otros, y no tenemos argumentos para decir que te equivocas.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        <strong>Por qué, aun así, usamos este índice.</strong>
+        Está lleno de defectos, pero <strong>se actualiza a diario, es gratuito, tiene un largo historial y, sobre todo, de los seis indicadores
+        es el único intento de mirar aunque sea un poco «algo que no sea el precio»</strong>.
+        Los otros cinco indicadores (RSI, MACD, Mayer, caída y cruces) son funciones puras del precio.
+        <strong>Unos datos de sentimiento imperfectos son mejor que ninguno</strong>: esa es nuestra decisión,
+        pero solo cuando se usan conociendo la forma exacta de esa imperfección. Por eso escribimos este artículo.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Aviso sobre inversión</strong><br />
+        Este documento es <strong>material educativo y de referencia que analiza la estructura de un indicador público, y no constituye asesoramiento de inversión ni recomendación de compra o venta.</strong>
+        Los ejemplos de cálculo del texto (escenarios A, B, C y D) son <strong>cifras hipotéticas con fines explicativos</strong> y no se refieren al mercado en ningún momento concreto.
+        Las criptomonedas son activos de alto riesgo en los que es posible <strong>perder todo el capital</strong>, y ningún indicador ni puntuación evita las pérdidas.
+        Todas las decisiones de inversión y sus consecuencias son responsabilidad exclusiva del usuario. Investiga siempre por tu cuenta (DYOR).
+      </div>
+
+      <h2>Sigue leyendo</h2>
+      <div class="related">
+        <a href="/guide-fear-greed"><b>Guía práctica del índice de miedo</b><span>Terminada la disección, ¿cómo se usa? Procedimiento de compra escalonada y errores frecuentes</span></a>
+        <a href="/methodology"><b>Metodología de la puntuación</b><span>Con qué ponderaciones se combinan los 6 indicadores, F&amp;G incluido</span></a>
+        <a href="/indicators"><b>Los 6 indicadores explicados</b><span>Qué mide cada uno: RSI, MACD, múltiplo de Mayer, caída y cruces</span></a>
+        <a href="/glossary"><b>Glosario</b><span>Dominancia, múltiplo de Mayer, venta por capitulación…</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operado por Y-Systems · <a href="/privacy">Política de privacidad</a> · <a href="/terms">Términos de uso</a></footer>
+    </main>

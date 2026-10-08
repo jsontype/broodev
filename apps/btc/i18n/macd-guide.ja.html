@@ -1,0 +1,698 @@
+<main class="wrap" data-title="MACDを手計算してみる — 終値42本で追うEMA・シグナル・ヒストグラムのウォークスルー | broodev" data-desc="42本の終値を実際に代入し、EMA12・EMA26・MACD線・シグナル線・ヒストグラムを1本ずつ計算します。30本ではヒストグラムが1つも出ない理由、SMAではなくEMAを使う本当の理由、broodevがヒストグラムの絶対値ではなく前日比の方向を見る理由を、実際のコードと数字で確かめます。">
+      <nav class="nav">
+        <a href="/">← ダッシュボード</a>
+        <a href="/methodology">スコアの算出方法</a>
+        <a href="/indicators">指標の解説</a>
+        <a href="/guide-fear-greed">恐怖指数の活用法</a>
+        <a href="/glossary">用語集</a>
+      </nav>
+
+      <h1>MACDを手計算してみる<br />— 終値42本を最後まで追うウォークスルー</h1>
+      <p class="muted">最終更新：2026-07-14 · 執筆：Y-Systems · この記事は解説ではなく<strong>実習の記録</strong>です</p>
+
+      <p class="lead">
+        まず失敗からお見せします。終値を<strong>30本</strong>用意して標準のMACD（12・26・9）を回すと、
+        MACD線は5個出ますが、<strong>シグナル線は0個、ヒストグラムも0個</strong>です。
+        1か月分のデータでは、MACDヒストグラムを<em>ただの1本も</em>作れません。
+        この事実を知っている人は意外と少ないものです。MACDを「12日線と26日線の差」程度にしか習っていないからです。
+      </p>
+      <p>
+        そこでこの記事は定義から始めません。<strong>終値42本を実際に代入し</strong>、
+        EMA12 → EMA26 → MACD線 → シグナル線 → ヒストグラム → broodevの部分スコアまで、
+        <strong>電卓を片手に1本ずつ追いかけます。</strong>電卓が1つあれば、この記事のすべての数字を自分で再現できます。
+        再現できなければ、間違っているのは私たちのほうです。
+      </p>
+
+      <section class="bd-figs" aria-label="MACD ライブチャート">
+        <p class="muted">ウォークスルーに入る前に、この記事で扱う計算を実際のBTCデータに当てはめた結果を先に見ておきます。下の終値42本の実習とまったく同じ式（EMA12−EMA26、シグナルEMA9）です。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">チャートデータを読み込み中…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">チャートデータを読み込み中…</div></div>
+          </div>
+          <p class="bd-cap">直近2年のBTC価格（上）とMACD(12,26,9)（下）。棒 = ヒストグラム（MACD線−シグナル線、緑がプラス／赤がマイナス）。MACD値の絶対的な大きさは価格の水準に比例します — 本文が絶対値ではなく方向を見る理由です。データ：CoinMetrics Community API、BTC日足終値 — 閲覧時に取得してブラウザで計算した<strong>概算値・参考用</strong>です。</p>
+        </div>
+      </section>
+
+      <h2>準備するもの — この記事全体で使う終値42本</h2>
+      <p>
+        架空の資産です。100から始まり、74.3まで<strong>−25.7%下落したあと反発する</strong>経路で作りました。
+        暗号資産ではよくある形であり、かつ計算結果が劇的に分かれる区間（底値圏）を含むように設計しています。
+      </p>
+      <pre><code>1〜6日目    100.0  99.1 100.4  98.6  99.3  97.8
+7〜14日目    96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+15〜22日目   88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+23〜30日目   81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← 30日目が最安値（74.3）
+31〜36日目   75.6  74.8  76.9  78.2  77.5  79.8
+37〜42日目   81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>単位は気にしないでください。</strong>後で証明しますが、broodevのMACD部分スコアは
+        <strong>価格の規模に対して完全に不変（scale-invariant）</strong>です。この42本の終値に700を掛けて
+        ビットコインの価格帯（58,730ドル）にしても、<strong>部分スコアは小数第4位までまったく同じになります。</strong>
+        だから読みやすい100前後の数字を使います。
+      </div>
+
+      <p class="step">STEP 1</p>
+      <h2>SMAではなくEMAを使う理由 — 「12日前の足が今日のシグナルを作る」</h2>
+      <p>
+        教科書は「EMAは直近の価格により敏感なので速い」と言って終わります。その一文は<strong>半分しか正しくありません。</strong>
+        同じ42本の終値で、<strong>SMA版MACD（SMA12−SMA26）</strong>と<strong>EMA版MACD（EMA12−EMA26）</strong>を
+        並べて回してみました。
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>日目</th><th>終値</th><th>EMA版 MACD線</th><th>SMA版 MACD線</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← EMAの底</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← SMAの底</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>結果1 — 底はEMAのほうが1本早かった</h3>
+      <p>
+        EMA版は<strong>28日目</strong>に底（−7.008）をつけて反転し、SMA版は<strong>29日目</strong>（−7.201）でした。
+        1本の差です。しかもEMA側の底のほうが<strong>浅い</strong>（−7.008 vs −7.201）。
+        ここまでは教科書どおりです。
+      </p>
+
+      <h3>結果2 — ところがゼロラインへの復帰はSMAのほうが早かった</h3>
+      <p>
+        42日目を見てください。SMA版は<strong>−0.006</strong>で事実上ゼロラインを抜けているのに、EMA版はまだ<strong>−1.389</strong>です。
+        「EMAは常に速い」という話がここで崩れます。<strong>なぜSMAは急に跳ねたのでしょうか？</strong>
+      </p>
+      <p>
+        41日目 → 42日目に、SMA版MACD線は<strong>−1.036から−0.006へ、1日で+1.030</strong>動きました。
+        同じ日、EMA版は+0.565しか動いていません。2倍近い差です。計算してみると原因が見えてきます。
+      </p>
+      <pre><code>SMA12(42日目) − SMA12(41日目)
+  = (新たに入った42日目 86.2 − ウィンドウから外れた30日目 74.3) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← 今日の価格ではなく「30日目の足が消えたこと」の効果
+
+SMA26側の変化 = (86.2 − 16日目 87.2) ÷ 26 = −0.0385
+
+SMA版MACDの変化 = +0.9917 − (−0.0385) = +1.030   ✅ 表と一致</code></pre>
+      <p>
+        <strong>これがSMAを使ってはいけない本当の理由です。</strong>42日目のSMAシグナルの大部分は、
+        <em>今日の価格が上がったから</em>生じたのではなく、<strong>12日前（30日目）の最安値74.3が移動平均のウィンドウからポンと抜け落ちたから</strong>生じたものです。
+        今日の市場では何も起きていないのに、<strong>12日前に起きたことが今日の買いシグナルを作るのです。</strong>
+        業界で<strong>「ドロップオフ効果（drop-off effect）」</strong>と呼ばれる現象です。
+      </p>
+      <p>
+        EMAにはウィンドウがありません。古い価格のウェイトは<code>(1−α)ⁿ</code>で指数的に<em>少しずつ消えていくだけ</em>で、
+        ある日突然計算から<strong>追い出されることはありません。</strong>だからEMA版は同じ日に+0.565と滑らかに動きました。
+      </p>
+      <div class="note">
+        <strong>まとめると</strong> — EMAを使う理由は「速いから」ではなく<strong>「幽霊シグナルを作らないから」</strong>です。
+        SMAは転換点で1本遅れる代わりに、とんでもないタイミングで<strong>12日前の足が作った偽の急変</strong>をばらまきます。
+        シグナルの<em>速さ</em>よりも、シグナルの<em>原因</em>のほうが重要です。
+      </div>
+
+      <p class="step">STEP 2</p>
+      <h2>EMA12を電卓で叩いてみる</h2>
+      <p>
+        broodevが使うEMAは、<strong>最初の<code>period</code>本の単純平均をシード（seed）にし</strong>、そこから指数的に更新していく方式です。
+        <code>α = 2 ÷ (期間 + 1)</code>です。EMA12なら<code>α = 2/13 = 0.153846</code>。
+      </p>
+      <pre><code>// broodev の実際のコード (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← シード = 先頭 period 本の単純平均
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>では上の終値42本を入れます。12日目にシードが1つでき、13日目から更新が始まります。</p>
+      <pre><code>12日目のシード = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+              = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+13日目 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+14日目 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+15日目 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+16日目 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+17日目 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        要点は<strong>「昨日のEMAの84.6%に、今日の終値の15.4%を足す」</strong>、ただそれだけです。
+        ウェイトは毎日同じで、過去は毎日84.6%ずつ薄まっていきます。30日前の終値のウェイトは
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code> — 0.1%にも届きません。でも<strong>ゼロではありません。</strong>この差がSTEP 1の結論でした。
+      </p>
+
+      <p class="step">STEP 3</p>
+      <h2>EMA26とMACD線 — 26日目にようやく最初の値が出る</h2>
+      <p>EMA26は<code>α = 2/27 = 0.074074</code>。シードは1〜26日目の単純平均です。</p>
+      <pre><code>26日目のシード = 2341.4 ÷ 26 = <strong>90.0538</strong>
+27日目 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+28日目 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+29日目 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+30日目 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        EMA26のシードが26日目に初めてできるので、<strong>MACD線（EMA12 − EMA26）の最初の値も26日目です。</strong>
+        25日目までは<strong>MACD線そのものが存在しません。</strong>
+      </p>
+      <pre><code>MACD線(26日目) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        ここで最初の重要な観察が出てきます。26日目から34日目までのMACD線を並べてみてください。
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>日目</th><th>終値</th><th>MACD線</th><th>メモ</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>MACD線の底</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>反発開始</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>価格は安値を切り下げ、MACDは安値を切り上げ</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        28日目の終値75.1 → 30日目の終値74.3。<strong>価格は安値を切り下げました（−1.1%）。</strong>
+        ところがMACD線は−7.008 → −6.851と、<strong>安値を切り上げました。</strong>
+        これを<strong>強気のダイバージェンス（bullish divergence）</strong>と呼びます。
+        「価格は安値更新なのに、下落の<em>スピード</em>はすでに鈍っている」という意味です。
+      </p>
+      <p>
+        そしてこのウォークスルーで価格の本当の底は<strong>30日目</strong>でした。
+        MACD線は<strong>28日目</strong>にもう反転していました。<strong>指標が価格より2本早く向きを変えたのです。</strong>
+        覚えておいてください — これがSTEP 6の「なぜ絶対値ではなく方向なのか」の根拠になります。
+      </p>
+
+      <p class="step">STEP 4</p>
+      <h2>シグナル線 — ここが30本では足りない地点</h2>
+      <p>
+        シグナル線は<strong>MACD線のEMA9</strong>です。つまり<strong>EMAのEMA</strong>です。
+        MACD線は26日目から始まるので、シグナル線のシード（MACD線9個の平均）は
+        <strong>26日目から34日目までが全部そろって</strong>初めて作れます。
+      </p>
+      <pre><code>シグナルのシード(34日目)
+ = MACD線 26〜34日目 9個の平均
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+ヒストグラム(34日目) = MACD線(−5.613) − シグナル線(−6.6071) = <strong>+0.994</strong>   ← 最初の値！</code></pre>
+      <p>35日目からはα = 0.2で更新します。</p>
+      <pre><code>35日目 シグナル = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+       ヒストグラム = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+36日目 シグナル = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+       ヒストグラム = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+37日目 シグナル = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+       ヒストグラム = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>なぜ30本ではヒストグラムが0個なのか</strong><br />
+        26（EMA26のシード）+ 9（シグナルのシード）− 1 = <strong>34</strong>。ヒストグラムの<strong>最初の値はどんなに早くても34本目</strong>です。
+        しかもbroodevはヒストグラムの<strong>前日比の変化</strong>を見るので、<strong>2個</strong>必要です → <strong>35本</strong>。
+        だからコードにこのガードがあります。
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← 35本未満なら MACD 部分スコア = null</code></pre>
+        MACDが<code>null</code>なら<a href="/methodology">ウェイトの再正規化</a>が働き、
+        残り5つの指標でスコアを出して<code>coverage 5/6</code>と表示します。新規上場コインでよく見かける状態です。
+      </div>
+      <p class="muted">
+        付け加えると、35本は<strong>必要条件であって十分条件ではありません。</strong>34日目のヒストグラムは、シグナルのシードが
+        <em>MACD線9個の単純平均</em>なので、まだ「半煮え」の値です。実戦で安定したヒストグラムを見るには、
+        少なくとも<strong>60〜80本</strong>は積み上がっている必要があります。この問題はこの記事の最後の<a href="#seed">付録A</a>で数字とともに改めて扱います。
+      </p>
+
+      <p class="step">STEP 5</p>
+      <h2>全計算表 — 26日目から42日目まで</h2>
+      <p>
+        ここまでのすべての値を1つの表にまとめました。<strong>Δヒストグラム</strong>は「前の足と比べたヒストグラムの変化」で、
+        <strong>短期・長期</strong>はbroodevがこの値から算出するMACD部分スコア（0〜100）です。
+        灰色の行は<strong>計算そのものが不可能な区間</strong>です。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>日目</th><th>終値</th><th>EMA12</th><th>EMA26</th><th>MACD線</th><th>シグナル</th><th>ヒストグラム</th><th>Δヒストグラム</th><th>短期スコア</th><th>長期スコア</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        表の中で<strong>MACD線が42日目になってもずっとマイナス（−1.389）</strong>であることに注目してください。
+        「MACDがゼロラインの上に出たら買い」というルールに従っていたら、この反発区間で<strong>一度も買いシグナルを受け取れません。</strong>
+        一方で<strong>ヒストグラムは34日目の時点ですでにプラス（+0.994）</strong>です。
+        ヒストグラムは<em>MACD線がシグナル線を追い抜いたか</em>を見る値なので、ゼロライン突破よりはるかに速いのです。
+      </p>
+      <p>
+        そして<strong>41日目</strong>を見てください。この1行が次のSTEPのすべてです。
+      </p>
+
+      <p class="step">STEP 6</p>
+      <h2>ここでbroodevは教科書と分かれる — 絶対値ではなく方向</h2>
+      <p>
+        ここまでは標準のMACDでした。どのチャートソフトでも同じ値が出ます。
+        <strong>ここからがbroodev独自の部分です。</strong>ヒストグラム（範囲の決まっていない実数）を
+        0〜100のスコアに変える関数を、<strong>ソースそのまま</strong>公開します。
+      </p>
+      <pre><code>// 短期（モメンタム）マッピング — MACD ウェイト 14%
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① ヒストグラムの<strong>レベル</strong>
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② 前日比の<strong>方向</strong>
+, 0, 100)
+
+// 長期（逆張り）マッピング — MACD ウェイト 18%
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② 前日比の<strong>方向</strong>
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① ヒストグラムの<strong>レベル</strong>
+, 0, 100)</code></pre>
+      <p>
+        2つの関数は<strong>構造が同じで、係数が逆になっています。</strong>それがすべてです。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>項</th><th>意味</th><th>短期（モメンタム）係数</th><th>長期（逆張り）係数</th></tr></thead>
+          <tbody>
+            <tr><td>① レベル</td><td>今のヒストグラムがどれだけ大きいか（絶対値）</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② 方向</td><td>前の足より大きくなったか小さくなったか（Δ）</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>レベル：方向の比率</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>tanh ゲイン</td><td>大きいほど小さな変化で早く飽和する</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>短期モードはレベルを2倍重く見ます。</strong>トレンドがどれだけ強いかが重要だからです。<br />
+        <strong>長期モードは方向を2.5倍重く見ます。</strong>ヒストグラムがまだ深いマイナスでも、
+        <strong>「昨日より良くなったか」</strong>がスコアを支配します。
+      </p>
+
+      <h3>同じヒストグラム、違う方向 — スコアはどれだけ分かれるか</h3>
+      <p>価格100を基準に、<strong>ヒストグラムの値は同じで、前日比の方向だけが違う</strong>4つの状況を入れてみました。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>状況</th><th>ヒストグラム</th><th>直前の値</th><th>短期スコア</th><th>長期スコア</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>深いマイナスだが<strong>力強く上向きに転換</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>深いマイナスで<strong>下落が続く</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>浅いプラスだが<strong>折れ始めている</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>浅いプラスで<strong>上昇中</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        1行目と2行目を比べてください。<strong>ヒストグラムの値は−0.30でまったく同じです。</strong>方向だけが違います。
+        それなのに<strong>長期部分スコアは22.6 → 58.4と35.8点も開きます。</strong>
+        絶対値だけを見るモデルなら、この2つの状況は<strong>区別できません。</strong>どちらも「悪い」です。
+      </p>
+      <p>
+        ところが1行目は、STEP 3で見た<strong>まさにあの28日目</strong>です。
+        価格が安値を更新していた瞬間、下落圧力が<em>弱まり始めた</em>まさにその足。
+        絶対値だけを見ていたら、その足を「最悪」と採点していたでしょう。<strong>実際には底の2本前でした。</strong>
+      </p>
+      <p>
+        3行目と4行目は逆方向の同じ話です。ヒストグラムがプラス（+0.10）なので<strong>絶対値モデルにとってはどちらも「良い」</strong>ですが、
+        一方は折れ始めていて、もう一方は上昇中です。長期スコアは<strong>37.5 vs 66.5</strong>に分かれます。
+      </p>
+      <div class="note">
+        <strong>一言でいえば</strong> — ヒストグラムの絶対値は<strong>「今どれだけ良いか」</strong>を語り、
+        前日比の変化は<strong>「これから良くなりつつあるか」</strong>を語ります。
+        長期の積み立てという観点で私たちが買いたいのは、<em>すでに良くなった資産</em>ではなく<em>悪化が止まった資産</em>です。
+        だから長期マッピングでは方向係数（25）がレベル係数（10）を圧倒しているのです。
+      </div>
+
+      <h3>代償：tanhはすぐに飽和する（41日目の教訓）</h3>
+      <p>
+        タダのものはありません。方向を重く見ると、<strong>ごく小さなノイズにもスコアが大きく揺れます。</strong>
+        STEP 5の表の<strong>41日目</strong>がその証拠です。
+      </p>
+      <pre><code>40日目: Δヒストグラム = <strong>+0.155</strong>  (価格 84.7 比 +0.183%)  → 長期スコア <strong>80.0</strong>
+41日目: Δヒストグラム = <strong>−0.014</strong>  (価格 83.9 比 −0.017%)  → 長期スコア <strong>57.4</strong>
+
+方向項の計算:
+  40日目 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  41日目 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  差 <strong>−22.5点</strong>   ← 長期部分スコアの下げ幅（−22.6）と一致</code></pre>
+      <p>
+        <strong>価格の0.017%にあたるヒストグラムのわずかな低下ひとつで、長期部分スコアが22.6点下がりました。</strong>
+        原因は<code>tanh</code>の飽和です。<code>tanh(1.098) ≈ 0.80</code> — つまりΔが価格のわずか0.18%になっただけで、
+        方向項はすでに<strong>最大値（25点）の80%</strong>を取ってしまいます。それ以上はいくら大きくなってもほとんど上がりません。
+        逆に符号が変わると、その20点は<strong>即座に消えます。</strong>
+      </p>
+      <p>この飽和カーブを表にすると一目瞭然です。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Δヒストグラム ÷ 価格</th><th>短期の方向項（最大15）</th><th>長期の方向項（最大25）</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00（飽和）</td><td>25.00（飽和）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>0.4%を超えると、両方の項が事実上の最大値です。</strong>それ以上は何の情報も加えません。
+        つまり<strong>「ヒストグラムがとてつもなく大きい」という情報は、broodevのスコアにほとんど反映されません。</strong>
+        暴騰相場でもMACD部分スコアは100付近に張り付き、それ以上は上がりません。
+        これは意図した設計（極端な値が総合スコアを支配しないように）ですが、同時に<strong>明白な情報の損失</strong>でもあります。
+        正直に書いておきます。
+      </p>
+
+      <p class="step">STEP 7</p>
+      <h2>レンジ相場の実験 — 何も起きていないのにスコアは21〜83を往復する</h2>
+      <p>
+        今度は最悪の状況を<strong>数字で</strong>見てみましょう。新しいデータセットを作ります：
+        <strong>60本のあいだ98.4〜101.5を行き来する完全なレンジ相場。</strong>全体の変動幅は<strong>±1.5%</strong>です。
+        60日間、市場では事実上<strong>何も起きていません。</strong>
+      </p>
+      <p>ここに同じMACD（12・26・9）を回し、同じbroodevのマッピングに通しました。</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>日目</th><th>終値</th><th>ヒストグラム</th><th>符号</th><th>反転</th><th>短期スコア</th><th>長期スコア</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>集計するとこうなります。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>項目</th><th>値</th></tr></thead>
+          <tbody>
+            <tr><td>ヒストグラムが出た足</td><td>27本（34〜60日目）</td></tr>
+            <tr class="mark"><td><strong>ヒストグラムの符号が反転した回数</strong></td><td><strong>10回</strong> — 平均2.7本に1回</td></tr>
+            <tr><td>ヒストグラムの最大絶対値</td><td>0.132（価格の<strong>0.13%</strong>）</td></tr>
+            <tr><td>短期部分スコアの範囲</td><td>21.1 〜 83.0 → <strong>幅 61.9</strong></td></tr>
+            <tr><td>長期部分スコアの範囲</td><td>32.8 〜 71.2 → <strong>幅 38.4</strong></td></tr>
+            <tr><td>短期部分スコアの平均</td><td>52.6（中立）</td></tr>
+            <tr><td>長期部分スコアの平均</td><td>50.7（中立）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>27本のあいだに売買シグナルが10回反転しました。</strong>これが<strong>whipsaw（ダマシの往復）</strong>です。
+        古典的な「ヒストグラムがゼロラインを上抜けたら買い、下抜けたら売り」というルールをそのまま守っていたら、
+        <strong>この27日間で10回売り買いしていたはず</strong>で、価格は元の位置なのに<strong>手数料だけを10回払っていたはず</strong>です。
+      </p>
+      <p>
+        もっと恐ろしいのは<strong>スコアの振れ幅</strong>です。市場は±1.5%しか動いていないのに、
+        短期部分スコアは<strong>21.1（強い回避）から83.0（強い買い）まで</strong>往復しました。
+        50日目の21.1と38日目の81.0のあいだに、<strong>実質的な市場の違いはほとんどありません。</strong>終値で2.6%の差です。
+      </p>
+
+      <h3>では最終スコアはどれだけ揺れるのか</h3>
+      <p>MACDは6つの指標のうちの1つにすぎません。ウェイトを掛けて<strong>総合スコア（0〜100）への実際の影響</strong>を計算すると。</p>
+      <pre><code>短期モード: 部分スコアの幅 61.9 × ウェイト <strong>0.14</strong> = <strong>8.67点</strong>
+長期モード: 部分スコアの幅 38.4 × ウェイト <strong>0.18</strong> = <strong>6.91点</strong></code></pre>
+      <p>
+        ここで<strong>直感に反する結果</strong>が出てきます。
+        <strong>短期はウェイトが軽いのに（14% &lt; 18%）、最終スコアはより大きく揺れます（8.67 &gt; 6.91）。</strong>
+        レベル係数30とゲイン800が、短期マッピングをはるかに敏感にしているからです。
+        ウェイトだけを見て「短期はMACDをあまり重視しない」と結論づけると間違えます。<strong>マッピング関数まで見る必要があります。</strong>
+      </p>
+      <p class="muted">
+        ちなみに両モードとも<strong>平均は50付近（52.6 / 50.7）</strong>です。レンジ相場でMACD部分スコアは
+        <em>平均的には</em>中立を保ちます。問題は、<strong>平均ではなくその日その日の値</strong>で売買するということです。
+      </p>
+
+      <p class="step">STEP 8</p>
+      <h2>ウェイト14% vs 18% — 計算で答える</h2>
+      <p>
+        <a href="/methodology">算出方法のドキュメント</a>で公開しているウェイトでは、MACDは<strong>短期14%、長期18%</strong>です。
+        「モメンタム指標であるMACDが、なぜモメンタムモード（短期）のほうで軽いのか？」 — よく受ける質問で、もっともな質問です。
+        答えは<strong>重複（redundancy）</strong>です。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>モード</th><th>モメンタム・トレンド系</th><th>逆張り系</th><th>MACDの役割</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>短期</strong></td>
+              <td>RSI 28% + F&amp;G 28% + 下落率 18% + MACD 14% + クロス 8% = <strong>96%</strong><br /><span class="muted">短期モードではRSI・F&amp;G・下落率が<em>すべてモメンタム方向</em>にマッピングされる</span></td>
+              <td>マイヤー 4%</td>
+              <td><strong>重複。</strong>すでに96%がトレンドを見ている</td>
+            </tr>
+            <tr>
+              <td><strong>長期</strong></td>
+              <td>MACD 18% + クロス 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + マイヤー 18% + 下落率 14% = <strong>50%</strong><br />（RSI 18%は逆張りマッピング）</td>
+              <td><strong>唯一のブレーキ。</strong>68%が「買え」と叫ぶときに止める32%の半分以上</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>短期モードの6指標は、事実上5つがすでにモメンタム方向にマッピングされています。</strong>
+        RSIは<code>50 + (RSI−50) × 1.6</code>で<em>高いほど高得点</em>（買われすぎ = 良い）、
+        F&amp;Gも<em>強欲なほど高得点</em>、下落率も<em>浅いほど高得点</em>です。
+        ここにMACDを重く載せると、<strong>同じ情報を4回数えることになります</strong>。
+        しかもSTEP 7で見たように、<strong>MACDはこのセットで最もノイズの多い指標</strong>です（27本で10回反転）。
+        ノイズの多い重複指標にウェイトを上乗せする理由はありません。だから14%なのです。
+      </p>
+      <p>
+        <strong>長期モードは正反対です。</strong>F&amp;G（18%）・マイヤー（18%）・下落率（14%） — <strong>合わせて50%が逆張り指標</strong>で、
+        この3つは<a href="/indicators">下落相場でそろって外れます</a>。3つとも「安い、買え」と叫ぶのに、価格は下がり続けます。
+        このとき<strong>「まだだ」と言ってくれる指標は、MACD（18%）とゴールデン/デッドクロス（14%）だけ</strong>です。
+        ところがクロスは200日移動平均を使う<strong>最も遅いシグナル</strong>なので、底値付近では数週間遅れます。
+      </p>
+      <div class="note">
+        <strong>結論</strong> — 長期モードでのMACD 18%は、<strong>「モメンタムをより信じているから」ではなく「ブレーキが足りないから」</strong>です。
+        逆張り3兄弟が50%を占める構造の中で、<strong>トレンドが本当に転換したかを確認してくれる唯一の速い指標</strong>がMACDです。
+        そしてその確認は、<em>ヒストグラムがプラスになったか</em>（遅い）ではなく
+        <em>ヒストグラムが昨日より大きくなったか</em>（速い）で行われます — だから長期マッピングの方向係数は25なのです。
+        <strong>ウェイト18%と方向係数25は、同じ決定の2つの顔です。</strong>
+      </div>
+
+      <p class="step">付録A</p>
+      <h2 id="seed">あなたのチャートと私たちのヒストグラムは違うかもしれない</h2>
+      <p>
+        これは大半のMACD記事が決して言わない事実です。<strong>MACDは標準規格ではありません。</strong>
+        「12・26・9」は決まっていますが、<strong>EMAの最初の値を何から始めるか（シーディング）は決まっていません。</strong>
+      </p>
+      <ul>
+        <li><strong>broodev方式</strong> — 先頭<code>period</code>本の<strong>単純平均</strong>をシードに使う（上のSTEP 2・3）</li>
+        <li><strong>もう一つのよくある方式</strong> — <strong>最初の終値そのもの</strong>をシードにして1日目からEMAを回す</li>
+      </ul>
+      <p>まったく同じ42本の終値、まったく同じ12・26・9なのに、ヒストグラムはこれだけ分かれます。</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>日目</th><th>終値</th><th>ヒストグラム<br />（broodev · SMAシード）</th><th>ヒストグラム<br />（初値シード）</th><th>差</th><th>差 ÷ 価格</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>値なし</td><td><strong>+0.056</strong> ← 買いシグナル！</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>33日目を見てください。</strong>初値シード方式ではヒストグラムが<strong>+0.056ですでにプラス</strong>です —
+        つまり<strong>「ヒストグラムがゼロラインを上抜け、買い」</strong>シグナルが出ています。
+        同じ日、broodevには<strong>値そのものがありません</strong>（シグナルのシードが34日目に作られるため）。
+        <strong>同じデータ、同じパラメータなのに、シグナルの発生日が違うのです。</strong>
+      </p>
+      <p>
+        差は時間とともに縮まります（0.82% → 0.35%）。理論上、EMAはシードの影響が指数的に消えていくので、
+        <strong>十分なデータがたまれば2つの方式は収束します。</strong>しかし42本の時点でも、まだ価格の0.35%ぶんの差が残っています。
+      </p>
+      <p>
+        では<strong>この差はbroodevの部分スコアにどれだけ波及するのでしょうか？</strong>これもそのまま計算してみました。
+        結果は<strong>私の予想とは違っていて、だからこそ興味深いものでした。</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>日目</th><th>ヒストグラムの差</th><th>短期スコア<br />（当サイト / 別方式）</th><th>Δ</th><th>長期スコア<br />（当サイト / 別方式）</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>部分スコアの差はわずか0.2〜4.9点です。</strong>ヒストグラムは0.82%も開いたのに、スコアはほとんど分かれません。
+        理由は、<strong>STEP 6で「情報の損失」だと批判した、まさにあのtanhの飽和</strong>です。
+        この区間ではヒストグラムがすでに十分大きく、レベル項が最大値に張り付いていて、
+        <strong>どちらも飽和状態なので差がスコアに波及できないのです。</strong>
+      </p>
+      <div class="note">
+        <strong>同じ性質が弱点でもあり強みでもある</strong><br />
+        tanhの飽和は<strong>極端な値の大きさの情報を捨てます</strong>（STEP 6の欠点）。ところがまさにその性質のおかげで、
+        <strong>シーディング方式やデータソースの違いといった実装上のノイズにも、スコアがほとんど揺れません</strong>（付録Aの長所）。
+        一つを得れば一つを失います。私たちは<strong>頑健さのほうを選びました。</strong>それが正しい選択だったかどうかはわかりません。
+      </div>
+      <p>
+        <strong>ただし、安心するのはまだ早いです。</strong>上の結果は、ヒストグラムが<em>すでに大きい</em>トレンド区間の話です。
+        ヒストグラムが<strong>0付近のとき（= 飽和する前）</strong>に同じ0.30%の差を入れると、こうなります。
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>ヒストグラム（価格100基準）</th><th>短期スコア</th><th>長期スコア</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15（ゼロラインをまたぐ）</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>ヒストグラムがゼロラインをはさんで分かれると、短期部分スコアは50点開きます。</strong>
+        そして<strong>0付近は、まさに人々がシグナルを探す場所</strong>です — 転換点、レンジ相場、クロスの直前。
+        <strong>シーディングの違いが最も問題になる区間が、よりによって最も重要な区間なのです。</strong>
+        （ここでも長期マッピングは短期よりはるかに揺れが小さいです：+14.3 vs +50.0。レベル係数が10しかないためです。）
+      </p>
+      <div class="note warn">
+        <strong>実戦での3つの示唆</strong>
+        <ul>
+          <li>
+            <strong>MACDの絶対値をサイト間で比べないでください。</strong>broodevのヒストグラムがあなたのチャートソフトと
+            違って出ても、どちらかが間違っているのではなく<strong>シーディング方式が違うだけ</strong>です。比較そのものに意味がありません。
+          </li>
+          <li>
+            <strong>データが浅いほど注意してください。</strong>新規上場コインはシードの影響がまだ抜けていません。
+            BTCのように数百本が積み上がった資産では、差は無視できる水準です。
+          </li>
+          <li>
+            <strong>「ヒストグラムがたった今ゼロラインを超えた」というシグナルは特に疑ってください。</strong>上の表のとおり、
+            ゼロライン付近は実装の違いが部分スコアを最大50点も分ける区間です。
+            <strong>ゼロライン突破そのものより、複数の足にわたる方向の持続性</strong>を見るほうがはるかに安全です。
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">付録B</p>
+      <h2>このウォークスルーが証明できなかったこと（そして、できないこと）</h2>
+      <p>
+        ここまで42本・60本の<strong>架空データ</strong>で計算過程を再現してきました。
+        この記事が証明したことと<strong>証明していないこと</strong>をはっきり区別しておきます。
+      </p>
+      <h3>証明したこと</h3>
+      <ul>
+        <li>broodevのMACD計算は<strong>標準の12・26・9</strong>であり、上の数字で<strong>誰でも再現できる</strong>。</li>
+        <li>ヒストグラムは<strong>34本目から</strong>、方向の判定は<strong>35本目から</strong>可能。だから<code>closes.length &gt;= 35</code>のガードがある。</li>
+        <li>長期マッピングは<strong>方向係数25 : レベル係数10</strong>で、方向を2.5倍重く見る。これはコードにそう書いてある。</li>
+        <li>スコアは<strong>価格の規模に対して不変</strong>である（×700しても小数第4位まで同じ）。</li>
+        <li>レンジ相場でこの指標は<strong>27本で10回シグナルが反転する。</strong>これは私たちのモデルの<strong>実測された弱点</strong>である。</li>
+        <li>
+          MACDは<strong>標準規格ではない。</strong>シーディング方式を変えるだけで、同じデータでもシグナルの発生日が変わる。
+          ただしtanhの飽和のおかげで、<strong>トレンド区間では</strong>その差は部分スコアにほとんど波及しない（0.2〜4.9点）。
+          <strong>ゼロライン付近では最大50点まで分かれる。</strong>
+        </li>
+      </ul>
+      <h3>証明していないこと（重要）</h3>
+      <ul>
+        <li>
+          <strong>「方向転換を見れば利益が出る」という証明ではありません。</strong>上の42本は<em>私が反発するように作った</em>架空データです。
+          底で方向転換が出たあと<strong>そのままさらに−40%下がる</strong>データを作るのも、同じくらい簡単です。
+          <strong>計算過程の透明性</strong>と<strong>予測力</strong>は、まったく別の問題です。
+        </li>
+        <li>
+          <strong>MACDは本質的に遅行指標です。</strong>移動平均の差の移動平均なのですから。
+          ヒストグラムが向きを変える頃には、<strong>値動きの一部はすでに過ぎ去っています</strong>。
+          STEP 3でMACD線が価格より2本早く反転したのは<strong>ダイバージェンス</strong>であって<strong>予知能力</strong>ではありません —
+          そしてダイバージェンスは<strong>よく失敗します。</strong>
+        </li>
+        <li>
+          <strong>ウェイト14%/18%は筆者の判断です。</strong>STEP 8の論理（重複の回避・ブレーキの確保）は説得力のある<em>設計上の根拠</em>であって、
+          <strong>最適値の証明ではありません。</strong>16%のほうが良いかもしれません。データはきっぱりとは答えてくれません。
+        </li>
+        <li>
+          <strong>tanhの飽和で極端な情報を捨てています。</strong>STEP 6で見たように、ヒストグラムが価格の0.4%を超えると、
+          それ以上の大きさはスコアに反映されません。歴史的な大暴落・大暴騰の<strong>強さの情報を意図的に捨てる</strong>設計です。
+        </li>
+        <li>
+          <strong>MACDはニュース・規制・ハッキング・流動性をまったく知りません。</strong>取引所が破綻している最中でも、ヒストグラムはきれいに上向きに転換しうるのです。
+        </li>
+      </ul>
+      <p>
+        MACD部分スコアは、broodevの総合スコアの<strong>14〜18%</strong>にすぎません。
+        残りの82〜86%は<a href="/indicators">ほかの5つの指標</a>が占め、
+        その合成方法は<a href="/methodology">算出方法のドキュメント</a>ですべて公開しています。
+        <strong>どの単一の指標も、単独では何も決めません。</strong>それが設計の意図です。
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ 投資上の注意</strong><br />
+        このドキュメントは<strong>計算方法を公開した技術文書であり、投資助言ではありません。</strong>
+        本文の終値・スコアは計算過程を示すための<strong>架空データ</strong>であり、いかなる資産の将来価格も予測するものではありません。
+        暗号資産は<strong>元本をすべて失う可能性がある</strong>ハイリスク資産です。
+        すべての投資判断とその結果（損益）の責任は、すべて利用者ご本人にあります。必ずご自身で調べてください（DYOR）。
+      </div>
+
+      <h2>続けて読む</h2>
+      <div class="related">
+        <a href="/methodology"><b>スコアの算出方法</b><span>MACD 14%/18%を含む6指標のウェイトと再正規化をすべて公開</span></a>
+        <a href="/indicators"><b>6つの指標の解説</b><span>MACD以外の5つは、それぞれいつ裏切るのか</span></a>
+        <a href="/guide-fear-greed"><b>恐怖指数の実践的な活用法</b><span>MACDがブレーキをかけるべき、まさにその指標</span></a>
+        <a href="/glossary"><b>用語集</b><span>EMA・ヒストグラム・ダイバージェンス・ダマシの用語まとめ</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 運営 Y-Systems · <a href="/privacy">プライバシーポリシー</a> · <a href="/terms">利用規約</a></footer>
+    </main>

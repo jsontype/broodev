@@ -1,0 +1,793 @@
+<main class="wrap" data-title="間隔反復アルゴリズムの比較 — ライトナー · SM-2 · FSRS、そして私たちがアルゴリズムを使わなかった理由 | VOCA DECK" data-desc="ライトナー箱（1972）・SM-2（1987、EF 2.5）・FSRS（安定性 S）の復習日の計算式を実際の数字で比較します。同じ単語ひとつを30日間追跡したシミュレーション、FSRSの目標保持率と間隔の換算表、そしてVOCA DECKが個人化の代わりに均等な循環を選んだ代償をコードのレベルで公開します。">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — SPACED REPETITION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← 単語帳</a>
+          <a href="/method">暗記法の原理</a>
+          <a href="/study-guide">学習戦略</a>
+          <a href="/csv-guide">CSVの作り方</a>
+        </nav>
+
+        <h1>間隔反復アルゴリズムの比較</h1>
+        <p class="muted">ライトナー · SM-2 · FSRS、そして私たちがアルゴリズムを使わなかった理由 · 最終更新: 2026-07-14 · 作成: Y-Systems</p>
+
+        <p class="lead">
+          この記事は<strong>私たちのアプリが負けている項目から見せることで始めます。</strong>
+          下の表のVOCA DECKの列には「✗」がいくつもあります。消してはいません。
+          <strong>間隔反復（spaced repetition）の核心は「復習日を誰がどう計算するか」</strong>ですが、
+          私たちはその計算を<strong>しないことを選んだ</strong>からです。
+          この記事では、その計算を実際に行う3つのアルゴリズムを<strong>数式と数字のレベルで解剖</strong>し、
+          私たちが何を得るために何を手放したのかを<strong>コードからそのまま取り出して見せます。</strong>
+        </p>
+
+        <h2 id="spec">まずスペックシート — 表の各マスがこの記事の目次です</h2>
+        <p>
+          説明を読む前に、<strong>まず結論の表</strong>を見ます。各行が以下でひとつずつ解剖されます。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th><a href="#leitner" style="color:#22dd22">ライトナー箱</a><br />(1972)</th>
+                <th><a href="#sm2" style="color:#22dd22">SM-2</a><br />(1987)</th>
+                <th><a href="#anki" style="color:#22dd22">Anki版</a><br />(2006~)</th>
+                <th><a href="#fsrs" style="color:#22dd22">FSRS</a><br />(2022~)</th>
+                <th><a href="#voca" style="color:#22dd22">VOCA DECK</a><br />(点滅式単語帳)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>スケジュールの単位</strong></td>
+                <td>日（箱ごと）</td>
+                <td>日</td>
+                <td>分 + 日</td>
+                <td>日（小数）</td>
+                <td><strong>秒</strong></td>
+              </tr>
+              <tr>
+                <td><strong>カードが覚えている状態</strong></td>
+                <td>箱の番号1つ<br />(1~5)</td>
+                <td>EF · 反復回数 · 間隔<br />（実数3つ）</td>
+                <td>ease · 間隔 · 失敗回数</td>
+                <td>難易度 D · 安定性 S<br />（潜在変数）</td>
+                <td><strong>ブール値1つ</strong><br /><code>mem: true/false</code></td>
+              </tr>
+              <tr>
+                <td><strong>回答品質の段階</strong></td>
+                <td>○/✗ の2段階</td>
+                <td>q = 0~5（6段階）</td>
+                <td>4段階（Again~Easy）</td>
+                <td>4段階</td>
+                <td><strong>✗ なし</strong></td>
+              </tr>
+              <tr>
+                <td><strong>復習記録の保存</strong></td>
+                <td>物理的な箱</td>
+                <td>カードごとの状態</td>
+                <td>全レビューログ</td>
+                <td>ログ必須（学習用）</td>
+                <td><strong>✗ 保存しない</strong></td>
+              </tr>
+              <tr>
+                <td><strong>個人データからの学習</strong></td>
+                <td>✗</td>
+                <td>✗（定数は手作業）</td>
+                <td>✗</td>
+                <td><strong>○（パラメータ最適化）</strong></td>
+                <td>✗</td>
+              </tr>
+              <tr>
+                <td><strong>カードごとの個人化</strong></td>
+                <td>△（5段階に丸める）</td>
+                <td>○</td>
+                <td>○</td>
+                <td>◎</td>
+                <td><strong>✗（すべて同じ）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>全数カバーの保証</strong></td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>○</td>
+                <td>△ <strong>（順方向のみ ○、<br />ランダムは ✗）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>アカウント · インストール · 同期</strong></td>
+                <td>紙の箱</td>
+                <td>必要</td>
+                <td>必要</td>
+                <td>必要</td>
+                <td><strong>◎ すべて不要</strong></td>
+              </tr>
+              <tr>
+                <td><strong>溜まった復習の山</strong></td>
+                <td>あり</td>
+                <td>あり</td>
+                <td><strong>あり（離脱原因の第1位）</strong></td>
+                <td>あり</td>
+                <td><strong>◎ なし</strong></td>
+              </tr>
+              <tr>
+                <td><strong>成熟カードの長期保持</strong></td>
+                <td>○</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td>◎</td>
+                <td><strong>✗（死角）</strong></td>
+              </tr>
+              <tr>
+                <td><strong>セッション内の提示密度</strong></td>
+                <td>低い</td>
+                <td>低い</td>
+                <td>低い</td>
+                <td>低い</td>
+                <td><strong>◎ 6秒/カード</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>表をひと言で読むと</strong> — 前の4列は<strong>「何日後に見るか」</strong>を解く道具で、
+          いちばん右の列は<strong>「いまこの6秒間に何を見るか」</strong>を解く道具です。
+          <strong>同じ問題を解く競合ではありません。</strong>この記事の結論は、すでにここに入っています。
+        </div>
+
+        <h2 id="leitner">1972 — ライトナー：「箱を移すこと、それがアルゴリズムだ」</h2>
+
+        <h3>その時代が解こうとした問題</h3>
+        <p>
+          コンピュータがありませんでした。ドイツのジャーナリスト<strong>セバスティアン・ライトナー（Sebastian Leitner）</strong>が
+          1972年の著書で提案したのは、<strong>計算のいらない間隔反復</strong>でした。
+          鉛筆も日付の計算も不要です。<strong>カードを物理的に移す行為そのものが状態の保存</strong>なのです。
+        </p>
+
+        <h3>どう解いたか</h3>
+        <ul>
+          <li>仕切りのある箱を<strong>5つの区画</strong>に分けます。</li>
+          <li>新しいカードはすべて<strong>1番の区画</strong>から始まります。</li>
+          <li>正解すると<strong>次の区画へ1つ進みます</strong>。</li>
+          <li>間違えると、<strong>何番の区画にいたかに関係なく、必ず1番の区画へ転落</strong>します。</li>
+          <li>区画ごとに復習の周期が違います。よく使われる配置は次のとおりです。</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>区画</th><th>復習の周期</th><th>この区画にいる意味</th><th>間違えたとき</th></tr></thead>
+            <tbody>
+              <tr><td>1番</td><td><strong>毎日</strong></td><td>まだ知らない / 直前に間違えた</td><td>1番のまま</td></tr>
+              <tr><td>2番</td><td>2日ごと</td><td>1回正解した</td><td><strong>→ 1番へ転落</strong></td></tr>
+              <tr><td>3番</td><td>4日ごと</td><td>2回連続で正解</td><td><strong>→ 1番へ転落</strong></td></tr>
+              <tr><td>4番</td><td>8日ごと</td><td>3回連続</td><td><strong>→ 1番へ転落</strong></td></tr>
+              <tr><td>5番</td><td>16日ごと</td><td>ほぼ覚えた</td><td><strong>→ 1番へ転落</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          厳密に言えば、<strong>ライトナーの原案は日付ではなく「区画がいっぱいになったら空にする」という容量ベース</strong>でした。
+          上の1・2・4・8・16日は、後の時代に定着した<strong>カレンダー版</strong>です。
+          この違いをひとまとめにしてしまう記事が多いので、明記しておきます。
+        </p>
+
+        <h3>何が壊れたか</h3>
+        <p>
+          ライトナーの致命的な弱点は、<strong>「転落が残酷すぎる」</strong>ことです。
+          5番の区画で<strong>たった一度つまずいたカード</strong>が、「まだ一度も正解していない新しいカード」と
+          <strong>まったく同じ扱い</strong>を受けて1番の区画へ落ちます。
+          実際にはそのカードはほぼ覚えている状態なのに、箱にはそれを表現する方法がありません。
+          <strong>状態が整数ひとつしかないため、「ほぼ覚えたが今日は迷った」を保存する場所がないのです。</strong>
+        </p>
+        <p>
+          そして<strong>すべてのカードが同じはしごを登ります。</strong>
+          簡単な単語も5区画をすべて踏まなければならず、どうしても覚えられない単語も同じく5区画です。
+          <strong>カードごとに違う速さで登るはしご</strong>が必要でした。それが15年後に登場します。
+        </p>
+
+        <h2 id="sm2">1987 — SM-2：整数を実数に変えた15年</h2>
+
+        <h3>その時代が解こうとした問題</h3>
+        <p>
+          ポーランドの<strong>ピョートル・ヴォズニャク（Piotr Woźniak）</strong>がSuperMemoを作る中で発表した
+          <strong>SM-2</strong>は、ライトナーの「区画番号（整数）」を<strong>「易しさ係数（実数）」</strong>に置き換えます。
+          核心となる発明は<strong>EF（Easiness Factor、易しさ係数）</strong>ひとつです。
+        </p>
+
+        <h3>どう解いたか — 実際の数式</h3>
+        <p>SM-2は復習のたびに、自分で<strong>q = 0~5</strong>の6段階で採点させます（5 = 完璧、0 = 真っ白）。そしてEFをこう更新します。</p>
+        <pre><code>EF' = EF + ( 0.1 − (5−q) × (0.08 + (5−q) × 0.02) )
+EF 初期値 = 2.5   ·   EF 下限 = 1.3 (それより下には下がらない)</code></pre>
+        <p>この式が実際に出す値は次のとおりです。<strong>手計算で埋めた表です。</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>q（自己採点）</th><th>意味</th><th>EF の変化量</th><th>EF 2.5 から始めると</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5</strong></td><td>完璧に思い出せた</td><td><strong>+0.10</strong></td><td>2.60</td></tr>
+              <tr><td><strong>4</strong></td><td>正解したが少し迷った</td><td><strong>±0.00</strong></td><td>2.50（そのまま）</td></tr>
+              <tr><td><strong>3</strong></td><td>かろうじて正解</td><td><strong>−0.14</strong></td><td>2.36</td></tr>
+              <tr><td><strong>2</strong></td><td>間違えたが答えを見たらわかった</td><td><strong>−0.32</strong></td><td>2.18</td></tr>
+              <tr><td><strong>1</strong></td><td>間違えた、答えを見ても見覚えがない</td><td><strong>−0.54</strong></td><td>1.96</td></tr>
+              <tr><td><strong>0</strong></td><td>完全に真っ白</td><td><strong>−0.80</strong></td><td>1.70</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>q=4 がちょうど0になるのがこの式の設計意図</strong>です。
+          「無難に正解」は難易度の評価を<strong>変えない中立点</strong>で、
+          それよりよくできれば上げ、できなければ下げます。定数 0.1 · 0.08 · 0.02 は
+          <strong>理論から導かれたものではなく、ヴォズニャクが手でチューニングした値</strong>です。この点は後で重要になります。
+        </p>
+        <p>そして次の間隔をこう決めます。</p>
+        <pre><code>I(1) = 1日
+I(2) = 6日
+I(n) = I(n−1) × EF        (n ≥ 3)
+
+q &lt; 3 なら → 反復回数 n を 1 にリセット (間隔が1日に戻る)</code></pre>
+        <p>
+          <strong>EFは掛け算の倍率です。</strong>だからEF 2.5の簡単なカードとEF 1.3の地獄カードは
+          <strong>指数関数的に差が開きます。</strong>同じ回数復習しても、到達する間隔がまったく違います。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>復習回</th><th>EF 2.5（簡単なカード）</th><th>EF 1.9（普通）</th><th>EF 1.3（地獄カード）</th></tr></thead>
+            <tbody>
+              <tr><td>1回目</td><td>1日</td><td>1日</td><td>1日</td></tr>
+              <tr><td>2回目</td><td>6日</td><td>6日</td><td>6日</td></tr>
+              <tr><td>3回目</td><td>15日</td><td>11日</td><td>8日</td></tr>
+              <tr><td>4回目</td><td>38日</td><td>22日</td><td>10日</td></tr>
+              <tr><td>5回目</td><td>94日</td><td>41日</td><td>13日</td></tr>
+              <tr><td>6回目</td><td><strong>235日</strong></td><td>78日</td><td>17日</td></tr>
+              <tr><td>7回目</td><td><strong>587日（1.6年）</strong></td><td>148日</td><td><strong>22日</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          7回目で<strong>587日対22日 — 27倍の差</strong>です。
+          ここがSM-2がライトナーに勝つポイントです。簡単なカードは<strong>1年半ずつ視界から片付けてしまい</strong>、
+          その時間をすべて難しいカードに使います。
+        </p>
+
+        <h3>何が壊れたか</h3>
+        <p><strong>① 6段階の自己採点は人間には難しすぎます。</strong>
+          q=3 と q=4 の違いが何なのかを、カードごとに判断しなければなりません。実際にはほとんどのユーザーが
+          <strong>2〜3個の段階だけを繰り返し押します。</strong>6段階の設計は事実上3段階に崩れます。</p>
+        <p><strong>② 失敗時の処理があいまいです。</strong>原文は「q&lt;3 なら<em>EFを変えずに</em>最初から繰り返せ」と言っていますが、
+          同じ文書の擬似コードは<strong>すべての q についてEFを更新</strong>しています。実装ごとに解釈が分かれます。
+          <strong>30年以上使われてきたアルゴリズムの核心的な分岐点が文書上あいまいだ</strong>という事実は、そのまま書いておくほうが誠実です。
+          （この記事のシミュレーションは<strong>「EFも更新する」</strong>ほうを採りました。）</p>
+        <p><strong>③ 定数が根拠なく固定されています。</strong>なぜ I(2) は6日なのでしょう？ なぜよりによって 0.08 なのでしょう？
+          <strong>1987年にひとりの人が自分のデータで手チューニングした数字</strong>が、世界中のすべての学習者にそのまま適用されます。
+          これがFSRSが登場した理由です。</p>
+
+        <h2 id="anki">Ankiの変形 — そして「イーズ地獄（ease hell）」</h2>
+        <p>
+          AnkiはSM-2をそのまま使ってはいません。<strong>段階を4つに減らし</strong>（Again / Hard / Good / Easy）、
+          EFを<strong>ease</strong>と呼び、調整幅を手直ししました。デフォルトのプリセットでの実際の動作はこうです。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ボタン</th><th>ease の変化</th><th>次の間隔</th><th>備考</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Again</strong>（失敗）</td><td><strong>−0.20</strong></td><td>前回の間隔 <strong>× 0%</strong> → 最短1日<br />（+ 再学習10分）</td><td>間隔が<strong>底まで初期化</strong></td></tr>
+              <tr><td><strong>Hard</strong></td><td><strong>−0.15</strong></td><td>前回の間隔 × <strong>1.2</strong></td><td>easeと無関係な固定倍率</td></tr>
+              <tr><td><strong>Good</strong></td><td>±0.00</td><td>前回の間隔 × <strong>ease</strong></td><td>中立点（SM-2の q=4）</td></tr>
+              <tr><td><strong>Easy</strong></td><td><strong>+0.15</strong></td><td>前回の間隔 × ease × <strong>1.3</strong></td><td>イージーボーナス</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          その他のデフォルト値：学習ステップ <code>1m 10m</code> · 卒業間隔 <strong>1日</strong> · イージー間隔 <strong>4日</strong> ·
+          開始 ease <strong>2.50</strong> · <strong>ease 下限 1.30</strong> · リーチ（leech）のしきい値 <strong>失敗8回</strong>。
+          Ankiはバージョンやプリセットによってデフォルト値が変わることがあるので、<strong>デッキオプションで直接確認してください。</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>「イーズ地獄」とは</strong> — Again（−0.20）とHard（−0.15）を繰り返し押したカードは、
+          easeが<strong>下限1.30に張り付きます。</strong>すると次の間隔が<strong>× 1.3</strong>ずつしか伸びず、
+          1日 → 2日 → 3日 → 4日… と<strong>這うように進みます。</strong>さらにAgainは間隔を再び1日に落とします。
+          結果として、<strong>数枚のカードが毎日の復習キューを永遠に占拠</strong>します。<br />
+          <strong>easeを上げる経路はEasy（+0.15）ひとつだけですが、地獄カードにEasyを押すことはまずありません。</strong>
+          <strong>下りる扉は4つなのに上がる扉はひとつ</strong>という構造 — これがSM-2系の構造的欠陥であり、
+          Ankiユーザーが「リーチカード8枚が人生を台無しにする」と言う理由です。
+        </div>
+        <p>
+          処方はほとんどが<strong>アルゴリズムの外</strong>にあります。カードを消すか、分割するか、例文を付けるか（「悪いのはカードであって
+          自分がバカなのではない」）、あるいは<strong>easeを手動でリセット</strong>します。
+          <strong>アルゴリズムが直せないものを人が手で直している</strong>ということであり、この自覚が次の世代を生みました。
+        </p>
+
+        <h2 id="fsrs">FSRS — 「Sとはいったい何か」に正確に答えられる唯一のアルゴリズム</h2>
+        <p>
+          <strong>FSRS（Free Spaced Repetition Scheduler）</strong>は手チューニングの定数を捨て、
+          <strong>あなたの実際の復習ログにパラメータをフィッティング</strong>します。土台は<strong>DSRモデル</strong>です。
+        </p>
+        <ul>
+          <li><strong>D（Difficulty、難易度）</strong> — このカードが本質的にどれほど難しいか</li>
+          <li><strong>S（Stability、安定性）</strong> — 記憶がどれほど長く持ちこたえるか</li>
+          <li><strong>R（Retrievability、想起可能性）</strong> — <strong>いまこの瞬間</strong>思い出せる確率</li>
+        </ul>
+        <p>忘却曲線をこう定義します（FSRS-4.5 / 5 基準、<strong>DECAY = −0.5</strong>、<strong>FACTOR = 19/81</strong>）。</p>
+        <pre><code>R(t, S) = ( 1 + (19/81) × t/S ) ^ (−0.5)</code></pre>
+
+        <h3>ここで誰もあまり指摘しない事実がひとつ</h3>
+        <p><strong>S に t = S を代入してみましょう。</strong>つまり「安定性が S のカードをちょうど S 日後に見たら？」です。</p>
+        <pre><code>R(S, S) = ( 1 + 19/81 ) ^ (−0.5)
+        = ( 100/81 ) ^ (−0.5)
+        = ( 81/100 ) ^ ( 0.5)
+        = 0.9   ← ちょうど 90%</code></pre>
+        <p>
+          <strong>偶然ではありません。FACTOR = 19/81 と DECAY = −0.5 は、まさにこの値が出るように逆算された定数です。</strong>
+          だから<strong>Sの正体はひと言でこう定義できます。</strong>
+        </p>
+        <div class="note">
+          <strong>S（安定性）=「思い出せる確率が90%まで下がるのにかかる日数」</strong><br />
+          S = 30 なら「30日後にこのカードに再会すれば、10回中9回は正解する」という意味です。
+          <strong>抽象的な内部変数ではなく、日数の単位で読める物理量なのです。</strong>
+          SM-2のEFではこうした解釈はできません。「EF 2.5」とは何かと聞かれても「掛ける数」としか答えられません。
+        </div>
+
+        <h3>目標保持率を変えると復習量はどう変わるか — 換算表</h3>
+        <p>
+          FSRSでは<strong>目標保持率（desired retention）</strong>を直接決められます（デフォルト<strong>0.90</strong>）。
+          上の式を t について解くと、間隔はこうなります。
+        </p>
+        <pre><code>間隔 t = S × (81/19) × ( R^(−2) − 1 )</code></pre>
+        <p>この式に数字を入れて計算した結果です。<strong>この表がこの記事でいちばん実用的な部分かもしれません。</strong></p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>目標保持率 R</th><th>間隔（S に対する倍率）</th><th>S=30日のカードなら</th><th>復習の負担</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0.95</strong></td><td><strong>× 0.46</strong></td><td>14日</td><td><strong>約2.2倍に急増</strong></td></tr>
+              <tr><td><strong>0.90</strong>（デフォルト）</td><td><strong>× 1.00</strong></td><td>30日</td><td>基準</td></tr>
+              <tr><td><strong>0.85</strong></td><td><strong>× 1.64</strong></td><td>49日</td><td>約40%減</td></tr>
+              <tr><td><strong>0.80</strong></td><td><strong>× 2.40</strong></td><td>72日</td><td><strong>約58%減</strong></td></tr>
+              <tr><td><strong>0.70</strong></td><td><strong>× 4.44</strong></td><td>133日</td><td>約77%減</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          読み方：<strong>保持率を0.90から0.95へ「たった5ポイント」上げると、間隔は半分以下に縮み</strong>、
+          <strong>復習量は2倍になります。</strong>逆に0.80に下げると<strong>復習量は半分以下に減るのに、
+          正答率は10ポイントしか損をしません</strong>。曲線がこれほど急なので、
+          <strong>「保持率は高いほどよい」という直感はここで崩れます。</strong>
+          試験が目前でなければ、0.85~0.90 の範囲がおおむね合理的です。
+        </p>
+        <p class="muted">
+          正確性に関する注記：上の導出は<strong>DECAYが−0.5に固定されたFSRS-4.5 / 5</strong>を基準としています。
+          <strong>FSRS-6からはDECAYそのものが学習されるパラメータ</strong>なので、「S = 90%の間隔」という等式が
+          厳密には成り立たない場合があります。パラメータの数もバージョンによって<strong>17 → 19 → 21個</strong>と増えました。
+          <strong>バージョンを確認せずにこの数字をそのまま引用しないでください。</strong>
+        </p>
+
+        <h3>FSRSにできないこと</h3>
+        <p>
+          FSRSは<strong>あなたのログがあって初めてあなたのものになります。</strong>
+          レビューが<strong>数百〜1,000件ほど溜まるまではデフォルトのパラメータ</strong>で動き、
+          それは結局<strong>「他人の平均」</strong>です。つまり<strong>始めて最初の1か月のFSRSは個人化されていません。</strong>
+          そしてログを残すということは、<strong>すべての復習記録がどこかに保存される</strong>ということでもあります。
+        </p>
+
+        <h2 id="sim">同じ単語ひとつを30日追跡すると — シミュレーション</h2>
+        <p>
+          抽象的な数式を実物に置き換えてみます。単語 <code>ubiquitous</code> 1枚を、次のシナリオで3つのシステムに入れます。
+        </p>
+        <div class="note">
+          <strong>シナリオ</strong> — 1日目に新しく学ぶ → <strong>最初の復習で失敗</strong>（SM-2 q=2 / Anki Again）
+          → それ以降はずっと無難に正解（q=4 / Good）。
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>日付</th><th>ライトナー（1·2·4·8·16日）</th><th>SM-2（EF 2.5 開始）</th><th>Anki（ease 2.50 開始）</th></tr></thead>
+            <tbody>
+              <tr><td><strong>1日目</strong></td><td>学習 · 1番の区画</td><td>学習 · I=1日</td><td>学習（1分→10分）· 卒業 1日</td></tr>
+              <tr><td><strong>2日目</strong></td><td><strong>失敗</strong> · 1番の区画のまま</td><td><strong>失敗 q=2</strong> · EF 2.50→<strong>2.18</strong> · リセット</td><td><strong>Again</strong> · ease 2.50→<strong>2.30</strong> · 間隔 1日</td></tr>
+              <tr><td><strong>3日目</strong></td><td>成功 → <strong>2番の区画</strong></td><td>成功 · I=1日</td><td>Good · 1 × 2.30 = <strong>2日</strong></td></tr>
+              <tr><td><strong>4日目</strong></td><td>—</td><td>成功 · I=<strong>6日</strong></td><td>—</td></tr>
+              <tr><td><strong>5日目</strong></td><td>成功 → <strong>3番の区画</strong></td><td>—</td><td>Good · 2 × 2.30 = <strong>5日</strong></td></tr>
+              <tr><td><strong>9日目</strong></td><td>成功 → <strong>4番の区画</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>10日目</strong></td><td>—</td><td>成功 · 6 × 2.18 = <strong>13日</strong></td><td>Good · 5 × 2.30 = <strong>12日</strong></td></tr>
+              <tr><td><strong>17日目</strong></td><td>成功 → <strong>5番の区画</strong></td><td>—</td><td>—</td></tr>
+              <tr><td><strong>22日目</strong></td><td>—</td><td>—</td><td>Good · 12 × 2.30 = <strong>28日</strong></td></tr>
+              <tr><td><strong>23日目</strong></td><td>—</td><td>成功 · 13 × 2.18 = <strong>28日</strong></td><td>—</td></tr>
+              <tr>
+                <td><strong>30日間の<br />総復習回数</strong></td>
+                <td><strong>6回</strong></td><td><strong>6回</strong></td><td><strong>6回</strong></td>
+              </tr>
+              <tr>
+                <td><strong>次の復習日</strong></td>
+                <td>33日目</td>
+                <td><strong>51日目</strong></td>
+                <td><strong>50日目</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>ここで本当に見るべき数字は「6回」ではなく「33対51」です。</strong>
+          3つのシステムはどれも30日間で<strong>同じく6回</strong>復習させました。労力は同じです。
+          それなのに<strong>ライトナーは33日目にまた呼び出し、SM-2は51日目に呼び出します。</strong>
+          同じ6回を使って、SM-2は<strong>18日分さらに遠くへ押しやりました。</strong>
+          この差は回を重ねるほど<strong>掛け算で開いていきます。</strong>1年後、ライトナーは相変わらず16日ごとに問い続けており、
+          SM-2はすでに1年単位の間隔に到達しています。
+        </p>
+        <p>
+          <strong>そしてこの表にはVOCA DECKの列がありません。</strong>入れようがないからです。
+          私たちのアプリには<strong>「何日目」という概念そのものがありません。</strong>なぜそうなのかが次の章です。
+        </p>
+
+        <h2 id="voca">VOCA DECKの解剖 — 私たちのコードが実際にしていること</h2>
+        <p>
+          いよいよ私たちの番です。<strong>包装なしで、コードにあるとおりに</strong>書きます。
+        </p>
+
+        <h3>カードが保存するもの：これがすべてです</h3>
+        <pre><code>{ a: "ubiquitous", b: "至る所にある", mem: false }</code></pre>
+        <p>
+          <strong>これがカード1枚のすべてです。</strong>表面、裏面、そして<strong>ブール値ひとつ。</strong>
+          <strong>復習した時刻も、何回間違えたかも、どれだけ迷ったかも保存しません。</strong>
+        </p>
+        <p>
+          だから<strong>私たちはSM-2を付けたくても付けられません。</strong>
+          SM-2には最低でも <code>EF · 反復回数 · 最後の復習日</code> が必要で、
+          FSRSは<strong>全レビューログ</strong>がなければパラメータをフィッティングできません。
+          私たちには<strong>アカウントも、サーバーも、レビューログもありません。</strong>
+          デッキと暗記マークは<strong>ブラウザの <code>localStorage</code> にだけ</strong>残り、サーバーには送信されません。
+          <strong>これは作れなかったのではなく、こう作ったのです。その代償が個人化の放棄です。</strong>
+        </p>
+
+        <h3>スケジューラーの正体：剰余演算1行</h3>
+        <p>
+          私たちが「次のカード」を決める方式は<strong>循環（cyclic）インデックス</strong>です。
+          <code>order</code> の設定によって3通りに分かれます。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>設定</th><th>動作</th><th>再会の間隔</th><th>カバー率</th></tr></thead>
+            <tbody>
+              <tr><td><code>fwd</code> 順方向（デフォルト）</td><td>インデックスを +1 ずつ循環</td><td><strong>ちょうど N 枚ごと</strong>（均等）</td><td><strong>100% 保証</strong></td></tr>
+              <tr><td><code>rev</code> 逆方向</td><td>インデックスを −1 ずつ循環</td><td><strong>ちょうど N 枚ごと</strong>（均等）</td><td><strong>100% 保証</strong></td></tr>
+              <tr><td><code>rnd</code> ランダム</td><td><strong>ステップごとに独立した一様抽出</strong><br />（現在のカードのみ除外）</td><td>期待値 N−1 枚、<br /><strong>分散が大きい</strong></td><td><strong>保証なし ✗</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>ランダムモードはシャッフルではありません — これは私たちもはっきり明かすべき部分です。</strong><br />
+          カードを混ぜて1周する方式（非復元抽出）ではなく、<strong>毎回残りのカードの中から新たに引く方式</strong>です。
+          そのため<strong>同じカードが3回続けて出ることも、1周のあいだに一度も出ないこともあります。</strong>
+        </div>
+
+        <h3>その代償を数字で計算してみました</h3>
+        <p>
+          100枚のデッキ（N=100）をランダムモードで<strong>99ステップ</strong>（= 順方向1周分）回すとします。
+          特定のカードが1ステップで引かれる確率は<strong>1/(N−1) = 1/99</strong>です。
+          すると、そのカードが<strong>99ステップのあいだ一度も出ない確率</strong>は：
+        </p>
+        <pre><code>P(0回出現) = (1 − 1/99)^99 ≈ e^(−1) ≈ 0.37</code></pre>
+        <p>出現回数の分布はほぼポアソン分布（λ=1）に従います。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>1周分（99ステップ）での出現回数</th><th>確率</th><th>意味</th></tr></thead>
+            <tbody>
+              <tr><td><strong>0回</strong></td><td><strong>約37%</strong></td><td><strong>デッキの3分の1がまるごと出ない</strong></td></tr>
+              <tr><td>1回</td><td>約37%</td><td>意図どおり</td></tr>
+              <tr><td>2回</td><td>約18%</td><td>無駄</td></tr>
+              <tr><td>3回以上</td><td>約8%</td><td>同じカードばかり</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>つまりランダムモードで1周分回すと、デッキの約37%はその日一度も顔を見せません。</strong>
+          2周分（198ステップ）回しても<strong>約13%</strong>がまだ出ておらず、
+          <strong>3周分回してようやく</strong>未出現が<strong>5%未満</strong>に下がります。
+        </p>
+        <div class="note">
+          <strong>だからこう使ってください（コードから導いた処方です）</strong>
+          <ul>
+            <li><strong>1周目 · 試験前日の全数チェック</strong> → <strong>順方向</strong>。カバー率100%が必要な場面です。ランダムで回すと3分の1を取りこぼします。</li>
+            <li><strong>3周目以降、順序の手がかりを崩したいとき</strong> → まず<strong>逆方向</strong>を使ってください。
+              <strong>順序の手がかりを崩しつつ、カバー率は100%を保ちます</strong>。ほとんどの人がこのオプションを素通りしています。</li>
+            <li><strong>本物のランダム想起トレーニング</strong> → <strong>ランダム</strong>。ただし<strong>デッキを3周分回す覚悟</strong>で使ってください。</li>
+          </ul>
+        </div>
+
+        <h3>時間の単位：私たちのスケジューラーの目盛りは「秒」です</h3>
+        <p>
+          デフォルトの間隔は<strong>3秒</strong>（コントロールパネルで1~60秒）。1枚は<strong>表面 · 裏面の2フェーズ</strong>を経るので、
+          <strong>デフォルトで6秒/カード</strong>です。そしてタイマーには<strong>0.5秒の下限</strong>があります
+          （どれだけ短く設定しても、それより下にはなりません）。
+        </p>
+        <p>ここから<strong>デッキサイズの物理的な上限</strong>がすぐに出てきます。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>デッキサイズ N</th><th>1周の所要時間<br />（デフォルト6秒/カード）</th><th>同じカードとの再会間隔</th><th>判定</th></tr></thead>
+            <tbody>
+              <tr><td>30枚</td><td><strong>3分</strong></td><td>3分</td><td>◎ セッション内の反復が密</td></tr>
+              <tr><td>100枚</td><td><strong>10分</strong></td><td>10分</td><td>○ 実用的な上限</td></tr>
+              <tr><td>300枚</td><td><strong>30分</strong></td><td>30分</td><td>△ 1周がすでに負担</td></tr>
+              <tr><td>500枚</td><td><strong>50分</strong></td><td>50分</td><td>✗ セッション内反復の効果が消える</td></tr>
+              <tr><td>2,000枚</td><td><strong>3時間20分</strong></td><td>3時間20分</td><td><strong>✗ 事実上不可能</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>点滅式単語帳の正直な限界線：デッキは300枚以下に分けてください。</strong>
+          2,000枚のデッキをひとつ作ると、<strong>1周に3時間20分</strong>かかります。
+          それはもう「高速の反復提示」ではありません。ただの<strong>ゆっくりしたリスト読み</strong>です。
+          <strong>2,000枚を管理する必要があるなら、それはAnkiの仕事であって、このアプリの仕事ではありません。</strong>
+        </div>
+
+        <h3>間隔は「想起の窓」の長さです — 非対称に使ってください</h3>
+        <p>
+          間隔を単なる「速度調整」と考えているなら、半分しか使えていません。
+          <strong>表面が出ているその数秒こそ、あなたが答えを思い出そうと努力できる唯一の時間</strong>です。
+          だから表面と裏面の間隔を<strong>別々に</strong>設定できるようにしてあります（詳細設定、0~60秒）。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>状況</th><th>表面の間隔</th><th>裏面の間隔</th><th>1枚あたり</th><th>意図</th></tr></thead>
+            <tbody>
+              <tr><td><strong>1周目</strong>（知らない単語だらけ）</td><td>2秒</td><td>4秒</td><td>6秒</td><td>思い出すものがないので<strong>意味を長く見る</strong></td></tr>
+              <tr><td><strong>2~3周目</strong>（想起トレーニング）</td><td><strong>5秒</strong></td><td>1.5秒</td><td>6.5秒</td><td><strong>思い出す時間を稼ぎ</strong>、確認は一瞬で</td></tr>
+              <tr><td><strong>試験直前のスピード勝負</strong></td><td>1.5秒</td><td>1.5秒</td><td>3秒</td><td>全数スキャン — 100枚を<strong>5分</strong>で</td></tr>
+              <tr><td><strong>TTSによる聴覚学習</strong></td><td>3秒</td><td>3秒</td><td>6秒</td><td>音声が終わる時間を確保</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>2~3周目の「表面5秒 / 裏面1.5秒」が、このアプリで想起練習にいちばん近い設定</strong>です。
+          <strong>周回が進むほど表面を長くし、裏面を短くしてください。</strong>
+          逆にする人がほとんどですが、そうすると最後まで<strong>受け身で眺めるだけ</strong>になります。
+        </p>
+
+        <h2 id="mem">「暗記マーク」の正体 — 箱が2つしかないライトナー</h2>
+        <p>
+          私たちの唯一の個人化の仕組みは、<strong>暗記マーク</strong>ひとつです。
+          これをアルゴリズムの言葉に訳すと、正確にはこうなります。
+        </p>
+        <div class="note">
+          <strong>暗記マーク = 箱が2つのライトナー箱。</strong>ただし<strong>はしごではなく扉です。</strong><br />
+          箱1 = <code>mem: false</code>（循環し続ける）· 箱2 = <code>mem: true</code>（循環から除外）<br />
+          そして<strong>表示範囲</strong>の設定がこの箱を選びます —
+          <strong>暗記済を除外</strong>（デフォルト）/ <strong>暗記済のみ</strong> / <strong>すべて</strong>。
+        </div>
+
+        <h3>これだけで得られるもの（思ったより大きいです）</h3>
+        <p>
+          個人化アルゴリズムがしていることの<strong>いちばん大きな部分は、実は「知っているカードを見せないこと」</strong>です。
+          SM-2がEF 2.5のカードを587日後へ押しやるのも、結局は<strong>いま見せないため</strong>です。
+          暗記マークはその効果の<strong>いちばん乱暴だけれど、いちばん大きな塊</strong>を持ってきます。
+        </p>
+        <p>
+          数字で見てみましょう。100枚のデッキで<strong>40枚に暗記マーク</strong>を付けると、循環の対象は60枚になります。
+          1周が<strong>10分 → 6分</strong>に縮み、<strong>知らないカードとの再会間隔が10分 → 6分</strong>に短くなります。
+          <strong>同じ20分を使っても、難しいカードに出会う回数が1.67倍</strong>になります。
+          <strong>タダで手に入る1.67倍です。</strong>チェックボックスひとつで。
+        </p>
+
+        <h3>本物のSM-2と比べて足りないもの（ここが重要です）</h3>
+        <p><strong>① 段階がありません — 0か1かです。</strong>
+          SM-2は「EF 2.5（とても簡単）」と「EF 1.6（少し難しい）」と「EF 1.3（地獄）」を区別し、
+          <strong>それぞれ違う頻度</strong>で見せます。私たちには<strong>「見る / 見ない」</strong>の2つしかありません。
+          <strong>まだ覚えていない60枚の中では、すべてが完全に平等です。</strong>
+          昨日初めて見た単語と、40回見ても覚えられない単語が<strong>まったく同じ頻度</strong>で出てきます。
+          <strong>これが私たちがSM-2に負けるいちばん明確なポイントです。</strong></p>
+
+        <p><strong>② 時間がありません — だから「いつまた見るか」を計算できません。</strong>
+          <code>mem</code> はブール値です。<strong>いつマークしたかを保存しません。</strong>
+          そのため「このカードはマークしてから40日たったので、そろそろ再確認すべきだ」という判断を
+          <strong>アプリは原理的にできません。</strong>タイムスタンプがないのですから。</p>
+
+        <p><strong>③ だから生まれる死角 — マークされたカードは静かに腐っていきます。</strong></p>
+        <div class="note warn">
+          <strong>この記事でいちばん重要な警告です。</strong><br />
+          暗記マークは<strong>一方通行の扉</strong>です。カードが箱2へ出ていくと、
+          <strong>自分で戻ってくる道がありません。</strong>
+          SM-2は587日のカードも<strong>いつかは必ずまた呼び出します</strong> — 忘却を捕まえるために。
+          私たちは<strong>永遠に呼び出しません。</strong><br />
+          <strong>つまり「覚えたとマークしたカードが実は忘れられているのに、あなたはそれを知らない状態」がどんどん積み重なります。</strong>
+          そして試験会場で気づくのです。
+        </div>
+
+        <h3>その死角を手で埋める手順</h3>
+        <p>
+          アルゴリズムがやってくれないので、<strong>人がやるしかありません。</strong>幸い難しくはなく、アプリにはすでに機能があります。
+          <strong>表示範囲を「暗記済のみ」に切り替えること</strong>が、まさにこの用途のために存在します。
+        </p>
+        <ol>
+          <li><strong>週に1回、曜日を決めてください。</strong>（例：日曜日）</li>
+          <li>表示範囲を<strong>「暗記済のみ」</strong>に切り替えます。→ 暗記マークを付けたカードだけが循環します。</li>
+          <li><strong>順序はランダム</strong>、<strong>表面の間隔は4~5秒</strong>と長めに。— 本当の想起を試すのです。</li>
+          <li><strong>思い出せないカードが出たら、その場で暗記マークを外します</strong>。→ 箱1へ降格。<strong>戻ってくる扉を手で開けてあげるのです。</strong></li>
+          <li>「暗記済を除外」に戻して、いつもどおり回します。</li>
+        </ol>
+        <p>
+          <strong>この5ステップが、SM-2の「成熟カードの復習」を手動でまねる、そのすべてです。</strong>
+          自動ではないので劣りますが、<strong>やらないよりは圧倒的にましです。</strong>
+          <strong>これをやらないと、暗記マークは「知ったかぶりのカードを隠す機能」になります。</strong>
+        </p>
+
+        <h2 id="which">それで何を使うべきか — 正直な処方箋</h2>
+        <p>
+          <strong>「私たちのアプリを使ってください」が正解になるケースは半分もありません。</strong>ありのままに書きます。
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>あなたの状況</th><th>おすすめ</th><th>理由（数字で）</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>語彙2,000~10,000語を<br />6か月〜数年かけて維持</strong><br />（韓国の大学入試・TOEIC・GREなどの長期戦）</td>
+                <td><strong>Anki / FSRS</strong><br /><span class="muted">（私たちのアプリではない）</span></td>
+                <td>点滅式単語帳は2,000枚の1周に<strong>3時間20分</strong>。物理的に不可能です。
+                  しかも成熟カードを呼び戻さないため、<strong>長期保持に失敗</strong>します。</td>
+              </tr>
+              <tr>
+                <td><strong>試験まで14日 · 一夜漬け</strong><br />単語200~300語</td>
+                <td><strong>点滅式単語帳</strong></td>
+                <td>SM-2の間隔は<strong>1日 → 6日 → 15日</strong>です。
+                  <strong>14日以内ではたった3回</strong>しか回せません。日単位のスケジューラーは
+                  <strong>残り期間が短いと役に立ちません</strong>。1日3周の周回が勝ちます。</td>
+              </tr>
+              <tr>
+                <td><strong>毎日は開けない人</strong><br />（3日ずつ空く）</td>
+                <td><strong>点滅式単語帳</strong></td>
+                <td>Ankiで3日空けると、<strong>溜まったカードが数百枚</strong>積み上がります。
+                  これが<strong>SRS離脱の第1位の原因</strong>です。点滅式単語帳には<strong>溜まったカードという概念がありません。</strong>
+                  いつ開いても、いつ閉じてもかまいません。</td>
+              </tr>
+              <tr>
+                <td><strong>デッキ30~300枚、<br />CSVファイルひとつ</strong></td>
+                <td><strong>点滅式単語帳</strong></td>
+                <td>Ankiのインストール + ノートタイプ + デッキオプション + 同期アカウントを設定する<strong>手間が利益を上回ります。</strong>
+                  CSVを開けば<strong>3秒後に学習が始まります</strong>。</td>
+              </tr>
+              <tr>
+                <td><strong>皿洗い · 通勤中に<br />耳だけで学習</strong></td>
+                <td><strong>点滅式単語帳（TTS 音声のみ）</strong></td>
+                <td>Ankiは<strong>画面を見てボタンを押さないと</strong>次へ進みません。
+                  点滅式単語帳は<strong>自動再生 + 音声のみ</strong>モードで、<strong>手も目も使いません。</strong></td>
+              </tr>
+              <tr>
+                <td><strong>レビュー記録を残したくない<br />アカウントを作りたくない</strong></td>
+                <td><strong>点滅式単語帳</strong></td>
+                <td>デッキと暗記マークは<strong>ブラウザのlocalStorageにだけ</strong>保存され、
+                  <strong>サーバーには送信されません。</strong>その代わり<strong>端末間の同期もありません。</strong>（同じ理由です。）</td>
+              </tr>
+              <tr>
+                <td><strong>どうしても覚えられない<br />地獄の単語30個</strong></td>
+                <td><strong>点滅式単語帳</strong></td>
+                <td>Ankiではこれらのカードは<strong>イーズ地獄に落ちて ease 1.30 に張り付きます。</strong>
+                  いっそ<strong>別のCSVに書き出して30枚のデッキ（1周3分）</strong>を作り、1日5周回してください。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="both">いちばん正確な答え：両者は層が違います</h2>
+        <p>
+          ここまで読んだなら、次の文が理解できるはずです。
+        </p>
+        <div class="note">
+          <strong>Ankiは「今日どのカードを見るか」を決めます。（日単位）</strong><br />
+          <strong>点滅式単語帳は「そのカードをいまどう提示するか」を決めます。（秒単位）</strong><br />
+          <strong>両者は同じ問題をめぐって争うのではなく、上下に積み重なります。</strong>
+        </div>
+        <p>併用している人たちが実際に使っている組み合わせはこうです。</p>
+        <ol>
+          <li><strong>長期のスケジュールはAnkiに任せます。</strong>5,000語のデッキから「今日見る120枚」をFSRSが選んでくれます。</li>
+          <li><strong>Ankiで何度も間違えるカード（リーチ・ease 1.3付近）をCSVに書き出します。</strong>
+            たいてい<strong>30~80枚</strong>になります。</li>
+          <li><strong>そのCSVを点滅式単語帳に入れて、1日2〜3周回します。</strong>
+            80枚なら<strong>1周8分</strong>。表面5秒 / 裏面1.5秒で想起練習。</li>
+          <li><strong>点滅式単語帳で確実になったカードは暗記マークで外し</strong>、Anki側ではそのカードのeaseをリセットします。</li>
+        </ol>
+        <p>
+          <strong>Ankiにできないことを点滅式単語帳がやり、点滅式単語帳にできないことをAnkiがやります。</strong>
+          Ankiは<strong>セッション内の高密度な提示</strong>を作れず（1日に同じカードを20回見せたりはしません）、
+          点滅式単語帳は<strong>6か月後の復習日</strong>を計算できません。
+          <strong>ファイルひとつ（CSV）で2つの道具がつながります。</strong>
+          作り方は<a href="/csv-guide">CSV単語帳の作り方</a>にあります。
+        </p>
+
+        <h2 id="qa">短いQ&amp;A</h2>
+
+        <h3>Q. FSRSはSM-2より常に優れていますか？</h3>
+        <p>
+          <strong>レビューログが十分に溜まった後なら、おおむねそうです。</strong>しかし<strong>始めて最初の1か月はそうではありません。</strong>
+          FSRSは<strong>あなたのログでパラメータをフィッティング</strong>して初めてあなたのものになり、それまでは<strong>他人の平均</strong>で動きます。
+          そしてFSRSは<strong>あなたがボタンを正直に押すという前提</strong>の上に立っています。
+          <strong>適当にGoodばかり押せば、精巧なアルゴリズムが精巧に間違えます。</strong>
+          <strong>ゴミを入れればゴミが出てきます — これはアルゴリズムには直せません。</strong>
+        </p>
+
+        <h3>Q. 目標保持率はいくつにするのが正しいですか？</h3>
+        <p>
+          上の<a href="#fsrs">換算表</a>をもう一度見てください。<strong>0.90 → 0.95 は復習量を2倍にします。</strong>
+          正答率5ポイントを買うために<strong>時間を2倍</strong>払うわけです。ほとんどの場合は損です。
+          <strong>試験が遠ければ0.85~0.90、試験が目前なら0.90~0.95</strong>あたりが合理的な出発点です。
+          <strong>ただし、これは「正解」ではなく「出発点」です。</strong>
+        </p>
+
+        <h3>Q. 点滅式単語帳の間隔は何秒が正しいですか？</h3>
+        <p>
+          <strong>「正しい値」は周回ごとに違います。</strong>デフォルトの3秒は<strong>1周目向けの無難な値</strong>にすぎません。
+          <strong>周回を重ねるほど表面を長くし（思い出す時間）、裏面を短くしてください（確認だけ）。</strong>
+          表面5秒 / 裏面1.5秒が<strong>想起練習にいちばん近い設定</strong>です。
+          詳しい配分は<a href="#voca">上の表</a>にあります。
+        </p>
+
+        <h3>Q. ランダムモードは順方向より常によいのでは？ 順序の手がかりを崩せるのだから。</h3>
+        <p>
+          <strong>いいえ、それこそがこの記事で計算した落とし穴です。</strong>ランダムは<strong>カバー率を保証しません</strong>
+          （1周分で<strong>約37%が未出現</strong>）。順序の手がかりを崩しつつカバー率も守りたいなら、
+          <strong>逆方向</strong>を使ってください。<strong>ほとんどのユーザーはこのオプションの存在理由を知りません。</strong>
+        </p>
+
+        <h3>Q. 全部に暗記マークを付けたらデッキが空になりました。これで終わりですか？</h3>
+        <p>
+          <strong>いいえ。そこからが始まりです。</strong>表示範囲を<strong>「暗記済のみ」</strong>に切り替えて、
+          <strong>週1回点検</strong>してください。思い出せなかったカードは<strong>マークを外して</strong>戻してください。
+          <strong>この手順をやらないと、暗記マークは忘却を隠す機能になります。</strong>手順は<a href="#mem">上</a>に書きました。
+        </p>
+
+        <h3>Q. では、いつかVOCA DECKにもSM-2を入れるのですか？</h3>
+        <p>
+          <strong>入れるにはレビューログを保存しなければならず、そうするとストレージが大きくなり、端末間の同期が欲しくなり、
+          そうなるとアカウントが必要になります。</strong>その瞬間、<strong>このアプリの唯一の長所である「摩擦ゼロ」が消えます。</strong>
+          <strong>それはAnkiを、出来の悪いバージョンで作り直すことです。</strong>
+          <strong>私たちはAnkiになろうとしているのではありません。</strong>いまのところ入れる予定はなく、
+          <strong>入れない理由をこの記事全体にわたって書いておきました。</strong>
+        </p>
+
+        <h2 id="closing">最後に — アルゴリズムは、あなたがアプリを開くところまではやってくれません</h2>
+        <p>
+          FSRSは<strong>世界最高のスケジューラー</strong>です。そして<strong>あなたが3日間アプリを開かなければ、何の意味もありません。</strong>
+          完璧な間隔で<strong>「今日復習するカード340枚」</strong>を並べて待っているだけで、
+          その数字を見た人は<strong>アプリを閉じます。</strong>
+        </p>
+        <p>
+          間隔反復アルゴリズムの50年の歴史は<strong>「復習を最小化する競争」</strong>でした。
+          ライトナーは5つの区画で、SM-2はEFの掛け算で、FSRSはあなたのログで。
+          <strong>みな同じ目標に向かっていました — 不要な復習を消すことです。</strong>
+        </p>
+        <p>
+          <strong>しかし、人が実際に失敗するのはそこではありません。</strong>
+          <strong>人は「復習が多すぎて」やめるのではなく、「今日開かなかったから」やめるのです。</strong>
+          私たちが個人化を丸ごと手放し、<strong>摩擦をゼロにすることにすべてを賭けた理由</strong>がこれです。
+          <strong>それが正しい選択なのかは確信していません。</strong>
+          <strong>ただ、それが私たちの選んだ道であり、その代償をこの記事でひとつも隠しませんでした。</strong>
+        </p>
+
+        <div class="note warn">
+          <strong>注意事項</strong><br />
+          この記事は<strong>学習方法に関する情報提供</strong>であり、<strong>教育上・医学上の助言ではありません。</strong>
+          学習効果には<strong>大きな個人差があり</strong>、ここに書かれたどの方法も<strong>特定の成績や結果を保証するものではありません。</strong><br />
+          <strong>他社ツール（Anki · SuperMemo · FSRS）のデフォルト値と数式はバージョンによって異なります。</strong>
+          この記事の数字は<strong>広く知られたデフォルトのプリセットに基づく</strong>ものであり、
+          <strong>必ずご自身が使っているバージョンの設定画面と公式ドキュメントで直接確認してください。</strong>
+          FSRSに関する数式は<strong>DECAY = −0.5に固定されたFSRS-4.5 / 5を基準</strong>としており、
+          <strong>FSRS-6以降では成り立たない場合があります。</strong><br />
+          VOCA DECKに関する数値は<strong>この記事の執筆時点での実際の実装に基づく</strong>もので、アップデートにより変更されることがあります。
+        </div>
+
+        <h2>続けて読む</h2>
+        <div class="related">
+          <a href="/method"><b>点滅式単語帳の暗記法の原理</b><span>忘却曲線・分散効果・二重符号化 — なぜ反復提示が効くのか</span></a>
+          <a href="/study-guide"><b>単語暗記の学習戦略</b><span>1日に何語、復習はいつ、4週間の計画</span></a>
+          <a href="/csv-guide"><b>CSV単語帳の作り方</b><span>Ankiから書き出した地獄カードを点滅式単語帳に移す方法</span></a>
+          <a href="/"><b>単語帳を開く</b><span>間隔・順序・表示範囲を実際に触ってみる</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · 運営 Y-Systems · <a href="/privacy">プライバシーポリシー</a> · <a href="/terms">利用規約</a></footer>
+      </div>
+    </main>

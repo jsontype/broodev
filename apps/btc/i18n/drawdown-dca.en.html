@@ -1,0 +1,501 @@
+<main class="wrap" data-title="The Math of Drawdowns and Staged Buying — Recovering from −50% Takes +100% | broodev" data-desc="The asymmetry of loss recovery, worked out in tables. How average cost and P&amp;L diverge across three decline scenarios when the same ₩12 million goes in as a lump sum, four equal tranches, or drawdown-weighted tranches; the arithmetic of running out of ammo; and why a drawdown indicator is 100% consistently wrong on an asset heading to zero.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/indicators">Indicators</a>
+        <a href="/guide-fear-greed">Fear &amp; Greed guide</a>
+        <a href="/glossary">Glossary</a>
+      </nav>
+
+      <h1>The Math of Drawdowns and Staged Buying</h1>
+      <p class="muted">Last updated: 2026-07-14 · By Y-Systems · This article consists of calculations only</p>
+
+      <p class="lead">
+        There is no advice in this article. <strong>Only calculations.</strong>
+        Using nothing but numbers, it shows why “it has fallen a lot, so it's cheap” is dangerous, and what staged buying actually does for you — and what it <em>does not</em>.
+        Let me state the conclusion up front —
+        <strong>staged buying is not a technique for raising returns. It is a technique for narrowing the range of outcomes.</strong>
+        The nine-cell table below proves it.
+      </p>
+
+      <section class="bd-figs" aria-label="Live drawdown chart">
+        <p class="muted">Before we get into the calculations, let's look at what the protagonist of this article — “drawdown from the all-time high” — has actually looked like over BTC's history. The 0% line means new highs are being set, and every valley is a stretch where the “required recovery” from the tables below had to be paid.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+          </div>
+          <p class="bd-cap">BTC drawdown from its all-time high (ATH), full history. Dotted lines = −30% (where the model switches on “watch”) and −50% (the “strongly buy-favorable” zone). Orange dashed lines = halvings. The deepest point is about −93% in 2011. Data: CoinMetrics Community API, BTC daily closes — fetched when you visit and computed in your browser, so treat it as an <strong>approximation for reference only</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="c1">Calculation 1 — The asymmetry of breaking even</h2>
+      <p>
+        Let's start with the simplest and cruelest formula. For an asset hit by a drawdown <code>d</code>,
+        <strong>the gain needed to get back to the original amount</strong> is not <code>d</code>.
+      </p>
+      <pre><code>Required gain = d ÷ (1 − d)
+
+Hit by −50%      0.50 ÷ 0.50 = +100%
+Hit by −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        On the way down, losses come off <strong>the amount you still have</strong>; on the way up, gains build on <strong>the amount that has shrunk</strong>.
+        Because of this single difference in the denominator, losses and recoveries are never symmetric. Here is the full table.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Drawdown</th><th>Gain needed to break even</th><th>What ₩10M becomes</th><th>How it feels</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>₩9M</td><td>Almost symmetric. Up to here, intuition holds</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>₩8M</td><td>The gap starts to open</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>₩7M</td><td>Where our model switches on “watch”</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>₩6M</td><td>Down 40, but recovery takes +67. Already 1.7×</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>₩5M</td><td>Where our model sees “strongly buy-favorable”</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>₩4M</td><td>Needs 2.5×</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>₩3M</td><td>3.3×</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>₩2M</td><td>5×. You have to wait out an entire cycle</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>₩1M</td><td>10×</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>₩0.5M</td><td>20×. Practically a different asset at this point</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        What to notice in this table is not the values but the <strong>gaps</strong>.
+        As the drawdown deepens by 40pp from −10% to −50%, the required recovery grows from 11% to 100% — <strong>89pp</strong>.
+        But from −50% to −90%, deepening by the same 40pp, the required recovery grows from 100% to 900% — <strong>800pp</strong>.
+        <strong>The same 40pp, nine times the damage.</strong> Drawdowns grow linearly, but their cost grows explosively.
+      </p>
+
+      <div class="note">
+        Here is the first practical implication. <strong>“It has already fallen a lot, so falling further won't make much difference” is a complete misconception.</strong>
+        Going from −50% to −70% is not “20pp more down” — it is an event where the recovery burden <strong>goes from +100% to +233%, 2.3 times as much</strong>.
+        Each further decline is always more expensive than the one before.
+      </div>
+
+      <h2 id="c2">Calculation 2 — Declines don't add up, they multiply</h2>
+      <p>
+        The second trap is that people calculate drawdowns by <strong>addition</strong>.
+        “Hit by −30%, then another −30%, so −60%.” No. Drawdowns multiply.
+      </p>
+      <pre><code>Cumulative drawdown = (1 − d₁) × (1 − d₂) × … − 1
+
+−30% twice  →  0.7 × 0.7 = 0.49  →  −51%
+−50% twice  →  0.5 × 0.5 = 0.25  →  −75%  (needs +300% to recover)</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Consecutive declines</th><th>If you add them</th><th>Actual cumulative drawdown</th><th>To break even</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5</td><td>−100% (total loss?)</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Being multiplicative is both good news and bad news.
+        The good part: <strong>even five hits of −20% don't take you to zero</strong> — multiplication only approaches zero, never reaches it.
+        The bad part: <strong>the bounces along the way give back far less than you'd think</strong>.
+        After a −50% hit, even a +30% bounce gives <code>0.5 × 1.3 = 0.65</code> — still −35%.
+        Why the relief of “it's finally bouncing” is betrayed so often in a bear market — the answer lies in this multiplication.
+      </p>
+
+      <h2 id="c3">Calculation 3 — Why the 365-day high, of all things</h2>
+      <p>
+        To measure a drawdown you have to decide <strong>where it fell from</strong>. Change the reference point and the same price becomes a different drawdown.
+        Our model uses the <strong>365-day high</strong>, not the all-time high (ATH). That choice comes at a price, and this section spells it out.
+      </p>
+      <p>
+        Suppose a coin hit ₩2 million three years ago, its highest price within the last year was ₩1 million, and it now trades at ₩600,000.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Reference point</th><th>Drawdown calculation</th><th>Result</th><th>What this number says</th></tr></thead>
+          <tbody>
+            <tr><td>All-time high ₩2M</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>“Historic crash zone”</td></tr>
+            <tr><td>365-day high ₩1M</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>“Deep correction relative to the past year”</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Same coin, same price, numbers that differ by almost a factor of two. We chose 365 days for one reason:
+        <strong>a drawdown measured from the ATH stops being an indicator and becomes a constant as time goes on.</strong>
+        If you anchor to the 2021 peak forever, some coins will show “−70%, undervalued” for five years straight.
+        An indicator that gives a buy signal every day is an indicator that carries no information.
+      </p>
+      <div class="note warn">
+        <strong>The price — a 365-day window resets itself in a long bear market.</strong>
+        If a decline lasts more than a year, <strong>the 365-day high itself moves down into the declining stretch.</strong>
+        Say the price fell from 100 → 30 over 14 months. Now the high of “the last year” is no longer 100 but, say, 55.
+        The drawdown is calculated as <code>30 ÷ 55 − 1 = −45%</code>. Against the ATH it is −70%, yet our indicator says −45%.
+        <strong>There are stretches where the drawdown score looks milder precisely when the price is at its deepest.</strong>
+        This is not a bug but a structural limitation of the window approach. You need to know it when you use it.
+      </div>
+      <p>
+        <strong>The −30% and −50% thresholds</strong> follow the same logic.
+        Crypto routinely sees −30% corrections <em>even in the middle of a bull market</em>. So −30% does not mean “buy”, it means “start watching” (recovery burden +43%, still manageable).
+        −50%, on the other hand, is where recovery needs <strong>+100%</strong>, and historically it has shown up more often at cycle turns than in bull-market corrections.
+        <strong>Both thresholds are set not by price but by “the point where the recovery burden doubles.”</strong>
+      </p>
+
+      <h2 id="c4">Calculation 4 — The same ₩12 million, three ways</h2>
+      <p>
+        Now to the main event. You have a budget of <strong>₩12 million</strong>. One coin initially costs <strong>₩1 million</strong>.
+        There are 9 observation points, t0 through t8 (think of them as months). We compare three ways of deploying the money.
+      </p>
+      <ul>
+        <li><strong>Strategy A — Lump sum.</strong> Buy with the full ₩12 million at t0.</li>
+        <li><strong>Strategy B — Four equal tranches.</strong> ₩3 million each at t0, t2, t4 and t6. Mechanically, <em>regardless of price</em>.</li>
+        <li><strong>Strategy C — Drawdown-weighted tranches.</strong> Split the ₩12 million into <strong>12 units</strong> of ₩1 million, and deploy only <strong>when the drawdown from the 365-day high first enters</strong> each band:</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Drawdown band</th><th>Units deployed</th><th>Amount</th><th>Cumulative spent</th></tr></thead>
+          <tbody>
+            <tr><td>0 to −20%</td><td>0 units</td><td>₩0</td><td>0%</td></tr>
+            <tr><td>−20 to −35%</td><td>1 unit</td><td>₩1M</td><td>8.3%</td></tr>
+            <tr><td>−35 to −50%</td><td>2 units</td><td>₩2M</td><td>25.0%</td></tr>
+            <tr><td>−50 to −65%</td><td>4 units</td><td>₩4M</td><td>58.3%</td></tr>
+            <tr><td>Below −65%</td><td>5 units</td><td>₩5M</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        These bands and unit allocations are <strong>an example to illustrate the calculation</strong>, not a recommendation of any particular allocation.
+        What matters is not the numbers themselves but the shape: <em>“allocate more the further down you go.”</em>
+      </p>
+
+      <h3>Scenario ① — Deep fall, then partial recovery</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Price (₩10k)</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>365-day drawdown</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Let's lay out exactly what each strategy bought. <strong>Quantity = amount ÷ price</strong>.</p>
+      <pre><code>Strategy A  t0: ₩12M ÷ ₩1.00M = 12.0000 coins
+            total 12.0000 coins · avg cost ₩1.00M
+
+Strategy B  t0:  ₩3M ÷ ₩1.00M =  3.0000 coins
+            t2:  ₩3M ÷ ₩740k  =  4.0541 coins
+            t4:  ₩3M ÷ ₩550k  =  5.4545 coins
+            t6:  ₩3M ÷ ₩380k  =  7.8947 coins
+            total 20.4033 coins · avg cost ₩12M ÷ 20.4033 = ₩588.1k
+
+Strategy C  t2(−26%): ₩1M ÷ ₩740k =  1.3514 coins   ← first entry into −20 to −35
+            t3(−38%): ₩2M ÷ ₩620k =  3.2258 coins   ← first entry into −35 to −50
+            t5(−56%): ₩4M ÷ ₩440k =  9.0909 coins   ← first entry into −50 to −65
+            (below −65% never reached → 5 units, ₩5M, not deployed)
+            total 13.6681 coins · invested ₩7M · avg cost ₩512.1k · ₩5M cash left</code></pre>
+      <p>
+        Judged by average cost alone, the ranking is clear: <strong>C (51.21) &lt; B (58.81) &lt; A (100.00)</strong>.
+        The drawdown-weighted approach cut the average cost to <strong>almost half</strong> of the lump sum's.
+        This is where most articles end with “See? Staged buying is the answer.” <strong>We don't stop here.</strong>
+      </p>
+      <p>
+        First, something has to be pointed out: <strong>Strategy C did not manage to spend the ₩12 million.</strong> It put in only ₩7 million.
+        The very premise of “investing the same total” <strong>does not hold</strong> for the drawdown-weighted approach.
+        If the market doesn't fall deep enough, budget is left over. That is not a side effect; it is the definition of the strategy.
+        So a fair comparison has to look at <strong>total assets including the leftover cash</strong>.
+      </p>
+
+      <h2 id="c5">Calculation 5 — Three strategies × three scenarios: the truth in nine cells</h2>
+      <p>
+        If you only calculate Scenario ①, the conclusion is rigged — <strong>because I drew the decline path.</strong>
+        To be honest, you also have to calculate <strong>paths where staged buying loses</strong>. Let's make two more.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① Fall, then partial recovery</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② Fall with no recovery</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ Rise with no fall</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Scenario ② is <strong>exactly the same</strong> as ① up to t6. From t7, instead of bouncing, it keeps falling.
+        Here Strategy C deploys its last 5 units, ₩5 million, at t7 (−67%) as <code>500 ÷ 33 = 15.1515 coins</code> and <strong>spends everything</strong>.
+        In Scenario ③ the drawdown never gets deeper than −7%, so it <strong>never even reaches Strategy C's first threshold (−20%)</strong>. C <strong>doesn't buy a single coin.</strong>
+      </p>
+      <p>Returns based on total assets at t8 (coin value + leftover cash). The budget is the same ₩12 million for all three strategies.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Strategy</th><th>① Fall, then recovery<br />(t8 = 61)</th><th>② No recovery<br />(t8 = 29)</th><th>③ Rise with no fall<br />(t8 = 168)</th><th>Best − worst<br />(range of outcomes)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A Lump sum</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0pp</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B Four equal tranches</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0pp</td>
+            </tr>
+            <tr>
+              <td><strong>C Drawdown-weighted</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5pp</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Please read these nine cells slowly. <strong>No strategy comes first in all three scenarios.</strong>
+      </p>
+      <ul>
+        <li><strong>Strategy C wins decisively in ① and ②.</strong> And <strong>comes last in ③.</strong> A 0% return. It sat on cash and watched while the market rose 68%.</li>
+        <li><strong>Strategy A wins only in ③.</strong> And overwhelmingly so (+68%). But in ② it takes <strong>−71%</strong>. According to the table in Calculation 1, that is a hole that needs <strong>+245%</strong> just to break even.</li>
+        <li><strong>Strategy B is first nowhere, and last nowhere.</strong></li>
+      </ul>
+      <p>
+        The rightmost column is the conclusion of this entire article. <strong>Range of outcomes: A 139pp, B 83pp, C 41.5pp.</strong>
+        The finer you split and the more you weight by drawdown, <strong>the more the best case gets shaved and the worst case gets lifted.</strong>
+        What staged buying does is not <em>raise the average</em> but <strong>narrow the distribution</strong>.
+        This isn't a matter of taste; it's a result of arithmetic. It is a trade in which you buy the downside by giving up the upside.
+      </p>
+      <div class="note">
+        <strong>“Staged buying makes you more money” is wrong. “Staged buying makes you die less” is right.</strong>
+        C beat the others in ① and ② partly <strong>because I drew two falling paths and only one rising path</strong>.
+        Add a second rising path and the average ranking flips. <strong>Change the paths and the ranking changes.</strong>
+        The only thing that doesn't change is <strong>that the “range” is ordered A &gt; B &gt; C</strong>, and that is the only result of this simulation you can trust.
+      </div>
+
+      <h2 id="c6">Calculation 6 — The arithmetic of running out of ammo</h2>
+      <p>
+        Where most people who say they buy in stages actually fail is not the allocation table.
+        It is <strong>spending everything too high up</strong>. Let's nail this down with numbers.
+      </p>
+      <p>
+        We add <strong>Strategy D</strong>. It captures the common impulse of being scared and “wanting to get in fast.”
+        As soon as the decline starts, it puts in <strong>₩4 million each at t1 (−12%), t2 (−26%) and t3 (−38%)</strong> and <strong>exhausts the budget at −38%</strong>.
+        We calculate it on Scenario ① (which then falls further to −62% before recovering to 61).
+      </p>
+      <pre><code>Strategy D  t1: ₩4M ÷ ₩880k =  4.5455 coins
+            t2: ₩4M ÷ ₩740k =  5.4054 coins
+            t3: ₩4M ÷ ₩620k =  6.4516 coins
+            total 16.4025 coins · avg cost ₩731.6k · ammo left ₩0
+
+            t4(−45%) · t5(−56%) · t6(−62%) ← watched them all from the sidelines</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategy</th><th>Cheapest purchase price</th><th>Avg cost</th><th>Total quantity</th><th>Scenario ① P&amp;L</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D Early exhaustion</strong> (all-in at −38%)</td><td>₩620k</td><td><strong>₩731.6k</strong></td><td>16.4025 coins</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C Drawdown-weighted</strong> (ammo preserved)</td><td>₩440k</td><td><strong>₩512.1k</strong></td><td>13.6681 coins</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Same decline, same budget, same “staged buying.” Yet <strong>the average cost splits into ₩731.6k and ₩512.1k</strong>.
+        <strong>The difference is ₩219.5k — a full 30%.</strong> The P&amp;L is −16.6% versus +11.1%, <strong>27.7pp</strong> apart.
+      </p>
+      <p>
+        What Strategy D did wrong was not <em>failing to split</em>. D also split its buying into three.
+        What D did wrong was <strong>running out of money before the cheapest stretch arrived</strong>.
+        In the simulation, D didn't buy a single coin at the ₩380k bottom.
+        <strong>The price of spending the whole budget at −38% is watching −62% from the sidelines.</strong>
+      </p>
+      <div class="note warn">
+        <strong>The one rule of ammo allocation — the further down you go, the more you need to have left.</strong>
+        This is why Strategy C's allocation (0 · 1 · 2 · 4 · 5 units) <strong>is not an arithmetic progression but grows toward the end</strong>.
+        As the drawdown deepens, <strong>the quantity the same money buys grows explosively</strong>.
+        ₩1 million buys <strong>1.35 coins at a price of 74</strong> and <strong>2.63 coins at a price of 38</strong> — <strong>almost twice as many</strong>.
+        The most powerful buying always happens in the scariest stretch, and if your balance is zero by then, that stretch <strong>might as well never have existed.</strong>
+      </div>
+
+      <h2 id="c7">Calculation 7 — What “no floor” means</h2>
+      <p>
+        Every calculation so far has rested on <strong>one unspoken assumption</strong>:
+        <strong>that the asset survives.</strong> Break that assumption and every table above flips.
+      </p>
+      <p>Let's plug the typical path of a coin headed for delisting straight into the calculation. 8 time points, starting at a price of ₩1 million.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Price (₩10k)</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>365-day drawdown</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>Drawdown sub-score</strong></td><td>Low</td><td>Watch</td><td><strong>Max</strong></td><td><strong>Max</strong></td><td><strong>Max</strong></td><td><strong>Max</strong></td><td><strong>Max</strong></td><td><strong>Max</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Look at the bottom row.</strong> From t2 to t7, <strong>the whole time</strong> the asset was dying, the drawdown indicator gave a perfect score.
+        “Strong buy” at −55%, “strong buy” at −95%, “strong buy” at −99%.
+        <strong>The drawdown indicator was not right even once here. It was 100% consistently wrong.</strong>
+        And because its structure <strong>“tells you to buy harder the further it falls,”</strong> the more wrong it was, the bigger the mistake.
+      </p>
+      <p>Let's run the three strategies along this path. The final price is ₩3,000.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategy</th><th>Total quantity</th><th>Avg cost</th><th>Final value</th><th>P&amp;L</th><th>Gain needed to break even</th></tr></thead>
+          <tbody>
+            <tr><td>A Lump sum</td><td>12.00 coins</td><td>₩1.00M</td><td>₩36k</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B Four equal tranches</td><td>234.67 coins</td><td>₩51.1k</td><td>₩704k</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C Drawdown-weighted</td><td>34.76 coins</td><td>₩345.2k</td><td>₩104k</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Two things emerge here. First, <strong>all three strategies died.</strong>
+        Second, the <strong>“best-performing” strategy scored −94.1%</strong>.
+        Bring back the formula from Calculation 1, and even this best result needs <strong>+1,595%</strong> to break even.
+        <strong>There is no winner in this table. Only losers who fared less miserably.</strong>
+      </p>
+      <p>
+        Look at Strategy C. The drawdown-weighted approach was so superior in Scenarios ① and ②, yet here it
+        <strong>followed the “it's cheap” signal, poured 91.7% of the budget into the −55% and −75% zones, and ended at −99.1%.</strong>
+        Weighting by drawdown means <strong>“buy more the further it falls,”</strong> and
+        <strong>on an asset heading to zero, that is an algorithm for maximizing losses.</strong>
+        The very property that made C the winner in Scenario ① is what sentences C to death here. <strong>It is the same property.</strong>
+      </p>
+      <div class="note warn">
+        <strong>The precondition of a drawdown indicator — “this asset will still exist five years from now.”</strong>
+        Drawdown assumes that <strong>price will revert</strong>. For an asset that will revert, it is a good indicator;
+        for an asset that will disappear, it is <strong>the most dangerous indicator</strong>. And <strong>the chart can't tell the two apart.</strong>
+        A −80% Bitcoin chart and a −80% chart of an altcoin on the verge of delisting <strong>look exactly the same.</strong>
+        The difference lies not in the indicator but in <strong>fundamentals, liquidity, the team and token unlocks</strong> — and our model looks at none of these.
+        The thousands of altcoins that have since vanished <strong>all, without exception, passed through the −90% zone, and in every one of those stretches the drawdown indicator gave a perfect score.</strong>
+      </div>
+
+      <h2 id="c8">Calculation 8 — That's why we give drawdown only 18% and 14%</h2>
+      <p>
+        Calculation 7 above is why, in our model, <strong>drawdown is not the top-weighted of the 6 indicators in either mode</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>Drawdown weight</th><th>Rank among 6</th><th>Top indicator</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Short-term</strong> (momentum)</td><td><strong>18%</strong></td><td>3rd</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>Long-term</strong> (contrarian)</td><td><strong>14%</strong></td><td>Tied 5th</td><td>RSI · MACD · F&amp;G · Mayer 18% each</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The surprising part is that <strong>it is actually lower in long-term mode</strong> (18% → 14%).
+        “Isn't long-term investing exactly where you should be watching drawdown?” you might think — but the reason is <strong>double counting</strong>.
+      </p>
+      <p>
+        <strong>Drawdown and the Mayer Multiple essentially ask the same question</strong> — <em>“Is the price now below some past baseline?”</em>
+        Drawdown simply uses the <strong>365-day high</strong> as its baseline, and Mayer uses the <strong>200-day moving average</strong>.
+        In long-term mode the Mayer Multiple sits in the top group at <strong>18%</strong>.
+        Giving drawdown 18% as well would <strong>pile 36% onto the same perspective (valuation)</strong>.
+        The reason for using 6 indicators is <strong>to blend different perspectives</strong>, and that would break the design.
+        So in long-term mode we <strong>give weight to Mayer, which uses a more stable baseline (the 200-day average), and lower drawdown, which depends on a single high.</strong>
+        The 365-day high is <strong>a value from a single day</strong>; if that day was an abnormal spike, the drawdown for the whole following year is distorted.
+        A 200-day <em>average</em> has no such weakness.
+      </p>
+
+      <h3>Drawdown alone cannot produce a STRONG BUY</h3>
+      <p>Let's confirm with a calculation what these weights mean in practice. With drawdown at a <strong>perfect score (100)</strong>, its contribution to the total is:</p>
+      <pre><code>Short-term: 100 pts × 0.18 = 18 pts contributed (the other 82% comes from the other 5 indicators)
+Long-term:  100 pts × 0.14 = 14 pts contributed (the other 86% comes from the other 5 indicators)
+
+To clear the STRONG BUY (80 pts) threshold, the weighted average of the other 5 indicators must be
+
+  Short-term:  (80 − 18) ÷ 0.82 = 75.6 pts or more
+  Long-term:   (80 − 14) ÷ 0.86 = 76.7 pts or more</code></pre>
+      <p>
+        In other words, <strong>even if a −70% crash gives drawdown a perfect score, unless RSI, MACD, the Fear &amp; Greed Index, Mayer and the cross average above 75,
+        the score will never reach 80 (STRONG BUY).</strong>
+      </p>
+      <p>
+        To take it to the extreme — <strong>if drawdown alone scores 100 and the other five indicators all score 0, the total is 18 in short-term and 14 in long-term</strong>.
+        Both fall in the <strong>0–25 band</strong>, so the long-term tab shows <strong>OVERHEATED</strong> and the short-term tab shows <strong>AVOID (strong downtrend)</strong>.
+        “It's down 70% and the long-term tab says overheated?” It looks odd, but it is <strong>exactly the intended behavior</strong>.
+        Only the price has fallen; the trend is dead, sentiment hasn't improved, and it's still expensive relative to the 200-day line —
+        <strong>that is exactly what the delisting path in Calculation 7 looks like.</strong>
+        Keeping drawdown alone from overpowering the other five — that is why the 18%/14% weights exist.
+      </p>
+      <p class="muted">
+        Note: for coins listed less than a year, <strong>there is no 365-day high, so drawdown is missing</strong>.
+        In that case drawdown is dropped and the remaining indicators' weights are renormalized, shown on the dashboard as <code>coverage: 5/6</code>.
+        The detailed calculation is in the renormalization section of the <a href="/methodology">scoring methodology</a>.
+      </p>
+
+      <h2 id="c9">Where these calculations lie</h2>
+      <p>So far I've shown you eight tables. Now here are <strong>the reasons you shouldn't trust them</strong>.</p>
+      <ul>
+        <li>
+          <strong>I made up the three scenarios.</strong> They are <strong>hypothetical paths</strong>, not a backtest.
+          Change the numbers even slightly and the strategy ranking can flip any way you like. The only thing this simulation proves is
+          not <strong>“C is good”</strong> but <strong>“the more you split, the narrower the range of outcomes.”</strong>
+        </li>
+        <li>
+          <strong>Average cost is not a performance metric.</strong> In Calculation 7, Strategy B's average cost was <strong>₩51.1k</strong>, the lowest of the three.
+          And <strong>it ended at −94.1%.</strong> A low average cost doesn't mean <em>you bought cheap</em>;
+          it only means <strong>you kept buying while it fell</strong>. If the asset dies, the result is zero no matter what your average cost is.
+        </li>
+        <li>
+          <strong>Fees, slippage and taxes were all set to zero.</strong> In reality, staged buying <strong>involves more trades and so pays more in fees.</strong>
+          Part of the differences in the tables above gets shaved off in real life.
+        </li>
+        <li>
+          <strong>Opportunity cost was set to zero.</strong> Strategy C's “0.0%” in Scenario ③ assumes
+          <strong>the leftover cash earns nothing</strong>. Add deposit interest and it looks a little better;
+          conversely, <strong>if other assets rose during that year, it is a real loss</strong>.
+        </li>
+        <li>
+          <strong>A 365-day window makes drawdowns look shallower in a long bear market</strong> (the warning in Calculation 3).
+          The indicator can become least sensitive in the deepest stretch.
+        </li>
+        <li>
+          <strong>Strategy C's bands and unit allocation (0·1·2·4·5) are an example for the calculation.</strong>
+          We do not recommend this allocation, nor do we claim it is optimal.
+          Change the bands to −25/−40/−55 and the results change too. <strong>There is no right answer.</strong>
+        </li>
+        <li>
+          <strong>The most important variable isn't in the calculation.</strong> Will this asset exist five years from now?
+          That answer lies not in a table but in <strong>the substance of the project</strong>, and our model doesn't look at it.
+        </li>
+      </ul>
+
+      <p>
+        To sum up: <strong>drawdown does not measure “how cheap.” It only measures “how far it has fallen.”</strong>
+        The two mean the same thing only when the asset survives; when it doesn't, they mean the exact opposite.
+        <strong>The moment this indicator shouts “buy” the loudest cannot be told apart from the moment the asset is dying</strong> —
+        that is everything you need to know about drawdown.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        All scenarios, prices, allocations and returns in this document are <strong>hypothetical examples to explain how the calculations work</strong>,
+        not actual market data or backtest results. No specific strategy, allocation or asset is recommended.
+        This document is <strong>for education and reference only and is not investment advice.</strong>
+        Crypto is a high-risk asset in which <strong>you can lose your entire principal</strong>, and as in Calculation 7,
+        <strong>there are many real cases of value converging to zero.</strong>
+        No technique, staged buying included, prevents losses.
+        All investment decisions and their consequences are entirely your own responsibility. Always do your own research (DYOR).
+      </div>
+
+      <h2>Read next</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoring methodology</b><span>All 6 weights, including drawdown's 18%/14%, and the renormalization math</span></a>
+        <a href="/indicators"><b>The 6 indicators explained</b><span>What the other five, besides drawdown, look at</span></a>
+        <a href="/guide-fear-greed"><b>Fear &amp; Greed Index in practice</b><span>If this article is the “math,” that one is the “procedure”</span></a>
+        <a href="/glossary"><b>Glossary</b><span>Definitions of drawdown, average cost and the Mayer Multiple</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></footer>
+    </main>

@@ -25,11 +25,11 @@ function Clock() {
   const p = (n) => String(n).padStart(2, '0');
   return (<div className="clock"><span className="clock-time">{p(now.getHours())}:{p(now.getMinutes())}:{p(now.getSeconds())}</span><span className="clock-date">{now.getFullYear()}.{p(now.getMonth() + 1)}.{p(now.getDate())}</span></div>);
 }
-function LangSelect({ lang, setLang }) {
+function LangSelect({ lang, setLang, t }) {
   return (
-    <span className="lang-select" title="Language">
+    <span className="lang-select" title={t.langLabel}>
       <span className="lang-globe">🌐</span>
-      <select value={lang} onChange={e => setLang(e.target.value)} aria-label="Language">
+      <select value={lang} onChange={e => setLang(e.target.value)} aria-label={t.langLabel}>
         {I18N.LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
       </select>
     </span>
@@ -37,9 +37,16 @@ function LangSelect({ lang, setLang }) {
 }
 function PageHead({ title, desc }) { return <div className="page-head"><h1>{title}</h1>{desc && <p>{desc}</p>}</div>; }
 function Note({ t, children }) { return <div className="mock-note"><b>⚠ {t.mock}</b><span>{children}</span></div>; }
-function StatusTag({ s }) {
-  const m = { ok: ['live', 'OK'], live: ['live', 'LIVE'], warn: ['soon', 'WARN'], crit: ['', 'ERR'] };
-  const [cls, txt] = m[s] || ['', s];
+/* 상태 코드(기술값 ok/live/warn/crit) → 화면 라벨(t.status.*) */
+const STATUS_KEY = { ok: 'ok', live: 'live', warn: 'warn', crit: 'err' };
+function statusLabel(t, s) { const k = STATUS_KEY[s]; return (k && t.status && t.status[k]) || s; }
+/* 사전 문장의 {name} 자리에 React 노드(<span className="kbd"> 등)를 끼워 넣는다 — 언어마다 어순이 달라도 문장이 깨지지 않게 */
+function fmtNodes(str, nodes) {
+  return String(str).split(/(\{\w+\})/).map((part, i) => { const m = /^\{(\w+)\}$/.exec(part); return m && nodes[m[1]] != null ? <React.Fragment key={i}>{nodes[m[1]]}</React.Fragment> : part; });
+}
+function StatusTag({ s, t }) {
+  const m = { ok: 'live', live: 'live', warn: 'soon', crit: '' };
+  const cls = m[s] || ''; const txt = statusLabel(t, s);
   return <span className={'tag ' + cls} style={s === 'crit' ? { color: 'var(--crit)', borderColor: 'rgba(255,59,92,.4)' } : null}>{txt}</span>;
 }
 
@@ -91,7 +98,7 @@ function DashboardPage({ go, t }) {
           <div className="panel-label">{d.collectStatus}</div>
           {MOCK_COLLECTORS.map(c => (
             <div key={c.id} className="row" style={{ justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid var(--line-soft)', fontSize: 12 }}>
-              <span className="neon">{c.id}</span><span className="muted">{c.last}</span><StatusTag s={c.status} />
+              <span className="neon">{c.id}</span><span className="muted">{c.last}</span><StatusTag s={c.status} t={t} />
             </div>
           ))}
           <button className="btn ghost block" style={{ marginTop: 12 }} onClick={() => go('collect')}>{d.manageCollect}</button>
@@ -108,7 +115,7 @@ function AppsPage({ t }) {
       <Note t={t}>{a.mock}</Note>
       <div className="table-wrap"><table className="tbl">
         <thead><tr><th>{a.thApp}</th><th>{a.thDomain}</th><th>{a.thJobs}</th><th>{a.thSync}</th><th>{a.thStatus}</th></tr></thead>
-        <tbody>{MOCK_APPS.map(x => (<tr key={x.domain}><td className="t-name">{x.name}</td><td className="t-muted">{x.domain}</td><td className="t-muted">{x.collectors}</td><td className="t-muted">{x.lastSync}</td><td><StatusTag s={x.status} /></td></tr>))}</tbody>
+        <tbody>{MOCK_APPS.map(x => (<tr key={x.domain}><td className="t-name">{x.name}</td><td className="t-muted">{x.domain}</td><td className="t-muted">{x.collectors}</td><td className="t-muted">{x.lastSync}</td><td><StatusTag s={x.status} t={t} /></td></tr>))}</tbody>
       </table></div>
     </>
   );
@@ -124,7 +131,7 @@ function CollectPage({ t }) {
       <div className="table-wrap"><table className="tbl">
         <thead><tr><th>{c.thId}</th><th>{c.thApp}</th><th>{c.thSource}</th><th>{c.thSched}</th><th>{c.thLast}</th><th>{c.thStatus}</th><th></th></tr></thead>
         <tbody>{MOCK_COLLECTORS.map(j => (
-          <tr key={j.id}><td className="t-name">{j.id}</td><td className="t-muted">{j.app}</td><td className="t-muted">{j.source}</td><td className="t-muted">{j.schedule}</td><td className="t-muted">{j.last}</td><td><StatusTag s={j.status} /></td>
+          <tr key={j.id}><td className="t-name">{j.id}</td><td className="t-muted">{j.app}</td><td className="t-muted">{j.source}</td><td className="t-muted">{j.schedule}</td><td className="t-muted">{j.last}</td><td><StatusTag s={j.status} t={t} /></td>
             <td style={{ textAlign: 'right' }}><button className="chip" disabled={busy === j.id} onClick={() => run(j.id)}>{busy === j.id ? c.running : c.run}</button></td></tr>
         ))}</tbody>
       </table></div>
@@ -141,7 +148,7 @@ function QueriesPage({ t }) {
       <Note t={t}>{q.mock}</Note>
       <div className="row" style={{ marginBottom: 12 }}>
         <select className="input" value={app} onChange={e => setApp(e.target.value)}><option value="all">{q.allApps}</option><option value="btc">btc</option></select>
-        <select className="input" value={level} onChange={e => setLevel(e.target.value)}><option value="all">{q.allLevels}</option><option value="ok">ok</option><option value="warn">warn</option></select>
+        <select className="input" value={level} onChange={e => setLevel(e.target.value)}><option value="all">{q.allLevels}</option><option value="ok">{statusLabel(t, 'ok')}</option><option value="warn">{statusLabel(t, 'warn')}</option></select>
       </div>
       <div className="table-wrap"><table className="tbl">
         <thead><tr><th>{q.thTime}</th><th>{q.thApp}</th><th>{q.thEvent}</th><th>{q.thDetail}</th></tr></thead>
@@ -180,7 +187,9 @@ function AnalyticsPage({ t, lang }) {
   );
 }
 function TerminalPage({ user, t }) {
-  const [lines, setLines] = useState([{ t: 'broodev admin shell — type `help` to start.', c: 'dim' }]);
+  const tm = t.term;
+  // 줄은 사전 키(k)+인자(p)로 저장하고 렌더할 때 번역 → 언어를 바꾸면 이미 찍힌 시스템 메시지도 따라 바뀐다. 명령어 이름·잡 ID·로그 원문은 기술값이라 그대로.
+  const [lines, setLines] = useState([{ k: 'welcome', p: { cmd: 'help' }, c: 'dim' }]);
   const [val, setVal] = useState('');
   const bodyRef = useRef(null); const inputRef = useRef(null);
   useEffect(() => { if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight; }, [lines]);
@@ -190,20 +199,20 @@ function TerminalPage({ user, t }) {
     const [c, ...args] = cmd.split(/\s+/);
     switch ((c || '').toLowerCase()) {
       case '': break;
-      case 'help': print([{ t: 'commands: help · status · apps · collectors · collect <id> · logs · whoami · clear' }]); break;
-      case 'status': print([{ t: `apps: ${MOCK_APPS.length} · collectors: ${MOCK_COLLECTORS.length} (1 warn)`, c: 'ok' }, { t: 'today visits: 340 · est. revenue: $—', c: 'dim' }]); break;
-      case 'apps': print(MOCK_APPS.map(a => ({ t: `• ${a.name.padEnd(12)} ${a.domain.padEnd(20)} [${a.status}]` }))); break;
-      case 'collectors': print(MOCK_COLLECTORS.map(j => ({ t: `• ${j.id.padEnd(12)} ${j.schedule.padEnd(4)} last:${j.last} [${j.status}]`, c: j.status === 'warn' ? 'warn' : undefined }))); break;
+      case 'help': print([{ k: 'help', p: { list: 'help · status · apps · collectors · collect <id> · logs · whoami · clear' } }]); break;
+      case 'status': print([{ k: 'statusLine', p: { apps: MOCK_APPS.length, jobs: MOCK_COLLECTORS.length, warn: MOCK_COLLECTORS.filter(j => j.status === 'warn').length }, c: 'ok' }, { k: 'today', p: { visits: 340, rev: '$—' }, c: 'dim' }]); break;
+      case 'apps': print(MOCK_APPS.map(a => ({ fn: (tt) => `• ${a.name.padEnd(12)} ${a.domain.padEnd(20)} [${statusLabel(tt, a.status)}]` }))); break;
+      case 'collectors': print(MOCK_COLLECTORS.map(j => ({ fn: (tt) => `• ${j.id.padEnd(12)} ${j.schedule.padEnd(4)} ${tt.term.last}:${j.last} [${statusLabel(tt, j.status)}]`, c: j.status === 'warn' ? 'warn' : undefined }))); break;
       case 'collect': {
         const id = args[0]; const job = MOCK_COLLECTORS.find(j => j.id === id);
-        if (!id) { print([{ t: 'usage: collect <job-id>', c: 'warn' }]); break; }
-        if (!job) { print([{ t: `unknown job: ${id}`, c: 'crit' }]); break; }
-        print([{ t: `triggering ${id}…` }]); setTimeout(() => print([{ t: `✓ ${id} done (mock)`, c: 'ok' }]), 700); break;
+        if (!id) { print([{ k: 'usage', p: { cmd: 'collect' }, c: 'warn' }]); break; }
+        if (!job) { print([{ k: 'unknownJob', p: { id }, c: 'crit' }]); break; }
+        print([{ k: 'triggering', p: { id } }]); setTimeout(() => print([{ k: 'done', p: { id }, c: 'ok' }]), 700); break;
       }
       case 'logs': print(MOCK_LOGS.slice(0, 6).map(l => ({ t: `${l.ts} [${l.app}] ${l.event} — ${l.detail}`, c: l.level === 'warn' ? 'warn' : 'dim' }))); break;
-      case 'whoami': print([{ t: (user && user.email) || 'unknown', c: 'ok' }]); break;
+      case 'whoami': print([user && user.email ? { t: user.email, c: 'ok' } : { k: 'noUser', c: 'ok' }]); break;
       case 'clear': setLines([]); break;
-      default: print([{ t: `command not found: ${c} (try 'help')`, c: 'crit' }]);
+      default: print([{ k: 'notFound', p: { cmd: c, help: "'help'" }, c: 'crit' }]);
     }
   };
   const onKey = (e) => { if (e.key === 'Enter') { run(val); setVal(''); } };
@@ -213,7 +222,7 @@ function TerminalPage({ user, t }) {
       <div className="terminal">
         <div className="term-head"><span className="dot red" /><span className="dot yellow" /><span className="dot green" /><span className="term-title">broodev — admin@console</span></div>
         <div className="term-body" ref={bodyRef} onClick={() => inputRef.current && inputRef.current.focus()}>
-          {lines.map((l, i) => (<div key={i} className="term-line"><span className={l.c || ''}>{l.t}</span></div>))}
+          {lines.map((l, i) => (<div key={i} className="term-line"><span className={l.c || ''}>{l.k ? I18N.fmt(tm[l.k], l.p) : l.fn ? l.fn(t) : l.t}</span></div>))}
           <div className="term-input-row"><span className="term-prompt">$</span><input ref={inputRef} value={val} onChange={e => setVal(e.target.value)} onKeyDown={onKey} spellCheck={false} placeholder="help" /></div>
         </div>
       </div>
@@ -236,12 +245,12 @@ function SettingsPage({ t }) {
         <hr className="divider" />
         <div className="panel-label">{s.integ}</div>
         {/* ***! TODO: 키는 백엔드 비밀저장소에 보관, 프런트 노출 금지 */}
-        <div className="field"><label>AdSense Publisher</label><input defaultValue="pub-5511225478572825" /></div>
-        <div className="field"><label>Analytics (GA4) ID</label><input placeholder="G-XXXXXXX" /></div>
+        <div className="field"><label>{s.adsensePub}</label><input defaultValue="pub-5511225478572825" /></div>
+        <div className="field"><label>{s.ga4Id}</label><input placeholder="G-XXXXXXX" /></div>
         <hr className="divider" />
         <div className="panel-label">{s.notiTheme}</div>
         <label className="toggle" style={{ marginBottom: 12 }}><input type="checkbox" defaultChecked /> {s.notiToggle}</label>
-        <div className="field"><label>{s.themeColor}</label><select defaultValue="green"><option value="green">green</option><option value="cyan">cyan</option><option value="amber">amber</option></select></div>
+        <div className="field"><label>{s.themeColor}</label><select defaultValue="green"><option value="green">{s.colorGreen}</option><option value="cyan">{s.colorCyan}</option><option value="amber">{s.colorAmber}</option></select></div>
         <div className="row" style={{ marginTop: 8 }}><button className="btn" type="submit">{s.save}</button>{saved && <span className="neon" style={{ fontSize: 12 }}>{s.saved}</span>}</div>
       </form>
       <div className="panel" style={{ maxWidth: 560, marginTop: 16, borderColor: 'rgba(255,59,92,.4)' }}>
@@ -277,7 +286,7 @@ function LoginScreen({ onCredential, onDevLogin, t, lang, setLang }) {
   }, []);
   return (
     <CenterCard>
-      <div className="row" style={{ justifyContent: 'flex-end', marginBottom: 4 }}><LangSelect lang={lang} setLang={setLang} /></div>
+      <div className="row" style={{ justifyContent: 'flex-end', marginBottom: 4 }}><LangSelect lang={lang} setLang={setLang} t={t} /></div>
       <div style={{ fontSize: 34, color: 'var(--neon)', textShadow: '0 0 18px var(--neon)' }}>⚙</div>
       <h2 style={{ color: 'var(--neon)', margin: '8px 0 4px', fontSize: 18 }}>broodev · admin</h2>
       <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>{t.sso.sub}</p>
@@ -286,8 +295,8 @@ function LoginScreen({ onCredential, onDevLogin, t, lang, setLang }) {
           <div className="mock-note"><b>⚠</b><span>{t.sso.setup}</span></div>
           <ol className="muted" style={{ fontSize: 11.5, lineHeight: 1.7, paddingLeft: 18, margin: '0 0 10px' }}>
             <li>{t.sso.step1}</li>
-            <li>{t.sso.step2b} <span className="kbd">https://admin.broodev.com</span> {t.sso.step2a}</li>
-            <li>{t.sso.step3a} <span className="kbd">app.jsx</span>{t.sso.step3b}</li>
+            <li>{fmtNodes(t.sso.step2, { url: <span className="kbd">https://admin.broodev.com</span> })}</li>
+            <li>{fmtNodes(t.sso.step3, { file: <span className="kbd">app.jsx</span> })}</li>
           </ol>
           <button className="btn ghost block" onClick={onDevLogin}>{t.sso.devLogin}</button>
         </div>
@@ -350,11 +359,11 @@ function AdminApp({ user, onSignOut, t, lang, setLang }) {
         </aside>
         <main className="main">
           <header className="topbar">
-            <button className="nav-toggle" onClick={() => setNavOpen(o => !o)} aria-label="menu">≡</button>
+            <button className="nav-toggle" onClick={() => setNavOpen(o => !o)} aria-label={t.menu} title={t.menu}>≡</button>
             <span className="topbar-title">{current ? current.label : t.admin}</span>
             <div className="topbar-right">
               <span className="sys-status status-ok"><span className="pulse" />{t.online}</span>
-              <LangSelect lang={lang} setLang={setLang} />
+              <LangSelect lang={lang} setLang={setLang} t={t} />
               <UserChip user={user} onSignOut={onSignOut} t={t} />
               <Clock />
             </div>

@@ -11,7 +11,7 @@
   var FALLBACK_MAIL = BIZ.email || 'support@broodev.com';
   var MAIL_SUBJECT = 'BROODEV에서 사용자 문의가 왔습니다.'; // 뒤에 "— 출처 · 이름" (같은 제목이면 Gmail 이 한 스레드로 묶음)
   var APP = 'utils', HOST = 'utils.broodev.com';
-  var KIND_KO = { bug: '버그 신고', idea: '개선 제안', other: '기타 문의' }; // 운영자(한국어) 메일의 출처 구분
+  var KIND_KO = { bug: '버그 신고', idea: '개선 제안', other: '기타 문의' }; // 운영자(한국어) 메일(EmailJS)의 출처 구분 — mailto 폴백은 사용자 언어(ct_kind_*)
   var KIND_ICON = { bug: '🚨', idea: '💡', other: '💬' };
 
   function t(k, v) { return I ? I.t(k, v) : k; }
@@ -44,8 +44,9 @@
     var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     var kindKo = KIND_KO[kindVal] || KIND_KO.other;
     if (!configured) {
-      // 메일 앱 폴백 — 보내는 사람 시점의 제목
-      var subj = '[' + HOST + '] ' + kindKo + (name ? ' — ' + name : '');
+      // 메일 앱 폴백 — 보내는 사람 시점의 제목(사용자 본인의 메일 앱에 뜨므로 사용자 언어의 구분 라벨 · ct_kind_*)
+      var kindLabel = t('ct_kind_' + (KIND_KO[kindVal] ? kindVal : 'other'));
+      var subj = '[' + HOST + '] ' + kindLabel + (name ? ' — ' + name : '');
       location.href = 'mailto:' + FALLBACK_MAIL + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(msg + '\n\n— ' + (name || '') + (email ? ' <' + email + '>' : ''));
       return;
     }

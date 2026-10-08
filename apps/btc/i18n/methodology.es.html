@@ -1,0 +1,453 @@
+    <main class="wrap" data-title="Cómo se calcula la puntuación de momento de compra — metodología de la combinación de 8 indicadores | broodev" data-desc="Documento de diseño de la puntuación de momento de compra de broodev (0–100). Publicamos las funciones que normalizan 8 indicadores, incluidos 2 on-chain (MVRV Z · Thermocap Z), en sub-puntuaciones de 0 a 100, los dos conjuntos de pesos de corto plazo (momentum) y largo plazo (contrario), la combinación aparte BOTTOM RADAR, la renormalización de indicadores ausentes, las 5 bandas de veredicto y las limitaciones de este modelo.">
+      <nav class="nav">
+        <a href="/">← Panel</a>
+        <a href="/indicators">Indicadores explicados</a>
+        <a href="/bitcoin-bottom">Señales de suelo</a>
+        <a href="/glossary">Glosario</a>
+        <a href="/guide-fear-greed">Cómo usar el índice de miedo</a>
+      </nav>
+
+      <h1>Cómo se calcula la puntuación de momento de compra</h1>
+      <p class="muted">Última actualización: 2026-07-22 · Autor: Y-Systems · Objeto: puntuación de momento de compra de broodev v2 (8 indicadores, incluidos 2 on-chain)</p>
+
+      <p class="lead">
+        La <strong>puntuación de momento de compra de 0 a 100</strong> que muestra el panel de broodev no es una caja negra.
+        Es la media ponderada de 8 indicadores públicos — 6 indicadores técnicos más 2 on-chain (MVRV Z-Score · Thermocap Z) —, cada uno convertido primero en una sub-puntuación de 0 a 100.
+        Este documento expone tal cual <strong>con qué funciones normalizamos, qué pesos usamos y por qué los elegimos así</strong>.
+        Creemos que, para juzgar si una cifra es fiable, hay que poder ver su fórmula de cálculo.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Índice</div>
+        <ol>
+          <li><a href="#design">Principio de diseño — por qué un solo indicador no basta</a></li>
+          <li><a href="#normalize">Paso 1: normalizar los 8 indicadores a 0–100</a></li>
+          <li><a href="#onchain">Los 2 indicadores on-chain — MVRV Z · Thermocap Z (definición · fuente · cobertura)</a></li>
+          <li><a href="#weights">Paso 2: dos conjuntos de pesos (corto plazo · largo plazo)</a></li>
+          <li><a href="#missing">Paso 3: indicadores ausentes y renormalización de pesos</a></li>
+          <li><a href="#bands">Paso 4: las 5 bandas de veredicto</a></li>
+          <li><a href="#bottom">Combinación aparte: BOTTOM RADAR</a></li>
+          <li><a href="#limits">Limitaciones de este modelo (lectura obligada)</a></li>
+        </ol>
+      </div>
+
+      <h2 id="design">Principio de diseño — por qué un solo indicador no basta</h2>
+      <p>
+        «El índice de miedo está en mínimos, así que compra ahora» solo es verdad a medias. El miedo <strong>aparece en el suelo, pero también en mitad de un desplome.</strong>
+        Entrar guiándose solo por el índice de miedo es lo que se llama <strong>«intentar agarrar un cuchillo que cae»</strong>.
+      </p>
+      <p>
+        Por eso este modelo mezcla indicadores de naturaleza distinta. A grandes rasgos, hay tres familias.
+      </p>
+      <ul>
+        <li><strong>Contrario (reversión a la media)</strong> — Índice de Miedo y Codicia, Múltiplo de Mayer, caída de 365 días. El eje de «cuando los demás venden, es la oportunidad».</li>
+        <li><strong>Momentum (seguimiento de tendencia)</strong> — MACD, cruce dorado/de la muerte. El eje de «la tendencia continúa».</li>
+        <li><strong>Detección de sobrecalentamiento/sobreventa</strong> — RSI. Un amortiguador que se usa en ambos lados.</li>
+        <li><strong>Valoración on-chain (frente al coste)</strong> — MVRV Z-Score (frente al coste medio de compra de los inversores), Thermocap Z (frente al coste de minería acumulado). A diferencia de los tres anteriores, un eje que no sale <strong>del precio, sino del libro contable de la blockchain</strong>.</li>
+      </ul>
+      <p>
+        Estos dos ejes <strong>apuntan a menudo en direcciones opuestas.</strong> Esa es precisamente la clave.
+        Si solo miras los indicadores contrarios, en un mercado bajista recibes señales de «compra» sin parar; si solo miras los de momentum, las recibes en el máximo.
+        Solo al mezclarlos se pueden distinguir fases como <em>«hay miedo, pero la tendencia ya ha girado»</em>.
+      </p>
+
+      <h2 id="normalize">Paso 1: normalizar los 8 indicadores a 0–100 — <em>por partida doble</em></h2>
+      <p>Para combinar indicadores con unidades dispares (el RSI va de 0 a 100, el Múltiplo de Mayer de 0.5 a 3, la caída en %), primero hay que llevarlos a una escala común. La conversión se hace de modo que <strong>cuanto más cerca de 100, más favorable a comprar</strong>.</p>
+
+      <div class="note">
+        <strong>Este es el punto de este modelo que más a menudo se malinterpreta.</strong><br />
+        Cada indicador tiene <strong>no una, sino dos funciones de normalización</strong>.
+        <strong>La pestaña de corto plazo (momentum) y la de largo plazo (contraria) usan funciones distintas.</strong>
+        <strong>No</strong> se trata de un mismo indicador «convertido una vez a 0–100 y ponderado de forma diferente».
+        <strong>En algunos casos, hasta el signo es el contrario.</strong>
+      </div>
+
+      <p>
+        El motivo es el que se explicó en la sección anterior: las criptomonedas muestran <strong>un carácter de momentum a corto plazo y de reversión a la media a largo plazo</strong>.
+        Por eso <strong>la «infravaloración» suma puntos en la pestaña de largo plazo pero resta en la de corto plazo</strong>. No es un error, es diseño.
+      </p>
+
+      <h3>Múltiplo de Mayer (Mayer Multiple) — el indicador donde la diferencia entre ambas funciones es más drástica</h3>
+      <p>El Múltiplo de Mayer es <code>precio actual ÷ media móvil de 200 días</code>. Por debajo de 1, el precio está bajo la línea de tendencia de largo plazo, es decir, relativamente infravalorado.</p>
+
+      <p><strong>Largo plazo (contrario) — cuanto más barato, mayor puntuación.</strong> No es una conversión lineal, sino no lineal por tramos.</p>
+      <pre><code>conMayer(m):
+  m ≤ 0.8  →  100
+  m ≤ 1.4  →  50 + ((1.4 − m) / 0.6) × 50     // 100 → 50
+  m ≤ 2.4  →  10 + ((2.4 − m) / 1.0) × 40     // 50 → 10
+  m &gt; 2.4  →  10 − (m − 2.4) × 25             // 10 → 0</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Múltiplo de Mayer</th><th>Sub-puntuación de largo plazo</th><th>Interpretación</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100</td><td>Descuento de al menos un 20 % frente a la MM de 200 días — zona de infravaloración histórica</td></tr>
+            <tr><td><code>1.0</code></td><td>83.3</td><td>A la par con la MM de 200 días</td></tr>
+            <tr><td><code>1.4</code></td><td>50</td><td>Frontera entre normal y sobrevalorado</td></tr>
+            <tr><td><code>2.4</code></td><td>10</td><td>Entrada en sobrecalentamiento extremo</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>Zona de máximos históricos</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Corto plazo (momentum) — cuanto más caro, mayor puntuación. El signo es justo el contrario.</strong></p>
+      <pre><code>momMayer(m) = clamp(50 + (m − 1) × 25, 0, 100)
+
+  m = 0.75 → 43.75   (infravaloración = a corto plazo, incluso resta)
+  m = 1.0  → 50
+  m = 1.6  → 65
+  m = 2.6  → 90      (sobrecalentamiento = a corto plazo, suma)</code></pre>
+      <p>
+        «¿Por qué suma si está caro?» — Porque <strong>a corto plazo, una gran distancia por encima de la MM de 200 días equivale a una fuerte tendencia alcista</strong>.
+        Desde el punto de vista del seguimiento de tendencia, es una señal favorable a comprar. Al revés, un precio hundido por debajo de la MM de 200 días indica una <strong>tendencia bajista</strong> y es arriesgado a corto plazo.
+      </p>
+
+      <h3>Protección contra el blow-off top — el seguro de la puntuación de corto plazo</h3>
+      <p>
+        Si solo existiera momMayer, <strong>la puntuación de corto plazo seguiría subiendo en la cima de una burbuja</strong>.
+        Por eso <strong>se aplica una atenuación aparte al total de corto plazo una vez terminada la combinación</strong>. La protección tiene dos términos —
+        <strong>① Múltiplo de Mayer &gt; 2.0: atenuación multiplicativa</strong>, <strong>② Índice de Miedo y Codicia ≥ 90 (codicia extrema): resta de puntos</strong>.
+        Si se cumplen ambas condiciones a la vez, se aplican las dos, y la puntuación final se limita a 0–100.
+      </p>
+      <pre><code>// ① Atenuación por Múltiplo de Mayer (multiplicación)
+if (Mayer &gt; 2.0):
+    total_corto_plazo × = clamp(1 − (Mayer − 2.0) × 0.55,  0.25,  1)
+
+  Mayer 2.0 → ×1.00 (sin atenuación)
+  Mayer 2.5 → ×0.725  (total recortado un 27.5 %)
+  Mayer 3.0 → ×0.45
+  Mayer 3.4 o más → ×0.25 (mínimo)
+
+// ② Resta por F&amp;G extremo (sustracción)
+if (F&amp;G ≥ 90):
+    total_corto_plazo − = (F&amp;G − 90) × 2.0
+
+  F&amp;G 90 → −0 puntos
+  F&amp;G 95 → −10 puntos
+  F&amp;G 100 → −20 puntos</code></pre>
+      <p>
+        Por qué hace falta ②: momFng ya premia la codicia (corto plazo = a favor de la tendencia), así que la puntuación de corto plazo se mantiene alta incluso en el
+        <strong>extremo histórico</strong> de un F&amp;G por encima de 90. Estadísticamente, esa zona tiene muchas probabilidades de estar
+        cerca de un máximo de ciclo, por lo que se resta <strong>directamente del total</strong> y no de la sub-puntuación.
+      </p>
+      <div class="note warn">
+        <strong>Aviso de corrección (2026-07-14)</strong> — La versión anterior de este documento solo incluía las funciones de normalización de largo plazo (contrarias)
+        y <strong>omitía las funciones de corto plazo (momentum) y la protección contra el blow-off top</strong>. Como resultado, describía la contribución a corto plazo del Múltiplo de Mayer
+        <strong>con el signo invertido</strong>. Lo hemos corregido tomando el código como referencia.
+      </div>
+
+      <h3>Índice de Miedo y Codicia (F&amp;G)</h3>
+      <p><strong>Largo plazo (contrario) — cuanto más miedo, mayor puntuación.</strong> El valor de un solo día tiene mucho ruido, así que <strong>se mezclan las medias de 7 y 30 días.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − valor actual)
+       + 0.3 × (100 − media de los últimos 7 días)
+       + 0.2 × (100 − media de los últimos 30 días)
+
+// Peso adicional solo en las zonas extremas
+valor actual ≤ 25 (miedo extremo)   → += (25 − valor actual) × 0.4
+valor actual ≥ 75 (codicia extrema) → −= (valor actual − 75) × 0.4</code></pre>
+      <p>
+        La intención es doble. Primero, <strong>distinguir «un día de miedo ayer» de «un mes de miedo»</strong> — lo segundo es una señal mucho más fuerte.
+        Segundo, dar peso adicional <strong>solo en las zonas extremas</strong>, por debajo de 25 y por encima de 75. Las pequeñas oscilaciones en la zona media (40–60) apenas tienen significado.
+      </p>
+      <p><strong>Corto plazo (momentum) — cuanta más codicia, mayor puntuación.</strong> No se mezclan medias: se usa <strong>solo el valor actual</strong>.</p>
+      <pre><code>momFng = clamp(50 + (valor actual − 50) × 1.2, 0, 100)
+
+  miedo 20   → 14   (puntuación baja a corto plazo)
+  neutral 50 → 50
+  codicia 85 → 92   (puntuación alta a corto plazo)</code></pre>
+
+      <h3>RSI(14, Wilder)</h3>
+      <p>RSI de 14 días con el método estándar de Wilder. <strong>Aquí también el signo es el contrario.</strong></p>
+      <pre><code>conRsi(r) = clamp(50 + (50 − r) × 1.7, 0, 100)   // largo plazo: cuanto más sobrevendido (RSI bajo), mayor puntuación
+momRsi(r) = clamp(50 + (r − 50) × 1.6, 0, 100)   // corto plazo: cuanto más fuerte (RSI alto), mayor puntuación</code></pre>
+      <p>
+        En la pestaña de largo plazo, un RSI de 25 da una puntuación alta (<code>50 + 25×1.7 = 92.5</code>),
+        pero en la de corto plazo da una puntuación baja (<code>50 − 25×1.6 = 10</code>). <strong>El mismo valor, una interpretación diametralmente opuesta.</strong>
+      </p>
+
+      <h3>Histograma MACD(12·26·9)</h3>
+      <p>
+        Del histograma MACD se observa <strong>no el valor absoluto, sino el cambio de dirección</strong>. Es decir, «el histograma es negativo pero mayor que la barra anterior» (giro al alza desde el fondo) es la señal de momentum de compra más fuerte.
+        Como se normaliza dividiendo por la escala del precio, es comparable aunque el nivel de precio de cada cripto sea distinto. El MACD es de por sí un indicador de tendencia, así que <strong>su dirección no cambia mucho entre los dos modos.</strong>
+      </p>
+
+      <h3>Caída desde el máximo de 365 días (Drawdown)</h3>
+      <p>Cuánto ha caído el precio desde su máximo del último año. Consideramos que <strong>desde −30 % merece atención y a partir de −50 % es muy favorable a comprar</strong> (visión de largo plazo). Cuanto más profunda la caída, más se trata como zona de compras escalonadas.</p>
+
+      <h3>Cruce dorado/de la muerte (medias móviles 50/200)</h3>
+      <p>Si la MM de 50 días está por encima de la de 200 (estado de cruce dorado), la tendencia es favorable; si está por debajo (cruce de la muerte), desfavorable. Cumple la función de <strong>filtro de tendencia</strong>.</p>
+
+      <h2 id="onchain">Los 2 indicadores on-chain — MVRV Z-Score · Thermocap Z</h2>
+      <p>
+        Dos indicadores añadidos en la v2. Mientras que los 6 anteriores <strong>derivan todos del precio</strong>, estos dos salen del <strong>libro contable de la blockchain (quién adquirió monedas y a qué precio, cuánto se pagó por la minería)</strong>.
+        Es la primera vez que entra en la puntuación información ajena al precio.
+      </p>
+
+      <h3>MVRV Z-Score (capitalización de mercado vs coste medio de compra)</h3>
+      <pre><code>Capitalización realizada (Realized Cap) = valor total de cada moneda al precio del día de su último movimiento
+                                        ≈ coste medio de compra total de todo el mercado
+MVRV Z-Score = (capitalización de mercado − Realized Cap) ÷ σ(capitalización de mercado, todo el historial)</code></pre>
+      <p>
+        <strong>Fuente de datos:</strong> de la CoinMetrics Community API (gratuita, sin clave) se obtienen <code>CapMrktCurUSD</code> (capitalización de mercado) y <code>CapMVRVCur</code> (ratio MVRV) en datos diarios de todo el historial,
+        y se deriva <code>Realized Cap = capitalización de mercado ÷ MVRV</code>.
+      </p>
+      <p>
+        <strong>Cobertura:</strong> solo se calcula para las <strong>10 criptos</strong> para las que CoinMetrics Community ofrece MVRV —
+        <code>BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA</code>.
+        En las criptos no compatibles (AVAX · SHIB · PEPE · GRT · SAND) se trata como N/A y luego se <a href="#missing">renormalizan los pesos</a>.
+      </p>
+
+      <h3>Thermocap Z (capitalización de mercado vs recompensas de minería acumuladas) — solo BTC</h3>
+      <pre><code>Thermocap   = total acumulado de los ingresos de los mineros (recompensa de bloque + comisiones, USD) desde 2009
+Thermocap Z = z-score sobre todo el historial de ln(capitalización de mercado ÷ Thermocap)</code></pre>
+      <p>
+        <strong>Fuente de datos:</strong> blockchain.info <code>charts/miners-revenue</code> (periodo completo). Como el intervalo entre muestras no es regular,
+        cada muestra se pondera por su intervalo (en días) antes de acumularla (aproximación de una integral). Después se alinean las fechas con la capitalización de mercado diaria de CoinMetrics para formar el ratio.
+        El propio concepto de recompensa de minería pertenece al Bitcoin PoW, así que <strong>este indicador solo se calcula en la pantalla de BTC y en las altcoins siempre falta (renormalización)</strong>.
+      </p>
+
+      <h3>Correspondencia z → sub-puntuación (Z_ANCHORS)</h3>
+      <p>
+        Las sub-puntuaciones de largo plazo (contrarias) de ambos indicadores on-chain usan la misma correspondencia. Cuanto más bajo es z (más barato frente al coste), mayor la puntuación; entre los anclajes de abajo se interpola linealmente.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>z</th><th>≤ −1</th><th>0</th><th>0.5</th><th>1</th><th>2</th><th>3</th><th>4</th><th>6</th><th>≥ 8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Sub-puntuación</strong></td><td>100</td><td>88</td><td>72</td><td>58</td><td>42</td><td>28</td><td>16</td><td>4</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Los anclajes se basan en la distribución histórica del MVRV-Z de BTC — los suelos quedaron en z &lt; 0, las fases normales en 1–2 y los sobrecalentamientos por encima de 5.
+        Concentrar la resolución en el tramo bajo (0–1), con pasos apretados de 0.5, sigue el mismo principio que la función del Múltiplo de Mayer: <em>la puntuación debe moverse de forma significativa en la zona donde el mercado pasa la mayor parte del tiempo.</em>
+      </p>
+      <p><strong>Aquí también la función de corto plazo (momentum) tiene otro signo.</strong> Una gran distancia por encima del precio medio de compra o del coste se lee como fuerza de la tendencia.</p>
+      <pre><code>// corto plazo (momentum)
+momMvrv  = clamp(50 + (ratio MVRV − 1) × 28, 0, 100)   // por encima del precio medio de compra = fuerza de tendencia = suma
+momTherm = clamp(50 + ThermocapZ × 14, 0, 100)
+
+// largo plazo (contrario) — ambos con la correspondencia Z_ANCHORS de arriba
+conMvrv  = zToScore(MVRV Z)
+conTherm = zToScore(Thermocap Z)</code></pre>
+      <p>
+        <em>Por qué</em> funcionan ambos indicadores en el suelo, y cómo marcaron realmente en los cinco suelos, se trata con gráficos en vivo
+        en el artículo aparte <a href="/bitcoin-bottom">Cómo detectar el suelo de Bitcoin — capitalización de mercado vs coste medio de compra</a>.
+      </p>
+
+      <h2 id="weights">Paso 2: dos conjuntos de pesos (corto plazo · largo plazo)</h2>
+      <p>
+        Este es el núcleo del modelo y el punto en el que se separa de la mayoría de «webs del índice de miedo».
+        <strong>Un mismo indicador debe interpretarse al revés según el horizonte de inversión.</strong>
+      </p>
+      <p>
+        Las criptomonedas muestran <strong>un carácter de momentum (seguimiento de tendencia) en periodos cortos</strong> y <strong>de reversión a la media (contrario) en ciclos largos</strong>.
+        A 1–3 meses, lo que sube sigue subiendo; a más de un año, el miedo extremo y la infravaloración acaban corrigiéndose.
+        Por eso <strong>las dos pestañas (corto plazo · largo plazo) usan pesos distintos</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicador</th><th>Corto plazo (momentum · 1–3 meses)</th><th>Largo plazo (contrario · 1 año+)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Índice de Miedo y Codicia</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Caída de 365 días</td><td>15%</td><td>10%</td></tr>
+            <tr><td>MACD</td><td>12%</td><td>13%</td></tr>
+            <tr><td>MVRV Z-Score</td><td>10%</td><td><strong>18%</strong></td></tr>
+            <tr><td>Cruce dorado/de la muerte</td><td>7%</td><td>10%</td></tr>
+            <tr><td>Múltiplo de Mayer</td><td><strong>4%</strong></td><td>13%</td></tr>
+            <tr><td>Thermocap Z</td><td>4%</td><td>10%</td></tr>
+            <tr><td><strong>Total (comprobación)</strong></td><td><strong>100%</strong> <span class="muted">(24+12+24+4+15+7+10+4)</span></td><td><strong>100%</strong> <span class="muted">(13+13+13+13+10+10+18+10)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Hay dos decisiones que llaman la atención — que <strong>el mayor peso de largo plazo sea el MVRV Z (18 %)</strong> y que <strong>el Múltiplo de Mayer se mantenga en un 4 % a corto plazo</strong>.</p>
+      <ul>
+        <li>
+          <strong>El primer puesto de largo plazo ha pasado del Mayer al MVRV.</strong> En la versión anterior a la incorporación del on-chain, el Múltiplo de Mayer encabezaba el largo plazo con un 18 %.
+          Pero ambos indicadores responden a la misma pregunta («¿está caro frente al coste/la referencia?»), y el MVRV usa el <em>coste de adquisición real</em> mientras que el Mayer usa <em>un sustituto: la media de 200 días</em>.
+          Si cumplen el mismo papel, lo lógico es dar más peso al más directo. De ahí <strong>MVRV 18 %</strong>, mientras que el Mayer baja al 13 % y queda empatado con RSI · MACD · índice de miedo.
+        </li>
+        <li>
+          <strong>Thermocap pesa un 10 % a largo plazo.</strong> Su reproducibilidad entre ciclos es buena, pero al ser exclusivo de BTC siempre falta en las pantallas de altcoins,
+          y su denominador (recompensas de minería acumuladas) cambia un poco de naturaleza en cada halving, así que se le dio un escalón menos que al MVRV.
+        </li>
+        <li>
+          <strong>A corto plazo, el on-chain también funciona como «fuerza de la tendencia».</strong> Una gran distancia por encima del precio medio de compra es, a corto plazo, una tendencia fuerte (momMvrv).
+          Pero esa información se solapa con RSI (24 %) · caída (15 %) · MACD (12 %), por lo que se le dieron pesos bajos: MVRV 10 % · Thermocap 4 % —
+          el mismo <strong>principio de señales redundantes</strong> por el que el Múltiplo de Mayer se rebajó al 4 %.
+        </li>
+        <li>
+          <strong>La defensa contra el sobrecalentamiento sigue a cargo de la protección, no de los pesos.</strong>
+          La <a href="#normalize">protección contra el blow-off top</a> sigue igual — si el Mayer supera 2.0, se aplica <strong>una atenuación al propio total de corto plazo</strong> (recorte de hasta el 75 %).
+        </li>
+      </ul>
+      <p>
+        <strong>El cruce dorado/de la muerte sigue pesando más a largo plazo (7 % → 10 %)</strong>. El cruce 50/200 es una señal lenta, tardía para operar a corto plazo,
+        pero útil para delimitar las fases del ciclo.
+      </p>
+
+      <div class="note">
+        <strong>En la pestaña de corto plazo, la interpretación de RSI · índice de miedo · Mayer · MVRV se invierte por completo.</strong>
+        En el modo de largo plazo (contrario), «miedo = compra, infravaloración = compra»,
+        mientras que en el modo de corto plazo (momentum) se da una puntuación alta <strong>al lado en el que la tendencia sigue viva y el sentimiento mejora</strong>.
+        Un mismo índice de miedo de 20 da <em>una puntuación alta (≈86) en la pestaña de largo plazo y baja (≈14) en la de corto plazo</em>.
+        <strong>No es un error, es diseño.</strong> Las funciones exactas están todas en el <a href="#normalize">paso 1</a>.
+      </div>
+
+      <p class="muted">
+        Estos pesos se fijaron a partir de un backtest propio (velas diarias de BTC desde 2017), en el que la dirección de momentum a corto plazo y la contraria a largo plazo
+        se alineaban mejor con la rentabilidad posterior. No obstante, es un backtest de un único activo con una muestra limitada:
+        <strong>la alineación pasada no garantiza el futuro.</strong>
+      </p>
+
+      <h2 id="missing">Paso 3: indicadores ausentes y renormalización de pesos</h2>
+      <p>
+        Las fuentes de datos no siempre responden. Actualmente este modelo usa cinco fuentes —
+        <strong>CoinGecko · Binance</strong> (precios · velas diarias), <strong>Alternative.me</strong> (Índice de Miedo y Codicia),
+        <strong>CoinMetrics Community</strong> (on-chain: capitalización de mercado · MVRV, gratuita, sin clave), <strong>blockchain.info</strong> (ingresos de los mineros → Thermocap).
+        En algunas regiones la API de Binance está bloqueada, y las criptos recién listadas no tienen 200 días de datos, por lo que no se puede calcular el Múltiplo de Mayer.
+      </p>
+      <p>
+        Los 2 indicadores on-chain tienen además <strong>ausencias estructurales</strong>. El MVRV solo se calcula para las 10 criptos que admite CoinMetrics (BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA),
+        y Thermocap <strong>solo para BTC</strong>. Es decir, la puntuación en la pantalla de una altcoin combina de entrada no 8, sino 6–7 indicadores.
+      </p>
+      <p>
+        En ese caso, <strong>no se debe asignar 0 puntos al indicador ausente.</strong> 0 puntos significa «muy malo», no «desconocido».
+        Si se hiciera, la puntuación se desplomaría solo porque faltan datos.
+      </p>
+      <p>
+        Por eso los indicadores ausentes <strong>se excluyen del cálculo, y los pesos de los restantes se renormalizan para que sumen 100 %</strong>.
+        Por ejemplo, si en la pestaña de largo plazo falta el MVRV (18 %), los pesos de los otros 7 indicadores se dividen entre <code>82%</code> y se reescalan.
+      </p>
+      <p>
+        A cambio, <strong>la cobertura se muestra en el panel y en el terminal</strong> (<code>coverage: 7/8 indicators (82% weight)</code>).
+        Una puntuación con poca cobertura es, en la misma medida, menos fiable; compruébala siempre.
+      </p>
+
+      <h2 id="bands">Paso 4: las 5 bandas de veredicto</h2>
+      <p>
+        La puntuación combinada de 0 a 100 se divide en cinco tramos, cada uno con su interpretación.
+        <strong>Los límites de los tramos son iguales en ambas pestañas, pero el nombre de las bandas difiere en tres tramos (65–80, 25–45, 0–25)</strong> — porque una misma puntuación significa cosas distintas según la pestaña.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Puntuación</th><th>Veredicto de largo plazo (contrario)</th><th>Veredicto de corto plazo (momentum)</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td><strong>STRONG BUY</strong></td><td>Confluencia de varias señales</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong><br /><span class="muted">Favorable a acumular por tramos</span></td><td><strong>BUY</strong><br /><span class="muted">Predomina la tendencia alcista</span></td><td>Zona favorable a comprar</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td><strong>NEUTRAL</strong></td><td>Sin ventaja clara. Esperar y observar</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong><br /><span class="muted">Inicio de codicia/sobrevaloración</span></td><td><strong>WEAK</strong><br /><span class="muted">Predomina el momentum bajista</span></td><td>Evitar compras nuevas y persecuciones del precio</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong><br /><span class="muted">Sobrecalentado, cerca del máximo</span></td><td><strong>AVOID</strong><br /><span class="muted">Fuerte tendencia bajista</span></td><td>Evitar compras nuevas</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>¿Por qué nombres distintos?</strong> Porque, con la misma puntuación, la <em>causa</em> de una puntuación baja es diferente en cada pestaña.
+        La pestaña de largo plazo adopta una visión «contraria», así que una puntuación baja significa que <em>el mercado está demasiado caliente</em>;
+        la de corto plazo adopta una visión «a favor de la tendencia», así que una puntuación baja significa que <em>hay una tendencia bajista en curso</em>.<br />
+        <strong>0–25 puntos en la pestaña de largo plazo</strong> = el índice de miedo marca codicia y el Mayer está alto → <strong>sobrecalentamiento (OVERHEATED)</strong>. Alerta, máximo cerca.<br />
+        <strong>0–25 puntos en la pestaña de corto plazo</strong> = el RSI está en mínimos y la tendencia se ha roto → <strong>tendencia bajista (AVOID)</strong>. No comprar antes del giro.<br />
+        Del mismo modo, 65–80 se lee como ACCUMULATE (acumular por tramos) a largo plazo frente a BUY (compra siguiendo la tendencia) a corto plazo,
+        y 25–45 como CAUTION (alerta ante el inicio del sobrecalentamiento) a largo plazo frente a WEAK (predomina el momentum bajista) a corto plazo.
+        Los únicos tramos con el mismo nombre son 80–100 (STRONG BUY) y 45–65 (NEUTRAL).
+      </div>
+      <p>
+        Los límites son <strong>cortes forzados sobre una puntuación continua</strong>. 79 y 81 puntos son, en la práctica, lo mismo.
+        Usa las bandas solo para situar a grandes rasgos la fase y observa a la vez <strong>la evolución de la puntuación (¿está subiendo o bajando?)</strong>.
+      </p>
+
+      <h2 id="bottom">Combinación aparte: BOTTOM RADAR</h2>
+      <p>
+        Además de las puntuaciones de corto y largo plazo, el panel incluye un <strong>BOTTOM RADAR</strong>.
+        No responde a «¿subirá si compro ahora?», sino a una sola pregunta: <strong>«¿estamos ahora en una zona de suelo histórica?»</strong>, y por eso usa su propio conjunto de pesos.
+        Su rasgo distintivo es que excluye por completo los indicadores de momentum (RSI · MACD · cruce) y <strong>concentra un 55 % en los 2 indicadores on-chain basados en el coste</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicador</th><th>Peso</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td></tr>
+            <tr><td>Múltiplo de Mayer</td><td>15%</td></tr>
+            <tr><td>Caída de 365 días</td><td>15%</td></tr>
+            <tr><td>Índice de Miedo y Codicia</td><td>15%</td></tr>
+            <tr><td><strong>Total (comprobación)</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Cada indicador <strong>reutiliza tal cual su sub-puntuación de largo plazo (contraria) con un nuevo peso</strong> — no se ha creado ninguna función de normalización nueva.
+        El tratamiento de los datos ausentes es el mismo: los indicadores que faltan se excluyen y se renormaliza; fuera de BTC siempre falta Thermocap, y en las criptos que CoinMetrics no admite falta también el MVRV.
+        Las bandas de veredicto son cinco tramos distintos de los de corto y largo plazo.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Puntuación de suelo</th><th>Veredicto</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Zona de suelo histórica</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Infravalorado</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutral</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Sobrevalorado</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Zona de techo · sobrecalentamiento</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Por qué el on-chain lleva la mayoría del peso — y cómo marcaron realmente estos indicadores en los cinco suelos —, lo verificamos con gráficos en vivo
+        en <a href="/bitcoin-bottom">Cómo detectar el suelo de Bitcoin</a>.
+      </p>
+
+      <h2 id="limits">Limitaciones de este modelo (lectura obligada)</h2>
+      <p>Lo decimos con franqueza: es más importante saber qué <strong>no puede hacer</strong> esta puntuación.</p>
+      <ul>
+        <li>
+          <strong>No predice el precio.</strong> Esta puntuación solo resume «si el mercado actual se inclina hacia la sobreventa/el miedo o hacia el sobrecalentamiento/la codicia».
+          Una puntuación de 90 no significa «va a subir», sino «históricamente, fue una fase así».
+        </li>
+        <li>
+          <strong>Los indicadores técnicos se equivocan durante mucho tiempo en mercados de tendencia fuerte.</strong> El RSI puede pasar semanas por debajo de 30 en un mercado fuertemente bajista.
+          En lugar de «sobrevendido, así que rebota», es habitual «sigue sobrevendido y cae más».
+        </li>
+        <li>
+          <strong>No sabe nada de fundamentales, noticias ni regulación.</strong> Sucesos como la quiebra de un exchange, un anuncio regulatorio o un hackeo no se reflejan de inmediato en estos 8 indicadores.
+          El gráfico puede verse bonito mientras la empresa se está desmoronando.
+        </li>
+        <li>
+          <strong>Los indicadores on-chain tienen distorsiones propias.</strong> La Realized Cap (denominador del MVRV) se actualiza sin compra real alguna <strong>con solo que un exchange mueva monedas al reorganizar sus cold wallets</strong>;
+          al revés, las monedas que cambian de manos <em>dentro</em> de un exchange o el volumen negociado como participaciones de ETF no dejan rastro on-chain y no la actualizan.
+          Las tenencias de los primeros mineros, dormidas para siempre, se contabilizan con un coste cercano a 0 y rebajan estructuralmente la Realized Cap.
+          Además, σ(capitalización de mercado) sobre todo el historial, denominador del MVRV Z, crece con el mercado, de modo que <strong>la amplitud de z en los ciclos recientes queda aplastada respecto al pasado</strong> — puede que valores extremos como los z&gt;7 de antaño no vuelvan a darse.
+        </li>
+        <li>
+          <strong>El Índice de Miedo y Codicia es un indicador del mercado en su conjunto.</strong> El F&amp;G de Alternative.me mide en la práctica un sentimiento de mercado centrado en BTC
+          y no refleja la situación particular de cada altcoin. En la pantalla de una altcoin, su capacidad explicativa es menor que en BTC.
+        </li>
+        <li>
+          <strong>Las altcoins tienen pocos datos.</strong> Si llevan poco tiempo cotizando, la MM de 200 días y el máximo de 365 días son imprecisos o directamente no existen. Comprueba siempre el indicador de cobertura.
+        </li>
+        <li>
+          <strong>Los pesos son un juicio del autor.</strong> El backtest confirmó la dirección, pero los datos no dicen de forma tajante si lo correcto es un 24 % o un 20 %.
+        </li>
+      </ul>
+
+      <div class="note warn">
+        <strong>⚠ Aviso para inversores</strong><br />
+        Esta puntuación es una <strong>señal de referencia que combina indicadores públicos y no constituye asesoramiento de inversión.</strong>
+        Las criptomonedas son activos de alto riesgo en los que se puede perder todo el capital invertido. La responsabilidad de toda decisión de inversión y de sus resultados recae exclusivamente en el propio usuario. Investiga siempre por tu cuenta (DYOR).
+      </div>
+
+      <h2>Sigue leyendo</h2>
+      <div class="related">
+        <a href="/indicators"><b>Los 8 indicadores en profundidad</b><span>Qué dice cada uno: RSI · MACD · Múltiplo de Mayer · caída · cruce · MVRV · Thermocap</span></a>
+        <a href="/bitcoin-bottom"><b>Cómo detectar el suelo de Bitcoin</b><span>Capitalización de mercado vs coste medio de compra — la base del BOTTOM RADAR con gráficos en vivo</span></a>
+        <a href="/guide-fear-greed"><b>Guía práctica del índice de miedo</b><span>Cómo comprar por tramos en zonas de miedo y los errores más comunes</span></a>
+        <a href="/"><b>Ir al panel</b><span>Consulta la puntuación actual (15 criptos)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operado por Y-Systems · <a href="/privacy">Política de privacidad</a> · <a href="/terms">Términos de uso</a></footer>
+    </main>

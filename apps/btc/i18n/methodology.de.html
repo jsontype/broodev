@@ -1,0 +1,453 @@
+    <main class="wrap" data-title="Wie der Kaufzeitpunkt-Score berechnet wird — Methodik der Kombination aus 8 Indikatoren | broodev" data-desc="Designdokument zum broodev-Kaufzeitpunkt-Score (0–100). Offengelegt werden die Funktionen, die 8 Indikatoren inklusive zweier On-Chain-Kennzahlen (MVRV Z · Thermocap Z) auf Teilscores von 0–100 normalisieren, die zwei Gewichtungssätze für kurzfristig (Momentum) und langfristig (antizyklisch), die separate Kombination BOTTOM RADAR, die Neugewichtung bei fehlenden Indikatoren, die 5 Bewertungsbänder und die Grenzen dieses Modells.">
+      <nav class="nav">
+        <a href="/">← Übersicht</a>
+        <a href="/indicators">Indikatoren erklärt</a>
+        <a href="/bitcoin-bottom">Bodensignale</a>
+        <a href="/glossary">Glossar</a>
+        <a href="/guide-fear-greed">Angst-Index richtig nutzen</a>
+      </nav>
+
+      <h1>Wie der Kaufzeitpunkt-Score berechnet wird</h1>
+      <p class="muted">Zuletzt aktualisiert: 2026-07-22 · Autor: Y-Systems · Gegenstand: broodev-Kaufzeitpunkt-Score v2 (8 Indikatoren inkl. 2 On-Chain-Kennzahlen)</p>
+
+      <p class="lead">
+        Der <strong>Kaufzeitpunkt-Score von 0–100</strong> im broodev-Dashboard ist keine Blackbox.
+        Er ist der gewichtete Durchschnitt von 8 öffentlich verfügbaren Indikatoren — 6 technischen Indikatoren plus 2 On-Chain-Kennzahlen (MVRV Z-Score · Thermocap Z) —, die jeweils zuerst in einen Teilscore von 0–100 umgerechnet werden.
+        Dieses Dokument legt offen, <strong>mit welchen Funktionen normalisiert wird, welche Gewichte verwendet werden und warum sie so gewählt wurden</strong>.
+        Denn um zu beurteilen, ob man einer Zahl vertrauen kann, muss man die Rechenformel sehen können.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Inhalt</div>
+        <ol>
+          <li><a href="#design">Designprinzip — warum ein einzelner Indikator nicht reicht</a></li>
+          <li><a href="#normalize">Schritt 1: Die 8 Indikatoren auf 0–100 normalisieren</a></li>
+          <li><a href="#onchain">Die 2 On-Chain-Kennzahlen — MVRV Z · Thermocap Z (Definition · Quelle · Abdeckung)</a></li>
+          <li><a href="#weights">Schritt 2: Zwei Gewichtungssätze (kurzfristig · langfristig)</a></li>
+          <li><a href="#missing">Schritt 3: Fehlende Indikatoren und Neugewichtung</a></li>
+          <li><a href="#bands">Schritt 4: Die 5 Bewertungsbänder</a></li>
+          <li><a href="#bottom">Separate Kombination: BOTTOM RADAR</a></li>
+          <li><a href="#limits">Grenzen dieses Modells (unbedingt lesen)</a></li>
+        </ol>
+      </div>
+
+      <h2 id="design">Designprinzip — warum ein einzelner Indikator nicht reicht</h2>
+      <p>
+        „Der Angst-Index ist am Boden, also jetzt kaufen“ — das stimmt nur zur Hälfte. Angst entsteht <strong>am Boden, aber genauso mitten in einem Crash.</strong>
+        Wer allein nach dem Angst-Index einsteigt, landet beim sprichwörtlichen <strong>„Greifen ins fallende Messer“</strong>.
+      </p>
+      <p>
+        Deshalb mischt dieses Modell Indikatoren unterschiedlicher Natur. Grob gibt es drei Gruppen.
+      </p>
+      <ul>
+        <li><strong>Antizyklisch (Mean Reversion)</strong> — Angst-&amp;-Gier-Index, Mayer Multiple, Rückgang vom 365T-Hoch. Die Achse „Wenn die anderen verkaufen, ist die Chance da“.</li>
+        <li><strong>Momentum (Trendfolge)</strong> — MACD, Golden/Death Cross. Die Achse „Trends setzen sich fort“.</li>
+        <li><strong>Überhitzung/Ausverkauf erkennen</strong> — RSI. Ein Puffer, der auf beiden Seiten eingesetzt wird.</li>
+        <li><strong>On-Chain-Bewertung (relativ zu den Kosten)</strong> — MVRV Z-Score (relativ zum durchschnittlichen Einstandspreis der Anleger), Thermocap Z (relativ zu den kumulierten Mining-Kosten). Anders als die drei obigen eine Achse, die <strong>nicht aus dem Preis, sondern aus dem Blockchain-Hauptbuch</strong> stammt.</li>
+      </ul>
+      <p>
+        Diese beiden Achsen <strong>zeigen oft in entgegengesetzte Richtungen.</strong> Genau das ist der Kern.
+        Wer nur auf antizyklische Indikatoren schaut, bekommt im Abwärtsmarkt ständig „Kaufen“-Signale; wer nur auf Momentum-Indikatoren schaut, bekommt sie am Hoch.
+        Erst die Mischung erlaubt es, Phasen wie <em>„Die Stimmung ist ängstlich, aber der Trend hat schon gedreht“</em> zu unterscheiden.
+      </p>
+
+      <h2 id="normalize">Schritt 1: Die 8 Indikatoren auf 0–100 normalisieren — <em>in zwei Varianten</em></h2>
+      <p>Um Indikatoren mit völlig unterschiedlichen Einheiten (RSI 0–100, Mayer Multiple 0,5–3, Rückgang in %) zu kombinieren, muss man sie zuerst auf eine gemeinsame Skala bringen. Die Umrechnung erfolgt so, dass <strong>ein Wert nahe 100 kaufgünstig</strong> bedeutet.</p>
+
+      <div class="note">
+        <strong>Das ist der am häufigsten missverstandene Punkt dieses Modells.</strong><br />
+        Jeder Indikator hat <strong>nicht eine, sondern zwei Normalisierungsfunktionen</strong>.
+        <strong>Der Kurzfrist-Tab (Momentum) und der Langfrist-Tab (antizyklisch) verwenden unterschiedliche Funktionen.</strong>
+        Es ist <strong>nicht</strong> so, dass derselbe Indikator „einmal auf 0–100 umgerechnet und nur unterschiedlich gewichtet“ wird.
+        <strong>In manchen Fällen ist sogar das Vorzeichen umgekehrt.</strong>
+      </div>
+
+      <p>
+        Der Grund ist der im vorigen Abschnitt genannte: Kryptowährungen zeigen <strong>kurzfristig Momentum- und langfristig Mean-Reversion-Charakter</strong>.
+        Deshalb ist <strong>„Unterbewertung“ im Langfrist-Tab ein Plus, im Kurzfrist-Tab aber ein Minus</strong>. Das ist kein Bug, sondern Absicht.
+      </p>
+
+      <h3>Mayer Multiple — der Indikator mit dem drastischsten Unterschied zwischen den beiden Funktionen</h3>
+      <p>Das Mayer Multiple ist <code>aktueller Preis ÷ gleitender 200-Tage-Durchschnitt</code>. Liegt es unter 1, notiert der Kurs unter der langfristigen Trendlinie, ist also relativ unterbewertet.</p>
+
+      <p><strong>Langfristig (antizyklisch) — je günstiger, desto höher der Score.</strong> Keine lineare, sondern eine abschnittsweise nichtlineare Umrechnung.</p>
+      <pre><code>conMayer(m):
+  m ≤ 0.8  →  100
+  m ≤ 1.4  →  50 + ((1.4 − m) / 0.6) × 50     // 100 → 50
+  m ≤ 2.4  →  10 + ((2.4 − m) / 1.0) × 40     // 50 → 10
+  m &gt; 2.4  →  10 − (m − 2.4) × 25             // 10 → 0</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Langfrist-Teilscore</th><th>Deutung</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100</td><td>Mindestens 20 % Abschlag zur 200-Tage-Linie — historische Unterbewertungszone</td></tr>
+            <tr><td><code>1.0</code></td><td>83.3</td><td>Gleichauf mit der 200-Tage-Linie</td></tr>
+            <tr><td><code>1.4</code></td><td>50</td><td>Grenze zwischen normal und überbewertet</td></tr>
+            <tr><td><code>2.4</code></td><td>10</td><td>Eintritt in extreme Überhitzung</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>Historische Hochzone</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Kurzfristig (Momentum) — je teurer, desto höher der Score. Das Vorzeichen ist genau umgekehrt.</strong></p>
+      <pre><code>momMayer(m) = clamp(50 + (m − 1) × 25, 0, 100)
+
+  m = 0.75 → 43.75   (Unterbewertung = kurzfristig sogar ein Abzug)
+  m = 1.0  → 50
+  m = 1.6  → 65
+  m = 2.6  → 90      (Überhitzung = kurzfristig ein Plus)</code></pre>
+      <p>
+        „Warum ein Plus, wenn es teuer ist?“ — Weil <strong>kurzfristig ein weiter Abstand über der 200-Tage-Linie gleichbedeutend mit einem starken Aufwärtstrend</strong> ist.
+        Aus Sicht der Trendfolge ist das ein kaufgünstiges Signal. Umgekehrt bedeutet ein Absturz unter die 200-Tage-Linie einen <strong>Abwärtstrend</strong> und ist kurzfristig riskant.
+      </p>
+
+      <h3>Blow-off-Top-Schutz — die Sicherung des Kurzfrist-Scores</h3>
+      <p>
+        Gäbe es nur momMayer, würde <strong>der Kurzfrist-Score an der Spitze einer Blase immer weiter steigen</strong>.
+        Deshalb wird <strong>nach Abschluss der Kombination eine separate Dämpfung auf den kurzfristigen Gesamtscore</strong> angewendet. Der Schutz hat zwei Terme —
+        <strong>① Mayer Multiple &gt; 2,0: multiplikative Dämpfung</strong>, <strong>② Angst-&amp;-Gier-Index ≥ 90 (extreme Gier): Punktabzug</strong>.
+        Treffen beide Bedingungen zugleich zu, werden beide angewendet, und der Endscore wird auf 0–100 begrenzt.
+      </p>
+      <pre><code>// ① Mayer-Dämpfung (multiplikativ)
+if (Mayer &gt; 2.0):
+    Kurzfrist_Gesamt × = clamp(1 − (Mayer − 2.0) × 0.55,  0.25,  1)
+
+  Mayer 2.0 → ×1.00 (keine Dämpfung)
+  Mayer 2.5 → ×0.725  (Gesamtscore −27.5 %)
+  Mayer 3.0 → ×0.45
+  Mayer 3.4 und mehr → ×0.25 (Untergrenze)
+
+// ② Abzug bei extremem F&amp;G (subtraktiv)
+if (F&amp;G ≥ 90):
+    Kurzfrist_Gesamt − = (F&amp;G − 90) × 2.0
+
+  F&amp;G 90 → −0 Punkte
+  F&amp;G 95 → −10 Punkte
+  F&amp;G 100 → −20 Punkte</code></pre>
+      <p>
+        Warum ② nötig ist: momFng selbst wertet Gier positiv (kurzfristig = mit dem Trend), sodass der Kurzfrist-Score auch im
+        <strong>historischen Extrem</strong> eines F&amp;G über 90 hoch bleibt. Diese Zone liegt statistisch mit hoher Wahrscheinlichkeit
+        in der Nähe eines Zyklushochs, daher wird nicht am Teilscore, sondern <strong>direkt am Gesamtscore abgezogen</strong>.
+      </p>
+      <div class="note warn">
+        <strong>Korrekturhinweis (2026-07-14)</strong> — Die frühere Fassung dieses Dokuments enthielt nur die langfristigen (antizyklischen) Normalisierungsfunktionen
+        und <strong>ließ die kurzfristigen (Momentum-)Funktionen und den Blow-off-Top-Schutz aus</strong>. Dadurch wurde der kurzfristige Beitrag des Mayer Multiple
+        <strong>mit umgekehrtem Vorzeichen</strong> beschrieben. Wir haben das anhand des Codes korrigiert.
+      </div>
+
+      <h3>Angst-&amp;-Gier-Index (F&amp;G)</h3>
+      <p><strong>Langfristig (antizyklisch) — je mehr Angst, desto höher der Score.</strong> Ein einzelner Tageswert ist stark verrauscht, daher werden <strong>7- und 30-Tage-Durchschnitte beigemischt.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − aktueller Wert)
+       + 0.3 × (100 − Durchschnitt letzte 7 Tage)
+       + 0.2 × (100 − Durchschnitt letzte 30 Tage)
+
+// Zusatzgewicht nur in den Extremzonen
+aktueller Wert ≤ 25 (extreme Angst) → += (25 − aktueller Wert) × 0.4
+aktueller Wert ≥ 75 (extreme Gier)  → −= (aktueller Wert − 75) × 0.4</code></pre>
+      <p>
+        Die Absicht ist zweifach. Erstens werden <strong>„ein Tag Angst gestern“ und „seit einem Monat Angst“ unterschieden</strong> — Letzteres ist ein viel stärkeres Signal.
+        Zweitens gibt es <strong>nur in den Extremzonen</strong> unter 25 bzw. über 75 ein Zusatzgewicht. Kleine Schwankungen im mittleren Bereich (40–60) haben kaum Aussagekraft.
+      </p>
+      <p><strong>Kurzfristig (Momentum) — je mehr Gier, desto höher der Score.</strong> Es werden keine Durchschnitte beigemischt, sondern <strong>nur der aktuelle Wert</strong> verwendet.</p>
+      <pre><code>momFng = clamp(50 + (aktueller Wert − 50) × 1.2, 0, 100)
+
+  Angst 20   → 14   (kurzfristig niedriger Score)
+  Neutral 50 → 50
+  Gier 85    → 92   (kurzfristig hoher Score)</code></pre>
+
+      <h3>RSI(14, Wilder)</h3>
+      <p>Der 14-Tage-RSI nach der Standardmethode von Wilder. <strong>Auch hier ist das Vorzeichen umgekehrt.</strong></p>
+      <pre><code>conRsi(r) = clamp(50 + (50 − r) × 1.7, 0, 100)   // langfristig: je überverkaufter (niedriger RSI), desto höher
+momRsi(r) = clamp(50 + (r − 50) × 1.6, 0, 100)   // kurzfristig: je stärker (hoher RSI), desto höher</code></pre>
+      <p>
+        Im Langfrist-Tab ergibt RSI 25 einen hohen Score (<code>50 + 25×1.7 = 92.5</code>),
+        im Kurzfrist-Tab dagegen einen niedrigen (<code>50 − 25×1.6 = 10</code>). <strong>Derselbe Wert, genau entgegengesetzte Deutung.</strong>
+      </p>
+
+      <h3>MACD(12·26·9)-Histogramm</h3>
+      <p>
+        Betrachtet wird beim MACD-Histogramm <strong>nicht der absolute Wert, sondern die Richtungswende</strong>. Das stärkste Kaufmomentum-Signal ist also: „Das Histogramm ist negativ, aber größer als beim vorigen Balken“ (Aufwärtswende vom Boden).
+        Da durch das Preisniveau geteilt wird, ist der Wert auch bei unterschiedlichen Kursniveaus vergleichbar. Der MACD ist ohnehin ein Trendindikator, daher <strong>unterscheidet sich die Richtung in beiden Modi kaum.</strong>
+      </p>
+
+      <h3>Rückgang vom 365T-Hoch (Drawdown)</h3>
+      <p>Wie weit der Kurs vom Höchststand des letzten Jahres gefallen ist. Wir sehen <strong>ab −30 % Interesse und ab −50 % eine stark kaufgünstige Lage</strong> (langfristige Sicht). Je tiefer der Rückgang, desto eher wird er als Zone für gestaffelte Käufe behandelt.</p>
+
+      <h3>Golden/Death Cross (gleitende Durchschnitte 50/200)</h3>
+      <p>Liegt die 50-Tage-Linie über der 200-Tage-Linie (Golden-Cross-Zustand), ist der Trend günstig, liegt sie darunter (Death Cross), ungünstig. Er dient als <strong>Trendfilter</strong>.</p>
+
+      <h2 id="onchain">Die 2 On-Chain-Kennzahlen — MVRV Z-Score · Thermocap Z</h2>
+      <p>
+        Zwei Indikatoren, die mit v2 hinzugekommen sind. Während die 6 obigen allesamt <strong>aus dem Preis abgeleitet</strong> werden, stammen diese beiden aus dem <strong>Blockchain-Hauptbuch (wer zu welchem Preis Coins erworben hat, wie viel für das Mining ausgezahlt wurde)</strong>.
+        Damit fließen erstmals Informationen jenseits des Preises in den Score ein.
+      </p>
+
+      <h3>MVRV Z-Score (Marktkapitalisierung vs. durchschnittlicher Einstandspreis)</h3>
+      <pre><code>Realisierte Kapitalisierung (Realized Cap) = Summe aller Coins, bewertet zum Preis des Tages ihrer letzten Bewegung
+                                           ≈ gesamter durchschnittlicher Einstandswert des Marktes
+MVRV Z-Score = (Marktkapitalisierung − Realized Cap) ÷ σ(Marktkapitalisierung, gesamte Historie)</code></pre>
+      <p>
+        <strong>Datenquelle:</strong> Aus der CoinMetrics Community API (kostenlos, kein Schlüssel nötig) werden <code>CapMrktCurUSD</code> (Marktkapitalisierung) und <code>CapMVRVCur</code> (MVRV-Verhältnis) als Tageswerte über die gesamte Historie abgerufen und daraus
+        <code>Realized Cap = Marktkapitalisierung ÷ MVRV</code> abgeleitet.
+      </p>
+      <p>
+        <strong>Abdeckung:</strong> Berechnet wird er nur für die <strong>10 Coins</strong>, für die CoinMetrics Community MVRV bereitstellt —
+        <code>BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA</code>.
+        Bei nicht unterstützten Coins (AVAX · SHIB · PEPE · GRT · SAND) wird er als N/A behandelt und anschließend werden <a href="#missing">die Gewichte neu normalisiert</a>.
+      </p>
+
+      <h3>Thermocap Z (Marktkapitalisierung vs. kumulierte Mining-Erlöse) — nur BTC</h3>
+      <pre><code>Thermocap   = kumulierte Summe der Miner-Erlöse (Blockbelohnung + Gebühren, USD) seit 2009
+Thermocap Z = z-Score von ln(Marktkapitalisierung ÷ Thermocap) über die gesamte Historie</code></pre>
+      <p>
+        <strong>Datenquelle:</strong> blockchain.info <code>charts/miners-revenue</code> (gesamter Zeitraum). Da die Abstände zwischen den Messpunkten nicht gleichmäßig sind,
+        wird jeder Messpunkt mit seinem Abstand (in Tagen) gewichtet aufsummiert (Näherung des Integrals). Danach wird nach Datum mit der täglichen Marktkapitalisierung von CoinMetrics abgeglichen und das Verhältnis gebildet.
+        Das Konzept der Mining-Belohnung gehört zum PoW-Bitcoin, daher <strong>wird dieser Indikator nur in der BTC-Ansicht berechnet und fehlt bei Altcoins immer (Neugewichtung)</strong>.
+      </p>
+
+      <h3>Abbildung z → Teilscore (Z_ANCHORS)</h3>
+      <p>
+        Die langfristigen (antizyklischen) Teilscores beider On-Chain-Indikatoren verwenden dieselbe Abbildung. Je niedriger z (je günstiger relativ zu den Kosten), desto höher der Score; zwischen den folgenden Ankerpunkten wird linear interpoliert.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>z</th><th>≤ −1</th><th>0</th><th>0.5</th><th>1</th><th>2</th><th>3</th><th>4</th><th>6</th><th>≥ 8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Teilscore</strong></td><td>100</td><td>88</td><td>72</td><td>58</td><td>42</td><td>28</td><td>16</td><td>4</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Grundlage der Ankerpunkte ist die historische Verteilung des BTC-MVRV-Z — Böden lagen bei z &lt; 0, normale Phasen bei 1–2, Überhitzungen über 5.
+        Dass die Auflösung im unteren Bereich (0–1) mit dichten 0,5er-Schritten konzentriert wird, folgt demselben Prinzip wie bei der Mayer-Funktion: <em>Der Score soll sich dort sinnvoll bewegen, wo der Markt die meiste Zeit verbringt.</em>
+      </p>
+      <p><strong>Auch hier hat die kurzfristige (Momentum-)Funktion ein anderes Vorzeichen.</strong> Ein weiter Abstand über dem durchschnittlichen Einstandspreis bzw. den Kosten wird als Trendstärke gelesen.</p>
+      <pre><code>// kurzfristig (Momentum)
+momMvrv  = clamp(50 + (MVRV-Verhältnis − 1) × 28, 0, 100)   // über dem Einstandspreis = Trendstärke = Plus
+momTherm = clamp(50 + ThermocapZ × 14, 0, 100)
+
+// langfristig (antizyklisch) — beide über die obige Z_ANCHORS-Abbildung
+conMvrv  = zToScore(MVRV Z)
+conTherm = zToScore(Thermocap Z)</code></pre>
+      <p>
+        <em>Warum</em> die beiden Indikatoren am Boden funktionieren und wie sie bei den fünf Böden tatsächlich ausschlugen, behandelt
+        der separate Artikel <a href="/bitcoin-bottom">Wie man den Bitcoin-Boden erkennt — Marktkapitalisierung vs. durchschnittlicher Einstandskurs</a> mit Live-Charts.
+      </p>
+
+      <h2 id="weights">Schritt 2: Zwei Gewichtungssätze (kurzfristig · langfristig)</h2>
+      <p>
+        Das ist der Kern dieses Modells und der Punkt, an dem es sich von den meisten „Angst-Index-Seiten“ unterscheidet.
+        <strong>Derselbe Indikator muss bei unterschiedlichem Anlagehorizont gegensätzlich gedeutet werden.</strong>
+      </p>
+      <p>
+        Kryptowährungen zeigen <strong>in kurzen Zeiträumen Momentum- (Trendfolge-)Charakter</strong> und <strong>über lange Zyklen Mean-Reversion- (antizyklischen) Charakter</strong>.
+        Auf Sicht von 1–3 Monaten steigt, was steigt, weiter; auf Sicht von mehr als einem Jahr werden extreme Angst und Unterbewertung letztlich wieder ausgeglichen.
+        Deshalb verwenden <strong>die beiden Tabs (kurzfristig · langfristig) jeweils eigene Gewichte</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indikator</th><th>Kurzfristig (Momentum · 1–3 Monate)</th><th>Langfristig (antizyklisch · 1 Jahr+)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Angst-&amp;-Gier-Index</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Rückgang vom 365T-Hoch</td><td>15%</td><td>10%</td></tr>
+            <tr><td>MACD</td><td>12%</td><td>13%</td></tr>
+            <tr><td>MVRV Z-Score</td><td>10%</td><td><strong>18%</strong></td></tr>
+            <tr><td>Golden/Death Cross</td><td>7%</td><td>10%</td></tr>
+            <tr><td>Mayer Multiple</td><td><strong>4%</strong></td><td>13%</td></tr>
+            <tr><td>Thermocap Z</td><td>4%</td><td>10%</td></tr>
+            <tr><td><strong>Summe (Probe)</strong></td><td><strong>100%</strong> <span class="muted">(24+12+24+4+15+7+10+4)</span></td><td><strong>100%</strong> <span class="muted">(13+13+13+13+10+10+18+10)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Zwei Gewichtungen fallen besonders auf — dass <strong>MVRV Z (18 %) langfristig das größte Gewicht</strong> hat, und dass <strong>das Mayer Multiple kurzfristig bei 4 %</strong> geblieben ist.</p>
+      <ul>
+        <li>
+          <strong>Langfristig ist Platz 1 vom Mayer Multiple an MVRV übergegangen.</strong> In der Fassung vor der Aufnahme der On-Chain-Daten stand das Mayer Multiple mit 18 % langfristig an der Spitze.
+          Beide Indikatoren beantworten jedoch dieselbe Frage („Ist es teuer relativ zu Kosten/Basislinie?“), wobei MVRV die <em>tatsächlichen Erwerbskosten</em> und Mayer den <em>Ersatzwert eines 200-Tage-Durchschnitts</em> verwendet.
+          Bei gleicher Rolle gehört das Gewicht zur direkteren Größe. Deshalb <strong>MVRV 18 %</strong>, während Mayer auf 13 % sank und nun gleichauf mit RSI · MACD · Angst-Index liegt.
+        </li>
+        <li>
+          <strong>Thermocap hat langfristig 10 %.</strong> Die Wiederholbarkeit über die Zyklen ist gut, aber da er nur für BTC gilt, fehlt er in Altcoin-Ansichten immer,
+          und sein Nenner (kumulierte Mining-Erlöse) verändert seinen Charakter mit jedem Halving ein wenig — daher eine Stufe niedriger als MVRV gewichtet.
+        </li>
+        <li>
+          <strong>Kurzfristig wirken auch die On-Chain-Kennzahlen als „Trendstärke“.</strong> Ein weiter Abstand über dem durchschnittlichen Einstandspreis ist kurzfristig ein starker Trend (momMvrv).
+          Diese Information überschneidet sich jedoch mit RSI (24 %) · Rückgang (15 %) · MACD (12 %), daher nur MVRV 10 % · Thermocap 4 % —
+          dasselbe <strong>Prinzip der Signalredundanz</strong>, nach dem auch das Mayer Multiple auf 4 % gedrückt wurde.
+        </li>
+        <li>
+          <strong>Den Schutz vor Überhitzung übernimmt weiterhin nicht die Gewichtung, sondern der Schutzmechanismus.</strong>
+          Der <a href="#normalize">Blow-off-Top-Schutz</a> bleibt unverändert — übersteigt Mayer 2,0, wird <strong>der kurzfristige Gesamtscore selbst gedämpft</strong> (um bis zu 75 %).
+        </li>
+      </ul>
+      <p>
+        <strong>Golden/Death Cross wiegt langfristig weiterhin schwerer (7 % → 10 %)</strong>. Das 50/200-Kreuz ist ein langsames Signal und für kurzfristiges Trading zu spät,
+        eignet sich aber, um Zyklusphasen voneinander abzugrenzen.
+      </p>
+
+      <div class="note">
+        <strong>Im Kurzfrist-Tab kehrt sich die Deutung von RSI · Angst-Index · Mayer · MVRV komplett um.</strong>
+        Im langfristigen (antizyklischen) Modus gilt „Angst = Kauf, Unterbewertung = Kauf“,
+        im kurzfristigen (Momentum-)Modus erhält dagegen <strong>die Seite mit intaktem Trend und sich verbessernder Stimmung</strong> einen hohen Score.
+        Derselbe Angst-Index von 20 ergibt <em>im Langfrist-Tab einen hohen Score (≈86), im Kurzfrist-Tab einen niedrigen (≈14)</em>.
+        <strong>Das ist kein Bug, sondern Absicht.</strong> Die genauen Funktionen stehen vollständig in <a href="#normalize">Schritt 1</a>.
+      </div>
+
+      <p class="muted">
+        Diese Gewichte beruhen auf einem eigenen Backtest (BTC-Tageskerzen seit 2017), in dem kurzfristig die Momentum-Richtung und langfristig die antizyklische Richtung
+        besser mit den nachfolgenden Renditen übereinstimmten. Es handelt sich jedoch um einen Backtest mit begrenzter Stichprobe und nur einem Asset;
+        <strong>die Übereinstimmung in der Vergangenheit garantiert nichts für die Zukunft.</strong>
+      </p>
+
+      <h2 id="missing">Schritt 3: Fehlende Indikatoren und Neugewichtung</h2>
+      <p>
+        Datenquellen antworten nicht immer. Derzeit nutzt dieses Modell fünf Quellen —
+        <strong>CoinGecko · Binance</strong> (Preise · Tageskerzen), <strong>Alternative.me</strong> (Angst-&amp;-Gier-Index),
+        <strong>CoinMetrics Community</strong> (On-Chain: Marktkapitalisierung · MVRV, kostenlos, kein Schlüssel nötig), <strong>blockchain.info</strong> (Miner-Erlöse → Thermocap).
+        In manchen Regionen ist die Binance-API gesperrt, und bei neu gelisteten Coins fehlen 200 Tage Daten, sodass sich das Mayer Multiple nicht berechnen lässt.
+      </p>
+      <p>
+        Bei den beiden On-Chain-Kennzahlen gibt es zudem <strong>strukturelle Lücken</strong>. MVRV wird nur für die 10 von CoinMetrics unterstützten Coins (BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA) berechnet,
+        Thermocap <strong>nur für BTC</strong>. Der Score in Altcoin-Ansichten ist also von vornherein nicht aus 8, sondern aus 6–7 Indikatoren zusammengesetzt.
+      </p>
+      <p>
+        Dabei <strong>darf ein fehlender Indikator nicht mit 0 Punkten gewertet werden.</strong> 0 Punkte bedeuten „sehr schlecht“, nicht „unbekannt“.
+        Sonst würde der Score allein deshalb einbrechen, weil Daten fehlen.
+      </p>
+      <p>
+        Fehlende Indikatoren werden daher <strong>aus der Berechnung ausgeschlossen, und die Gewichte der übrigen Indikatoren werden so neu normalisiert, dass sie wieder 100 % ergeben</strong>.
+        Fehlt zum Beispiel im Langfrist-Tab MVRV (18 %), werden die Gewichte der übrigen 7 Indikatoren durch <code>82%</code> geteilt und neu skaliert.
+      </p>
+      <p>
+        Im Gegenzug wird <strong>die Abdeckung im Dashboard und im Terminal angezeigt</strong> (<code>coverage: 7/8 indicators (82% weight)</code>).
+        Ein Score mit geringer Abdeckung ist entsprechend weniger verlässlich — prüfen Sie das unbedingt.
+      </p>
+
+      <h2 id="bands">Schritt 4: Die 5 Bewertungsbänder</h2>
+      <p>
+        Der kombinierte Score von 0–100 wird in fünf Bereiche eingeteilt, denen jeweils eine Deutung zugeordnet ist.
+        <strong>Die Bereichsgrenzen sind in beiden Tabs gleich, die Namen der Bänder unterscheiden sich aber in drei Bereichen (65–80, 25–45, 0–25)</strong> — weil derselbe Score je nach Tab etwas anderes bedeutet.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Score</th><th>Bewertung langfristig (antizyklisch)</th><th>Bewertung kurzfristig (Momentum)</th><th>Bedeutung</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td><strong>STRONG BUY</strong></td><td>Mehrere Signale treffen zusammen</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong><br /><span class="muted">Günstig für gestaffeltes Ansparen</span></td><td><strong>BUY</strong><br /><span class="muted">Aufwärtstrend überwiegt</span></td><td>Kaufgünstige Zone</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td><strong>NEUTRAL</strong></td><td>Kein klarer Vorteil. Abwarten</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong><br /><span class="muted">Beginnende Gier/Überbewertung</span></td><td><strong>WEAK</strong><br /><span class="muted">Abwärtsmomentum überwiegt</span></td><td>Zurückhaltung bei Neu- und Nachkäufen</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong><br /><span class="muted">Überhitzt, nahe am Hoch</span></td><td><strong>AVOID</strong><br /><span class="muted">Starker Abwärtstrend</span></td><td>Zurückhaltung bei Neukäufen</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>Warum unterschiedliche Namen?</strong> Weil bei gleichem Score die <em>Ursache</em> eines niedrigen Scores je nach Tab eine andere ist.
+        Der Langfrist-Tab folgt dem antizyklischen Blick, ein niedriger Score bedeutet dort <em>der Markt ist zu heiß</em>;
+        der Kurzfrist-Tab folgt dem Trend, ein niedriger Score bedeutet dort <em>ein Abwärtstrend ist im Gange</em>.<br />
+        <strong>0–25 Punkte im Langfrist-Tab</strong> = Angst-Index zeigt Gier und Mayer ist hoch → <strong>Überhitzung (OVERHEATED)</strong>. Vorsicht, nahe am Hoch.<br />
+        <strong>0–25 Punkte im Kurzfrist-Tab</strong> = RSI am Boden und der Trend ist zusammengebrochen → <strong>Abwärtstrend (AVOID)</strong>. Vor der Wende nicht kaufen.<br />
+        Ebenso wird 65–80 langfristig als ACCUMULATE (gestaffeltes Ansparen) und kurzfristig als BUY (trendfolgender Kauf) gelesen,
+        und 25–45 langfristig als CAUTION (Vorsicht vor beginnender Überhitzung) und kurzfristig als WEAK (Abwärtsmomentum überwiegt).
+        Gleich heißen nur die beiden Bereiche 80–100 (STRONG BUY) und 45–65 (NEUTRAL).
+      </div>
+      <p>
+        Die Grenzen sind <strong>willkürliche Schnitte durch einen kontinuierlichen Score</strong>. 79 und 81 Punkte sind praktisch dasselbe.
+        Nutzen Sie die Bänder nur zur groben Phaseneinordnung und beobachten Sie zusätzlich <strong>den Verlauf des Scores (steigt er oder fällt er?)</strong>.
+      </p>
+
+      <h2 id="bottom">Separate Kombination: BOTTOM RADAR</h2>
+      <p>
+        Das Dashboard hat neben dem Kurz- und Langfrist-Score einen eigenen <strong>BOTTOM RADAR</strong>.
+        Er beantwortet nicht „Steigt es, wenn ich jetzt kaufe?“, sondern nur eine Frage: <strong>„Befinden wir uns jetzt in einer historischen Bodenzone?“</strong> — deshalb verwendet er einen eigenen Gewichtungssatz.
+        Die Momentum-Indikatoren (RSI · MACD · Kreuz) fallen ganz weg, und <strong>55 % entfallen auf die beiden kostenbasierten On-Chain-Kennzahlen</strong> — das ist sein Merkmal.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indikator</th><th>Gewicht</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td></tr>
+            <tr><td>Mayer Multiple</td><td>15%</td></tr>
+            <tr><td>Rückgang vom 365T-Hoch</td><td>15%</td></tr>
+            <tr><td>Angst-&amp;-Gier-Index</td><td>15%</td></tr>
+            <tr><td><strong>Summe (Probe)</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Jeder Indikator <strong>gewichtet seinen langfristigen (antizyklischen) Teilscore unverändert neu</strong> — es wurden keine neuen Normalisierungsfunktionen geschaffen.
+        Auch der Umgang mit fehlenden Werten ist gleich: Fehlende Indikatoren werden ausgeschlossen und neu normalisiert; außerhalb von BTC fällt Thermocap immer weg, bei von CoinMetrics nicht unterstützten Coins auch MVRV.
+        Die Bewertungsbänder sind fünf eigene Bereiche, die sich von denen für kurz- und langfristig unterscheiden.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Boden-Score</th><th>Bewertung</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Historische Bodenzone</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Unterbewertet</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutral</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Überbewertet</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Hochzone · Überhitzung</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Warum die On-Chain-Kennzahlen die Mehrheit des Gewichts tragen — und wie diese Indikatoren bei den fünf Böden tatsächlich ausschlugen —, überprüfen wir
+        in <a href="/bitcoin-bottom">Wie man den Bitcoin-Boden erkennt</a> mit Live-Charts.
+      </p>
+
+      <h2 id="limits">Grenzen dieses Modells (unbedingt lesen)</h2>
+      <p>Ganz offen gesagt: Wichtiger ist zu wissen, was dieser Score <strong>nicht kann</strong>.</p>
+      <ul>
+        <li>
+          <strong>Er sagt keine Preise voraus.</strong> Der Score fasst lediglich zusammen, „ob der aktuelle Markt eher überverkauft/ängstlich oder überhitzt/gierig ist“.
+          Ein Score von 90 heißt nicht „es wird steigen“, sondern „historisch war dies eine solche Phase“.
+        </li>
+        <li>
+          <strong>Technische Indikatoren liegen in starken Trendmärkten lange daneben.</strong> Der RSI kann in einem starken Abwärtsmarkt wochenlang unter 30 bleiben.
+          Statt „überverkauft, also Erholung“ ist „überverkauft und weiter fallend“ häufig.
+        </li>
+        <li>
+          <strong>Er weiß nichts über Fundamentaldaten, Nachrichten oder Regulierung.</strong> Ereignisse wie Börsenpleiten, Regulierungsankündigungen oder Hacks spiegeln sich nicht sofort in diesen 8 Indikatoren wider.
+          Der Chart kann gut aussehen, während das Unternehmen gerade zusammenbricht.
+        </li>
+        <li>
+          <strong>On-Chain-Indikatoren haben ihre eigenen Verzerrungen.</strong> Die Realized Cap (Nenner von MVRV) wird schon dann ohne echten Kauf aktualisiert, <strong>wenn eine Börse beim Umorganisieren ihrer Cold Wallets Coins nur verschiebt</strong>;
+          umgekehrt hinterlassen Coins, die <em>innerhalb</em> einer Börse den Besitzer wechseln, oder Volumen, das als ETF-Anteile gehandelt wird, keine On-Chain-Spuren und werden nicht aktualisiert.
+          Für immer ruhende frühe Mining-Bestände werden mit Kosten nahe 0 erfasst und drücken die Realized Cap strukturell.
+          Außerdem wächst σ(Marktkapitalisierung) über die gesamte Historie, der Nenner von MVRV Z, mit dem Markt, sodass <strong>die z-Ausschläge jüngerer Zyklen gegenüber früher gedämpft sind</strong> — Extremwerte wie früher z&gt;7 kommen womöglich nicht wieder.
+        </li>
+        <li>
+          <strong>Der Angst-&amp;-Gier-Index ist ein Indikator für den Gesamtmarkt.</strong> Der F&amp;G von Alternative.me misst im Grunde eine BTC-zentrierte Marktstimmung
+          und spiegelt nicht die besondere Lage einzelner Altcoins wider. In Altcoin-Ansichten ist seine Aussagekraft geringer als bei BTC.
+        </li>
+        <li>
+          <strong>Altcoins haben eine dünne Datenbasis.</strong> Bei kurzer Notierungsdauer sind 200-Tage-Linie und 365T-Hoch ungenau oder fehlen ganz. Prüfen Sie unbedingt die Abdeckungsanzeige.
+        </li>
+        <li>
+          <strong>Die Gewichte sind eine Ermessensentscheidung des Autors.</strong> Die Richtung wurde per Backtest bestätigt, aber ob 24 % oder 20 % richtig ist, sagen einem die Daten nicht eindeutig.
+        </li>
+      </ul>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis für Anleger</strong><br />
+        Dieser Score ist ein <strong>aus öffentlichen Indikatoren zusammengesetztes Referenzsignal und keine Anlageberatung.</strong>
+        Kryptowährungen sind Hochrisiko-Anlagen, bei denen ein Totalverlust des eingesetzten Kapitals möglich ist. Die Verantwortung für alle Anlageentscheidungen und deren Folgen liegt ausschließlich bei den Nutzerinnen und Nutzern selbst. Recherchieren Sie unbedingt selbst (DYOR).
+      </div>
+
+      <h2>Weiterlesen</h2>
+      <div class="related">
+        <a href="/indicators"><b>Die 8 Indikatoren im Detail</b><span>Was RSI · MACD · Mayer Multiple · Rückgang · Kreuz · MVRV · Thermocap jeweils aussagen</span></a>
+        <a href="/bitcoin-bottom"><b>Wie man den Bitcoin-Boden erkennt</b><span>Marktkapitalisierung vs. durchschnittlicher Einstandspreis — die Grundlage des BOTTOM RADAR in Live-Charts</span></a>
+        <a href="/guide-fear-greed"><b>Praxisleitfaden zum Angst-Index</b><span>Wie man in Angstphasen gestaffelt kauft und welche Fehler häufig sind</span></a>
+        <a href="/"><b>Zum Dashboard</b><span>Den aktuellen Score prüfen (15 Coins)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+    </main>

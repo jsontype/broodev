@@ -1,0 +1,522 @@
+    <main class="wrap" data-title="Mayer 倍數的歷史 — 200日均線在每個比特幣週期告訴了我們什麼 | broodev" data-desc="Trace Mayer 為什麼選了 2.4 這個數字？依時間順序追蹤 2013·2017·2021·2024 高點與 2015·2018·2020·2022 底部時 Mayer 倍數的實際數值，並以計算說明 broodev 模型為何給這個指標短線 4% · 長線 18% 這樣極端不同的權重。">
+      <nav class="nav">
+        <a href="/">← 儀表板</a>
+        <a href="/methodology">評分方法</a>
+        <a href="/indicators">指標解讀</a>
+        <a href="/guide-fear-greed">恐懼指數使用指南</a>
+        <a href="/glossary">術語表</a>
+      </nav>
+
+      <h1>Mayer 倍數的歷史<br />— 200日均線在每個週期告訴了我們什麼</h1>
+      <p class="muted">最後更新：2026-07-14 · 作者：Y-Systems · 對象：broodev 買入時機分數 v2 的 Mayer 倍數項目</p>
+
+      <p class="lead">
+        <code>Mayer 倍數 = 現價 ÷ 200日移動平均</code>。一次除法就是全部。
+        然而這一個數字，在 <strong>broodev 長線分數中佔 18%，在短線分數中只佔 4%</strong>。相差四倍半。
+        為什麼同一個指標會給出如此不同的權重，光看公式是解釋不了的。
+        <strong>只有沿著比特幣週期的歷史走一遍</strong>才說得清楚。所以這篇文章不寫成計算式，而是寫成編年史。
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">年表</div>
+        <ol>
+          <li><a href="#origin">2014 — 一位 Podcast 主持人拋出的問題，以及 2.4</a></li>
+          <li><a href="#wild">2011~2013 — 倍數動輒超過 4 的蠻荒時代</a></li>
+          <li><a href="#floor">2015 — 「0.8」這個底部誕生的一年</a></li>
+          <li><a href="#2017">2017 — 短線權重變成 4% 的決定性原因</a></li>
+          <li><a href="#bottoms">2018 · 2020 — 三次底部幾乎落在同一個位置</a></li>
+          <li><a href="#2021">2021 — 兩個高點，兩個截然不同的倍數</a></li>
+          <li><a href="#etf">2022~2026 — ETF 之後，2.4 可能再也不會出現</a></li>
+          <li><a href="#weights">那麼為什麼是 4% 與 18% — 用數字回答</a></li>
+          <li><a href="#curve">轉換函數解剖 — 為什麼在 0.8 · 1.4 · 2.4 切開</a></li>
+          <li><a href="#silence">這個指標沉默的四個地方</a></li>
+          <li><a href="#today">2026 年，如何解讀這個數字</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>關於本文的數值。</strong> 以下出現的歷史倍數，是將日 K 收盤價除以 200 日簡單移動平均所<strong>重建的近似值</strong>。
+        使用哪家交易所的價格、收盤以 UTC 為準與否，都會讓小數點第一位產生偏差。
+        請不要讀成「高點時是 2.9」，而是讀成<strong>「介於 2.5~3 之間」</strong>的程度。本文的論點不在小數點，而在<strong>週期之間的方向性</strong>。
+      </div>
+
+      <section class="bd-figs" aria-label="Mayer 倍數即時圖表">
+        <p class="muted">下方圖表是在您造訪時取得 CoinMetrics 公開 API 的 BTC 日 K 完整歷史，並直接在瀏覽器中計算繪製而成。請先用眼睛確認正文的編年史再往下讀。將滑鼠移到圖上即可看到各日期的數值。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-price" class="bd-pane"><div class="bd-loading">正在載入圖表資料…</div></div>
+          </div>
+          <p class="bd-cap">BTC 價格（對數刻度）與 200 日簡單移動平均。橘色虛線 = 減半（2012·2016·2020·2024）。資料：CoinMetrics Community API，BTC 日 K 收盤價 — 於造訪時取得並在瀏覽器中計算的<strong>近似值，僅供參考</strong>。</p>
+        </div>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-mult" class="bd-pane"><div class="bd-loading">正在載入圖表資料…</div></div>
+          </div>
+          <p class="bd-cap">Mayer 倍數時間序列。綠色陰影 = 0.8 以下（歷史低估區），紅色陰影 = 超過 2.4（過熱區）。2011~2013 年超過 4 的極端值以 4 截斷顯示。資料：CoinMetrics Community API，BTC 日 K 收盤價 — 於造訪時取得並在瀏覽器中計算的<strong>近似值，僅供參考</strong>。</p>
+        </div>
+      </section>
+
+      <h2 id="origin">2014 — 一位 Podcast 主持人拋出的問題，以及 2.4</h2>
+      <p>
+        2014 年的比特幣社群裡，沒有現在這些指標。沒有鏈上資料公司，也沒有恐懼與貪婪指數。
+        只有價格圖表和論壇文章，而對那些在 2013 年接連經歷兩次泡沫（4 月、11 月）的人來說，只剩下一個問題。
+        <strong>「現在可以買嗎？」</strong>
+      </p>
+      <p>
+        Trace Mayer 是比特幣的早期投資人，也是 Podcast 主持人。重點在於他不是交易員。
+        他對<em>「今天會不會漲」</em>沒有興趣，他關心的是<strong>「現在進場的人，幾年後會是什麼處境」</strong>。
+        問題的時間尺度不同，需要的工具也不同。
+      </p>
+      <p>
+        他拿起的是傳統金融中用了將近 100 年的 <strong>200 日移動平均</strong>。
+        200 日均線大約是<strong>以交易日計算 10 個月份的平均</strong>。一兩則新聞、一次爆倉都推不動它，是一條緩慢的線。
+        Mayer 的構想很簡單：<strong>「今天的價格，位在那條緩慢的線之上幾倍？」</strong>
+      </p>
+      <pre><code>Mayer 倍數 = 今日收盤價 ÷ 200 日簡單移動平均（SMA）
+
+倍數 1.0  → 與 200 日平均相同
+倍數 0.7  → 比平均便宜 30%
+倍數 2.5  → 比平均貴 150%</code></pre>
+
+      <h3>2.4 這個數字從何而來</h3>
+      <p>
+        Mayer 並沒有停在這裡，他做了<strong>規則回測</strong>（他在社群懸賞，把計算工作群眾外包出去）。
+        問題是這樣的。
+      </p>
+      <p class="lead">
+        <em>「只在 Mayer 倍數低於 X 時定期買入的規則，與隨時買入的規則，哪一個長期報酬較高？把 X 從 0.1 到 5 全部代進去看看。」</em>
+      </p>
+      <p>
+        他在結果中強調的不是最佳值，而是<strong>轉折點</strong>。
+        門檻不斷往上提高時（=再貴也照買），從某個點開始長期績效明顯變差，而那附近<strong>大約是 2.4</strong>。
+        也就是說，2.4 不是「這裡就是高點」的預言，而是<strong>「比這更貴時買入，歷史上代價很大」</strong>的事後統計。
+      </p>
+      <div class="note warn">
+        <strong>在這裡先把限制講清楚。</strong> Mayer 進行計算時，比特幣還是<strong>僅存在 5 年的資產</strong>。
+        完整的週期只有兩次，樣本大多處於「早期爆發成長期」。
+        <strong>2.4 是從兩個週期中得出的數字。</strong>我們使用這個數字，但也清楚它並不是物理常數。
+        本文最後一節會說明 2.4 為什麼<em>已經在逐漸過時</em>。
+      </div>
+
+      <h2 id="wild">2011~2013 — 倍數動輒超過 4 的蠻荒時代</h2>
+      <p>
+        把指標誕生前的資料代入指標，早期比特幣會出現<strong>以今天標準來看不可思議的數值</strong>。
+      </p>
+      <p>
+        2011 年 6 月第一次大型泡沫時，倍數<strong>超過了 5。</strong>也就是價格達到 200 日平均的五倍。
+        2013 年 4 月與 11 月的兩個高點，倍數也達到 <strong>3~4 區間</strong>。
+        在那個年代，<em>「倍數 2.4 就危險」</em>這條規則實際上毫無用處。因為突破 2.4 之後，價格又漲了一倍。
+      </p>
+      <p>
+        為什麼會這樣？市值只有數億到數十億美元，流動性淺薄，沒有衍生品市場，放空實際上不可能。
+        那是一個<strong>只有向上推的力量、沒有向下拉的力量的市場</strong>。在那樣的市場裡，相對 200 日均線 5 倍是很自然的事。
+      </p>
+      <p>
+        這個時代的資料給今天的我們的教訓是：<strong>「Mayer 倍數的絕對值取決於市場結構」</strong>。
+        同樣的 2.4，在 2013 年是「才剛開始」，到了 2021 年卻變成「幾乎無法達到」。這一點後面還會再談。
+      </p>
+
+      <h2 id="floor">2015 — 「0.8」這個底部誕生的一年</h2>
+      <p>
+        2014 年 Mt. Gox 倒閉後，比特幣下跌了一年多。2015 年 1 月低點附近，倍數被壓到 <strong>0.6 區間</strong>。
+        但比低點本身更重要的，是前後<strong>倍數在 0.7~0.9 之間匍匐了好幾個月</strong>這件事。
+      </p>
+      <p>
+        這個「拖泥帶水的底部」，正是我們轉換函數中 <strong>0.8</strong> 的由來。
+        0.8 代表相對 200 日均線<strong>折價 20%</strong>。而在比特幣歷史上，倍數跌破 0.8 的期間全部加總起來，
+        也只佔<strong>全部交易日中極小的一部分</strong>。罕見，這就是這個門檻唯一的依據。
+      </p>
+      <div class="note">
+        <strong>在 0.8 以下，我們的模型不做的事。</strong> 倍數 0.6 確實比 0.8「更便宜」。
+        但我們的轉換函數<strong>把 0.8 以下全部削平為 100 分。</strong>不論 0.6 還是 0.5，一律 100 分。
+        更便宜也不會給更多分。因為<strong>跌幅沒有下限</strong>。
+        給 0.5 打 105 分的模型，會在崩跌越深時越大聲地喊「買」。那不是指標，而是<em>油門</em>。
+        把上端削平，是放棄精確度，<strong>換取謙遜</strong>。
+      </div>
+
+      <h2 id="2017">2017 — 短線權重變成 4% 的決定性原因</h2>
+      <p>
+        對相信 Mayer 倍數的人來說，2017 年是<strong>最痛的一年</strong>。而我們模型的短線權重被壓到 4%，也是因為這一年的紀錄。
+      </p>
+      <p>
+        2017 年比特幣從 1,000 美元附近起步，12 月底在 20,000 美元附近收尾。問題在於，<strong>在這段旅程的哪裡，倍數說了「太貴」</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>2017 年時點</th><th>大約倍數</th><th>Mayer 倍數的訊號</th><th>之後實際發生的事</th></tr></thead>
+          <tbody>
+            <tr><td>5~6 月（2,500 美元區間）</td><td><code>1.5~1.7</code></td><td>「進入過熱」</td><td>到年底又上漲約 <strong>7 倍</strong></td></tr>
+            <tr><td>8 月（4,000 美元區間）</td><td><code>1.8~2.0</code></td><td>「相當貴」</td><td>4 個月內又上漲 <strong>4 倍</strong></td></tr>
+            <tr><td>11 月（8,000 美元區間）</td><td><code>2.0~2.2</code></td><td>「接近高點區」</td><td>6 週內又上漲 <strong>2.4 倍</strong></td></tr>
+            <tr><td>12 月中旬（19,000 美元區間）</td><td><code>2.5~2.9</code></td><td>「極端過熱」</td><td>真正的高點。只有這次說對了</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        看出來了嗎？Mayer 倍數<strong>整整一年都說「太貴」，也整整一年都錯了。</strong>然後在最後兩週說對了。
+      </p>
+      <p>
+        這裡不能誤會。這並不代表<em>「Mayer 倍數是個爛指標」</em>。
+        <strong>2017 年 5 月看到倍數 1.6 就出場的人</strong>，與<strong>2017 年 5 月無視倍數 1.6、一路持有到 12 月才出場的人</strong> —
+        長期報酬是後者壓倒性勝出，但<strong>一直抱到 2018 年的人</strong>，又會比前者更糟。
+        同一個數字，會依時間尺度得出完全相反的結論。
+      </p>
+      <div class="note warn">
+        <strong>所以短線權重是 4%。</strong> broodev 短線分頁看的是 <strong>1~3 個月</strong>。
+        上表任何一列，Mayer 倍數「太貴」的警告都<strong>沒能猜中之後 1~3 個月的方向。</strong>
+        把延遲以<em>數個月~1 年</em>為單位的訊號放進<em>1~3 個月</em>的視窗，那就不是訊號而是<strong>雜訊</strong>。<br /><br />
+        ⚠️ <strong>重要：</strong>在短線分頁中，這個指標<strong>並不</strong>以「貴 = 警告」運作。
+        正好相反，它以<strong>「貴 = 強勁趨勢 = 加分」</strong>運作。
+        那麼泡沫頂部由誰來擋？<strong>不是權重，而是另外的 Blow-off Top 防護</strong>。
+        <a href="#weights">下一節</a>會連同程式碼公開兩個函數與這個防護。
+      </div>
+
+      <h2 id="bottoms">2018 · 2020 — 三次底部幾乎落在同一個位置</h2>
+      <p>
+        在高點如此任性的這個指標，<strong>在底部卻驚人地一致</strong>。這才是這個指標的真面目。
+      </p>
+      <p>
+        <strong>2018 年 12 月</strong>，一整年的熊市接近尾聲、價格在 3,150 美元附近時，倍數為 <strong>0.5~0.6 區間</strong>。<br />
+        <strong>2020 年 3 月</strong>，新冠衝擊讓價格一天之內腰斬、觸及 3,800 美元區間時，倍數在 <strong>0.6 附近</strong>。<br />
+        <strong>2022 年 11 月</strong>，FTX 倒閉、價格被壓到 15,500 美元區間時，倍數為 <strong>0.6~0.7</strong>。
+      </p>
+      <p>
+        <strong>7 年間，由三個完全不同原因（自身泡沫破裂 / 疫情 / 交易所詐欺）造成的三次底部，幾乎落在同一個倍數上。</strong>
+        即使價格從 3,150 美元變成 15,500 美元，漲了五倍。
+        這就是 200 日均線被稱為<strong>價格引力</strong>的原因。絕對價格每個週期都完全不同，但<strong>相對 200 日均線能偏離多遠的下限</strong>卻很相近。
+      </p>
+      <p>
+        2020 年 3 月特別值得記下一筆。因為這幾乎是 Mayer 倍數<strong>立即且精準</strong>命中的唯一案例。
+        原因很明確：<strong>衝擊只用了一天就結束</strong>。
+        價格垂直崩落時，200 日均線幾乎沒動，所以倍數一口氣被撕裂到 0.6。
+        <strong>Mayer 倍數對「急跌」敏感，對「緩慢崩塌」遲鈍。</strong>這句話會在後面的限制一節中再次令人心痛地出現。
+      </p>
+
+      <h2 id="2021">2021 — 兩個高點，兩個截然不同的倍數</h2>
+      <p>
+        2021 年是理解這個指標最重要的一年。因為<strong>同一年裡出現了兩次價格幾乎相同的高點，倍數卻完全不同</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>2021 年高點</th><th>價格</th><th>大約倍數</th><th>我們轉換函數的分數</th></tr></thead>
+          <tbody>
+            <tr><td>4 月（第一高點）</td><td>約 64,000 美元</td><td><code>1.9~2.2</code></td><td>約 <strong>22~30 分</strong>（CAUTION）</td></tr>
+            <tr><td>11 月（第二高點，週期最高價）</td><td>約 69,000 美元</td><td><code>1.3~1.4</code></td><td>約 <strong>50~55 分</strong>（NEUTRAL）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>在週期真正的頂點，Mayer 倍數說的是「中性」。</strong>
+      </p>
+      <p>
+        這不是指標的 bug，而是<strong>數學上理所當然的事</strong>。
+        4 月高點之後整個夏天在 30,000 美元區間盤整的期間，200 日均線一直<em>往上爬</em>。
+        到 11 月觸及 69,000 美元時，200 日均線已經在 50,000 美元附近。分母變大了，倍數自然變小。
+      </p>
+      <p>
+        <strong>高點一旦分成兩次出現，Mayer 倍數就會錯過第二個高點。</strong>
+        市場越是轉變成「不一次爆發、而是階梯式上漲」的成熟型態，這個指標的上端警報就越無力。
+      </p>
+
+      <h2 id="etf">2022~2026 — ETF 之後，2.4 可能再也不會出現</h2>
+      <p>
+        把到目前為止的紀錄按週期縱向排列，可以看到<strong>朝同一方向流動的趨勢</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>週期</th><th>高點倍數（約）</th><th>底部倍數（約）</th><th>振幅</th></tr></thead>
+          <tbody>
+            <tr><td>2011</td><td><code>5 以上</code></td><td><code>0.4~0.5</code></td><td>極端</td></tr>
+            <tr><td>2013</td><td><code>3~4</code></td><td><code>0.5~0.6</code>（2015）</td><td>非常大</td></tr>
+            <tr><td>2017</td><td><code>2.5~2.9</code></td><td><code>0.5~0.6</code>（2018）</td><td>大</td></tr>
+            <tr><td>2021</td><td><code>1.9~2.2</code>（4 月）</td><td><code>0.6~0.7</code>（2022）</td><td>中等</td></tr>
+            <tr><td>2024~2025</td><td><code>1.5~1.8</code></td><td>—</td><td><strong>小</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>高點倍數每個週期持續降低，底部倍數則持續升高。</strong>振幅正在壓縮。
+        原因不難推測。
+      </p>
+      <ul>
+        <li><strong>衍生品與放空</strong> — 現在市場上有向下壓的力量。這是 2013 年所沒有的。</li>
+        <li><strong>機構資金與現貨 ETF</strong> — 2024 年以後的資金流入，比散戶狂熱平緩且穩定得多。平緩的上漲，200 日均線追得上。</li>
+        <li><strong>市值規模</strong> — 一個 1 兆美元的資產要漲到 200 日平均的 3 倍，所需的資金規模根本不同。</li>
+      </ul>
+      <div class="note warn">
+        <strong>老實說：我們模型的上端區間已經在逐漸過時。</strong>
+        Mayer 倍數超過 2.4 → 10 分以下這個區間，<strong>在最近兩個週期中一次都沒有觸發過。</strong>
+        如果市場結構維持現狀，2.4 可能會成為<em>永遠不會再被觸及的死門檻</em>。
+        <br /><br />
+        但我們<strong>還沒有調降</strong>這個值。原因是一個兩難。
+        如果配合近期資料把門檻從 2.4 → 1.8 調低，現在看起來會很準，但那是<strong>配合過去彎曲曲線（曲線擬合）</strong>。
+        這樣調校的模型，在下一個週期回到舊有型態的瞬間就會崩潰。
+        <strong>我們目前的選擇是「保留原始門檻，但把它較少觸發的事實寫在這份文件裡」</strong>。
+        我們認為，公開模型的弱點，比悄悄修改模型要好。
+      </div>
+
+      <h2 id="weights">那麼為什麼是 4% 與 18% — 用數字回答</h2>
+
+      <div class="note warn">
+        <strong>更正說明（2026-07-14）</strong> — 本節的前一版<strong>把長線用的轉換函數誤套用到短線欄位</strong>，
+        導致 Mayer 倍數的短線貢獻被說明成<strong>正負號相反</strong>。
+        同時也遺漏了實際負責短線過熱防禦的 <strong>Blow-off Top 防護</strong>。
+        以下是以程式碼為準全面修正後的內容。
+      </div>
+
+      <p>
+        這裡有一件一定要知道的事。<strong>Mayer 倍數的正規化函數不是一個，而是兩個。</strong>
+        短線分頁與長線分頁使用<strong>不同的函數</strong>，而且<strong>正負號正好相反</strong>。
+      </p>
+
+      <pre><code>// 長線（逆向）— 越便宜分數越高
+conMayer(m):
+  m ≤ 0.8 → 100
+  m ≤ 1.4 → 50 + ((1.4 − m) / 0.6) × 50
+  m ≤ 2.4 → 10 + ((2.4 − m) / 1.0) × 40
+  m &gt; 2.4 → 10 − (m − 2.4) × 25
+
+// 短線（動能）— 越貴分數越高
+momMayer(m) = clamp(50 + (m − 1) × 25,  0,  100)</code></pre>
+
+      <p>
+        <strong>短線「越貴越加分」，聽起來像瘋話。</strong>但在 1~3 個月的視窗中，
+        大幅偏離到 200 日均線之上的狀態<strong>不是「高估」，而是「強勁的上升趨勢」</strong>。
+        2017 年正好證明了這一點 — 倍數突破 2.4 之後，價格又漲了好幾個月。
+        短線分頁不否定這個趨勢。
+      </p>
+
+      <p>實際計算一下貢獻度。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer 倍數</th><th>短線部分分數<br /><span class="muted">momMayer</span></th><th>短線貢獻<br /><span class="muted">×4%</span></th><th>長線部分分數<br /><span class="muted">conMayer</span></th><th>長線貢獻<br /><span class="muted">×18%</span></th></tr></thead>
+          <tbody>
+            <tr><td><code>0.75</code>（低估）</td><td>43.75</td><td>1.75 分</td><td>100</td><td><strong>18.0 分</strong></td></tr>
+            <tr><td><code>1.0</code>（200 日均線）</td><td>50</td><td>2.0 分</td><td>83.3</td><td>15.0 分</td></tr>
+            <tr><td><code>1.6</code></td><td>65</td><td>2.6 分</td><td>42.0</td><td>7.6 分</td></tr>
+            <tr><td><code>2.6</code>（過熱）</td><td>90</td><td><strong>3.6 分</strong></td><td>5.0</td><td>0.9 分</td></tr>
+            <tr><td><strong>振幅（0.5~2.5）</strong></td><td>37.5 ~ 87.5</td><td><strong>約 2.0 分</strong></td><td>100 ~ 7.5</td><td><strong>約 16.7 分</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>在短線分頁中，Mayer 的總振幅只有 2 分出頭。</strong>而且方向是<em>低估 → 扣分</em>。
+        <strong>在長線分頁中則能移動將近 17 分，方向相反</strong> — 足以把 <code>NEUTRAL（55 分）</code>
+        整個推到 <code>CAUTION（38 分）</code>，跨越一個半區間。
+        它與 RSI·MACD·恐懼與貪婪指數<strong>並列最高（18%）</strong>並不過分，原因是 2018·2020·2022 的底部
+        全都落在同一個倍數區間。以週期為單位能重現到這種程度的指標並不多。
+      </p>
+
+      <h3>那為什麼短線是 4% 而不是 0%</h3>
+      <p>
+        在短線中，Mayer 是<strong>趨勢指標的重複</strong>。「偏離到 200 日均線之上」這個資訊，
+        RSI（28%）·跌幅（18%）·MACD（14%）大多已經涵蓋。如果再大幅加上 Mayer，
+        就<strong>等於把同一個訊號算了四次</strong>。所以壓到 4%。
+      </p>
+      <p>
+        <strong>之所以不是 0%，是因為有一個角度是這三者看不到的。</strong>
+        RSI·MACD 看的是<em>最近幾天</em>的速度，跌幅看的是<em>相對高點</em>。
+        只有 Mayer 看的是<strong>「離 200 日平均這條長期基準線有多遠」</strong>。
+        趨勢的<strong>絕對延伸程度</strong> — 這是其他三者無法取代的。4% 就是這一份。
+      </p>
+
+      <h3>那麼過熱由誰來擋 — Blow-off Top 防護</h3>
+      <p>
+        這裡自然會出現反問：<strong>「如果短線越貴越加分，那在泡沫頂部分數豈不是一直往上加？」</strong>
+        沒錯。只有 momMayer 的話就會這樣。
+      </p>
+      <p>
+        所以由<strong>權重以外的另一個機制</strong>來做這件事。
+        對合成完成的<strong>短線總分本身施加衰減</strong>。
+      </p>
+      <pre><code>if (Mayer &gt; 2.0):
+    短線總分 ×= clamp(1 − (Mayer − 2.0) × 0.55,  0.25,  1)</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer 倍數</th><th>乘數</th><th>若短線總分原為 70 分</th></tr></thead>
+          <tbody>
+            <tr><td><code>2.0</code></td><td>×1.00</td><td>70.0（無衰減）</td></tr>
+            <tr><td><code>2.5</code></td><td>×0.725</td><td>50.8 <span class="muted">（−19.2 分）</span></td></tr>
+            <tr><td><code>3.0</code></td><td>×0.45</td><td>31.5 <span class="muted">（−38.5 分）</span></td></tr>
+            <tr><td><code>3.4 以上</code></td><td>×0.25 <span class="muted">（下限）</span></td><td>17.5 <span class="muted">（−52.5 分）</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>這才是真正的煞車。</strong>和 4% 權重造成的 2 分振幅完全不是一個層次。
+        倍數 2.5 時，短線總分的 <strong>27.5% 整個消失。</strong>
+        <code>ACCUMULATE（70 分）</code>會降到 <code>NEUTRAL（50.8 分）</code>。
+      </p>
+      <div class="note">
+        總結來說，Mayer 倍數在短線分頁中扮演<strong>兩個角色</strong>。<br />
+        <strong>① 權重 4%</strong> — <em>小幅</em>反映趨勢延伸程度（越貴越加分，振幅 2 分）<br />
+        <strong>② Blow-off 防護</strong> — 倍數超過 2.0 時<em>衰減總分本身</em>（最多削減 75%）<br />
+        <strong>「因為是 4%，所以短線忽略 Mayer」是一種誤解。</strong>不是權重小，
+        而是<strong>把過熱防禦的角色從權重移到了防護機制</strong>。
+      </div>
+      <p class="muted">
+        老實補充一句，衰減係數 0.55 與下限 0.25 是否最佳，我們的回測無法斬釘截鐵地回答。
+        唯一確定的是「沒有防護的話，2017·2021 頂部的短線分數會高得危險」。其餘都是判斷。
+      </p>
+
+      <h2 id="curve">轉換函數解剖 — 為什麼在 0.8 · 1.4 · 2.4 切開</h2>
+      <p>
+        把 Mayer 倍數轉成 0~100 部分分數的函數<strong>在三個地方轉折。</strong>
+        每個轉折點的出處完全不同。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>轉折點</th><th>出處</th><th>意義</th></tr></thead>
+          <tbody>
+            <tr><td><code>0.8</code></td><td>2015·2018·2022 底部的觀察</td><td>相對 200 日均線折價 20%。歷史上只偶爾觸及</td></tr>
+            <tr><td><code>1.4</code></td><td>接近比特幣全期間倍數的<strong>長期平均</strong></td><td>「平均就是 50 分」— 函數的中心軸</td></tr>
+            <tr><td><code>2.4</code></td><td>Trace Mayer 的原始回測</td><td>比這更貴時買入，長期績效開始轉差的點</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>1.4 對應 50 分，是這個函數的骨架。</strong>比特幣的 Mayer 倍數長期平均超過 1 —
+        代表位於 200 日均線<em>之上</em>才是這項資產的常態（這是長期上漲資產理所當然的性質）。
+        所以我們把<strong>「1.4 ≈ 中性」，而不是「1.0 = 中性」</strong>。
+        把倍數 1.0 當作中性的常見解讀，對比特幣來說<strong>在結構上過度樂觀</strong>。
+      </p>
+
+      <h3>為什麼每個區間的斜率不同</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>區間</th><th>分數變化</th><th>倍數每 0.1 的分數變化</th><th>為什麼是這個斜率</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100（固定）</td><td><strong>0 分</strong></td><td>更便宜也不多給（防止接刀）</td></tr>
+            <tr><td><code>0.8 ~ 1.4</code></td><td>100 → 50</td><td><strong>−8.3 分</strong></td><td>市場<strong>大部分時間</strong>所在的區間 → 集中解析度</td></tr>
+            <tr><td><code>1.4 ~ 2.4</code></td><td>50 → 10</td><td><strong>−4.0 分</strong></td><td>1.6 也好 2.0 也罷，終究是「貴」→ 不需要解析度</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>衰減至 0</td><td>在極端處精確度沒有意義</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        關鍵在於<strong>0.8~1.4 區間的斜率比 1.4~2.4 區間陡兩倍以上</strong>。
+        這是刻意的。比特幣<strong>有一半以上的交易日，倍數都落在 0.8~1.4 之間。</strong>
+        模型每天面對的不是 2.6，而是<strong>1.05 還是 1.25</strong>。必須把解析度集中在那裡，分數的變化才有意義。
+      </p>
+      <p>實際代入後是這樣。</p>
+      <pre><code>倍數 0.70  →  100 分    （2018·2022 底部區）
+倍數 0.90  →   91.7 分
+倍數 1.00  →   83.3 分   （與 200 日均線相同）
+倍數 1.20  →   66.7 分
+倍數 1.40  →   50.0 分   ← 中心軸（長期平均）
+倍數 1.60  →   42.0 分
+倍數 1.90  →   30.0 分   （2021 年 4 月高點區）
+倍數 2.20  →   18.0 分
+倍數 2.40  →   10.0 分   ← Mayer 的門檻
+倍數 2.60  →    6 分附近（衰減至 0）</code></pre>
+      <p>
+        兩端平坦、中間陡峭，<strong>像是一個平緩的 S 形倒過來</strong>。
+        這個函數是把<em>「在極端處少說話，在模糊區間多說話」</em>這個原則寫成了程式碼。
+      </p>
+
+      <h2 id="silence">這個指標沉默的四個地方</h2>
+      <p>
+        到目前為止，我們看了這個指標<strong>能做什麼</strong>。現在來看它<strong>在哪裡什麼都說不出來</strong>。
+        在實戰中，這一面更重要。
+      </p>
+
+      <h3>1. 熊市後段 — 最狡猾的失敗</h3>
+      <p>
+        前面寫過「Mayer 倍數對急跌敏感，對緩慢崩塌遲鈍」。代價就出現在這裡。
+      </p>
+      <p>
+        長期熊市進行一年左右時，<strong>200 日均線本身會跟著價格下來。</strong>
+        於是即使價格持續下跌，<strong>倍數也會「正常化」到 0.9~1.0 附近。</strong>
+        2018 年中與 2022 年中正是如此。在距高點 −70% 的情況下，Mayer 倍數<strong>若無其事地說「中性」。</strong>
+      </p>
+      <div class="note warn">
+        <strong>這是單靠 Mayer 倍數絕對無法修正的缺陷。</strong>這是分母會移動的指標的宿命。
+        broodev 另外加入<strong>相對 365 日高點的跌幅</strong>，原因就在這裡。
+        跌幅指標的分母是<strong>固定的過去高點</strong>，不會一起往下走。
+        <strong>Mayer 沉默時，跌幅會替它大聲喊。</strong>把兩個指標一起放進來，不是重複，而是<strong>互補</strong>。
+      </div>
+
+      <h3>2. 沒有 200 日的幣 — 以及我們如何坦白這一點</h3>
+      <p>
+        上市不到 200 天的幣，不存在 200 日移動平均。<strong>原理上就沒有</strong>辦法計算 Mayer 倍數。
+      </p>
+      <p>我們的應用程式分兩個階段處理這種情況。</p>
+      <ul>
+        <li>
+          <strong>資料不足但仍存在時</strong> — 以能取得的最長期間移動平均替代計算，
+          並在畫面上像 <code>200D 回退(120d)</code> 這樣<strong>以標籤標示實際用了幾天的資料</strong>。
+          <strong>用 120 日平均算出的倍數不是 Mayer 倍數。</strong>較短的平均會更快跟上價格，所以倍數會被壓在 1 附近，<strong>過熱和低估都不容易抓到。</strong>
+          我們會計算這個值，但<strong>不會在畫面上隱瞞它不是真的。</strong>
+        </li>
+        <li>
+          <strong>完全沒有時</strong> — 不把指標<strong>當作 0 分，而是從計算中排除</strong>。
+          因為 0 分代表「差」，而不是「不知道」。剩下 5 個指標的權重重新正規化為合計 100%，
+          並顯示 <code>coverage: 5/6 (82% weight)</code>。在長線分頁中少了 Mayer，代表<strong>依據中的 18% 整個消失</strong>。
+          <strong>出現這個標示的長線分數，請把可信度降一級來解讀。</strong>
+        </li>
+      </ul>
+
+      <h3>3. 山寨幣 — 門檻是 BTC 的衣服</h3>
+      <p>
+        0.8 與 2.4 是<strong>從比特幣的波動結構中萃取出來的數字</strong>。
+        對波動是比特幣 2~3 倍的山寨幣套用同一把尺，上端（2.4）在每次牛市都會輕易被突破，下端（0.8）在每次熊市也會輕易被跌破。
+        <strong>太常響的火災警報器，最後沒有人會理。</strong>
+        山寨幣畫面上的 Mayer 倍數分數，應該視為比 BTC 畫面<strong>解讀力明顯較低</strong>。
+      </p>
+
+      <h3>4. 200 日均線是「公允價值」並無根據</h3>
+      <p>
+        最後一點最為根本。Mayer 倍數是<strong>純粹只看價格的指標</strong>。
+        它不懂鏈上資料，不懂挖礦成本，不懂資金流入，也不懂監管。
+      </p>
+      <p>
+        而且 <strong>200 日這個數字本身沒有理論依據。</strong>
+        它只是傳統金融市場中<em>按慣例</em>使用的期間而已。180 日或 250 日也許更好。
+        「200 日平均 = 比特幣的公允價值」這個命題<strong>從未被證明過。</strong>
+        我們使用這個指標的唯一依據，只有<strong>「在過去的週期中，價格經常回到那附近」</strong>這一項觀察，
+        而<strong>觀察不是法則。</strong>
+      </p>
+
+      <h2 id="today">2026 年，如何解讀這個數字</h2>
+      <p>把到這裡的編年史壓縮成實戰讀法，就是三句話。</p>
+      <ul>
+        <li>
+          <strong>Mayer 倍數不告訴你「何時」，它告訴你「多少」。</strong>
+          2.2 這個值不是「馬上要跌」，而是「在這裡買，歷史上代價很大」。<strong>它不是擇時工具，而是估值工具</strong>。
+        </li>
+        <li>
+          <strong>在底部相信它，在高點懷疑它。</strong>0.8 以下在三個週期中重現過。
+          2.4 以上在最近兩個週期中一次都沒出現。<strong>這個指標的可信度上下並不對稱。</strong>
+        </li>
+        <li>
+          <strong>倍數「正常」時別鬆懈。</strong>熊市後段的 0.95 不是<em>正常</em>，而是<strong>指標沉默的聲音</strong>。
+          那時請看 <a href="/indicators">365 日跌幅</a>與<a href="/guide-fear-greed">恐懼與貪婪指數</a>。
+        </li>
+      </ul>
+      <p>
+        最後，如果要從這篇文章中挑一個最值得長久記住的句子，那應該是<strong>2021 年 11 月</strong>。
+        在週期真正的頂點，Mayer 倍數<strong>說的是「中性」。</strong>
+        沒有任何指標能在每個週期都準確，<strong>而這個指標尤其會隨著市場成熟而變得安靜。</strong>
+        這就是 broodev 不只用 Mayer 倍數出分，而是<a href="/methodology">合成 6 個指標</a>的原因。
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ 投資注意事項</strong><br />
+        本文件與 broodev 的分數是合成公開指標的<strong>參考資料，並非投資建議。</strong>
+        正文中的歷史倍數是會因資料來源而異的<strong>近似值，過去的模式不保證未來。</strong>
+        加密貨幣是<strong>可能損失全部本金</strong>的高風險資產。
+        所有投資判斷及其結果（損益）的責任完全由使用者本人承擔。請務必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸閱讀</h2>
+      <div class="related">
+        <a href="/methodology"><b>評分方法</b><span>以什麼權重合成 6 個指標（數值全部公開）</span></a>
+        <a href="/indicators"><b>6 個指標解讀</b><span>RSI·MACD·跌幅·交叉分別在什麼時候背叛你</span></a>
+        <a href="/guide-fear-greed"><b>恐懼指數實戰使用指南</b><span>Mayer 沉默時應該改看的指標</span></a>
+        <a href="/glossary"><b>術語表</b><span>200 日均線·SMA·部分分數等術語整理</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 營運 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+    </main>

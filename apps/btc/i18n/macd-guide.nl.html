@@ -1,0 +1,698 @@
+    <main class="wrap" data-title="MACD met de hand berekenen — EMA, signaallijn en histogram stap voor stap met 42 slotkoersen | broodev" data-desc="We vullen 42 slotkoersen in en berekenen bar voor bar de EMA12, EMA26, MACD-lijn, signaallijn en het histogram. Met echte code en cijfers controleren we waarom 30 bars nul histogramwaarden opleveren, wat de echte reden is om EMA in plaats van SMA te gebruiken en waarom broodev naar de richting ten opzichte van de vorige bar kijkt in plaats van naar de absolute waarde van het histogram.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoremethodologie</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/guide-fear-greed">De angst-index gebruiken</a>
+        <a href="/glossary">Woordenlijst</a>
+      </nav>
+
+      <h1>MACD met de hand berekenen<br />— een walkthrough die 42 slotkoersen tot het einde volgt</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems · Dit stuk is geen uitleg, maar een <strong>verslag van een oefening</strong></p>
+
+      <p class="lead">
+        Laten we beginnen met een mislukking. Neem <strong>30</strong> slotkoersen en draai de standaard-MACD (12·26·9):
+        u krijgt 5 waarden voor de MACD-lijn, en <strong>0 voor de signaallijn en 0 voor het histogram</strong>.
+        Met een maand aan data kunt u <em>geen enkele</em> MACD-histogramwaarde maken.
+        Verrassend weinig mensen weten dit — omdat ze MACD alleen hebben geleerd als “het verschil tussen het 12-daags en het 26-daags gemiddelde”.
+      </p>
+      <p>
+        Daarom begint dit stuk niet met een definitie. We <strong>vullen echt 42 slotkoersen in</strong> en
+        volgen EMA12 → EMA26 → MACD-lijn → signaallijn → histogram → deelscore van broodev
+        <strong>bar voor bar met de rekenmachine.</strong> Met alleen een rekenmachine kunt u elk getal in dit stuk zelf reproduceren;
+        lukt dat niet, dan hebben wij het fout.
+      </p>
+
+      <section class="bd-figs" aria-label="Live MACD-grafiek">
+        <p class="muted">Voordat we aan de walkthrough beginnen, bekijken we eerst het resultaat van de berekening uit dit stuk, toegepast op echte BTC-data. Het is precies dezelfde formule als in de oefening met 42 slotkoersen hieronder (EMA12−EMA26, signaal-EMA9).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">Grafiekgegevens worden geladen…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">Grafiekgegevens worden geladen…</div></div>
+          </div>
+          <p class="bd-cap">BTC-koers van de afgelopen 2 jaar (boven) en MACD(12,26,9) (onder). Staven = histogram (MACD-lijn−signaallijn, groen positief/rood negatief). De absolute grootte van de MACD is evenredig met het prijsniveau — daarom kijkt de tekst naar de richting in plaats van naar de absolute waarde. Data: CoinMetrics Community API, dagelijkse BTC-slotkoersen — opgehaald bij uw bezoek en in de browser berekend; <strong>benaderingen, alleen ter referentie</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Benodigdheden — de 42 slotkoersen die we in het hele stuk gebruiken</h2>
+      <p>
+        Het is een fictief actief. We hebben een verloop gemaakt dat bij 100 begint, <strong>−25.7% daalt tot 74.3 en daarna herstelt</strong>.
+        Het is een vorm die bij crypto vaak voorkomt, en hij is zo ontworpen dat er een zone (de bodemzone) in zit waar de rekenresultaten dramatisch uiteenlopen.
+      </p>
+      <pre><code>Dag 1~6     100.0  99.1 100.4  98.6  99.3  97.8
+Dag 7~14     96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+Dag 15~22    88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+Dag 23~30    81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← dag 30 is het dieptepunt (74.3)
+Dag 31~36    75.6  74.8  76.9  78.2  77.5  79.8
+Dag 37~42    81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>Let niet op de eenheden.</strong> Zoals we verderop bewijzen, is de MACD-deelscore van broodev
+        <strong>volledig onafhankelijk van het prijsniveau (scale-invariant)</strong>. Ook als u deze 42 slotkoersen met 700 vermenigvuldigt
+        om op het prijsniveau van bitcoin te komen (58,730 dollar), <strong>komt de deelscore tot op de vierde decimaal identiek uit.</strong>
+        Daarom gebruiken we leesbare getallen rond 100.
+      </div>
+
+      <p class="step">STAP 1</p>
+      <h2>Waarom EMA in plaats van SMA — “een bar van 12 dagen geleden maakt het signaal van vandaag”</h2>
+      <p>
+        Leerboeken zeggen “de EMA reageert gevoeliger op recente koersen en is dus sneller” en houden het daarbij. Die zin is <strong>maar half waar.</strong>
+        Met dezelfde 42 slotkoersen hebben we de <strong>SMA-versie van de MACD (SMA12−SMA26)</strong> en de <strong>EMA-versie van de MACD (EMA12−EMA26)</strong>
+        naast elkaar gedraaid.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Dag</th><th>Slot</th><th>MACD-lijn EMA-versie</th><th>MACD-lijn SMA-versie</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← EMA-dieptepunt</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← SMA-dieptepunt</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Resultaat 1 — bij het dieptepunt was de EMA één bar sneller</h3>
+      <p>
+        De EMA-versie bereikte haar dieptepunt (−7.008) op <strong>dag 28</strong> en draaide; de SMA-versie op <strong>dag 29</strong> (−7.201).
+        Eén bar verschil. Bovendien is het EMA-dieptepunt <strong>minder diep</strong> (−7.008 vs −7.201).
+        Tot zover precies zoals in het leerboek.
+      </p>
+
+      <h3>Resultaat 2 — maar terug naar de nullijn was de SMA sneller</h3>
+      <p>
+        Kijk naar dag 42. De SMA-versie staat op <strong>−0.006</strong> en is de nullijn praktisch door, terwijl de EMA-versie nog op <strong>−1.389</strong> staat.
+        Hier valt de bewering “de EMA is altijd sneller” in duigen. <strong>Waarom schoot de SMA ineens omhoog?</strong>
+      </p>
+      <p>
+        Van dag 41 naar dag 42 bewoog de MACD-lijn van de SMA-versie <strong>van −1.036 naar −0.006, oftewel +1.030 op één dag</strong>.
+        Op dezelfde dag bewoog de EMA-versie slechts +0.565. Bijna een factor twee verschil. Reken het na en de oorzaak wordt zichtbaar.
+      </p>
+      <pre><code>SMA12(dag 42) − SMA12(dag 41)
+  = (nieuw binnengekomen 86.2 van dag 42 − uit het venster gevallen 74.3 van dag 30) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← effect niet van de koers van vandaag, maar van "het verdwijnen van de bar van dag 30"
+
+Verandering aan de SMA26-kant = (86.2 − 87.2 van dag 16) ÷ 26 = −0.0385
+
+Verandering MACD SMA-versie = +0.9917 − (−0.0385) = +1.030   ✅ klopt met de tabel</code></pre>
+      <p>
+        <strong>Dit is de echte reden om geen SMA te gebruiken.</strong> Het grootste deel van het SMA-signaal op dag 42 ontstond niet
+        <em>doordat de koers vandaag steeg</em>, maar doordat <strong>het dieptepunt van 74.3 van 12 dagen geleden (dag 30) plotseling uit het venster van het voortschrijdend gemiddelde viel</strong>.
+        Vandaag gebeurde er niets in de markt, maar <strong>iets wat 12 dagen geleden gebeurde, maakt het koopsignaal van vandaag.</strong>
+        In de branche heet dit het <strong>‘uitvaleffect’ (drop-off effect)</strong>.
+      </p>
+      <p>
+        Een EMA heeft geen venster. Het gewicht van oude koersen <em>dooft alleen geleidelijk uit</em>, exponentieel volgens <code>(1−α)ⁿ</code>;
+        het wordt nooit op een dag ineens uit de berekening <strong>gegooid.</strong> Daarom bewoog de EMA-versie diezelfde dag soepel, met +0.565.
+      </p>
+      <div class="note">
+        <strong>Samengevat</strong> — we gebruiken de EMA niet “omdat hij sneller is”, maar <strong>“omdat hij geen spooksignalen maakt”</strong>.
+        De SMA is bij een omslag één bar trager en strooit in ruil daarvoor op willekeurige momenten <strong>valse sprongen die door een bar van 12 dagen geleden zijn veroorzaakt</strong>.
+        Belangrijker dan de <em>snelheid</em> van een signaal is de <em>oorzaak</em> ervan.
+      </div>
+
+      <p class="step">STAP 2</p>
+      <h2>De EMA12 uitrekenen op de rekenmachine</h2>
+      <p>
+        De EMA van broodev <strong>gebruikt het enkelvoudig gemiddelde van de eerste <code>period</code> waarden als startwaarde (seed)</strong> en wordt daarna exponentieel bijgewerkt.
+        <code>α = 2 ÷ (periode + 1)</code>. Voor de EMA12 is <code>α = 2/13 = 0.153846</code>.
+      </p>
+      <pre><code>// echte code van broodev (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← startwaarde = enkelvoudig gemiddelde van de eerste period waarden
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>Nu vullen we de 42 slotkoersen hierboven in. Op dag 12 ontstaat de startwaarde, vanaf dag 13 begint het bijwerken.</p>
+      <pre><code>Startwaarde dag 12 = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+            = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+Dag 13 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+Dag 14 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+Dag 15 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+Dag 16 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+Dag 17 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        De kern is alleen dit: <strong>“tel 15.4% van de slotkoers van vandaag op bij 84.6% van de EMA van gisteren”</strong>.
+        Het gewicht is elke dag hetzelfde, en het verleden wordt elke dag tot 84.6% verdund. Het gewicht van de slotkoers van 30 dagen geleden is
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code> — nog geen 0.1%. Maar <strong>niet nul.</strong> Dat verschil was de conclusie van STAP 1.
+      </p>
+
+      <p class="step">STAP 3</p>
+      <h2>EMA26 en de MACD-lijn — de eerste waarde komt pas op dag 26</h2>
+      <p>Voor de EMA26 is <code>α = 2/27 = 0.074074</code>. De startwaarde is het enkelvoudig gemiddelde van dag 1~26.</p>
+      <pre><code>Startwaarde dag 26 = 2341.4 ÷ 26 = <strong>90.0538</strong>
+Dag 27 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+Dag 28 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+Dag 29 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+Dag 30 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        Omdat de startwaarde van de EMA26 pas op dag 26 ontstaat, <strong>valt ook de eerste waarde van de MACD-lijn (EMA12 − EMA26) op dag 26.</strong>
+        Tot en met dag 25 <strong>bestaat de MACD-lijn zelf niet.</strong>
+      </p>
+      <pre><code>MACD-lijn (dag 26) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        Hier volgt de eerste belangrijke observatie. Zet de MACD-lijn van dag 26 tot dag 34 eens op een rij.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Dag</th><th>Slot</th><th>MACD-lijn</th><th>Opmerking</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>Dieptepunt MACD-lijn</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>Begin van het herstel</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>Koers maakt een lager dieptepunt, MACD een hoger</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Slot dag 28: 75.1 → slot dag 30: 74.3. <strong>De koers maakte een lager dieptepunt (−1.1%).</strong>
+        Maar de MACD-lijn ging van −7.008 naar −6.851: <strong>een hoger dieptepunt.</strong>
+        Dit heet een <strong>bullish divergentie (bullish divergence)</strong>.
+        Het betekent: “de koers staat op een nieuw dieptepunt, maar de <em>snelheid</em> van de daling neemt al af”.
+      </p>
+      <p>
+        En in deze walkthrough lag de echte koersbodem op <strong>dag 30</strong>.
+        De MACD-lijn was al op <strong>dag 28</strong> gedraaid. <strong>De indicator veranderde twee bars eerder van richting dan de koers.</strong>
+        Onthoud dit — het wordt in STAP 6 de onderbouwing van “waarom de richting en niet de absolute waarde”.
+      </p>
+
+      <p class="step">STAP 4</p>
+      <h2>De signaallijn — hier schieten 30 bars tekort</h2>
+      <p>
+        De signaallijn is de <strong>EMA9 van de MACD-lijn</strong>. Oftewel een <strong>EMA van een EMA</strong>.
+        Omdat de MACD-lijn op dag 26 begint, kan de startwaarde van de signaallijn (het gemiddelde van 9 MACD-waarden) pas worden gemaakt
+        <strong>als dag 26 tot en met 34 allemaal binnen zijn</strong>.
+      </p>
+      <pre><code>Startwaarde signaal (dag 34)
+ = gemiddelde van de 9 MACD-waarden van dag 26~34
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+Histogram (dag 34) = MACD-lijn (−5.613) − signaallijn (−6.6071) = <strong>+0.994</strong>   ← eerste waarde!</code></pre>
+      <p>Vanaf dag 35 werken we bij met α = 0.2.</p>
+      <pre><code>Signaal dag 35 = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+              histogram = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+Signaal dag 36 = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+              histogram = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+Signaal dag 37 = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+              histogram = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>Waarom 30 bars nul histogramwaarden opleveren</strong><br />
+        26 (startwaarde EMA26) + 9 (startwaarde signaal) − 1 = <strong>34</strong>. De <strong>eerste histogramwaarde komt op zijn vroegst bij de 34e bar</strong>.
+        Maar omdat broodev naar de <strong>verandering ten opzichte van de vorige bar</strong> van het histogram kijkt, zijn er <strong>2</strong> nodig → <strong>35 bars</strong>.
+        Daarom staat deze controle in de code.
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← minder dan 35 bars: MACD-deelscore = null</code></pre>
+        Is de MACD <code>null</code>, dan treedt de <a href="/methodology">hernormalisatie van de gewichten</a> in werking:
+        de score wordt berekend met de overige 5 indicatoren en getoond als <code>coverage 5/6</code>. Bij pas genoteerde munten ziet u deze toestand vaak.
+      </div>
+      <p class="muted">
+        Daarbij komt dat 35 bars <strong>een minimale, geen voldoende voorwaarde</strong> is. Het histogram van dag 34 is nog “onrijp”,
+        omdat de startwaarde van het signaal <em>een enkelvoudig gemiddelde van slechts 9 MACD-waarden</em> is. Voor een stabiel histogram in de praktijk
+        moeten er minstens <strong>60~80 bars</strong> zijn opgebouwd. We komen hier met cijfers op terug in <a href="#seed">bijlage A</a> aan het einde van dit stuk.
+      </p>
+
+      <p class="step">STAP 5</p>
+      <h2>De volledige rekentabel — van dag 26 tot dag 42</h2>
+      <p>
+        Alle waarden tot nu toe staan in één tabel. <strong>Δhistogram</strong> is “de verandering van het histogram ten opzichte van de vorige bar”, en
+        <strong>kort/lang</strong> zijn de MACD-deelscores (0~100) die broodev daaruit berekent.
+        De grijze rijen zijn de <strong>zone waarin de berekening zelf onmogelijk is</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>Dag</th><th>Slot</th><th>EMA12</th><th>EMA26</th><th>MACD-lijn</th><th>Signaal</th><th>Histogram</th><th>Δhistogram</th><th>Score kort</th><th>Score lang</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Let erop dat <strong>de MACD-lijn tot en met dag 42 negatief blijft (−1.389)</strong>.
+        Wie de regel “pas kopen als de MACD boven de nullijn komt” volgde, <strong>kreeg in dit herstel geen enkel koopsignaal.</strong>
+        Het <strong>histogram is daarentegen op dag 34 al positief (+0.994)</strong>.
+        Het histogram meet <em>of de MACD-lijn de signaallijn heeft ingehaald</em>, en is daardoor veel sneller dan een doorbraak van de nullijn.
+      </p>
+      <p>
+        En kijk naar <strong>dag 41</strong>. Deze ene regel is de hele volgende STAP.
+      </p>
+
+      <p class="step">STAP 6</p>
+      <h2>Hier slaat broodev een andere weg in dan het leerboek — richting, niet absolute waarde</h2>
+      <p>
+        Tot nu toe was het de standaard-MACD. Elk grafiekprogramma geeft dezelfde waarden.
+        <strong>Vanaf hier begint het deel dat eigen is aan broodev.</strong> We publiceren de functie die het histogram (een reëel getal van 0 tot oneindig)
+        omzet in een score van 0~100 <strong>letterlijk uit de broncode</strong>.
+      </p>
+      <pre><code>// kortetermijnmapping (momentum) — MACD-gewicht 14%
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① <strong>niveau</strong> van het histogram
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② <strong>richting</strong> t.o.v. de vorige bar
+, 0, 100)
+
+// langetermijnmapping (contrair) — MACD-gewicht 18%
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② <strong>richting</strong> t.o.v. de vorige bar
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① <strong>niveau</strong> van het histogram
+, 0, 100)</code></pre>
+      <p>
+        De twee functies hebben <strong>dezelfde structuur, met omgedraaide coëfficiënten.</strong> Dat is alles.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Term</th><th>Betekenis</th><th>Coëfficiënt kort (momentum)</th><th>Coëfficiënt lang (contrair)</th></tr></thead>
+          <tbody>
+            <tr><td>① Niveau</td><td>Hoe groot het histogram nu is (absolute waarde)</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② Richting</td><td>Groter of kleiner geworden dan de vorige bar (Δ)</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>Verhouding niveau : richting</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>tanh-versterking</td><td>Hoe groter, hoe sneller verzadiging bij kleine veranderingen</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>De kortetermijnmodus weegt het niveau twee keer zo zwaar.</strong> Hoe sterk de trend is, telt daar.<br />
+        <strong>De langetermijnmodus weegt de richting 2.5 keer zo zwaar.</strong> Ook als het histogram nog diep negatief is,
+        bepaalt <strong>“is het beter dan gisteren?”</strong> de score.
+      </p>
+
+      <h3>Zelfde histogram, andere richting — hoe ver lopen de scores uiteen?</h3>
+      <p>Bij een koers van 100 hebben we vier situaties ingevoerd waarin <strong>de histogramwaarde gelijk is en alleen de richting ten opzichte van de vorige bar verschilt</strong>.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Situatie</th><th>Histogram</th><th>Vorige waarde</th><th>Score kort</th><th>Score lang</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>Diep negatief, maar <strong>sterk omhoog gedraaid</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>Diep negatief en <strong>nog steeds dalend</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>Licht positief, maar <strong>aan het omkeren</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>Licht positief en <strong>stijgend</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Vergelijk rij 1 en rij 2. <strong>De histogramwaarde is precies hetzelfde: −0.30.</strong> Alleen de richting verschilt.
+        Toch <strong>loopt de langetermijndeelscore 35.8 punten uiteen, van 22.6 naar 58.4.</strong>
+        Een model dat alleen naar de absolute waarde kijkt, <strong>kan de twee niet onderscheiden.</strong> Beide zijn “slecht”.
+      </p>
+      <p>
+        Maar rij 1 is <strong>precies dag 28</strong> uit STAP 3.
+        De bar waarop, terwijl de koers nieuwe dieptepunten maakte, de verkoopdruk <em>begon af te nemen</em>.
+        Wie alleen naar de absolute waarde keek, zou die bar als “slechtst” hebben beoordeeld. <strong>In werkelijkheid lag de bodem nog maar twee bars verder.</strong>
+      </p>
+      <p>
+        Rij 3 en 4 vertellen hetzelfde verhaal in omgekeerde richting. Het histogram is positief (+0.10), dus <strong>voor een absolutewaardemodel zijn beide “goed”</strong>,
+        maar de ene is aan het omkeren en de andere stijgt. De langetermijnscores lopen uiteen: <strong>37.5 vs 66.5</strong>.
+      </p>
+      <div class="note">
+        <strong>In één zin</strong> — de absolute waarde van het histogram zegt <strong>“hoe goed het nu is”</strong>,
+        de verandering ten opzichte van de vorige bar zegt <strong>“of het beter aan het worden is”</strong>.
+        Vanuit langetermijnaccumulatie willen we niet <em>een actief dat al goed is geworden</em> kopen, maar <em>een actief dat is opgehouden slechter te worden</em>.
+        Daarom overheerst in de langetermijnmapping de richtingscoëfficiënt (25) de niveaucoëfficiënt (10).
+      </div>
+
+      <h3>De prijs: tanh verzadigt snel (de les van dag 41)</h3>
+      <p>
+        Niets is gratis. Wie de richting zwaar weegt, ziet <strong>de score al bij minieme ruis sterk schommelen.</strong>
+        <strong>Dag 41</strong> in de tabel van STAP 5 is het bewijs.
+      </p>
+      <pre><code>Dag 40: Δhistogram = <strong>+0.155</strong>  (+0.183% van koers 84.7)  → score lang <strong>80.0</strong>
+Dag 41: Δhistogram = <strong>−0.014</strong>  (−0.017% van koers 83.9)  → score lang <strong>57.4</strong>
+
+Berekening van de richtingsterm:
+  Dag 40 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  Dag 41 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  Verschil <strong>−22.5 punten</strong>   ← klopt met de daling van de langetermijndeelscore (−22.6)</code></pre>
+      <p>
+        <strong>Eén minieme daling van het histogram, ter grootte van 0.017% van de koers, kostte de langetermijndeelscore 22.6 punten.</strong>
+        De oorzaak is de verzadiging van <code>tanh</code>. <code>tanh(1.098) ≈ 0.80</code> — met andere woorden: een Δ van slechts 0.18% van de koers
+        is genoeg om de richtingsterm al <strong>80% van zijn maximum (25 punten)</strong> te laten pakken. Daarna stijgt hij niet verder, hoe groot het ook wordt.
+        Omgekeerd: zodra het teken omslaat, <strong>verdwijnen die 20 punten meteen.</strong>
+      </p>
+      <p>In een tabel wordt deze verzadigingscurve duidelijk.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Δhistogram ÷ koers</th><th>Richtingsterm kort (max. 15)</th><th>Richtingsterm lang (max. 25)</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00 (verzadigd)</td><td>25.00 (verzadigd)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Boven 0.4% staan beide termen praktisch op hun maximum.</strong> Alles daarboven voegt geen informatie toe.
+        Oftewel: <strong>de informatie “het histogram is enorm groot” komt nauwelijks terug in de score van broodev.</strong>
+        Ook in een stormachtige stijging blijft de MACD-deelscore rond 100 hangen en stijgt niet verder.
+        Dat is een bewuste keuze (zodat extreme waarden de totaalscore niet domineren), maar tegelijk <strong>een duidelijk informatieverlies</strong>.
+        Dat zeggen we eerlijk.
+      </p>
+
+      <p class="step">STAP 7</p>
+      <h2>Experiment in een zijwaartse markt — er gebeurt niets, maar de score pendelt tussen 21 en 83</h2>
+      <p>
+        Laten we nu het slechtste scenario <strong>in cijfers</strong> bekijken. We maken een nieuwe dataset:
+        <strong>een volkomen zijwaartse markt die 60 bars lang tussen 98.4 en 101.5 heen en weer gaat.</strong> De totale bandbreedte is <strong>±1.5%</strong>.
+        In 60 dagen gebeurde er in de markt feitelijk <strong>niets.</strong>
+      </p>
+      <p>Hierop lieten we dezelfde MACD (12·26·9) los, met dezelfde broodev-mapping.</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Dag</th><th>Slot</th><th>Histogram</th><th>Teken</th><th>Omslag</th><th>Score kort</th><th>Score lang</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Samengevat ziet het er zo uit.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Onderdeel</th><th>Waarde</th></tr></thead>
+          <tbody>
+            <tr><td>Bars met een histogram</td><td>27 bars (dag 34~60)</td></tr>
+            <tr class="mark"><td><strong>Aantal keer dat het teken van het histogram omsloeg</strong></td><td><strong>10 keer</strong> — gemiddeld eens per 2.7 bars</td></tr>
+            <tr><td>Maximale absolute waarde van het histogram</td><td>0.132 (<strong>0.13%</strong> van de koers)</td></tr>
+            <tr><td>Bereik kortetermijndeelscore</td><td>21.1 ~ 83.0 → <strong>bandbreedte 61.9</strong></td></tr>
+            <tr><td>Bereik langetermijndeelscore</td><td>32.8 ~ 71.2 → <strong>bandbreedte 38.4</strong></td></tr>
+            <tr><td>Gemiddelde kortetermijndeelscore</td><td>52.6 (neutraal)</td></tr>
+            <tr><td>Gemiddelde langetermijndeelscore</td><td>50.7 (neutraal)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>In 27 bars sloeg het koop-/verkoopsignaal 10 keer om.</strong> Dit is <strong>whipsaw</strong> (zaagtand).
+        Wie de klassieke regel “kopen als het histogram de nullijn omhoog doorkruist, verkopen als het die omlaag doorbreekt” letterlijk volgde,
+        <strong>had in deze 27 dagen 10 keer gekocht en verkocht</strong> en, terwijl de koers niet van zijn plaats kwam, <strong>alleen 10 keer transactiekosten betaald</strong>.
+      </p>
+      <p>
+        Nog enger is <strong>de amplitude van de score</strong>. De markt bewoog slechts ±1.5%, maar
+        de kortetermijndeelscore pendelde <strong>van 21.1 (sterk vermijden) tot 83.0 (sterk kopen)</strong>.
+        Tussen de 21.1 van dag 50 en de 81.0 van dag 38 <strong>zit nauwelijks een reëel marktverschil.</strong> Op slotkoers is het 2.6%.
+      </p>
+
+      <h3>Hoeveel schommelt de eindscore dan?</h3>
+      <p>MACD is maar één van de 6 indicatoren. Vermenigvuldigd met het gewicht berekenen we <strong>de werkelijke invloed op de totaalscore (0~100)</strong>.</p>
+      <pre><code>Kortetermijnmodus: bandbreedte deelscore 61.9 × gewicht <strong>0.14</strong> = <strong>8.67 punten</strong>
+Langetermijnmodus: bandbreedte deelscore 38.4 × gewicht <strong>0.18</strong> = <strong>6.91 punten</strong></code></pre>
+      <p>
+        Hier komt <strong>een contra-intuïtief resultaat</strong> uit.
+        <strong>Kort heeft een lager gewicht (14% &lt; 18%), maar de eindscore schommelt sterker (8.67 &gt; 6.91).</strong>
+        De niveaucoëfficiënt 30 en de versterking 800 maken de kortetermijnmapping veel gevoeliger.
+        Wie alleen naar de gewichten kijkt en concludeert dat “kort minder op de MACD let”, zit fout. <strong>Je moet ook naar de mappingfunctie kijken.</strong>
+      </p>
+      <p class="muted">
+        Ter informatie: in beide modi ligt <strong>het gemiddelde rond 50 (52.6 / 50.7)</strong>. In een zijwaartse markt blijft de MACD-deelscore
+        <em>gemiddeld</em> neutraal. Het probleem is dat je <strong>niet op het gemiddelde handelt, maar op de waarde van die dag</strong>.
+      </p>
+
+      <p class="step">STAP 8</p>
+      <h2>Gewicht 14% vs 18% — antwoorden met berekeningen</h2>
+      <p>
+        In de gewichten die in het <a href="/methodology">methodologiedocument</a> zijn gepubliceerd, heeft de MACD <strong>14% op korte termijn en 18% op lange termijn</strong>.
+        “Waarom weegt de MACD, een momentumindicator, lichter in de momentummodus (kort)?” — een vraag die we vaak krijgen, en een terechte.
+        Het antwoord is <strong>redundantie (redundancy)</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Modus</th><th>Momentum-/trendkarakter</th><th>Contrair karakter</th><th>Rol van de MACD</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Kort</strong></td>
+              <td>RSI 28% + F&amp;G 28% + daling 18% + MACD 14% + cross 8% = <strong>96%</strong><br /><span class="muted">In de kortetermijnmodus worden RSI, F&amp;G en daling <em>allemaal in momentumrichting</em> gemapt</span></td>
+              <td>Mayer 4%</td>
+              <td><strong>Redundant.</strong> 96% kijkt al naar de trend</td>
+            </tr>
+            <tr>
+              <td><strong>Lang</strong></td>
+              <td>MACD 18% + cross 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + Mayer 18% + daling 14% = <strong>50%</strong><br />(RSI 18% met contraire mapping)</td>
+              <td><strong>De enige rem.</strong> Meer dan de helft van de 32% die tegenhoudt wanneer 68% “kopen!” roept</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Van de 6 indicatoren in de kortetermijnmodus zijn er in feite al 5 in momentumrichting gemapt.</strong>
+        De RSI scoort via <code>50 + (RSI−50) × 1.6</code> <em>hoger naarmate hij hoger staat</em> (overkocht = goed),
+        de F&amp;G scoort <em>hoger naarmate de hebzucht groter is</em>, en de daling scoort <em>hoger naarmate die kleiner is</em>.
+        Als je daar de MACD ook nog zwaar laat meewegen, <strong>tel je dezelfde informatie vier keer</strong>.
+        Bovendien is <strong>de MACD, zoals we in STAP 7 zagen, de luidruchtigste indicator van deze set</strong> (10 omslagen in 27 bars).
+        Er is geen reden om een luidruchtige, redundante indicator gewicht te geven. Daarom 14%.
+      </p>
+      <p>
+        <strong>De langetermijnmodus is precies het omgekeerde.</strong> F&amp;G (18%) · Mayer (18%) · daling (14%) — <strong>samen is 50% contrair</strong>,
+        en deze drie <a href="/indicators">zitten in een bearmarkt allemaal tegelijk fout</a>. Alle drie roepen “goedkoop, kopen”, terwijl de koers blijft zakken.
+        Op dat moment zijn <strong>de enige indicatoren die “nog niet” kunnen zeggen de MACD (18%) en de golden/death cross (14%)</strong>.
+        Maar de cross gebruikt het 200-daags voortschrijdend gemiddelde en is <strong>het traagste signaal</strong>; rond de bodem loopt hij weken achter.
+      </p>
+      <div class="note">
+        <strong>Conclusie</strong> — de 18% van de MACD in de langetermijnmodus komt <strong>niet voort uit “meer vertrouwen in momentum”, maar uit “een tekort aan remmen”</strong>.
+        In een structuur waarin het contraire trio 50% inneemt, is de MACD <strong>de enige snelle indicator die bevestigt of de trend echt is gedraaid</strong>.
+        En die bevestiging komt niet van <em>of het histogram positief is geworden</em> (traag), maar van
+        <em>of het histogram groter is dan gisteren</em> (snel) — daarom is de richtingscoëfficiënt in de langetermijnmapping 25.
+        <strong>Het gewicht van 18% en de richtingscoëfficiënt 25 zijn twee kanten van dezelfde beslissing.</strong>
+      </div>
+
+      <p class="step">Bijlage A</p>
+      <h2 id="seed">Uw grafiek en ons histogram kunnen verschillen</h2>
+      <p>
+        Dit is iets wat de meeste artikelen over MACD nooit vertellen. <strong>MACD is geen gestandaardiseerde specificatie.</strong>
+        “12·26·9” ligt vast, maar <strong>waarmee de eerste EMA-waarde begint (de startwaarde, seeding) ligt niet vast.</strong>
+      </p>
+      <ul>
+        <li><strong>De methode van broodev</strong> — gebruikt het <strong>enkelvoudig gemiddelde</strong> van de eerste <code>period</code> waarden als startwaarde (STAP 2·3 hierboven)</li>
+        <li><strong>Een andere gangbare methode</strong> — gebruikt <strong>de eerste slotkoers zelf</strong> als startwaarde en laat de EMA vanaf dag 1 doorlopen</li>
+      </ul>
+      <p>Precies dezelfde 42 slotkoersen, precies dezelfde 12·26·9, en toch loopt het histogram zo uiteen.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Dag</th><th>Slot</th><th>Histogram<br />(broodev · SMA-startwaarde)</th><th>Histogram<br />(eerste slot als startwaarde)</th><th>Verschil</th><th>Verschil ÷ koers</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>Geen waarde</td><td><strong>+0.056</strong> ← koopsignaal!</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Kijk naar dag 33.</strong> Bij de methode met de eerste slotkoers als startwaarde is het histogram <strong>al positief: +0.056</strong> —
+        er verschijnt dus een signaal <strong>“histogram doorkruist de nullijn omhoog: kopen”</strong>.
+        Op dezelfde dag heeft broodev <strong>helemaal nog geen waarde</strong> (omdat de startwaarde van het signaal pas op dag 34 ontstaat).
+        <strong>Dezelfde data, dezelfde parameters, en toch een andere signaaldag.</strong>
+      </p>
+      <p>
+        Het verschil wordt in de loop van de tijd kleiner (0.82% → 0.35%). In theorie dooft het effect van de startwaarde bij een EMA exponentieel uit, dus
+        <strong>met genoeg data convergeren beide methoden.</strong> Maar ook bij bar 42 blijft er nog een verschil van 0.35% van de koers over.
+      </p>
+      <p>
+        <strong>Hoeveel van dit verschil slaat dan over op de deelscore van broodev?</strong> Ook dat hebben we gewoon uitgerekend.
+        De uitkomst <strong>was anders dan ik verwachtte, en daardoor interessanter.</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Dag</th><th>Histogramverschil</th><th>Score kort<br />(wij / alternatief)</th><th>Δ</th><th>Score lang<br />(wij / alternatief)</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Het verschil in deelscores is slechts 0.2 ~ 4.9 punten.</strong> Het histogram liep wel 0.82% uiteen, maar de scores verschillen nauwelijks.
+        De reden is <strong>precies de tanh-verzadiging die we in STAP 6 als “informatieverlies” bekritiseerden</strong>.
+        In deze zone is het histogram al zo groot dat de niveauterm tegen zijn maximum aan zit, en
+        <strong>omdat beide verzadigd zijn, kan het verschil niet doorwerken in de score.</strong>
+      </p>
+      <div class="note">
+        <strong>Dezelfde eigenschap is zwakte én sterkte</strong><br />
+        tanh-verzadiging <strong>gooit de informatie over de grootte van extreme waarden weg</strong> (het nadeel uit STAP 6). Maar juist dankzij die eigenschap
+        <strong>schommelt de score nauwelijks door implementatieruis zoals een andere startwaardemethode of een andere databron</strong> (het voordeel uit bijlage A).
+        Je wint het een en verliest het ander. Wij <strong>kozen voor robuustheid.</strong> Of dat de juiste keuze was, weten we niet.
+      </div>
+      <p>
+        <strong>Toch is het te vroeg om gerust te zijn.</strong> Het resultaat hierboven gaat over een trendzone waarin het histogram <em>al groot</em> is.
+        Voeren we hetzelfde verschil van 0.30% in wanneer het histogram <strong>rond 0 staat (= vóór de verzadiging)</strong>, dan gebeurt dit.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Histogram (bij koers 100)</th><th>Score kort</th><th>Score lang</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15 (aan weerszijden van de nullijn)</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Liggen de histogrammen aan weerszijden van de nullijn, dan loopt de kortetermijndeelscore 50 punten uiteen.</strong>
+        En <strong>rond 0 is precies waar mensen naar signalen zoeken</strong> — keerpunten, zijwaartse markten, vlak voor een cross.
+        <strong>De zone waar het startwaardeverschil het zwaarst doorweegt, is uitgerekend de belangrijkste zone.</strong>
+        (Ook hier schommelt de langetermijnmapping veel minder dan de kortetermijnmapping: +14.3 vs +50.0. Omdat de niveaucoëfficiënt maar 10 is.)
+      </p>
+      <div class="note warn">
+        <strong>Drie praktische gevolgen</strong>
+        <ul>
+          <li>
+            <strong>Vergelijk geen absolute MACD-waarden tussen sites.</strong> Wijkt het histogram van broodev af van uw grafiekprogramma,
+            dan heeft niet een van beide het fout: <strong>de startwaardemethode verschilt</strong>. De vergelijking zelf zegt niets.
+          </li>
+          <li>
+            <strong>Hoe minder data, hoe voorzichtiger.</strong> Bij pas genoteerde munten is het effect van de startwaarde nog niet uitgewerkt.
+            Bij een actief als BTC, met honderden bars aan historie, is het verschil verwaarloosbaar.
+          </li>
+          <li>
+            <strong>Wantrouw vooral het signaal “het histogram is net door de nullijn gegaan”.</strong> Zoals de tabel hierboven laat zien,
+            drijven implementatieverschillen rond de nullijn de deelscore tot wel 50 punten uiteen.
+            <strong>Het is veel veiliger om naar het aanhouden van de richting over meerdere bars te kijken dan naar de nullijndoorbraak zelf.</strong>
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">Bijlage B</p>
+      <h2>Wat deze walkthrough niet heeft bewezen (en niet kan bewijzen)</h2>
+      <p>
+        Tot nu toe hebben we het rekenproces gereproduceerd met <strong>fictieve data</strong> van 42 en 60 bars.
+        Laten we helder scheiden wat dit stuk heeft bewezen en wat het <strong>niet heeft bewezen</strong>.
+      </p>
+      <h3>Wat bewezen is</h3>
+      <ul>
+        <li>De MACD-berekening van broodev is de <strong>standaard 12·26·9</strong> en is met de cijfers hierboven <strong>door iedereen te reproduceren</strong>.</li>
+        <li>Een histogram is mogelijk <strong>vanaf de 34e bar</strong>, een richtingsoordeel <strong>vanaf de 35e bar</strong>. Daarom bestaat de controle <code>closes.length &gt;= 35</code>.</li>
+        <li>De langetermijnmapping weegt de richting 2.5 keer zo zwaar, met <strong>richtingscoëfficiënt 25 : niveaucoëfficiënt 10</strong>. Zo staat het in de code.</li>
+        <li>De score is <strong>onafhankelijk van het prijsniveau</strong> (ook bij ×700 identiek tot op de vierde decimaal).</li>
+        <li>In een zijwaartse markt <strong>slaat het signaal van deze indicator 10 keer om in 27 bars.</strong> Dat is een <strong>gemeten zwakte</strong> van ons model.</li>
+        <li>
+          MACD is <strong>geen gestandaardiseerde specificatie.</strong> Alleen al een andere startwaardemethode geeft bij dezelfde data een andere signaaldag.
+          Dankzij de tanh-verzadiging werkt dat verschil <strong>in trendzones</strong> echter nauwelijks door in de deelscore (0.2~4.9 punten).
+          <strong>Rond de nullijn loopt het op tot 50 punten.</strong>
+        </li>
+      </ul>
+      <h3>Wat niet bewezen is (belangrijk)</h3>
+      <ul>
+        <li>
+          <strong>Het is geen bewijs dat “letten op richtingsomslagen winst oplevert”.</strong> De 42 bars hierboven zijn fictieve data <em>die ik zelf zo heb gemaakt dat ze herstellen</em>.
+          Het is net zo makkelijk om data te maken waarin de koers na een richtingsomslag bij de bodem <strong>nog eens −40% daalt</strong>.
+          <strong>Transparantie van het rekenproces</strong> en <strong>voorspellende kracht</strong> zijn totaal verschillende kwesties.
+        </li>
+        <li>
+          <strong>MACD is van nature een achterlopende indicator.</strong> Het is een voortschrijdend gemiddelde van het verschil tussen voortschrijdende gemiddelden.
+          Tegen de tijd dat het histogram van richting verandert, <strong>ligt een deel van de beweging al achter ons</strong>.
+          Dat de MACD-lijn in STAP 3 2 bars eerder draaide dan de koers, is <strong>divergentie</strong>, geen <strong>voorspellende gave</strong> —
+          en divergenties <strong>mislukken vaak.</strong>
+        </li>
+        <li>
+          <strong>De gewichten van 14%/18% zijn een oordeel van de auteur.</strong> De redenering uit STAP 8 (redundantie vermijden, een rem inbouwen) is een overtuigende <em>ontwerpmotivatie</em>,
+          <strong>geen bewijs van de optimale waarde.</strong> 16% zou best beter kunnen zijn. De data geven geen sluitend antwoord.
+        </li>
+        <li>
+          <strong>tanh-verzadiging gooit extreme informatie weg.</strong> Zoals we in STAP 6 zagen, telt elke grootte boven 0.4% van de koers
+          niet meer mee in de score. Het ontwerp <strong>gooit bewust informatie weg over de intensiteit</strong> van historische crashes en explosieve stijgingen.
+        </li>
+        <li>
+          <strong>MACD weet niets van nieuws, regelgeving, hacks of liquiditeit.</strong> Zelfs terwijl een exchange failliet gaat, kan het histogram keurig omhoog draaien.
+        </li>
+      </ul>
+      <p>
+        De MACD-deelscore is slechts <strong>14~18%</strong> van de totaalscore van broodev.
+        De overige 82~86% komt van de <a href="/indicators">andere vijf indicatoren</a>,
+        en hoe die worden gecombineerd, staat volledig in het <a href="/methodology">methodologiedocument</a>.
+        <strong>Geen enkele indicator beslist op zichzelf iets.</strong> Dat is de bedoeling van het ontwerp.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document is <strong>een technisch document dat de rekenmethode openbaar maakt en geen beleggingsadvies.</strong>
+        De slotkoersen en scores in de tekst zijn <strong>fictieve data</strong> om het rekenproces te tonen en voorspellen niet de toekomstige koers van welk actief dan ook.
+        Crypto is een risicovol actief waarbij <strong>verlies van uw volledige inleg mogelijk is</strong>.
+        De verantwoordelijkheid voor alle beleggingsbeslissingen en de gevolgen daarvan (winst of verlies) ligt volledig bij de gebruiker zelf. Doe altijd uw eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoremethodologie</b><span>De gewichten van de 6 indicatoren, inclusief de 14%/18% van de MACD, en de hernormalisatie volledig openbaar</span></a>
+        <a href="/indicators"><b>Uitleg van de 6 indicatoren</b><span>Wanneer elk van de vijf andere indicatoren naast de MACD je in de steek laat</span></a>
+        <a href="/guide-fear-greed"><b>Praktische gids voor de angstindex</b><span>Precies de indicator waarop de MACD moet remmen</span></a>
+        <a href="/glossary"><b>Woordenlijst</b><span>Begrippen als EMA, histogram, divergentie en whipsaw op een rij</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

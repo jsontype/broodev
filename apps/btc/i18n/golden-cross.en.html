@@ -1,0 +1,481 @@
+<main class="wrap" data-title="5 Myths About the Golden Cross — Why It Is a Trend Filter, Not a Buy Signal | broodev" data-desc="The golden cross is not a buy signal. We break the indicator the media misuses most into five common myths and refute each one, then show — with the actual 4-tier score table from our code and a worked calculation — why the broodev model gives it only 8% short-term and 14% long-term weight.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/indicators">Indicator guide</a>
+        <a href="/guide-fear-greed">Fear index guide</a>
+        <a href="/glossary">Glossary</a>
+      </nav>
+
+      <h1>5 Myths About the Golden Cross</h1>
+      <p class="muted">Last updated: 2026-07-14 · Author: Y-Systems · Scope: broodev buy-timing score v2 (GC_DC indicator)</p>
+
+      <p class="lead">
+        “Bitcoin golden cross imminent… a bullish signal” — this headline comes back every cycle.
+        And <strong>the sentence is almost always used the wrong way.</strong>
+        Of the six indicators we work with, the golden cross is <strong>the most misunderstood</strong>,
+        and it is also the one our model <strong>gives the lowest weight</strong>. Those two facts are not unrelated.
+      </p>
+      <p>
+        This article does not repeat the definition. That a golden cross is the 50-day line breaking above the 200-day line is covered in the
+        <a href="/glossary">glossary</a>, and how it feeds into the score is covered in the
+        <a href="/methodology">methodology</a>. Instead, here we <strong>break five widespread myths one by one</strong>
+        and put <strong>what our code actually does</strong> in their place.
+        At the end we <strong>confess two known flaws</strong> in our model.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>What people usually say</th><th>What actually happens</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① “Golden cross = buy now”</a></td><td>Structurally the <strong>slowest signal</strong>. Not a forecast of a rally but a <strong>receipt</strong></td></tr>
+            <tr><td><a href="#m2">② “Death cross = the crash begins”</a></td><td>Re-crossing (whipsaws) is common. In our model <strong>an event score lives for one day</strong></td></tr>
+            <tr><td><a href="#m3">③ “50 and 200 are the right numbers”</a></td><td>A stock-market <strong>trading-day convention</strong> transplanted, uncorrected, onto a 365-day market</td></tr>
+            <tr><td><a href="#m4">④ “A wide gap means a strong signal”</a></td><td>Our model <strong>computes the gap but does not score it</strong> (an intentional simplification)</td></tr>
+            <tr><td><a href="#m5">⑤ “An 8% weight is as good as not using it”</a></td><td>This is where the story flips. The cross is <strong>not a points earner but a penalty device</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="Golden cross live chart">
+        <p class="muted">Before reading the five myths, let’s see where golden crosses (▲) and death crosses (▼) actually landed across the whole history. You can see at a glance that a cross always arrives “after the move is already well under way,” and how common re-crossing (whipsaws) is.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+          </div>
+          <p class="bd-cap">BTC price (log, gray) with SMA50 (blue) and SMA200 (red), full history. ▲ = golden cross (50-day line crosses above the 200-day line), ▼ = death cross. Orange dashed lines = halvings. Data: CoinMetrics Community API, BTC daily close — fetched at the time of your visit and computed in your browser; <strong>approximate, for reference only</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="m1">Myth ① “Golden cross = buy now”</h2>
+
+      <h3>What people say</h3>
+      <p>
+        This is the favorite line of news articles and YouTube thumbnails. The golden cross is treated like <strong>a flare announcing the future</strong>.
+        It usually comes with a statistic such as “historically, prices rose X% on average after a golden cross.”
+      </p>
+
+      <h3>Why it is wrong — the arithmetic does not allow it</h3>
+      <p>
+        For a golden cross to occur, <strong>the average price of the last 50 days has to rise above the average price of the last 200 days</strong>.
+        Pause here for a moment and think about what that means.
+      </p>
+      <p>
+        The 200-day average is <strong>the sum of 200 days of prices divided by 200</strong>. Even if price jumped 20% yesterday,
+        that jump carries only a 1/200 share. To <strong>lift this line meaningfully, prices have to stay high for dozens of days in a row</strong>.
+        The 50-day line likewise carries 50 days of inertia.
+      </p>
+      <p>
+        So <strong>the very fact that two heavy, slow-moving bodies have crossed is proof that “prices have already been rising for a long time.”</strong>
+        A golden cross does not <em>predict</em> a rally. It merely <em>confirms after the fact that a rally has already run long enough</em>.
+      </p>
+      <div class="note">
+        <strong>As an analogy, a golden cross is not a forecast but a receipt.</strong>
+        A receipt tells you exactly what you bought, but it is printed <strong>after the payment is done</strong>.
+        Looking at a receipt and saying “now I should buy” gets the order backwards.
+      </div>
+      <p>
+        This is also why the “average return after a golden cross” statistic looks convincing.
+        A golden cross <strong>by definition only occurs in rising markets</strong>, so the returns that follow can hardly be anything but good.
+        That is not the indicator’s predictive power; it is <strong>the result of a sample that was already selected (selection effect)</strong>.
+        It is like using the statistic “it rained on the days I carried an umbrella” to claim that umbrellas predict rain.
+      </p>
+
+      <h3>What actually happens</h3>
+      <p>
+        By the time a golden cross is confirmed coming off a bottom, <strong>price has already risen considerably from the low.</strong>
+        After all, it means price climbed enough for the 50-day line to overtake the heavy 200-day baseline.
+        That is why our model <strong>does not treat this indicator as an entry-timing tool.</strong>
+        We use it only as a tool that answers not “buy now” but <strong>“what phase are we in right now?”</strong>
+      </p>
+
+      <h2 id="m2">Myth ② “Death cross = the crash begins”</h2>
+
+      <h3>What people say</h3>
+      <p>
+        The death cross sounds ominous from its name alone. With a label like “cross of death,” it gets consumed as
+        <strong>a fear trigger meaning “the big crash is coming.”</strong> When death-cross news hits, panic selling follows.
+      </p>
+
+      <h3>Why it is wrong — crosses re-cross</h3>
+      <p>
+        Flip the logic of Myth ① and the answer appears. <strong>The death cross is an equally slow signal.</strong>
+        By the time a death cross is confirmed, <strong>much of the decline has already happened</strong>.
+        It is less “the start of a crash” than a certificate confirming that “the decline has already lasted a long time.”
+        That is why it is not rare to see a rebound right after a death cross — a <strong>whipsaw</strong>.
+      </p>
+      <p>
+        Picture the two moving averages <strong>sitting almost on top of each other</strong>. In that state, even a small wobble in price
+        pushes the 50-day line below the 200-day line, and a few days later it climbs back above.
+        <strong>A cross is not a one-off event but one that can repeat several times</strong>.
+      </p>
+
+      <h3>What actually happens — how our code handles this (confession included)</h3>
+      <p>
+        Our model’s cross detection <strong>compares exactly two days: yesterday and today</strong>.
+      </p>
+      <pre><code>Yesterday: 50-day ≤ 200-day   →   Today: 50-day &gt; 200-day   ⇒  GOLDEN_CROSS
+Yesterday: 50-day ≥ 200-day   →   Today: 50-day &lt; 200-day   ⇒  DEATH_CROSS
+Otherwise                                                    ⇒  NONE (state only)</code></pre>
+      <p>
+        As a result, <strong>a “cross event” is true for exactly one day.</strong>
+        The next day the event is gone, and only a plain state value — “golden state / death state” — remains.
+      </p>
+      <div class="note">
+        <strong>This is by design.</strong> The media milks a single golden cross for weeks,
+        but in our model <strong>cross news has a shelf life of 24 hours</strong>.
+        As the score table below shows, the event-day premium (85 points long-term) <strong>drops straight to 60 the next day.</strong>
+        The fact that “a golden cross happened yesterday” adds no bonus at all to today’s score.
+      </div>
+      <div class="note warn">
+        <strong>Confession — our model gets shaken by whipsaws too.</strong>
+        If the 50-day and 200-day lines sit almost on top of each other and re-cross up and down within two weeks,
+        our score swings as well: <strong>85 → 60 → 15 → 35</strong>. There is no way to eliminate this flaw.
+        All we did was <strong>put a cap on the amplitude of the swings</strong> —
+        and that cap is exactly the <strong>low weights of 8% and 14%</strong>. Later we will calculate how many points these numbers actually represent.
+      </div>
+
+      <h2 id="m3">Myth ③ “50 and 200 are the right numbers”</h2>
+
+      <h3>What people say</h3>
+      <p>
+        People talk as if 50 and 200 had some mathematical inevitability.
+        Since charting software uses them as defaults, the belief only grows stronger.
+      </p>
+
+      <h3>Why it is wrong — it is a stock-market convention, and it was carried over incorrectly</h3>
+      <p>
+        There is <strong>no satisfying academic basis</strong> that justifies 50 and 200. It is a convention.
+        On traditional stock charts, <strong>200 is a rough rounding of a year’s worth of trading days (about 252, to be precise)</strong>,
+        and <strong>50 is a rounding of roughly one quarter (about 63 trading days)</strong>.
+      </p>
+      <p>
+        But here a <strong>problem unique to crypto</strong> arises — one that almost nobody points out.
+      </p>
+      <p>
+        <strong>The stock market is open 5 days a week; crypto trades 7 days a week.</strong>
+        A stock’s “200-day line” is <strong>200 trading days</strong>, which equals <strong>about 280 calendar days (about 9.2 months)</strong>.
+        A crypto “200-day line,” by contrast, gets a new daily candle every day, so it is <strong>200 calendar days, or about 6.6 months</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Line</th><th>Stocks (5 days/week)</th><th>Crypto (7 days/week)</th><th>Real difference</th></tr></thead>
+          <tbody>
+            <tr><td>200-day line</td><td>200 trading days ≈ <strong>280 calendar days</strong></td><td>200 calendar days = <strong>200 calendar days</strong></td><td>Crypto is <strong>about 29% shorter</strong></td></tr>
+            <tr><td>50-day line</td><td>50 trading days ≈ <strong>70 calendar days</strong></td><td>50 calendar days = <strong>50 calendar days</strong></td><td>Crypto is <strong>about 29% shorter</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        In short, <strong>crypto’s “200-day line” looks like a straight copy of the stock convention, but it is actually a much shorter window</strong>.
+        To match the same calendar span as 200 trading days in stocks, crypto would need <strong>roughly a 280-day line</strong>.
+        <strong>The industry as a whole does not make this correction.</strong>
+      </p>
+
+      <h3>What actually happens — so why do we still just use 200?</h3>
+      <p>
+        Our code also uses <strong>200 calendar days</strong>. We do not correct it. Here are the honest reasons.
+      </p>
+      <ul>
+        <li>
+          <strong>First, being observed is a force in itself.</strong> 50/200 works to some degree not because it is “right,”
+          but <strong>because countless participants watch the same lines and react at the same places</strong>.
+          If we alone switched to a 280-day line, we would <strong>lose that self-fulfilling property.</strong> A line nobody else watches cannot act as support.
+        </li>
+        <li>
+          <strong>Second, it has to share a denominator with the Mayer Multiple.</strong> The Mayer Multiple is by definition <code>current price ÷ 200-day moving average</code>.
+          Switching only the cross to a 280-day line would create <strong>two different “long-term lines” within the same model</strong>, and the readings would no longer line up.
+        </li>
+        <li>
+          <strong>Third, because we know the direction of this distortion.</strong> Crypto’s 200-day line is <strong>shorter than the convention, therefore more sensitive, and crosses more often</strong>.
+          More frequent crosses <strong>mean more false signals</strong>. That is why we set this indicator’s weight low from the start.
+          <strong>Instead of correcting it, we chose not to trust it much.</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        Knowing that these are not the right numbers but <strong>a shared convention</strong> makes a big difference.
+        If you believe 50/200 are sacred constants, you end up reading far too much into a cross.
+      </p>
+
+      <h2 id="m4">Myth ④ “A wide gap means a strong signal”</h2>
+
+      <h3>What people say</h3>
+      <p>
+        The interpretation is “the 50-day line has pulled far above the 200-day line, so the uptrend is strong.”
+        It is intuitively plausible, and it actually has some merit.
+      </p>
+
+      <h3>Why it is wrong — more precisely, we do not use this information</h3>
+      <p>
+        Our code <strong>does compute</strong> the distance between the two lines.
+      </p>
+      <pre><code>gapPct = (50-day ÷ 200-day − 1) × 100</code></pre>
+      <p>
+        It even <strong>displays it</strong> on the dashboard card, like <code>gap +12.4%</code>.
+        Yet <strong>this value does not enter the score calculation at all.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Confession ─ a known simplification.</strong>
+        In our model, <strong>a golden state with a +0.3% gap and a golden state with a +42% gap get exactly the same score</strong>
+        (60 long-term, 65 short-term). The gap is <strong>shown but not scored.</strong>
+      </div>
+      <p>
+        Let us explain why we left it this way. Scoring the gap would require <strong>deciding “what percentage counts as a big gap.”</strong>
+        But that threshold <strong>differs completely from asset to asset.</strong> A +10% gap on a low-volatility coin and
+        a +10% gap on a wildly volatile meme coin mean entirely different things.
+        To be honest, we <strong>could not confidently settle on a normalization standard that applies to every coin.</strong>
+        Rather than plug in an unfounded constant, we chose <strong>not to use it at all</strong>.
+      </p>
+
+      <h3>What actually happens — this information is left for humans to use</h3>
+      <p>
+        We kept the gap on screen <strong>so that you can look at it and judge for yourself</strong>.
+        <strong>The closer the gap is to 0, the closer the two lines are, and the greater the risk of a re-cross (whipsaw)</strong>.
+        A golden state at <code>gap +0.4%</code> is an <strong>unstable golden</strong> that could flip to death at any moment.
+        The score cannot tell the difference, but <strong>you can.</strong> That is why the value is displayed.
+      </p>
+
+      <h2 id="m5">Myth ⑤ “Isn’t an 8% weight as good as not using it?”</h2>
+      <p>
+        This is where the direction of this article flips. The previous four were all about <strong>knocking down</strong> the cross.
+        Yet we <strong>did not throw this indicator away.</strong> Why?
+      </p>
+
+      <h3>What most people don’t know — the cross has four tiers, not two</h3>
+      <p>
+        The binary of “golden cross or death cross” <strong>is wrong to begin with.</strong>
+        Our code distinguishes <strong>four states</strong>, because <em>the moment of crossing</em> and <em>staying crossed</em> are completely different things.
+        Below is the actual sub-score table from our model.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>State</th><th>Meaning</th><th>Short-term score</th><th>Long-term score</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>Crossed upward today (event, valid for one day only)</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>Already in a 50 &gt; 200 state</td><td>65</td><td>60</td></tr>
+            <tr><td><em>No data</em></td><td>Not even 50 days of data</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>Already in a 50 &lt; 200 state</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>Crossed downward today (event, valid for one day only)</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The most important row in this table is “staying in DEATH.”</strong> The score is <strong>not 50 but 35 (long-term) / 40 (short-term)</strong>.
+      </p>
+      <p>
+        <strong>Neutral is 50.</strong> Yet the death-cross state sits <strong>below neutral.</strong>
+        What that means is — <strong>in a death-cross state, this indicator “pulls the composite score down.”</strong>
+        It does not just sit there; it <strong>deducts points</strong>.
+      </p>
+      <div class="note">
+        <strong>This is the reason this indicator exists.</strong>
+        The golden cross is <strong>not a points earner that adds to the score.</strong>
+        The death cross is <strong>a brake that cuts the score</strong>.
+        When the fear index, the Mayer Multiple and drawdown are all shouting “it’s cheap, buy” together —
+        <a href="/indicators">the three contrarian indicators are wrong side by side in bear markets</a> —
+        we needed <strong>a device that applies the brake on its own, saying “the trend is still pointing down,”</strong> and that is the cross.
+      </div>
+
+      <h2 id="walk">So how many points does it actually move? — a worked calculation</h2>
+      <p>
+        Enough abstraction; let’s <strong>plug in real numbers and calculate</strong>.
+        This is the <strong>long-term (contrarian) tab</strong>, and the setting is <strong>the middle of a deep bear market</strong>,
+        a phase in which the contrarian indicators all shout “now is the opportunity.”
+      </p>
+      <p>The long-term weights are <strong>RSI 18% · MACD 18% · Fear &amp; Greed 18% · Mayer 18% · Drawdown 14% · Cross 14%</strong>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicator</th><th>Observed value</th><th>Sub-score</th><th>Weight</th><th>Contribution</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24 (oversold)</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>Mayer Multiple</td><td>0.75× (25% discount to the 200-day line)</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>Fear &amp; Greed</td><td>Now 18 / 7-day 22 / 30-day 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>365-day drawdown</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>Negative · still worsening</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>Cross</strong></td><td><strong>Staying in DEATH</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>Composite score</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        (Fear &amp; Greed 81.8 is <code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code> plus
+        the extreme bonus applied when the current value is 25 or below, <code>(25−18)×0.4 = 2.8</code>.)
+      </p>
+
+      <h3>Changing only the cross</h3>
+      <p>Let’s <strong>freeze the other five indicators</strong> and swap only the cross state to see what happens to the composite score.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cross state</th><th>Sub-score</th><th>Contribution</th><th>Composite score</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS (event day)</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>Staying GOLDEN</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>Staying DEATH <em>(actual scenario)</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS (event day)</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>The gap between the highest and lowest is 9.8 points.</strong> (85 − 15) × 14% = 9.8.
+        And <strong>in all four cases the verdict is the same: ACCUMULATE.</strong>
+      </p>
+
+      <h3>What these numbers say — the cross cannot change the verdict on its own</h3>
+      <p>Here the <strong>design intent of our model is proven by arithmetic</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Score spread</th><th>Weight</th><th>Maximum impact on the composite score</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Short-term (momentum)</strong></td><td>75 − 30 = 45 points</td><td>8%</td><td><strong>±3.6 points</strong></td></tr>
+            <tr><td><strong>Long-term (contrarian)</strong></td><td>85 − 15 = 70 points</td><td>14%</td><td><strong>±9.8 points</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Now compare this with the <a href="/methodology">verdict bands</a>.
+        The narrowest band is <strong>ACCUMULATE (65–80), 15 points wide</strong>.
+      </p>
+      <div class="note">
+        <strong>Long-term tab max impact 9.8 points &lt; narrowest band width 15 points.</strong><br />
+        <strong>Short-term tab max impact 3.6 points &lt; narrowest band width 15 points.</strong><br /><br />
+        In other words, <strong>on neither tab can the cross flip the verdict by even one step on its own.</strong>
+        This is no accident; it is <strong>the result of how the weights were designed</strong>.
+        The cross is capped so that <strong>it can push or pull the score, but never dominate the conclusion</strong>.
+      </div>
+      <p>
+        <strong>The gap between short-term and long-term can be confirmed by calculation too.</strong> 9.8 ÷ 3.6 ≈ <strong>2.7×</strong>.
+        On the long-term tab, the cross’s real influence is about 2.7 times that on the short-term tab.
+        Looking only at the weight table (8% vs 14%), it seems like a 1.75× difference, but <strong>once you multiply by the score spread it actually widens to 2.7×.</strong>
+        This is what you miss if you compare only the weight numbers.
+      </p>
+      <p>
+        The reason is exactly what we laid out in the <a href="/methodology">methodology</a>.
+        <strong>The 50/200 cross is too slow for trades on a 1–3 month horizon.</strong> By the time the signal appears, it is already too late for short-term traders.
+        So on the short-term tab we gave it only <strong>8%, which is practically decorative</strong>.
+        Conversely, it is <strong>useful for telling cycle phases apart (bull market or bear market)</strong>, so we raised it to 14% on the long-term tab.
+      </p>
+
+      <h2 id="danger">The combination where our model can be most wrong</h2>
+      <p>
+        Look again at <strong>the first row (GOLDEN_CROSS, 79.2 points)</strong> of the walkthrough table above.
+        In fact, that row <strong>hides an internal contradiction.</strong>
+      </p>
+      <p>
+        A Mayer Multiple of 0.75 means <strong>the current price is 25% below the 200-day line</strong>.
+        Is it natural, then, that on the same day <strong>the 50-day line rises above the 200-day line (a golden cross)</strong>?
+        Usually it is a contradiction. With price far below the 200-day line, it is hard for the 50-day average to sit above the 200-day average.
+      </p>
+      <p>
+        But <strong>there is exactly one phase in which this combination really appears:</strong>
+        <strong>the moment a sharp drop from the top has just begun</strong>.
+        Price has already plunged vertically below the 200-day line, but <strong>the 50-day line, carried by inertia, is still above the 200-day line</strong>.
+        At that point our model sees things like this.
+      </p>
+      <ul>
+        <li>Mayer 0.75 → “historically undervalued!” <strong>100 points</strong></li>
+        <li>RSI 24 → “extremely oversold!” <strong>94 points</strong></li>
+        <li>Drawdown −58% → “strong buy zone!” <strong>81 points</strong></li>
+        <li>Cross → still in a <strong>GOLDEN state</strong>, so no brake is applied <strong>60 points</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>Result: right where a crash has just started, the model gives a score in the mid-70s (ACCUMULATE).</strong>
+        And <strong>this is exactly when you would be grabbing the “falling knife” by the blade, not the handle</strong>.
+        The brake (death cross) kicks in <strong>only dozens of days later</strong> — after much of the fall has already happened.
+        <strong>This is the model’s most dangerous blind spot, and we have not fully solved it.</strong>
+        As long as a slow indicator is used as a safety device, <strong>the safety device is slow too.</strong>
+      </div>
+      <p>
+        So if on the dashboard <strong>the Mayer Multiple is dropping sharply while the cross is still GOLDEN</strong>,
+        <strong>read it not as “undervalued” but as a warning that “this may be the start of a sharp drop.”</strong>
+        The score cannot tell the difference. A human has to.
+      </p>
+
+      <h2 id="asym">One more thing — only the cross handles missing data differently</h2>
+      <p>
+        As described in the <a href="/methodology">methodology</a>, when an indicator is missing we <strong>do not score it as 0; we exclude it from the calculation and renormalize the remaining weights</strong>,
+        because “unknown” and “bad” are not the same thing.
+      </p>
+      <p>
+        But <strong>the cross is the exception.</strong> Transcribed straight from the code, it looks like this.
+      </p>
+      <pre><code>// the other 5 indicators
+sLong: mm == null ? null : conMayer(...)   ← null means excluded + renormalized
+
+// the cross only
+sLong: gc == null ? 50 : ...               ← returns 50 even when data is missing</code></pre>
+      <div class="note warn">
+        <strong>Confession ─ an asymmetry.</strong>
+        Even with no data, the cross returns <strong>50 (neutral) rather than null</strong>.
+        So <strong>the cross never drops out of the coverage indicator.</strong>
+        Even if it says <code>coverage 5/6</code>, the missing one is not the cross — the cross is always counted.
+        <strong>That means on a coin listed less than a year ago, a “know-nothing 50 points” is quietly occupying the 14% (long-term) slot</strong>.
+      </div>
+      <p>
+        One more thing on top of that. If there are <strong>fewer than 200 days of data</strong>, our code averages over whatever is available
+        (<code>Math.min(200, data length)</code>). So <strong>the “200-day line” of a coin listed 150 days ago is really a 150-day line</strong>.
+        On top of that, detecting a cross <em>event</em> requires at least 201 days of data, so
+        <strong>on coins listed less than a year ago, GOLDEN_CROSS and DEATH_CROSS events never occur at all.</strong>
+        Only the state values (GOLDEN/DEATH) appear.
+      </p>
+      <p>
+        <strong>In short, this indicator only works properly on assets with long data histories, like Bitcoin.</strong>
+        Be sure to keep this in mind when you look at the cross card on a newly listed altcoin.
+      </p>
+
+      <h2 id="conclusion">Conclusion</h2>
+      <p>
+        Through the five myths, the cross kept getting knocked down.
+        It is the slowest, it re-crosses, its numbers are an arbitrary convention, its gap is not even scored, and its weight is the lowest of the six.
+        And yet we removed this indicator and then <strong>put it back.</strong> There is one reason.
+      </p>
+      <div class="note">
+        <strong>The golden cross is not a buy signal but a tool for confirming the market phase.</strong><br /><br />
+        Ask this indicator <strong>“when should I buy?” and you always get a late answer</strong>.
+        But ask it <strong>“which way is the trend pointing right now?”</strong> and you get an answer that is slow but <strong>rarely lies</strong>.
+        <br /><br />
+        When the other five indicators get excited, saying “it’s cheap, it’s scary, it has fallen a lot,”
+        <strong>quietly trimming the score with “but the trend is still down”</strong> — that is the one and only job we gave this indicator.
+        <strong>Not a points earner, but a brake.</strong> And a good brake is one that does not have to be pressed often.
+      </div>
+      <p>
+        So the next time you see a “Golden cross imminent!” headline, ask yourself this:
+        <strong>“So is it telling me to buy now, or that prices have already risen a lot?”</strong>
+        Arithmetically, it is <strong>always the latter</strong>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This document is for <strong>educational and reference purposes</strong> and is <strong>not investment advice or a recommendation to buy or sell.</strong>
+        The scores, weights and scenarios in the text are only <strong>examples to explain how the model works</strong> and do not recommend any particular asset or strategy.
+        Crypto is <strong>a high-risk asset in which you can lose your entire principal</strong>, and technical indicators cannot predict the future.
+        As stated in the text, this indicator <strong>has structural blind spots.</strong>
+        All investment decisions and their outcomes are entirely the user’s own responsibility. Always do your own research (DYOR).
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This document and its scores are <strong>reference material synthesized from public indicators, not investment advice or a recommendation to buy.</strong>
+        Past cases and figures in the text are approximate reconstructions, and <strong>past performance does not guarantee future results.</strong>
+        Crypto is a high-risk asset in which you can <strong>lose your entire principal</strong>.
+        All investment decisions and their outcomes are entirely the user’s own responsibility. Always do your own research (DYOR).
+      </div>
+
+      <h2>Read next</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoring methodology</b><span>How the 6 indicators are weighted and combined — down to renormalization and bands</span></a>
+        <a href="/indicators"><b>In-depth guide to the 6 indicators</b><span>When RSI, MACD, Mayer and drawdown each let you down</span></a>
+        <a href="/guide-fear-greed"><b>Practical guide to the fear index</b><span>Phases when contrarian indicators are all wrong together, and staged buying</span></a>
+        <a href="/glossary"><b>Glossary</b><span>Moving averages, crosses, Mayer Multiple and other terms explained</span></a>
+        <a href="/"><b>To the dashboard</b><span>Check the current cross state and gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a></footer>
+    </main>

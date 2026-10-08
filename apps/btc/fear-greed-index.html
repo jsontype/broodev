@@ -68,6 +68,7 @@
         }
       }
     </script>
+    <script src="/content-i18n.js?v=20261009a" data-key="btc:lang" data-doc="fear-greed-index"></script>
   </head>
   <body>
     <main class="wrap">
@@ -609,8 +610,12 @@
       <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
     </main>
     <script>
-(function () {
+(window.CI18N ? window.CI18N.ready : Promise.resolve()).then(function () {
   'use strict';
+  // 13개 언어 — content-i18n.js 가 본문을 번역본으로 바꾼 뒤(window.CI18N.ready) 실행된다. 화면 문구는 TR({ ko: …, en: …, … }) 로
+  var LANG = (window.CI18N && window.CI18N.lang) || 'ko';
+  function TR(o) { return o[LANG] != null ? o[LANG] : (o.en != null ? o.en : o.ko); }
+
   if (!window.fetch || !window.localStorage) return;
   var NS = 'http://www.w3.org/2000/svg';
   var DAY = 86400000;
@@ -785,7 +790,21 @@
     for (var i = 0; i < paneIds.length; i++) {
       var m = document.getElementById(paneIds[i]);
       if (!m) continue;
-      m.innerHTML = i === 0 ? '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>' : '';
+      m.innerHTML = i === 0 ? TR({
+        ko: '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>',
+        en: '<div class="bd-err">Couldn\'t load chart data — please refresh in a moment.</div>',
+        ja: '<div class="bd-err">チャートデータを読み込めませんでした — しばらくしてから再読み込みしてください。</div>',
+        zh: '<div class="bd-err">无法加载图表数据 — 请稍后刷新页面。</div>',
+        'zh-Hant': '<div class="bd-err">無法載入圖表資料 — 請稍後重新整理頁面。</div>',
+        th: '<div class="bd-err">โหลดข้อมูลกราฟไม่สำเร็จ — โปรดรีเฟรชอีกครั้งในอีกสักครู่</div>',
+        es: '<div class="bd-err">No se pudieron cargar los datos del gráfico — actualiza la página en un momento.</div>',
+        fr: '<div class="bd-err">Impossible de charger les données du graphique — veuillez actualiser la page dans un instant.</div>',
+        de: '<div class="bd-err">Diagrammdaten konnten nicht geladen werden — bitte die Seite gleich neu laden.</div>',
+        it: '<div class="bd-err">Impossibile caricare i dati del grafico — ricarica la pagina tra poco.</div>',
+        pt: '<div class="bd-err">Não foi possível carregar os dados do gráfico — atualize a página daqui a pouco.</div>',
+        ru: '<div class="bd-err">Не удалось загрузить данные графика — обновите страницу чуть позже.</div>',
+        nl: '<div class="bd-err">Grafiekgegevens konden niet worden geladen — vernieuw de pagina zo meteen.</div>'
+      }) : '';
     }
   }
 
@@ -1004,7 +1023,21 @@
   loadFng(function (pts) {
     drawChart({
       mount: 'bd-fngx-hist',
-      title: '공포·탐욕 지수 — 전체 이력',
+      title: TR({
+        ko: '공포·탐욕 지수 — 전체 이력',
+        en: 'Fear & Greed Index — full history',
+        ja: '恐怖・強欲指数 — 全期間の推移',
+        zh: '恐惧与贪婪指数 — 完整历史',
+        'zh-Hant': '恐懼與貪婪指數 — 完整歷史',
+        th: 'ดัชนีความกลัว-ความโลภ — ประวัติทั้งหมด',
+        es: 'Índice de Miedo y Codicia — historial completo',
+        fr: 'Indice Peur & Avidité — historique complet',
+        de: 'Angst-&-Gier-Index — gesamter Verlauf',
+        it: 'Indice Paura e Avidità — storico completo',
+        pt: 'Índice de Medo e Ganância — histórico completo',
+        ru: 'Индекс страха и жадности — вся история',
+        nl: 'Angst-&-Hebzucht-index — volledige geschiedenis'
+      }),
       height: 280, yMin: 0, yMax: 100,
       yFmt: function (v) { return String(Math.round(v)); },
       bands: [
@@ -1015,7 +1048,7 @@
       series: [{ name: 'F&G', color: INK, pts: downsample(pts, 800), fmt: function (v) { return String(Math.round(v)); } }]
     });
   }, function () { showError(['bd-fngx-hist']); });
-})();
+});
     </script>
   </body>
 </html>

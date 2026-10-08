@@ -1,0 +1,538 @@
+    <main class="wrap" data-title="Anatomie des Angst-&amp;-Gier-Index — woraus besteht diese Zahl? | broodev" data-desc="Wir zerlegen den Crypto Fear &amp; Greed Index von Alternative.me in seine Bestandteile: Volatilität 25 %, Momentum/Volumen 25 %, Social Media 15 %, Dominanz 10 %, Google Trends 10 % sowie die eingestellte Umfrage 15 %. Mit echten Zahlen erklären wir, welche Verzerrungen jede Komponente erzeugt, warum es faktisch ein BTC-Index ist und warum unser Modell statt eines Einzelwerts die 7- und 30-Tage-Durchschnitte beimischt.">
+      <nav class="nav">
+        <a href="/">← Übersicht</a>
+        <a href="/methodology">Methodik</a>
+        <a href="/indicators">Indikatoren</a>
+        <a href="/guide-fear-greed">Angst-Gier-Leitfaden</a>
+        <a href="/glossary">Glossar</a>
+      </nav>
+
+      <h1>Anatomie des Angst-&amp;-Gier-Index<br />— woraus besteht diese Zahl?</h1>
+      <p class="muted">Zuletzt aktualisiert: 2026-07-14 · Autor: Y-Systems · Gegenstand: Alternative.me Crypto Fear &amp; Greed Index</p>
+
+      <p class="lead">
+        Angenommen, der Angst-Index steht heute bei <strong>18</strong>. Die meisten bleiben genau hier stehen: „18 – also extreme Angst.“
+        Doch kaum jemand weiß, <strong>aus welchen Zutaten diese 18 gemacht wurde</strong>.
+        In diesem Text geht es <em>nicht</em> darum, wie man den Index nutzt. Es geht darum, ihn <strong>zu zerlegen</strong>.
+        Was in welchem Anteil drinsteckt, welche Verzerrung jede Zutat erzeugt und was diese 18 deshalb genau aussagt –
+        <strong>bevor man dem Index glaubt, muss man wissen, woraus er besteht.</strong>
+      </p>
+
+      <section class="bd-figs" aria-label="Live-Chart des Angst-&amp;-Gier-Index">
+        <p class="muted">Bevor wir mit der Zerlegung beginnen, sehen wir uns das Untersuchungsobjekt im Ganzen an. Dies ist die vollständige Indexhistorie, beim Seitenaufruf über die öffentliche API von Alternative.me abgerufen.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-fngx-hist" class="bd-pane"><div class="bd-loading">Chartdaten werden geladen…</div></div>
+          </div>
+          <p class="bd-cap">Vollständige Historie des Angst-&amp;-Gier-Index (2018~). Grüne Schattierung = 25 oder darunter (extreme Angst), rote Schattierung = 75 oder darüber (extreme Gier). Wie im Text erläutert, ist die Hälfte dieser Kurve faktisch nur der Schatten der Preisdaten. Daten: Alternative.me Fear &amp; Greed API – beim Aufruf abgerufen und gezeichnet; <strong>Näherungswerte, nur zur Orientierung</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Zuerst: die Zutatenliste</h2>
+      <p>
+        So wie verarbeitete Lebensmittel eine Zutatenliste haben, hat auch dieser Index eine. Alternative.me hat folgende Mischungsverhältnisse veröffentlicht.
+        Diese Tabelle ist die Landkarte für den gesamten Text.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Komponente</th><th>Anteil</th><th>Rohstoff (was als Eingabe dient)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Volatilität</strong></td><td><strong>25%</strong></td><td>Aktuelle Volatilität und maximaler Drawdown des BTC-Preises im Vergleich zum 30- und 90-Tage-Durchschnitt</td><td>Aktiv</td></tr>
+            <tr><td><strong>Marktmomentum / Volumen</strong></td><td><strong>25%</strong></td><td>BTC-Volumen und -Momentum im Vergleich zum 30- und 90-Tage-Durchschnitt</td><td>Aktiv</td></tr>
+            <tr><td><strong>Social Media</strong></td><td>15%</td><td>Beitragsmenge und Interaktionsgeschwindigkeit bei Bitcoin-bezogenen Hashtags</td><td>Aktiv</td></tr>
+            <tr><td><strong>Dominanz</strong></td><td>10%</td><td>Anteil von BTC an der gesamten Krypto-Marktkapitalisierung</td><td>Aktiv</td></tr>
+            <tr><td><strong>Google Trends</strong></td><td>10%</td><td>Veränderung des relativen Suchvolumens Bitcoin-bezogener Suchbegriffe</td><td>Aktiv</td></tr>
+            <tr><td><strong>Umfragen</strong></td><td>15%</td><td>Wöchentliche Anlegerumfrage</td><td><strong>Eingestellt</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Wer fünf Sekunden länger auf diese Tabelle schaut, dem fallen zwei Dinge auf.
+      </p>
+      <ul>
+        <li>
+          <strong>50 % der Komponenten sind vom Preis abgeleitet.</strong> Volatilität 25 % + Momentum/Volumen 25 %.
+          Er heißt also „Stimmungsindex“, aber <strong>die Hälfte sind schlicht Preisdaten</strong>.
+        </li>
+        <li>
+          <strong>15 % sind verschwunden, und wohin, wurde nicht offengelegt.</strong> Die Umfragekomponente wurde eingestellt.
+          Wie sie auf die übrigen fünf verteilt wurde – proportional renormalisiert oder einer bestimmten Komponente zugeschlagen –
+          verrät der Betreiber nicht. <strong>Die genauen heutigen Mischungsverhältnisse dieses Index sind von außen nicht erkennbar.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        Die hier genannten Anteile beruhen <strong>auf der vom Betreiber veröffentlichten Dokumentation</strong>.
+        Die genaue Formel jeder Komponente (welches Zeitfenster, mit welcher Funktion sie auf 0~100 abgebildet wird) ist nicht öffentlich.
+        <strong>Wir lesen das Etikett der Blackbox – geöffnet haben wir sie nicht.</strong>
+        Dieser Einschränkung stellen wir uns am Ende des Textes noch einmal direkt.
+      </div>
+
+      <h2>Sektion ① Volatilität (25 %) – das Rückgrat des Index</h2>
+      <p>
+        Die schwerste Komponente und diejenige, die den Charakter des Index faktisch bestimmt.
+        Sie <strong>vergleicht die aktuelle Volatilität und den maximalen Drawdown von BTC mit dem 30- und 90-Tage-Durchschnitt</strong> und liest einen überdurchschnittlichen Wert als „Angst“.
+      </p>
+      <p>
+        Hier passiert etwas ganz leise. <strong>Volatilität unterscheidet von Natur aus nicht nach Richtung.</strong>
+        Für sich genommen steigt sie, egal ob der Preis nach oben oder nach unten ausschlägt. Diese Komponente nimmt aber zusätzlich den <strong>maximalen Drawdown</strong> auf
+        und gewichtet damit Abwärtsbewegungen stärker. Im Ergebnis ist sie eher <strong>ein Messgerät für „Ist der Preis schnell gefallen?“</strong>.
+      </p>
+      <p>
+        Daraus folgt die erste Schlussfolgerung.
+      </p>
+      <div class="note warn">
+        <strong>Der Angst-Index „sagt“ Rückgänge nicht „voraus“. Er „spricht sie nach“.</strong>
+        Erst muss der Preis fallen, damit die Volatilität steigt, und erst muss die Volatilität steigen, damit der Index sinkt.
+        <strong>Der Index läuft dem Preis hinterher.</strong> Sobald man die Reihenfolge gedanklich umdreht, liest man diesen Indikator falsch.
+      </div>
+      <p>
+        Das wirkt sich direkt auf das Design unseres Modells aus. Unser Score enthält bereits separat den <strong>365-Tage-Rückgang</strong> und den <strong>RSI</strong>.
+        Doch auch das Rückgrat des Angst-Index ist letztlich „wie schnell ist es gefallen“.
+        Das heißt: <strong>F&amp;G, Rückgang und RSI sind nicht voneinander unabhängig.</strong> Alle drei Indikatoren reagieren gleichzeitig auf dasselbe Ereignis (einen Crash).
+      </p>
+      <p>
+        In der Kurzfrist-Gewichtung können RSI 28 % + F&amp;G 28 % = <strong>56 %</strong> sich also wie ein einziger Block bewegen,
+        und das ist eine <strong>bekannte Schwäche</strong>, die wir bewusst in Kauf nehmen. Um diese Doppelung auszugleichen, nehmen wir
+        MACD (Trend) und Golden/Death Cross (Marktphase) hinzu, die genau gegensätzlich angelegt sind. Wenn in einem Crash die ersten drei Indikatoren einstimmig „kaufen“ rufen,
+        ist es Aufgabe dieser beiden, zu bremsen. <strong>Wir haben die Doppelzählung nicht beseitigt, sondern mit einer Gegenachse niedergehalten.</strong>
+      </p>
+
+      <h2>Sektion ② Marktmomentum / Volumen (25 %) – ein selbstverstärkender Kreislauf</h2>
+      <p>
+        Die zweitschwerste Komponente. Sie vergleicht aktuelles Volumen und Momentum mit dem 30- und 90-Tage-Durchschnitt.
+        <strong>Kommt überdurchschnittliches Kaufvolumen hinzu, schiebt sie in Richtung Gier.</strong>
+      </p>
+      <p>
+        Diese Komponente enthält eine strukturelle Rückkopplung (Feedback).
+      </p>
+      <pre><code>Preis steigt
+   ↓
+Volumen schießt hoch (FOMO strömt herein)
+   ↓
+Momentum-Komponente steigt → Index steigt → "Gier"
+   ↓
+"Es herrscht Gier" → Verbreitung in Medien und Social Media
+   ↓
+Neue Anleger strömen zu → Volumen steigt weiter …</code></pre>
+      <p>
+        Diese Komponente <strong>bildet den Trend also nicht ab – sie nimmt an ihm teil.</strong>
+        Deshalb verharrt der Index mitten in einer Hausse oft wochenlang bei 75~85.
+        Wenn Sie sich je gefragt haben: „Hält die Gier nicht viel zu lange an?“, dann ist der Index nicht kaputt –
+        <strong>die Momentum-Komponente arbeitet genau so, wie sie konstruiert ist</strong>.
+      </p>
+      <p>
+        In umgekehrter Richtung <strong>erholt sich diese Komponente am Boden als erste.</strong>
+        In der Phase, in der das Volumen anzieht, bevor der Preis steigt – wenn die Kapitulationsverkäufe enden und die Akkumulation beginnt –
+        hebt sich die Momentum-Komponente unauffällig. Deshalb ist <strong>die Phase, in der der Index von 15 auf 25 steigt</strong>,
+        qualitativ etwas anderes als die Phase, in der er bei 15 verharrt. Ein Einzelwert bügelt diese Information zu „immer noch Angst“ platt.
+        <strong>Das ist einer der Gründe, warum wir den 7-Tage-Durchschnitt beimischen</strong> – weiter unten zeigen wir es mit Zahlen.
+      </p>
+
+      <h2>Sektion ③ Social Media (15 %) – ein Ohr, das Stille nicht hören kann</h2>
+      <p>
+        Sie betrachtet <strong>Beitragsmenge und Interaktionsgeschwindigkeit</strong> bei Bitcoin-bezogenen Hashtags.
+        Sie misst, wie viele Beiträge in einem Zeitraum erscheinen und wie schnell Reaktionen kommen; ist das ungewöhnlich hoch, liest sie es als Gier.
+      </p>
+      <p>Diese Komponente hat drei Verzerrungen. Sehen wir sie uns einzeln an.</p>
+
+      <h3>Verzerrung 1 – anfällig für Bots und Werbung</h3>
+      <p>
+        Das Beitragsvolumen eines Hashtags ist <strong>die am billigsten zu manipulierende Datenquelle</strong>.
+        Eine einzige Airdrop-Kampagne oder Influencer-Promotion genügt, um die Beiträge zu einem Hashtag leicht zu verdoppeln.
+        Der Index kann nicht unterscheiden, ob ein Tweet von einem Menschen oder einem Bot stammt, ob er ernst gemeint oder bezahlte Werbung ist.
+        <strong>Er behandelt „es wird viel geredet“ und „es wird viel geglaubt“ als dasselbe.</strong>
+      </p>
+
+      <h3>Verzerrung 2 – eine Asymmetrie, die nur auf Anstiege reagiert</h3>
+      <p>
+        Die wichtigere Verzerrung. <strong>Echte Kapitulation (capitulation) ist nicht laut, sondern still.</strong>
+        Wenn ein Crash monatelang andauert, werden die Menschen nicht wütend. <strong>Sie gehen.</strong>
+        Krypto verschwindet aus der Timeline, das Beitragsvolumen der Hashtags trocknet aus.
+      </p>
+      <p>
+        Diese Komponente hat jedoch keinen Mechanismus, um zu entscheiden, ob „wenige Beiträge = kein Interesse“ <strong>als Angst oder als Gleichgültigkeit</strong> zu lesen ist.
+        Geht das Beitragsvolumen gegen 0, geht auch der Informationsgehalt dieser Komponente gegen 0.
+        <strong>Wenn der Markt also am tiefsten steht, hat die Social-Komponente am wenigsten zu sagen.</strong>
+        Ausgerechnet dann, wenn das Signal am dringendsten gebraucht wird, verstummt eine 15-%-Komponente faktisch.
+      </p>
+
+      <h3>Verzerrung 3 – Sprache und Zeitzonen sind einseitig</h3>
+      <p>
+        Die Hashtag-Zählung ist überwältigend <strong>englischsprachig</strong>. Die Stimmung bei Kurssprüngen und -einbrüchen in Korea, Japan oder dem chinesischsprachigen Raum
+        wird nicht mit gleicher Stärke erfasst. Am Wochenende sinkt das gesamte Beitragsvolumen strukturell.
+        <strong>Das ist einer der Gründe, warum der Indexwert am Wochenende weniger verlässlich ist als an Werktagen</strong> –
+        der Preis bewegt sich 24/7, die Tweets der Menschen nicht.
+      </p>
+
+      <h2>Sektion ④ Dominanz (10 %) – auf einem BTC-Bildschirm kehrt sich die Richtung um</h2>
+      <p>
+        Diese Komponente wird am häufigsten missverstanden. Die Logik ist folgende.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beobachtung</th><th>Deutung des Index</th><th>Zugrunde liegende Logik</th></tr></thead>
+          <tbody>
+            <tr><td>BTC-Dominanz <strong>steigt</strong></td><td>Richtung Angst</td><td>Geld fließt aus spekulativen Altcoins in den „sicheren“ BTC = Risikoscheu</td></tr>
+            <tr><td>BTC-Dominanz <strong>sinkt</strong></td><td>Richtung Gier</td><td>Kapital fließt in Altcoins = spekulative Überhitzung</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Das Problem: Diese Logik <strong>gilt nur aus der Perspektive, die die Risikobereitschaft des „gesamten Kryptomarkts“ misst</strong>.
+        Aus Sicht von jemandem, der BTC kaufen will, wird die Richtung merkwürdig.
+      </p>
+      <div class="note warn">
+        <strong>Steigende BTC-Dominanz bedeutet auch, dass Geld in BTC fließt.</strong>
+        Der Index <strong>wertet das aber als „Angst“ und drückt den Index nach unten.</strong>
+        Auf einem BTC-Dashboard <strong>übersetzt diese Komponente einen für BTC günstigen Kapitalfluss in Angst</strong>.
+        Es ist nur eine 10-%-Komponente, aber dass schon ihre Richtung der Perspektive des Assets widerspricht, muss man festhalten.
+      </div>
+      <p>
+        Zudem ist die Dominanz <strong>ein Indikator mit ständig wechselndem Nenner</strong>.
+        Wächst die Marktkapitalisierung der Stablecoins, werden massenhaft neue Token gelistet oder fließt institutionelles Geld nur in BTC-Produkte,
+        <strong>bewegt sich die Dominanz, obwohl niemand Angst bekommen hat.</strong>
+        Das heißt, 10 % eines „Stimmungsindex“ schwanken mit <strong>Veränderungen der Marktstruktur, die mit Stimmung nichts zu tun haben</strong>.
+      </p>
+
+      <h2>Sektion ⑤ Google Trends (10 %) – wer schon gekauft hat, sucht nicht</h2>
+      <p>
+        Sie betrachtet das relative Suchvolumen Bitcoin-bezogener Suchbegriffe. Da ein Anstieg des Suchvolumens an sich keine Richtung hat,
+        wird die Richtung daran bestimmt, <strong>welche Suchbegriffe zugenommen haben</strong>. Steigen etwa Anfragen wie „Bitcoin Kursmanipulation“ oder „Bitcoin Betrug“ sprunghaft,
+        wird das als Angst gelesen; steigt einfach „Bitcoin kaufen wie“, als Gier.
+      </p>
+      <p>
+        Hier zeigt sich die grundlegende Grenze dieser Komponente. <strong>Suchen ist ein Verhalten von Neueinsteigern.</strong>
+      </p>
+      <ul>
+        <li><strong>Wer bereits hält, sucht nicht.</strong> Er öffnet die App und schaut auf seinen Kontostand.</li>
+        <li><strong>Institutionelle und professionelle Anleger suchen nicht bei Google.</strong> Sie schauen auf ihr Terminal.</li>
+        <li>Was diese Komponente tatsächlich misst, ist daher <strong>„wie viel Interesse Menschen, die Krypto bisher nicht kannten, jetzt zeigen“</strong>.</li>
+      </ul>
+      <p>
+        Das ist keine schlechte Information. Für das Erkennen <strong>der Überhitzung durch Neueinsteiger in der späten Zyklusphase</strong> ist sie sogar recht nützlich.
+        Man muss aber genau wissen, was diese Information ist. Die Google-Trends-Komponente <strong>misst nicht die Stimmung des Marktes –
+        sie misst, wie schnell Menschen von außerhalb in den Markt strömen.</strong>
+      </p>
+      <p>
+        Und diese Komponente <strong>sättigt sich.</strong> Da das Suchvolumen auf relative Werte (0~100) normiert wird,
+        erscheint nach einer historischen Explosion fast jeder spätere Interessenanstieg als „geringes Suchvolumen“.
+        <strong>Der Rausch der Vergangenheit lässt den Rausch der Gegenwart klein aussehen.</strong>
+      </p>
+
+      <h2>Sektion ⑥ Umfragen (15 %, eingestellt) – das Loch, das eine verschwundene Komponente hinterlässt</h2>
+      <p>
+        Das ursprüngliche Design enthielt eine wöchentliche Anlegerumfrage mit 15 %. Es war die einzige Komponente, die <strong>Menschen direkt befragte</strong>,
+        also die einzige Stimmungsdatenquelle, die <strong>nicht vom Preis abgeleitet</strong> war. Heute ist sie eingestellt.
+      </p>
+      <p>Die Folgen dieser Einstellung sind größer, als man denkt.</p>
+      <ol>
+        <li>
+          <strong>Der preisabgeleitete Anteil ist gewachsen.</strong> Haben die übrigen Komponenten die 15 % der Umfrage unter sich aufgeteilt,
+          liegt das effektive Gewicht von Volatilität + Momentum <strong>sehr wahrscheinlich über</strong> den ursprünglichen 50 %.
+          Der Index ist also im Lauf der Zeit <strong>immer mehr zu einer „Funktion des Preises“ geworden</strong>.
+        </li>
+        <li>
+          <strong>Vergangene und heutige Werte bedeuten nicht dasselbe.</strong> Eine 20 aus dem Jahr 2018 und eine 20 aus dem Jahr 2026 sind
+          <strong>Zahlen, die mit unterschiedlichen Mischungsverhältnissen entstanden sind</strong>. Wer auf dem Langfrist-Chart einen Backtest nach dem Muster „historisch reichte es, unter 20 zu kaufen“ fährt,
+          <strong>backtestet einen Indikator, dessen Rezept sich unterwegs geändert hat</strong>.
+        </li>
+        <li>
+          <strong>Die Art der Umverteilung wurde nicht offengelegt.</strong> Deshalb können wir bei beiden obigen Aussagen nur sagen,
+          dass sie „sehr wahrscheinlich“ zutreffen. Dass man es nicht sicher sagen kann, ist selbst eine wichtige Eigenschaft dieses Index.
+        </li>
+      </ol>
+
+      <h2>Gesamtergebnis: kein „Stimmungsindex“, sondern ein „BTC-Zusammenfassungsindex“</h2>
+      <p>Stellen wir die fünf Komponenten noch einmal nebeneinander und fragen nur, <strong>worüber jede von ihnen eigentlich spricht</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Komponente</th><th>Tatsächlich beobachtet</th><th>Was sie über den Altcoin aussagt, den Sie gerade ansehen</th></tr></thead>
+          <tbody>
+            <tr><td>Volatilität 25%</td><td>BTC-Preis</td><td>Nichts</td></tr>
+            <tr><td>Momentum/Volumen 25%</td><td>BTC-Volumen</td><td>Nichts</td></tr>
+            <tr><td>Social Media 15%</td><td>Bitcoin-Hashtags</td><td>Nichts</td></tr>
+            <tr><td>Dominanz 10%</td><td>BTC-Anteil an der Marktkapitalisierung</td><td><strong>Etwas, aber in umgekehrter Richtung</strong></td></tr>
+            <tr><td>Google Trends 10%</td><td>Bitcoin-Suchbegriffe</td><td>Nichts</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Keine der fünf Komponenten liest Daten des Altcoins, den Sie gerade ansehen.</strong>
+        Der Index heißt „Krypto-Angst-&amp;-Gier-Index“, aber sein Rohstoff ist <strong>praktisch komplett Bitcoin</strong>.
+      </p>
+      <p>
+        Und ausgerechnet die Dominanz, die einzige Komponente, die Altcoins <em>überhaupt ansieht</em>, zeigt aus Sicht von Altcoin-Haltern in die Gegenrichtung.
+        In einer Altseason – wenn Altcoins explodieren und die Dominanz einbricht – ruft die Dominanz-Komponente <strong>„Gier“</strong>,
+        und der Index fällt nicht, sondern steigt. Für Altcoin-Halter eine gute Nachricht, doch der Index schaltet die Warnleuchte ein.
+        <strong>Umgekehrt: Brechen Altcoins zusammen und flieht das Geld in BTC, meldet der Index „Angst“ und gibt ein Kaufsignal – während Ihr Altcoin gerade stirbt.</strong>
+      </p>
+      <div class="note warn">
+        Deshalb ist auf dem broodev-Dashboard <strong>beim Betrachten eines Altcoins der F&amp;G-Indikator eine „Orientierung“, keine „Begründung“.</strong>
+        Das ist auch eine Grenze unseres Modells. Wir verwenden einen für BTC gebauten Marktstimmungsindikator
+        mit gleicher Gewichtung auch auf Altcoin-Bildschirmen, und <strong>entsprechend weniger verlässlich ist der F&amp;G-Posten im Altcoin-Score.</strong>
+        Ehrlich gesagt ist das ein Problem, das wir noch nicht gelöst haben. Stimmungsindikatoren pro Coin gibt es nicht,
+        und um sie zu bauen, bräuchte man verlässliche, normierte Social- und Volumendaten pro Coin, die es nicht kostenlos gibt.
+      </div>
+
+      <h2>Deshalb verwenden wir diese Zahl nicht unverändert</h2>
+      <p>
+        Die obige Zerlegung führt direkt zum Design unseres Modells. Wir <strong>verwenden den heutigen Wert des Angst-Index nicht unverändert.</strong>
+        Wir drehen ihn auch nicht einfach mit <code>100 − aktueller Wert</code> um.
+      </p>
+
+      <div class="note warn">
+        <strong>Vorab festzuhalten: Es gibt nicht eine, sondern zwei Umrechnungsformeln.</strong><br />
+        <strong>Der Langfrist-Tab (antizyklisch)</strong> und <strong>der Kurzfrist-Tab (Momentum)</strong> verwenden <strong>unterschiedliche Funktionen</strong> mit <strong>entgegengesetztem Vorzeichen</strong>.
+        <strong>Die Misch- und Extrembonus-Struktur</strong>, die in den folgenden Abschnitten ausführlich behandelt wird, <strong>gilt nur für den Langfrist-Tab</strong>.
+        (Die vorige Fassung dieses Dokuments enthielt nur die Langfrist-Funktion und ließ die Kurzfrist-Funktion weg. Korrigiert am 2026-07-14)
+      </div>
+
+      <p><strong>Langfrist-Umrechnung (antizyklisch)</strong> – je mehr Angst, desto höher der Score. Um das Rauschen eines einzelnen Tages zu unterdrücken, <strong>mischen wir die 7- und 30-Tage-Durchschnitte bei.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − aktueller Wert)
+       + 0.3 × (100 − Durchschnitt der letzten 7 Tage)
+       + 0.2 × (100 − Durchschnitt der letzten 30 Tage)
+
+aktueller Wert ≤ 25 → += (25 − aktueller Wert) × 0.4
+aktueller Wert ≥ 75 → −= (aktueller Wert − 75) × 0.4</code></pre>
+
+      <p><strong>Kurzfrist-Umrechnung (Momentum)</strong> – <strong>je mehr Gier, desto höher der Score.</strong> Es werden keine Durchschnitte beigemischt, sondern <strong>nur der aktuelle Wert</strong> verwendet.</p>
+      <pre><code>momFng = clamp(50 + (aktueller Wert − 50) × 1.2,  0,  100)
+
+  Angst 20   → 14    (kurzfristig niedriger Score)
+  Neutral 50 → 50
+  Gier 85    → 92    (kurzfristig hoher Score)</code></pre>
+      <p>
+        <strong>Warum ist Gier kurzfristig ein Pluspunkt?</strong> In einem Fenster von 1~3 Monaten sind Phasen, in denen sich die Stimmung verbessert,
+        meist <strong>Phasen mit intaktem Trend</strong>. Aus Trendfolge-Sicht ist das ein kauffreundliches Signal.
+        Extreme Angst bedeutet dagegen, dass <strong>der Rückgang noch im Gange ist</strong> – kurzfristig gefährlich.
+        <strong>Derselbe Indexwert 20 ergibt im Langfrist-Tab einen hohen Score (≈86), im Kurzfrist-Tab einen niedrigen (≈14).</strong>
+      </p>
+      <p class="muted">
+        <strong>Alle folgenden Berechnungen und Szenarien beziehen sich auf den Langfrist-Tab (antizyklisch).</strong> Denken Sie daran, dass sich im Kurzfrist-Tab das Vorzeichen umkehrt.
+      </p>
+
+      <h3>Warum wir den Tageswert halbiert haben</h3>
+      <p>
+        <strong>Die Antwort steht in der Zutatenliste.</strong> Überlegen Sie, welche Komponenten von Tag zu Tag am stärksten ausschlagen.
+      </p>
+      <ul>
+        <li><strong>Social Media (15 %)</strong> – schwankt innerhalb eines Tages durch einen einzigen Influencer-Tweet oder je nachdem, ob Wochenende ist.</li>
+        <li><strong>Google Trends (10 %)</strong> – eine einzige Schlagzeile lässt das Suchvolumen hochschnellen.</li>
+        <li><strong>Volatilität (25 %)</strong> – reagiert sofort auf eine einzige Tageskerze mit −8 %.</li>
+      </ul>
+      <p>
+        Zusammen ist <strong>die Hälfte der Komponenten empfindlich für „was gestern passiert ist“</strong>.
+        Der <strong>Angst-Index eines einzelnen Tages ist also eher ein Nachbild der gestrigen Nachrichten als ein Messwert der Stimmung</strong>.
+      </p>
+      <p>
+        Der <strong>7-Tage-Durchschnitt</strong> dagegen löscht einen Großteil des Tagesrauschens von Social Media und Trends sowie den Wochenendeffekt.
+        Der <strong>30-Tage-Durchschnitt</strong> drückt auch einzelne Spitzen der Volatilitätskomponente nieder – was bleibt, ist <strong>die Marktphase</strong>.
+        Daher 0.5 / 0.3 / 0.2. <strong>Zur Hälfte die Emotion von heute, zu 30 % die Stimmung dieser Woche, zu 20 % die Phase dieses Monats</strong>.
+      </p>
+
+      <h3>Wie unterschiedlich dieselbe „18“ bewertet werden kann – echte Rechnung</h3>
+      <p>
+        Das klingt abstrakt, also setzen wir Zahlen ein. <strong>In allen drei Szenarien steht der Angst-Index heute bei genau 20.</strong>
+        Die Schlagzeilen lauten in allen drei Fällen gleich: „Extreme Angst“.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Szenario</th><th>Aktuell</th><th>7-Tage-Schnitt</th><th>30-Tage-Schnitt</th><th>F&amp;G-Teil-Score<br /><span class="muted">(nicht der Gesamtscore)</span></th><th>Beitrag zum Langfrist-Gesamtscore<br /><span class="muted">× 18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A. Erster Tag des Crashs</strong><br /><span class="muted">alles in Ordnung bis zum Crash gestern</span></td>
+              <td>20</td><td>45</td><td>60</td>
+              <td><strong>66.5</strong></td>
+              <td>12.0 Pkt.</td>
+            </tr>
+            <tr>
+              <td><strong>B. Anhaltende Angst</strong><br /><span class="muted">die ganze Woche Angst</span></td>
+              <td>20</td><td>22</td><td>28</td>
+              <td><strong>79.8</strong></td>
+              <td>14.4 Pkt.</td>
+            </tr>
+            <tr>
+              <td><strong>C. Boden einer langen Flaute</strong><br /><span class="muted">seit einem Monat am Boden</span></td>
+              <td>20</td><td>25</td><td>20</td>
+              <td><strong>80.5</strong></td>
+              <td><strong>14.5 Pkt.</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note warn">
+        <strong>Verwechslungsgefahr – der Teil-Score ist nicht der Gesamtscore.</strong><br />
+        Die <strong>80.5</strong> in der Tabelle sind <strong>der Teil-Score eines einzigen Indikators, des F&amp;G</strong>, und bedeuten nicht „STRONG BUY“.
+        Dieser Wert <strong>trägt</strong> im Langfrist-Tab lediglich <code>80.5 × 18% = 14.5 Pkt.</code> <strong>zum Gesamtscore bei</strong>.
+        Das Label STRONG BUY (ab 80 Punkten) gilt nur für <strong>den Gesamtscore, der alle 6 Indikatoren zusammenführt</strong>.
+        (Die vorige Fassung dieses Dokuments versah Teil-Scores mit Namen der Gesamtscore-Bänder. Korrigiert am 2026-07-14)
+      </div>
+
+      <p>Die Rechnung im Detail sieht so aus.</p>
+      <pre><code>[A] Erster Tag des Crashs
+0.5×(100−20) + 0.3×(100−45) + 0.2×(100−60)
+= 40 + 16.5 + 8.0 = 64.5
+Extrembonus: (25−20)×0.4 = +2.0
+→ 66.5
+
+[B] Anhaltende Angst
+0.5×(100−20) + 0.3×(100−22) + 0.2×(100−28)
+= 40 + 23.4 + 14.4 = 77.8
+Extrembonus: +2.0
+→ 79.8
+
+[C] Boden einer langen Flaute
+0.5×(100−20) + 0.3×(100−25) + 0.2×(100−20)
+= 40 + 22.5 + 16.0 = 78.5
+Extrembonus: +2.0
+→ 80.5</code></pre>
+
+      <p>
+        <strong>Dieselbe 20 ergibt 66.5 und 80.5. Ein Unterschied von 14 Punkten.</strong>
+        Hätten wir einfach <code>100 − 20 = 80</code> gerechnet, kämen alle drei auf 80 Punkte – exakt dasselbe Signal.
+      </p>
+      <p>
+        Achten Sie auf den Bedeutungsunterschied. <strong>A ist „ein Markt, der bis gestern gierig war und heute einen Tag lang Angst bekommen hat“</strong>.
+        7-Tage-Schnitt 45, 30-Tage-Schnitt 60 – <strong>nach unten ist noch reichlich Luft.</strong>
+        <strong>C ist „ein Markt, für den sich seit einem Monat niemand interessiert“</strong>. Er ist nahe an dem Punkt, an dem alle, die verkaufen wollten, schon verkauft haben.
+        Beide als dasselbe Signal zu behandeln, ist <strong>der Grund, warum „Angst-Index 20 = kaufen“ so oft danebenliegt</strong>.
+      </p>
+      <div class="note">
+        <strong>Ein Einzelwert dieses Index spricht nur über die „Tiefe“, nicht über die „Dauer“.</strong>
+        Das Beimischen der 7- und 30-Tage-Durchschnitte soll den Index nicht verbessern, sondern
+        <strong>die Zeitdimension wiederherstellen, die der Index ursprünglich enthielt</strong>.
+      </div>
+
+      <h3>In umgekehrter Richtung ist es symmetrisch</h3>
+      <pre><code>[D] Überhitzungsphase — aktuell 85, 7 Tage 80, 30 Tage 72   (Langfrist-Tab)
+0.5×(100−85) + 0.3×(100−80) + 0.2×(100−72)
+= 7.5 + 6.0 + 5.6 = 19.1
+Extremabzug: −(85−75)×0.4 = −4.0
+→ F&amp;G-Teil-Score 15.1   →   Beitrag zum Langfrist-Gesamtscore 15.1 × 18% = 2.7 Pkt.</code></pre>
+      <p>
+        Je <strong>tiefer und länger anhaltend</strong> die Gier, desto stärker wird der Teil-Score gekürzt.
+        Bei einer eintägigen Gier-Spitze (aktuell 85, 7 Tage 55, 30 Tage 50) ergibt dieselbe Rechnung
+        <code>7.5 + 13.5 + 10 − 4 = 27.0</code>.
+        <strong>Dieselbe 85 ergibt 15.1 und 27.0</strong> – wieder entscheidet die Dauer über den Wert.
+      </p>
+      <div class="note">
+        <strong>⚠ Im Kurzfrist-Tab kehrt sich diese Rechnung vollständig um.</strong>
+        Setzt man dieselbe Lage (F&amp;G 85) in den Kurzfrist-Tab ein, ergibt <code>momFng(85) = 50 + 35×1.2 = 92</code> – <strong>fast die Höchstpunktzahl</strong>.
+        Wenn der Langfrist-Tab „überhitzt, gefährlich“ sagt, sagt der Kurzfrist-Tab „der Trend lebt“.
+        <strong>Beide haben recht. Nur der Zeithorizont ist ein anderer.</strong>
+      </div>
+
+      <h2>Warum gibt es Zusatzgewichtung ausgerechnet nur bei 25 und 75?</h2>
+      <p>
+        Bonus/Abzug von <code>×0.4</code> greifen <strong>nur bei 25 oder darunter und bei 75 oder darüber</strong>.
+        Bewegt sich der Index im Bereich 45~55 um 3 Punkte, reagiert unser Score kaum. <strong>Das ist bewusstes Ignorieren.</strong>
+      </p>
+      <p>Die Begründung liefert wieder die Zutatenliste. <strong>Schwankungen im Mittelbereich und Extremwerte entstehen durch unterschiedliche Mechanismen.</strong></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Wenn der Index zwischen 48 ↔ 53 pendelt</th><th>Wenn der Index unter 25 / über 75 geht</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Hauptsächlich bewegte Komponenten</strong></td>
+              <td><strong>Leichte Komponenten</strong> wie Social Media (15 %) + Trends (10 %). Ein paar Tweets oder eine Nachricht genügen</td>
+              <td>Nur erreichbar, wenn Volatilität (25 %) + Momentum (25 %) <strong>in dieselbe Richtung</strong> ins Extrem gehen</td>
+            </tr>
+            <tr>
+              <td><strong>Notwendige Bedingung</strong></td>
+              <td>Es muss sich nichts einig sein</td>
+              <td><strong>Einigkeit der 50 % schweren Komponenten</strong> ist nötig</td>
+            </tr>
+            <tr>
+              <td><strong>Informationsgehalt</strong></td>
+              <td>Kaum vorhanden – <strong>Rauschen</strong></td>
+              <td>Hoch – <strong>Preis, Volumen und Stimmung in eine Richtung</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Das ist der Kern. <strong>Ein Indexwert von 50 bedeutet „keine Komponente hat sich deutlich geäußert“</strong>,
+        nicht „der Markt ist im Gleichgewicht“. Die Komponenten können in entgegengesetzte Richtungen gezeigt und sich aufgehoben haben,
+        oder sie waren alle lauwarm. <strong>Der Wert 50 unterscheidet zwischen diesen beiden Fällen nicht.</strong>
+        <strong>Extremwerte wie 15 oder 85 entstehen dagegen nur, wenn mehrere Komponenten in dieselbe Richtung drängen.</strong>
+      </p>
+      <p>
+        Deshalb <strong>geben wir nur Extremwerten zusätzliches Gewicht.</strong> Extremwerte sind <strong>der Konsens (consensus) der Komponenten</strong>,
+        Mittelwerte <strong>das Fehlen eines Konsenses</strong>. Ein Punkt im Extrembereich ist weit mehr wert.
+      </p>
+      <p>
+        Wie wurde der Koeffizient <code>0.4</code> festgelegt? <strong>Ehrlich gesagt ist es ein justierbarer Wert.</strong>
+        Die Absicht war eine Obergrenze: „Fällt der Index auf 0, kommen höchstens +10 Punkte hinzu“
+        (<code>(25−0)×0.4 = 10</code>). Auch 0.5 oder 0.3 wären möglich gewesen. <strong>Das ist kein Prinzip, sondern eine Ermessensentscheidung.</strong>
+      </p>
+
+      <h2>Was diese Zerlegung nicht herausfinden konnte</h2>
+      <p>
+        Wenn Sie bis hierher gelesen haben und das Gefühl haben, „jetzt verstehe ich den Index“, lesen Sie bitte unbedingt noch diesen letzten Teil.
+        <strong>Genau zu wissen, was wir nicht wissen, ist wichtiger, als zu wissen, was wir wissen.</strong>
+      </p>
+      <ul>
+        <li>
+          <strong>Die Formel jeder Komponente ist nicht öffentlich.</strong> Mit welchem Zeitfenster (window) die Volatilität genau gemessen wird,
+          mit welcher Funktion sie auf 0~100 abgebildet wird, wie Ausreißer gekappt werden – nichts davon ist veröffentlicht.
+          <strong>Wir können diesen Index nicht nachbilden.</strong> Eine Zahl, die man nicht nachbilden kann, kann man nicht überprüfen.
+        </li>
+        <li>
+          <strong>Wir wissen nicht, wo die 15 % der eingestellten Umfrage geblieben sind.</strong> Oben haben wir gesagt, „das effektive Gewicht von Volatilität + Momentum dürfte über 50 % liegen“,
+          aber das ist eine <strong>Schätzung</strong>. Die genauen aktuellen Anteile kennt nur der Betreiber.
+        </li>
+        <li>
+          <strong>Die historische Konsistenz des Index ist nicht garantiert.</strong> Wenn sich Komponenten und Anteile unterwegs geändert haben,
+          sind die 20 von 2018 und die 20 von heute verschiedene Dinge. <strong>Jeder Langfrist-Backtest des Angst-Index trägt dieses Problem in sich</strong> –
+          unserer ist keine Ausnahme.
+        </li>
+        <li>
+          <strong>Wir hängen von einem einzigen Anbieter ab.</strong> Schließt Alternative.me die API oder ändert die Formel erneut,
+          wird der F&amp;G-Posten unseres Scores ab diesem Tag als fehlend behandelt, und die Gewichte werden auf die übrigen 5 Indikatoren renormiert
+          (das Dashboard zeigt dann <code>coverage: 5/6</code>). <strong>Das ist ein bereits im Design berücksichtigter Ausfallmodus.</strong>
+        </li>
+        <li>
+          <strong>Auch 0.5 / 0.3 / 0.2 und 0.4 sind von uns gewählte Zahlen.</strong> Die aus der Komponentenstruktur logisch abgeleitete Richtung stimmt,
+          aber es gibt keine mathematische Notwendigkeit für genau diese Werte. <strong>Sie dürfen andere Werte bevorzugen, und wir haben keine Grundlage, das für falsch zu erklären.</strong>
+        </li>
+      </ul>
+
+      <div class="note">
+        <strong>Warum wir diesen Index trotzdem verwenden.</strong>
+        Er ist voller Mängel, aber <strong>er wird täglich aktualisiert, ist kostenlos, reicht lange zurück und ist vor allem von den sechs Indikatoren
+        der einzige Versuch, wenigstens ein bisschen „etwas anderes als den Preis“ zu betrachten</strong>.
+        Die übrigen fünf Indikatoren (RSI, MACD, Mayer, Rückgang, Kreuzungen) sind allesamt reine Preisfunktionen.
+        <strong>Unvollkommene Stimmungsdaten sind besser als gar keine</strong> – das ist unser Urteil,
+        allerdings nur, wenn man die genaue Gestalt dieser Unvollkommenheit kennt. Genau deshalb haben wir diesen Text geschrieben.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis zur Geldanlage</strong><br />
+        Dieses Dokument ist <strong>ein Lehr- und Referenzmaterial, das die Struktur eines öffentlichen Indikators analysiert, und keine Anlageberatung oder Kauf- bzw. Verkaufsempfehlung.</strong>
+        Die Rechenbeispiele im Text (Szenarien A, B, C und D) sind <strong>hypothetische Werte zur Veranschaulichung</strong> und beziehen sich auf keinen bestimmten Marktzeitpunkt.
+        Kryptowährungen sind Hochrisiko-Anlagen, bei denen ein <strong>Totalverlust des eingesetzten Kapitals</strong> möglich ist, und kein Indikator und kein Score schützt vor Verlusten.
+        Alle Anlageentscheidungen und deren Folgen liegen allein in der Verantwortung der Nutzer. Recherchieren Sie immer selbst (DYOR).
+      </div>
+
+      <h2>Weiterlesen</h2>
+      <div class="related">
+        <a href="/guide-fear-greed"><b>Angst-Index in der Praxis</b><span>Die Zerlegung ist abgeschlossen – wie nutzt man ihn nun? Ablauf gestaffelter Käufe und häufige Fehler</span></a>
+        <a href="/methodology"><b>Score-Methodik</b><span>Mit welchen Gewichten die 6 Indikatoren einschließlich F&amp;G zusammengeführt werden</span></a>
+        <a href="/indicators"><b>Die 6 Indikatoren erklärt</b><span>Was RSI, MACD, Mayer-Multiple, Rückgang und Kreuzungen jeweils messen</span></a>
+        <a href="/glossary"><b>Glossar</b><span>Dominanz, Mayer-Multiple, Kapitulationsverkauf…</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+    </main>

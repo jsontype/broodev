@@ -1,0 +1,697 @@
+    <main class="wrap" data-title="Calcular el MACD a mano — recorrido por la EMA, la línea de señal y el histograma con 42 cierres | broodev" data-desc="Sustituimos 42 precios de cierre reales para calcular, vela a vela, la EMA12, la EMA26, la línea MACD, la línea de señal y el histograma. Comprobamos con código y números reales por qué con 30 velas no sale ni un solo valor del histograma, el verdadero motivo para usar la EMA en lugar de la SMA y por qué broodev mira la dirección respecto a la vela anterior en lugar del valor absoluto del histograma.">
+      <nav class="nav">
+        <a href="/">← Panel</a>
+        <a href="/methodology">Metodología de la puntuación</a>
+        <a href="/indicators">Guía de indicadores</a>
+        <a href="/guide-fear-greed">Guía de miedo y codicia</a>
+        <a href="/glossary">Glosario</a>
+      </nav>
+
+      <h1>Calcular el MACD a mano<br />— un recorrido completo con 42 precios de cierre</h1>
+      <p class="muted">Última actualización: 2026-07-14 · Autor: Y-Systems · Este texto no es una explicación, sino un <strong>registro de práctica</strong></p>
+
+      <p class="lead">
+        Empecemos por el fracaso. Si preparas <strong>30 precios de cierre</strong> y aplicas el MACD estándar (12·26·9),
+        obtienes 5 valores de la línea MACD, <strong>0 de la línea de señal y 0 del histograma</strong>.
+        Con un mes de datos no se puede construir <em>ni un solo</em> valor del histograma MACD.
+        Sorprendentemente, poca gente lo sabe, porque aprendió el MACD apenas como «la diferencia entre la media de 12 días y la de 26 días».
+      </p>
+      <p>
+        Por eso este texto no empieza por la definición. <strong>Sustituimos de verdad 42 precios de cierre</strong> y seguimos
+        EMA12 → EMA26 → línea MACD → línea de señal → histograma → sub-puntuación de broodev
+        <strong>vela a vela, con calculadora.</strong> Con una sola calculadora puedes reproducir todas las cifras de este texto;
+        si alguna no se reproduce, el error es nuestro.
+      </p>
+
+      <section class="bd-figs" aria-label="Gráfico MACD en vivo">
+        <p class="muted">Antes de entrar en el recorrido, veamos primero el resultado de aplicar este cálculo a datos reales de BTC. Es exactamente la misma fórmula que en la práctica con 42 cierres de más abajo (EMA12−EMA26, señal EMA9).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">Cargando los datos del gráfico…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">Cargando los datos del gráfico…</div></div>
+          </div>
+          <p class="bd-cap">Precio de BTC de los últimos 2 años (arriba) y MACD(12,26,9) (abajo). Barras = histograma (línea MACD−línea de señal; verde positivo / rojo negativo). La magnitud absoluta del MACD es proporcional al nivel de precio: por eso el texto mira la dirección en lugar del valor absoluto. Datos: CoinMetrics Community API, cierres diarios de BTC, descargados en el momento de la visita y calculados en el navegador; son <strong>valores aproximados, solo de referencia</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Material — los 42 precios de cierre que usaremos en todo el texto</h2>
+      <p>
+        Es un activo ficticio. Lo construimos con una trayectoria que parte de 100, <strong>cae −25.7% hasta 74.3 y luego rebota</strong>.
+        Es una forma habitual en las criptomonedas y está diseñada para incluir un tramo (la zona de suelo) donde los resultados del cálculo divergen de forma drástica.
+      </p>
+      <pre><code>Días 1~6    100.0  99.1 100.4  98.6  99.3  97.8
+Días 7~14    96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+Días 15~22   88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+Días 23~30   81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← el día 30 es el mínimo (74.3)
+Días 31~36   75.6  74.8  76.9  78.2  77.5  79.8
+Días 37~42   81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>No te preocupes por las unidades.</strong> Lo demostraremos más adelante, pero la sub-puntuación MACD de broodev es
+        <strong>totalmente invariante a la escala del precio (scale-invariant)</strong>. Aunque multipliques estos 42 cierres por 700
+        para llevarlos al rango de precio del bitcoin (58,730 dólares), <strong>la sub-puntuación sale idéntica hasta el cuarto decimal.</strong>
+        Por eso usamos números cercanos a 100, que son fáciles de leer.
+      </div>
+
+      <p class="step">PASO 1</p>
+      <h2>Por qué EMA y no SMA — «una vela de hace 12 días fabrica la señal de hoy»</h2>
+      <p>
+        Los manuales dicen que «la EMA es más sensible a los precios recientes y por eso es más rápida», y ahí se quedan. Esa frase <strong>solo es cierta a medias.</strong>
+        Con los mismos 42 cierres ejecutamos en paralelo un <strong>MACD versión SMA (SMA12−SMA26)</strong> y un <strong>MACD versión EMA (EMA12−EMA26)</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Día</th><th>Cierre</th><th>Línea MACD versión EMA</th><th>Línea MACD versión SMA</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← mínimo EMA</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← mínimo SMA</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Resultado 1 — la EMA marcó el mínimo una vela antes</h3>
+      <p>
+        La versión EMA tocó su mínimo (−7.008) en el <strong>día 28</strong> y se dio la vuelta; la versión SMA lo hizo en el <strong>día 29</strong> (−7.201).
+        Una vela de diferencia. Además, el mínimo de la EMA es <strong>menos profundo</strong> (−7.008 vs −7.201).
+        Hasta aquí, todo como dice el manual.
+      </p>
+
+      <h3>Resultado 2 — pero la SMA volvió antes a la línea cero</h3>
+      <p>
+        Mira el día 42. La versión SMA está en <strong>−0.006</strong>, prácticamente atravesando la línea cero, mientras que la EMA sigue en <strong>−1.389</strong>.
+        Aquí se rompe la idea de que «la EMA siempre es más rápida». <strong>¿Por qué saltó de repente la SMA?</strong>
+      </p>
+      <p>
+        Del día 41 al 42, la línea MACD versión SMA se movió <strong>de −1.036 a −0.006, +1.030 en un solo día</strong>.
+        Ese mismo día la versión EMA solo se movió +0.565. Casi el doble de diferencia. Al hacer el cálculo aparece la causa.
+      </p>
+      <pre><code>SMA12(día 42) − SMA12(día 41)
+  = (86.2 del día 42 que entra − 74.3 del día 30 que sale de la ventana) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← no es el precio de hoy, sino el efecto de que "desaparezca la vela del día 30"
+
+Cambio en la SMA26 = (86.2 − 87.2 del día 16) ÷ 26 = −0.0385
+
+Cambio del MACD versión SMA = +0.9917 − (−0.0385) = +1.030   ✅ coincide con la tabla</code></pre>
+      <p>
+        <strong>Este es el verdadero motivo para no usar la SMA.</strong> La mayor parte de la señal SMA del día 42
+        no se debe a que <em>el precio de hoy haya subido</em>, sino a que <strong>el mínimo de 74.3 de hace 12 días (día 30) cayó de golpe fuera de la ventana de la media móvil</strong>.
+        Hoy no pasó nada en el mercado, pero <strong>algo ocurrido hace 12 días fabrica la señal de compra de hoy.</strong>
+        Es lo que en el sector se llama <strong>«efecto de salida de la ventana» (drop-off effect)</strong>.
+      </p>
+      <p>
+        La EMA no tiene ventana. El peso de los precios antiguos <em>simplemente se desvanece poco a poco</em>, de forma exponencial, según <code>(1−α)ⁿ</code>;
+        nunca es <strong>expulsado</strong> del cálculo de un día para otro. Por eso, ese mismo día, la versión EMA se movió suavemente, +0.565.
+      </p>
+      <div class="note">
+        <strong>En resumen</strong>: el motivo para usar la EMA no es que «sea más rápida», sino que <strong>«no fabrica señales fantasma»</strong>.
+        La SMA llega una vela tarde en los giros y, a cambio, siembra en momentos absurdos <strong>cambios bruscos falsos creados por una vela de hace 12 días</strong>.
+        Más que la <em>velocidad</em> de la señal, importa su <em>causa</em>.
+      </div>
+
+      <p class="step">PASO 2</p>
+      <h2>Calcular la EMA12 con la calculadora</h2>
+      <p>
+        La EMA que usa broodev <strong>toma como semilla (seed) la media simple de los primeros <code>period</code> valores</strong> y, a partir de ahí, la actualiza exponencialmente.
+        <code>α = 2 ÷ (periodo + 1)</code>. Para la EMA12, <code>α = 2/13 = 0.153846</code>.
+      </p>
+      <pre><code>// código real de broodev (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← semilla = media simple de los primeros period valores
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>Ahora introducimos los 42 cierres de arriba. En el día 12 nace la semilla y a partir del día 13 empiezan las actualizaciones.</p>
+      <pre><code>Semilla del día 12 = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+                   = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+Día 13 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+Día 14 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+Día 15 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+Día 16 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+Día 17 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        La clave es solo esto: <strong>«sobre el 84.6% de la EMA de ayer se añade el 15.4% del cierre de hoy»</strong>.
+        El peso es el mismo cada día y el pasado se diluye un 84.6% cada día. El peso del cierre de hace 30 días es
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code>: ni siquiera el 0.1%. Pero <strong>no es cero.</strong> Esa diferencia era la conclusión del PASO 1.
+      </p>
+
+      <p class="step">PASO 3</p>
+      <h2>La EMA26 y la línea MACD — el primer valor no aparece hasta el día 26</h2>
+      <p>Para la EMA26, <code>α = 2/27 = 0.074074</code>. La semilla es la media simple de los días 1~26.</p>
+      <pre><code>Semilla del día 26 = 2341.4 ÷ 26 = <strong>90.0538</strong>
+Día 27 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+Día 28 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+Día 29 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+Día 30 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        Como la semilla de la EMA26 nace en el día 26, <strong>el primer valor de la línea MACD (EMA12 − EMA26) también es del día 26.</strong>
+        Hasta el día 25, <strong>la línea MACD ni siquiera existe.</strong>
+      </p>
+      <pre><code>Línea MACD(día 26) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        Aquí surge la primera observación importante. Pon en fila la línea MACD del día 26 al día 34.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Día</th><th>Cierre</th><th>Línea MACD</th><th>Nota</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>Mínimo de la línea MACD</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>Empieza el rebote</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>Precio con mínimo más bajo, MACD con mínimo más alto</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Cierre del día 28: 75.1 → cierre del día 30: 74.3. <strong>El precio marcó un mínimo más bajo (−1.1%).</strong>
+        Sin embargo, la línea MACD fue de −7.008 a −6.851: <strong>marcó un mínimo más alto.</strong>
+        Esto se llama <strong>divergencia alcista (bullish divergence)</strong>.
+        Significa que «el precio está en mínimos, pero la <em>velocidad</em> de la caída ya se está frenando».
+      </p>
+      <p>
+        Y en este recorrido, el verdadero suelo del precio fue el <strong>día 30</strong>.
+        La línea MACD ya se había dado la vuelta en el <strong>día 28</strong>. <strong>El indicador cambió de dirección dos velas antes que el precio.</strong>
+        Recuérdalo: será la base del PASO 6, «por qué la dirección y no el valor absoluto».
+      </p>
+
+      <p class="step">PASO 4</p>
+      <h2>La línea de señal — el punto donde 30 velas no bastan</h2>
+      <p>
+        La línea de señal es la <strong>EMA9 de la línea MACD</strong>. Es decir, una <strong>EMA de una EMA</strong>.
+        Como la línea MACD empieza en el día 26, la semilla de la señal (la media de 9 valores de la línea MACD) solo se puede construir
+        <strong>cuando se han reunido todos los valores del día 26 al 34</strong>.
+      </p>
+      <pre><code>Semilla de la señal (día 34)
+ = media de los 9 valores de la línea MACD de los días 26~34
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+Histograma(día 34) = línea MACD(−5.613) − línea de señal(−6.6071) = <strong>+0.994</strong>   ← ¡primer valor!</code></pre>
+      <p>Desde el día 35 se actualiza con α = 0.2.</p>
+      <pre><code>Señal del día 35 = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+       histograma = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+Señal del día 36 = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+       histograma = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+Señal del día 37 = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+       histograma = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>Por qué con 30 velas el histograma tiene 0 valores</strong><br />
+        26 (semilla de la EMA26) + 9 (semilla de la señal) − 1 = <strong>34</strong>. El <strong>primer valor del histograma llega, como muy pronto, en la vela 34</strong>.
+        Pero broodev mira el <strong>cambio respecto a la vela anterior</strong> del histograma, así que necesita <strong>2</strong> valores → <strong>35 velas</strong>.
+        Por eso el código tiene esta guarda.
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← con menos de 35 velas, sub-puntuación MACD = null</code></pre>
+        Si el MACD es <code>null</code>, entra en juego la <a href="/methodology">renormalización de pesos</a>:
+        la puntuación se calcula con los otros 5 indicadores y se muestra <code>coverage 5/6</code>. Es un estado que verás a menudo en monedas recién listadas.
+      </div>
+      <p class="muted">
+        Por cierto, 35 velas es <strong>una condición mínima, no suficiente.</strong> El histograma del día 34 aún está «verde», porque la semilla de la señal
+        es <em>una media simple de solo 9 valores de la línea MACD</em>. Para ver un histograma estable en la práctica hacen falta
+        al menos <strong>60~80 velas</strong>. Volvemos sobre este problema, con números, en el <a href="#seed">Apéndice A</a> al final del texto.
+      </p>
+
+      <p class="step">PASO 5</p>
+      <h2>Tabla completa — del día 26 al día 42</h2>
+      <p>
+        Reunimos en una sola tabla todos los valores hasta aquí. <strong>Δhistograma</strong> es «el cambio del histograma respecto a la vela anterior», y
+        <strong>corto y largo plazo</strong> son las sub-puntuaciones MACD (0~100) que broodev obtiene a partir de ese valor.
+        Las filas grises son <strong>tramos en los que el cálculo es directamente imposible</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>Día</th><th>Cierre</th><th>EMA12</th><th>EMA26</th><th>Línea MACD</th><th>Señal</th><th>Histograma</th><th>Δhistograma</th><th>Punt. corto plazo</th><th>Punt. largo plazo</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Fíjate en que, en la tabla, <strong>la línea MACD sigue siendo negativa hasta el día 42 (−1.389)</strong>.
+        Si hubieras seguido la regla de «comprar cuando el MACD supere la línea cero», en todo este rebote <strong>no habrías recibido ni una sola señal de compra.</strong>
+        En cambio, <strong>el histograma ya es positivo en el día 34 (+0.994)</strong>.
+        El histograma mide <em>si la línea MACD ha adelantado a la línea de señal</em>, así que es mucho más rápido que el cruce de la línea cero.
+      </p>
+      <p>
+        Y ahora mira el <strong>día 41</strong>. Esa sola fila es todo el PASO siguiente.
+      </p>
+
+      <p class="step">PASO 6</p>
+      <h2>Aquí broodev se separa del manual — dirección, no valor absoluto</h2>
+      <p>
+        Hasta ahora era el MACD estándar. Cualquier programa de gráficos da los mismos valores.
+        <strong>A partir de aquí empieza la parte propia de broodev.</strong> Publicamos <strong>tal cual está en el código fuente</strong>
+        la función que convierte el histograma (un número real de rango 0~infinito) en una puntuación de 0~100.
+      </p>
+      <pre><code>// Mapeo de corto plazo (momentum) — peso del MACD 14%
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① <strong>nivel</strong> del histograma
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② <strong>dirección</strong> respecto a la anterior
+, 0, 100)
+
+// Mapeo de largo plazo (contrario) — peso del MACD 18%
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② <strong>dirección</strong> respecto a la anterior
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① <strong>nivel</strong> del histograma
+, 0, 100)</code></pre>
+      <p>
+        Las dos funciones <strong>tienen la misma estructura con los coeficientes invertidos.</strong> Eso es todo.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Término</th><th>Significado</th><th>Coef. corto plazo (momentum)</th><th>Coef. largo plazo (contrario)</th></tr></thead>
+          <tbody>
+            <tr><td>① Nivel</td><td>Lo grande que es ahora el histograma (valor absoluto)</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② Dirección</td><td>Si es mayor o menor que en la vela anterior (Δ)</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>Proporción nivel : dirección</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>Ganancia de tanh</td><td>Cuanto mayor, antes se satura con cambios pequeños</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>El modo de corto plazo pesa el nivel el doble.</strong> Lo que importa es la fuerza de la tendencia.<br />
+        <strong>El modo de largo plazo pesa la dirección 2.5 veces más.</strong> Aunque el histograma siga siendo muy negativo,
+        lo que domina la puntuación es <strong>«si ha mejorado respecto a ayer»</strong>.
+      </p>
+
+      <h3>Mismo histograma, distinta dirección — ¿cuánto se separan las puntuaciones?</h3>
+      <p>Con un precio de 100, probamos cuatro situaciones en las que <strong>el valor del histograma es el mismo y solo cambia la dirección respecto al anterior</strong>.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Situación</th><th>Histograma</th><th>Valor anterior</th><th>Punt. corto plazo</th><th>Punt. largo plazo</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>Muy negativo pero <strong>girando con fuerza al alza</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>Muy negativo y <strong>sigue cayendo</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>Ligeramente positivo pero <strong>doblándose</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>Ligeramente positivo y <strong>subiendo</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Compara las filas 1 y 2. <strong>El valor del histograma es idéntico: −0.30.</strong> Solo cambia la dirección.
+        Pero <strong>la sub-puntuación de largo plazo va de 22.6 a 58.4: 35.8 puntos de diferencia.</strong>
+        Un modelo que solo mire el valor absoluto <strong>no puede distinguir</strong> estas dos situaciones. Para él, las dos son «malas».
+      </p>
+      <p>
+        Y la fila 1 es <strong>justo el día 28</strong> que vimos en el PASO 3.
+        La vela exacta en la que, mientras el precio marcaba nuevos mínimos, la presión vendedora <em>empezaba a disminuir</em>.
+        Si solo hubiéramos mirado el valor absoluto, habríamos calificado esa vela como «la peor». <strong>En realidad estaba a dos velas del suelo.</strong>
+      </p>
+      <p>
+        Las filas 3 y 4 cuentan la misma historia en sentido contrario. Como el histograma es positivo (+0.10), <strong>para un modelo de valor absoluto ambas son «buenas»</strong>,
+        pero una se está doblando y la otra está subiendo. La puntuación de largo plazo se separa: <strong>37.5 vs 66.5</strong>.
+      </p>
+      <div class="note">
+        <strong>En una frase</strong>: el valor absoluto del histograma dice <strong>«lo bien que está ahora»</strong>,
+        y el cambio respecto a la vela anterior dice <strong>«si está mejorando»</strong>.
+        Desde la óptica de la acumulación a largo plazo, lo que queremos comprar no es <em>un activo que ya ha mejorado</em>, sino <em>un activo que ha dejado de empeorar</em>.
+        Por eso, en el mapeo de largo plazo, el coeficiente de dirección (25) se impone al de nivel (10).
+      </div>
+
+      <h3>El precio: tanh se satura rápido (la lección del día 41)</h3>
+      <p>
+        Nada es gratis. Si se pesa mucho la dirección, <strong>la puntuación oscila mucho incluso con un ruido mínimo.</strong>
+        El <strong>día 41</strong> de la tabla del PASO 5 es la prueba.
+      </p>
+      <pre><code>Día 40: Δhistograma = <strong>+0.155</strong>  (+0.183% del precio 84.7)  → punt. largo plazo <strong>80.0</strong>
+Día 41: Δhistograma = <strong>−0.014</strong>  (−0.017% del precio 83.9)  → punt. largo plazo <strong>57.4</strong>
+
+Cálculo del término de dirección:
+  Día 40 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  Día 41 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  Diferencia <strong>−22.5 puntos</strong>   ← coincide con la caída de la sub-puntuación de largo plazo (−22.6)</code></pre>
+      <p>
+        <strong>Una sola microcaída del histograma, equivalente al 0.017% del precio, restó 22.6 puntos a la sub-puntuación de largo plazo.</strong>
+        La causa es la saturación de <code>tanh</code>. <code>tanh(1.098) ≈ 0.80</code>: es decir, con que Δ llegue solo al 0.18% del precio,
+        el término de dirección ya se lleva <strong>el 80% de su máximo (25 puntos)</strong>. A partir de ahí, por mucho que crezca, ya no sube más.
+        Y al revés: si cambia el signo, esos 20 puntos <strong>desaparecen al instante.</strong>
+      </p>
+      <p>Esta curva de saturación queda clara en una tabla.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Δhistograma ÷ precio</th><th>Término de dirección corto plazo (máx. 15)</th><th>Término de dirección largo plazo (máx. 25)</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00 (saturado)</td><td>25.00 (saturado)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Por encima del 0.4%, ambos términos están prácticamente en su máximo.</strong> Más allá no aportan ninguna información.
+        Es decir, <strong>el dato de que «el histograma es enorme» apenas se refleja en la puntuación de broodev.</strong>
+        Incluso en una subida explosiva, la sub-puntuación MACD se queda pegada cerca de 100 y no sube más.
+        Es un diseño intencionado (para que los valores extremos no dominen la puntuación global), pero al mismo tiempo es <strong>una pérdida de información evidente</strong>.
+        Lo dejamos escrito con franqueza.
+      </p>
+
+      <p class="step">PASO 7</p>
+      <h2>Experimento en lateral — no pasa nada y aun así la puntuación va y viene entre 21 y 83</h2>
+      <p>
+        Veamos ahora el peor escenario <strong>con números</strong>. Creamos un nuevo conjunto de datos:
+        <strong>un mercado completamente lateral que oscila entre 98.4 y 101.5 durante 60 velas.</strong> El rango total es de <strong>±1.5%</strong>.
+        En 60 días, en el mercado no ha pasado <strong>prácticamente nada.</strong>
+      </p>
+      <p>Le aplicamos el mismo MACD (12·26·9) y lo pasamos por el mismo mapeo de broodev.</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Día</th><th>Cierre</th><th>Histograma</th><th>Signo</th><th>Cambio de signo</th><th>Punt. corto plazo</th><th>Punt. largo plazo</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Agregado, queda así.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Concepto</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td>Velas con histograma</td><td>27 velas (días 34~60)</td></tr>
+            <tr class="mark"><td><strong>Veces que el histograma cambió de signo</strong></td><td><strong>10 veces</strong>: una cada 2.7 velas de media</td></tr>
+            <tr><td>Valor absoluto máximo del histograma</td><td>0.132 (<strong>0.13%</strong> del precio)</td></tr>
+            <tr><td>Rango de la sub-puntuación de corto plazo</td><td>21.1 ~ 83.0 → <strong>amplitud 61.9</strong></td></tr>
+            <tr><td>Rango de la sub-puntuación de largo plazo</td><td>32.8 ~ 71.2 → <strong>amplitud 38.4</strong></td></tr>
+            <tr><td>Media de la sub-puntuación de corto plazo</td><td>52.6 (neutral)</td></tr>
+            <tr><td>Media de la sub-puntuación de largo plazo</td><td>50.7 (neutral)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>En 27 velas, la señal de compra/venta se invirtió 10 veces.</strong> Esto es un <strong>whipsaw (serrucho)</strong>.
+        Si hubieras seguido al pie de la letra la regla clásica de «comprar cuando el histograma cruza la línea cero hacia arriba y vender cuando la perfora hacia abajo»,
+        <strong>habrías comprado y vendido 10 veces en estos 27 días</strong> y, con el precio en el mismo sitio, <strong>solo habrías pagado comisiones 10 veces</strong>.
+      </p>
+      <p>
+        Más inquietante aún es <strong>la amplitud de la puntuación</strong>. El mercado solo se movió ±1.5%, y aun así
+        la sub-puntuación de corto plazo fue y vino <strong>de 21.1 (evitar con fuerza) a 83.0 (compra fuerte)</strong>.
+        Entre el 21.1 del día 50 y el 81.0 del día 38 <strong>no hay prácticamente ninguna diferencia real de mercado.</strong> En cierre, la diferencia es del 2.6%.
+      </p>
+
+      <h3>Entonces, ¿cuánto oscila la puntuación final?</h3>
+      <p>El MACD es solo uno de los 6 indicadores. Si multiplicamos por el peso y calculamos <strong>el impacto real sobre la puntuación global (0~100)</strong>:</p>
+      <pre><code>Modo corto plazo: amplitud de la sub-puntuación 61.9 × peso <strong>0.14</strong> = <strong>8.67 puntos</strong>
+Modo largo plazo: amplitud de la sub-puntuación 38.4 × peso <strong>0.18</strong> = <strong>6.91 puntos</strong></code></pre>
+      <p>
+        Aquí aparece un <strong>resultado contraintuitivo</strong>.
+        <strong>El corto plazo tiene un peso menor (14% &lt; 18%), pero la puntuación final oscila más (8.67 &gt; 6.91).</strong>
+        El coeficiente de nivel 30 y la ganancia 800 hacen que el mapeo de corto plazo sea mucho más sensible.
+        Si solo miras el peso y concluyes que «el corto plazo tiene menos en cuenta el MACD», te equivocas. <strong>Hay que mirar también la función de mapeo.</strong>
+      </p>
+      <p class="muted">
+        Como referencia, en ambos modos <strong>la media está cerca de 50 (52.6 / 50.7)</strong>. En lateral, la sub-puntuación MACD
+        se mantiene neutral <em>en promedio</em>. El problema es que <strong>no se opera con la media, sino con el valor de cada día</strong>.
+      </p>
+
+      <p class="step">PASO 8</p>
+      <h2>Peso del 14% vs 18% — respondiendo con cálculos</h2>
+      <p>
+        En los pesos publicados en el <a href="/methodology">documento de metodología</a>, el MACD tiene <strong>14% en corto plazo y 18% en largo plazo</strong>.
+        «¿Por qué el MACD, que es un indicador de momentum, pesa menos en el modo de momentum (corto plazo)?»: es una pregunta frecuente y legítima.
+        La respuesta es la <strong>redundancia</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Modo</th><th>Carácter de momentum/tendencia</th><th>Carácter contrario</th><th>Papel del MACD</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Corto plazo</strong></td>
+              <td>RSI 28% + F&amp;G 28% + caída 18% + MACD 14% + cruce 8% = <strong>96%</strong><br /><span class="muted">En el modo de corto plazo, RSI, F&amp;G y caída se mapean <em>todos en la dirección del momentum</em></span></td>
+              <td>Mayer 4%</td>
+              <td><strong>Redundante.</strong> El 96% ya está mirando la tendencia</td>
+            </tr>
+            <tr>
+              <td><strong>Largo plazo</strong></td>
+              <td>MACD 18% + cruce 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + Mayer 18% + caída 14% = <strong>50%</strong><br />(el RSI 18% usa mapeo contrario)</td>
+              <td><strong>El único freno.</strong> Más de la mitad del 32% que frena cuando el 68% grita «compra»</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>En el modo de corto plazo, de los 6 indicadores, en la práctica 5 ya se mapean en la dirección del momentum.</strong>
+        El RSI usa <code>50 + (RSI−50) × 1.6</code>, así que <em>cuanto más alto, más puntuación</em> (sobrecompra = bueno);
+        el F&amp;G también puntúa <em>más cuanto mayor es la codicia</em>, y la caída puntúa <em>más cuanto menos profunda</em>.
+        Cargar mucho el MACD encima sería <strong>contar la misma información cuatro veces</strong>.
+        Además, como vimos en el PASO 7, <strong>el MACD es el indicador más ruidoso de este conjunto</strong> (10 inversiones en 27 velas).
+        No hay motivo para dar peso a un indicador redundante y ruidoso. Por eso, 14%.
+      </p>
+      <p>
+        <strong>El modo de largo plazo es justo lo contrario.</strong> F&amp;G (18%) · Mayer (18%) · caída (14%): <strong>en total, el 50% son indicadores contrarios</strong>,
+        y los tres <a href="/indicators">se equivocan a la vez en los mercados bajistas</a>. Los tres gritan «está barato, compra» mientras el precio sigue cayendo.
+        En ese momento, <strong>los únicos indicadores capaces de decir «todavía no» son el MACD (18%) y el cruce dorado/de la muerte (14%)</strong>.
+        Pero el cruce usa la media móvil de 200 días y es <strong>la señal más lenta</strong>: cerca del suelo llega con semanas de retraso.
+      </p>
+      <div class="note">
+        <strong>Conclusión</strong>: el 18% del MACD en el modo de largo plazo no se debe a que <strong>«confiemos más en el momentum», sino a que «faltan frenos»</strong>.
+        En una estructura donde el trío contrario se lleva el 50%, el MACD es <strong>el único indicador rápido que confirma si la tendencia ha girado de verdad</strong>.
+        Y esa confirmación no se hace con <em>si el histograma se ha vuelto positivo</em> (lento),
+        sino con <em>si el histograma es mayor que ayer</em> (rápido): por eso el coeficiente de dirección del mapeo de largo plazo es 25.
+        <strong>El peso del 18% y el coeficiente de dirección 25 son dos caras de la misma decisión.</strong>
+      </div>
+
+      <p class="step">Apéndice A</p>
+      <h2 id="seed">Tu gráfico y nuestro histograma pueden no coincidir</h2>
+      <p>
+        Esto es algo que la mayoría de los textos sobre MACD nunca dicen. <strong>El MACD no es un estándar cerrado.</strong>
+        «12·26·9» está fijado, pero <strong>con qué valor arranca la EMA (la inicialización o seeding) no lo está.</strong>
+      </p>
+      <ul>
+        <li><strong>Método de broodev</strong>: usa como semilla la <strong>media simple</strong> de los primeros <code>period</code> valores (PASOS 2 y 3 de arriba)</li>
+        <li><strong>Otro método habitual</strong>: usa como semilla <strong>el primer cierre tal cual</strong> y hace rodar la EMA desde el día 1</li>
+      </ul>
+      <p>Mismos 42 cierres, mismo 12·26·9, y aun así el histograma se separa de esta forma.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Día</th><th>Cierre</th><th>Histograma<br />(broodev · semilla SMA)</th><th>Histograma<br />(semilla primer cierre)</th><th>Diferencia</th><th>Diferencia ÷ precio</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>Sin valor</td><td><strong>+0.056</strong> ← ¡señal de compra!</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Mira el día 33.</strong> Con el método de semilla en el primer cierre, el histograma <strong>ya es positivo: +0.056</strong>;
+        es decir, ha saltado la señal <strong>«el histograma cruza la línea cero al alza: compra»</strong>.
+        Ese mismo día, broodev <strong>ni siquiera tiene valor</strong> (porque la semilla de la señal se forma en el día 34).
+        <strong>Mismos datos, mismos parámetros, y la señal aparece en días distintos.</strong>
+      </p>
+      <p>
+        La diferencia se reduce con el tiempo (0.82% → 0.35%). En teoría, en la EMA la influencia de la semilla se extingue exponencialmente, así que
+        <strong>con suficientes datos acumulados, los dos métodos convergen.</strong> Pero incluso en la vela 42 sigue quedando una diferencia del 0.35% del precio.
+      </p>
+      <p>
+        Entonces, <strong>¿cuánto de esta diferencia se traslada a la sub-puntuación de broodev?</strong> También lo calculamos sin más.
+        El resultado <strong>no fue el que esperaba, y por eso es más interesante.</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Día</th><th>Diferencia del histograma</th><th>Punt. corto plazo<br />(nuestro / alternativo)</th><th>Δ</th><th>Punt. largo plazo<br />(nuestro / alternativo)</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La diferencia en la sub-puntuación es de apenas 0.2 ~ 4.9 puntos.</strong> El histograma llegó a separarse un 0.82%, pero la puntuación apenas se separa.
+        El motivo es <strong>precisamente la saturación de tanh que en el PASO 6 criticamos como «pérdida de información»</strong>.
+        En este tramo el histograma ya es lo bastante grande como para que el término de nivel esté pegado a su máximo, y
+        <strong>como ambos están saturados, la diferencia no llega a trasladarse a la puntuación.</strong>
+      </p>
+      <div class="note">
+        <strong>La misma propiedad es debilidad y fortaleza</strong><br />
+        La saturación de tanh <strong>descarta la información sobre la magnitud de los extremos</strong> (la desventaja del PASO 6). Pero precisamente gracias a esa propiedad,
+        <strong>la puntuación apenas se mueve ante ruido de implementación, como diferencias en el método de inicialización o en la fuente de datos</strong> (la ventaja del Apéndice A).
+        Lo que se gana por un lado se pierde por otro. Nosotros <strong>elegimos la robustez.</strong> No sabemos si fue la decisión correcta.
+      </div>
+      <p>
+        <strong>Aun así, es pronto para tranquilizarse.</strong> El resultado de arriba corresponde a un tramo de tendencia en el que el histograma <em>ya es grande</em>.
+        Si metemos la misma diferencia del 0.30% cuando el histograma está <strong>cerca de 0 (= antes de saturarse)</strong>, ocurre esto.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Histograma (precio 100)</th><th>Punt. corto plazo</th><th>Punt. largo plazo</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15 (a ambos lados de la línea cero)</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Si el histograma queda a uno y otro lado de la línea cero, la sub-puntuación de corto plazo se separa 50 puntos.</strong>
+        Y <strong>la zona cercana a 0 es exactamente donde la gente busca señales</strong>: puntos de giro, mercados laterales, justo antes de un cruce.
+        <strong>El tramo donde la diferencia de inicialización más pesa es, precisamente, el tramo más importante.</strong>
+        (También aquí el mapeo de largo plazo oscila mucho menos que el de corto plazo: +14.3 vs +50.0, porque su coeficiente de nivel es solo 10.)
+      </p>
+      <div class="note warn">
+        <strong>Tres implicaciones prácticas</strong>
+        <ul>
+          <li>
+            <strong>No compares valores absolutos del MACD entre sitios.</strong> Si el histograma de broodev sale distinto del de tu programa de gráficos,
+            no es que uno de los dos esté mal, sino que <strong>usan métodos de inicialización distintos</strong>. La comparación en sí no tiene sentido.
+          </li>
+          <li>
+            <strong>Cuantos menos datos, más cuidado.</strong> En las monedas recién listadas, la influencia de la semilla aún no se ha disipado.
+            En activos como BTC, con cientos de velas acumuladas, la diferencia es despreciable.
+          </li>
+          <li>
+            <strong>Desconfía especialmente de la señal «el histograma acaba de cruzar la línea cero».</strong> Como muestra la tabla de arriba,
+            cerca de la línea cero las diferencias de implementación pueden separar la sub-puntuación hasta 50 puntos.
+            <strong>Es mucho más seguro mirar la persistencia de la dirección a lo largo de varias velas que el cruce de la línea cero en sí.</strong>
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">Apéndice B</p>
+      <h2>Lo que este recorrido no ha demostrado (y lo que no puede demostrar)</h2>
+      <p>
+        Hasta aquí hemos reproducido el proceso de cálculo con <strong>datos ficticios</strong> de 42 y 60 velas.
+        Vamos a separar con claridad lo que este texto ha demostrado y lo que <strong>no ha demostrado</strong>.
+      </p>
+      <h3>Lo que sí demostramos</h3>
+      <ul>
+        <li>El cálculo del MACD de broodev es el <strong>12·26·9 estándar</strong> y, con las cifras de arriba, <strong>cualquiera puede reproducirlo</strong>.</li>
+        <li>El histograma es posible <strong>desde la vela 34</strong> y el juicio de dirección <strong>desde la vela 35</strong>. Por eso existe la guarda <code>closes.length &gt;= 35</code>.</li>
+        <li>El mapeo de largo plazo pesa la dirección 2.5 veces más, con <strong>coeficiente de dirección 25 : coeficiente de nivel 10</strong>. Así está escrito en el código.</li>
+        <li>La puntuación es <strong>invariante a la escala del precio</strong> (aunque se multiplique ×700, es idéntica hasta el cuarto decimal).</li>
+        <li>En un mercado lateral, este indicador <strong>invierte la señal 10 veces en 27 velas.</strong> Es una <strong>debilidad medida</strong> de nuestro modelo.</li>
+        <li>
+          El MACD <strong>no es un estándar cerrado.</strong> Basta con cambiar el método de inicialización para que, con los mismos datos, la señal aparezca en otro día.
+          Aun así, gracias a la saturación de tanh, <strong>en tramos de tendencia</strong> esa diferencia apenas se traslada a la sub-puntuación (0.2~4.9 puntos).
+          <strong>Cerca de la línea cero, la separación llega a 50 puntos.</strong>
+        </li>
+      </ul>
+      <h3>Lo que no demostramos (importante)</h3>
+      <ul>
+        <li>
+          <strong>No es una prueba de que «mirar los cambios de dirección dé beneficios».</strong> Las 42 velas de arriba son datos ficticios que <em>yo diseñé para que rebotaran</em>.
+          Igual de fácil sería crear datos en los que, tras un cambio de dirección en el suelo, el precio <strong>siguiera cayendo otro −40%</strong>.
+          <strong>La transparencia del proceso de cálculo</strong> y <strong>la capacidad predictiva</strong> son problemas completamente distintos.
+        </li>
+        <li>
+          <strong>El MACD es, por naturaleza, un indicador rezagado.</strong> Al fin y al cabo, es la media móvil de la diferencia de dos medias móviles.
+          Para cuando el histograma cambia de dirección, <strong>parte del movimiento ya ha pasado</strong>.
+          Que en el PASO 3 la línea MACD girara 2 velas antes que el precio es una <strong>divergencia</strong>, no una <strong>premonición</strong>,
+          y las divergencias <strong>fallan a menudo.</strong>
+        </li>
+        <li>
+          <strong>Los pesos del 14%/18% son un juicio del autor.</strong> La lógica del PASO 8 (evitar redundancia, asegurar frenos) es una <em>justificación de diseño</em> convincente,
+          <strong>no una prueba de que sean los valores óptimos.</strong> Quizá un 16% sería mejor. Los datos no lo dicen de forma tajante.
+        </li>
+        <li>
+          <strong>La saturación de tanh descarta información extrema.</strong> Como vimos en el PASO 6, una vez que el histograma supera el 0.4% del precio,
+          cualquier magnitud adicional no se refleja en la puntuación. Es un diseño que <strong>descarta deliberadamente la información de intensidad</strong> de los grandes desplomes y subidas históricos.
+        </li>
+        <li>
+          <strong>El MACD no sabe nada de noticias, regulación, hackeos ni liquidez.</strong> Incluso mientras un exchange quiebra, el histograma puede girar al alza con toda elegancia.
+        </li>
+      </ul>
+      <p>
+        La sub-puntuación MACD es solo el <strong>14~18%</strong> de la puntuación global de broodev.
+        El 82~86% restante lo cubren <a href="/indicators">los otros cinco indicadores</a>,
+        y la forma de combinarlos está publicada íntegramente en el <a href="/methodology">documento de metodología</a>.
+        <strong>Ningún indicador por sí solo decide nada.</strong> Esa es la intención del diseño.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Aviso sobre inversión</strong><br />
+        Este documento <strong>es un documento técnico que publica un método de cálculo y no constituye asesoramiento de inversión.</strong>
+        Los cierres y puntuaciones del texto son <strong>datos ficticios</strong> para mostrar el proceso de cálculo y no predicen el precio futuro de ningún activo.
+        Las criptomonedas son activos de alto riesgo en los que <strong>es posible perder la totalidad del capital</strong>.
+        Toda decisión de inversión y sus resultados (ganancias o pérdidas) son responsabilidad exclusiva del usuario. Investiga siempre por tu cuenta (DYOR).
+      </div>
+
+      <h2>Sigue leyendo</h2>
+      <div class="related">
+        <a href="/methodology"><b>Metodología de la puntuación</b><span>Publicación completa de los pesos de los 6 indicadores, incluido el 14%/18% del MACD, y de la renormalización</span></a>
+        <a href="/indicators"><b>Guía de los 6 indicadores</b><span>Cuándo te traiciona cada uno de los otros cinco, aparte del MACD</span></a>
+        <a href="/guide-fear-greed"><b>Uso práctico del índice de miedo</b><span>Justo el indicador al que el MACD debe ponerle freno</span></a>
+        <a href="/glossary"><b>Glosario</b><span>EMA, histograma, divergencia, whipsaw y otros términos</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Gestionado por Y-Systems · <a href="/privacy">Política de privacidad</a> · <a href="/terms">Términos de uso</a></footer>
+    </main>

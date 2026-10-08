@@ -1,0 +1,321 @@
+    <main class="wrap" data-title="Hoe je de bodem van bitcoin herkent — marktkapitalisatie vs gemiddelde aankoopprijs | broodev" data-desc="De bodem van bitcoin herken je niet aan de prijs, maar aan de vraag of de marktkapitalisatie onder de gemiddelde aankoopprijs van beleggers (realized cap) is gezakt. We reconstrueren met live grafieken hoe de MVRV bij de vijf bodems van 2011, 2015, 2018, 2020 en 2022 echt onder 1 zakte, en publiceren alle formules van de bodemscore van broodev (BOTTOM RADAR), die ook de Thermocap (cumulatieve miningbeloningen) meeweegt.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoremethodologie</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/bitcoin-bottom">Bodemsignalen</a>
+        <a href="/glossary">Woordenlijst</a>
+      </nav>
+
+      <h1>Hoe je de bodem van bitcoin herkent<br />— marktkapitalisatie vs gemiddelde aankoopprijs</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-22 · Auteur: Y-Systems · Onderwerp: de on-chain onderdelen van de bodemscore van broodev (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Elke poging om de bodem van bitcoin aan de prijs af te lezen, is mislukt. De bodem van 2018 lag op 3.150 dollar, die van 2022 op 15.500 dollar — <strong>een verschil van een factor vijf.</strong>
+        Toch hadden beide bodems één ding gemeen, en dat was niet de prijs: <strong>de marktkapitalisatie van bitcoin was gezakt onder het totaal dat alle beleggers er werkelijk voor hadden betaald (de totale gemiddelde aankoopprijs)</strong>.
+        Dit artikel tekent die observatie rechtstreeks uit live data, volgt chronologisch hoe dit signaal zich bij de vijf bodems aandiende
+        en legt tot en met de formules open met welke gewichten de <strong>bodemscore (BOTTOM RADAR)</strong> van broodev dit samenvoegt.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Inhoud</div>
+        <ol>
+          <li><a href="#concept">Waarom de ‘gemiddelde aankoopprijs’ de bodem verraadt — de realized cap</a></li>
+          <li><a href="#chart-mc">Live grafiek ① — marktkapitalisatie vs gemiddelde aankoopprijs (2010–nu)</a></li>
+          <li><a href="#history">Vijf bodems — de dagen dat de MVRV onder 1 zakte</a></li>
+          <li><a href="#mvrv-z">Live grafiek ② — standaardiseren met de MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Live grafiek ③ — Thermocap, de bodem volgens de miningkosten</a></li>
+          <li><a href="#divergence">Hoe je de momenten leest waarop de twee indicatoren uiteenlopen</a></li>
+          <li><a href="#limits">De grenzen van deze indicatoren — een steekproef van 4 cycli, het ETF-tijdperk</a></li>
+          <li><a href="#radar">Hoe de bodemscore van broodev (BOTTOM RADAR) is opgebouwd — gewichten openbaar</a></li>
+          <li><a href="#faq">Veelgestelde vragen</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Over de cijfers in dit artikel.</strong> De grafieken hieronder zijn <strong>echte data die bij het openen van de pagina rechtstreeks van de CoinMetrics Community API en blockchain.info worden opgehaald en in de browser getekend</strong> (6 uur cache).
+        De MVRV-waarden op eerdere bodems en de rendementen daarna in de tabellen zijn daarentegen <strong>gereconstrueerde benaderingen</strong> — de decimalen schuiven, afhankelijk van de databron en van welke dag je als dieptepunt neemt.
+        De kern van dit artikel zit niet in de decimalen, maar in het <strong>terugkerende patroon dat ‘de periodes waarin de marktkapitalisatie onder de kostprijs zakte, samenvielen met de bodems’</strong>.
+      </div>
+
+      <h2 id="concept">Waarom de ‘gemiddelde aankoopprijs’ de bodem verraadt — de realized cap</h2>
+      <p>
+        Marktkapitalisatie kent iedereen: <code>huidige prijs × circulerende voorraad</code>. Het is een getal dat <em>aanneemt</em> dat één laatst verhandelde prijs de waarde van alle munten vertegenwoordigt.
+        Maar in de on-chain data zit nog een getal dat veel interessanter is: de <strong>gerealiseerde kapitalisatie (Realized Cap)</strong>.
+      </p>
+      <pre><code>Marktkap.     = huidige prijs × circulerende voorraad      (elke munt gewaardeerd tegen de ‘prijs van nu’)
+Realized cap  = Σ (elke munt × prijs op de dag dat die munt voor het laatst bewoog)
+              = totaal dat beleggers werkelijk hebben betaald ≈ gemiddelde aankoopprijs van de hele markt × circulerende voorraad</code></pre>
+      <p>
+        De blockchain legt vast <strong>wanneer elke munt voor het laatst van wallet wisselde</strong>. Beschouw je de prijs op de dag van die verplaatsing als de ‘aanschafprijs’ van de munt en tel je alles op,
+        dan krijg je het totale bedrag dat de hele markt werkelijk in bitcoin heeft gestoken. Bij aandelen komt dat overeen met <strong>de gemiddelde aankoopkoers van alle aandeelhouders vermenigvuldigd met het aantal aandelen</strong>.
+        Daarom noemen we de realized cap in dit artikel de <strong>‘gemiddelde aankoopprijs (totaal)’</strong>.
+      </p>
+      <p>De verhouding tussen die twee getallen is de bekende <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = marktkap. ÷ realized cap
+
+MVRV 2.0  → de gemiddelde houder staat op het dubbele van zijn inleg (iedereen in de winst)
+MVRV 1.0  → de markt als geheel staat precies quitte
+MVRV 0.8  → de gemiddelde houder staat −20% op verlies (iedereen in het verlies)</code></pre>
+      <p>
+        Hier komt de logica van de bodem vandaan. <strong>Een MVRV onder 1 betekent dat bitcoinhouders als geheel gemiddeld onder water staan.</strong>
+        Historisch gebeurden er in deze zone twee dingen. Ten eerste bereikt de <strong>capitulatie (capitulation)</strong> van beleggers die het verlies niet meer verdragen haar hoogtepunt.
+        Ten tweede zijn het langetermijnhouders, die zich niet door winst of verlies laten leiden, die die munten opnemen. Het is het moment waarop munten <strong>van zwakke naar sterke handen gaan</strong>,
+        en in alle vier de cycli <strong>viel dit moment samen met de grote bodem.</strong> In de grafiek hieronder kun je het zelf nagaan.
+      </p>
+
+      <h2 id="chart-mc">Live grafiek ① — marktkapitalisatie vs gemiddelde aankoopprijs<span class="info-tip" tabindex="0" role="note" aria-label="Uitleg: marktkapitalisatie vs gemiddelde aankoopprijs">ⓘ<span class="tip-bubble"><b>Marktkapitalisatie vs gemiddelde aankoopprijs</b>De blauwe lijn is de gemiddelde aankoopprijs van beleggers. Zakt de marktkapitalisatie (wit) onder deze lijn, dan staat de gemiddelde belegger op verlies — historisch was dat een bodemzone.</span></span></h2>
+      <p>
+        De witte lijn is de <strong>marktkapitalisatie</strong>, de blauwe de <strong>gemiddelde aankoopprijs (realized cap)</strong>. De schaal is logaritmisch; de oranje stippellijnen zijn de vier halvings.
+        Met de muis erboven zie je de datum en beide waarden. Er is maar één ding om naar te kijken — <strong>de stukken waar de witte lijn onder de blauwe duikt</strong>. Dat waren allemaal bodems.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">Data worden geladen en de grafiek wordt getekend… (dit kan enkele seconden duren)</div></div>
+      <p class="chart-src">Data: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, dagdata over de hele geschiedenis · realized cap = marktkap. ÷ MVRV) · 6 uur lokale cache · logaritmische schaal</p>
+      <p>
+        Let op één eigenschap van de blauwe lijn: <strong>die daalt bijna nooit.</strong> Zelfs als de marktkapitalisatie −80% instort, zakt de gemiddelde aankoopprijs maar langzaam.
+        De kostprijs wordt namelijk <em>alleen bijgewerkt als er werkelijk een transactie plaatsvindt</em>. Ook in een angstige markt blijven de meeste munten liggen, en de kostprijs van een munt die niet beweegt, blijft gelijk.
+        Zo gedraagt de blauwe lijn zich <strong>niet als een zwaartekrachtlijn voor de prijs, maar als de boekwaarde van de markt</strong>. Dat de marktkapitalisatie door de boekwaarde heen zakt, is zeldzaam — en juist doordat het zeldzaam is, is het een signaal.
+      </p>
+
+      <h2 id="history">Vijf bodems — de dagen dat de MVRV onder 1 zakte</h2>
+      <p>
+        In de geschiedenis van bitcoin zijn de fasen waarin de marktkapitalisatie onder de gemiddelde aankoopprijs zakte (MVRV &lt; 1) op één hand te tellen. Dit zijn de gevallen die samenvielen met de vijf grote bodems.
+        Alle cijfers zijn <strong>benaderingen</strong> — ze hangen af van welke dag je als dieptepunt neemt.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bodemfase</th><th>Prijs toen (ca.)</th><th>Laagste MVRV (ca.)</th><th>Na 1 jaar (ca.)</th><th>Na 2 jaar (ca.)</th></tr></thead>
+          <tbody>
+            <tr><td>november 2011</td><td>ca. $2</td><td><code>0.4~0.6</code></td><td>ca. $11 (+400% of meer)</td><td>ca. $1.000 (honderden keren)</td></tr>
+            <tr><td>januari 2015</td><td>ca. $170~230</td><td><code>0.55~0.7</code></td><td>ca. $380~430 (+90~130%)</td><td>ca. $900 (+300% of meer)</td></tr>
+            <tr><td>december 2018</td><td>ca. $3.200</td><td><code>~0.7</code></td><td>ca. $7.200 (+120% of meer)</td><td>ca. $23.000 (+600% of meer)</td></tr>
+            <tr><td>maart 2020</td><td>ca. $3.800~5.000</td><td><code>0.85~0.95</code> (enkele dagen)</td><td>ca. $58.000 (+1.000% of meer)</td><td>ca. $44.000 (+700% of meer)</td></tr>
+            <tr><td>november 2022</td><td>ca. $15.500</td><td><code>0.75~0.85</code></td><td>ca. $37.000 (+130% of meer)</td><td>ca. $90.000 (+480% of meer)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        De vijf bodems hadden allemaal een andere oorzaak: het barsten van de eerste bubbel (2011), de nasleep van Mt. Gox (2015), de afwikkeling van de ICO-bubbel (2018), de pandemiepaniek (2020) en het faillissement van FTX (2022).
+        De prijs verschilt tussen $2 en $15.500 een factor <strong>7.750</strong>. Toch <strong>stond de MVRV alle vijf de keren onder 1, meestal in het gebied van 0,7–0,9</strong>.
+        Meet je niet de absolute prijs, maar <strong>‘hoeveel korting er is ten opzichte van de kostprijs van de hele markt’</strong>, dan komen vijf totaal verschillende bodems bijna op dezelfde plek uit.
+      </p>
+      <div class="note warn">
+        <strong>Maar het omgekeerde geldt niet.</strong> ‘MVRV &lt; 1 = direct de bodem’ klopt niet.
+        In 2011, in 2014–2015 en eind 2018 bleef de MVRV <strong>weken tot maanden</strong> onder 1, en in die tijd daalde de prijs nog verder.
+        Wat deze indicator zegt, is niet ‘dit is het laagste punt’, maar zone-informatie: <strong>‘historisch wonnen wie in deze zone gespreid kochten, 1–2 jaar later ruim’</strong>.
+        Lees het niet als een timinginstrument, maar als <strong>een zone-instrument</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Live grafiek ② — standaardiseren met de MVRV Z-Score</h2>
+      <p>
+        De MVRV-ratio heeft één zwakte: <strong>de hoogte van de toppen verschilt per cyclus</strong>. Op de top van 2011 lag de MVRV boven 7, in 2021 haalde hij de 4 niet.
+        Hoe groter de markt, hoe meer de uitslagen worden samengedrukt. Daarom gebruikt de engine van broodev in plaats van de ratio de <strong>Z-Score</strong> — een methode die meet hoeveel standaardafwijkingen
+        het <em>verschil</em> tussen marktkapitalisatie en realized cap afwijkt ten opzichte van de historische volatiliteit van de marktkapitalisatie.
+      </p>
+      <pre><code>MVRV Z-Score = (marktkap. − realized cap) ÷ σ(marktkap.)
+               σ = standaardafwijking van de marktkap. over de hele geschiedenis
+
+z &lt; 0   → marktkap. onder de gemiddelde aankoopprijs (historische bodemzone)
+z ≈ 1~2 → normaal gebied
+z &gt; 5   → historische topzone (de pieken van 2011·2013·2017)</code></pre>
+      <p>
+        De grafiek hieronder toont de MVRV Z-Score over de hele geschiedenis. Groene arcering is <strong>z &lt; 0 (bodemzone)</strong>, rode arcering <strong>z &gt; 5 (oververhitte zone)</strong>.
+        De bodems van 2011·2015·2018·2022 doken allemaal onder de nullijn (maart 2020 raakte de nullijn net), en de grote toppen van 2011·2013·2017 bereikten allemaal de rode arcering met z 7–9.
+        Maar <strong>op de top van 2021 bleef de z steken rond 3,5</strong> — hoe groter de markt, hoe meer de uitslag naar boven wordt samengedrukt, iets waar we in het deel over de grenzen op terugkomen.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">Data worden geladen en de grafiek wordt getekend…</div></div>
+      <p class="chart-src">Data: berekend uit de CoinMetrics Community API met dezelfde bron als de grafiek hierboven · z = (marktkap. − realized cap) ÷ σ(marktkap.) · σ over de hele geschiedenis tot elk punt (uitdijend venster) · 6 uur lokale cache</p>
+      <div class="note">
+        <strong>We publiceren de berekening zoals die is.</strong> De MVRV Z op het dashboard van broodev wordt verkregen door uit
+        <code>CapMrktCurUSD</code> (marktkapitalisatie) en <code>CapMVRVCur</code> (MVRV-ratio) van de CoinMetrics Community API
+        de <code>realized cap = marktkap. ÷ MVRV</code> af te leiden en die vervolgens te standaardiseren met de <strong>σ(marktkap.) over de hele geschiedenis</strong>.
+        De historische stukken in de grafiek hierboven worden berekend met de <strong>σ tot dat moment</strong> (uitdijend venster) — om ‘de waarde die de belegger op die dag kon zien’ te tonen.
+        Het laatste punt valt per definitie precies samen met de huidige waarde op het dashboard. De API is gratis en vraagt geen sleutel, dus iedereen kan dezelfde cijfers reproduceren.
+      </div>
+
+      <h2 id="thermocap">Live grafiek ③ — Thermocap, de bodem volgens de miningkosten</h2>
+      <p>
+        Als de realized cap de <strong>kostprijs van beleggers</strong> is, dan heeft bitcoin nog een andere kostprijs: de <strong>kostprijs van producenten</strong>, oftewel de miningkosten.
+        <strong>Thermocap</strong> is het <strong>cumulatieve totaal (in USD) van de beloningen die sinds de lancering van bitcoin aan miners zijn uitbetaald (blokbeloning + transactiekosten)</strong>.
+        Het is de som van al het geld dat tot nu toe in de beveiliging van het netwerk is gestoken — met andere woorden <strong>de totale kosten om dit bezit te maken</strong>.
+      </p>
+      <pre><code>Thermocap    = Σ (dagelijkse miner-omzet in USD)  ← cumulatief sinds 2009
+Thermocap Z  = z-score of ln(marktkap. ÷ Thermocap)   [over de hele geschiedenis]
+
+Historisch schommelt de verhouding marktkap./Thermocap tussen een paar keer en enkele tientallen keren.
+Hoe lager de z van de gestandaardiseerde logaritme van de verhouding, hoe meer ‘ondergewaardeerd ten opzichte van de productiekosten’.</code></pre>
+      <p>
+        Dat de marktkapitalisatie op een veelvoud van de Thermocap noteert, is normaal (dat hoort bij een bezit met een stijgende trend). Waar het om gaat, is <strong>waar binnen de historische bandbreedte</strong> dat veelvoud zich bevindt,
+        en door de logaritme van het veelvoud als z-score te standaardiseren, worden cycli onderling vergelijkbaar. In de grafiek hieronder zie je dat <strong>de stukken waar z onder 0 zakt</strong> samenvallen met historische bodemzones.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">Data worden geladen en de grafiek wordt getekend…</div></div>
+      <p class="chart-src">Data: blockchain.info charts/miners-revenue (volledige periode) — gecumuleerd met de steekproefinterval in dagen als gewicht (integraalbenadering) · op datum uitgelijnd met de dagelijkse marktkap. van CoinMetrics · z = z-score van ln(marktkap./Thermocap) over de hele geschiedenis · 6 uur lokale cache</p>
+      <p>
+        De noemer van de Thermocap verschilt wezenlijk van de realized cap: <strong>die daalt nooit en groeit elke dag maar een klein beetje, los van de markt.</strong>
+        Ook als beleggers uit angst hun munten dumpen, verroert het cumulatief van de miningbeloningen zich niet. Daardoor wordt de Thermocap Z, vergeleken met indicatoren op basis van de realized cap,
+        <strong>een tragere en koppigere referentielijn voor de bodem</strong>. Deze indicator is <strong>alleen voor bitcoin</strong> beschikbaar, waarvoor data over miningbeloningen bestaan — voor altcoins is hij niet te berekenen.
+      </p>
+
+      <h2 id="divergence">Hoe je de momenten leest waarop de twee indicatoren uiteenlopen</h2>
+      <p>
+        Het zijn allebei ‘kostprijs’-indicatoren — waarom dan naar beide kijken? <strong>Omdat hun noemers met verschillende snelheid bewegen.</strong>
+        De realized cap (de noemer van de MVRV) wordt bijgewerkt telkens als een munt van eigenaar wisselt — duurt een bullmarkt lang, dan stijgt de kostprijs zelf mee, en als de capitulatie voorbij is, zakt de kostprijs weer in.
+        De Thermocap stapelt alleen maar op. Juist dat snelheidsverschil levert het signaal op.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Combinatie</th><th>Interpretatie</th><th>Historische voorbeelden (ca.)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z laag + Thermocap Z laag</td><td><strong>Diepe bodemzone.</strong> Dicht bij zowel de kostprijs van beleggers als de productiekosten</td><td>2015 · eind 2018 · eind 2022</td></tr>
+            <tr><td>MVRV Z laag + Thermocap Z normaal</td><td>Scherpe daling midden in de cyclus. Er was capitulatie, maar een structurele bodem is niet bevestigd</td><td>maart 2020 · juli 2021</td></tr>
+            <tr><td>MVRV Z normaal + Thermocap Z hoog</td><td>Late fase van de bullmarkt. De kostprijs is al flink gestegen, dus wie alleen naar de MVRV kijkt, wordt misleid</td><td>november 2021 (tweede top)</td></tr>
+            <tr><td>Beide hoog</td><td><strong>Historische topzone.</strong> Het slechtste moment voor nieuwe aankopen</td><td>eind 2013 · eind 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Vooral de derde rij is belangrijk. Duurt een bullmarkt langer dan een jaar, dan <strong>schuift de realized cap met de prijs mee omhoog en lijkt de MVRV ‘normaal’.</strong>
+        Op de cyclustop van november 2021 lag de MVRV ruim onder de toppen van 2011–2017. Het is precies hetzelfde soort stilte als bij de Mayer Multiple, die <a href="/mayer-multiple">in november 2021 neutraal aangaf</a>.
+        Op zo’n moment vervult een indicator <strong>waarvan de noemer niet met de prijs mee omhoog schuift</strong>, zoals de Thermocap, de rol van kruiscontrole.
+      </p>
+
+      <h2 id="limits">De grenzen van deze indicatoren — een steekproef van 4 cycli, het ETF-tijdperk</h2>
+      <p>We zeggen het eerlijk: tot hoever de argumenten van dit artikel reiken.</p>
+      <ul>
+        <li>
+          <strong>De steekproef is maar 4 cycli.</strong> De observatie ‘MVRV &lt; 1 was de bodem’ berust op vijf fasen, oftewel vier afgeronde cycli.
+          Dat is een omvang die je nauwelijks statistiek kunt noemen, en <strong>een observatie is geen wet.</strong> Er is geen garantie dat de volgende cyclus op dezelfde plek stopt.
+        </li>
+        <li>
+          <strong>Mogelijke vertekening in het ETF-tijdperk.</strong> Sinds 2024 liggen grote hoeveelheden munten vast in spot-ETF’s en bij institutionele bewaarders.
+          ETF-aandelen wisselen van eigenaar zonder on-chain verplaatsing, dus <strong>ook als er echt wordt gehandeld, wordt de realized cap (kostprijs) mogelijk niet bijgewerkt.</strong>
+          Het is een structurele verandering waardoor de on-chain kostprijs steeds verder achterloopt op de werkelijke marktkostprijs, en die de directe vergelijking met eerdere cycli vertroebelt.
+        </li>
+        <li>
+          <strong>De realized cap kan worden vertekend door interne verplaatsingen van beurzen.</strong> Als een beurs haar cold wallets herschikt en munten verplaatst,
+          wordt de ‘kostprijs’ van dat volume opnieuw vastgelegd tegen de prijs van de dag van verplaatsing, ook zonder echte aankopen. Omgekeerd laten munten die <em>binnen</em> een beurs van eigenaar wisselen geen on-chain spoor na, waardoor hun kostprijs niet wordt bijgewerkt.
+        </li>
+        <li>
+          <strong>Het probleem van munten die voorgoed slapen.</strong> Munten die in de begintijd zijn gemined en nooit meer zijn verplaatst (zoals die van Satoshi, naar schatting enkele miljoenen),
+          worden met een kostprijs rond 0 meegeteld. Dat is een vertekening waardoor de realized cap structureel te laag uitvalt.
+        </li>
+        <li>
+          <strong>De aard van de σ over de hele geschiedenis.</strong> Omdat de σ(marktkap.), de noemer van de MVRV Z, over de hele geschiedenis wordt berekend, groeit σ mee naarmate de markt groter wordt, en
+          <strong>wordt de uitslag van z in recente cycli onderdrukt vergeleken met vroeger.</strong> Dat betekent dat ‘extreme waarden als z &gt; 7 mogelijk niet meer terugkomen’ — en daarom mag je de drempels niet als absolute maatstaf gebruiken.
+        </li>
+      </ul>
+
+      <h2 id="radar">Hoe de bodemscore van broodev (BOTTOM RADAR) is opgebouwd — gewichten openbaar</h2>
+      <p>
+        De <strong>BOTTOM RADAR</strong> op het dashboard van broodev is een aparte samengestelde score die niet antwoordt op ‘stijgt het als ik nu koop?’, maar op één enkele vraag: <strong>‘zitten we nu in een historische bodemzone?’</strong>.
+        De gewichten zelf verschillen van die van de korte- en langetermijnscores. De kern is dat 55% naar de twee on-chain kostprijsindicatoren gaat.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicator</th><th>Gewicht</th><th>Waarom dit gewicht</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Ten opzichte van de gemiddelde aankoopprijs van beleggers. Het belangrijkste signaal, dat bij alle vijf de bodems werkte</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Ten opzichte van de productiekosten (mining). Kruiscontrole wanneer de noemer van de MVRV een vertekend beeld geeft</td></tr>
+            <tr><td>Mayer Multiple</td><td>15%</td><td>Prijs ten opzichte van het 200-daags gemiddelde. Een zuivere prijsas die on-chain niet ziet</td></tr>
+            <tr><td>Daling vanaf 365d-top</td><td>15%</td><td>Diepte van de daling vanaf de top. De noemer is een vaste top, dus de indicator valt ook in de late fase van een bearmarkt niet stil</td></tr>
+            <tr><td>Angst-&amp;-Hebzucht-index</td><td>15%</td><td>De thermometer van de capitulatiepsychologie. De bodem kwam altijd samen met extreme angst</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        De som van de vijf onderdelen is <strong>1,00</strong>. Elke indicator gebruikt de genormaliseerde langetermijnscore (contrair) — de twee on-chain indicatoren zetten de z-waarde met de ankertabel hieronder om naar 0–100 —
+        en indicatoren zonder data krijgen geen 0 punten, maar <strong>worden uit de berekening gelaten, waarna de overige gewichten opnieuw op een totaal van 100% worden genormaliseerd</strong>.
+        Bij munten anders dan BTC valt de Thermocap altijd weg, en bij munten die CoinMetrics niet ondersteunt ook de MVRV; controleer dus altijd de dekkingsweergave.
+      </p>
+      <pre><code>z → score (Z_ANCHORS, stuksgewijs lineaire interpolatie)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>De samengestelde score wordt in vijf zones geïnterpreteerd.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bodemscore</th><th>Oordeel</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Historische bodemzone — dezelfde plek als de grote bodems uit het verleden</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Ondergewaardeerd — kortingszone ten opzichte van de kostprijs</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutraal</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Hoog gewaardeerd — premiezone ten opzichte van de kostprijs</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Topzone · oververhit — dezelfde plek als de grote toppen uit het verleden</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Er is geen bewijs dat de gewichten 35·20·15·15·15 optimaal zijn. Alleen de richting staat vast — bij het beoordelen van de bodem <strong>bleken on-chain indicatoren op basis van de kostprijs beter reproduceerbaar over cycli heen dan prijsindicatoren</strong>,
+        en daarom krijgen zij de meerderheid van het gewicht. Het volledige scoresysteem (de combinatie van 8 indicatoren in de tabbladen korte en lange termijn) staat volledig in het <a href="/methodology">document over de scoremethodologie</a>.
+      </p>
+
+      <h2 id="faq">Veelgestelde vragen</h2>
+      <dl>
+        <dt>Is het altijd de bodem als de MVRV onder 1 zakt?</dt>
+        <dd>
+          Nee. Historisch vielen zones met MVRV &lt; 1 samen met grote bodems, maar <em>ook binnen die zones</em> daalde de prijs soms nog eens 20–40% (2011, 2015).
+          Lees het niet als ‘signaal van het laagste punt’, maar als ‘zone voor gespreid kopen die historisch 1–2 jaar later goed uitpakte’; bovendien is de steekproef maar vier cycli.
+        </dd>
+        <dt>Waar kan ik de realized cap (gemiddelde aankoopprijs) zien?</dt>
+        <dd>
+          De grafieken op deze pagina leiden de realized cap rechtstreeks af uit de marktkapitalisatie en de MVRV van de CoinMetrics Community API (gratis, zonder sleutel) en tekenen die.
+          De MVRV·Z-kaarten op het dashboard van broodev en de bodemscore (BOTTOM RADAR) gebruiken dezelfde data en dezelfde formules.
+        </dd>
+        <dt>Kan ik deze methode ook voor altcoins gebruiken?</dt>
+        <dd>
+          Slechts gedeeltelijk. broodev berekent de MVRV Z voor de 10 munten waarvoor CoinMetrics de MVRV levert (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA);
+          voor niet-ondersteunde munten wordt de indicator N/A en worden de gewichten opnieuw genormaliseerd. De Thermocap (cumulatieve miningbeloningen) is alleen voor bitcoin.
+        </dd>
+        <dt>Waarom is het de bodem als de marktkapitalisatie onder de gemiddelde aankoopprijs zakt?</dt>
+        <dd>
+          Een marktkapitalisatie onder de realized cap betekent dat houders als geheel gemiddeld op verlies staan. In deze zone bereikt de paniekverkoop van wie het verlies niet meer verdraagt haar hoogtepunt,
+          en terwijl die munten naar langetermijnhouders gaan, raakt de verkoopdruk uitgeput. Dit is echter een observatie uit de afgelopen vier cycli, geen gegarandeerde wet.
+        </dd>
+      </dl>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is het altijd de bodem als de MVRV onder 1 zakt?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nee. Historisch vielen zones met MVRV < 1 samen met grote bodems, maar ook binnen die zones daalde de prijs soms nog eens 20–40% (2011, 2015). Lees het niet als signaal van het laagste punt, maar als zone voor gespreid kopen die historisch 1–2 jaar later goed uitpakte; bovendien is de steekproef maar vier cycli." }
+          },
+          {
+            "@type": "Question",
+            "name": "Waar kan ik de realized cap (gemiddelde aankoopprijs) zien?",
+            "acceptedAnswer": { "@type": "Answer", "text": "De grafieken op de pagina btc.broodev.com/bitcoin-bottom leiden de realized cap rechtstreeks af uit de marktkapitalisatie en de MVRV van de CoinMetrics Community API (gratis, zonder sleutel) en tekenen die. De MVRV·Z-kaarten op het dashboard van broodev en de bodemscore (BOTTOM RADAR) gebruiken dezelfde data en dezelfde formules." }
+          },
+          {
+            "@type": "Question",
+            "name": "Kan ik deze methode ook voor altcoins gebruiken?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Slechts gedeeltelijk. broodev berekent de MVRV Z-Score voor de 10 munten waarvoor CoinMetrics de MVRV levert (BTC, ETH, XRP, DOGE, BCH, LINK, XLM, LTC, DOT, MANA); voor niet-ondersteunde munten wordt de indicator N/A en worden de gewichten opnieuw genormaliseerd. De Thermocap (cumulatieve miningbeloningen) is alleen voor bitcoin." }
+          },
+          {
+            "@type": "Question",
+            "name": "Waarom is het de bodem als de marktkapitalisatie onder de gemiddelde aankoopprijs zakt?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Een marktkapitalisatie onder de realized cap betekent dat houders als geheel gemiddeld op verlies staan. In deze zone bereikt de paniekverkoop van wie het verlies niet meer verdraagt haar hoogtepunt, en terwijl die munten naar langetermijnhouders gaan, raakt de verkoopdruk uitgeput. Dit is echter een observatie uit de afgelopen vier cycli, geen gegarandeerde wet." }
+          }
+        ]
+      }
+      </script>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document en de scores van broodev zijn <strong>referentiemateriaal dat openbare indicatoren combineert en geen beleggingsadvies.</strong>
+        De historische MVRV-waarden en rendementen in de tekst zijn <strong>benaderingen die per databron kunnen verschillen, en patronen uit het verleden bieden geen garantie voor de toekomst.</strong>
+        Cryptovaluta zijn risicovolle bezittingen waarbij <strong>verlies van je volledige inleg mogelijk is</strong>.
+        Alle beleggingsbeslissingen en de gevolgen daarvan (winst en verlies) zijn volledig de verantwoordelijkheid van de gebruiker zelf. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoremethodologie</b><span>Met welke gewichten de 8 indicatoren worden gecombineerd (alle waarden openbaar)</span></a>
+        <a href="/indicators"><b>Uitleg van de 8 indicatoren</b><span>Inclusief MVRV en Thermocap: wanneer elke indicator je in de steek laat</span></a>
+        <a href="/mayer-multiple"><b>De geschiedenis van de Mayer Multiple</b><span>Wat het 200-daags gemiddelde in elke cyclus vertelde — de bodemindicator op de prijsas</span></a>
+        <a href="/"><b>Naar het dashboard</b><span>Bekijk nu de bodemscore (BOTTOM RADAR)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

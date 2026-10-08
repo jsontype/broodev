@@ -1,0 +1,698 @@
+    <main class="wrap" data-title="MACD von Hand berechnen — EMA, Signallinie und Histogramm Schritt für Schritt anhand von 42 Schlusskursen | broodev" data-desc="Wir setzen 42 Schlusskurse ein und berechnen Kerze für Kerze EMA12, EMA26, MACD-Linie, Signallinie und Histogramm. Warum 30 Kerzen null Histogrammwerte ergeben, der wahre Grund für EMA statt SMA und warum broodev statt des absoluten Histogrammwerts die Richtung gegenüber dem Vortag betrachtet — belegt mit echtem Code und echten Zahlen.">
+      <nav class="nav">
+        <a href="/">← Übersicht</a>
+        <a href="/methodology">Score-Methodik</a>
+        <a href="/indicators">Indikatoren erklärt</a>
+        <a href="/guide-fear-greed">Angst-Index richtig nutzen</a>
+        <a href="/glossary">Glossar</a>
+      </nav>
+
+      <h1>MACD von Hand berechnen<br />— 42 Schlusskurse bis zum Ende durchgerechnet</h1>
+      <p class="muted">Zuletzt aktualisiert: 2026-07-14 · Autor: Y-Systems · Dieser Text ist keine Erklärung, sondern ein <strong>Übungsprotokoll</strong></p>
+
+      <p class="lead">
+        Beginnen wir mit dem Scheitern. Nehmen Sie <strong>30</strong> Schlusskurse und lassen Sie einen Standard-MACD (12·26·9) darüber laufen:
+        Sie erhalten 5 Werte der MACD-Linie, aber <strong>0 Werte der Signallinie und 0 Histogrammwerte</strong>.
+        Mit den Daten eines Monats lässt sich <em>kein einziger</em> Balken des MACD-Histogramms erzeugen.
+        Erstaunlich wenige wissen das, weil sie den MACD nur als „Differenz zwischen 12-Tage- und 26-Tage-Linie“ gelernt haben.
+      </p>
+      <p>
+        Deshalb beginnt dieser Text nicht mit einer Definition. Wir <strong>setzen tatsächlich 42 Schlusskurse ein</strong>
+        und gehen EMA12 → EMA26 → MACD-Linie → Signallinie → Histogramm → broodev-Teilscore
+        <strong>Kerze für Kerze mit dem Taschenrechner durch.</strong> Ein Taschenrechner genügt, um jede Zahl in diesem Text selbst nachzurechnen –
+        und wenn sie sich nicht reproduzieren lässt, haben wir uns geirrt.
+      </p>
+
+      <section class="bd-figs" aria-label="MACD-Live-Chart">
+        <p class="muted">Bevor wir in die Schritt-für-Schritt-Rechnung einsteigen, sehen wir uns zuerst an, was diese Berechnung auf echten BTC-Daten ergibt. Es ist exakt dieselbe Formel wie in der Übung mit 42 Schlusskursen unten (EMA12−EMA26, Signal EMA9).</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-macd-price" class="bd-pane"><div class="bd-loading">Chartdaten werden geladen…</div></div>
+            <div id="bd-macd-main" class="bd-pane"><div class="bd-loading">Chartdaten werden geladen…</div></div>
+          </div>
+          <p class="bd-cap">BTC-Kurs der letzten 2 Jahre (oben) und MACD(12,26,9) (unten). Balken = Histogramm (MACD-Linie−Signallinie, grün positiv / rot negativ). Die absolute Größe des MACD ist proportional zum Kursniveau — genau deshalb betrachtet der Text die Richtung statt des absoluten Werts. Daten: CoinMetrics Community API, BTC-Tagesschlusskurse — beim Besuch abgerufen und im Browser berechnet; <strong>Näherungswerte, nur zur Orientierung</strong>.</p>
+        </div>
+      </section>
+
+      <h2>Das Material — die 42 Schlusskurse für den ganzen Text</h2>
+      <p>
+        Es handelt sich um einen fiktiven Vermögenswert. Er startet bei 100, <strong>fällt um −25,7 % auf 74,3 und erholt sich dann</strong>.
+        Eine im Kryptobereich häufige Form, die bewusst so gebaut ist, dass sie eine Zone (den Tiefpunkt) enthält, in der die Rechenergebnisse stark auseinanderlaufen.
+      </p>
+      <pre><code>T1–6     100.0  99.1 100.4  98.6  99.3  97.8
+T7–14     96.2  97.1  94.8  93.5  94.2  91.7  90.3  91.1
+T15–22    88.6  87.2  88.0  85.4  83.9  84.7  82.1  80.6
+T23–30    81.3  79.2  77.8  78.5  76.4  75.1  76.0  74.3   ← Tag 30 ist der Tiefpunkt (74.3)
+T31–36    75.6  74.8  76.9  78.2  77.5  79.8
+T37–42    81.4  80.6  83.1  84.7  83.9  86.2</code></pre>
+      <div class="note">
+        <strong>Die Einheit spielt keine Rolle.</strong> Wie wir später beweisen, ist der MACD-Teilscore von broodev
+        <strong>vollständig skaleninvariant (scale-invariant)</strong>. Multiplizieren Sie diese 42 Schlusskurse mit 700, um auf das
+        Bitcoin-Kursniveau (58.730 Dollar) zu kommen – <strong>der Teilscore bleibt bis zur vierten Nachkommastelle identisch.</strong>
+        Deshalb verwenden wir gut lesbare Zahlen um 100.
+      </div>
+
+      <p class="step">SCHRITT 1</p>
+      <h2>Warum EMA statt SMA — „eine Kerze von vor 12 Tagen erzeugt das heutige Signal“</h2>
+      <p>
+        Lehrbücher sagen: „Die EMA reagiert empfindlicher auf jüngste Kurse und ist daher schneller“ – und hören dort auf. Dieser Satz ist <strong>nur zur Hälfte richtig.</strong>
+        Mit denselben 42 Schlusskursen haben wir einen <strong>SMA-MACD (SMA12−SMA26)</strong> und einen <strong>EMA-MACD (EMA12−EMA26)</strong>
+        nebeneinander berechnet.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Tag</th><th>Schlusskurs</th><th>MACD-Linie (EMA)</th><th>MACD-Linie (SMA)</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td>−6.946</td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td>−7.054</td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong> ← EMA-Tief</td><td>−7.140</td></tr>
+            <tr class="mark"><td>29</td><td>76.0</td><td>−6.888</td><td><strong>−7.201</strong> ← SMA-Tief</td></tr>
+            <tr><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td>−7.192</td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td>−6.972</td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td>−6.076</td></tr>
+            <tr><td>38</td><td>80.6</td><td>−3.639</td><td>−3.756</td></tr>
+            <tr><td>40</td><td>84.7</td><td>−2.411</td><td>−1.875</td></tr>
+            <tr><td>41</td><td>83.9</td><td>−1.954</td><td>−1.036</td></tr>
+            <tr class="mark"><td>42</td><td>86.2</td><td>−1.389</td><td><strong>−0.006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Ergebnis 1 — beim Tief war die EMA eine Kerze schneller</h3>
+      <p>
+        Die EMA-Variante markierte ihr Tief (−7.008) an <strong>Tag 28</strong> und drehte dann; die SMA-Variante an <strong>Tag 29</strong> (−7.201).
+        Eine Kerze Unterschied. Außerdem ist das EMA-Tief <strong>flacher</strong> (−7.008 gegenüber −7.201).
+        So weit entspricht alles dem Lehrbuch.
+      </p>
+
+      <h3>Ergebnis 2 — doch zur Nulllinie kehrte die SMA schneller zurück</h3>
+      <p>
+        Sehen Sie sich Tag 42 an. Die SMA-Variante hat mit <strong>−0.006</strong> die Nulllinie praktisch durchbrochen, die EMA-Variante steht noch bei <strong>−1.389</strong>.
+        Die Aussage „die EMA ist immer schneller“ bricht hier zusammen. <strong>Warum ist die SMA plötzlich gesprungen?</strong>
+      </p>
+      <p>
+        Von Tag 41 auf Tag 42 bewegte sich die SMA-MACD-Linie <strong>von −1.036 auf −0.006, also um +1.030 an einem einzigen Tag</strong>.
+        Am selben Tag bewegte sich die EMA-Variante nur um +0.565. Fast der doppelte Unterschied. Die Rechnung zeigt die Ursache.
+      </p>
+      <pre><code>SMA12(Tag 42) − SMA12(Tag 41)
+  = (neu hinzukommender Tag 42 mit 86.2 − aus dem Fenster fallender Tag 30 mit 74.3) ÷ 12
+  = 11.9 ÷ 12
+  = +0.9917          ← Effekt nicht des heutigen Kurses, sondern „des Wegfalls der Kerze von Tag 30“
+
+Veränderung auf der SMA26-Seite = (86.2 − 87.2 von Tag 16) ÷ 26 = −0.0385
+
+Veränderung des SMA-MACD = +0.9917 − (−0.0385) = +1.030   ✅ stimmt mit der Tabelle überein</code></pre>
+      <p>
+        <strong>Das ist der wahre Grund, keine SMA zu verwenden.</strong> Der Großteil des SMA-Signals an Tag 42 entsteht nicht dadurch,
+        <em>dass der heutige Kurs gestiegen ist</em>, sondern dadurch, dass <strong>das Tief von 74.3 von vor 12 Tagen (Tag 30) schlagartig aus dem Fenster des gleitenden Durchschnitts gefallen ist.</strong>
+        Am Markt ist heute nichts passiert, und doch <strong>erzeugt ein Ereignis von vor 12 Tagen das heutige Kaufsignal.</strong>
+        In der Branche nennt man das den <strong>„Drop-off-Effekt“ (drop-off effect)</strong>.
+      </p>
+      <p>
+        Die EMA hat kein Fenster. Das Gewicht alter Kurse nimmt exponentiell mit <code>(1−α)ⁿ</code> ab; es <em>verblasst nur allmählich</em>
+        und wird nie von einem Tag auf den anderen <strong>aus der Berechnung geworfen.</strong> Deshalb bewegte sich die EMA-Variante am selben Tag gleichmäßig um +0.565.
+      </p>
+      <div class="note">
+        <strong>Zusammengefasst</strong> — man verwendet die EMA nicht, „weil sie schnell ist“, sondern <strong>„weil sie keine Geistersignale erzeugt“</strong>.
+        Die SMA ist an Wendepunkten eine Kerze langsamer und streut dafür zu unpassenden Zeitpunkten <strong>falsche Sprünge, die eine 12 Tage alte Kerze verursacht</strong>.
+        Wichtiger als die <em>Geschwindigkeit</em> eines Signals ist seine <em>Ursache</em>.
+      </div>
+
+      <p class="step">SCHRITT 2</p>
+      <h2>Die EMA12 mit dem Taschenrechner ausrechnen</h2>
+      <p>
+        Die EMA von broodev <strong>verwendet den einfachen Durchschnitt der ersten <code>period</code> Werte als Startwert (Seed)</strong> und aktualisiert danach exponentiell.
+        <code>α = 2 ÷ (Periode + 1)</code>. Für die EMA12 also <code>α = 2/13 = 0.153846</code>.
+      </p>
+      <pre><code>// echter broodev-Code (apps/btc/index.html)
+function ema(values, period) {
+  const alpha = 2 / (period + 1)
+  let seed = 0
+  for (let i = 0; i &lt; period; i++) seed += values[i]
+  let prev = seed / period          // ← Seed = einfacher Durchschnitt der ersten period Werte
+  out[period - 1] = prev
+  for (let i = period; i &lt; values.length; i++) {
+    prev = values[i] * alpha + prev * (1 - alpha)
+    out[i] = prev
+  }
+}</code></pre>
+      <p>Jetzt setzen wir die 42 Schlusskurse ein. An Tag 12 entsteht der Seed, ab Tag 13 beginnt die Aktualisierung.</p>
+      <pre><code>Seed Tag 12 = (100.0 + 99.1 + 100.4 + ... + 91.7) ÷ 12
+            = 1162.7 ÷ 12 = <strong>96.8917</strong>
+
+Tag 13 = 90.3 × 0.153846 + 96.8917 × 0.846154 = <strong>95.8776</strong>
+Tag 14 = 91.1 × 0.153846 + 95.8776 × 0.846154 = <strong>95.1426</strong>
+Tag 15 = 88.6 × 0.153846 + 95.1426 × 0.846154 = <strong>94.1360</strong>
+Tag 16 = 87.2 × 0.153846 + 94.1360 × 0.846154 = <strong>93.0689</strong>
+Tag 17 = 88.0 × 0.153846 + 93.0689 × 0.846154 = <strong>92.2891</strong></code></pre>
+      <p>
+        Der Kern ist nur: <strong>„Auf 84,6 % der gestrigen EMA kommen 15,4 % des heutigen Schlusskurses.“</strong>
+        Die Gewichte sind jeden Tag gleich, und die Vergangenheit wird jeden Tag um den Faktor 84,6 % verdünnt. Das Gewicht eines 30 Tage alten Schlusskurses beträgt
+        <code>0.153846 × 0.846154³⁰ ≈ 0.0009</code> — keine 0,1 %. Aber <strong>es ist nicht null.</strong> Genau dieser Unterschied war das Fazit von SCHRITT 1.
+      </p>
+
+      <p class="step">SCHRITT 3</p>
+      <h2>EMA26 und MACD-Linie — der erste Wert kommt erst an Tag 26</h2>
+      <p>Für die EMA26 gilt <code>α = 2/27 = 0.074074</code>. Der Seed ist der einfache Durchschnitt von Tag 1 bis 26.</p>
+      <pre><code>Seed Tag 26 = 2341.4 ÷ 26 = <strong>90.0538</strong>
+Tag 27 = 76.4 × 0.074074 + 90.0538 × 0.925926 = <strong>89.0425</strong>
+Tag 28 = 75.1 × 0.074074 + 89.0425 × 0.925926 = <strong>88.0097</strong>
+Tag 29 = 76.0 × 0.074074 + 88.0097 × 0.925926 = <strong>87.1201</strong>
+Tag 30 = 74.3 × 0.074074 + 87.1201 × 0.925926 = <strong>86.1704</strong></code></pre>
+      <p>
+        Da der Seed der EMA26 erst an Tag 26 entsteht, <strong>stammt auch der erste Wert der MACD-Linie (EMA12 − EMA26) von Tag 26.</strong>
+        Bis Tag 25 <strong>existiert die MACD-Linie überhaupt nicht.</strong>
+      </p>
+      <pre><code>MACD-Linie (Tag 26) = EMA12(83.106) − EMA26(90.054) = <strong>−6.948</strong></code></pre>
+      <p>
+        Hier ergibt sich die erste wichtige Beobachtung. Reihen Sie die MACD-Linie von Tag 26 bis Tag 34 auf.
+      </p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Tag</th><th>Schlusskurs</th><th>MACD-Linie</th><th>Notiz</th></tr></thead>
+          <tbody>
+            <tr><td>26</td><td>78.5</td><td>−6.948</td><td></td></tr>
+            <tr><td>27</td><td>76.4</td><td>−6.968</td><td></td></tr>
+            <tr class="mark"><td>28</td><td>75.1</td><td><strong>−7.008</strong></td><td>Tief der MACD-Linie</td></tr>
+            <tr><td>29</td><td>76.0</td><td>−6.888</td><td>Beginn der Erholung</td></tr>
+            <tr class="mark"><td>30</td><td><strong>74.3</strong></td><td>−6.851</td><td><strong>Kurs mit tieferem Tief, MACD mit höherem Tief</strong></td></tr>
+            <tr><td>31</td><td>75.6</td><td>−6.640</td><td></td></tr>
+            <tr><td>32</td><td>74.8</td><td>−6.463</td><td></td></tr>
+            <tr><td>33</td><td>76.9</td><td>−6.084</td><td></td></tr>
+            <tr><td>34</td><td>78.2</td><td>−5.613</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Schlusskurs Tag 28: 75.1 → Schlusskurs Tag 30: 74.3. <strong>Der Kurs hat ein tieferes Tief gebildet (−1,1 %).</strong>
+        Die MACD-Linie dagegen ging von −7.008 auf −6.851 – <strong>sie hat ein höheres Tief gebildet.</strong>
+        Das nennt man <strong>bullische Divergenz (bullish divergence)</strong>.
+        Bedeutung: „Der Kurs markiert ein neues Tief, aber das <em>Tempo</em> des Rückgangs lässt bereits nach.“
+      </p>
+      <p>
+        Der echte Kursboden lag in dieser Rechnung an <strong>Tag 30</strong>.
+        Die MACD-Linie hatte bereits an <strong>Tag 28</strong> gedreht. <strong>Der Indikator änderte seine Richtung zwei Kerzen vor dem Kurs.</strong>
+        Merken Sie sich das — es ist die Grundlage für „warum Richtung statt Absolutwert“ in SCHRITT 6.
+      </p>
+
+      <p class="step">SCHRITT 4</p>
+      <h2>Die Signallinie — hier reichen 30 Kerzen nicht mehr</h2>
+      <p>
+        Die Signallinie ist die <strong>EMA9 der MACD-Linie</strong>, also eine <strong>EMA einer EMA</strong>.
+        Da die MACD-Linie an Tag 26 beginnt, kann der Seed der Signallinie (Durchschnitt von 9 MACD-Werten) erst gebildet werden,
+        <strong>wenn alle Werte von Tag 26 bis Tag 34 vorliegen</strong>.
+      </p>
+      <pre><code>Signal-Seed (Tag 34)
+ = Durchschnitt der 9 Werte der MACD-Linie, Tag 26 bis 34
+ = (−6.9479 −6.9682 −7.0084 −6.8882 −6.8512
+    −6.6404 −6.4634 −6.0835 −5.6129) ÷ 9
+ = −59.4641 ÷ 9
+ = <strong>−6.6071</strong>
+
+Histogramm (Tag 34) = MACD-Linie (−5.613) − Signallinie (−6.6071) = <strong>+0.994</strong>   ← erster Wert!</code></pre>
+      <p>Ab Tag 35 wird mit α = 0.2 aktualisiert.</p>
+      <pre><code>Signal Tag 35 = −5.2360 × 0.2 + (−6.6071) × 0.8 = <strong>−6.3329</strong>
+                Histogramm = −5.2360 − (−6.3329) = <strong>+1.0969</strong>
+Signal Tag 36 = −4.6976 × 0.2 + (−6.3329) × 0.8 = <strong>−6.0058</strong>
+                Histogramm = −4.6976 − (−6.0058) = <strong>+1.3083</strong>
+Signal Tag 37 = −4.0946 × 0.2 + (−6.0058) × 0.8 = <strong>−5.6236</strong>
+                Histogramm = −4.0946 − (−5.6236) = <strong>+1.5290</strong></code></pre>
+
+      <div class="note warn">
+        <strong>Warum 30 Kerzen null Histogrammwerte ergeben</strong><br />
+        26 (EMA26-Seed) + 9 (Signal-Seed) − 1 = <strong>34</strong>. Der <strong>erste Histogrammwert fällt frühestens auf die 34. Kerze</strong>.
+        broodev betrachtet aber die <strong>Veränderung des Histogramms gegenüber dem Vortag</strong>, braucht also <strong>2</strong> Werte → <strong>35 Kerzen</strong>.
+        Deshalb steht diese Schutzbedingung im Code.
+        <pre><code>if (closes.length &gt;= 35) { ... }   // ← unter 35 Kerzen: MACD-Teilscore = null</code></pre>
+        Ist der MACD <code>null</code>, greift die <a href="/methodology">Renormalisierung der Gewichte</a>:
+        Der Score wird aus den übrigen 5 Indikatoren berechnet und als <code>coverage 5/6</code> angezeigt. Ein Zustand, den man bei frisch gelisteten Coins häufig sieht.
+      </div>
+      <p class="muted">
+        Ergänzend: 35 Kerzen sind eine <strong>Mindest-, keine hinreichende Bedingung.</strong> Das Histogramm an Tag 34 beruht auf einem Signal-Seed, der
+        <em>nur ein einfacher Durchschnitt aus 9 MACD-Werten</em> ist – ein noch „unreifer“ Wert. In der Praxis braucht ein stabiles Histogramm
+        mindestens <strong>60–80 Kerzen</strong>. Darauf kommen wir in <a href="#seed">Anhang A</a> am Ende des Textes mit Zahlen zurück.
+      </p>
+
+      <p class="step">SCHRITT 5</p>
+      <h2>Die vollständige Rechentabelle — von Tag 26 bis Tag 42</h2>
+      <p>
+        Alle bisherigen Werte in einer Tabelle. <strong>ΔHistogramm</strong> ist die „Veränderung des Histogramms gegenüber der vorherigen Kerze“,
+        <strong>kurzfristig · langfristig</strong> sind die MACD-Teilscores (0–100), die broodev daraus berechnet.
+        Graue Zeilen markieren den <strong>Bereich, in dem eine Berechnung schlicht unmöglich ist</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead>
+            <tr><th>Tag</th><th>Schlusskurs</th><th>EMA12</th><th>EMA26</th><th>MACD-Linie</th><th>Signal</th><th>Histogramm</th><th>ΔHistogramm</th><th>Kurzfrist-Score</th><th>Langfrist-Score</th></tr>
+          </thead>
+          <tbody>
+            <tr class="dead"><td>26</td><td>78.5</td><td>83.106</td><td>90.054</td><td>−6.948</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>27</td><td>76.4</td><td>82.074</td><td>89.042</td><td>−6.968</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>28</td><td>75.1</td><td>81.001</td><td>88.010</td><td>−7.008</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>29</td><td>76.0</td><td>80.232</td><td>87.120</td><td>−6.888</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>30</td><td>74.3</td><td>79.319</td><td>86.170</td><td>−6.851</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>31</td><td>75.6</td><td>78.747</td><td>85.387</td><td>−6.640</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>32</td><td>74.8</td><td>78.140</td><td>84.603</td><td>−6.463</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="dead"><td>33</td><td>76.9</td><td>77.949</td><td>84.033</td><td>−6.084</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>34</td><td>78.2</td><td>77.988</td><td>83.601</td><td>−5.613</td><td>−6.607</td><td><strong>+0.994</strong></td><td>—</td><td>—</td><td>—</td></tr>
+            <tr class="mark"><td>35</td><td>77.5</td><td>77.913</td><td>83.149</td><td>−5.236</td><td>−6.333</td><td>+1.097</td><td>+0.103</td><td><strong>91.8</strong></td><td><strong>76.5</strong></td></tr>
+            <tr><td>36</td><td>79.8</td><td>78.203</td><td>82.901</td><td>−4.698</td><td>−6.006</td><td>+1.308</td><td>+0.211</td><td>94.6</td><td>83.0</td></tr>
+            <tr><td>37</td><td>81.4</td><td>78.695</td><td>82.789</td><td>−4.095</td><td>−5.624</td><td>+1.529</td><td>+0.221</td><td>94.6</td><td>83.1</td></tr>
+            <tr><td>38</td><td>80.6</td><td>78.988</td><td>82.627</td><td>−3.639</td><td>−5.227</td><td>+1.587</td><td>+0.058</td><td>87.8</td><td>70.2</td></tr>
+            <tr><td>39</td><td>83.1</td><td>79.621</td><td>82.662</td><td>−3.042</td><td>−4.790</td><td>+1.748</td><td>+0.161</td><td>93.7</td><td>80.5</td></tr>
+            <tr><td>40</td><td>84.7</td><td>80.402</td><td>82.813</td><td>−2.411</td><td>−4.314</td><td>+1.903</td><td>+0.155</td><td>93.5</td><td>80.0</td></tr>
+            <tr class="mark"><td>41</td><td>83.9</td><td>80.940</td><td>82.894</td><td>−1.954</td><td>−3.842</td><td>+1.888</td><td><strong>−0.014</strong></td><td>77.9</td><td><strong>57.4</strong></td></tr>
+            <tr><td>42</td><td>86.2</td><td>81.749</td><td>83.139</td><td>−1.389</td><td>−3.351</td><td>+1.962</td><td>+0.074</td><td>88.9</td><td>71.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Beachten Sie: In der Tabelle <strong>bleibt die MACD-Linie bis Tag 42 negativ (−1.389)</strong>.
+        Wer der Regel „Kaufen, wenn der MACD über die Nulllinie steigt“ folgt, hätte in dieser ganzen Erholung <strong>kein einziges Kaufsignal erhalten.</strong>
+        Das <strong>Histogramm ist dagegen schon an Tag 34 positiv (+0.994)</strong>.
+        Das Histogramm misst, <em>ob die MACD-Linie die Signallinie überholt hat</em>, und ist damit weit schneller als ein Durchbruch der Nulllinie.
+      </p>
+      <p>
+        Und sehen Sie sich <strong>Tag 41</strong> an. Diese eine Zeile ist der ganze nächste SCHRITT.
+      </p>
+
+      <p class="step">SCHRITT 6</p>
+      <h2>Hier trennt sich broodev vom Lehrbuch — Richtung statt Absolutwert</h2>
+      <p>
+        Bis hierher war alles Standard-MACD; jedes Chartprogramm liefert dieselben Werte.
+        <strong>Ab jetzt kommt der broodev-eigene Teil.</strong> Hier ist die Funktion, die das Histogramm (eine unbeschränkte reelle Zahl)
+        in einen Score von 0–100 umwandelt, <strong>unverändert aus dem Quellcode</strong>.
+      </p>
+      <pre><code>// Kurzfrist-Mapping (Momentum) — MACD-Gewicht 14 %
+const momMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>30</strong> * tanh( (cur / px)          * 800 )    // ① <strong>Niveau</strong> des Histogramms
+  + <strong>15</strong> * tanh( ((cur - prev) / px)  * 800 )    // ② <strong>Richtung</strong> gegenüber dem Vortag
+, 0, 100)
+
+// Langfrist-Mapping (antizyklisch) — MACD-Gewicht 18 %
+const conMacd = (cur, prev, px) =&gt; clamp(
+    50
+  + <strong>25</strong> * tanh( ((cur - prev) / px)  * 600 )    // ② <strong>Richtung</strong> gegenüber dem Vortag
+  + <strong>10</strong> * tanh( (cur / px)          * 600 )    // ① <strong>Niveau</strong> des Histogramms
+, 0, 100)</code></pre>
+      <p>
+        Beide Funktionen haben <strong>dieselbe Struktur mit vertauschten Koeffizienten.</strong> Das ist alles.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Term</th><th>Bedeutung</th><th>Koeffizient kurzfristig (Momentum)</th><th>Koeffizient langfristig (antizyklisch)</th></tr></thead>
+          <tbody>
+            <tr><td>① Niveau</td><td>Wie groß das Histogramm gerade ist (Absolutwert)</td><td><strong>30</strong></td><td>10</td></tr>
+            <tr><td>② Richtung</td><td>Ob es gegenüber der vorherigen Kerze größer oder kleiner wurde (Δ)</td><td>15</td><td><strong>25</strong></td></tr>
+            <tr><td colspan="2"><strong>Verhältnis Niveau : Richtung</strong></td><td><strong>2 : 1</strong></td><td><strong>1 : 2.5</strong></td></tr>
+            <tr><td>tanh-Verstärkung</td><td>Je größer, desto schneller Sättigung bei kleinen Änderungen</td><td>800</td><td>600</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Der Kurzfrist-Modus gewichtet das Niveau doppelt so stark.</strong> Es zählt, wie stark der Trend ist.<br />
+        <strong>Der Langfrist-Modus gewichtet die Richtung 2,5-mal so stark.</strong> Auch wenn das Histogramm noch tief negativ ist,
+        dominiert <strong>„Ist es besser als gestern?“</strong> den Score.
+      </p>
+
+      <h3>Gleiches Histogramm, andere Richtung — wie weit gehen die Scores auseinander?</h3>
+      <p>Bei einem Kurs von 100 haben wir vier Situationen durchgespielt, in denen <strong>der Histogrammwert gleich ist und nur die Richtung gegenüber dem Vortag abweicht</strong>.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Situation</th><th>Histogramm</th><th>Vorheriger Wert</th><th>Kurzfrist-Score</th><th>Langfrist-Score</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>Tief negativ, aber <strong>kräftig nach oben drehend</strong></td><td>−0.30</td><td>−0.45</td><td>33.0</td><td><strong>58.4</strong></td></tr>
+            <tr><td>Tief negativ und <strong>weiter fallend</strong></td><td>−0.30</td><td>−0.15</td><td>8.0</td><td>22.6</td></tr>
+            <tr><td>Leicht positiv, aber <strong>abknickend</strong></td><td>+0.10</td><td>+0.25</td><td>57.4</td><td>37.5</td></tr>
+            <tr><td>Leicht positiv und <strong>steigend</strong></td><td>+0.10</td><td>+0.02</td><td>78.4</td><td>66.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Vergleichen Sie Zeile 1 und 2. <strong>Der Histogrammwert ist mit −0.30 identisch.</strong> Nur die Richtung unterscheidet sich.
+        Trotzdem <strong>liegen die Langfrist-Teilscores mit 22.6 → 58.4 um 35.8 Punkte auseinander.</strong>
+        Ein Modell, das nur den Absolutwert betrachtet, <strong>könnte die beiden Situationen nicht unterscheiden</strong> – beide wären „schlecht“.
+      </p>
+      <p>
+        Zeile 1 ist aber <strong>genau der Tag 28</strong> aus SCHRITT 3:
+        die Kerze, in der der Verkaufsdruck <em>nachzulassen begann</em>, während der Kurs ein neues Tief machte.
+        Nur nach dem Absolutwert hätte man diese Kerze als „die schlechteste“ bewertet. <strong>Tatsächlich lag sie zwei Kerzen vor dem Boden.</strong>
+      </p>
+      <p>
+        Zeile 3 und 4 erzählen dieselbe Geschichte in umgekehrter Richtung. Das Histogramm ist positiv (+0.10), <strong>für ein Absolutwert-Modell sind also beide „gut“</strong>,
+        doch das eine knickt ab, das andere steigt. Die Langfrist-Scores trennen sich: <strong>37.5 gegenüber 66.5</strong>.
+      </p>
+      <div class="note">
+        <strong>In einem Satz</strong> — der Absolutwert des Histogramms sagt <strong>„wie gut es gerade ist“</strong>,
+        die Veränderung gegenüber dem Vortag sagt <strong>„ob es gerade besser wird“</strong>.
+        Beim langfristigen Akkumulieren wollen wir nicht den <em>Vermögenswert, dem es schon gut geht</em>, kaufen, sondern den <em>Vermögenswert, der aufgehört hat, schlechter zu werden</em>.
+        Deshalb dominiert im Langfrist-Mapping der Richtungskoeffizient (25) den Niveaukoeffizienten (10).
+      </div>
+
+      <h3>Der Preis: tanh sättigt schnell (die Lehre von Tag 41)</h3>
+      <p>
+        Nichts ist umsonst. Wer die Richtung stark gewichtet, <strong>lässt den Score schon bei kleinstem Rauschen stark schwanken.</strong>
+        <strong>Tag 41</strong> in der Tabelle aus SCHRITT 5 ist der Beweis.
+      </p>
+      <pre><code>Tag 40: ΔHistogramm = <strong>+0.155</strong>  (+0.183% vom Kurs 84.7)  → Langfrist-Score <strong>80.0</strong>
+Tag 41: ΔHistogramm = <strong>−0.014</strong>  (−0.017% vom Kurs 83.9)  → Langfrist-Score <strong>57.4</strong>
+
+Berechnung des Richtungsterms:
+  Tag 40 → 25 × tanh(600 × 0.00183)  = 25 × tanh( 1.098) = <strong>+20.0</strong>
+  Tag 41 → 25 × tanh(600 × (−0.00017)) = 25 × tanh(−0.100) = <strong>−2.5</strong>
+  Differenz <strong>−22.5 Punkte</strong>   ← entspricht dem Rückgang des Langfrist-Teilscores (−22.6)</code></pre>
+      <p>
+        <strong>Ein winziger Histogrammrückgang in Höhe von 0,017 % des Kurses ließ den Langfrist-Teilscore um 22.6 Punkte fallen.</strong>
+        Ursache ist die Sättigung von <code>tanh</code>. <code>tanh(1.098) ≈ 0.80</code> — sobald Δ also nur 0,18 % des Kurses erreicht,
+        holt der Richtungsterm bereits <strong>80 % seines Maximums (25 Punkte)</strong>. Darüber hinaus steigt er kaum noch, egal wie groß Δ wird.
+        Kippt umgekehrt das Vorzeichen, <strong>verschwinden diese 20 Punkte sofort.</strong>
+      </p>
+      <p>Als Tabelle wird diese Sättigungskurve deutlich.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>ΔHistogramm ÷ Kurs</th><th>Richtungsterm kurzfristig (max. 15)</th><th>Richtungsterm langfristig (max. 25)</th></tr></thead>
+          <tbody>
+            <tr><td>0.010%</td><td>1.20</td><td>1.50</td></tr>
+            <tr><td>0.025%</td><td>2.96</td><td>3.72</td></tr>
+            <tr><td>0.050%</td><td>5.70</td><td>7.28</td></tr>
+            <tr class="mark"><td>0.100%</td><td>9.96</td><td>13.43</td></tr>
+            <tr><td>0.200%</td><td>13.83</td><td>20.84</td></tr>
+            <tr><td>0.400%</td><td>14.95</td><td>24.59</td></tr>
+            <tr class="dead"><td>0.800%</td><td>15.00 (gesättigt)</td><td>25.00 (gesättigt)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Ab 0,4 % stehen beide Terme praktisch am Maximum.</strong> Darüber hinaus fügen sie keinerlei Information hinzu.
+        Mit anderen Worten: <strong>Die Information „das Histogramm ist riesig“ fließt kaum in den broodev-Score ein.</strong>
+        Selbst in einer Rally klebt der MACD-Teilscore bei etwa 100 und steigt nicht weiter.
+        Das ist beabsichtigt (Extremwerte sollen den Gesamtscore nicht dominieren), aber zugleich ein <strong>klarer Informationsverlust</strong>.
+        Das halten wir offen fest.
+      </p>
+
+      <p class="step">SCHRITT 7</p>
+      <h2>Experiment Seitwärtsmarkt — nichts passiert, doch der Score pendelt zwischen 21 und 83</h2>
+      <p>
+        Sehen wir uns jetzt den schlimmsten Fall <strong>in Zahlen</strong> an. Wir erstellen einen neuen Datensatz:
+        <strong>einen völlig seitwärts laufenden Markt, der 60 Kerzen lang zwischen 98.4 und 101.5 pendelt.</strong> Die gesamte Schwankungsbreite beträgt <strong>±1,5 %</strong>.
+        60 Tage lang ist am Markt praktisch <strong>nichts passiert.</strong>
+      </p>
+      <p>Darauf lassen wir denselben MACD (12·26·9) und dasselbe broodev-Mapping laufen.</p>
+
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Tag</th><th>Schlusskurs</th><th>Histogramm</th><th>Vorzeichen</th><th>Wechsel</th><th>Kurzfrist-Score</th><th>Langfrist-Score</th></tr></thead>
+          <tbody>
+            <tr><td>34</td><td>100.1</td><td>+0.117</td><td>+</td><td></td><td>83.0</td><td>71.2</td></tr>
+            <tr><td>35</td><td>98.9</td><td>+0.015</td><td>+</td><td></td><td>43.5</td><td>37.2</td></tr>
+            <tr><td>36</td><td>99.6</td><td>−0.004</td><td>−</td><td class="flip">FLIP</td><td>46.8</td><td>46.9</td></tr>
+            <tr><td>37</td><td>100.8</td><td>+0.062</td><td>+</td><td class="flip">FLIP</td><td>70.8</td><td>62.8</td></tr>
+            <tr><td>38</td><td>101.3</td><td>+0.132</td><td>+</td><td></td><td>81.0</td><td>66.4</td></tr>
+            <tr><td>39</td><td>100.0</td><td>+0.087</td><td>+</td><td></td><td>62.8</td><td>48.2</td></tr>
+            <tr><td>40</td><td>98.7</td><td>−0.029</td><td>−</td><td class="flip">FLIP</td><td>32.1</td><td>33.1</td></tr>
+            <tr><td>41</td><td>99.4</td><td>−0.055</td><td>−</td><td></td><td>34.5</td><td>42.9</td></tr>
+            <tr><td>42</td><td>100.6</td><td>+0.009</td><td>+</td><td class="flip">FLIP</td><td>59.1</td><td>59.6</td></tr>
+            <tr><td>43</td><td>101.0</td><td>+0.074</td><td>+</td><td></td><td>72.9</td><td>63.4</td></tr>
+            <tr><td>44</td><td>99.9</td><td>+0.041</td><td>+</td><td></td><td>55.6</td><td>47.5</td></tr>
+            <tr class="mark"><td>45</td><td>98.8</td><td>−0.052</td><td>−</td><td class="flip">FLIP</td><td><strong>28.5</strong></td><td>34.2</td></tr>
+            <tr><td>46</td><td>99.9</td><td>−0.037</td><td>−</td><td></td><td>43.2</td><td>50.1</td></tr>
+            <tr><td>47</td><td>101.1</td><td>+0.051</td><td>+</td><td class="flip">FLIP</td><td>70.6</td><td>65.0</td></tr>
+            <tr><td>48</td><td>100.4</td><td>+0.059</td><td>+</td><td></td><td>64.2</td><td>54.6</td></tr>
+            <tr><td>49</td><td>99.2</td><td>−0.015</td><td>−</td><td class="flip">FLIP</td><td>38.3</td><td>38.5</td></tr>
+            <tr class="mark"><td>50</td><td>98.6</td><td>−0.099</td><td>−</td><td></td><td><strong>21.1</strong></td><td><strong>32.8</strong></td></tr>
+            <tr><td>51</td><td>99.9</td><td>−0.064</td><td>−</td><td></td><td>40.1</td><td>51.6</td></tr>
+            <tr><td>52</td><td>100.9</td><td>+0.027</td><td>+</td><td class="flip">FLIP</td><td>65.4</td><td>63.8</td></tr>
+            <tr><td>53</td><td>100.2</td><td>+0.037</td><td>+</td><td></td><td>60.0</td><td>53.8</td></tr>
+            <tr><td>54</td><td>99.1</td><td>−0.028</td><td>−</td><td class="flip">FLIP</td><td>36.2</td><td>39.0</td></tr>
+            <tr><td>55</td><td>98.9</td><td>−0.079</td><td>−</td><td></td><td>27.1</td><td>37.9</td></tr>
+            <tr><td>56</td><td>100.2</td><td>−0.024</td><td>−</td><td></td><td>50.5</td><td>56.5</td></tr>
+            <tr><td>57</td><td>101.0</td><td>+0.063</td><td>+</td><td class="flip">FLIP</td><td>72.9</td><td>65.5</td></tr>
+            <tr><td>58</td><td>100.3</td><td>+0.071</td><td>+</td><td></td><td>66.2</td><td>55.1</td></tr>
+            <tr><td>59</td><td>99.3</td><td>+0.008</td><td>+</td><td></td><td>45.0</td><td>41.5</td></tr>
+            <tr><td>60</td><td>99.8</td><td>+0.001</td><td>+</td><td></td><td>49.3</td><td>48.9</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Zusammengefasst ergibt sich Folgendes.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Kennzahl</th><th>Wert</th></tr></thead>
+          <tbody>
+            <tr><td>Kerzen mit Histogrammwert</td><td>27 Kerzen (Tag 34–60)</td></tr>
+            <tr class="mark"><td><strong>Anzahl der Vorzeichenwechsel des Histogramms</strong></td><td><strong>10-mal</strong> — im Schnitt alle 2,7 Kerzen</td></tr>
+            <tr><td>Maximaler Absolutwert des Histogramms</td><td>0.132 (<strong>0,13 %</strong> des Kurses)</td></tr>
+            <tr><td>Spanne Kurzfrist-Teilscore</td><td>21.1–83.0 → <strong>Spannweite 61.9</strong></td></tr>
+            <tr><td>Spanne Langfrist-Teilscore</td><td>32.8–71.2 → <strong>Spannweite 38.4</strong></td></tr>
+            <tr><td>Durchschnitt Kurzfrist-Teilscore</td><td>52.6 (neutral)</td></tr>
+            <tr><td>Durchschnitt Langfrist-Teilscore</td><td>50.7 (neutral)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>In 27 Kerzen kippte das Kauf-/Verkaufssignal 10-mal.</strong> Das ist ein <strong>Whipsaw</strong> (Hin-und-her-Fehlsignale).
+        Wer stur der klassischen Regel „Kaufen, wenn das Histogramm die Nulllinie nach oben kreuzt, verkaufen, wenn es sie nach unten durchbricht“ gefolgt wäre,
+        <strong>hätte in diesen 27 Tagen 10-mal gekauft und verkauft</strong> und bei unverändertem Kurs <strong>10-mal Gebühren gezahlt</strong>.
+      </p>
+      <p>
+        Noch beunruhigender ist die <strong>Amplitude des Scores</strong>. Der Markt bewegte sich nur um ±1,5 %, doch
+        der Kurzfrist-Teilscore pendelte <strong>von 21.1 (starkes Meiden) bis 83.0 (starker Kauf)</strong>.
+        Zwischen 21.1 an Tag 50 und 81.0 an Tag 38 gibt es <strong>praktisch keinen echten Marktunterschied</strong> – 2,6 % Differenz im Schlusskurs.
+      </p>
+
+      <h3>Wie stark schwankt also der Endscore?</h3>
+      <p>Der MACD ist nur einer von 6 Indikatoren. Multipliziert mit dem Gewicht ergibt sich sein <strong>tatsächlicher Einfluss auf den Gesamtscore (0–100)</strong>.</p>
+      <pre><code>Kurzfrist-Modus: Spannweite Teilscore 61.9 × Gewicht <strong>0.14</strong> = <strong>8.67 Punkte</strong>
+Langfrist-Modus: Spannweite Teilscore 38.4 × Gewicht <strong>0.18</strong> = <strong>6.91 Punkte</strong></code></pre>
+      <p>
+        Hier zeigt sich ein <strong>kontraintuitives Ergebnis</strong>:
+        <strong>Der Kurzfrist-Modus hat das geringere Gewicht (14 % &lt; 18 %), lässt den Endscore aber stärker schwanken (8.67 &gt; 6.91).</strong>
+        Der Niveaukoeffizient 30 und die Verstärkung 800 machen das Kurzfrist-Mapping weit empfindlicher.
+        Wer nur auf das Gewicht schaut und folgert „kurzfristig zählt der MACD weniger“, liegt falsch. <strong>Man muss auch die Mapping-Funktion betrachten.</strong>
+      </p>
+      <p class="muted">
+        Übrigens liegt in beiden Modi <strong>der Durchschnitt bei etwa 50 (52.6 / 50.7)</strong>. Im Seitwärtsmarkt bleibt der MACD-Teilscore
+        <em>im Durchschnitt</em> neutral. Das Problem ist, dass man <strong>nicht nach dem Durchschnitt, sondern nach dem Tageswert</strong> handelt.
+      </p>
+
+      <p class="step">SCHRITT 8</p>
+      <h2>Gewicht 14 % gegenüber 18 % — eine Antwort per Rechnung</h2>
+      <p>
+        In den im <a href="/methodology">Methodik-Dokument</a> veröffentlichten Gewichten hat der MACD <strong>kurzfristig 14 % und langfristig 18 %</strong>.
+        „Warum wiegt der MACD als Momentum-Indikator im Momentum-Modus (kurzfristig) weniger?“ — eine häufige und berechtigte Frage.
+        Die Antwort lautet <strong>Redundanz</strong>.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Modus</th><th>Momentum-/Trendcharakter</th><th>Antizyklischer Charakter</th><th>Rolle des MACD</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Kurzfristig</strong></td>
+              <td>RSI 28% + F&amp;G 28% + Rückgang 18% + MACD 14% + Cross 8% = <strong>96%</strong><br /><span class="muted">im Kurzfrist-Modus sind RSI, F&amp;G und Rückgang <em>alle in Momentum-Richtung</em> gemappt</span></td>
+              <td>Mayer 4%</td>
+              <td><strong>Redundant.</strong> 96 % schauen bereits auf den Trend</td>
+            </tr>
+            <tr>
+              <td><strong>Langfristig</strong></td>
+              <td>MACD 18% + Cross 14% = <strong>32%</strong></td>
+              <td>F&amp;G 18% + Mayer 18% + Rückgang 14% = <strong>50%</strong><br />(RSI 18% antizyklisch gemappt)</td>
+              <td><strong>Die einzige Bremse.</strong> Mehr als die Hälfte der 32 %, die bremsen, wenn 68 % „kaufen!“ rufen</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Von den 6 Indikatoren des Kurzfrist-Modus sind praktisch 5 bereits in Momentum-Richtung gemappt.</strong>
+        Der RSI gibt über <code>50 + (RSI−50) × 1.6</code> <em>umso mehr Punkte, je höher er ist</em> (überkauft = gut),
+        F&amp;G gibt <em>umso mehr Punkte, je größer die Gier</em>, und der Rückgang <em>umso mehr Punkte, je flacher er ist</em>.
+        Den MACD hier noch schwer zu gewichten hieße, <strong>dieselbe Information viermal zu zählen</strong>.
+        Zudem ist der MACD, wie in SCHRITT 7 gesehen, <strong>der verrauschteste Indikator dieses Sets</strong> (10 Wechsel in 27 Kerzen).
+        Es gibt keinen Grund, einem verrauschten, redundanten Indikator mehr Gewicht zu geben. Daher 14 %.
+      </p>
+      <p>
+        <strong>Im Langfrist-Modus ist es genau umgekehrt.</strong> F&amp;G (18 %) · Mayer (18 %) · Rückgang (14 %) — <strong>zusammen 50 % antizyklische Indikatoren</strong>,
+        und diese drei <a href="/indicators">liegen im Bärenmarkt alle gemeinsam falsch</a>. Alle drei rufen „billig, kaufen!“, während der Kurs weiter fällt.
+        In diesem Moment sind <strong>die einzigen Indikatoren, die „noch nicht“ sagen können, der MACD (18 %) und das Golden/Death Cross (14 %)</strong>.
+        Das Cross nutzt jedoch den 200-Tage-Durchschnitt und ist <strong>das langsamste Signal</strong> – in Bodennähe hinkt es oft wochenlang hinterher.
+      </p>
+      <div class="note">
+        <strong>Fazit</strong> — die 18 % des MACD im Langfrist-Modus gibt es <strong>nicht, „weil wir dem Momentum mehr vertrauen“, sondern „weil Bremsen fehlen“</strong>.
+        In einer Struktur, in der das antizyklische Trio 50 % ausmacht, ist der MACD <strong>der einzige schnelle Indikator, der bestätigt, dass ein Trend tatsächlich gedreht hat</strong>.
+        Und diese Bestätigung erfolgt nicht über <em>Ist das Histogramm positiv geworden?</em> (langsam),
+        sondern über <em>Ist das Histogramm größer als gestern?</em> (schnell) — deshalb beträgt der Richtungskoeffizient im Langfrist-Mapping 25.
+        <strong>Das Gewicht von 18 % und der Richtungskoeffizient 25 sind zwei Seiten derselben Entscheidung.</strong>
+      </div>
+
+      <p class="step">Anhang A</p>
+      <h2 id="seed">Ihr Chart und unser Histogramm können sich unterscheiden</h2>
+      <p>
+        Das verschweigen die meisten MACD-Texte: <strong>Der MACD ist kein normierter Standard.</strong>
+        „12·26·9“ ist festgelegt, aber <strong>womit die EMA startet (das Seeding), ist nicht festgelegt.</strong>
+      </p>
+      <ul>
+        <li><strong>broodev-Methode</strong> — der <strong>einfache Durchschnitt</strong> der ersten <code>period</code> Werte dient als Seed (oben, SCHRITT 2·3)</li>
+        <li><strong>Eine andere gängige Methode</strong> — <strong>der erste Schlusskurs selbst</strong> dient als Seed, die EMA läuft ab Tag 1</li>
+      </ul>
+      <p>Dieselben 42 Schlusskurse, dasselbe 12·26·9 – und doch gehen die Histogramme so auseinander.</p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Tag</th><th>Schlusskurs</th><th>Histogramm<br />(broodev · SMA-Seed)</th><th>Histogramm<br />(Seed erster Schlusskurs)</th><th>Differenz</th><th>Differenz ÷ Kurs</th></tr></thead>
+          <tbody>
+            <tr class="mark"><td>33</td><td>76.9</td><td>kein Wert</td><td><strong>+0.056</strong> ← Kaufsignal!</td><td>—</td><td>—</td></tr>
+            <tr><td>34</td><td>78.2</td><td>+0.994</td><td>+0.352</td><td>0.642</td><td>0.821%</td></tr>
+            <tr><td>35</td><td>77.5</td><td>+1.097</td><td>+0.519</td><td>0.578</td><td>0.746%</td></tr>
+            <tr><td>37</td><td>81.4</td><td>+1.529</td><td>+1.055</td><td>0.474</td><td>0.582%</td></tr>
+            <tr><td>39</td><td>83.1</td><td>+1.748</td><td>+1.356</td><td>0.392</td><td>0.472%</td></tr>
+            <tr><td>42</td><td>86.2</td><td>+1.962</td><td>+1.662</td><td>0.301</td><td>0.349%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Sehen Sie sich Tag 33 an.</strong> Mit dem Seed aus dem ersten Schlusskurs ist das Histogramm <strong>mit +0.056 bereits positiv</strong> —
+        das Signal <strong>„Histogramm kreuzt die Nulllinie nach oben, kaufen“</strong> ist also erschienen.
+        Am selben Tag hat broodev <strong>überhaupt keinen Wert</strong> (der Signal-Seed entsteht erst an Tag 34).
+        <strong>Gleiche Daten, gleiche Parameter – und doch ein anderer Signaltag.</strong>
+      </p>
+      <p>
+        Die Differenz schrumpft mit der Zeit (0,82 % → 0,35 %). Theoretisch klingt der Einfluss des Seeds bei einer EMA exponentiell ab,
+        <strong>mit genügend Daten konvergieren beide Methoden also.</strong> Doch selbst bei Kerze 42 bleibt noch eine Differenz von 0,35 % des Kurses.
+      </p>
+      <p>
+        <strong>Wie stark überträgt sich diese Differenz dann auf den broodev-Teilscore?</strong> Auch das haben wir einfach ausgerechnet.
+        Das Ergebnis <strong>war anders, als ich erwartet hatte, und gerade deshalb interessanter.</strong>
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Tag</th><th>Histogrammdifferenz</th><th>Kurzfrist-Score<br />(wir / Alternative)</th><th>Δ</th><th>Langfrist-Score<br />(wir / Alternative)</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr><td>35</td><td>0.578 (0.75%)</td><td>91.8 / 94.1</td><td>−2.3</td><td>76.6 / 81.5</td><td>−4.9</td></tr>
+            <tr><td>37</td><td>0.474 (0.58%)</td><td>94.6 / 94.8</td><td>−0.2</td><td>83.1 / 84.1</td><td>−0.9</td></tr>
+            <tr><td>39</td><td>0.392 (0.47%)</td><td>93.7 / 94.4</td><td>−0.7</td><td>80.5 / 82.3</td><td>−1.8</td></tr>
+            <tr><td>42</td><td>0.300 (0.35%)</td><td>88.9 / 91.1</td><td>−2.1</td><td>71.8 / 75.3</td><td>−3.4</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Die Teilscore-Differenz beträgt nur 0.2–4.9 Punkte.</strong> Das Histogramm lag um bis zu 0,82 % auseinander, die Scores aber kaum.
+        Der Grund ist <strong>genau die tanh-Sättigung, die wir in SCHRITT 6 als „Informationsverlust“ kritisiert haben</strong>.
+        In diesem Bereich ist das Histogramm bereits so groß, dass der Niveauterm am Maximum klebt;
+        <strong>da beide gesättigt sind, kann sich die Differenz nicht auf den Score übertragen.</strong>
+      </p>
+      <div class="note">
+        <strong>Dieselbe Eigenschaft ist Schwäche und Stärke zugleich</strong><br />
+        Die tanh-Sättigung <strong>wirft die Größeninformation von Extremwerten weg</strong> (der Nachteil aus SCHRITT 6). Doch gerade dank dieser Eigenschaft
+        <strong>schwankt der Score kaum bei Implementierungsrauschen wie unterschiedlichem Seeding oder anderen Datenquellen</strong> (der Vorteil aus Anhang A).
+        Was man auf der einen Seite gewinnt, verliert man auf der anderen. Wir haben uns <strong>für Robustheit entschieden.</strong> Ob das die richtige Wahl war, wissen wir nicht.
+      </div>
+      <p>
+        <strong>Für Entwarnung ist es aber zu früh.</strong> Das obige Ergebnis betrifft eine Trendphase, in der das Histogramm <em>bereits groß</em> ist.
+        Setzt man dieselbe Differenz von 0,30 % ein, <strong>während das Histogramm nahe 0 liegt (= vor der Sättigung)</strong>, sieht es so aus.
+      </p>
+      <div class="table-wrap">
+        <table class="calc">
+          <thead><tr><th>Histogramm (bei Kurs 100)</th><th>Kurzfrist-Score</th><th>Langfrist-Score</th></tr></thead>
+          <tbody>
+            <tr><td>+0.05 vs +0.35</td><td>63.8 → 82.2 (<strong>+18.4</strong>)</td><td>55.9 → 62.7 (+6.8)</td></tr>
+            <tr><td>0.00 vs +0.30</td><td>52.4 → 81.9 (<strong>+29.5</strong>)</td><td>53.0 → 62.5 (+9.5)</td></tr>
+            <tr class="mark"><td>−0.15 vs +0.15 (beiderseits der Nulllinie)</td><td>27.4 → 77.4 (<strong>+50.0</strong>)</td><td>45.8 → 60.1 (+14.3)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Liegen die Histogramme beiderseits der Nulllinie, gehen die Kurzfrist-Teilscores um 50 Punkte auseinander.</strong>
+        Und <strong>der Bereich um 0 ist genau der, in dem man nach Signalen sucht</strong> — Wendepunkte, Seitwärtsmärkte, kurz vor einem Crossover.
+        <strong>Der Bereich, in dem Seeding-Unterschiede am stärksten ins Gewicht fallen, ist ausgerechnet der wichtigste.</strong>
+        (Auch hier schwankt das Langfrist-Mapping deutlich weniger als das kurzfristige: +14.3 gegenüber +50.0, weil sein Niveaukoeffizient nur 10 beträgt.)
+      </p>
+      <div class="note warn">
+        <strong>Drei praktische Konsequenzen</strong>
+        <ul>
+          <li>
+            <strong>Vergleichen Sie MACD-Absolutwerte nicht zwischen Websites.</strong> Wenn das Histogramm von broodev anders aussieht als in Ihrem Chartprogramm,
+            ist nicht eines von beiden falsch, sondern <strong>die Seeding-Methode ist eine andere</strong>. Der Vergleich selbst ist sinnlos.
+          </li>
+          <li>
+            <strong>Je kürzer die Datenhistorie, desto vorsichtiger.</strong> Bei frisch gelisteten Coins ist der Seed-Einfluss noch nicht abgeklungen.
+            Bei Assets wie BTC mit Hunderten von Kerzen ist die Differenz vernachlässigbar.
+          </li>
+          <li>
+            <strong>Seien Sie besonders skeptisch beim Signal „das Histogramm hat gerade die Nulllinie überschritten“.</strong> Wie die Tabelle oben zeigt,
+            können Implementierungsunterschiede nahe der Nulllinie den Teilscore um bis zu 50 Punkte auseinanderreißen.
+            <strong>Statt auf den Nulllinien-Durchbruch selbst zu achten, ist es weit sicherer, die Beständigkeit der Richtung über mehrere Kerzen</strong> zu betrachten.
+          </li>
+        </ul>
+      </div>
+
+      <p class="step">Anhang B</p>
+      <h2>Was diese Rechnung nicht bewiesen hat (und nicht beweisen kann)</h2>
+      <p>
+        Bisher haben wir den Rechenweg mit <strong>fiktiven Daten</strong> aus 42 und 60 Kerzen nachvollzogen.
+        Trennen wir klar, was dieser Text bewiesen hat und was er <strong>nicht bewiesen hat</strong>.
+      </p>
+      <h3>Was bewiesen ist</h3>
+      <ul>
+        <li>Die MACD-Berechnung von broodev ist der <strong>Standard 12·26·9</strong> und mit den obigen Zahlen <strong>von jedem reproduzierbar</strong>.</li>
+        <li>Ein Histogramm gibt es <strong>ab der 34. Kerze</strong>, eine Richtungsbewertung <strong>ab der 35. Kerze</strong>. Deshalb existiert die Bedingung <code>closes.length &gt;= 35</code>.</li>
+        <li>Das Langfrist-Mapping gewichtet die Richtung mit <strong>Richtungskoeffizient 25 : Niveaukoeffizient 10</strong> 2,5-mal stärker. So steht es im Code.</li>
+        <li>Der Score ist <strong>invariant gegenüber dem Kursniveau</strong> (auch ×700 bis zur vierten Nachkommastelle identisch).</li>
+        <li>Im Seitwärtsmarkt <strong>kippt das Signal dieses Indikators 10-mal in 27 Kerzen.</strong> Das ist eine <strong>gemessene Schwäche</strong> unseres Modells.</li>
+        <li>
+          Der MACD ist <strong>kein normierter Standard.</strong> Schon eine andere Seeding-Methode verschiebt bei gleichen Daten den Signaltag.
+          Dank der tanh-Sättigung überträgt sich diese Differenz <strong>in Trendphasen</strong> jedoch kaum auf den Teilscore (0.2–4.9 Punkte).
+          <strong>Nahe der Nulllinie kann sie bis zu 50 Punkte betragen.</strong>
+        </li>
+      </ul>
+      <h3>Was nicht bewiesen ist (wichtig)</h3>
+      <ul>
+        <li>
+          <strong>Es ist kein Beweis, dass „Richtungswechsel zu beachten Gewinn bringt“.</strong> Die 42 Kerzen oben sind fiktive Daten, <em>die ich so gebaut habe, dass sie sich erholen</em>.
+          Ebenso leicht ließen sich Daten bauen, die nach einem Richtungswechsel am Boden <strong>einfach weitere −40 % fallen</strong>.
+          <strong>Transparenz des Rechenwegs</strong> und <strong>Prognosekraft</strong> sind völlig verschiedene Fragen.
+        </li>
+        <li>
+          <strong>Der MACD ist seinem Wesen nach ein nachlaufender Indikator.</strong> Er ist ein gleitender Durchschnitt der Differenz gleitender Durchschnitte.
+          Wenn das Histogramm die Richtung wechselt, <strong>ist ein Teil der Bewegung bereits vorbei</strong>.
+          Dass die MACD-Linie in SCHRITT 3 zwei Kerzen vor dem Kurs drehte, ist eine <strong>Divergenz</strong>, keine <strong>Hellseherei</strong> —
+          und Divergenzen <strong>scheitern oft.</strong>
+        </li>
+        <li>
+          <strong>Die Gewichte 14 %/18 % sind eine Ermessensentscheidung des Autors.</strong> Die Logik aus SCHRITT 8 (Redundanz vermeiden, Bremse sichern) ist eine überzeugende <em>Designbegründung</em>,
+          <strong>aber kein Beweis für den optimalen Wert.</strong> 16 % könnten besser sein. Die Daten geben keine eindeutige Antwort.
+        </li>
+        <li>
+          <strong>Die tanh-Sättigung wirft Extreminformation weg.</strong> Wie in SCHRITT 6 gesehen, fließt die Größe des Histogramms jenseits von 0,4 % des Kurses
+          nicht mehr in den Score ein. Ein Design, das die <strong>Intensitätsinformation historischer Crashs und Rallys bewusst verwirft</strong>.
+        </li>
+        <li>
+          <strong>Der MACD weiß nichts von Nachrichten, Regulierung, Hacks oder Liquidität.</strong> Selbst während eine Börse pleitegeht, kann das Histogramm hübsch nach oben drehen.
+        </li>
+      </ul>
+      <p>
+        Der MACD-Teilscore macht nur <strong>14–18 %</strong> des broodev-Gesamtscores aus.
+        Die übrigen 82–86 % liefern die <a href="/indicators">anderen fünf Indikatoren</a>,
+        und wie sie kombiniert werden, ist vollständig im <a href="/methodology">Methodik-Dokument</a> veröffentlicht.
+        <strong>Kein einzelner Indikator entscheidet allein irgendetwas.</strong> Genau das ist die Designabsicht.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis zu Investitionen</strong><br />
+        Dieses Dokument ist ein <strong>technisches Dokument, das eine Berechnungsmethode offenlegt, und keine Anlageberatung.</strong>
+        Die Schlusskurse und Scores im Text sind <strong>fiktive Daten</strong> zur Veranschaulichung des Rechenwegs und sagen keinen künftigen Kurs irgendeines Vermögenswerts voraus.
+        Kryptowährungen sind Hochrisiko-Anlagen, bei denen ein <strong>Totalverlust des eingesetzten Kapitals möglich</strong> ist.
+        Die Verantwortung für alle Anlageentscheidungen und deren Ergebnisse (Gewinne und Verluste) liegt ausschließlich bei den Nutzenden selbst. Recherchieren Sie immer selbst (DYOR).
+      </div>
+
+      <h2>Weiterlesen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Score-Methodik</b><span>Gewichte der 6 Indikatoren einschließlich MACD 14 %/18 % und die Renormalisierung, vollständig offengelegt</span></a>
+        <a href="/indicators"><b>Die 6 Indikatoren erklärt</b><span>Wann jeder der fünf anderen außer dem MACD Sie im Stich lässt</span></a>
+        <a href="/guide-fear-greed"><b>Angst-Index in der Praxis</b><span>Genau der Indikator, den der MACD ausbremsen muss</span></a>
+        <a href="/glossary"><b>Glossar</b><span>EMA, Histogramm, Divergenz, Whipsaw – die Begriffe im Überblick</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+    </main>

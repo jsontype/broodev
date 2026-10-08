@@ -41,6 +41,20 @@ for (const c of COINS) {
   for (const junk of BTC_ONLY) ok(label + ' 제외파일 ' + junk, !existsSync(`${dir}/${junk}`))
   for (const need of ['index.html', 'privacy.html', 'terms.html', 'ads.txt', 'robots.txt', 'sitemap.xml', 'content.css', 'functions/_middleware.js'])
     ok(label + ' 필수파일 ' + need, existsSync(`${dir}/${need}`))
+  // 콘텐츠 페이지 13개 언어(2026-10-09): privacy·terms·404 의 12개 언어 조각 + content-i18n.js 가 있고, 비트코인 전용 조각은 없고, 자기참조·브랜드가 코인으로 바뀌었는지
+  ok(label + ' content-i18n.js', existsSync(`${dir}/content-i18n.js`))
+  const LANGS12 = ['en', 'ja', 'zh', 'zh-Hant', 'th', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl']
+  for (const doc of ['privacy', 'terms', '404']) {
+    ok(label + ' ' + doc + '.html → content-i18n.js', readFileSync(`${dir}/${doc}.html`, 'utf8').includes('src="/content-i18n.js'))
+    for (const l of LANGS12) {
+      const f = `${dir}/i18n/${doc}.${l}.html`
+      if (!existsSync(f)) { ok(label + ' 조각 ' + doc + '.' + l, false, '없음'); continue }
+      const t = readFileSync(f, 'utf8')
+      ok(label + ' 조각 ' + doc + '.' + l + ' 자기참조', !t.includes('btc.broodev.com') && !t.includes('BTC_SIGNAL'), 'btc 흔적')
+    }
+  }
+  const frags = existsSync(`${dir}/i18n`) ? readdirSync(`${dir}/i18n`) : []
+  ok(label + ' 비트코인 전용 조각 없음', !frags.some((f) => BTC_ONLY.includes(f.split('.')[0] + '.html')), frags.filter((f) => BTC_ONLY.includes(f.split('.')[0] + '.html')).slice(0, 3).join(' '))
 }
 const total = COINS.length
 console.log(fail === 0 ? `전부 통과 (${total}개 코인 앱 × ~30검사)` : `실패 ${fail}건`)

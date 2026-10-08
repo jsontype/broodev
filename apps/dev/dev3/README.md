@@ -98,7 +98,8 @@ Davies 템플릿(themesflat · v0.1.0 · 2025-10)을 2026-10-02 통합한 뒤 **
 - 히어로·소개 영상과 "하는 일" 배경 3장(운동화)은 템플릿 원본(사진은 교체 완료). **Cloudflare Pages 는 파일당 25 MiB 제한** — 히어로 원본(1600×900 VP8 26 MB)은 1280w VP9 3.9 MB webm + H.264 2.5 MB mp4 로 재인코딩했고, 미참조 영상 `wave-bg.mp4`(67 MB)·`nexbot.mp4`(29 MB)는 삭제. 25 MiB 를 넘는 자산을 넣으면 배포가 실패한다.
 - 템플릿 디스플레이 폰트에 한글(및 일본어·태국어 등) 글리프가 없어 시스템 폰트로 폴백된다(`word-break: keep-all` 로 어절 단위 줄바꿈).
 - 로고는 템플릿 아이콘 대신 인라인 SVG 텍스트 `Y`. 파비콘은 템플릿 것.
-- OG 메타(og:title/description)는 한국어 고정. 언어별 OG 가 필요하면 btc 처럼 Pages Function(HTMLRewriter)으로 `?lang` 별 치환.
+- OG 메타의 정적 기본값은 한국어. `?lang=xx` 요청은 `functions/_middleware.js` 의 `OG3`(btc 와 같은 HTMLRewriter 방식)가 title·description·og:title/description/image:alt/locale·twitter:title 을 그 언어로 치환한다 — `OG3` 값은 `i18n-data.js` 의 `meta_title`·`meta_desc` 와 맞춰 둘 것.
+- 404.html 은 `<html data-i18n-title="nf_meta_title" data-i18n-desc="nf_meta_desc">` 로 페이지별 제목 키를 쓰고, 중첩 경로(/a/b)에서도 본문이 원래 URL 로 서빙되므로 자산·스크립트 경로를 루트 절대(`/assets/…`)로 둔다.
 
 ## 배포
 

@@ -1,0 +1,481 @@
+    <main class="wrap" data-title="5 idées reçues sur la croix dorée — pourquoi c’est un filtre de tendance et non un signal d’achat | broodev" data-desc="La croix dorée n’est pas un signal d’achat. Nous démontons en cinq idées reçues l’indicateur le plus mal utilisé par les médias, et montrons pourquoi le modèle broodev ne lui accorde que 8 % à court terme et 14 % à long terme, avec la vraie grille à 4 niveaux du code et un calcul pas à pas.">
+      <nav class="nav">
+        <a href="/">← Tableau de bord</a>
+        <a href="/methodology">Méthodologie du score</a>
+        <a href="/indicators">Indicateurs expliqués</a>
+        <a href="/guide-fear-greed">Utiliser l’indice de la peur</a>
+        <a href="/glossary">Glossaire</a>
+      </nav>
+
+      <h1>5 idées reçues sur la croix dorée</h1>
+      <p class="muted">Dernière mise à jour : 2026-07-14 · Auteur : Y-Systems · Objet : score de timing d’achat broodev v2 (indicateur GC_DC)</p>
+
+      <p class="lead">
+        « Bitcoin : une croix dorée imminente… signal haussier » — ce titre revient à chaque cycle.
+        Et <strong>cette phrase est presque toujours employée à tort.</strong>
+        Parmi les 6 indicateurs que nous utilisons, la croix dorée est <strong>le plus mal compris</strong>,
+        et c’est aussi <strong>celui auquel notre modèle donne le poids le plus faible</strong>. Les deux faits ne sont pas sans lien.
+      </p>
+      <p>
+        Cet article ne revient pas sur la définition. Que la croix dorée soit le moment où la moyenne à 50 jours franchit à la hausse celle à 200 jours,
+        c’est dans le <a href="/glossary">glossaire</a> ; la façon dont elle entre dans le score est décrite dans la
+        <a href="/methodology">méthodologie</a>. Ici, nous allons plutôt <strong>briser une à une cinq idées reçues très répandues</strong>
+        et mettre à leur place <strong>ce que notre code fait réellement</strong>.
+        À la fin, nous <strong>avouons deux défauts connus</strong> de notre modèle.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Ce qu’on entend souvent</th><th>En réalité</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">① « Croix dorée = achetez maintenant »</a></td><td>Par construction, <strong>le signal le plus lent</strong>. Ce n’est pas une annonce de hausse, c’est un <strong>reçu</strong></td></tr>
+            <tr><td><a href="#m2">② « Croix de la mort = début du krach »</a></td><td>Les recroisements (whipsaw) sont fréquents. Dans notre modèle, <strong>le score de l’événement ne vit qu’un jour</strong></td></tr>
+            <tr><td><a href="#m3">③ « 50 et 200 sont les bons chiffres »</a></td><td>Une <strong>convention de jours de bourse</strong> des marchés actions transplantée sans correction sur un marché ouvert 365 jours</td></tr>
+            <tr><td><a href="#m4">④ « Plus l’écart est grand, plus le signal est fort »</a></td><td>Notre modèle <strong>calcule l’écart mais ne l’utilise pas dans le score</strong> (simplification voulue)</td></tr>
+            <tr><td><a href="#m5">⑤ « Un poids de 8 %, autant ne pas l’utiliser »</a></td><td>Ici, le sens s’inverse. Le croisement n’est <strong>pas une source de points, mais un mécanisme de pénalité</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="Graphique en direct de la croix dorée">
+        <p class="muted">Avant de lire les cinq idées reçues, regardons où les croix dorées (▲) et les croix de la mort (▼) sont réellement apparues sur toute l’histoire. On voit d’un coup d’œil que le croisement arrive toujours « une fois que le prix a déjà beaucoup bougé », et à quel point les recroisements (whipsaw) sont fréquents.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">Chargement des données du graphique…</div></div>
+          </div>
+          <p class="bd-cap">Prix du BTC (logarithmique, gris) avec SMA50 (bleu) et SMA200 (rouge), sur toute la période. ▲ = croix dorée (la moyenne à 50 jours passe au-dessus de celle à 200 jours), ▼ = croix de la mort. Pointillés orange = halving. Données : CoinMetrics Community API, clôture quotidienne du BTC — récupérées à chaque visite et calculées dans le navigateur ; ce sont des <strong>valeurs approximatives, à titre indicatif</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="m1">Idée reçue ① « Croix dorée = achetez maintenant »</h2>
+
+      <h3>Ce qu’on dit</h3>
+      <p>
+        C’est la phrase préférée des articles et des miniatures YouTube. On traite la croix dorée comme <strong>une fusée éclairante qui annonce l’avenir</strong>.
+        Avec, à la clé, une statistique du genre « historiquement, après une croix dorée, hausse moyenne de X % ».
+      </p>
+
+      <h3>Pourquoi c’est faux — l’arithmétique ne le permet pas</h3>
+      <p>
+        Pour qu’il y ait croix dorée, <strong>le prix moyen des 50 derniers jours doit dépasser celui des 200 derniers jours</strong>.
+        Arrêtez-vous un instant pour réfléchir à ce que cela signifie.
+      </p>
+      <p>
+        La moyenne à 200 jours, c’est <strong>la somme de 200 jours de prix divisée par 200</strong>. Même si le prix a bondi de 20 % hier en une seule journée,
+        ce bond ne pèse que pour 1/200. Pour <strong>faire monter cette ligne de façon significative, le prix doit rester élevé pendant des dizaines de jours</strong>.
+        La moyenne à 50 jours porte de même l’inertie de 50 jours.
+      </p>
+      <p>
+        Autrement dit, <strong>le simple fait que deux corps aussi lourds se croisent est la preuve que « ça monte déjà depuis longtemps »</strong>.
+        La croix dorée n’<em>annonce</em> pas la hausse. Elle se contente de <em>confirmer après coup que la hausse dure déjà depuis assez longtemps</em>.
+      </p>
+      <div class="note">
+        <strong>Pour faire une image, la croix dorée n’est pas une prévision, c’est un reçu.</strong>
+        Le reçu vous dit exactement ce que vous avez acheté, mais il sort <strong>une fois le paiement effectué</strong>.
+        Regarder le reçu et dire « bon, je vais acheter », c’est inverser l’ordre.
+      </div>
+      <p>
+        C’est aussi pour cela que les statistiques de « hausse moyenne après une croix dorée » paraissent si convaincantes.
+        La croix dorée <strong>ne se produit, par définition, qu’en marché haussier</strong>. Les rendements qui suivent ne peuvent donc qu’être bons.
+        Ce n’est pas le pouvoir prédictif de l’indicateur, mais <strong>le résultat d’un échantillon déjà sélectionné (selection effect)</strong>.
+        C’est comme affirmer que le parapluie prédit la pluie parce que « les jours où l’on a sorti le parapluie, il a plu ».
+      </p>
+
+      <h3>En réalité</h3>
+      <p>
+        Le temps qu’une croix dorée se confirme depuis un creux, <strong>le prix a déjà nettement remonté par rapport au plus bas.</strong>
+        Il a monté suffisamment pour que la moyenne à 50 jours dépasse cette lourde ligne de référence qu’est la moyenne à 200 jours.
+        C’est pourquoi notre modèle <strong>ne traite pas cet indicateur comme un outil de timing d’entrée.</strong>
+        Nous ne l’utilisons que pour répondre à <strong>« dans quelle phase sommes-nous ? »</strong>, et non à « achetez maintenant ».
+      </p>
+
+      <h2 id="m2">Idée reçue ② « Croix de la mort = début du krach »</h2>
+
+      <h3>Ce qu’on dit</h3>
+      <p>
+        La croix de la mort a déjà un nom sinistre. Avec une telle étiquette,
+        elle est consommée comme <strong>un déclencheur de peur annonçant « le grand krach arrive »</strong>. Dès que la nouvelle tombe, les ventes paniques suivent.
+      </p>
+
+      <h3>Pourquoi c’est faux — les croisements se recroisent</h3>
+      <p>
+        Il suffit de retourner la logique de l’idée reçue ①. <strong>La croix de la mort est un signal tout aussi lent.</strong>
+        Le temps qu’elle se confirme, <strong>une bonne partie de la baisse a déjà eu lieu</strong>.
+        Elle ressemble davantage à un certificat attestant que « la baisse dure déjà depuis longtemps » qu’au « début du krach ».
+        C’est pourquoi il n’est pas rare qu’un rebond survienne juste après une croix de la mort — le <strong>whipsaw</strong>.
+      </p>
+      <p>
+        Imaginez les deux moyennes mobiles <strong>presque collées</strong>. Il suffit alors d’une petite oscillation du prix pour que
+        la moyenne à 50 jours passe sous celle à 200 jours, puis repasse au-dessus quelques jours plus tard.
+        <strong>Un croisement n’est pas un événement unique, mais un événement qui peut se répéter plusieurs fois</strong>.
+      </p>
+
+      <h3>En réalité — comment notre code traite ce problème (aveu compris)</h3>
+      <p>
+        Notre modèle détermine le croisement <strong>en comparant seulement deux jours : hier et aujourd’hui</strong>.
+      </p>
+      <pre><code>hier : MM 50j ≤ MM 200j   →   aujourd’hui : MM 50j &gt; MM 200j   ⇒  GOLDEN_CROSS
+hier : MM 50j ≥ MM 200j   →   aujourd’hui : MM 50j &lt; MM 200j   ⇒  DEATH_CROSS
+sinon                                                          ⇒  NONE (l’état est seulement conservé)</code></pre>
+      <p>
+        Résultat : <strong>l’« événement de croisement » n’est vrai (true) que pendant une seule journée.</strong>
+        Le lendemain, l’événement disparaît et il ne reste qu’une valeur d’état sans relief : « état doré / état de mort ».
+      </p>
+      <div class="note">
+        <strong>C’est un choix de conception délibéré.</strong> Les médias exploitent une croix dorée pendant des semaines,
+        mais dans notre modèle <strong>l’actualité du croisement expire au bout de 24 heures</strong>.
+        Comme on le verra dans la grille de score, la prime du jour de l’événement (85 points à long terme) <strong>retombe à 60 points dès le lendemain.</strong>
+        Le fait qu’« hier il y a eu une croix dorée » n’ajoute aucun point au score d’aujourd’hui.
+      </div>
+      <div class="note warn">
+        <strong>Aveu — notre modèle aussi est secoué par le whipsaw.</strong>
+        Si les moyennes à 50 et 200 jours sont presque collées et se recroisent dans les deux sens en deux semaines,
+        notre score oscille lui aussi <strong>85 → 60 → 15 → 35</strong>. Il n’existe aucun moyen d’éliminer ce défaut.
+        Tout ce que nous avons fait, c’est <strong>plafonner l’amplitude de l’oscillation</strong> —
+        et ce plafond, c’est justement <strong>le faible poids de 8 % et 14 %</strong>. Nous calculerons plus loin combien de points cela représente réellement.
+      </div>
+
+      <h2 id="m3">Idée reçue ③ « 50 et 200 sont les bons chiffres »</h2>
+
+      <h3>Ce qu’on dit</h3>
+      <p>
+        On en parle comme si 50 et 200 avaient une nécessité mathématique.
+        Et comme ce sont les valeurs par défaut des logiciels de graphiques, on finit par y croire encore plus.
+      </p>
+
+      <h3>Pourquoi c’est faux — c’est une convention des marchés actions, et mal transposée en plus</h3>
+      <p>
+        Il n’existe <strong>aucune justification académique satisfaisante</strong> pour 50 et 200. C’est une convention.
+        Sur les graphiques boursiers traditionnels, <strong>200 est un arrondi à vue d’œil d’une année de séances (environ 252 pour être précis)</strong>,
+        et <strong>50 l’arrondi d’un trimestre (environ 63 séances)</strong>.
+      </p>
+      <p>
+        Mais c’est là qu’apparaît <strong>un problème propre aux cryptomonnaies</strong>, que presque personne ne relève.
+      </p>
+      <p>
+        <strong>La bourse ouvre 5 jours par semaine, les cryptomonnaies 7.</strong>
+        La « moyenne à 200 jours » des actions correspond à <strong>200 séances</strong>, soit <strong>environ 280 jours calendaires (environ 9,2 mois)</strong>.
+        Pour les cryptomonnaies, en revanche, une bougie quotidienne se forme chaque jour : la « moyenne à 200 jours » couvre donc <strong>200 jours calendaires, soit environ 6,6 mois</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ligne</th><th>Actions (5 j/semaine)</th><th>Crypto (7 j/semaine)</th><th>Écart réel</th></tr></thead>
+          <tbody>
+            <tr><td>MM 200 jours</td><td>200 séances ≈ <strong>280 jours calendaires</strong></td><td>200 jours calendaires = <strong>200 jours calendaires</strong></td><td>Côté crypto, <strong>environ 29 % plus courte</strong></td></tr>
+            <tr><td>MM 50 jours</td><td>50 séances ≈ <strong>70 jours calendaires</strong></td><td>50 jours calendaires = <strong>50 jours calendaires</strong></td><td>Côté crypto, <strong>environ 29 % plus courte</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        En résumé, <strong>la « moyenne à 200 jours » des cryptomonnaies semble reprendre telle quelle la convention boursière, mais c’est en réalité une fenêtre (window) bien plus courte</strong>.
+        Pour couvrir la même période calendaire que 200 séances boursières, il faudrait utiliser en crypto <strong>une moyenne à environ 280 jours</strong>.
+        <strong>L’ensemble du secteur ne fait pas cette correction.</strong>
+      </p>
+
+      <h3>En réalité — alors pourquoi utilisons-nous aussi 200 ?</h3>
+      <p>
+        Notre code utilise lui aussi <strong>200 jours calendaires</strong>. Sans correction. Voici honnêtement pourquoi.
+      </p>
+      <ul>
+        <li>
+          <strong>Premièrement, l’observabilité a une force en soi.</strong> 50/200 ne fonctionne pas parce que c’est « juste » :
+          ça fonctionne dans une certaine mesure <strong>parce qu’un très grand nombre d’intervenants regardent la même ligne et réagissent au même endroit</strong>.
+          Si nous passions seuls à une moyenne à 280 jours, <strong>nous perdrions ce caractère autoréalisateur.</strong> Une ligne que personne ne regarde ne joue pas le rôle de support.
+        </li>
+        <li>
+          <strong>Deuxièmement, il faut partager le dénominateur avec le multiple de Mayer.</strong> Le multiple de Mayer est défini comme <code>prix actuel ÷ moyenne mobile à 200 jours</code>.
+          Si seul le croisement passait à 280 jours, <strong>il y aurait deux « lignes de long terme » différentes dans le même modèle</strong>, et l’interprétation se décalerait.
+        </li>
+        <li>
+          <strong>Troisièmement, parce que nous connaissons le sens de cette distorsion.</strong> La moyenne à 200 jours en crypto est <strong>plus courte que la convention, donc plus sensible, et se croise plus souvent</strong>.
+          Des croisements plus fréquents <strong>signifient davantage de faux signaux</strong>. C’est pourquoi nous avons fixé dès le départ un poids faible pour cet indicateur.
+          <strong>Plutôt que de le corriger, nous avons choisi de ne pas nous y fier.</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        Savoir qu’il ne s’agit pas d’un chiffre juste mais d’<strong>une convention partagée</strong> fait une grande différence.
+        Si l’on croit que 50/200 sont des constantes sacrées, on donne au croisement une signification excessive.
+      </p>
+
+      <h2 id="m4">Idée reçue ④ « Plus l’écart est grand, plus le signal est fort »</h2>
+
+      <h3>Ce qu’on dit</h3>
+      <p>
+        C’est l’interprétation selon laquelle « la moyenne à 50 jours s’est nettement écartée au-dessus de celle à 200 jours, donc la tendance haussière est forte ».
+        C’est intuitivement plausible, et il y a d’ailleurs du vrai.
+      </p>
+
+      <h3>Pourquoi c’est faux — plus exactement, nous n’utilisons pas cette information</h3>
+      <p>
+        Notre code <strong>calcule bel et bien</strong> l’écart entre les deux lignes.
+      </p>
+      <pre><code>gapPct = (MM 50j ÷ MM 200j − 1) × 100</code></pre>
+      <p>
+        Et il va jusqu’à <strong>l’afficher</strong> sur la carte du tableau de bord, par exemple <code>gap +12.4%</code>.
+        Pourtant, <strong>cette valeur n’entre absolument pas dans le calcul du score.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Aveu ─ une simplification connue.</strong>
+        Dans notre modèle, <strong>un état doré avec un écart de +0.3% et un état doré avec un écart de +42% reçoivent exactement le même score</strong>
+        (60 points à long terme, 65 points à court terme). L’écart est <strong>affiché, mais pas noté.</strong>
+      </div>
+      <p>
+        Expliquons pourquoi nous l’avons laissé ainsi. Pour intégrer l’écart au score, il faudrait <strong>décider « à partir de combien de % un écart est grand »</strong>.
+        Or ce critère <strong>diffère complètement d’un actif à l’autre.</strong> Un écart de +10 % sur une crypto peu volatile
+        et un écart de +10 % sur un memecoin extrêmement volatil n’ont rien à voir.
+        Pour être honnêtes, <strong>nous n’avons pas su fixer avec assurance un critère de normalisation commun à toutes les cryptos.</strong>
+        Plutôt que d’introduire une constante sans fondement, <strong>nous avons préféré ne pas l’utiliser</strong>.
+      </p>
+
+      <h3>En réalité — cette information est laissée pour être utilisée par un humain</h3>
+      <p>
+        Si nous n’avons pas retiré l’écart de l’écran, c’est <strong>pour que vous le regardiez et jugiez par vous-même</strong>.
+        <strong>Plus l’écart est proche de 0, plus les deux lignes sont collées, et plus le risque de recroisement (whipsaw) est élevé</strong>.
+        Un état doré avec <code>gap +0.4%</code> est <strong>un doré instable</strong> qui peut basculer en état de mort à tout moment.
+        Le score ignore cette différence, mais <strong>vous, vous pouvez la voir.</strong> C’est pour cela que la valeur est affichée.
+      </p>
+
+      <h2 id="m5">Idée reçue ⑤ « Avec un poids de 8 %, autant ne pas l’utiliser, non ? »</h2>
+      <p>
+        C’est ici que l’article change de sens. Les quatre points précédents visaient à <strong>rabaisser</strong> le croisement.
+        Et pourtant, nous <strong>n’avons pas abandonné</strong> cet indicateur. Pourquoi ?
+      </p>
+
+      <h3>Ce que la plupart des gens ignorent — le croisement n’a pas 2 niveaux, mais 4</h3>
+      <p>
+        La dichotomie « croix dorée ou croix de la mort ? » <strong>est fausse dès le départ.</strong>
+        Notre code distingue <strong>quatre états</strong>, car <em>l’instant du croisement</em> et <em>l’état qui perdure après le croisement</em> sont deux choses totalement différentes.
+        Voici la vraie grille de scores partiels de notre modèle.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>État</th><th>Signification</th><th>Score court terme</th><th>Score long terme</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>Croisement à la hausse aujourd’hui (événement, valable un jour seulement)</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>L’état 50 &gt; 200 se maintient</td><td>65</td><td>60</td></tr>
+            <tr><td><em>Pas de données</em></td><td>Même pas 50 jours de données</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>L’état 50 &lt; 200 se maintient</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>Croisement à la baisse aujourd’hui (événement, valable un jour seulement)</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>La ligne la plus importante de ce tableau est « DEATH maintenu »</strong>. Le score est de <strong>35 (long terme) et 40 (court terme), et non 50</strong>.
+      </p>
+      <p>
+        <strong>La neutralité, c’est 50.</strong> Or l’état de croix de la mort est <strong>inférieur à la neutralité.</strong>
+        Qu’est-ce que cela signifie ? Que <strong>en état de croix de la mort, cet indicateur « tire vers le bas » le score composite</strong>.
+        Il ne reste pas inerte : <strong>il pénalise</strong>.
+      </p>
+      <div class="note">
+        <strong>C’est la raison d’être de cet indicateur.</strong>
+        La croix dorée <strong>n’est pas une source qui rapporte des points.</strong>
+        La croix de la mort est <strong>un frein qui en retire</strong>.
+        Quand l’indice de la peur, le multiple de Mayer et le repli crient tous ensemble « c’est bon marché, achetez » —
+        <a href="/indicators">les 3 indicateurs à contre-courant se trompent ensemble en marché baissier</a> —,
+        il fallait <strong>un mécanisme qui freine seul en disant « la tendance pointe encore vers le bas »</strong>, et c’est le croisement.
+      </div>
+
+      <h2 id="walk">Alors, combien de points cela fait-il bouger ? — calcul pas à pas</h2>
+      <p>
+        Assez d’abstraction : <strong>faisons le calcul avec de vrais chiffres</strong>.
+        Nous sommes sur <strong>l’onglet long terme (à contre-courant)</strong>, et la situation est <strong>au cœur d’un marché baissier profond</strong>.
+        C’est la phase où tous les indicateurs à contre-courant crient en chœur « c’est le moment ».
+      </p>
+      <p>Les poids à long terme sont <strong>RSI 18 % · MACD 18 % · peur et avidité 18 % · Mayer 18 % · repli 14 % · croisement 14 %</strong>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicateur</th><th>Valeur observée</th><th>Score partiel</th><th>Poids</th><th>Contribution</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24 (survente)</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>Multiple de Mayer</td><td>0.75× (25 % sous la moyenne à 200 jours)</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>Peur et avidité</td><td>actuel 18 / 7 jours 22 / 30 jours 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>Repli sur 365 jours</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>négatif · encore en dégradation</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>Croisement</strong></td><td><strong>DEATH maintenu</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>Score composite</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        (Le 81.8 de peur et avidité correspond à <code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code> auquel s’ajoute
+        le bonus d’extrême appliqué quand la valeur actuelle est inférieure ou égale à 25, <code>(25−18)×0.4 = 2.8</code>.)
+      </p>
+
+      <h3>En ne changeant que le croisement</h3>
+      <p>Voyons ce que devient le score composite si l’on <strong>fige les 5 autres indicateurs</strong> et qu’on ne change que l’état du croisement.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>État du croisement</th><th>Score partiel</th><th>Contribution</th><th>Score composite</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS (le jour même)</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>GOLDEN maintenu</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH maintenu <em>(scénario réel)</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS (le jour même)</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>L’écart entre le meilleur et le pire cas est de 9.8 points.</strong> (85 − 15) × 14% = 9.8.
+        Et <strong>dans les quatre cas, le verdict reste le même : ACCUMULATE.</strong>
+      </p>
+
+      <h3>Ce que disent ces chiffres — le croisement ne peut pas changer le verdict à lui seul</h3>
+      <p>Ici, <strong>l’intention de conception de notre modèle est démontrée par l’arithmétique</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Amplitude du score</th><th>Poids</th><th>Impact maximal sur le score composite</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Court terme (momentum)</strong></td><td>75 − 30 = 45 points</td><td>8%</td><td><strong>±3.6 points</strong></td></tr>
+            <tr><td><strong>Long terme (à contre-courant)</strong></td><td>85 − 15 = 70 points</td><td>14%</td><td><strong>±9.8 points</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Comparez maintenant avec les <a href="/methodology">bandes de verdict</a>.
+        La bande la plus étroite est <strong>ACCUMULATE (65~80), large de 15 points</strong>.
+      </p>
+      <div class="note">
+        <strong>Impact maximal sur l’onglet long terme : 9.8 points &lt; largeur minimale de bande : 15 points.</strong><br />
+        <strong>Impact maximal sur l’onglet court terme : 3.6 points &lt; largeur minimale de bande : 15 points.</strong><br /><br />
+        Autrement dit, <strong>sur aucun onglet le croisement ne peut, à lui seul, faire basculer le verdict d’un cran.</strong>
+        Ce n’est pas un hasard, mais <strong>le résultat de la façon dont les poids ont été conçus</strong>.
+        Le croisement est plafonné pour <strong>pouvoir pousser ou tirer le score, sans jamais dominer la conclusion</strong>.
+      </div>
+      <p>
+        <strong>L’écart entre court et long terme se vérifie aussi par le calcul.</strong> 9.8 ÷ 3.6 ≈ <strong>2.7 fois</strong>.
+        Sur l’onglet long terme, l’influence réelle du croisement est environ 2.7 fois celle de l’onglet court terme.
+        À ne regarder que le tableau des poids (8 % contre 14 %), on croirait à un écart de 1.75 fois, mais <strong>en multipliant aussi par l’amplitude du score, l’écart réel monte à 2.7 fois.</strong>
+        C’est ce qu’on manque si l’on ne compare que les pourcentages de poids.
+      </p>
+      <p>
+        La raison est celle exposée dans la <a href="/methodology">méthodologie</a>.
+        <strong>Le croisement 50/200 est trop lent pour des opérations à horizon de 1 à 3 mois.</strong> Quand le signal arrive, il est déjà trop tard pour un trader de court terme.
+        C’est pourquoi, sur l’onglet court terme, nous ne lui avons donné que <strong>8 %, presque décoratif</strong>.
+        À l’inverse, comme il <strong>reste utile pour distinguer la phase du cycle (marché haussier ou baissier ?)</strong>, nous l’avons relevé à 14 % sur l’onglet long terme.
+      </p>
+
+      <h2 id="danger">La combinaison où notre modèle peut le plus se tromper</h2>
+      <p>
+        Regardez à nouveau <strong>la première ligne (GOLDEN_CROSS, 79.2 points)</strong> du tableau de calcul ci-dessus.
+        En réalité, cette ligne <strong>cache une contradiction interne.</strong>
+      </p>
+      <p>
+        Un multiple de Mayer de 0.75 signifie que <strong>le prix actuel est 25 % sous la moyenne à 200 jours</strong>.
+        Est-il naturel que, le même jour, <strong>la moyenne à 50 jours passe au-dessus de celle à 200 jours (croix dorée)</strong> ?
+        Normalement, c’est contradictoire. Il est difficile que la moyenne à 50 jours soit au-dessus de celle à 200 jours alors que le prix est bien en dessous de cette dernière.
+      </p>
+      <p>
+        Mais <strong>il existe une seule phase où cette combinaison apparaît réellement.</strong>
+        <strong>Le moment où une chute brutale vient de commencer depuis un sommet</strong>.
+        Le prix a déjà plongé à la verticale sous la moyenne à 200 jours, mais <strong>la moyenne à 50 jours, par inertie, reste encore au-dessus de celle à 200 jours</strong>.
+        À ce moment-là, notre modèle voit les choses ainsi.
+      </p>
+      <ul>
+        <li>Mayer 0.75 → « sous-évaluation historique ! » <strong>100 points</strong></li>
+        <li>RSI 24 → « survente extrême ! » <strong>94 points</strong></li>
+        <li>Repli −58 % → « zone d’achat fort ! » <strong>81 points</strong></li>
+        <li>Croisement → encore en <strong>état GOLDEN</strong>, donc pas de frein <strong>60 points</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>Résultat : au moment où le krach vient de commencer, le modèle donne environ 75 points (ACCUMULATE).</strong>
+        Et <strong>c’est précisément là qu’on attrape le « couteau qui tombe » par la lame, et non par le manche</strong>.
+        Le frein (croix de la mort) n’agit que <strong>des dizaines de jours plus tard</strong> — une fois la baisse déjà bien entamée.
+        <strong>C’est l’angle mort le plus dangereux de ce modèle, et nous ne l’avons pas entièrement résolu.</strong>
+        Tant qu’on utilise un indicateur lent comme dispositif de sécurité, <strong>le dispositif de sécurité est lent lui aussi.</strong>
+      </div>
+      <p>
+        Donc, si sur le tableau de bord <strong>le multiple de Mayer chute brutalement alors que le croisement est encore GOLDEN</strong>,
+        <strong>il faut le lire non comme une « sous-évaluation », mais comme un avertissement : « c’est peut-être le début d’un krach ».</strong>
+        Le score ne sait pas faire la différence. C’est à un humain de la faire.
+      </p>
+
+      <h2 id="asym">Encore une chose — seul le croisement traite différemment les données manquantes</h2>
+      <p>
+        Comme indiqué dans la <a href="/methodology">méthodologie</a>, lorsqu’un indicateur manque, nous <strong>ne le comptons pas comme 0 point : nous l’excluons du calcul et renormalisons les poids restants</strong>.
+        Car « ne pas savoir » et « être mauvais » sont deux choses différentes.
+      </p>
+      <p>
+        Mais <strong>le croisement fait exception.</strong> Transposé tel quel depuis le code, cela donne ceci.
+      </p>
+      <pre><code>// les 5 autres indicateurs
+sLong: mm == null ? null : conMayer(...)   ← si null, exclu + renormalisation
+
+// le croisement seulement
+sLong: gc == null ? 50 : ...               ← même manquant, renvoie 50 points</code></pre>
+      <div class="note warn">
+        <strong>Aveu ─ une asymétrie.</strong>
+        Même sans données, le croisement renvoie <strong>50 (neutre) et non null</strong>.
+        C’est pourquoi <strong>le croisement ne disparaît jamais de l’indicateur de couverture.</strong>
+        Même si <code>coverage 5/6</code> s’affiche, l’indicateur manquant n’est pas le croisement — le croisement est toujours compté.
+        Cela signifie que <strong>sur une crypto cotée depuis moins d’un an, des « 50 points qui ne savent rien » occupent discrètement la place des 14 % (long terme)</strong>.
+      </div>
+      <p>
+        Et ce n’est pas tout. S’il y a <strong>moins de 200 jours de données</strong>, notre code fait la moyenne sur ce qui est disponible
+        (<code>Math.min(200, longueur des données)</code>). Ainsi, <strong>la « moyenne à 200 jours » d’une crypto cotée depuis 150 jours est en fait une moyenne à 150 jours</strong>.
+        De plus, la détection de l’<em>événement</em> de croisement nécessite au moins 201 jours de données ;
+        <strong>sur une crypto cotée depuis moins d’un an, les événements GOLDEN_CROSS et DEATH_CROSS ne se produisent donc jamais.</strong>
+        Seules les valeurs d’état (GOLDEN/DEATH) apparaissent.
+      </p>
+      <p>
+        <strong>En résumé, cet indicateur ne fonctionne pleinement que sur des actifs disposant d’un long historique, comme le bitcoin.</strong>
+        Gardez-le impérativement à l’esprit lorsque vous regardez la carte du croisement sur l’écran d’un altcoin fraîchement listé.
+      </p>
+
+      <h2 id="conclusion">Conclusion</h2>
+      <p>
+        Au fil des cinq idées reçues, le croisement n’a cessé d’être rabaissé.
+        Il est le plus lent, il se recroise, ses chiffres sont une convention arbitraire, son écart n’est même pas noté, et son poids est le plus faible des 6.
+        Et pourtant, nous avons retiré cet indicateur puis <strong>l’avons remis.</strong> Pour une seule raison.
+      </p>
+      <div class="note">
+        <strong>La croix dorée n’est pas un signal d’achat, mais un outil de confirmation de phase.</strong><br /><br />
+        Si l’on demande à cet indicateur <strong>« quand acheter ? », la réponse arrive toujours trop tard</strong>.
+        Mais si on lui demande <strong>« dans quelle direction va la tendance en ce moment ? »</strong>, il donne une réponse lente, mais qui <strong>ment rarement</strong>.
+        <br /><br />
+        Quand les cinq autres indicateurs s’excitent en criant « c’est bon marché, c’est effrayant, ça a beaucoup baissé »,
+        <strong>retirer discrètement des points en disant « mais la tendance est encore baissière »</strong> — c’est la seule mission que nous lui avons confiée.
+        <strong>Ce n’est pas une source de points, c’est un frein.</strong> Et un bon frein, c’est un frein qu’on n’a pas besoin d’actionner souvent.
+      </div>
+      <p>
+        Alors, la prochaine fois que vous verrez le titre « Croix dorée imminente ! », posez-vous cette question :
+        <strong>« On me dit d’acheter maintenant, ou bien que ça a déjà beaucoup monté ? »</strong>
+        Arithmétiquement, <strong>c’est toujours la seconde réponse</strong>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avertissement sur les investissements</strong><br />
+        Ce document est fourni <strong>à des fins éducatives et informatives</strong> et <strong>ne constitue ni un conseil en investissement ni une recommandation d’achat ou de vente.</strong>
+        Les scores, poids et scénarios du texte ne sont que des <strong>exemples destinés à expliquer le fonctionnement du modèle</strong> et ne recommandent aucun actif ni aucune stratégie en particulier.
+        Les cryptomonnaies sont des <strong>actifs à haut risque pouvant entraîner la perte totale du capital</strong>, et les indicateurs techniques ne prédisent pas l’avenir.
+        Comme expliqué dans le texte, cet indicateur <strong>présente des angles morts structurels.</strong>
+        Toute décision d’investissement et ses conséquences relèvent de la seule responsabilité de l’utilisateur. Faites toujours vos propres recherches (DYOR).
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Avertissement sur les investissements</strong><br />
+        Ce document et les scores sont <strong>des documents de référence combinant des indicateurs publics, et ne constituent ni un conseil en investissement ni une incitation à acheter.</strong>
+        Les cas et chiffres historiques du texte sont des reconstitutions approximatives, et <strong>les performances passées ne préjugent pas de l’avenir.</strong>
+        Les cryptomonnaies sont des actifs à haut risque pouvant entraîner la <strong>perte totale du capital</strong>.
+        Toute décision d’investissement et ses conséquences relèvent de la seule responsabilité de l’utilisateur. Faites toujours vos propres recherches (DYOR).
+      </div>
+
+      <h2>À lire ensuite</h2>
+      <div class="related">
+        <a href="/methodology"><b>Méthodologie du score</b><span>Avec quels poids les 6 indicateurs sont combinés — renormalisation et bandes comprises</span></a>
+        <a href="/indicators"><b>Les 6 indicateurs en détail</b><span>Quand RSI, MACD, Mayer et le repli vous trahissent chacun</span></a>
+        <a href="/guide-fear-greed"><b>Guide pratique de l’indice de la peur</b><span>Les phases où tous les indicateurs à contre-courant se trompent ensemble, et l’achat fractionné</span></a>
+        <a href="/glossary"><b>Glossaire</b><span>Moyennes mobiles, croisements, multiple de Mayer : les termes expliqués</span></a>
+        <a href="/"><b>Vers le tableau de bord</b><span>Voir l’état actuel du croisement et le gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Exploité par Y-Systems · <a href="/privacy">Politique de confidentialité</a> · <a href="/terms">Conditions d’utilisation</a></footer>
+    </main>

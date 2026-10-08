@@ -44,6 +44,16 @@
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:locale:alternate" content="ja_JP" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:locale:alternate" content="zh_TW" />
+    <meta property="og:locale:alternate" content="th_TH" />
+    <meta property="og:locale:alternate" content="es_ES" />
+    <meta property="og:locale:alternate" content="fr_FR" />
+    <meta property="og:locale:alternate" content="de_DE" />
+    <meta property="og:locale:alternate" content="it_IT" />
+    <meta property="og:locale:alternate" content="pt_PT" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta property="og:locale:alternate" content="nl_NL" />
     <meta property="og:image" content="https://voca-tutorial.broodev.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -87,8 +97,37 @@
         ]
       }
     </script>
+    <!-- 마운트 전: 표시 언어가 한국어가 아니면 정적(한국어) SEO 본문·푸터를 React 가 현지화할 때까지 가린다
+         (앱과 같은 순서로 언어 결정: ?lang → vocatut:lang → 브라우저 언어 → en. _middleware.js 가 이미 그 언어로 바꿔 보냈으면 data-seo-lang 이 같아 가리지 않음) -->
+    <script>
+      (function () {
+        try {
+          var L = ['en', 'ja', 'ko', 'zh', 'zh-Hant', 'th', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl'], root = document.documentElement
+          var ok = function (v) { return typeof v === 'string' && L.indexOf(v) >= 0 ? v : null }
+          var lang = null
+          try { lang = ok(new URLSearchParams(location.search).get('lang')) } catch (e) {}
+          if (!lang) { try { lang = ok(JSON.parse(localStorage.getItem('vocatut:lang') || 'null')) } catch (e) {} }
+          if (!lang) {
+            var c = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]
+            for (var i = 0; i < c.length && !lang; i++) {
+              var lc = String(c[i] || '').toLowerCase(), b = lc.split('-')[0]
+              lang = b === 'zh' ? (/hant|tw|hk|mo/.test(lc) ? 'zh-Hant' : 'zh') : ok(b)
+            }
+          }
+          lang = lang || 'en'
+          if (lang !== 'ko' && root.getAttribute('data-seo-lang') !== lang) {
+            root.classList.add('vt-wait')
+            root.lang = lang
+            document.title = 'VOCA_TUTORIAL' // 탭 제목에 한국어가 잠깐 비치지 않게 — 마운트 후 DOC_TITLE[lang] 로 바뀜
+            // 안전장치: React/Babel CDN 이 끝내 못 뜨면(load 후 4초 지나도 가림 그대로) 정적 본문이라도 보이게
+            window.addEventListener('load', function () { setTimeout(function () { root.classList.remove('vt-wait') }, 4000) })
+          }
+        } catch (e) {}
+      })()
+    </script>
 
     <style>
+      html.vt-wait .seo, html.vt-wait .site-foot { visibility: hidden; }
       :root {
         --navy: #000040;
         --panel-gray: #d4d0c8;
@@ -267,7 +306,7 @@
       <nav class="foot-links">
         <a href="/">홈</a><span class="sep"> · </span><a href="https://voca.broodev.com/">VOCA_DECK 본 앱</a><span class="sep"> · </span><a href="/privacy.html">개인정보처리방침</a><span class="sep"> · </span><a href="/terms.html">이용약관</a><span class="sep"> · </span><a class="contact-link" href="https://voca.broodev.com/contact.html?app=voca-tutorial">📮 문의 &amp; 버그 신고</a>
       </nav>
-      <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · made by <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗</p>
+      <p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · <a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗ 제작</p>
       <p class="foot-desc">broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.</p>
     </footer>
     <script>
@@ -346,7 +385,10 @@
           tts: 'TTS', voiceOnly: 'Voice only', hidePanel: 'Hide panel', open: 'Open deck', total: 'Total', learned: 'Learned',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Deck opened: ${n} items (demo)`,
           gMode: 'Manual/Auto', gOrder: 'Order', gRange: 'Range', gDir: 'A ↔ B', gStyle: 'Font / Background',
-          words: [{ a: 'hello', b: 'hello' }, { a: 'thank you', b: 'thank you' }, { a: 'love', b: 'love' }],
+          tutName: 'Flashing Vocabulary Memorizer tutorial', footAria: 'Site information',
+          footHome: 'Home', footApp: 'VOCA_DECK app', footPrivacy: 'Privacy Policy', footTerms: 'Terms of Use', footContact: 'Contact & bug reports', footMadeBy: 'made by {Y}',
+          footDesc: 'broodev is an app portfolio of free web apps that run right in your browser with no installation. Ads may be served through Google AdSense.',
+          words: [{ a: 'hello', b: 'a friendly greeting' }, { a: 'thank you', b: 'words of gratitude' }, { a: 'love', b: 'deep affection' }],
           steps: [
             { t: 'Welcome to the Flashing Memorizer', b: 'VOCA_DECK shows a word, then its meaning, in big letters over and over — so your brain links them by visual association. This 10-step tutorial teaches every control. Press Next to begin.' },
             { t: 'Tap to advance', b: 'One tap shows the word, another reveals the meaning, and another moves to the next word. On a PC you can also press the spacebar. Try it on the screen above.' },
@@ -371,6 +413,9 @@
           tts: 'TTS', voiceOnly: '音声のみ', hidePanel: 'パネルを隠す', open: '単語帳を開く', total: '総数', learned: '暗記済',
           csvTitle: 'my-words.csv', openedDemo: (n) => `単語帳を開きました: ${n}件（デモ）`,
           gMode: '手動/自動', gOrder: '順序', gRange: '表示範囲', gDir: 'A ↔ B', gStyle: 'フォント / 背景',
+          tutName: '点滅式単語帳チュートリアル', footAria: 'サイト情報',
+          footHome: 'ホーム', footApp: 'VOCA_DECK 本体アプリ', footPrivacy: 'プライバシーポリシー', footTerms: '利用規約', footContact: 'お問い合わせ・不具合報告', footMadeBy: '制作: {Y}',
+          footDesc: 'broodevは、インストール不要でブラウザからすぐ使える無料Webアプリを作るアプリポートフォリオです。広告はGoogle AdSenseを通じて掲載される場合があります。',
           words: [{ a: 'hello', b: 'こんにちは' }, { a: 'thank you', b: 'ありがとう' }, { a: 'love', b: '愛' }],
           steps: [
             { t: '点滅式単語帳へようこそ', b: 'VOCA_DECKは単語と意味を大きな文字で交互に表示し、イメージ連想で記憶を結び付けるツールです。この10ステップですべての操作を学べます。「次へ」で始めましょう。' },
@@ -396,6 +441,9 @@
           tts: 'TTS', voiceOnly: '음성만', hidePanel: '제어판 숨기기', open: '암기장 열기', total: '총 개수', learned: '외운 개수',
           csvTitle: 'my-words.csv', openedDemo: (n) => `암기장 열기 완료: ${n}개 (데모)`,
           gMode: '수동/자동', gOrder: '순서', gRange: '표시 범위', gDir: 'A ↔ B', gStyle: '글꼴 / 배경',
+          tutName: '깜빡이 단어암기장 튜토리얼', footAria: '사이트 정보',
+          footHome: '홈', footApp: 'VOCA_DECK 본 앱', footPrivacy: '개인정보처리방침', footTerms: '이용약관', footContact: '문의 & 버그 신고', footMadeBy: '{Y} 제작',
+          footDesc: 'broodev는 설치 없이 브라우저에서 바로 쓰는 무료 웹앱을 만드는 앱 포트폴리오입니다. 광고는 Google AdSense를 통해 게재될 수 있습니다.',
           words: [{ a: 'hello', b: '안녕하세요' }, { a: 'thank you', b: '감사합니다' }, { a: 'love', b: '사랑' }],
           steps: [
             { t: '깜빡이 단어암기장에 오신 것을 환영합니다', b: 'VOCA_DECK은 단어와 뜻을 큰 글자로 번갈아 보여주며 이미지 연상으로 기억을 연결하는 도구입니다. 이 튜토리얼 10단계로 모든 조작을 익힐 수 있습니다. "다음"을 눌러 시작하세요.' },
@@ -421,6 +469,9 @@
           tts: 'TTS', voiceOnly: '仅语音', hidePanel: '隐藏面板', open: '打开单词本', total: '总数', learned: '已记',
           csvTitle: 'my-words.csv', openedDemo: (n) => `单词本已打开: ${n}条（演示）`,
           gMode: '手动/自动', gOrder: '顺序', gRange: '显示范围', gDir: 'A ↔ B', gStyle: '字体 / 背景',
+          tutName: '闪示单词记忆教程', footAria: '网站信息',
+          footHome: '首页', footApp: 'VOCA_DECK 正式应用', footPrivacy: '隐私政策', footTerms: '使用条款', footContact: '联系与错误反馈', footMadeBy: '由 {Y} 制作',
+          footDesc: 'broodev 是一个应用作品集，制作无需安装、在浏览器中即可直接使用的免费网页应用。广告可能通过 Google AdSense 投放。',
           words: [{ a: 'hello', b: '你好' }, { a: 'thank you', b: '谢谢' }, { a: 'love', b: '爱' }],
           steps: [
             { t: '欢迎使用闪示单词记忆', b: 'VOCA_DECK以大字交替显示单词和释义，通过图像联想连接记忆。本教程共10步，覆盖全部操作。点击"下一步"开始。' },
@@ -446,6 +497,9 @@
           tts: 'TTS', voiceOnly: '僅語音', hidePanel: '隱藏面板', open: '開啟單字本', total: '總數', learned: '已記',
           csvTitle: 'my-words.csv', openedDemo: (n) => `單字本已開啟: ${n} 筆（示範）`,
           gMode: '手動/自動', gOrder: '順序', gRange: '顯示範圍', gDir: 'A ↔ B', gStyle: '字型 / 背景',
+          tutName: '閃示單字記憶教學', footAria: '網站資訊',
+          footHome: '首頁', footApp: 'VOCA_DECK 正式應用', footPrivacy: '隱私權政策', footTerms: '使用條款', footContact: '聯絡與錯誤回報', footMadeBy: '由 {Y} 製作',
+          footDesc: 'broodev 是一個應用作品集，製作免安裝、在瀏覽器中即可直接使用的免費網頁應用。廣告可能透過 Google AdSense 刊登。',
           words: [{ a: 'hello', b: '你好' }, { a: 'thank you', b: '謝謝' }, { a: 'love', b: '愛' }],
           steps: [
             { t: '歡迎使用閃示單字記憶', b: 'VOCA_DECK以大字交替顯示單字與釋義，透過圖像聯想連結記憶。本教學共10步，涵蓋全部操作。點「下一步」開始。' },
@@ -471,6 +525,9 @@
           tts: 'TTS', voiceOnly: 'เสียงเท่านั้น', hidePanel: 'ซ่อนแผง', open: 'เปิดชุดคำศัพท์', total: 'ทั้งหมด', learned: 'จำได้',
           csvTitle: 'my-words.csv', openedDemo: (n) => `เปิดชุดคำศัพท์แล้ว: ${n} รายการ (สาธิต)`,
           gMode: 'มือ/อัตโนมัติ', gOrder: 'ลำดับ', gRange: 'ขอบเขต', gDir: 'A ↔ B', gStyle: 'ฟอนต์ / พื้นหลัง',
+          tutName: 'บทช่วยสอนแอปท่องศัพท์แบบแฟลช', footAria: 'ข้อมูลเว็บไซต์',
+          footHome: 'หน้าแรก', footApp: 'แอป VOCA_DECK', footPrivacy: 'นโยบายความเป็นส่วนตัว', footTerms: 'ข้อกำหนดการใช้งาน', footContact: 'ติดต่อและแจ้งข้อผิดพลาด', footMadeBy: 'สร้างโดย {Y}',
+          footDesc: 'broodev คือพอร์ตโฟลิโอของเว็บแอปฟรีที่ใช้งานได้ทันทีในเบราว์เซอร์โดยไม่ต้องติดตั้ง โฆษณาอาจแสดงผ่าน Google AdSense',
           words: [{ a: 'hello', b: 'สวัสดี' }, { a: 'thank you', b: 'ขอบคุณ' }, { a: 'love', b: 'ความรัก' }],
           steps: [
             { t: 'ยินดีต้อนรับสู่แอปท่องศัพท์แบบแฟลช', b: 'VOCA_DECK แสดงคำและความหมายสลับกันด้วยตัวอักษรขนาดใหญ่ ให้สมองเชื่อมโยงผ่านภาพ บทช่วยสอน 10 ขั้นนี้ครอบคลุมทุกการควบคุม กด "ถัดไป" เพื่อเริ่ม' },
@@ -496,6 +553,9 @@
           tts: 'TTS', voiceOnly: 'Solo voz', hidePanel: 'Ocultar panel', open: 'Abrir mazo', total: 'Total', learned: 'Memorizadas',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Mazo abierto: ${n} elementos (demo)`,
           gMode: 'Manual/Auto', gOrder: 'Orden', gRange: 'Rango', gDir: 'A ↔ B', gStyle: 'Fuente / Fondo',
+          tutName: 'Tutorial del memorizador de vocabulario', footAria: 'Información del sitio',
+          footHome: 'Inicio', footApp: 'App VOCA_DECK', footPrivacy: 'Política de privacidad', footTerms: 'Términos de uso', footContact: 'Contacto e informes de errores', footMadeBy: 'creado por {Y}',
+          footDesc: 'broodev es un portafolio de aplicaciones web gratuitas que funcionan directamente en el navegador, sin instalación. Es posible que se muestren anuncios a través de Google AdSense.',
           words: [{ a: 'hello', b: 'hola' }, { a: 'thank you', b: 'gracias' }, { a: 'love', b: 'amor' }],
           steps: [
             { t: 'Bienvenido al memorizador flash', b: 'VOCA_DECK muestra una palabra y luego su significado en letras grandes, una y otra vez, para que tu cerebro los asocie visualmente. Este tutorial de 10 pasos cubre todos los controles. Pulsa Siguiente.' },
@@ -521,6 +581,9 @@
           tts: 'TTS', voiceOnly: 'Voix seule', hidePanel: 'Masquer le panneau', open: 'Ouvrir un paquet', total: 'Total', learned: 'Mémorisés',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Paquet ouvert : ${n} éléments (démo)`,
           gMode: 'Manuel/Auto', gOrder: 'Ordre', gRange: 'Plage', gDir: 'A ↔ B', gStyle: 'Police / Fond',
+          tutName: 'Tutoriel de mémorisation de vocabulaire', footAria: 'Informations sur le site',
+          footHome: 'Accueil', footApp: 'Application VOCA_DECK', footPrivacy: 'Politique de confidentialité', footTerms: 'Conditions d’utilisation', footContact: 'Contact et signalement de bugs', footMadeBy: 'créé par {Y}',
+          footDesc: 'broodev est un portfolio d’applications web gratuites qui fonctionnent directement dans le navigateur, sans installation. Des publicités peuvent être diffusées via Google AdSense.',
           words: [{ a: 'hello', b: 'bonjour' }, { a: 'thank you', b: 'merci' }, { a: 'love', b: 'amour' }],
           steps: [
             { t: 'Bienvenue dans la mémorisation flash', b: 'VOCA_DECK affiche un mot puis son sens en grands caractères, encore et encore, pour que votre cerveau les associe visuellement. Ce tutoriel en 10 étapes couvre toutes les commandes. Appuyez sur Suivant.' },
@@ -546,6 +609,9 @@
           tts: 'TTS', voiceOnly: 'Nur Ton', hidePanel: 'Panel ausblenden', open: 'Deck öffnen', total: 'Gesamt', learned: 'Gemerkt',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Deck geöffnet: ${n} Einträge (Demo)`,
           gMode: 'Manuell/Auto', gOrder: 'Reihenfolge', gRange: 'Bereich', gDir: 'A ↔ B', gStyle: 'Schrift / Hintergrund',
+          tutName: 'Vokabeltrainer-Tutorial', footAria: 'Website-Informationen',
+          footHome: 'Startseite', footApp: 'VOCA_DECK-App', footPrivacy: 'Datenschutzerklärung', footTerms: 'Nutzungsbedingungen', footContact: 'Kontakt & Fehlermeldungen', footMadeBy: 'erstellt von {Y}',
+          footDesc: 'broodev ist ein Portfolio kostenloser Web-Apps, die ohne Installation direkt im Browser laufen. Werbung kann über Google AdSense ausgeliefert werden.',
           words: [{ a: 'hello', b: 'hallo' }, { a: 'thank you', b: 'danke' }, { a: 'love', b: 'Liebe' }],
           steps: [
             { t: 'Willkommen beim Blitz-Vokabeltrainer', b: 'VOCA_DECK zeigt Wort und Bedeutung abwechselnd in großer Schrift — dein Gehirn verknüpft sie über visuelle Assoziation. Dieses 10-Schritte-Tutorial erklärt alle Funktionen. Drücke Weiter.' },
@@ -571,6 +637,9 @@
           tts: 'TTS', voiceOnly: 'Solo voce', hidePanel: 'Nascondi pannello', open: 'Apri mazzo', total: 'Totale', learned: 'Memorizzate',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Mazzo aperto: ${n} elementi (demo)`,
           gMode: 'Manuale/Auto', gOrder: 'Ordine', gRange: 'Ambito', gDir: 'A ↔ B', gStyle: 'Carattere / Sfondo',
+          tutName: 'Tutorial del memorizzatore di vocaboli', footAria: 'Informazioni sul sito',
+          footHome: 'Inizio', footApp: 'App VOCA_DECK', footPrivacy: 'Informativa sulla privacy', footTerms: 'Termini di utilizzo', footContact: 'Contatti e segnalazione bug', footMadeBy: 'creato da {Y}',
+          footDesc: 'broodev è un portfolio di app web gratuite che funzionano direttamente nel browser, senza installazione. Gli annunci possono essere pubblicati tramite Google AdSense.',
           words: [{ a: 'hello', b: 'ciao' }, { a: 'thank you', b: 'grazie' }, { a: 'love', b: 'amore' }],
           steps: [
             { t: 'Benvenuto nel memorizzatore flash', b: 'VOCA_DECK mostra una parola e poi il suo significato a caratteri grandi, più volte, così il cervello li collega per associazione visiva. Questo tutorial in 10 passi copre tutti i comandi. Premi Avanti.' },
@@ -596,6 +665,9 @@
           tts: 'TTS', voiceOnly: 'Só voz', hidePanel: 'Ocultar painel', open: 'Abrir baralho', total: 'Total', learned: 'Memorizadas',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Baralho aberto: ${n} itens (demo)`,
           gMode: 'Manual/Auto', gOrder: 'Ordem', gRange: 'Âmbito', gDir: 'A ↔ B', gStyle: 'Fonte / Fundo',
+          tutName: 'Tutorial do memorizador de vocabulário', footAria: 'Informações do site',
+          footHome: 'Início', footApp: 'App VOCA_DECK', footPrivacy: 'Política de privacidade', footTerms: 'Termos de utilização', footContact: 'Contacto e relatórios de erros', footMadeBy: 'criado por {Y}',
+          footDesc: 'O broodev é um portefólio de aplicações web gratuitas que funcionam diretamente no navegador, sem instalação. Podem ser apresentados anúncios através do Google AdSense.',
           words: [{ a: 'hello', b: 'olá' }, { a: 'thank you', b: 'obrigado' }, { a: 'love', b: 'amor' }],
           steps: [
             { t: 'Bem-vindo ao memorizador flash', b: 'O VOCA_DECK mostra uma palavra e depois o significado em letras grandes, repetidamente, para o cérebro os ligar por associação visual. Este tutorial de 10 passos cobre todos os comandos. Carrega em Seguinte.' },
@@ -619,8 +691,11 @@
           manual: 'Ручной', auto: 'Авто', delay: 'Интервал (с) :', fwd: 'Вперёд', rev: 'Назад', rnd: 'Случайно',
           startNo: 'Начать с :', apply: 'Применить', mem: 'Выучено', unmem: 'Пропускать выученные', memOnly: 'Только выученные', all: 'Все',
           tts: 'TTS', voiceOnly: 'Только звук', hidePanel: 'Скрыть панель', open: 'Открыть набор', total: 'Всего', learned: 'Выучено',
-          csvTitle: 'my-words.csv', openedDemo: (n) => `Набор открыт: ${n} элементов (демо)`,
+          csvTitle: 'my-words.csv', openedDemo: (n) => `Набор открыт: ${n} ${({ one: 'элемент', few: 'элемента' })[new Intl.PluralRules('ru').select(n)] || 'элементов'} (демо)`,
           gMode: 'Ручной/Авто', gOrder: 'Порядок', gRange: 'Диапазон', gDir: 'A ↔ B', gStyle: 'Шрифт / Фон',
+          tutName: 'Обучение работе с тренажёром слов', footAria: 'Информация о сайте',
+          footHome: 'Главная', footApp: 'Приложение VOCA_DECK', footPrivacy: 'Политика конфиденциальности', footTerms: 'Условия использования', footContact: 'Связь и сообщения об ошибках', footMadeBy: 'разработано {Y}',
+          footDesc: 'broodev — портфолио бесплатных веб-приложений, которые работают прямо в браузере без установки. Реклама может показываться через Google AdSense.',
           words: [{ a: 'hello', b: 'привет' }, { a: 'thank you', b: 'спасибо' }, { a: 'love', b: 'любовь' }],
           steps: [
             { t: 'Добро пожаловать в флеш-тренажёр', b: 'VOCA_DECK показывает слово, затем его значение крупным шрифтом, снова и снова — мозг связывает их через зрительную ассоциацию. Эти 10 шагов охватывают всё управление. Нажмите «Далее».' },
@@ -646,6 +721,9 @@
           tts: 'TTS', voiceOnly: 'Alleen geluid', hidePanel: 'Paneel verbergen', open: 'Deck openen', total: 'Totaal', learned: 'Geleerd',
           csvTitle: 'my-words.csv', openedDemo: (n) => `Deck geopend: ${n} items (demo)`,
           gMode: 'Handmatig/Auto', gOrder: 'Volgorde', gRange: 'Bereik', gDir: 'A ↔ B', gStyle: 'Lettertype / Achtergrond',
+          tutName: 'Tutorial woordjestrainer', footAria: 'Website-informatie',
+          footHome: 'Startpagina', footApp: 'VOCA_DECK-app', footPrivacy: 'Privacybeleid', footTerms: 'Gebruiksvoorwaarden', footContact: 'Contact & foutmeldingen', footMadeBy: 'gemaakt door {Y}',
+          footDesc: 'broodev is een portfolio van gratis webapps die zonder installatie direct in je browser werken. Advertenties kunnen via Google AdSense worden weergegeven.',
           words: [{ a: 'hello', b: 'hallo' }, { a: 'thank you', b: 'dank je' }, { a: 'love', b: 'liefde' }],
           steps: [
             { t: 'Welkom bij de flits-woordjestrainer', b: 'VOCA_DECK toont een woord en daarna de betekenis in grote letters, telkens opnieuw — je brein koppelt ze via visuele associatie. Deze tutorial van 10 stappen behandelt alle functies. Druk op Volgende.' },
@@ -692,6 +770,62 @@
             '<ol>' + t.steps.map((s) => '<li><strong>' + esc(s.t) + '</strong> — ' + esc(s.b) + '</li>').join('') + '</ol>' +
             '<p><a href="' + APP_URL + '?lang=' + lang + '">VOCA_DECK →</a></p>'
           sec.setAttribute('lang', lang)
+          sec.setAttribute('aria-label', t.tutName)
+        } catch {}
+      }
+
+      /* 정적 푸터(#root 바깥)도 현재 언어로 — 법적 문서·본 앱·문의 링크에 ?lang= 부착 */
+      const renderFooter = (lang) => {
+        try {
+          const t = getT(lang)
+          const ft = document.querySelector('footer.site-foot')
+          if (!ft) return
+          const q = '?lang=' + encodeURIComponent(lang)
+          const sep = '<span class="sep"> · </span>'
+          const ys = '<a href="https://dev.broodev.com/"><strong>Y-Systems</strong></a> ↗'
+          ft.innerHTML =
+            '<nav class="foot-links">' +
+              '<a href="/' + q + '">' + esc(t.footHome) + '</a>' + sep +
+              '<a href="' + APP_URL + q + '">' + esc(t.footApp) + '</a>' + sep +
+              '<a href="/privacy.html' + q + '">' + esc(t.footPrivacy) + '</a>' + sep +
+              '<a href="/terms.html' + q + '">' + esc(t.footTerms) + '</a>' + sep +
+              '<a class="contact-link" href="https://voca.broodev.com/contact.html?app=voca-tutorial&amp;lang=' + encodeURIComponent(lang) + '">📮 ' + esc(t.footContact) + '</a>' +
+            '</nav>' +
+            '<p style="margin:8px 0 0">© 2026 <strong>broodev</strong> · ' + esc(t.footMadeBy).replace('{Y}', ys) + '</p>' +
+            '<p class="foot-desc">' + esc(t.footDesc) + '</p>'
+          ft.setAttribute('aria-label', t.footAria)
+        } catch {}
+      }
+
+      /* 공유 메타(OG·트위터)와 구조화 데이터(JSON-LD)도 현재 언어로 — ?lang= 크롤러용은 _middleware.js 가 서버에서 같은 값을 넣는다 */
+      const setMeta = (sel, v) => { const m = document.querySelector(sel); if (m) m.setAttribute('content', v) }
+      const renderHeadMeta = (lang) => {
+        try {
+          const t = getT(lang)
+          const title = DOC_TITLE[lang] || DOC_TITLE[DEFAULT_LANG]
+          setMeta('meta[name="description"]', t.metaDesc)
+          setMeta('meta[property="og:title"]', title)
+          setMeta('meta[property="og:description"]', t.metaDesc)
+          setMeta('meta[name="twitter:title"]', title)
+          setMeta('meta[name="twitter:description"]', t.metaDesc)
+          setMeta('meta[property="og:image:alt"]', t.tutName + ' VOCA_TUTORIAL')
+          const loc = localeOf(lang).replace('-', '_')
+          setMeta('meta[property="og:locale"]', loc)
+          const rest = LANGS.map((l) => l.locale.replace('-', '_')).filter((x) => x !== loc)
+          document.querySelectorAll('meta[property="og:locale:alternate"]').forEach((m, i) => { if (rest[i]) m.setAttribute('content', rest[i]) })
+          const img = 'https://voca-tutorial.broodev.com/' + (lang === 'ko' ? 'og-image.png' : 'og/og-image-' + lang + '.png')
+          setMeta('meta[property="og:image"]', img)
+          setMeta('meta[name="twitter:image"]', img)
+          const ld = document.querySelector('script[type="application/ld+json"]')
+          if (ld) {
+            const data = JSON.parse(ld.textContent)
+            const g = data['@graph'] || []
+            const app = g.find((x) => x['@type'] === 'WebApplication')
+            const how = g.find((x) => x['@type'] === 'HowTo')
+            if (app) { app.name = 'VOCA_TUTORIAL — ' + t.tutName; app.description = t.metaDesc }
+            if (how) { how.name = title.replace(/ \| VOCA_TUTORIAL$/, ''); how.step = t.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.t })) }
+            ld.textContent = JSON.stringify(data)
+          }
         } catch {}
       }
 
@@ -773,9 +907,10 @@
         useEffect(() => {
           document.documentElement.lang = lang
           document.title = DOC_TITLE[lang] || DOC_TITLE[DEFAULT_LANG]
-          const m = document.querySelector('meta[name="description"]')
-          if (m) m.setAttribute('content', t.metaDesc)
+          renderHeadMeta(lang)
           renderSEO(lang)
+          renderFooter(lang)
+          document.documentElement.classList.remove('vt-wait') // 마운트 전 가림(<head> 스크립트) 해제
         }, [lang, t])
 
         const showToast = useCallback((msg) => {

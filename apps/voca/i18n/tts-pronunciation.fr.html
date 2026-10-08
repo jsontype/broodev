@@ -1,0 +1,754 @@
+    <main class="wrap" data-title="Mémoriser aussi la prononciation avec le TTS — Pourquoi l’effet change selon la langue, et les réglages en pratique | VOCA DECK" data-desc="Activer la voix TTS n’apporte pas la même chose dans toutes les langues. Sandhi tonal du chinois, homographes hétérophones de l’anglais, liaison en français, lecture des kanji en japonais, et pourquoi l’espagnol a moins besoin du TTS. Règle des parenthèses, calcul de l’intervalle pour le shadowing et vraies limites du TTS du navigateur.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — TTS &amp; PRONUNCIATION</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Carnet de vocabulaire</a>
+          <a href="/method">Le principe</a>
+          <a href="/csv-guide">Créer un CSV</a>
+          <a href="/study-guide">Stratégie d’apprentissage</a>
+        </nav>
+
+        <h1>Mémoriser aussi la prononciation avec le TTS</h1>
+        <p class="muted">Dernière mise à jour : 2026-07-14 · Rédaction : Y-Systems</p>
+
+        <p class="lead">
+          « Activer le TTS, c’est bien » : cette phrase n’est <strong>qu’à moitié vraie.</strong>
+          Car <strong>ce que l’on gagne en activant la voix change complètement d’une langue à l’autre</strong>.
+          En chinois, si l’on mémorise sans TTS, <strong>la moitié du mot n’entre tout simplement pas en mémoire.</strong>
+          En espagnol, au contraire, <strong>on peut restituer la prononciation presque exactement même TTS coupé.</strong>
+          Cet article décompose cet <strong>écart</strong> langue par langue, explique comment rédiger le CSV dans chaque cas
+          et combien de secondes d’intervalle prévoir pour avoir le temps de répéter, <strong>avec les règles et les chiffres réels du code de l’application</strong>.
+        </p>
+
+        <h2>La conclusion d’abord — dépendance au TTS selon la langue</h2>
+        <p>
+          Voici le résumé et le cœur de cet article. Le critère est : <strong>« que perd-on en coupant le TTS ? »</strong>
+          Plus il y a d’étoiles, plus mémoriser uniquement avec les yeux, sans la voix, entraîne une <strong>perte difficile à rattraper</strong>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Langue</th>
+                <th>Prédire la prononciation à partir de l’orthographe</th>
+                <th>Ce que l’on perd sans TTS</th>
+                <th>Dépendance</th>
+                <th>Notation de la prononciation dans le CSV</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Chinois</strong></td>
+                <td>Faible<br /><span class="muted">même avec le pinyin, le son réel diffère</span></td>
+                <td><strong>Ton = sens.</strong> Et le sandhi du 3e ton ou de 一·不 <strong>n’apparaît pas du tout dans l’écrit</strong></td>
+                <td>★★★★★</td>
+                <td>N’en mettez pas (sinogrammes seuls)</td>
+              </tr>
+              <tr>
+                <td><strong>Thaï</strong></td>
+                <td>Très faible</td>
+                <td>5 tons + correspondance lettres-sons complexe. Les romanisations ne sont pas fiables</td>
+                <td>★★★★★</td>
+                <td>N’en mettez pas (écriture thaïe seule)</td>
+              </tr>
+              <tr>
+                <td><strong>Anglais</strong></td>
+                <td>Faible</td>
+                <td>Place de l’accent, lettres muettes, <strong>homographes hétérophones</strong> (read/lead/tear)</td>
+                <td>★★★★☆</td>
+                <td>Réécriture phonétique pour les homographes seulement</td>
+              </tr>
+              <tr>
+                <td><strong>Français</strong></td>
+                <td>Moyenne<br /><span class="muted">la lecture est régulière, l’inverse est impossible</span></td>
+                <td>Consonnes finales muettes, voyelles nasales, <strong>liaison</strong> (absente du mot isolé)</td>
+                <td>★★★★☆</td>
+                <td>Plutôt que la notation, des <strong>cartes-expressions</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Japonais</strong></td>
+                <td>Kana réguliers<br /><strong>kanji imprévisibles</strong></td>
+                <td>Lecture des kanji, accent de hauteur (箸 / 橋)</td>
+                <td>★★★★☆</td>
+                <td><strong>Yomigana entre parenthèses</strong> (géré par l’application)</td>
+              </tr>
+              <tr>
+                <td><strong>Russe</strong></td>
+                <td>Moyenne<br /><span class="muted">l’accent tonique n’est pas écrit</span></td>
+                <td>Place de l’accent → <strong>la voyelle elle-même change</strong> en conséquence (akanié)</td>
+                <td>★★★★☆</td>
+                <td>Signe d’accent seulement (facultatif)</td>
+              </tr>
+              <tr>
+                <td><strong>Allemand</strong></td>
+                <td>Élevée</td>
+                <td>Longueur des voyelles, les deux sons de ch, réalisation du r</td>
+                <td>★★☆☆☆</td>
+                <td>Généralement inutile</td>
+              </tr>
+              <tr>
+                <td><strong>Italien</strong></td>
+                <td>Très élevée</td>
+                <td>Presque rien (quelques exceptions d’accent)</td>
+                <td>★★☆☆☆</td>
+                <td>Inutile</td>
+              </tr>
+              <tr>
+                <td><strong>Espagnol</strong></td>
+                <td><strong>Très élevée</strong><br /><span class="muted">déterminée par 3 règles</span></td>
+                <td><strong>Presque rien.</strong> L’écrit détermine la prononciation à 100 % en pratique</td>
+                <td>★☆☆☆☆</td>
+                <td>Inutile</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">
+          Ce classement repose sur un seul critère : <strong>« dans quelle mesure l’écrit indique la prononciation »</strong>.
+          Pour l’entraînement à l’écoute ou l’adaptation au débit, <strong>le TTS est utile dans toutes les langues</strong>.
+          L’unique étoile de l’espagnol ne veut pas dire « le TTS ne sert à rien », mais <strong>« on en a moins besoin pour découvrir la prononciation »</strong>.
+        </p>
+
+        <h2>Pourquoi un tel écart (en bref)</h2>
+        <p>
+          Dans <a href="/method#dual">Le principe</a>, il y a un passage où l’on dit simplement qu’« activer le TTS ajoute une voie auditive »,
+          <strong>en une seule phrase</strong>. Cet article part de là. Je ne vais pas pour autant refaire l’exposé sur le double codage.
+          Il y a plus important que le fait d’<strong>ajouter un indice de rappel</strong>.
+        </p>
+        <p>
+          Quand on apprend un mot <strong>uniquement avec les yeux</strong>, la tête enregistre aussi <strong>le son qu’on a inventé en le lisant</strong>.
+          Ce n’est pas qu’on n’enregistre aucun son : <strong>on enregistre un son faux.</strong>
+          Pour quelqu’un qui a appris <code>colonel</code> en le lisant « co-lo-nel », le vrai <code>colonel</code> prononcé par un natif (« KER-nl ») est
+          <strong>non pas un mot connu, mais un mot entendu pour la première fois</strong>. On a beau en connaître parfaitement le sens, <strong>la note en compréhension orale est zéro</strong>.
+        </p>
+        <p>
+          Et cette erreur <strong>coûte plus cher à effacer qu’à apprendre.</strong>
+          Corriger une prononciation déjà installée prend bien plus de temps que d’en mettre une neuve dans une case vide.
+          Voilà pourquoi <strong>le TTS n’est pas une fonction à activer plus tard, mais dès le début</strong>.
+        </p>
+        <div class="note">
+          En une ligne — <strong>l’essence du TTS n’est pas d’« ajouter un indice auditif », mais d’« empêcher à l’avance l’enregistrement d’une prononciation fausse ».</strong>
+          C’est pourquoi l’effet est d’autant plus grand que <strong>l’écrit trahit la prononciation</strong>. L’ordre du tableau ci-dessus est exactement cet ordre-là.
+        </div>
+
+        <h2>Ordonnance langue par langue</h2>
+
+        <h3>Chinois — le seul cas où l’écrit ne dit pas le son réel</h3>
+        <p>
+          Si le chinois a « ★★★★★ », ce n’est pas seulement à cause des tons.
+          Les tons sont notés par des signes dans le pinyin ; s’il n’y avait que cela, on devrait pouvoir les apprendre avec les yeux.
+          Le problème, c’est que <strong>le ton écrit dans le pinyin et le ton réellement prononcé ne sont pas les mêmes</strong>.
+        </p>
+        <p>Voyons d’abord que le ton, c’est le sens lui-même. C’est toujours <code>ma</code>, et pourtant ce sont tous des mots différents.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ton</th><th>Pinyin</th><th>Caractère</th><th>Sens</th></tr></thead>
+            <tbody>
+              <tr><td>1er ton (haut et plat)</td><td>mā</td><td>妈</td><td>maman</td></tr>
+              <tr><td>2e ton (montant)</td><td>má</td><td>麻</td><td>chanvre / engourdi</td></tr>
+              <tr><td>3e ton (descend puis remonte)</td><td>mǎ</td><td>马</td><td>cheval (horse)</td></tr>
+              <tr><td>4e ton (tombant)</td><td>mà</td><td>骂</td><td>gronder</td></tr>
+              <tr><td>Ton neutre</td><td>ma</td><td>吗</td><td>particule interrogative</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Voici ce qui arrive en situation réelle quand on rate un ton.</p>
+        <ul>
+          <li><code>我想问你</code> wǒ xiǎng <strong>wèn</strong> nǐ — « je voudrais te demander quelque chose »<br />
+              <code>我想吻你</code> wǒ xiǎng <strong>wěn</strong> nǐ — <strong>« je voudrais t’embrasser »</strong> (4e ton → 3e ton, rien de plus)</li>
+          <li><code>买</code> <strong>mǎi</strong> acheter ↔ <code>卖</code> <strong>mài</strong> vendre — <strong>deux sens opposés</strong> séparés par un simple 3e/4e ton.</li>
+          <li><code>睡觉</code> shuìjiào dormir ↔ <code>水饺</code> shuǐjiǎo raviolis bouillis — si l’on bâcle les tons, « je vais dormir » devient « je vais raviolis ».</li>
+        </ul>
+        <p>
+          Jusque-là, il suffit de lire le pinyin attentivement. <strong>Le vrai problème commence maintenant.</strong>
+        </p>
+        <div class="note warn">
+          <strong>Le sandhi tonal (變調) — lire le pinyin tel qu’il est écrit, c’est se tromper</strong><br />
+          <strong>3e ton + 3e ton → 2e ton + 3e ton.</strong> <code>你好</code> s’écrit <strong>nǐ hǎo</strong> en pinyin (3e+3e),
+          mais se prononce en réalité <strong>ní hǎo</strong> (2e+3e).<br />
+          <strong>一</strong> : à l’origine yī au 1er ton, mais <code>一个</code> = <strong>yí</strong> ge, <code>一起</code> = <strong>yì</strong> qǐ.<br />
+          <strong>不</strong> : à l’origine bù au 4e ton, mais <code>不是</code> = <strong>bú</strong> shì.<br />
+          <strong>Le problème, c’est que la notation n’est pas cohérente.</strong>
+          Le <strong>sandhi du 3e ton</strong> (你好) n’est <em>jamais reporté</em> dans le pinyin — on écrit toujours <code>nǐ hǎo</code> et on dit <code>ní hǎo</code>.
+          En revanche, le <strong>sandhi de 一·不</strong> <em>varie selon les manuels</em> — certains écrivent la forme modifiée (<code>yí ge</code>, <code>bú shì</code>),
+          d’autres le ton d’origine (<code>yī ge</code>, <code>bù shì</code>).
+          <strong>Autrement dit, on ne peut pas se fier à l’écrit.</strong> Au bout du compte, <strong>il n’y a pas d’autre moyen sûr que de vérifier à l’oreille.</strong>
+        </div>
+        <p>
+          Voilà pourquoi, en chinois, un mot appris uniquement avec les yeux n’est « qu’une moitié ».
+          <strong>Il existe une couche de plus que l’écrit ne montre pas, et cette couche n’existe que sous forme de son.</strong>
+          Pour un francophone, c’est encore pire. Sa langue maternelle n’ayant pas de tons, il traite le ton non pas comme un <strong>phonème qui change le sens</strong>,
+          mais comme une simple <strong>intonation ou manière de parler</strong>. Si l’on ne fait pas consciemment entrer le son,
+          <strong>le ton n’est même pas encodé en mémoire.</strong>
+        </p>
+        <div class="note warn">
+          <strong>Le réglage le plus important pour les apprenants de chinois</strong> — dans les réglages avancés, <strong>choisissez vous-même la voix.</strong>
+          Les voix chinoises locales de faible qualité <strong>écrasent les contours tonals.</strong>
+          Dans une autre langue, ce serait « un peu robotique », mais en chinois, <strong>c’est l’information même à apprendre qui disparaît</strong>.
+          Ne vous en remettez pas à la valeur par défaut « Auto ». Les raisons détaillées sont dans la section <a href="#limits">Limites</a> plus bas.
+        </div>
+
+        <h3>Anglais — une langue où les contre-exemples sont plus nombreux que les règles</h3>
+        <p>
+          L’anglais est une langue qui <strong>semble conçue pour qu’on se trompe en devinant la prononciation d’après l’orthographe</strong>.
+          Au fil de l’histoire, il a emprunté des mots à de nombreuses langues : l’orthographe a gardé celle d’origine, seule la prononciation a changé.
+          Voici des mots que <strong>l’on prononce presque à coup sûr de travers en se fiant à l’orthographe</strong>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Mot</th><th>Lu comme il s’écrit</th><th>Prononciation réelle</th><th>Coupable</th></tr></thead>
+            <tbody>
+              <tr><td><code>colonel</code></td><td>co-lo-nel</td><td><strong>KER-nl</strong> /ˈkɜːrnəl/</td><td>un son r absent des lettres</td></tr>
+              <tr><td><code>choir</code></td><td>tcho-ir</td><td><strong>KWAÏ-eur</strong> /ˈkwaɪər/</td><td>ch se lit /kw/</td></tr>
+              <tr><td><code>yacht</code></td><td>yat-cht</td><td><strong>YÂT</strong> /jɑːt/</td><td>ch entièrement muet</td></tr>
+              <tr><td><code>epitome</code></td><td>é-pi-tom</td><td><strong>i-PI-teu-mi</strong> /ɪˈpɪtəmi/</td><td>e final prononcé + accent</td></tr>
+              <tr><td><code>hyperbole</code></td><td>haï-peur-bol</td><td><strong>haï-PEUR-beu-li</strong> /haɪˈpɜːrbəli/</td><td>même raison</td></tr>
+              <tr><td><code>awry</code></td><td>AO-ri</td><td><strong>eu-RAÏ</strong> /əˈraɪ/</td><td>mauvais découpage a+wry</td></tr>
+              <tr><td><code>quay</code></td><td>kou-é</td><td><strong>KI</strong> /kiː/</td><td>4 lettres pour 2 sons</td></tr>
+              <tr><td><code>indict</code></td><td>in-dikt</td><td><strong>in-DAÏT</strong> /ɪnˈdaɪt/</td><td>c muet</td></tr>
+              <tr><td><code>subtle</code></td><td>seub-teul</td><td><strong>SEU-teul</strong> /ˈsʌtl/</td><td>b muet</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Pourtant, <strong>ces cas-là, le TTS les règle tout seul.</strong> La voix anglaise est la plus entraînée au monde,
+          et si on lui donne ces mots tels quels, <strong>elle les lit tous correctement.</strong> Inutile donc de
+          <strong>mettre une notation phonétique sur les cartes d’anglais.</strong> <code>colonel,colonel</code> suffit.
+        </p>
+        <p>
+          <strong>Le TTS anglais échoue ailleurs.</strong> Sur les <strong>homographes hétérophones (heteronyms)</strong>.
+          Ce sont des mots qui s’écrivent pareil mais se prononcent de deux façons. Si on ne lui donne qu’un mot, <strong>le TTS n’a aucun moyen de savoir lequel c’est.</strong>
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Orthographe</th><th>Prononciation A</th><th>Prononciation B</th></tr></thead>
+            <tbody>
+              <tr><td><code>lead</code></td><td>lîd (mener)</td><td>lèd (plomb)</td></tr>
+              <tr><td><code>read</code></td><td>rîd (présent)</td><td>rèd (passé)</td></tr>
+              <tr><td><code>tear</code></td><td>tîr (larme)</td><td>tèr (déchirer)</td></tr>
+              <tr><td><code>wind</code></td><td>ouinnd (vent)</td><td>ouaïnnd (enrouler)</td></tr>
+              <tr><td><code>live</code></td><td>liv (vivre)</td><td>laïv (en direct)</td></tr>
+              <tr><td><code>desert</code></td><td>DÈ-zeurt (désert)</td><td>di-<strong>ZEURT</strong> (abandonner)</td></tr>
+              <tr><td><code>record</code></td><td><strong>RÈ</strong>-keurd (nom)</td><td>ri-<strong>KORD</strong> (verbe)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          La <a href="#paren">règle des parenthèses</a> plus bas montre comment résoudre ce problème de force grâce à une fonction de l’application.
+          <strong>En anglais, c’est pratiquement la seule raison d’utiliser des parenthèses.</strong>
+        </p>
+
+        <h3>Français — lisible, mais pas réversible</h3>
+        <p>
+          Le français est souvent mal compris. <strong>Dire que « le français ne se prononce pas comme il s’écrit » n’est pas exact.</strong>
+          Le français est <strong>assez régulier dans le sens orthographe → prononciation</strong>. Une fois les règles apprises, on peut lire un mot jamais vu.
+          Le problème, c’est que <strong>le sens prononciation → orthographe est presque impossible</strong>, et que <strong>ces règles vont à l’opposé de l’intuition de la plupart des apprenants</strong>.
+        </p>
+        <p>Voyons les exemples les plus frappants.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Mot</th><th>Nombre de lettres</th><th>Son réel</th><th>Ce qui reste</th></tr></thead>
+            <tbody>
+              <tr><td><code>eaux</code> (eau, pluriel)</td><td>4</td><td>/o/</td><td><strong>1 seul son</strong> — 4 lettres pour un seul « o »</td></tr>
+              <tr><td><code>oiseau</code> (oiseau)</td><td>6</td><td>/wazo/</td><td>aucune lettre ne correspond 1:1 à un son</td></tr>
+              <tr><td><code>beaucoup</code> (beaucoup)</td><td>8</td><td>/boku/</td><td>le p final est muet</td></tr>
+              <tr><td><code>temps</code> (temps)</td><td>5</td><td>/tɑ̃/</td><td>ni m, ni p, ni s ne restent : <strong>seulement une voyelle nasale</strong></td></tr>
+              <tr><td><code>femme</code> (femme)</td><td>5</td><td>/fam/</td><td>un e qui se prononce <strong>« a »</strong></td></tr>
+              <tr><td><code>monsieur</code></td><td>8</td><td>/məsjø/</td><td>presque sans rapport avec l’orthographe</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Les consonnes finales sont en général muettes</strong> (exceptionnellement, c·r·f·l survivent souvent — on les retient avec le mot anglais « CaReFuL »).
+          Et les <strong>voyelles nasales</strong> (/ɑ̃/ /ɛ̃/ /ɔ̃/) sont <strong>des sons absents de la langue maternelle de nombreux apprenants</strong>.
+          Un son qui n’existe pas dans sa langue, <strong>il est par principe impossible de l’acquérir avec les yeux.</strong> Ce n’est pas une question d’effort.
+        </p>
+        <div class="note">
+          <strong>Le vrai piège du français, c’est la liaison, et le TTS ne l’attrape pas non plus.</strong><br />
+          Si l’on apprend séparément <code>les</code> (lé) et <code>amis</code> (ami), on obtient « lé ami ». En réalité, c’est <strong>/le.za.mi/ « lézami »</strong>.
+          Le s, muet jusque-là, <strong>revit au contact de la voyelle du mot suivant</strong> et se prononce /z/.<br />
+          Le problème : <strong>un TTS qui lit les mots un par un ne peut jamais faire entendre la liaison</strong>.
+          <code>les</code> tout seul restera éternellement « lé ».<br />
+          <strong>Ordonnance : en français, faites des cartes non pas de mots, mais d’« expressions ».</strong>
+          En mettant <strong>2 à 3 mots sur une seule carte</strong>, comme <code>les amis</code>, <code>vous avez</code>, <code>petit ami</code>,
+          le TTS fait enfin entendre la liaison.
+        </div>
+
+        <h3>Japonais — les kanji ne disent pas comment ils se lisent</h3>
+        <p>
+          En japonais, <strong>ce qui est écrit en kana est presque parfaitement régulier</strong>. Sur ce point, on est au niveau de l’espagnol.
+          Mais <strong>dès que des kanji s’en mêlent, la prévisibilité tend vers 0</strong>.
+        </p>
+        <p>
+          Il est courant qu’un seul kanji ait <strong>plus de dix lectures en comptant les lectures on et kun</strong>.
+          Le seul caractère <code>生</code> se lit せい·しょう·なま·き·いきる·うまれる·はえる·おう…
+        </p>
+        <ul>
+          <li><code>生憎</code> = <strong>あいにく</strong> (malheureusement) — aucun des deux kanji ne permet de deviner cette lecture.
+              C’est un ateji (当て字), où l’on a <strong>plaqué après coup</strong> des kanji sur un son.</li>
+          <li><code>一日</code> = <strong>ついたち</strong> (le 1er du mois) mais aussi <strong>いちにち</strong> (une journée).
+              <strong>Même graphie, lecture différente, sens différent.</strong></li>
+          <li><code>明日</code> = <strong>あした</strong> / <strong>あす</strong> / <strong>みょうにち</strong> — selon le contexte et le registre.</li>
+        </ul>
+        <p>
+          Par-dessus s’ajoute l’<strong>accent de hauteur</strong>. <code>箸</code> (baguettes) et <code>橋</code> (pont)
+          s’écrivent tous deux <strong>はし</strong>, mais <strong>leur schéma mélodique est différent.</strong>
+          Impossible de les distinguer à l’écrit : <strong>seule l’oreille les distingue.</strong>
+          (Beaucoup de francophones ne perçoivent pas du tout cette différence.)
+        </p>
+        <div class="note">
+          <strong>Bonne nouvelle pour les apprenants de japonais</strong> — la <strong>règle des parenthèses</strong> de l’application a été conçue précisément pour ce problème.
+          Si vous écrivez <code>生憎（あいにく）</code> sur la face A, <strong>l’écran affiche à la fois le kanji et sa lecture, et la voix ne lit que あいにく.</strong>
+          La section suivante détaille cette règle.
+        </div>
+
+        <h3>Russe — sans l’accent, on ne sait même pas quelle voyelle on entend</h3>
+        <p>
+          Le russe cumule deux trahisons. En bref.
+        </p>
+        <ol>
+          <li><strong>La place de l’accent n’est pas écrite.</strong> Seuls les manuels et dictionnaires mettent le signe d’accent ;
+              les vrais textes russes <strong>ne le mettent pas.</strong> Sa place est irrégulière : il faut l’apprendre par cœur.</li>
+          <li><strong>L’accent change le son des voyelles (akanié).</strong> Un <code>о</code> non accentué se prononce <strong>non pas « o », mais presque « a »</strong>.
+              <code>молоко</code> (lait) se lirait « mo-lo-ko » d’après l’orthographe, mais se dit en réalité <strong>/məlɐˈko/ « meu-la-KO »</strong>.
+              Sans connaître l’accent, <strong>on ne peut même pas savoir quelles voyelles survivent.</strong></li>
+        </ol>
+        <p>
+          En plus, la place de l’accent sépare des mots. <code>за́мок</code> (château) et <code>замо́к</code> (cadenas)
+          <strong>s’écrivent exactement pareil.</strong> Avec un seul mot, le TTS non plus ne sait pas lequel c’est —
+          c’est le même problème que les homographes anglais, et la solution est la même (une carte avec du contexte).
+        </p>
+
+        <h3>Espagnol — pourquoi on peut couper le TTS</h3>
+        <p>
+          Soyons honnêtes. <strong>Pour un apprenant d’espagnol, le TTS est presque inutile en tant qu’« outil pour découvrir la prononciation ».</strong>
+          En espagnol, <strong>l’écrit détermine pratiquement entièrement la prononciation</strong>.
+          Avec les <strong>3 règles d’accent</strong> ci-dessous, on lit correctement même un mot jamais vu.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Règle</th><th>Place de l’accent</th><th>Exemple</th></tr></thead>
+            <tbody>
+              <tr><td>Finit par une voyelle, n ou s</td><td><strong>avant-dernière</strong> syllabe</td><td><code>ca-sa</code> → <strong>CA</strong>-sa · <code>co-men</code> → <strong>CO</strong>-men</td></tr>
+              <tr><td>Finit par une autre consonne</td><td><strong>dernière</strong> syllabe</td><td><code>ha-blar</code> → ha-<strong>BLAR</strong> · <code>fe-liz</code> → fe-<strong>LIZ</strong></td></tr>
+              <tr><td>Exceptions aux deux règles</td><td>toujours <strong>signalées par un accent écrit</strong></td><td><code>ca-fé</code> · <code>lá-piz</code> · <code>te-lé-fo-no</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Ajoutez quelques règles de lettres (h toujours muet, ll·ñ, v et b pratiquement identiques, c+e/i et z prononcés /θ/ ou /s/ selon la région) et
+          <strong>c’est tout.</strong> Les exceptions se limitent pour ainsi dire aux mots d’emprunt.
+        </p>
+        <div class="note">
+          <strong>Les apprenants d’espagnol peuvent donc utiliser le TTS pour autre chose.</strong>
+          Non pas pour découvrir la prononciation, mais <strong>pour s’habituer au débit</strong>.
+          La vraie difficulté de l’espagnol n’est pas la « lecture », mais <strong>la synalèphe (synalepha) et la vitesse d’élocution</strong>.
+          Les voyelles entre les mots se fondent et s’enchaînent, et le débit est rapide.
+          <strong>Montez la vitesse de lecture à 1.3–1.5×</strong> et faites défiler les cartes. Ce n’est pas de l’apprentissage de la prononciation, mais de l’<strong>entraînement à la compréhension orale</strong>.
+          C’est utiliser la même fonction TTS <strong>dans un tout autre but</strong>.
+        </div>
+
+        <h2 id="paren">Ce que fait vraiment l’application — les règles fixées par le code</h2>
+        <p>
+          À partir d’ici, il ne s’agit plus de généralités, mais du <strong>comportement réellement inscrit dans le code de VOCA DECK</strong>.
+          Le connaître permet de construire bien mieux ses CSV.
+        </p>
+
+        <h3>Règle 1 — s’il y a des parenthèses, la face A ne lit « que l’intérieur »</h3>
+        <p>
+          La fonction vocale de l’application <strong>cherche d’abord des parenthèses</strong> dans le texte de la carte.
+          Elle reconnaît à la fois les parenthèses pleine chasse <code>（）</code> et demi-chasse <code>()</code>.
+        </p>
+        <ul>
+          <li><strong>S’il y a des parenthèses sur la face A (mot)</strong> → elle lit <strong>uniquement leur contenu</strong>. Ce qui est hors des parenthèses <strong>n’est pas lu du tout.</strong></li>
+          <li><strong>Face B (sens)</strong> → elle <strong>supprime entièrement</strong> les parenthèses et leur contenu, et lit le reste.</li>
+          <li><strong>L’écran affiche toujours le texte d’origine en entier.</strong> Seul le son est retiré.</li>
+        </ul>
+        <p>
+          Cette asymétrie est la clé. Elle signifie que <strong>l’on peut concevoir séparément « ce qu’on voit » et « ce qu’on entend »</strong>.
+        </p>
+        <pre><code>生憎（あいにく）,malheureusement
+  → écran : 生憎（あいにく）   (kanji et lecture visibles)
+  → son   : あいにく            (seule la lecture est entendue)
+
+买,acheter（mǎi）
+  → écran : acheter（mǎi）    (le pinyin est visible)
+  → son   : "acheter"          (le pinyin n’est pas lu — la face B supprime les parenthèses)</code></pre>
+        <p>
+          Regardez bien le deuxième exemple. <strong>En mettant le pinyin entre parenthèses sur la face B</strong>,
+          on obtient un état où <strong>l’on vérifie le pinyin des yeux, sans qu’il vienne parasiter l’oreille</strong>.
+          Pour un apprenant de chinois, c’est la meilleure disposition.
+        </p>
+
+        <h3>Règle 2 — chaque face a sa propre langue (voix)</h3>
+        <p>
+          Les faces A et B sont lues avec <strong>des paramètres régionaux de voix différents</strong>. Par défaut, <strong>A = japonais (ja-JP), B = coréen (ko-KR)</strong>,
+          et dans les réglages avancés on peut choisir parmi <strong>13 paramètres régionaux</strong> (en-US · ja-JP · ko-KR · zh-CN · zh-TW · th-TH · es-ES · fr-FR · de-DE · it-IT · pt-PT · ru-RU · nl-NL).
+        </p>
+        <div class="note warn">
+          <strong>C’est la cause n° 1 de « il n’y a pas de son ».</strong>
+          Si vous avez chargé une liste d’anglais mais que la langue de la face A est restée sur <strong>le japonais (ja-JP), la valeur par défaut</strong>,
+          c’est une voix japonaise qui essaie de lire des mots anglais. <strong>Le résultat sonne bizarrement, ou il n’y a aucun son.</strong><br />
+          <strong>Si vous avez créé votre CSV vous-même, réglez d’abord la langue de la face A dans les réglages avancés.</strong>
+          (Quand on applique un paquet d’exemple, les paramètres régionaux sont réglés automatiquement.)
+        </div>
+
+        <h3>Règle 3 — la vitesse de lecture est limitée de 0.5 à 2.0×</h3>
+        <p>
+          Pour la face A et la face B <strong>séparément</strong>, de 0.5× à 2.0×, <strong>par pas de 0.05</strong>.
+          Toute valeur hors de cette plage est rognée de force par le code.
+        </p>
+        <p>
+          <strong>Et il y a ici une limite qu’il faut écrire honnêtement.</strong>
+          Le réglage de vitesse du navigateur <strong>étire le temps en conservant la hauteur</strong>.
+          Résultat : <strong>en dessous de 0.7×, on n’obtient pas « un natif qui parle lentement », mais « un son étrange ».</strong>
+          Plus important encore, ralentir <strong>fait disparaître les réductions et les enchaînements, qui sont au cœur de la prononciation réelle</strong>.
+          Un <code>water</code> écouté à 0.6× <strong>n’est pas le water que vous entendrez en situation réelle.</strong>
+          <strong>L’écoute lente sert à vérifier les tons et les phonèmes, pas à s’entraîner à la compréhension réelle.</strong>
+        </p>
+
+        <h3>Règle 4 — lecture répétée de 1 à 20 fois, ou à l’infini</h3>
+        <p>
+          On peut faire répéter la même voix sur une carte <strong>jusqu’à 20 fois</strong>, ou <strong>à l’infini</strong>.
+          En mode infini, elle <strong>lit une fois en entier, fait une pause de 0.25 seconde</strong>, puis recommence.
+          Passer à la carte suivante ou couper le TTS <strong>l’arrête immédiatement</strong>.
+        </p>
+        <p class="muted">
+          La répétition infinie sert <strong>à graver un ton dans le corps, ou à s’acharner sur une prononciation qui ne vient pas</strong>.
+          Pour l’apprentissage courant, 1 à 2 fois suffisent.
+        </p>
+
+        <h3>Règle 5 — le volume est une multiplication (piège)</h3>
+        <p>
+          Le volume réel se calcule ainsi.
+        </p>
+        <pre><code>volume réel = (volume général ÷ 100) × (volume de la face ÷ 100)
+
+général 50 % + face A 50 %  →  0.5 × 0.5 = 0.25  →  réel 25 %</code></pre>
+        <p>
+          <strong>Si vous baissez les deux curseurs, ils se multiplient et le son devient bien plus faible que prévu.</strong>
+          Si « le son est trop faible », commencez par vérifier ceci.
+          À l’inverse, il est utile de régler <strong>la face A fort et la face B faible</strong>
+          (la langue étrangère bien audible, le sens dans votre langue comme un fond sonore).
+        </p>
+
+        <h3>Règle 6 — on peut choisir ce qui est lu</h3>
+        <p>
+          On choisit entre <strong>face A seule / face B seule / les deux</strong>.
+          <strong>Pour la plupart des apprenants, « face A seule » est le bon choix.</strong> Il n’y a guère de raison d’entendre aussi le sens dans votre langue,
+          et <strong>une voix dans votre propre langue qui s’intercale brise la concentration sur les sons étrangers.</strong>
+          La seule bonne raison d’activer la voix de la face B, c’est l’entraînement à la production dans le sens « sens → mot ».
+        </p>
+        <p>
+          Il existe en plus un mode <strong>« Voix seule »</strong>. Une fois activé, <strong>le texte disparaît de l’écran et il ne reste que le son.</strong>
+          <strong>C’est en pratique un mode dictée.</strong>
+          Il entraîne à <strong>retrouver le sens à partir du seul son</strong>, sans s’appuyer sur l’orthographe, et
+          s’attaque de front <a href="/method#limit">au problème de confondre « le reconnaître en le voyant » et « pouvoir le rappeler »</a>.
+          Voyez-le comme <strong>un exercice de rappel les yeux fermés</strong>.
+        </p>
+
+        <h2>Noter la prononciation dans le CSV, ou s’en remettre au TTS ?</h2>
+        <p>
+          C’est la question qu’on nous pose le plus. Et <strong>la bonne réponse dépend de la langue.</strong>
+          En combinant la <a href="#paren">règle des parenthèses</a> ci-dessus et les propriétés de chaque langue, on obtient la réponse.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Langue</th><th>Réponse</th><th>Écrivez comme ceci</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Japonais</strong></td>
+                <td><strong>Yomigana entre parenthèses</strong></td>
+                <td><code>生憎（あいにく）,malheureusement</code><br /><span class="muted">Si l’on donne les kanji seuls, le moteur vocal devine la lecture sans contexte et se trompe. Les parenthèses imposent la bonne réponse.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Anglais</strong></td>
+                <td><strong>Généralement inutile.</strong><br />Sauf réécriture phonétique pour les homographes</td>
+                <td><code>lead（leed）,mener</code><br /><code>lead（led）,plomb</code><br /><span class="muted">Séparez en 2 cartes et imposez la prononciation avec les parenthèses.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Chinois</strong></td>
+                <td><strong>Pas de parenthèses sur la face A.</strong><br />Le pinyin entre parenthèses sur la face B</td>
+                <td><code>买,acheter（mǎi）</code><br /><span class="muted">Mettre le pinyin entre parenthèses sur la face A fait dérailler la voix chinoise, qui tente de lire des lettres latines. Avec les seuls sinogrammes, elle lit correctement.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Français</strong></td>
+                <td><strong>Des cartes-expressions plutôt qu’une notation</strong></td>
+                <td><code>les amis,les amis</code><br /><span class="muted">La liaison n’apparaît pas avec un mot isolé.</span></td>
+              </tr>
+              <tr>
+                <td><strong>Russe</strong></td>
+                <td>Inutile (signe d’accent seulement, facultatif)</td>
+                <td><code>молоко,lait</code></td>
+              </tr>
+              <tr>
+                <td><strong>Espagnol · italien</strong></td>
+                <td><strong>Inutile</strong></td>
+                <td><code>hablar,parler</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warn">
+          <strong>À ne jamais faire ① — l’alphabet phonétique (API) entre parenthèses</strong><br />
+          Si vous écrivez <code>colonel（ˈkɜːrnəl）,colonel</code>, la règle 1 fait que <strong>la chaîne « ˈkɜːrnəl » est transmise telle quelle au moteur vocal.</strong>
+          Le moteur <strong>ne sait pas lire</strong> les caractères spéciaux de l’API (ɜ · ə · ː). Il se tait, lit le nom des caractères, ou produit un son cassé.
+          <strong>L’API est faite pour être lue par des humains, pas par des moteurs vocaux.</strong><br />
+          <span class="muted">Si vous voulez voir la transcription phonétique, mettez-la <strong>entre parenthèses sur la face B</strong>. Elle sera visible à l’écran et absente du son.</span>
+        </div>
+
+        <div class="note warn">
+          <strong>À ne jamais faire ② — une prononciation « à la française » entre parenthèses</strong><br />
+          <code>apple（apeul）,pomme</code> — c’est <strong>l’erreur la plus facile à commettre pour un francophone</strong>.
+          Avec la face A réglée sur en-US, le « apeul » entre parenthèses <strong>est transmis à la voix anglaise.</strong>
+          La voix anglaise le lit selon les règles de l’anglais, ce qui donne un mot qui n’existe pas. Et à cause de la règle 1, <strong>le « apple » hors des parenthèses n’est pas lu du tout.</strong>
+          Résultat : <strong>vous n’entendez jamais le vrai mot.</strong><br />
+          <strong>Une prononciation transcrite avec l’orthographe de votre langue vise mal dès le départ.</strong> « apeul » n’est pas la prononciation d’apple.
+          Dès qu’on écrit avec son propre alphabet des sons que sa langue n’a pas, <strong>on enregistre une prononciation fausse.</strong> C’est exactement la perte dont parle cet article depuis le début.
+        </div>
+
+        <div class="note">
+          <strong>Encore un piège à connaître</strong> — le code ne cherche que <strong>la première paire de parenthèses</strong>.
+          Si la face A contient deux paires de parenthèses, <strong>il lit la première et ignore la seconde</strong>.
+          Une carte comme <code>一日（ついたち）と一日（いちにち）</code> <strong>ne fera entendre que ついたち.</strong>
+          <strong>Une seule paire de parenthèses par carte.</strong> S’il y a deux lectures, <strong>faites deux cartes</strong>
+          (c’est exactement la même conclusion que le principe <a href="/csv-guide#design">« un seul concept par carte »</a>).
+        </div>
+
+        <h2>Shadowing — quel intervalle de lecture choisir</h2>
+        <p>
+          Le <strong>shadowing</strong> consiste à <strong>répéter immédiatement à voix haute</strong> ce qu’on vient d’entendre.
+          C’est là que le TTS donne toute sa valeur, et c’est aussi là que <strong>la plupart des gens échouent</strong>.
+          La raison est simple — <strong>ils n’ont pas le temps de répéter</strong>.
+          Si l’on lance la lecture automatique avec l’intervalle par défaut de 3 secondes, dès que la voix s’arrête, <strong>on passe déjà à la carte suivante.</strong>
+        </p>
+        <p>Il faut donc <strong>calculer</strong> le temps à prévoir. Le temps nécessaire pour la face A d’une carte se compose ainsi.</p>
+        <pre><code>temps nécessaire face A
+  = durée de la voix × nombre de répétitions
+  + mon temps de réaction            (env. 0.3 à 0.5 s)
+  + le temps que je mets à répéter   (≒ durée de la voix)
+  + marge                            (env. 0.5 s)</code></pre>
+        <p class="muted">
+          <strong>Précisons-le honnêtement</strong> — parmi ces valeurs, <strong>seuls « l’intervalle, la vitesse et le nombre de répétitions » sont fixés par le code</strong>.
+          Des valeurs comme « temps de réaction 0.3 à 0.5 s » ou « 0.25 à 0.35 s par syllabe » sont <strong>des estimations fondées sur l’usage réel, pas des mesures</strong>.
+          Ne les prenez pas pour des chiffres exacts, utilisez-les comme <strong>point de départ</strong>. Ajustez-les à votre propre rythme.
+        </p>
+        <p>
+          La voix d’un mot anglais (2 syllabes) dure environ <strong>0.6 à 0.8 s</strong> à vitesse 1.0×.
+          Une courte phrase d’exemple (6 à 8 mots) dure environ <strong>2.5 à 3.5 s</strong>. Faisons le calcul.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Situation</th><th>Calcul</th><th>Temps nécessaire</th><th>3 secondes suffisent ?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Mot lu 1 fois + répétition</td>
+                <td>0.8 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 2.5 s</strong></td>
+                <td><strong>Oui</strong> (la valeur par défaut tombe juste par hasard)</td>
+              </tr>
+              <tr>
+                <td>Mot lu <strong>2 fois</strong> + répétition</td>
+                <td>0.8×2 + 0.4 + 0.8 + 0.5</td>
+                <td><strong>≈ 3.3 s</strong></td>
+                <td><strong>Non</strong> — c’est coupé</td>
+              </tr>
+              <tr>
+                <td><strong>Phrase d’exemple</strong> 1 fois + répétition</td>
+                <td>3.0 + 0.4 + 3.0 + 0.5</td>
+                <td><strong>≈ 7 s</strong></td>
+                <td><strong>Loin du compte</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          C’est pourquoi l’application propose <strong>un réglage de délai séparé pour la face A et la face B</strong>.
+          On garde l’intervalle de base du panneau de commande et on <strong>donne plus de temps à la face A seulement</strong> (à 0, c’est le même que l’intervalle de base).
+          <strong>Le shadowing se fait uniquement sur la face A : aucune raison d’allonger le temps de la face B.</strong>
+        </p>
+        <p>Voici des combinaisons conseillées selon l’objectif. Ne les appliquez pas telles quelles, prenez-les comme <strong>point de départ</strong>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Objectif</th><th>Vitesse</th><th>Répétitions</th><th>Temps total face A</th><th>Pourquoi</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Première exposition</strong> (imprimer le son)</td><td>1.0×</td><td>2 fois</td><td><strong>5 s</strong></td>
+                <td>Le temps d’écouter deux fois et de répéter une fois</td>
+              </tr>
+              <tr>
+                <td><strong>Shadowing (mot)</strong></td><td>0.9×</td><td>1 fois</td><td><strong>4 s</strong></td>
+                <td>Écouter une fois et répéter aussitôt</td>
+              </tr>
+              <tr>
+                <td><strong>Shadowing (phrase)</strong></td><td>0.85×</td><td>1 fois</td><td><strong>7–8 s</strong></td>
+                <td>Répéter une phrase prend du temps</td>
+              </tr>
+              <tr>
+                <td><strong>Entraînement aux tons</strong> (chinois)</td><td><strong>0.7×</strong></td><td>3 fois</td><td><strong>6 s</strong></td>
+                <td>Au ralenti, les contours tonals s’entendent plus nettement.<br /><strong>Ne descendez pas sous 0.7</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Adaptation au débit à l’écoute</strong></td><td>1.3–1.5×</td><td>1 fois</td><td><strong>3 s</strong></td>
+                <td>Caler l’oreille sur la vitesse réelle</td>
+              </tr>
+              <tr>
+                <td><strong>Balayage de révision</strong> (mots connus)</td><td>1.5×</td><td>1 fois</td><td><strong>2 s</strong></td>
+                <td>Passer vite et ne repérer que les trous</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>L’essentiel du shadowing, c’est de « parler à voix haute ».</strong> Répéter dans sa tête, ce n’est pas du shadowing.
+          C’est en <strong>faisant réellement bouger les muscles de la bouche</strong> que se forme la mémoire motrice articulatoire, et c’est elle qui devient la parole.
+          <strong>Si vous n’allez pas ouvrir la bouche, inutile d’allonger l’intervalle.</strong> Laissez 3 secondes et faites beaucoup de tours.
+        </div>
+
+        <h2 id="limits">Les limites du TTS du navigateur — honnêtement</h2>
+        <p>
+          C’est <strong>la partie la plus importante</strong> de cet article.
+          La synthèse vocale du navigateur a l’avantage écrasant d’être <strong>gratuite et sans installation</strong>,
+          mais <strong>elle a un prix.</strong> L’utiliser en connaissance de cause n’est pas la même chose que l’utiliser à l’aveugle.
+        </p>
+
+        <h3>① La voix change selon l’appareil — c’est la plus grande limite</h3>
+        <p>
+          L’application <strong>ne fabrique pas</strong> de voix. <strong>Elle emprunte simplement celles déjà installées sur l’appareil.</strong>
+          C’est pourquoi, <strong>avec le même CSV et les mêmes réglages, la voix sonne naturelle sur le téléphone et robotique sur le PC</strong>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Environnement</th><th>Situation</th></tr></thead>
+            <tbody>
+              <tr><td><strong>iPhone / Mac</strong></td><td>Voix de haute qualité intégrées. Selon la langue, il peut toutefois falloir <strong>les télécharger à part dans les réglages</strong>.</td></tr>
+              <tr><td><strong>Android / Chrome</strong></td><td>Qualité généralement bonne. Mais <strong>sans pack de langue, la voix de cette langue n’existe tout simplement pas.</strong></td></tr>
+              <tr><td><strong>Windows + Edge</strong></td><td>Utilise des voix en ligne de haute qualité. <strong>C’est souvent la meilleure combinaison.</strong></td></tr>
+              <tr><td><strong>Windows + Chrome</strong></td><td>N’expose souvent que d’anciennes voix locales : <strong>nettement robotique.</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          C’est pourquoi l’application permet de <strong>choisir soi-même la voix pour chaque paramètre régional</strong>. La valeur par défaut est « Auto » (le navigateur choisit).
+          <strong>Si le son ne vous plaît pas, abandonnez Auto et choisissez directement dans la liste.</strong> Une bien meilleure voix s’y cache souvent.
+        </p>
+        <div class="note warn">
+          <strong>Apprenants de chinois et de thaï : ne sautez pas ce point.</strong>
+          Dans d’autres langues, une voix de faible qualité est simplement « un peu maladroite »,
+          mais <strong>dans une langue à tons, une voix de faible qualité fait « perdre l’information à apprendre ».</strong>
+          On ne peut pas apprendre les tons avec une voix qui écrase leurs contours. <strong>Le choix de la voix n’est pas une option, c’est une obligation.</strong>
+        </div>
+
+        <h3>② Après un rechargement, le TTS est toujours coupé (ce n’est pas un bug)</h3>
+        <p>
+          L’application <strong>n’enregistre volontairement pas l’état du TTS.</strong> Tous les autres réglages sont enregistrés, sauf celui-ci.
+          <strong>Le navigateur interdit en effet de produire du son sans interaction de l’utilisateur</strong>.
+          Si l’état activé était enregistré, l’application tenterait de parler dès l’ouverture de la page, serait bloquée par le navigateur, et
+          <strong>l’utilisateur se retrouverait dans la pire situation : « c’est activé, mais il n’y a pas de son ».</strong>
+        </p>
+        <p>
+          L’application démarre donc toujours avec le TTS coupé. <strong>Le clic par lequel vous cochez la case TTS est justement la clé qui déverrouille le son du navigateur</strong>.
+          <strong>Devoir l’activer à chaque fois est un désagrément, mais l’alternative est pire.</strong>
+        </p>
+
+        <h3>③ La liste des voix arrive en retard</h3>
+        <p>
+          Le navigateur charge la liste des voix disponibles <strong>de manière asynchrone</strong>.
+          Juste après l’ouverture de la page, <strong>la liste de choix des voix peut sembler vide.</strong>
+          L’application la met à jour automatiquement dès son arrivée, mais <strong>si la fenêtre des réglages est vide, patientez un instant et rouvrez-la.</strong>
+        </p>
+
+        <h3>④ Hors ligne, la voix change ou disparaît</h3>
+        <p>
+          Les <strong>voix locales</strong> fonctionnent hors ligne, mais <strong>une bonne partie des voix de haute qualité reposent sur le cloud</strong> et exigent le réseau.
+          <strong>Voilà pourquoi, en avion, la voix devient soudain robotique ou se tait complètement.</strong>
+          <strong>L’application et les listes de vocabulaire, elles, fonctionnent normalement hors ligne</strong> (elles ne sont stockées que dans le navigateur).
+          <strong>Seul le TTS dépend du système d’exploitation et du réseau.</strong>
+        </p>
+
+        <h3>⑤ Un mot seul n’a pas de contexte</h3>
+        <p>
+          C’est un problème déjà évoqué plusieurs fois, et <strong>il est structurellement insoluble.</strong>
+          <code>read</code> en anglais, <code>行</code> en chinois (xíng aller / háng rangée·banque),
+          <code>замок</code> en russe (château / cadenas) — <strong>le TTS ne peut que deviner, et il se trompe souvent.</strong>
+        </p>
+        <p>
+          <strong>Il n’y a qu’une solution : mettre le contexte sur la carte.</strong>
+          Soit on impose la prononciation avec des parenthèses, soit on met une phrase d’exemple sur la face A.
+          <strong>C’est une limite du TTS, pas un problème qu’un réglage peut corriger.</strong>
+        </p>
+
+        <h3>⑥ Un mot seul est prononcé en « forme de dictionnaire » — pas comme en situation réelle</h3>
+        <p>
+          <strong>C’est la limite la plus sous-estimée.</strong>
+          Quand le TTS lit un mot seul, on entend une <strong>forme de citation (citation form), articulée syllabe par syllabe</strong>.
+          Or <strong>dans une vraie conversation, les mots ne se prononcent pas ainsi.</strong>
+        </p>
+        <ul>
+          <li><strong>Formes faibles (weak form)</strong> — <code>to</code> ne se dit pas « tou » mais /tə/ « teu », <code>can</code> pas « kann » mais /kən/ « keun ».</li>
+          <li><strong>Enchaînements et contractions</strong> — <code>want to</code> → « wanna », <code>going to</code> → « gonna ».</li>
+          <li><strong>Battement (flapping)</strong> — dans l’anglais américain, le t de <code>water</code> se rapproche d’un /d/.</li>
+        </ul>
+        <p>
+          <strong>C’est pourquoi il est si fréquent qu’une personne ayant parfaitement appris ses mots avec le TTS ne comprenne pas un mot d’une conversation entre natifs.</strong>
+          Le son appris sur une carte de vocabulaire et <strong>le son qui défile en situation réelle sont différents.</strong>
+          <strong>Le TTS d’un mot ne fixe que le « point de départ de la prononciation » ; il n’achève pas la compréhension orale.</strong>
+          Ce qui l’achève, ce sont <strong>des contenus réels (séries, podcasts, cours)</strong>. Cette application ne peut pas les remplacer.
+        </p>
+
+        <h3>⑦ Le TTS ne donne que l’entrée — personne ne vous dit si votre prononciation est juste</h3>
+        <p>
+          C’est la limite fondamentale du shadowing. <strong>Faire entendre un son correct et vérifier que le son que vous produisez est correct sont deux choses complètement différentes.</strong>
+          <strong>L’application ne sait pas faire la seconde.</strong> Même si vous répétez de travers, <strong>personne ne vous le signale.</strong>
+          Et l’on <strong>n’entend pas soi-même sa propre prononciation avec exactitude.</strong>
+        </p>
+        <p>
+          <strong>Le complément</strong> se trouve hors de l’application — <strong>enregistrez votre voix avec votre téléphone et écoutez-la en alternance avec le TTS.</strong>
+          Rien que cela vous fera entendre <strong>des différences que vous n’auriez jamais perçues seul</strong>.
+          <strong>Si possible, le plus sûr reste de vous faire corriger par une personne.</strong>
+        </p>
+
+        <h2>En résumé</h2>
+        <p>
+          <strong>Le TTS n’est pas « une fonction annexe qu’il est bon d’activer » : selon la langue, c’est une fonction « sans laquelle on n’apprend que la moitié ».</strong>
+        </p>
+        <ul>
+          <li><strong>Chinois · thaï</strong> — sans TTS, <strong>la moitié du mot (le ton) n’entre pas en mémoire.</strong> Soignez aussi la qualité de la voix.</li>
+          <li><strong>Anglais · français · japonais · russe</strong> — <strong>l’écrit trahit la prononciation.</strong> Le TTS empêche l’enregistrement d’une prononciation fausse.</li>
+          <li><strong>Espagnol · italien</strong> — <strong>l’écrit suffit à donner la prononciation.</strong> Utilisez le TTS non pour la prononciation, mais <strong>pour vous habituer au débit</strong>.</li>
+          <li><strong>Notation dans le CSV</strong> — japonais : <strong>yomigana entre parenthèses</strong> ; anglais : <strong>réécriture pour les homographes seulement</strong> ;
+              chinois : <strong>pas de parenthèses sur la face A, pinyin sur la face B.</strong> <strong>Ne mettez jamais d’API ni de prononciation « à la française » entre parenthèses.</strong></li>
+          <li><strong>Shadowing</strong> — <strong>si vous ouvrez la bouche</strong>, réglez la face A sur 4 à 5 s (7 à 8 s pour les phrases). <strong>Sinon, laissez 3 secondes et faites beaucoup de tours.</strong></li>
+        </ul>
+        <div class="note">
+          Et le plus important — <strong>le TTS ne fait qu’« entendre » la prononciation, il ne la mémorise pas pour vous.</strong>
+          <a href="/method#fix">L’exposition et le rappel sont deux choses différentes.</a> Avoir entendu un son ne veut pas dire pouvoir le produire.
+          <strong>Il faut ouvrir la bouche.</strong> Aucun outil ne peut le faire à votre place.
+        </div>
+
+        <div class="note warn">
+          <strong>Portée et limites de cet article</strong><br />
+          Le <strong>comportement de l’application, les plages de réglage et les règles de calcul</strong> de cet article (vitesse 0.5 à 2.0×, répétitions 1 à 20, volume multiplié, traitement des parenthèses, 13 paramètres régionaux) sont
+          <strong>des valeurs tirées du code réel de VOCA DECK</strong>.<br />
+          En revanche, <strong>« 0.25 à 0.35 s par syllabe », « temps de réaction 0.3 à 0.5 s » et les combinaisons conseillées par objectif</strong> sont
+          <strong>des estimations fondées sur l’usage réel, et non des résultats de recherche mesurés</strong>. Les écarts individuels sont importants : utilisez-les <strong>uniquement comme point de départ</strong>.<br />
+          Les explications de prononciation par langue se fondent sur <strong>la langue standard (mandarin standard, dialecte de Tokyo, français standard, etc.)</strong> ;
+          <strong>les variantes régionales et dialectales peuvent différer.</strong>
+          Enfin, <strong>le TTS du navigateur n’est pas un locuteur natif.</strong> Pour la prononciation à un examen ou dans une situation importante,
+          <strong>vérifiez toujours en croisant avec l’audio d’un dictionnaire et de vrais documents de locuteurs natifs.</strong>
+        </div>
+
+        <h2>Pour continuer</h2>
+        <div class="related">
+          <a href="/method"><b>Le principe de la Mémorisation flash</b><span>Courbe de l’oubli, effet d’espacement, double codage — et leurs limites</span></a>
+          <a href="/csv-guide"><b>Créer une liste de vocabulaire en CSV</b><span>Corriger les problèmes d’encodage + principes pour bien concevoir les cartes</span></a>
+          <a href="/study-guide"><b>Guide de stratégie d’apprentissage</b><span>Combien par jour, rythme de révision, plan sur 4 semaines</span></a>
+          <a href="/"><b>Ouvrir le carnet</b><span>Activez le TTS et commencez tout de suite</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · Exploité par Y-Systems · <a href="/privacy">Politique de confidentialité</a> · <a href="/terms">Conditions d’utilisation</a></footer>
+      </div>
+    </main>

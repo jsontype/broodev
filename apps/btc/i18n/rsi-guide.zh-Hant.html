@@ -1,0 +1,505 @@
+    <main class="wrap" data-title="RSI 失靈的時刻 — 相對強弱指數失敗解剖 | broodev" data-desc="解剖 RSI 大錯特錯的幾個階段：多頭市場中長期停留在 70 之上、空頭市場中停留在 30 之下、背離的真訊號與假訊號，以及 Wilder 平滑與簡單平均 RSI 造出的 59 點幽靈訊號。並公開我們的模型給 RSI 短期 28% · 長期 18% 權重的真正原因，以及它至今仍會出錯的 6 個地方。">
+      <nav class="nav">
+        <a href="/">← 儀表板</a>
+        <a href="/indicators">指標解讀</a>
+        <a href="/methodology">評分方法</a>
+        <a href="/guide-fear-greed">恐懼指數使用指南</a>
+        <a href="/glossary">術語表</a>
+      </nav>
+
+      <h1>RSI 失靈的時刻</h1>
+      <p class="muted">解剖報告 · 最後更新：2026-07-14 · 作者：Y-Systems · 對象：RSI(14, Wilder) 及 broodev 買入時機評分 v2 的 RSI 映射</p>
+
+      <p class="lead">
+        本文不是 RSI 使用教學，而是<strong>RSI 大錯特錯的紀錄</strong>。<br />
+        「RSI 超過 70 是超買就賣，低於 30 是超賣就買」— 這句話在網路上被複製了幾萬次，
+        <strong>而在加密貨幣市場照著這句話交易的人，錯過了多頭行情的大半段，又在空頭行情裡一路被套。</strong>
+        我們會按階段拆解原因，最後再連同內部數字一起攤開：<strong>我們的模型如何處理 RSI，以及它至今仍在哪裡出錯</strong>。
+      </p>
+
+      <div class="note">
+        <strong>本文不討論的內容</strong> — RSI 的定義與基本公式已在<a href="/indicators#rsi">指標解讀</a>中用一段話整理好，
+        6 個指標整體的權重體系則在<a href="/methodology">評分方法</a>中。
+        這裡只談<strong>失敗</strong>。如果你是第一次接觸 RSI，請先讀完上面兩篇再回來。
+      </div>
+
+      <div class="caseidx">
+        <a href="#case01"><em>CASE 01</em><b>停在 70 之上不肯下來的市場</b><span>為什麼「超買 = 賣出」是破產公式</span></a>
+        <a href="#case02"><em>CASE 02</em><b>停在 30 之下爬不上來的市場</b><span>一直超賣卻腰斬的結構</span></a>
+        <a href="#case03"><em>CASE 03</em><b>背離的兩張面孔</b><span>為什麼我們不提供勝率</span></a>
+        <a href="#case04"><em>CASE 04</em><b>公式造出的幽靈訊號</b><span>Wilder vs 簡單平均 — 59 點的錯覺</span></a>
+      </div>
+
+      <section class="bd-figs" aria-label="RSI 即時圖表">
+        <p class="muted">進入正文之前，先看看用實際 BTC 資料計算的 RSI(14, Wilder)。上方是同一期間的價格 — 請對照著看，70 之上、30 之下的停留與價格的哪個階段重疊。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-rsi-price" class="bd-pane"><div class="bd-loading">正在載入圖表資料…</div></div>
+            <div id="bd-rsi-main" class="bd-pane"><div class="bd-loading">正在載入圖表資料…</div></div>
+          </div>
+          <p class="bd-cap">最近 3 年的 BTC 價格（上）與 RSI(14, Wilder 平滑)（下）。紅色陰影 = 70 以上（一般認知的超買），綠色陰影 = 30 以下（一般認知的超賣）。資料：CoinMetrics Community API，BTC 日線收盤價 — 於造訪時取得並在瀏覽器中計算的<strong>近似值，僅供參考</strong>。</p>
+        </div>
+      </section>
+
+      <h2 id="case01">CASE 01 — 停在 70 之上不肯下來的市場 <span class="tag">致命</span></h2>
+      <p>
+        RSI 代價最高的失敗<strong>不是發生在空頭，而是發生在多頭</strong>。因為它不是以虧損、而是以<strong>機會成本</strong>的形式出現，很多人甚至不把它算作失敗。
+      </p>
+      <p>
+        回想一下 2020 年第 4 季。比特幣從 1 萬美元附近出發，到 2021 年第 1 季漲到 5 萬美元區間。
+        這段期間<strong>日線 RSI 以週為單位黏在 70 之上。</strong>照教科書操作的人，在 RSI 突破 70 的第一天就賣了。
+        然後眼睜睜看著價格從那裡又漲了<strong>三倍、四倍</strong>。
+        2017 年 11~12 月也一模一樣。RSI 突破 70 之後，比特幣從 6 千美元區間漲到接近 2 萬美元。
+      </p>
+      <p>
+        更糟的是接下來。在 RSI 70 賣掉的人，通常<strong>再也買不回來。</strong>
+        他們等 RSI 再跌回 30 以下，但在強勁的上升趨勢中，<strong>RSI 連 40 以下都很少跌破。</strong>
+        因為上升趨勢的回檔不是在 RSI 30、而是在 RSI 45~50 就結束了。
+        最後不是在高得多的價格追價買入，就是整個週期都在場邊觀望。
+      </p>
+
+      <h3>為什麼這種事會結構性地發生</h3>
+      <p>
+        RSI <strong>不是</strong>衡量「貴不貴」的指標。RSI 衡量的是<strong>最近 14 天裡，以 14 天期間平均的上漲幅度比下跌日的平均跌幅大多少</strong>。
+        也就是說，<strong>它量的不是價格水準，而是上漲的「一致性」</strong>。
+      </p>
+      <p>
+        而強勁上升趨勢的定義正是<em>「上漲的日子多，下跌的日子跌得少」</em>。
+        <strong>所以 RSI 70+ 是上升趨勢的症狀，不是異常徵兆。</strong>就像發燒是感染的症狀一樣。
+        吃退燒藥不會治好感染，在 RSI 70 賣出也不會讓上漲結束。
+      </p>
+      <p>
+        用數學確認一下。代入 14 天中<strong>10 天上漲（平均 +2%）、4 天下跌（平均 −1%）</strong>這種非常普通的多頭區間，
+        平均漲幅 = 10×2/14 = 1.43，平均跌幅 = 4×1/14 = 0.29，RS = 5.0 → <strong>RSI ≈ 83</strong>。
+        以漲幅來說，兩週大約 16%，以加密貨幣的標準來看<strong>連激烈都談不上</strong>。
+        但 RSI 已經打出「極端超買」。<strong>RSI 83 不是異常現象，而是正常多頭市場的算術結果。</strong>
+      </p>
+
+      <div class="verdict">
+        <b>■ 解剖結論</b>
+        <p>
+          「超買 = 賣出」是把<strong>只在盤整市場</strong>成立的規則<strong>錯誤套用到趨勢市場</strong>。
+          RSI 突破 70 <strong>與其說是賣出訊號，不如說更接近趨勢確認訊號。</strong>
+          所以我們模型的<strong>短期（動能）分頁不把 RSI 反過來用，而是順向使用</strong> — RSI 越高，<em>分數越高。</em>
+          詳細函式會在下方<a href="#verdict">裁定</a>一節原封不動地公開程式碼。
+        </p>
+      </div>
+
+      <h2 id="case02">CASE 02 — 停在 30 之下爬不上來的市場 <span class="tag">致命</span></h2>
+      <p>
+        這是 CASE 01 的鏡像。而這一邊消失的不是機會成本，而是<strong>實實在在的本金</strong>。
+      </p>
+      <p>
+        2018 年一整年，比特幣從 2 萬美元附近跌到 3 千美元區間。在這段下跌過程中，RSI
+        <strong>一次又一次跌破 30，每次都湧出一堆「歷史性超賣」的文章。</strong>
+        相信這個訊號買進的人，在下一段下跌中又看到了 RSI 30。
+        2022 年如出一轍。5 月 Luna 崩盤、6 月再度急跌、11 月 FTX 破產 — 每個階段 RSI 都打出超賣，
+        <strong>而每一次後面都還有「更低的超賣」。</strong>
+      </p>
+      <p>
+        重點是這個。<strong>RSI 的下限不是 30，而是 0。</strong>
+        在 RSI 28 買進的人可能看到 RSI 22，在 RSI 22 買進的人可能看到 RSI 14。
+        而在 RSI 從 30 走到 20 的期間，<strong>價格會再跌 30~40%。</strong>
+      </p>
+
+      <h3>「超賣」這個詞造成的錯覺</h3>
+      <p>
+        <strong>oversold（超賣）</strong>這個譯詞本身就是陷阱。這個詞給人<em>「該賣的都賣完了」</em>的完成感。
+        但 RSI 25 實際上說的只是<strong>「最近 14 天下跌的日子壓倒性地多」</strong>這種<em>過去式的描述</em>。
+        對於未來，它<strong>一個字也沒說。</strong>
+      </p>
+      <p>
+        反過來讀在統計上反而更安全。<strong>RSI 25 是「強勁下跌趨勢正在進行」的確認訊號</strong>。
+        在下跌趨勢中買進不是「買便宜貨」，而更接近<strong>「在往下走的手扶梯上往上走」</strong>。
+      </p>
+      <div class="note warn">
+        <strong>RSI 極端值也有難得猜對的時候 — 而那正是陷阱。</strong>
+        2020 年 3 月 12 日的新冠急跌（單日 −37%）中，日線 RSI 崩到 10 幾，價格在幾天內就反彈了。
+        這類案例會在記憶中留下深刻印象。<strong>因為猜對的案例會成為新聞，猜錯的案例則悄悄消失（倖存者偏差）。</strong>
+        2018 年和 2022 年在 RSI 30 以下買進而被套的無數人，他們的紀錄沒有留在任何地方。
+        <strong>不要憑記憶估計 RSI 的勝率。記憶早已經有偏差。</strong>
+      </div>
+      <p>
+        造成差異的<strong>不是 RSI 的數值，而是下跌的性質</strong>。
+        2020 年 3 月是<strong>流動性衝擊</strong> — 是幾天內就會結束的那種事件。
+        2018 年和 2022 年是<strong>週期回撤</strong> — 是會延續一年以上的那種事件。
+        <strong>RSI 分辨不出這兩者。</strong>兩者都同樣輸出「RSI 20」。
+        要分辨它們，需要 RSI 以外的資訊 — 估值（梅耶倍數）、週期回撤、趨勢過濾。
+        這就是<strong>合成多個指標的唯一理由</strong>。
+      </p>
+
+      <div class="verdict">
+        <b>■ 解剖結論</b>
+        <p>
+          RSI 30 <strong>不是買入訊號，而是「進入關注區」的訊號</strong>。而且只有在其他指標也同意時才算數。
+          我們模型的長期（逆向）分頁雖然把 RSI 反過來用，卻<strong>把權重從 28% 降到 18% 的原因</strong>就在這裡。
+          從逆向觀點看，RSI 只是<strong>輔助證據</strong>，主要證據是梅耶倍數與 365 日回撤。
+        </p>
+      </div>
+
+      <h2 id="case03">CASE 03 — 背離的兩張面孔 <span class="tag">暫不判斷</span></h2>
+      <p>
+        RSI 的失敗廣為人知之後，出現的處方就是<strong>背離（divergence）</strong>。
+        <em>價格創新低，但 RSI 高於前一個低點</em> → 多頭背離 → 即將反彈。
+        反過來就是空頭背離。這是<strong>想用 RSI 來修正 RSI 的失敗</strong>。所以它只管用一半。
+      </p>
+
+      <h3>背離實際上在說什麼（大多數文章沒點出的部分）</h3>
+      <p>
+        把多頭背離的數學意義精確翻譯出來，是這樣的。
+      </p>
+      <pre><code>價格：低點A ＞ 低點B   (更低的低點)
+RSI ：低點A ＜ 低點B   (更高的 RSI)
+
+→ 翻譯："價格跌得更低了。但跌得沒那麼猛烈。"</code></pre>
+      <p>
+        就只是這樣。<strong>它不是「見底了」的陳述。</strong>而是「下跌速度變慢了」的陳述。
+        而下跌速度<strong>並不是只在底部才會變慢。</strong>
+        急跌之後只要性質轉變成<strong>拖拖拉拉的緩跌</strong>，背離就會自動出現。
+        2022 年 5~6 月的多頭背離就是如此。下跌速度確實變慢了，之後卻<strong>又多跌了將近 40%。</strong>
+      </p>
+      <p>
+        空頭背離也一樣。2021 年 4 月 6 萬 4 千美元高點前夕的空頭背離<strong>猜對了</strong> — 一個月後價格腰斬。
+        但是<strong>在 2020 年第 4 季的整段漲勢中，空頭背離反覆出現，也反覆失效。</strong>
+        同樣的型態，截然相反的結果。<strong>事後可以分辨兩者，事前卻沒有辦法分辨。</strong>
+      </p>
+
+      <h3>為什麼我們不提供「背離勝率 ○○%」</h3>
+      <p>
+        網路上的 RSI 文章常常附上「RSI 背離勝率 70%」之類的數字。<strong>我們不會提供這個數字。</strong>老實說，理由是<strong>根本算不出來</strong>。
+      </p>
+      <ul>
+        <li><strong>「低點」的定義是任意的。</strong>兩個低點之間的最小間隔設成 5 天還是 20 天，背離的數量就會差上好幾倍。</li>
+        <li><strong>「成功」的定義是任意的。</strong>幾天內漲幾 % 才算成功？3 天內漲 2% 算成功，否則算失敗？標準稍微一改，勝率就會在 40% 幾到 70% 幾之間移動。</li>
+        <li><strong>挑參數的人就是在挑結果。</strong>只要不斷更換組合直到找出勝率 70% 的那一組，<strong>誰都能做出勝率 70%。</strong>那不是發現，而是<strong>過度擬合（overfitting）</strong>。</li>
+      </ul>
+      <p>
+        所以<strong>我們模型的程式碼裡根本沒有背離邏輯。</strong>
+        RSI 時間序列會被計算（<code>rsiWilder(closes, 14)</code>），但進入評分函式的<strong>只有最後一個值</strong>。
+        其餘的時間序列只用在畫面上的迷你走勢圖。<strong>對分數的貢獻連 1% 都沒有。</strong>
+      </p>
+      <div class="note">
+        無法重現的規則不放進分數 — 這是我們的原則。
+        <strong>背離是「看圖者的裁量」，不是「函式」。</strong>
+        一旦加入裁量，分數就會<em>每次都變成不同的值</em>，公開分數也就失去了意義。
+        <strong>這不代表背離沒有用，而是代表我們沒辦法把它做成一個誠實的數字。</strong>
+      </div>
+
+      <div class="verdict">
+        <b>■ 解剖結論</b>
+        <p>
+          如果非用背離不可，至少只在<strong>有趨勢過濾同行時</strong>才用。
+          多頭背離 + 50 日線在 200 日線之上（黃金交叉狀態）+ MACD 柱狀圖向上翻轉 — 這三者重疊的時候，與
+          <strong>死亡交叉正中央的背離</strong>，是完全不同的事件。後者在 2022 年出現過無數次，大多以失敗告終。
+        </p>
+      </div>
+
+      <h2 id="case04">CASE 04 — 公式造出的幽靈訊號 <span class="tag">技術性</span></h2>
+      <p>
+        到目前為止都是<strong>讀錯 RSI</strong> 造成的失敗。這一件不同。
+        這是<strong>光憑 RSI 怎麼計算，訊號就整個翻轉</strong>的情況。而大多數投資人甚至不知道它的存在。
+      </p>
+      <p>
+        RSI 實際上有兩個系統。
+      </p>
+      <ul>
+        <li><strong>Wilder RSI</strong> — 創始人 J. Welles Wilder 的原版。以 <code>(前一平均 × 13 + 今日值) ÷ 14</code> 更新平均值。因為是指數平滑，<strong>過去會永遠一點一點地殘留下來。</strong></li>
+        <li><strong>Cutler RSI（簡單平均 RSI）</strong> — 對最近 14 天<strong>直接取算術平均</strong>。15 天前的資料會<strong>完全掉出視窗之外。</strong></li>
+      </ul>
+      <p>
+        許多圖表工具只標示「RSI」，卻不說明是哪一種。但這個差異造成的結果<strong>並不小。</strong>
+      </p>
+
+      <h3>實作演練：RSI 如何在一天內從 37 跳到 96</h3>
+      <p>這是構造出來的範例。假設價格的每日變化如下（單位任意）。</p>
+      <pre><code>第1日 : −20    ← 急跌 (例：單日 −25% 暴跌)
+第2~15日 : 每天 +1    (但第8日為 −0.5)
+
+也就是說，暴跌那天之後，直到第15日什麼都沒有改變。
+只是每天安靜地以相同幅度回升而已。</code></pre>
+      <p>現在用兩種方式計算<strong>第 14 日</strong>與<strong>第 15 日</strong>的 RSI。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>時點</th><th>Wilder RSI</th><th>Cutler（簡單平均）RSI</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>第 14 日</td><td>36.9</td><td>36.9 <span class="muted">（相同 — 第一個值兩者都以簡單平均作為種子）</span></td></tr>
+            <tr><td><strong>第 15 日</strong></td><td><strong>39.0</strong> <span class="muted">(+2.1)</span></td><td><strong>96.3</strong> <span class="muted">(+59.4)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>第 15 日價格做的事只有一個「+1」。</strong>跟第 14 日完全一樣的動作。
+        但簡單平均 RSI <strong>從 36.9 跳到 96.3，一天之內暴衝了 59 點以上。</strong>
+      </p>
+      <p>
+        原因很簡單。到了第 15 日的那一刻，<strong>第 1 日的 −20 暴跌掉出了 14 日視窗</strong>。
+        暴跌從平均跌幅的計算中整個消失，分母崩塌，RSI 衝上天花板。
+        這就叫做<strong>剔除效應（drop-off effect）</strong>。
+        <strong>市場什麼都沒做。是日曆做的。</strong>
+      </p>
+
+      <h3>這個幽靈會讓我們的分數搖晃多少</h3>
+      <p>實際把兩個值代入我們模型的 RSI 轉換函式，結果如下。（函式全文在下方裁定一節。）</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>第 15 日 RSI</th><th>短期分數貢獻<br /><span class="muted">（RSI 分項分數 × 28%）</span></th><th>長期分數貢獻<br /><span class="muted">（RSI 分項分數 × 18%）</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wilder <strong>39.0</strong></td><td><code>9.1 分</code></td><td><code>12.4 分</code></td></tr>
+            <tr><td>Cutler <strong>96.3</strong></td><td><code>28.0 分</code> <span class="muted">（最大值）</span></td><td><code>0.0 分</code> <span class="muted">（最小值）</span></td></tr>
+            <tr><td><strong>差異</strong></td><td><strong>+18.9 分</strong></td><td><strong>−12.4 分</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        如果用的是簡單平均 RSI，<strong>短期綜合分數會膨脹將近 19 分，同時長期綜合分數會被削掉 12 分以上。</strong>
+        在滿分 100 的分數中，19 分足以讓<strong>NEUTRAL（50 分）整個跳過區間，直接變成 ACCUMULATE/BUY（69 分）。</strong>
+        <strong>價格什麼都沒做，買入訊號卻亮了。</strong>
+      </p>
+      <p>
+        所以我們<strong>只用 Wilder 方式。</strong>在 Wilder 中，暴跌的影響不是「掉出」視窗，而是<strong>慢慢變淡。</strong>
+        衝擊每過一天就縮小為 <code>13/14 ≈ 0.9286</code> 倍。計算一下：
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>暴跌後經過時間</th><th>Wilder 平均中殘留的衝擊比例</th></tr></thead>
+          <tbody>
+            <tr><td>9.4 日 <span class="muted">（半衰期）</span></td><td>50%</td></tr>
+            <tr><td>14 日</td><td>35.4% <span class="muted">← 若是簡單平均，此時會驟降為 0%</span></td></tr>
+            <tr><td>30 日</td><td>10.8%</td></tr>
+            <tr><td>60 日</td><td>1.2%</td></tr>
+            <tr><td>90 日</td><td>0.1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Wilder RSI 的衝擊半衰期約為 9.4 天。</strong>這之所以重要，
+        是因為它代表<strong>大型暴跌即使過了一個月，仍會在 RSI 中留下約 10% 的痕跡</strong>。
+        這看起來可能像缺陷，但其實<strong>更貼近市場真實的記憶結構。</strong>
+        大暴跌後的一個月仍處在「暴跌的陰影」之中，我們希望這個痕跡留在分數裡。
+      </p>
+
+      <div class="verdict">
+        <b>■ 解剖結論</b>
+        <p>
+          <strong>務必確認你所用圖表工具的 RSI 是 Wilder 還是簡單平均。</strong>
+          同一個幣、同樣 14 天、同一天，<strong>RSI 39 和 RSI 96</strong> 可以同時存在。
+          而其中一個<strong>純粹是日曆造出來的幽靈</strong>。
+        </p>
+      </div>
+
+      <h2 id="verdict">裁定 — 為什麼我們給 RSI 短期 28% · 長期 18%</h2>
+      <p>
+        上面四件解剖的結果，就是我們模型的設計依據。程式碼原封不動地搬過來。
+      </p>
+      <pre><code>// 短期（動能）— RSI 越高，分數越高（順向）
+momRsi = clamp(50 + (RSI − 50) × 1.6, 0, 100)
+
+// 長期（逆向）— RSI 越低，分數越高（反向）
+conRsi = clamp(50 + (50 − RSI) × 1.7, 0, 100)</code></pre>
+      <p>
+        <strong>正負號相反。</strong>同一個 RSI 值在兩個分頁中產生截然相反的分數。用表格看就一目了然。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>RSI</th><th>短期分項分數<br /><span class="muted">momRsi</span></th><th>短期貢獻<br /><span class="muted">×28%</span></th><th>長期分項分數<br /><span class="muted">conRsi</span></th><th>長期貢獻<br /><span class="muted">×18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>15</code></td><td>0.0</td><td>0.00</td><td>100.0</td><td>18.00</td></tr>
+            <tr><td><code>25</code></td><td>10.0</td><td>2.80</td><td>92.5</td><td>16.65</td></tr>
+            <tr><td><code>30</code></td><td>18.0</td><td>5.04</td><td>84.0</td><td>15.12</td></tr>
+            <tr><td><code>50</code></td><td>50.0</td><td>14.00</td><td>50.0</td><td>9.00</td></tr>
+            <tr><td><code>70</code></td><td>82.0</td><td>22.96</td><td>16.0</td><td>2.88</td></tr>
+            <tr><td><code>80</code></td><td>98.0</td><td>27.44</td><td>0.0</td><td>0.00</td></tr>
+            <tr><td><code>90</code></td><td>100.0</td><td>28.00</td><td>0.0</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>CASE 01 的處方就是 <code>momRsi</code>。</strong>在短期分頁中，RSI 80 不是「賣出」，而是<strong>價值 27.4 分的買入依據</strong>。
+        等於在<strong>程式碼層級封鎖了</strong>「超買所以賣出」這個破產公式。
+        <strong>CASE 02 的處方就是 <code>conRsi</code>。</strong>在長期分頁中，RSI 25 成為 16.7 分的買入依據。
+        不過<strong>單靠它還不夠，所以把權重壓到 18%。</strong>
+      </p>
+
+      <h3>「28% vs 18%」的真正意義 — 是方向的問題，不是品質的問題</h3>
+      <p>
+        很多人把這個數字讀成<em>「RSI 在短期更準」</em>。<strong>這是錯誤的解讀。</strong>正確的解讀是這樣的。
+      </p>
+      <ul>
+        <li>
+          <strong>在短期（1~3 個月），RSI 可以順向使用，而且這種用法很有效。</strong>
+          比特幣在短區間內像動能資產一樣波動，而 RSI 是<strong>動能最直接的量測值</strong>。
+          既然有可用的方向，就給它較大的權重（28%）。
+        </li>
+        <li>
+          <strong>在長期（1 年以上），RSI 的視窗（14 天）太短了。</strong>
+          等於是<strong>拿 14 天長的尺去量</strong> 4 年的週期。工具和對象不相稱。
+          所以週期判斷的主要證據由<strong>梅耶倍數（以 200 日線為基準，18%）</strong>與<strong>365 日回撤（14%）</strong>負責，
+          RSI 只以<strong>投降（capitulation）的代理指標</strong>角色拿到 18%。沒有設成 0% 是因為在極端區間（20 以下）它仍然有效。
+        </li>
+      </ul>
+
+      <h3>權重表掩蓋的事 — RSI 的實際支配力大於 28%</h3>
+      <p>
+        在這裡公開一個<strong>連我們自己都是後來才發覺</strong>的事實。
+        <strong>只看權重 %，就會低估或高估各指標的影響力。</strong>
+        因為重要的是<strong>權重 × 該指標實際來回擺動的幅度</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>短期分頁</th><th>名目權重</th><th>實際分項分數範圍</th><th>綜合分數實質變動幅度</th></tr></thead>
+          <tbody>
+            <tr><td><strong>RSI</strong></td><td>28%</td><td>RSI 15~90 → <code>0 ~ 100</code> <span class="muted">（使用全區間）</span></td><td><strong>28.0 分</strong></td></tr>
+            <tr><td><strong>梅耶倍數</strong></td><td>4%</td><td>倍數 0.5~2.5 → <code>37.5 ~ 87.5</code> <span class="muted">（只用到一半）</span></td><td><strong>2.0 分</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        只看權重，RSI 是梅耶的 <strong>7 倍</strong>（28÷4）。但<strong>把實際變動幅度也算進去就是 14 倍</strong>。
+        <code>momRsi</code> 的斜率 1.6 把 RSI <strong>放大到 0~100 全區間</strong>，
+        而 <code>momMayer</code> 的斜率 25 在實際的倍數範圍（0.5~2.5）內<strong>只能用到分項分數的一半。</strong>
+      </p>
+      <div class="note warn">
+        <strong>這不是好消息。</strong>短期綜合分數比我們原本的設計<strong>更嚴重地依賴 RSI</strong>。
+        而 RSI 正是如 CASE 01·02 所見、<strong>在趨勢市場中結構性出錯</strong>的那個指標。
+        <strong>也就是說，我們的短期模型在最脆弱的指標上曝險最大。</strong>下一節會繼續深挖這個問題。
+      </div>
+
+      <h2 id="confession">自白 — 我們的模型至今仍因 RSI 而出錯的地方</h2>
+      <p>
+        賣指標的文章會稱讚指標。我們反過來做。
+        <strong>以下是我們程式碼中實際存在的缺陷。</strong>有能修的，也有修不了的。
+      </p>
+      <ol class="confess">
+        <li>
+          <strong>飽和區間 — 分不出 RSI 82 和 RSI 95。</strong><br />
+          <code>momRsi</code> 在 <strong>RSI 81.25 以上全部是 100 分</strong>。<code>conRsi</code> 在 <strong>RSI 20.59 以下全部是 100 分</strong>。
+          也就是說，長期模型<strong>把 2020 年 3 月新冠急跌（RSI 10 幾）和普通的回檔（RSI 20）視為同一個值。</strong>
+          這代表在最重要的極端區間，<strong>解析度是 0</strong>。這是截斷（clamping）的代價，我們還沒找到更好的解法。
+        </li>
+        <li>
+          <strong>噴出頂（blow-off top）防護依賴梅耶倍數 — 沒有它就不會觸發。</strong><br />
+          短期分頁有一道防止在週期頂點買入的安全裝置：<code>if (mayer &gt; 2.0) 分數 × (1 − (mayer − 2.0) × 0.55)</code>。
+          為什麼需要它？因為<strong>沒有這道防護，我們的短期模型會在泡沫頂點打出 STRONG BUY。</strong>手算一下：
+          <pre><code>假設 — 週期頂點：RSI 88 · 恐懼貪婪 94 · 梅耶 2.5 · 回撤 −2% · 黃金交叉狀態
+
+RSI    分項分數 100 (飽和) × 28% = 28.0   ← 最大的區塊
+F&amp;G    分項分數 100 (飽和) × 28% = 28.0
+回撤    分項分數  97.4     × 18% = 17.5
+MACD   分項分數  90       × 14% = 12.6
+交叉    分項分數  65       ×  8% =  5.2
+梅耶    分項分數  87.5     ×  4% =  3.5
+─────────────────────────────────────
+原始分數 = 94.8  →  STRONG BUY (在泡沫頂點!)
+
+套用噴出頂防護：
+  梅耶 2.5 → × 0.725  →  68.8
+  F&amp;G 94 ≥ 90 → − 8     →  60.8  →  NEUTRAL</code></pre>
+          防護<strong>削掉了 34 分。</strong>但看程式碼，條件是 <code>mayer != null &amp;&amp; mayer &gt; 2.0</code>。
+          <strong>沒有 200 日資料的新上市資產，梅耶倍數為 <code>null</code>，這道防護根本不會啟動。</strong>
+          這種資產一旦走出拋物線式漲勢，<strong>我們的短期分數可能在頂點打出 STRONG BUY。</strong>
+          而那個分數中最大的區塊是 <strong>RSI 的 28 分</strong>。這是已知的缺陷，儀表板上的<strong>覆蓋率顯示（<code>coverage 5/6</code>）</strong>是唯一的警示裝置。
+        </li>
+        <li>
+          <strong>當兩個分頁指向完全相反的方向時，我們不知道哪一邊才對。</strong><br />
+          代入 RSI 14、恐懼貪婪 6、梅耶 0.52、回撤 −74% 的投降階段，會得到這樣的結果。
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>短期（動能）</th><th>長期（逆向）</th></tr></thead>
+              <tbody>
+                <tr><td>RSI 分項分數</td><td>0.0</td><td>100.0</td></tr>
+                <tr><td>RSI 貢獻</td><td><code>0.0 分</code></td><td><code>18.0 分</code></td></tr>
+                <tr><td><strong>綜合分數</strong></td><td><strong>11.7 → AVOID</strong></td><td><strong>83.5 → STRONG BUY</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <strong>同一時刻、同一份資料，相差 71.8 分。</strong>這不是 bug，而是設計 — 因為時間尺度不同。
+          但老實說，<strong>這個模型無法告訴你「現在哪個分頁適合你」。</strong>
+          那是你的持有期間與風險承受度的問題，<strong>我們的分數無法替你決定。</strong>
+        </li>
+        <li>
+          <strong>14 天這個期間只是慣例。</strong><br />
+          這是 Wilder 在 1978 年針對<strong>股票·商品市場</strong>挑選的數字。並不是為 24 小時交易的加密貨幣驗證過的值。
+          每個幣種、每個波動階段的最佳視窗幾乎肯定都不同。儘管如此，我們還是<strong>固定為 14</strong>。
+          若按幣種分別調參，表現看起來會變好，但那只是<strong>過度擬合</strong>，到了未來就會崩潰。
+          準確的說法是<strong>「明知是次佳卻仍固定的值」</strong>。
+        </li>
+        <li>
+          <strong>小數點沒有意義。</strong><br />
+          RSI 會因為採用<strong>哪個交易所、幾點為基準的收盤價</strong>而不同。UTC 午夜與 KST（韓國時間）午夜會得出不同的值。
+          來源不同時，同一天的 RSI <strong>相差 2~3 左右很常見。</strong>
+          這樣一來，透過 <code>momRsi</code> 的斜率 1.6，綜合分數會自動帶上<strong>約 0.9 分的誤差</strong>。
+          <strong>我們分數的小數點後第一位是雜訊。</strong>別去區分 68.4 和 68.9。
+        </li>
+        <li>
+          <strong>RSI 不會產生新資訊。</strong><br />
+          這也許是本文最重要的一句話。RSI 是<strong>從價格衍生出來的值</strong>。
+          它只是把價格已經告訴你的東西<strong>重新排列給你看</strong>，並不會加入市場上原本沒有的資訊。
+          <strong>RSI 是落後指標，而落後指標不知道未來。</strong>這不是可以修正的缺陷，而是<strong>指標的本質</strong>。
+        </li>
+      </ol>
+
+      <h2 id="rules">那麼該拋棄 RSI 嗎 — 不，請這樣用</h2>
+      <p>
+        經過四件解剖與六條自白，結論並不是「RSI 是垃圾」。
+        而是<strong>「RSI 不是單獨的訊號」</strong>。濃縮成實務規則就是這樣。
+      </p>
+      <ol>
+        <li>
+          <strong>讀 RSI 之前，先讀趨勢。</strong>請先確認 50 日線在 200 日線之上還是之下。
+          <strong>不知道趨勢狀態，RSI 的數值就無從解讀。</strong>
+        </li>
+        <li>
+          <strong>在上升趨勢中，RSI 的下限不是 30，而是 40~50。</strong>這個區間的 RSI 45 不是「超賣」，而是<strong>回檔買點</strong>。
+          反過來，<strong>在下跌趨勢中，RSI 的上限不是 70，而是 50~60。</strong>空頭市場中的 RSI 60 不是「超買」，而可能是<strong>反彈的終點</strong>。
+          <strong>30/70 這組數字只適用於盤整市場。</strong>
+        </li>
+        <li>
+          <strong>RSI 在 30~70 之間幾乎什麼都沒說。</strong>不要根據這個區間內的 RSI 變動做交易決定。
+          RSI 單獨具有意義的只有<strong>極端值（20 以下 / 85 以上）</strong>，即使在那裡也需要其他指標的同意。
+        </li>
+        <li>
+          <strong>確認工具的 RSI 是不是 Wilder。</strong>正如 CASE 04 所見，簡單平均 RSI 會產生<strong>日曆造出的幽靈訊號</strong>。
+        </li>
+        <li>
+          <strong>儀表板的兩個分頁結果相反時也別驚訝。</strong>那是<strong>「短期與長期指向相反方向的階段」</strong>這項有用的資訊。
+          通常出現在<strong>底部（長期買入 / 短期迴避）</strong>或<strong>頂部（短期買入 / 長期迴避）</strong>。
+        </li>
+        <li>
+          <strong>確認覆蓋率。</strong>如果顯示像 <code>coverage 5/6 (82% weight)</code> 這樣，代表少了一個指標，
+          而如果少的是梅耶倍數，就代表<strong>噴出頂防護處於關閉狀態</strong>（自白第 02 條）。
+        </li>
+      </ol>
+
+      <div class="note">
+        <strong>本文一句話總結</strong><br />
+        RSI 衡量的<strong>不是「有多貴」，而是「最近漲得有多一致」</strong>。
+        一旦把兩者混為一談 — 也就是翻譯成<strong>「超買 = 貴 = 賣出」</strong>的那一刻 — RSI 就成了虧損機器。
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ 投資注意事項</strong><br />
+        本文件僅供<strong>教育與參考</strong>，<strong>並非投資建議，也不構成買賣推薦。</strong>
+        正文中的歷史敘述與 RSI 數值是以日線收盤價為基準的<strong>大致數值</strong>，會因資料來源、交易所與基準時區而有所不同。
+        標有「假設」的計算<strong>並非實際市場資料，而是為了展示模型運作而構造的範例</strong>。
+        加密貨幣是可能<strong>損失全部本金</strong>的高風險資產，過去的型態不保證未來。
+        所有投資判斷及其結果的責任完全由使用者本人承擔。請務必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸閱讀</h2>
+      <div class="related">
+        <a href="/methodology"><b>評分方法</b><span>6 個指標以什麼權重合成 — 數字全部公開</span></a>
+        <a href="/indicators"><b>6 個指標解讀</b><span>RSI 以外的 5 個指標各在什麼時候背叛你</span></a>
+        <a href="/guide-fear-greed"><b>恐懼指數實戰使用法</b><span>恐懼區間分批買入的步驟與常見錯誤</span></a>
+        <a href="/glossary"><b>術語表</b><span>Wilder 平滑·背離·覆蓋率…</span></a>
+        <a href="/"><b>前往儀表板</b><span>確認目前的 RSI 與兩個分頁的分數</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 營運 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+    </main>

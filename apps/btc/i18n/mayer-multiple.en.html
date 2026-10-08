@@ -1,0 +1,522 @@
+<main class="wrap" data-title="A History of the Mayer Multiple — What the 200-Day Line Said in Every Bitcoin Cycle | broodev" data-desc="Why did Trace Mayer pick the number 2.4? We trace, in chronological order, what the Mayer Multiple actually read at the 2013, 2017, 2021 and 2024 tops and the 2015, 2018, 2020 and 2022 bottoms, and show with real calculations why the broodev model gives this indicator radically different weights: 4% short-term and 18% long-term.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Scoring methodology</a>
+        <a href="/indicators">Indicator guide</a>
+        <a href="/guide-fear-greed">Using the Fear Index</a>
+        <a href="/glossary">Glossary</a>
+      </nav>
+
+      <h1>A History of the Mayer Multiple<br />— What the 200-Day Line Said in Every Cycle</h1>
+      <p class="muted">Last updated: 2026-07-14 · Author: Y-Systems · Scope: the Mayer Multiple component of the broodev buy-timing score v2</p>
+
+      <p class="lead">
+        <code>Mayer Multiple = current price ÷ 200-day moving average</code>. One division — that is all there is to it.
+        Yet this single number carries <strong>18% of the broodev long-term score and 4% of the short-term score</strong>. That is a four-and-a-half-fold difference.
+        Why the same indicator gets such different weights cannot be explained by the formula.
+        It can <strong>only be explained by following the history of Bitcoin's cycles</strong>. So this piece is written not as a calculation but as a chronicle.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Timeline</div>
+        <ol>
+          <li><a href="#origin">2014 — A podcaster's question, and the number 2.4</a></li>
+          <li><a href="#wild">2011–2013 — The wild era when the multiple topped 4</a></li>
+          <li><a href="#floor">2015 — The year the “0.8” floor was born</a></li>
+          <li><a href="#2017">2017 — The decisive reason the short-term weight became 4%</a></li>
+          <li><a href="#bottoms">2018 · 2020 — Three bottoms printed in almost the same spot</a></li>
+          <li><a href="#2021">2021 — Two tops, two completely different multiples</a></li>
+          <li><a href="#etf">2022–2026 — After the ETFs, 2.4 may never come back</a></li>
+          <li><a href="#weights">So why 4% and 18%? — The answer in numbers</a></li>
+          <li><a href="#curve">Anatomy of the transform — why we cut at 0.8 · 1.4 · 2.4</a></li>
+          <li><a href="#silence">Four places where this indicator goes silent</a></li>
+          <li><a href="#today">How to read this number in 2026</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>About the figures in this piece.</strong> The historical multiples below are <strong>reconstructed approximations</strong>, computed by dividing daily closes by the 200-day simple moving average.
+        Depending on which exchange's prices you use and whether you take the UTC close, the first decimal place can wobble.
+        Please read “it was 2.9 at the top” as <strong>“it was somewhere between 2.5 and 3.”</strong> The argument of this piece lies not in the decimals but in <strong>the direction across cycles</strong>.
+      </div>
+
+      <section class="bd-figs" aria-label="Mayer Multiple live charts">
+        <p class="muted">The charts below are drawn by fetching the full daily BTC history from the CoinMetrics public API when you visit and computing everything directly in your browser. Check the chronicle with your own eyes first, then read on. Hover to see the values for each date.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-price" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+          </div>
+          <p class="bd-cap">BTC price (log scale) and the 200-day simple moving average. Orange dotted lines = halvings (2012 · 2016 · 2020 · 2024). Data: CoinMetrics Community API, BTC daily closes — fetched at visit time and computed in your browser; <strong>approximate, for reference only</strong>.</p>
+        </div>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-mult" class="bd-pane"><div class="bd-loading">Loading chart data…</div></div>
+          </div>
+          <p class="bd-cap">Mayer Multiple time series. Green shading = 0.8 or below (historically undervalued zone), red shading = above 2.4 (overheated zone). The extreme readings above 4 in 2011–2013 are clipped at 4. Data: CoinMetrics Community API, BTC daily closes — fetched at visit time and computed in your browser; <strong>approximate, for reference only</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="origin">2014 — A podcaster's question, and the number 2.4</h2>
+      <p>
+        The Bitcoin community of 2014 had none of today's indicators. No on-chain data companies, no Fear &amp; Greed Index.
+        Price charts and forum posts were all there was, and for people who had just lived through two bubbles back to back in 2013 (April and November), one question remained.
+        <strong>“Is it OK to buy now?”</strong>
+      </p>
+      <p>
+        Trace Mayer was an early Bitcoin investor and a podcaster. The fact that he was not a trader matters.
+        He had no interest in <em>“will it go up today?”</em> — he cared about <strong>“where will someone who buys now be in a few years?”</strong>
+        A different time horizon in the question calls for a different tool.
+      </p>
+      <p>
+        What he picked up was the <strong>200-day moving average</strong>, used in traditional finance for close to a century.
+        The 200-day line is roughly <strong>an average of 10 months of trading days</strong>. It is a slow line that does not budge for a news item or two, or a single liquidation.
+        Mayer's idea was simple: <strong>“How many times above that slow line is today's price?”</strong>
+      </p>
+      <pre><code>Mayer Multiple = today's close ÷ 200-day simple moving average (SMA)
+
+Multiple 1.0  → equal to the 200-day average
+Multiple 0.7  → 30% cheaper than the average
+Multiple 2.5  → 150% more expensive than the average</code></pre>
+
+      <h3>Where did the number 2.4 come from?</h3>
+      <p>
+        Mayer did not stop there; he ran a <strong>rule backtest</strong> (he crowdsourced the computation by posting a bounty to the community).
+        The question went like this.
+      </p>
+      <p class="lead">
+        <em>“Which earns more over the long run: a rule that buys regularly only when the Mayer Multiple is below X, or a rule that buys at any time? Let's plug in every X from 0.1 to 5.”</em>
+      </p>
+      <p>
+        What he emphasized in the results was not the optimum but <strong>the inflection point</strong>.
+        As the threshold kept rising (= buying even when expensive), long-term performance started to deteriorate noticeably from a certain point, and that point was <strong>around 2.4</strong>.
+        In other words, 2.4 is not a prophecy that “this is the top” but an after-the-fact statistic: <strong>“buying more expensively than this has historically been costly.”</strong>
+      </p>
+      <div class="note warn">
+        <strong>We state the limitation right here.</strong> When Mayer ran his numbers, Bitcoin was <strong>an asset that had existed for only five years</strong>.
+        There had been only two completed cycles, and most of the sample came from the “early explosive-growth phase.”
+        <strong>2.4 is a number drawn from two cycles.</strong> We use it, but we use it knowing it is not a physical constant.
+        The final section of this piece covers why 2.4 is <em>already aging</em>.
+      </div>
+
+      <h2 id="wild">2011–2013 — The wild era when the multiple topped 4</h2>
+      <p>
+        If you apply the indicator to data from before it existed, early Bitcoin prints <strong>values that make no sense by today's standards</strong>.
+      </p>
+      <p>
+        In the first big bubble of June 2011, the multiple <strong>went above 5.</strong> The price was five times its 200-day average.
+        At the two tops of April and November 2013 it also reached <strong>the 3–4 range</strong>.
+        In that era the rule <em>“a multiple of 2.4 is dangerous”</em> was practically useless. After crossing 2.4, the price went on to double again.
+      </p>
+      <p>
+        Why? Market cap was in the hundreds of millions to a few billion dollars, liquidity was thin, there was no derivatives market, and short selling was practically impossible.
+        It was <strong>a market with only force pushing up and nothing pulling down</strong>. In such a market, five times the 200-day line is a natural outcome.
+      </p>
+      <p>
+        The lesson this era's data holds for us today is that <strong>“the absolute value of the Mayer Multiple depends on market structure.”</strong>
+        The same 2.4 meant “still early” in 2013 and became “almost unreachable” in 2021. We will come back to this later.
+      </p>
+
+      <h2 id="floor">2015 — The year the “0.8” floor was born</h2>
+      <p>
+        After the collapse of Mt. Gox in 2014, Bitcoin fell for more than a year. Near the January 2015 low, the multiple was pushed down into <strong>the 0.6s</strong>.
+        But what matters more than the low itself is that, before and after it, <strong>the multiple crawled between 0.7 and 0.9 for months</strong>.
+      </p>
+      <p>
+        This “drawn-out bottom” is where the <strong>0.8</strong> in our transform function comes from.
+        0.8 is a <strong>20% discount</strong> to the 200-day line. And if you add up every stretch in Bitcoin's history when the multiple was below 0.8,
+        it amounts to <strong>only a tiny fraction of all trading days</strong>. Rarity — that is the sole basis for this threshold.
+      </p>
+      <div class="note">
+        <strong>What our model does not do below 0.8.</strong> A multiple of 0.6 is indeed “cheaper” than 0.8.
+        But our transform function <strong>flattens everything at or below 0.8 to 100 points.</strong> 0.6 or 0.5, it is 100 points either way.
+        Cheaper does not earn more. Because <strong>a drawdown has no lower limit</strong>.
+        A model that gives 0.5 a score of 105 ends up shouting “buy” louder the deeper the crash goes. That is not an indicator but <em>an accelerator pedal</em>.
+        Cutting the top flat means giving up accuracy to <strong>buy humility</strong>.
+      </div>
+
+      <h2 id="2017">2017 — The decisive reason the short-term weight became 4%</h2>
+      <p>
+        For believers in the Mayer Multiple, 2017 was <strong>the most painful year</strong>. And it is this year's record that pushed our model's short-term weight down to 4%.
+      </p>
+      <p>
+        Bitcoin started 2017 around $1,000 and ended late December near $20,000. The question is <strong>where along that journey the multiple said “expensive.”</strong>
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Point in 2017</th><th>Approx. multiple</th><th>What Mayer says</th><th>What actually happened next</th></tr></thead>
+          <tbody>
+            <tr><td>May–June ($2,500s)</td><td><code>1.5~1.7</code></td><td>“Entering overheated territory”</td><td>Rose roughly <strong>7× more</strong> by year-end</td></tr>
+            <tr><td>August ($4,000s)</td><td><code>1.8~2.0</code></td><td>“Quite expensive”</td><td>Rose <strong>4× more</strong> in four months</td></tr>
+            <tr><td>November ($8,000s)</td><td><code>2.0~2.2</code></td><td>“Approaching the top zone”</td><td>Rose <strong>2.4× more</strong> in six weeks</td></tr>
+            <tr><td>Mid-December ($19,000s)</td><td><code>2.5~2.9</code></td><td>“Extremely overheated”</td><td>The actual top. Only right this time</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        See it? The Mayer Multiple <strong>said “expensive” all year long, and was wrong all year long.</strong> Then it was right in the final two weeks.
+      </p>
+      <p>
+        Don't misread this. It does not mean <em>“the Mayer Multiple is a bad indicator.”</em>
+        Compare <strong>someone who saw a multiple of 1.6 in May 2017 and sold</strong> with <strong>someone who ignored the 1.6 in May 2017, held, and sold in December</strong> —
+        the latter wins overwhelmingly on long-term returns, but <strong>someone who kept holding into 2018</strong> ends up worse off than the former again.
+        The same number reaches opposite conclusions depending on the time horizon.
+      </p>
+      <div class="note warn">
+        <strong>That is why the short-term weight is 4%.</strong> The broodev short-term tab takes a <strong>1–3 month</strong> view.
+        Whichever row of the table above you pick, the Mayer Multiple's “expensive” warning <strong>failed to call the direction of the following 1–3 months.</strong>
+        Put a signal whose lag is measured in <em>months to a year</em> into a <em>1–3 month</em> window, and it is not a signal but <strong>noise</strong>.<br /><br />
+        ⚠️ <strong>Important:</strong> In the short-term tab this indicator does <strong>not</strong> work as “expensive = warning.”
+        Quite the opposite: it works as <strong>“expensive = strong trend = bonus points.”</strong>
+        So who stops the bubble top? <strong>Not the weight, but a separate blow-off top guard.</strong>
+        In <a href="#weights">the next section</a> we publish both functions and the guard, code and all.
+      </div>
+
+      <h2 id="bottoms">2018 · 2020 — Three bottoms printed in almost the same spot</h2>
+      <p>
+        An indicator so erratic at the tops is <strong>remarkably consistent at the bottoms</strong>. That is its true nature.
+      </p>
+      <p>
+        <strong>December 2018</strong>: near $3,150, as a year-long bear market was ending, the multiple was in <strong>the 0.5–0.6 range</strong>.<br />
+        <strong>March 2020</strong>: when the COVID shock halved the price in a single day to the $3,800s, the multiple was <strong>around 0.6</strong>.<br />
+        <strong>November 2022</strong>: when FTX collapsed and the price was pushed to the $15,500s, the multiple was <strong>0.6–0.7</strong>.
+      </p>
+      <p>
+        <strong>Over seven years, three bottoms caused by three completely different things (a self-inflicted bubble collapse / a pandemic / exchange fraud) printed at almost the same multiple.</strong>
+        And that despite the price growing fivefold, from $3,150 to $15,500.
+        This is why the 200-day line is called <strong>the gravity of price</strong>. Absolute prices differ completely from cycle to cycle, but <strong>the lower limit of how far price can stretch away from the 200-day line</strong> was similar.
+      </p>
+      <p>
+        March 2020 deserves a special note. It is almost the only case where the Mayer Multiple was right <strong>immediately and precisely</strong>.
+        The reason is clear: <strong>the shock was over in a single day</strong>.
+        While the price collapsed vertically, the 200-day line barely moved, so the multiple was torn down to 0.6 in one blow.
+        <strong>The Mayer Multiple is sensitive to “crashes” and insensitive to “slow collapses.”</strong> This sentence returns, painfully, in the limitations section later.
+      </p>
+
+      <h2 id="2021">2021 — Two tops, two completely different multiples</h2>
+      <p>
+        2021 is the most important year for understanding this indicator. Because <strong>two tops at almost the same price came in the same year, yet the multiples were completely different</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>2021 top</th><th>Price</th><th>Approx. multiple</th><th>Score from our transform</th></tr></thead>
+          <tbody>
+            <tr><td>April (first top)</td><td>about $64,000</td><td><code>1.9~2.2</code></td><td>about <strong>22–30 points</strong> (CAUTION)</td></tr>
+            <tr><td>November (second top, cycle high)</td><td>about $69,000</td><td><code>1.3~1.4</code></td><td>about <strong>50–55 points</strong> (NEUTRAL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>At the true peak of the cycle, the Mayer Multiple said “neutral.”</strong>
+      </p>
+      <p>
+        This is not a bug in the indicator but <strong>a mathematical inevitability</strong>.
+        While the price moved sideways in the $30,000s all summer after the April top, the 200-day line kept <em>crawling upward.</em>
+        By the time the price hit $69,000 in November, the 200-day line was already near $50,000. A bigger denominator means a smaller multiple.
+      </p>
+      <p>
+        <strong>When a top is split in two, the Mayer Multiple misses the second one.</strong>
+        The more the market matures into a form that “climbs in steps rather than exploding all at once,” the more powerless this indicator's upper alarm becomes.
+      </p>
+
+      <h2 id="etf">2022–2026 — After the ETFs, 2.4 may never come back</h2>
+      <p>
+        Stack the record so far cycle by cycle, and you can see <strong>a trend flowing in one direction</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cycle</th><th>Top multiple (approx.)</th><th>Bottom multiple (approx.)</th><th>Amplitude</th></tr></thead>
+          <tbody>
+            <tr><td>2011</td><td><code>5 or more</code></td><td><code>0.4~0.5</code></td><td>Extreme</td></tr>
+            <tr><td>2013</td><td><code>3~4</code></td><td><code>0.5~0.6</code> (2015)</td><td>Very large</td></tr>
+            <tr><td>2017</td><td><code>2.5~2.9</code></td><td><code>0.5~0.6</code> (2018)</td><td>Large</td></tr>
+            <tr><td>2021</td><td><code>1.9~2.2</code> (April)</td><td><code>0.6~0.7</code> (2022)</td><td>Medium</td></tr>
+            <tr><td>2024~2025</td><td><code>1.5~1.8</code></td><td>—</td><td><strong>Small</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Top multiples keep falling with each cycle, and bottom multiples keep rising.</strong> The amplitude is compressing.
+        The causes are not hard to guess.
+      </p>
+      <ul>
+        <li><strong>Derivatives and short selling</strong> — The market now has a force pressing down from above. It did not exist in 2013.</li>
+        <li><strong>Institutional money and spot ETFs</strong> — Inflows since 2024 are far gentler and steadier than retail manias. The 200-day line catches up with a gentle rise.</li>
+        <li><strong>The sheer size of the market cap</strong> — For a trillion-dollar asset to jump to three times its 200-day average requires capital on an entirely different scale.</li>
+      </ul>
+      <div class="note warn">
+        <strong>To be honest: our model's upper band is already aging.</strong>
+        The zone where a Mayer Multiple above 2.4 maps to 10 points or less <strong>has not triggered even once in the last two cycles.</strong>
+        If market structure stays as it is, 2.4 could become <em>a dead threshold that is never hit again</em>.
+        <br /><br />
+        Yet we <strong>have not lowered this value yet.</strong> The reason is a dilemma.
+        Lowering the threshold from 2.4 to 1.8 to fit recent data would look good now, but that is <strong>bending the curve to fit the past (curve fitting)</strong>.
+        A model tuned that way breaks the moment the next cycle reverts to its old shape.
+        <strong>Our current choice is “keep the original threshold, but write down in this document the fact that it triggers less often.”</strong>
+        We judged that disclosing the model's weaknesses beats quietly patching the model.
+      </div>
+
+      <h2 id="weights">So why 4% and 18%? — The answer in numbers</h2>
+
+      <div class="note warn">
+        <strong>Correction notice (2026-07-14)</strong> — The previous version of this section <strong>wrongly applied the long-term transform function to the short-term column</strong>,
+        describing the Mayer Multiple's short-term contribution <strong>with the sign reversed</strong>.
+        It also omitted the existence of the <strong>blow-off top guard</strong>, which is what actually defends the short-term score against overheating.
+        What follows has been fully corrected against the code.
+      </div>
+
+      <p>
+        There is one fact you must know here. <strong>The Mayer Multiple has not one normalization function but two.</strong>
+        The short-term and long-term tabs use <strong>different functions</strong>, and <strong>their signs are opposite</strong>.
+      </p>
+
+      <pre><code>// Long-term (contrarian) — the cheaper, the higher the score
+conMayer(m):
+  m ≤ 0.8 → 100
+  m ≤ 1.4 → 50 + ((1.4 − m) / 0.6) × 50
+  m ≤ 2.4 → 10 + ((2.4 − m) / 1.0) × 40
+  m &gt; 2.4 → 10 − (m − 2.4) × 25
+
+// Short-term (momentum) — the more expensive, the higher the score
+momMayer(m) = clamp(50 + (m − 1) × 25,  0,  100)</code></pre>
+
+      <p>
+        <strong>“The more expensive, the more points” in the short term sounds insane.</strong> But in a 1–3 month window,
+        being stretched far above the 200-day line is <strong>not “overvaluation” but “a strong uptrend.”</strong>
+        2017 proved exactly that — even after the multiple passed 2.4, the price kept rising for months.
+        The short-term tab does not deny that trend.
+      </p>
+
+      <p>Let's compute the actual contributions.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Short-term sub-score<br /><span class="muted">momMayer</span></th><th>Short-term contribution<br /><span class="muted">×4%</span></th><th>Long-term sub-score<br /><span class="muted">conMayer</span></th><th>Long-term contribution<br /><span class="muted">×18%</span></th></tr></thead>
+          <tbody>
+            <tr><td><code>0.75</code> (undervalued)</td><td>43.75</td><td>1.75 pts</td><td>100</td><td><strong>18.0 pts</strong></td></tr>
+            <tr><td><code>1.0</code> (at the 200-day line)</td><td>50</td><td>2.0 pts</td><td>83.3</td><td>15.0 pts</td></tr>
+            <tr><td><code>1.6</code></td><td>65</td><td>2.6 pts</td><td>42.0</td><td>7.6 pts</td></tr>
+            <tr><td><code>2.6</code> (overheated)</td><td>90</td><td><strong>3.6 pts</strong></td><td>5.0</td><td>0.9 pts</td></tr>
+            <tr><td><strong>Amplitude (0.5–2.5)</strong></td><td>37.5 ~ 87.5</td><td><strong>about 2.0 pts</strong></td><td>100 ~ 7.5</td><td><strong>about 16.7 pts</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>In the short-term tab, Mayer's total amplitude is just over 2 points.</strong> And the direction is <em>undervalued → points deducted</em>.
+        <strong>In the long-term tab it moves by nearly 17 points, in the opposite direction</strong> — big enough to push <code>NEUTRAL(55 pts)</code>
+        all the way down to <code>CAUTION(38 pts)</code>, a band and a half.
+        Its <strong>joint-top weight (18%)</strong> alongside RSI, MACD and Fear &amp; Greed is not excessive, because the 2018, 2020 and 2022 bottoms
+        all printed in the same multiple range. Few indicators have reproduced this well on a cycle scale.
+      </p>
+
+      <h3>But why 4% rather than 0% in the short term?</h3>
+      <p>
+        In the short term, Mayer is <strong>a duplicate of the trend indicators</strong>. The information “stretched above the 200-day line”
+        is already largely captured by RSI (28%), drawdown (18%) and MACD (14%). Loading Mayer on heavily as well would be
+        <strong>counting the same signal four times</strong>. So we pressed it down to 4%.
+      </p>
+      <p>
+        <strong>The reason it is not 0% is that there is one angle these three cannot see.</strong>
+        RSI and MACD look at the speed of <em>the last few days</em>; drawdown looks at <em>distance from the high</em>.
+        Only Mayer looks at <strong>“how far price has stretched from the long-term baseline of the 200-day average.”</strong>
+        The <strong>absolute degree of extension</strong> of a trend — the other three cannot substitute for that. The 4% is its share.
+      </p>
+
+      <h3>Then who stops overheating? — The blow-off top guard</h3>
+      <p>
+        An obvious objection arises here. <strong>“If the short term awards more points the more expensive it gets, won't the score keep climbing at a bubble top?”</strong>
+        Correct. With momMayer alone, it would.
+      </p>
+      <p>
+        So <strong>not the weight but a separate mechanism</strong> does that job.
+        It applies <strong>damping to the finished short-term total score itself</strong>.
+      </p>
+      <pre><code>if (mayer &gt; 2.0):
+    short_total ×= clamp(1 − (mayer − 2.0) × 0.55,  0.25,  1)</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Factor</th><th>If the short-term total was 70</th></tr></thead>
+          <tbody>
+            <tr><td><code>2.0</code></td><td>×1.00</td><td>70.0 (no damping)</td></tr>
+            <tr><td><code>2.5</code></td><td>×0.725</td><td>50.8 <span class="muted">(−19.2 pts)</span></td></tr>
+            <tr><td><code>3.0</code></td><td>×0.45</td><td>31.5 <span class="muted">(−38.5 pts)</span></td></tr>
+            <tr><td><code>3.4 or more</code></td><td>×0.25 <span class="muted">(floor)</span></td><td>17.5 <span class="muted">(−52.5 pts)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>This is the real brake.</strong> It is in a different league from the 2-point amplitude that the 4% weight produces.
+        At a multiple of 2.5, <strong>27.5% of the short-term total vanishes outright.</strong>
+        <code>ACCUMULATE(70 pts)</code> sinks to <code>NEUTRAL(50.8 pts)</code>.
+      </p>
+      <div class="note">
+        In short, the Mayer Multiple plays <strong>two roles</strong> in the short-term tab.<br />
+        <strong>① A 4% weight</strong> — reflects the degree of trend extension <em>slightly</em> (more expensive = more points, 2-point amplitude)<br />
+        <strong>② The blow-off guard</strong> — above a multiple of 2.0, <em>damps the total score itself</em> (cut by up to 75%)<br />
+        <strong>“It's only 4%, so the short term ignores Mayer” is a misunderstanding.</strong> It is not that the weight is small;
+        <strong>the job of defending against overheating was moved from the weight to the guard</strong>.
+      </div>
+      <p class="muted">
+        To be honest, our backtests could not say definitively whether a damping coefficient of 0.55 and a floor of 0.25 are optimal.
+        All we know for sure is that “without the guard, the short-term score was dangerously high at the 2017 and 2021 peaks.” The rest is judgment.
+      </p>
+
+      <h2 id="curve">Anatomy of the transform — why we cut at 0.8 · 1.4 · 2.4</h2>
+      <p>
+        Our function that converts the Mayer Multiple into a 0–100 sub-score <strong>bends in three places.</strong>
+        Each breakpoint comes from a completely different source.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Breakpoint</th><th>Source</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>0.8</code></td><td>Observation of the 2015 · 2018 · 2022 bottoms</td><td>A 20% discount to the 200-day line. Historically reached only rarely</td></tr>
+            <tr><td><code>1.4</code></td><td>Close to the <strong>long-run average</strong> of the multiple over Bitcoin's whole history</td><td>“Average means 50 points” — the function's central axis</td></tr>
+            <tr><td><code>2.4</code></td><td>Trace Mayer's original backtest</td><td>The point where buying any more expensively bent long-term performance downward</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>1.4 = 50 points is the backbone of this function.</strong> Bitcoin's long-run average Mayer Multiple is above 1 —
+        meaning that sitting <em>above</em> the 200-day line is this asset's normal state (a natural property of an asset that trends upward).
+        So we set <strong>not “1.0 = neutral” but “1.4 ≈ neutral.”</strong>
+        The common reading that treats a multiple of 1.0 as neutral is <strong>structurally too optimistic</strong> about Bitcoin.
+      </p>
+
+      <h3>Why the slope differs by segment</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Segment</th><th>Score change</th><th>Score change per 0.1 of multiple</th><th>Why this slope</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100 (fixed)</td><td><strong>0 pts</strong></td><td>Cheaper doesn't earn more (no catching falling knives)</td></tr>
+            <tr><td><code>0.8 ~ 1.4</code></td><td>100 → 50</td><td><strong>−8.3 pts</strong></td><td>The zone where the market spends <strong>most of its time</strong> → concentrate resolution</td></tr>
+            <tr><td><code>1.4 ~ 2.4</code></td><td>50 → 10</td><td><strong>−4.0 pts</strong></td><td>Whether 1.6 or 2.0, it is “expensive” either way → no resolution needed</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>Decays toward 0</td><td>At the extremes, precision is meaningless</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The key point is that <strong>the slope in the 0.8–1.4 segment is more than twice as steep as in the 1.4–2.4 segment</strong>.
+        That is deliberate. Bitcoin <strong>spends more than half of its trading days with a multiple between 0.8 and 1.4.</strong>
+        What the model faces every day is not 2.6 but <strong>1.05 versus 1.25</strong>. Resolution has to be concentrated there for the score to move meaningfully.
+      </p>
+      <p>Plug in actual values and you get this.</p>
+      <pre><code>Multiple 0.70  →  100 pts    (2018 · 2022 bottom zone)
+Multiple 0.90  →   91.7 pts
+Multiple 1.00  →   83.3 pts   (equal to the 200-day line)
+Multiple 1.20  →   66.7 pts
+Multiple 1.40  →   50.0 pts   ← central axis (long-run average)
+Multiple 1.60  →   42.0 pts
+Multiple 1.90  →   30.0 pts   (April 2021 top zone)
+Multiple 2.20  →   18.0 pts
+Multiple 2.40  →   10.0 pts   ← Mayer's threshold
+Multiple 2.60  →    around 6 pts (decaying toward 0)</code></pre>
+      <p>
+        Flat at both ends and steep in the middle — <strong>the shape of a gentle S turned upside down</strong>.
+        This function puts into code the principle <em>“say little at the extremes, say a lot in the ambiguous zone.”</em>
+      </p>
+
+      <h2 id="silence">Four places where this indicator goes silent</h2>
+      <p>
+        So far we have seen <strong>what this indicator can do</strong>. Now let's look at <strong>where it cannot say anything at all</strong>.
+        In practice, this side matters more.
+      </p>
+
+      <h3>1. Late in a bear market — the most insidious failure</h3>
+      <p>
+        Earlier we wrote that “the Mayer Multiple is sensitive to crashes and insensitive to slow collapses.” Here is the price of that.
+      </p>
+      <p>
+        Once a long bear market has run for about a year, <strong>the 200-day line itself comes down along with the price.</strong>
+        Then, even while the price keeps falling, <strong>the multiple “normalizes” to around 0.9–1.0.</strong>
+        That is exactly what happened in mid-2018 and mid-2022. At −70% from the high, the Mayer Multiple <strong>calmly says “neutral.”</strong>
+      </p>
+      <div class="note warn">
+        <strong>This is a flaw the Mayer Multiple can never fix on its own.</strong> It is the fate of any indicator whose denominator moves.
+        This is why broodev separately includes <strong>drawdown from the 365-day high</strong>.
+        The drawdown indicator's denominator is <strong>a fixed past high</strong>, so it does not come down with the price.
+        <strong>When Mayer goes silent, drawdown shouts in its place.</strong> Including both indicators is not duplication but <strong>complementarity</strong>.
+      </div>
+
+      <h3>2. Coins without 200 days — and how we own up to it</h3>
+      <p>
+        A coin listed for less than 200 days has no 200-day moving average. There is <strong>in principle no way</strong> to compute its Mayer Multiple.
+      </p>
+      <p>Our app handles this situation in two stages.</p>
+      <ul>
+        <li>
+          <strong>When data is short but exists</strong> — we substitute the longest available moving average and
+          <strong>label on screen how many days were actually used</strong>, as in <code>200D fallback(120d)</code>.
+          <strong>A multiple computed from a 120-day average is not a Mayer Multiple.</strong> A shorter average tracks price faster, so the multiple gets pinned near 1 and <strong>catches neither overheating nor undervaluation well.</strong>
+          We do compute this value, but <strong>we do not hide on screen that it is not the real thing.</strong>
+        </li>
+        <li>
+          <strong>When there is none at all</strong> — we <strong>exclude the indicator from the calculation rather than scoring it 0</strong>.
+          Because 0 points means “bad,” not “unknown.” The weights of the remaining 5 indicators are renormalized to sum to 100%, and
+          <code>coverage: 5/6 (82% weight)</code> is displayed. When Mayer drops out of the long-term tab, it means <strong>18% of the remaining evidence disappears outright</strong>.
+          <strong>Read a long-term score showing this label with one notch less confidence.</strong>
+        </li>
+      </ul>
+
+      <h3>3. Altcoins — the thresholds are tailored to BTC</h3>
+      <p>
+        0.8 and 2.4 are <strong>numbers extracted from Bitcoin's volatility structure</strong>.
+        Hold the same ruler to altcoins with 2–3 times Bitcoin's volatility, and the upper bound (2.4) is easily broken in every bull market and the lower bound (0.8) in every bear market.
+        <strong>A fire alarm that goes off too often ends up being ignored by everyone.</strong>
+        It is fair to assume that the Mayer Multiple score on altcoin screens has <strong>clearly weaker explanatory power</strong> than on the BTC screen.
+      </p>
+
+      <h3>4. There is no basis for the 200-day line being “fair value”</h3>
+      <p>
+        The last is the most fundamental. The Mayer Multiple is <strong>an indicator that looks purely at price</strong>.
+        It knows nothing of on-chain data, mining costs, capital flows or regulation.
+      </p>
+      <p>
+        And <strong>the number 200 itself has no theoretical basis.</strong>
+        It is merely a period used <em>by convention</em> in traditional financial markets. 180 or 250 days might be better.
+        The proposition “200-day average = Bitcoin's fair value” <strong>has never been proven.</strong>
+        Our only basis for using this indicator is a single observation — <strong>“in past cycles, price tended to return to around it”</strong> —
+        and <strong>an observation is not a law.</strong>
+      </p>
+
+      <h2 id="today">How to read this number in 2026</h2>
+      <p>Compress the chronicle so far into a practical reading guide, and it comes down to three sentences.</p>
+      <ul>
+        <li>
+          <strong>The Mayer Multiple does not tell you “when.” It tells you “how much.”</strong>
+          A reading of 2.2 does not mean “it will fall soon” but “buying here has historically been costly.” <strong>It is a valuation tool, not a timing tool.</strong>
+        </li>
+        <li>
+          <strong>Trust it at bottoms, doubt it at tops.</strong> Below 0.8 has been reproduced across three cycles.
+          Above 2.4 has not appeared once in the last two cycles. <strong>This indicator's reliability is not symmetric between top and bottom.</strong>
+        </li>
+        <li>
+          <strong>Don't relax just because the multiple looks “normal.”</strong> A 0.95 late in a bear market is not <em>normal</em> — it is <strong>the sound of the indicator going silent</strong>.
+          At that point, look at the <a href="/indicators">365-day drawdown</a> and the <a href="/guide-fear-greed">Fear &amp; Greed Index</a>.
+        </li>
+      </ul>
+      <p>
+        Finally, if we were to pick the sentence from this piece most worth remembering, it would be <strong>November 2021</strong>.
+        At the true peak of the cycle, the Mayer Multiple <strong>said “neutral.”</strong>
+        No indicator is right in every cycle, and <strong>this one in particular grows quieter as the market matures.</strong>
+        That is why broodev does not score on the Mayer Multiple alone but <a href="/methodology">blends six indicators</a>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This document and broodev's scores are <strong>reference material blending public indicators, not investment advice.</strong>
+        The historical multiples in the text are <strong>approximations that can vary by data source, and past patterns do not guarantee the future.</strong>
+        Cryptocurrencies are high-risk assets in which <strong>you can lose your entire principal</strong>.
+        All investment decisions and their outcomes (gains or losses) are entirely the user's own responsibility. Always do your own research (DYOR).
+      </div>
+
+      <h2>Further reading</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoring methodology</b><span>How the 6 indicators are weighted and blended (all figures disclosed)</span></a>
+        <a href="/indicators"><b>The 6 indicators explained</b><span>When RSI, MACD, drawdown and the crosses each betray you</span></a>
+        <a href="/guide-fear-greed"><b>Using the Fear Index in practice</b><span>The indicator to watch when Mayer goes silent</span></a>
+        <a href="/glossary"><b>Glossary</b><span>200-day line, SMA, sub-score and other terms</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a></footer>
+    </main>

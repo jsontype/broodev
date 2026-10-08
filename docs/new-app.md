@@ -109,6 +109,8 @@
 - **대안**:
   - CSS/레이아웃: **정적 HTML 하니스**(앱과 동일 CSS + 실제 텍스트)를 만들어 `--headless --screenshot` → 이미지 확인(13언어 오버플로 등).
   - **실제 시간 렌더 검증 → [`scripts/cdp-shot.mjs`](../scripts/cdp-shot.mjs)** (2026-10-02): Edge/Chrome 헤드리스를 DevTools 프로토콜로 붙여 진짜 시간으로 기다린 뒤 스크린샷 + JSON 진단(JS 예외·콘솔 에러·load 시각·video 상태·요소 가시성). `--mobile`(iPhone UA·390×844·터치) `--net slow|3g`(회선 에뮬레이션) `--ls key=value`(localStorage 선주입, 언어 고정) `--eval "expr"`(추가 진단). 가상 시간 `--virtual-time-budget` 으로는 못 잡는 "폰에서만 프리로더가 안 사라짐" 류를 이걸로 재현했다(home3). 로컬 서버: `python -m http.server 8766 --directory .` → `--url http://127.0.0.1:8766/apps/<app>/index.html`.
+  - **전 앱 일괄 → [`scripts/i18n-scan-all.mjs`](../scripts/i18n-scan-all.mjs)** · **콘텐츠 페이지 번역 조각 → [`scripts/content-i18n-check.mjs`](../scripts/content-i18n-check.mjs)** (2026-10-09): 새 앱을 만들면 i18n-scan-all.mjs 의 JOBS 에 페이지와 언어 심는 방식(`qs:lang` · `ls:<키>` · `lsjson:<키>`)을 추가한다. 가이드·약관 같은 정적 콘텐츠 페이지는 btc 의 `content-i18n.js` + `i18n/<doc>.<lang>.html` 방식을 그대로 쓴다.
+  - **i18n 누락 스캔 → [`scripts/i18n-scan.mjs`](../scripts/i18n-scan.mjs)** (2026-10-09): 13언어로 페이지를 실제로 띄워 그 언어에 안 맞는 문자 체계가 보이면 전부 출력(exit 1). 언어 심기 `--set qs:lang|ls:<key>|lsjson:<key>`, 모달은 `--pre "…click()"`, 허용 고유명사는 `--allow`. UI 문자열을 바꾼 뒤 푸시 전 필수.
   - 구조화 데이터: JSON-LD 추출 후 `ConvertFrom-Json` 파싱 검증.
   - 라이브/배포: `Invoke-WebRequest`로 HTTP 200·Content-Type·헤더·정적 콘텐츠·robots 확인.
   - JS 문법: 인라인 문자열 **이스케이프 안 된 따옴표** 정적 스캔(`[a-z]'[a-z]`).

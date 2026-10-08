@@ -1,0 +1,505 @@
+<main class="wrap" data-title="Wanneer de RSI het mis had — een autopsie van de Relative Strength Index | broodev" data-desc="We ontleden de fasen waarin de RSI er flink naast zat: langdurig boven 70 blijven in een bullmarkt, onder 30 blijven in een bearmarkt, echte en valse divergentiesignalen, en het spooksignaal van 59 punten dat ontstaat tussen Wilder-afvlakking en een RSI op basis van een eenvoudig gemiddelde. Plus de echte reden waarom ons model de RSI 28% geeft op korte termijn · 18% op lange termijn, en de 6 punten waar het nog steeds de mist in gaat.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/methodology">Scoremethodologie</a>
+        <a href="/guide-fear-greed">De angstindex gebruiken</a>
+        <a href="/glossary">Woordenlijst</a>
+      </nav>
+
+      <h1>Wanneer de RSI het mis had</h1>
+      <p class="muted">Autopsierapport · Laatst bijgewerkt: 2026-07-14 · Door: Y-Systems · Onderwerp: RSI(14, Wilder) en de RSI-mapping in de koopmomentscore v2 van broodev</p>
+
+      <p class="lead">
+        Dit is geen handleiding voor de RSI. Het is <strong>een verslag van de keren dat de RSI er flink naast zat</strong>.<br />
+        "RSI boven 70 is overkocht, dus verkopen; onder 30 is oververkocht, dus kopen" — die ene zin is tienduizenden keren op internet gekopieerd, en
+        <strong>wie in de cryptomarkt precies volgens die zin handelde, miste het grootste deel van de bullmarkten en bleef in bearmarkten keer op keer met verliezen zitten.</strong>
+        We pluizen per fase uit waarom, en aan het eind laten we, tot en met de interne cijfers, zien <strong>hoe ons model met de RSI omgaat en waar het nog steeds de mist in gaat</strong>.
+      </p>
+
+      <div class="note">
+        <strong>Wat dit artikel niet behandelt</strong> — de definitie en basisformule van de RSI staan in één alinea in de <a href="/indicators#rsi">Uitleg indicatoren</a>,
+        en het wegingssysteem van alle 6 indicatoren staat in de <a href="/methodology">Scoremethodologie</a>.
+        Hier gaat het alleen over <strong>mislukkingen</strong>. Ziet u de RSI voor het eerst, lees dan eerst die twee artikelen.
+      </div>
+
+      <div class="caseidx">
+        <a href="#case01"><em>CASE 01</em><b>De markt die niet onder 70 zakt</b><span>Waarom "overkocht = verkopen" een recept voor faillissement is</span></a>
+        <a href="#case02"><em>CASE 02</em><b>De markt die niet boven 30 komt</b><span>Hoe je oververkocht blijft terwijl de koers halveert</span></a>
+        <a href="#case03"><em>CASE 03</em><b>De twee gezichten van divergentie</b><span>Waarom wij geen winstpercentages noemen</span></a>
+        <a href="#case04"><em>CASE 04</em><b>Het spooksignaal van de formule</b><span>Wilder vs. eenvoudig gemiddelde — de illusie van 59 punten</span></a>
+      </div>
+
+      <section class="bd-figs" aria-label="Live RSI-grafiek">
+        <p class="muted">Voordat we aan de tekst beginnen, kijken we eerst naar de RSI(14, Wilder) berekend op echte BTC-data. Bovenaan staat de koers over dezelfde periode — lees samen af met welke koersfasen het verblijf boven 70 en onder 30 samenvalt.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-rsi-price" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+            <div id="bd-rsi-main" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+          </div>
+          <p class="bd-cap">BTC-koers van de afgelopen 3 jaar (boven) en RSI(14, Wilder-afvlakking) (onder). Rode arcering = 70 of hoger (overkocht volgens de gangbare opvatting), groene arcering = 30 of lager (oververkocht volgens de gangbare opvatting). Data: CoinMetrics Community API, dagelijkse BTC-slotkoersen — opgehaald op het moment van uw bezoek en in de browser berekend; het gaat om <strong>benaderingen, alleen ter referentie</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="case01">CASE 01 — De markt die niet onder 70 zakt <span class="tag">Fataal</span></h2>
+      <p>
+        De duurste mislukking van de RSI gebeurt <strong>niet in een dalende, maar in een stijgende markt</strong>. Omdat ze komt in de vorm van <strong>opportuniteitskosten</strong> en niet als verlies, tellen veel mensen haar niet eens als mislukking.
+      </p>
+      <p>
+        Denk terug aan het 4e kwartaal van 2020. Bitcoin vertrok rond de 10 duizend dollar en kwam in het 1e kwartaal van 2021 uit boven de 50 duizend dollar.
+        In die periode <strong>bleef de dagelijkse RSI wekenlang boven 70 plakken.</strong> Wie het handboek volgde, verkocht op de eerste dag dat de RSI boven 70 kwam.
+        En zag de koers vanaf dat punt <strong>verdrievoudigen, verviervoudigen</strong>.
+        November–december 2017 was precies hetzelfde. Nadat de RSI boven 70 kwam, ging bitcoin van iets boven de 6 duizend dollar tot bijna 20 duizend dollar.
+      </p>
+      <p>
+        Wat daarna komt is nog erger. Wie op RSI 70 verkoopt, <strong>koopt meestal niet meer terug.</strong>
+        Hij wacht tot de RSI weer onder 30 zakt, maar in een sterke opwaartse trend <strong>komt de RSI zelfs zelden onder 40.</strong>
+        Terugvallen in een opwaartse trend eindigen niet bij RSI 30, maar bij RSI 45–50.
+        Uiteindelijk koopt hij alsnog veel hoger in de achtervolging, of kijkt hij de hele cyclus vanaf de zijlijn toe.
+      </p>
+
+      <h3>Waarom dit structureel gebeurt</h3>
+      <p>
+        De RSI is <strong>geen</strong> indicator die "duur" meet. Wat de RSI meet, is <strong>hoeveel groter de gemiddelde stijging — gedeeld door de periode van 14 dagen — over de afgelopen 14 dagen is dan de gemiddelde daling op de dalende dagen</strong>.
+        Met andere woorden: <strong>niet het koersniveau, maar de "consistentie" van de stijging</strong>.
+      </p>
+      <p>
+        En laat de definitie van een sterke opwaartse trend nu juist zijn: <em>"veel dagen met stijgingen, en op de dagen dat het daalt, daalt het weinig"</em>.
+        <strong>RSI 70+ is dus een symptoom van een opwaartse trend, geen afwijking.</strong> Net zoals koorts een symptoom van een infectie is.
+        Zoals een koortsremmer de infectie niet geneest, maakt verkopen op RSI 70 geen einde aan de stijging.
+      </p>
+      <p>
+        Laten we het wiskundig nagaan. Neem een doodgewone bullish periode met <strong>10 stijgende dagen (gemiddeld +2%) en 4 dalende dagen (gemiddeld −1%)</strong> op 14 dagen:
+        gemiddelde stijging = 10×2/14 = 1.43, gemiddelde daling = 4×1/14 = 0.29, RS = 5.0 → <strong>RSI ≈ 83</strong>.
+        In rendement is dat zo'n 16% in twee weken — naar cryptomaatstaven <strong>helemaal geen heftige beweging</strong>.
+        Toch staat de RSI al op "extreem overkocht". <strong>RSI 83 is geen afwijking, maar de rekenkundige uitkomst van een normale bullmarkt.</strong>
+      </p>
+
+      <div class="verdict">
+        <b>■ Bevindingen van de autopsie</b>
+        <p>
+          "Overkocht = verkopen" is een regel die <strong>alleen in een zijwaartse markt</strong> opgaat, <strong>ten onrechte toegepast op een trendmarkt</strong>.
+          Een doorbraak van RSI 70 <strong>ligt dichter bij een trendbevestiging dan bij een verkoopsignaal.</strong>
+          Daarom <strong>gebruikt het kortetermijntabblad (momentum) van ons model de RSI in voorwaartse richting, zonder hem om te keren</strong> — hoe hoger de RSI, <em>hoe hoger de score.</em>
+          De exacte functie publiceren we hieronder letterlijk als code, in de sectie <a href="#verdict">Oordeel</a>.
+        </p>
+      </div>
+
+      <h2 id="case02">CASE 02 — De markt die niet boven 30 komt <span class="tag">Fataal</span></h2>
+      <p>
+        Dit is het spiegelbeeld van CASE 01. En hier verdwijnen geen opportuniteitskosten, maar <strong>echt kapitaal</strong>.
+      </p>
+      <p>
+        Gedurende heel 2018 zakte bitcoin van rond de 20 duizend dollar naar iets boven de 3 duizend dollar. Tijdens die daling ging de RSI
+        <strong>keer op keer onder 30, en telkens verscheen er een stortvloed aan artikelen over "historisch oververkocht".</strong>
+        Wie op dat signaal kocht, zag in de volgende dalende fase opnieuw RSI 30.
+        2022 was een kopie. De ineenstorting van Luna in mei, een nieuwe scherpe daling in juni, het faillissement van FTX in november — in elke fase stond de RSI op oververkocht, en
+        <strong>telkens lag er een "nog dieper oververkocht" in het verschiet.</strong>
+      </p>
+      <p>
+        De kern is dit: <strong>de ondergrens van de RSI is niet 30. Die is 0.</strong>
+        Wie koopt bij RSI 28 kan RSI 22 zien, en wie koopt bij RSI 22 kan RSI 14 zien.
+        En terwijl de RSI van 30 naar 20 gaat, <strong>daalt de koers nog eens 30–40%.</strong>
+      </p>
+
+      <h3>De illusie die het woord "oververkocht" oproept</h3>
+      <p>
+        Het woord <strong>oversold (oververkocht)</strong> zelf is een valkuil. Het suggereert iets afgeronds: <em>"er is al verkocht wat er te verkopen viel"</em>.
+        Maar wat RSI 25 werkelijk zegt, is slechts een <em>beschrijving in de verleden tijd</em>: <strong>"in de afgelopen 14 dagen waren er overweldigend meer dalende dagen"</strong>.
+        Over de toekomst zegt hij <strong>geen enkel woord.</strong>
+      </p>
+      <p>
+        Integendeel: hem andersom lezen is statistisch veiliger. <strong>RSI 25 is een bevestiging dat "er een sterke neerwaartse trend gaande is"</strong>.
+        Kopen in een neerwaartse trend is niet "goedkoop kopen", maar lijkt meer op <strong>"omhoog lopen op een roltrap die naar beneden gaat"</strong>.
+      </p>
+      <div class="note warn">
+        <strong>Er zijn zeldzame gevallen waarin RSI-extremen gelijk hadden — en daar zit de valkuil.</strong>
+        Bij de coronacrash van 12 maart 2020 (−37% op één dag) stortte de dagelijkse RSI in tot in de tienen, en de koers veerde binnen enkele dagen terug.
+        Zulke gevallen blijven sterk hangen. <strong>Want treffers worden nieuws en missers verdwijnen geruisloos (survivorship bias).</strong>
+        Van de talloze mensen die in 2018 en 2022 onder RSI 30 kochten en met verlies bleven zitten, is nergens iets bewaard gebleven.
+        <strong>Schat het slagingspercentage van de RSI niet uit uw geheugen. Uw geheugen is al vertekend.</strong>
+      </div>
+      <p>
+        Het verschil zit <strong>niet in de RSI-waarde, maar in de aard van de daling</strong>.
+        Maart 2020 was een <strong>liquiditeitsschok</strong> — het soort gebeurtenis dat binnen enkele dagen voorbij is.
+        2018 en 2022 waren <strong>cyclische retracements</strong> — het soort gebeurtenis dat meer dan een jaar aanhoudt.
+        <strong>De RSI kan die twee niet uit elkaar houden.</strong> In beide gevallen geeft hij precies hetzelfde "RSI 20".
+        Om ze te onderscheiden is informatie van buiten de RSI nodig — waardering (Mayer Multiple), daling binnen de cyclus, een trendfilter.
+        Dat is <strong>de enige reden om indicatoren te combineren</strong>.
+      </p>
+
+      <div class="verdict">
+        <b>■ Bevindingen van de autopsie</b>
+        <p>
+          RSI 30 is <strong>geen koopsignaal, maar een signaal dat je "de interessezone binnengaat"</strong>. En dan nog alleen als andere indicatoren het ermee eens zijn.
+          Daarom <strong>verlaagt het langetermijntabblad (contrair) van ons model, hoewel het de RSI omgekeerd gebruikt, het gewicht naar 18% in plaats van 28%</strong>.
+          Vanuit contrair perspectief is de RSI slechts <strong>ondersteunend bewijs</strong>; het hoofdbewijs zijn de Mayer Multiple en de daling over 365 dagen.
+        </p>
+      </div>
+
+      <h2 id="case03">CASE 03 — De twee gezichten van divergentie <span class="tag">Oordeel opgeschort</span></h2>
+      <p>
+        Toen de tekortkomingen van de RSI algemeen bekend werden, dook er een remedie op: <strong>divergentie (divergence)</strong>.
+        <em>De koers maakt een nieuw dieptepunt, maar de RSI ligt hoger dan bij het vorige dieptepunt</em> → bullish divergentie → herstel op komst.
+        Omgekeerd is het een bearish divergentie. Dit is <strong>een poging om de tekortkomingen van de RSI met de RSI zelf te verhelpen</strong>. Daarom werkt het maar half.
+      </p>
+
+      <h3>Wat divergentie werkelijk zegt (het deel dat de meeste artikelen overslaan)</h3>
+      <p>
+        Nauwkeurig vertaald is de wiskundige betekenis van een bullish divergentie dit:
+      </p>
+      <pre><code>Koers: dieptepunt A ＞ dieptepunt B   (lager dieptepunt)
+RSI  : dieptepunt A ＜ dieptepunt B   (hogere RSI)
+
+→ Vertaling: "De koers is verder gedaald. Maar minder heftig."</code></pre>
+      <p>
+        Meer is het niet. <strong>Het is geen bewering dat "de bodem bereikt is".</strong> Het is de bewering dat "de daling vertraagd is".
+        En een daling vertraagt <strong>niet alleen op de bodem.</strong>
+        Zodra een scherpe val overgaat in <strong>een slepende, geleidelijke daling</strong>, ontstaat er automatisch divergentie.
+        Zo ging het met de bullish divergentie van mei–juni 2022. De daling vertraagde duidelijk — en daarna <strong>zakte de koers nog bijna 40% verder.</strong>
+      </p>
+      <p>
+        Met bearish divergentie is het niet anders. De bearish divergentie vlak voor de top van 64 duizend dollar in april 2021 <strong>klopte</strong> — een maand later was de koers gehalveerd.
+        Maar <strong>gedurende de hele rally van het 4e kwartaal van 2020 doken er telkens weer bearish divergenties op die telkens weer ongeldig werden.</strong>
+        Hetzelfde patroon, tegengestelde uitkomsten. <strong>Achteraf kun je ze uit elkaar houden, vooraf is daar geen manier voor.</strong>
+      </p>
+
+      <h3>Waarom wij geen "winstpercentage van divergentie van ○○%" noemen</h3>
+      <p>
+        RSI-artikelen op internet plakken er vaak cijfers op als "RSI-divergentie heeft een winstpercentage van 70%". <strong>Wij gaan dat cijfer niet noemen.</strong> De eerlijke reden is dat <strong>het niet te berekenen is</strong>.
+      </p>
+      <ul>
+        <li><strong>De definitie van een "dieptepunt" is willekeurig.</strong> Of je de minimale afstand tussen twee dieptepunten op 5 of op 20 dagen zet, verandert het aantal divergenties met een factor van enkele malen.</li>
+        <li><strong>De definitie van "succes" is willekeurig.</strong> Hoeveel procent stijging binnen hoeveel dagen telt als succes? 2% binnen 3 dagen is succes en anders mislukt? Verander het criterium een beetje en het winstpercentage schuift van ergens in de 40% naar ergens in de 70%.</li>
+        <li><strong>Wie de parameters kiest, kiest de uitkomst.</strong> Als je combinaties blijft wisselen tot er een uitkomt met 70% winst, <strong>kan iedereen een winstpercentage van 70% maken.</strong> Dat is geen ontdekking, maar <strong>overfitting</strong>.</li>
+      </ul>
+      <p>
+        Daarom <strong>bevat de code van ons model helemaal geen divergentielogica.</strong>
+        We berekenen wel de RSI-reeks (<code>rsiWilder(closes, 14)</code>), maar in de scorefunctie gaat <strong>alleen de laatste waarde</strong>.
+        De rest van de reeks wordt alleen gebruikt voor de sparkline-grafiek op het scherm. <strong>Aan de score draagt die nog geen 1% bij.</strong>
+      </p>
+      <div class="note">
+        Regels die niet reproduceerbaar zijn, gaan niet in de score — dat is ons principe.
+        <strong>Divergentie is "het oordeel van wie naar de grafiek kijkt", geen "functie".</strong>
+        Zodra er een persoonlijk oordeel bij komt, geeft de score <em>elke keer een andere waarde</em>, en dan heeft het geen zin meer om de score te publiceren.
+        <strong>Dat betekent niet dat divergentie nutteloos is. Het betekent dat wij er geen eerlijk getal van kunnen maken.</strong>
+      </div>
+
+      <div class="verdict">
+        <b>■ Bevindingen van de autopsie</b>
+        <p>
+          Wilt u divergentie toch gebruiken, doe dat dan op zijn minst <strong>alleen in combinatie met een trendfilter</strong>.
+          Bullish divergentie + 50-daags gemiddelde boven het 200-daagse (golden-toestand) + MACD-histogram dat omhoog draait — wanneer die drie samenvallen, en
+          <strong>een divergentie midden in een death cross</strong>, zijn totaal verschillende gebeurtenissen. De laatste kwam in 2022 talloze keren voor en mislukte meestal.
+        </p>
+      </div>
+
+      <h2 id="case04">CASE 04 — Het spooksignaal van de formule <span class="tag">Technisch</span></h2>
+      <p>
+        Tot nu toe kwamen de mislukkingen voort uit <strong>het verkeerd lezen van de RSI</strong>. Dit geval is anders.
+        Hier <strong>slaat het signaal volledig om, alleen al door de manier waarop de RSI berekend wordt</strong>. En de meeste beleggers weten niet eens dat dit bestaat.
+      </p>
+      <p>
+        In de praktijk zijn er twee families RSI.
+      </p>
+      <ul>
+        <li><strong>Wilder RSI</strong> — het origineel van de bedenker, J. Welles Wilder. Het gemiddelde wordt bijgewerkt als <code>(vorig gemiddelde × 13 + waarde van vandaag) ÷ 14</code>. Omdat het exponentiële afvlakking is, <strong>blijft het verleden er altijd een klein beetje in hangen.</strong></li>
+        <li><strong>Cutler RSI (RSI met eenvoudig gemiddelde)</strong> — neemt <strong>gewoon het rekenkundig gemiddelde</strong> van de laatste 14 dagen. Data van 15 dagen geleden <strong>valt volledig buiten het venster.</strong></li>
+      </ul>
+      <p>
+        Veel grafiektools vermelden alleen "RSI" zonder te zeggen welke van de twee. Maar de gevolgen van dat verschil zijn <strong>allesbehalve klein.</strong>
+      </p>
+
+      <h3>Stap voor stap: hoe de RSI in één dag van 37 naar 96 springt</h3>
+      <p>Dit is een geconstrueerd voorbeeld. Stel dat de dagelijkse koersveranderingen als volgt zijn (willekeurige eenheden).</p>
+      <pre><code>Dag 1 : −20    ← crash (bijv. een daling van −25% op één dag)
+Dag 2–15 : elke dag +1    (behalve dag 8: −0.5)
+
+Na de crashdag is er dus tot en met dag 15 niets veranderd.
+Alleen een rustig herstel, elke dag met dezelfde stap.</code></pre>
+      <p>Nu berekenen we de RSI van <strong>dag 14</strong> en <strong>dag 15</strong> op beide manieren.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Moment</th><th>Wilder RSI</th><th>Cutler (eenvoudig gemiddelde) RSI</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Dag 14</td><td>36.9</td><td>36.9 <span class="muted">(gelijk — de eerste waarde heeft bij beide een eenvoudig gemiddelde als startwaarde)</span></td></tr>
+            <tr><td><strong>Dag 15</strong></td><td><strong>39.0</strong> <span class="muted">(+2.1)</span></td><td><strong>96.3</strong> <span class="muted">(+59.4)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Op dag 15 deed de koers maar één ding: "+1".</strong> Precies hetzelfde als op dag 14.
+        Toch <strong>schoot de RSI met eenvoudig gemiddelde in één dag van 36.9 naar 96.3 — meer dan 59 punten.</strong>
+      </p>
+      <p>
+        De reden is simpel. Op het moment dat dag 15 aanbreekt, <strong>valt de crash van −20 op dag 1 buiten het venster van 14 dagen</strong>.
+        Doordat de crash in één keer uit de berekening van de gemiddelde daling verdwijnt, stort de noemer in en schiet de RSI naar het plafond.
+        Dit heet het <strong>uitvaleffect (drop-off effect)</strong>.
+        <strong>De markt heeft niets gedaan. De kalender heeft het gedaan.</strong>
+      </p>
+
+      <h3>Hoeveel dit spook onze score doet schudden</h3>
+      <p>Als we beide waarden in de RSI-omzettingsfunctie van ons model stoppen, krijgen we dit. (De volledige functie staat hieronder in de sectie Oordeel.)</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>RSI op dag 15</th><th>Bijdrage aan de kortetermijnscore<br /><span class="muted">(RSI-deelscore × 28%)</span></th><th>Bijdrage aan de langetermijnscore<br /><span class="muted">(RSI-deelscore × 18%)</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wilder <strong>39.0</strong></td><td><code>9.1 ptn</code></td><td><code>12.4 ptn</code></td></tr>
+            <tr><td>Cutler <strong>96.3</strong></td><td><code>28.0 ptn</code> <span class="muted">(maximum)</span></td><td><code>0.0 ptn</code> <span class="muted">(minimum)</span></td></tr>
+            <tr><td><strong>Verschil</strong></td><td><strong>+18.9 ptn</strong></td><td><strong>−12.4 ptn</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Hadden we de RSI met eenvoudig gemiddelde gebruikt, dan <strong>was de totale kortetermijnscore met bijna 19 punten opgeblazen en was de totale langetermijnscore tegelijk met meer dan 12 punten gedaald.</strong>
+        Op een score van 100 betekent 19 punten <strong>een sprong over een hele band heen, van NEUTRAL (50 ptn) naar ACCUMULATE/BUY (69 ptn).</strong>
+        <strong>De koers heeft niets gedaan, en toch gaat er een koopsignaal aan.</strong>
+      </p>
+      <p>
+        Daarom <strong>gebruiken we uitsluitend de methode van Wilder.</strong> Bij Wilder "valt" het effect van een crash niet buiten het venster, maar <strong>vervaagt het geleidelijk.</strong>
+        Met elke dag die verstrijkt, krimpt de schok met een factor <code>13/14 ≈ 0.9286</code>. Rekenen we het uit:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tijd na de crash</th><th>Aandeel van de schok dat nog in het Wilder-gemiddelde zit</th></tr></thead>
+          <tbody>
+            <tr><td>9.4 dagen <span class="muted">(halfwaardetijd)</span></td><td>50%</td></tr>
+            <tr><td>14 dagen</td><td>35.4% <span class="muted">← met een eenvoudig gemiddelde op dit moment ineens 0%</span></td></tr>
+            <tr><td>30 dagen</td><td>10.8%</td></tr>
+            <tr><td>60 dagen</td><td>1.2%</td></tr>
+            <tr><td>90 dagen</td><td>0.1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>De halfwaardetijd van een schok in de Wilder RSI is ongeveer 9.4 dagen.</strong> Dat is belangrijk, want het betekent dat
+        <strong>een grote crash zelfs na een maand nog een spoor van zo'n 10% in de RSI achterlaat</strong>.
+        Dat lijkt misschien een gebrek, maar het <strong>lijkt juist meer op hoe het geheugen van de markt werkelijk werkt.</strong>
+        De maand na een grote crash ligt nog steeds "in de schaduw van de crash", en we willen dat dat spoor in de score blijft.
+      </p>
+
+      <div class="verdict">
+        <b>■ Bevindingen van de autopsie</b>
+        <p>
+          <strong>Controleer altijd of de RSI in uw grafiektool een Wilder-RSI is of een met eenvoudig gemiddelde.</strong>
+          Dezelfde munt, dezelfde 14 dagen, dezelfde dag — <strong>RSI 39 en RSI 96</strong> kunnen tegelijk bestaan.
+          En een van beide is <strong>een spook dat puur door de kalender is gemaakt</strong>.
+        </p>
+      </div>
+
+      <h2 id="verdict">Oordeel — waarom wij de RSI 28% op korte termijn · 18% op lange termijn geven</h2>
+      <p>
+        De uitkomsten van deze vier autopsieën vormen precies de onderbouwing van het ontwerp van ons model. We nemen de code letterlijk over.
+      </p>
+      <pre><code>// Korte termijn (momentum) — hoe hoger de RSI, hoe hoger de score (voorwaarts)
+momRsi = clamp(50 + (RSI − 50) × 1.6, 0, 100)
+
+// Lange termijn (contrair) — hoe lager de RSI, hoe hoger de score (omgekeerd)
+conRsi = clamp(50 + (50 − RSI) × 1.7, 0, 100)</code></pre>
+      <p>
+        <strong>De tekens zijn tegengesteld.</strong> Dezelfde RSI-waarde levert op de twee tabbladen tegengestelde scores op. In een tabel wordt het duidelijk.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>RSI</th><th>Deelscore korte termijn<br /><span class="muted">momRsi</span></th><th>Bijdrage korte termijn<br /><span class="muted">×28%</span></th><th>Deelscore lange termijn<br /><span class="muted">conRsi</span></th><th>Bijdrage lange termijn<br /><span class="muted">×18%</span></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>15</code></td><td>0.0</td><td>0.00</td><td>100.0</td><td>18.00</td></tr>
+            <tr><td><code>25</code></td><td>10.0</td><td>2.80</td><td>92.5</td><td>16.65</td></tr>
+            <tr><td><code>30</code></td><td>18.0</td><td>5.04</td><td>84.0</td><td>15.12</td></tr>
+            <tr><td><code>50</code></td><td>50.0</td><td>14.00</td><td>50.0</td><td>9.00</td></tr>
+            <tr><td><code>70</code></td><td>82.0</td><td>22.96</td><td>16.0</td><td>2.88</td></tr>
+            <tr><td><code>80</code></td><td>98.0</td><td>27.44</td><td>0.0</td><td>0.00</td></tr>
+            <tr><td><code>90</code></td><td>100.0</td><td>28.00</td><td>0.0</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Het recept voor CASE 01 is <code>momRsi</code>.</strong> Op het kortetermijntabblad is RSI 80 geen "verkopen", maar <strong>een koopargument van 27.4 punten</strong>.
+        We hebben het faillissementsrecept "overkocht, dus verkopen" <strong>op codeniveau geblokkeerd</strong>.
+        <strong>Het recept voor CASE 02 is <code>conRsi</code>.</strong> Op het langetermijntabblad wordt RSI 25 een koopargument van 16.7 punten.
+        Maar <strong>omdat dat op zichzelf niet genoeg is, hebben we het gewicht teruggeschroefd naar 18%.</strong>
+      </p>
+
+      <h3>De echte betekenis van "28% vs 18%" — een kwestie van richting, niet van kwaliteit</h3>
+      <p>
+        Veel mensen lezen deze cijfers als <em>"op korte termijn is de RSI nauwkeuriger"</em>. <strong>Dat is een verkeerde lezing.</strong> De juiste lezing is deze.
+      </p>
+      <ul>
+        <li>
+          <strong>Op korte termijn (1–3 maanden) kan de RSI voorwaarts worden gebruikt, en dat werkt goed.</strong>
+          Over korte periodes gedraagt bitcoin zich als een momentum-asset, en de RSI is <strong>de meest directe maatstaf voor momentum</strong>.
+          Omdat er een bruikbare richting is, krijgt hij veel gewicht (28%).
+        </li>
+        <li>
+          <strong>Op lange termijn (1 jaar+) is het venster van de RSI (14 dagen) te kort.</strong>
+          Het is alsof je <strong>een cyclus van 4 jaar wilt meten met een liniaal van 14 dagen</strong>. Het gereedschap past niet bij het object.
+          Daarom komt het hoofdbewijs voor het cyclusoordeel van de <strong>Mayer Multiple (op basis van het 200-daags gemiddelde, 18%)</strong> en de <strong>daling over 365 dagen (14%)</strong>,
+          en krijgt de RSI slechts 18% in de rol van <strong>vervangende indicator voor capitulatie (capitulation)</strong>. We hebben hem niet op 0% gezet, omdat hij in de extreme zone (20 of lager) nog steeds geldig is.
+        </li>
+      </ul>
+
+      <h3>Wat de gewichtentabel verbergt — de werkelijke dominantie van de RSI is groter dan 28%</h3>
+      <p>
+        Hier onthullen we een feit dat <strong>we zelf pas laat doorhadden</strong>.
+        <strong>Wie alleen naar de gewichtspercentages kijkt, onder- of overschat de invloed van elke indicator.</strong>
+        Want waar het om gaat is <strong>gewicht × de bandbreedte waarin die indicator werkelijk beweegt</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kortetermijntabblad</th><th>Nominaal gewicht</th><th>Realistisch bereik van de deelscore</th><th>Werkelijke schommeling van de totaalscore</th></tr></thead>
+          <tbody>
+            <tr><td><strong>RSI</strong></td><td>28%</td><td>RSI 15–90 → <code>0 ~ 100</code> <span class="muted">(volledige schaal)</span></td><td><strong>28.0 ptn</strong></td></tr>
+            <tr><td><strong>Mayer Multiple</strong></td><td>4%</td><td>Multiple 0.5–2.5 → <code>37.5 ~ 87.5</code> <span class="muted">(slechts de helft)</span></td><td><strong>2.0 ptn</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Op basis van de gewichten weegt de RSI <strong>7 keer</strong> zo zwaar als Mayer (28÷4). Maar <strong>rekening houdend met de werkelijke schommeling is het 14 keer</strong>.
+        De helling van 1.6 in <code>momRsi</code> <strong>versterkt de RSI tot de volledige schaal van 0–100</strong>, terwijl
+        de helling van 25 in <code>momMayer</code> binnen het realistische bereik van de multiple (0.5–2.5) <strong>maar de helft van de deelscore benut.</strong>
+      </p>
+      <div class="note warn">
+        <strong>Dit is geen goed nieuws.</strong> De totale kortetermijnscore <strong>leunt sterker op de RSI dan we bedoeld hadden</strong>.
+        En de RSI is, zoals we in CASE 01·02 zagen, precies de indicator die <strong>structureel de mist in gaat in trendmarkten</strong>.
+        <strong>Ons kortetermijnmodel is dus het sterkst blootgesteld aan zijn zwakste indicator.</strong> In de volgende sectie graven we hier verder in.
+      </div>
+
+      <h2 id="confession">Bekentenis — waar ons model nog steeds de mist in gaat door de RSI</h2>
+      <p>
+        Artikelen die indicatoren verkopen, prijzen indicatoren aan. Wij doen het omgekeerde.
+        <strong>Hieronder staan gebreken die echt in onze code zitten.</strong> Sommige zijn te verhelpen, andere niet.
+      </p>
+      <ol class="confess">
+        <li>
+          <strong>Verzadigingszone — het model kan RSI 82 en RSI 95 niet uit elkaar houden.</strong><br />
+          <code>momRsi</code> geeft <strong>alles vanaf RSI 81.25 de volle 100 punten</strong>. <code>conRsi</code> geeft <strong>alles tot en met RSI 20.59 de volle 100 punten</strong>.
+          Het langetermijnmodel <strong>ziet de coronacrash van maart 2020 (RSI in de tienen) en een gewone correctie (RSI 20) dus als dezelfde waarde.</strong>
+          In de belangrijkste, extreme zone is <strong>de resolutie nul</strong>. Dat is de prijs van het afkappen (clamping), en we hebben nog geen betere oplossing gevonden.
+        </li>
+        <li>
+          <strong>De blow-off-top-beveiliging hangt af van de Mayer Multiple — en zonder die gaat ze niet af.</strong><br />
+          Het kortetermijntabblad heeft een veiligheidsmechanisme tegen kopen op de top van de cyclus: <code>if (mayer &gt; 2.0) score × (1 − (mayer − 2.0) × 0.55)</code>.
+          Dat is nodig omdat <strong>ons kortetermijnmodel zonder deze beveiliging op de top van een bubbel STRONG BUY zou geven.</strong> Met de hand uitgerekend:
+          <pre><code>Aanname — top van de cyclus: RSI 88 · Angst &amp; Hebzucht 94 · Mayer 2.5 · daling −2% · golden-toestand
+
+RSI      deelscore 100 (verzadigd) × 28% = 28.0   ← het grootste blok
+F&amp;G      deelscore 100 (verzadigd) × 28% = 28.0
+Daling   deelscore  97.4           × 18% = 17.5
+MACD     deelscore  90             × 14% = 12.6
+Kruising deelscore  65             ×  8% =  5.2
+Mayer    deelscore  87.5           ×  4% =  3.5
+─────────────────────────────────────
+Ruwe score = 94.8  →  STRONG BUY (op de top van de bubbel!)
+
+Blow-off-beveiliging toegepast:
+  Mayer 2.5 → × 0.725  →  68.8
+  F&amp;G 94 ≥ 90 → − 8     →  60.8  →  NEUTRAL</code></pre>
+          De beveiliging <strong>haalde er 34 punten af.</strong> Maar als je naar de code kijkt, is de voorwaarde <code>mayer != null &amp;&amp; mayer &gt; 2.0</code>.
+          <strong>Bij een pas genoteerde asset zonder 200 dagen data is de Mayer Multiple <code>null</code>, en dan werkt deze beveiliging helemaal niet.</strong>
+          Maakt zo'n asset een parabolische rally, dan <strong>kan onze kortetermijnscore op de top STRONG BUY geven.</strong>
+          En het grootste blok van die score is <strong>de 28 punten van de RSI</strong>. Dit is een bekend gebrek, en de <strong>dekkingsindicator (<code>coverage 5/6</code>)</strong> op het dashboard is het enige waarschuwingsmechanisme.
+        </li>
+        <li>
+          <strong>Als de twee tabbladen tegengestelde kanten op wijzen, weten we niet welke gelijk heeft.</strong><br />
+          Voer een capitulatiefase in met RSI 14, Angst &amp; Hebzucht 6, Mayer 0.52 en een daling van −74%, en dan krijg je dit.
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>Korte termijn (momentum)</th><th>Lange termijn (contrair)</th></tr></thead>
+              <tbody>
+                <tr><td>RSI-deelscore</td><td>0.0</td><td>100.0</td></tr>
+                <tr><td>RSI-bijdrage</td><td><code>0.0 ptn</code></td><td><code>18.0 ptn</code></td></tr>
+                <tr><td><strong>Totaalscore</strong></td><td><strong>11.7 → AVOID</strong></td><td><strong>83.5 → STRONG BUY</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <strong>Hetzelfde moment, dezelfde data, 71.8 punten verschil.</strong> Geen bug maar ontwerp — de tijdshorizon is anders.
+          Maar eerlijk gezegd <strong>kan dit model u niet vertellen "welk tabblad nu voor u het juiste is".</strong>
+          Dat hangt af van uw beleggingshorizon en risicotolerantie, en <strong>onze score kan die beslissing niet voor u nemen.</strong>
+        </li>
+        <li>
+          <strong>De periode van 14 dagen is gewoon een conventie.</strong><br />
+          Het is het getal dat Wilder in 1978 koos op basis van <strong>aandelen- en grondstoffenmarkten</strong>. Het is geen gevalideerde waarde voor crypto, die 24 uur per dag verhandeld wordt.
+          Het optimale venster verschilt vrijwel zeker per munt en per volatiliteitsregime. Toch hebben we het <strong>op 14 vastgezet</strong>.
+          Per munt afstemmen zou de prestaties beter laten lijken, maar dat is gewoon <strong>overfitting</strong> en het stort in de toekomst in.
+          Het is het nauwkeurigst om het <strong>"een waarde die we vastzetten terwijl we weten dat ze de op een na beste is"</strong> te noemen.
+        </li>
+        <li>
+          <strong>Decimalen betekenen niets.</strong><br />
+          De RSI hangt af van <strong>welke beurs en welk tijdstip</strong> je voor de slotkoers neemt. Middernacht UTC en middernacht KST (Koreaanse tijd) geven verschillende waarden.
+          Bij verschillende bronnen is <strong>een verschil van 2–3 in de RSI op dezelfde dag heel gewoon.</strong>
+          Via de helling van 1.6 in <code>momRsi</code> komt er dan automatisch <strong>een fout van zo'n 0.9 punten</strong> in de totaalscore.
+          <strong>Het eerste cijfer achter de komma van onze score is ruis.</strong> Maak geen onderscheid tussen 68.4 en 68.9.
+        </li>
+        <li>
+          <strong>De RSI creëert geen nieuwe informatie.</strong><br />
+          Dit is misschien de belangrijkste zin van dit artikel. De RSI is <strong>een waarde die van de koers is afgeleid</strong>.
+          Hij <strong>ordent alleen opnieuw wat de koers al heeft verteld</strong> en voegt geen informatie toe die niet al in de markt zat.
+          <strong>De RSI is een achterlopende indicator, en achterlopende indicatoren kennen de toekomst niet.</strong> Dit is geen gebrek dat te verhelpen valt, maar <strong>de aard van de indicator</strong>.
+        </li>
+      </ol>
+
+      <h2 id="rules">Moeten we de RSI dan weggooien? — Nee, gebruik hem zo</h2>
+      <p>
+        We zijn door vier autopsieën en zes bekentenissen gegaan, maar de conclusie is niet "de RSI is waardeloos".
+        De conclusie is <strong>"de RSI is geen zelfstandig signaal"</strong>. Samengevat in praktische regels ziet dat er zo uit.
+      </p>
+      <ol>
+        <li>
+          <strong>Lees eerst de trend, dan pas de RSI.</strong> Controleer eerst of het 50-daags gemiddelde boven of onder het 200-daagse ligt.
+          <strong>Zonder de trendtoestand te kennen, valt een RSI-waarde niet te interpreteren.</strong>
+        </li>
+        <li>
+          <strong>In een opwaartse trend is de ondergrens van de RSI niet 30, maar 40–50.</strong> RSI 45 is in die situatie niet "oververkocht", maar <strong>een terugval</strong>.
+          Omgekeerd is <strong>in een neerwaartse trend de bovengrens van de RSI niet 70, maar 50–60.</strong> In een bearmarkt is RSI 60 niet "overkocht", maar mogelijk <strong>het einde van een herstel</strong>.
+          <strong>De getallen 30/70 zijn uitsluitend voor zijwaartse markten.</strong>
+        </li>
+        <li>
+          <strong>Tussen 30 en 70 zegt de RSI vrijwel niets.</strong> Neem geen handelsbeslissingen op basis van RSI-schommelingen in die zone.
+          De RSI heeft alleen op zichzelf betekenis in de <strong>extremen (20 of lager / 85 of hoger)</strong>, en zelfs daar is de instemming van andere indicatoren nodig.
+        </li>
+        <li>
+          <strong>Controleer of de RSI van uw tool een Wilder-RSI is.</strong> Zoals we in CASE 04 zagen, geeft een RSI met eenvoudig gemiddelde <strong>spooksignalen die door de kalender zijn gemaakt</strong>.
+        </li>
+        <li>
+          <strong>Schrik niet als de twee tabbladen van het dashboard tegengesteld uitvallen.</strong> Dat is nuttige informatie: <strong>"een fase waarin korte en lange termijn in tegengestelde richtingen wijzen"</strong>.
+          Dat gebeurt meestal <strong>op de bodem (lange termijn kopen / korte termijn vermijden)</strong> of <strong>op de top (korte termijn kopen / lange termijn vermijden)</strong>.
+        </li>
+        <li>
+          <strong>Controleer de dekking.</strong> Staat er iets als <code>coverage 5/6 (82% weight)</code>, dan ontbreekt er één indicator, en
+          als dat de Mayer Multiple is, betekent het dat <strong>de blow-off-beveiliging uitgeschakeld is</strong> (bekentenis nr. 02).
+        </li>
+      </ol>
+
+      <div class="note">
+        <strong>Dit artikel in één zin</strong><br />
+        De RSI meet <strong>niet "hoe duur", maar "hoe consequent de koers recent is gestegen"</strong>.
+        Op het moment dat je die twee verwart — dat wil zeggen: op het moment dat je het vertaalt als <strong>"overkocht = duur = verkopen"</strong> — wordt de RSI een verliesmachine.
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Dit document is bedoeld voor <strong>educatieve en referentiedoeleinden</strong> en is <strong>geen beleggingsadvies of aanbeveling om te kopen of te verkopen.</strong>
+        De historische beschrijvingen en RSI-waarden in de tekst zijn <strong>benaderingen</strong> op basis van dagelijkse slotkoersen en verschillen per databron, beurs en referentietijdzone.
+        Berekeningen met het label "aanname" zijn <strong>voorbeelden die zijn opgesteld om de werking van het model te tonen, geen echte marktgegevens</strong>.
+        Crypto is een risicovolle activaklasse waarbij <strong>verlies van het volledige ingelegde kapitaal</strong> mogelijk is, en patronen uit het verleden bieden geen garantie voor de toekomst.
+        Alle beleggingsbeslissingen en de gevolgen daarvan zijn volledig de verantwoordelijkheid van de gebruiker. Doe altijd uw eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Scoremethodologie</b><span>Met welke gewichten de 6 indicatoren worden gecombineerd — alle cijfers openbaar</span></a>
+        <a href="/indicators"><b>Uitleg van de 6 indicatoren</b><span>Wanneer elk van de 5 indicatoren naast de RSI u in de steek laat</span></a>
+        <a href="/guide-fear-greed"><b>De angstindex in de praktijk</b><span>Werkwijze voor gespreid kopen in angstzones en veelgemaakte fouten</span></a>
+        <a href="/glossary"><b>Woordenlijst</b><span>Wilder-afvlakking, divergentie, dekking…</span></a>
+        <a href="/"><b>Naar het dashboard</b><span>Bekijk de huidige RSI en de scores van beide tabbladen</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

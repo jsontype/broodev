@@ -244,6 +244,9 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
   - 분리형(dev/admin): `i18n/<lang>.js` 파일 + `i18n.js` 코어.
 - 언어 변경 시 앱이 `document.documentElement.lang = lang` 설정 + `window.renderSEO(lang)`/`window.renderFooter` 트리거.
 - head에 hreflang 13개 alternate. 새 문자열 추가 시 13개 언어 동시 작성.
+- **콘텐츠 페이지 13개 언어(2026-10-09)** — btc 15쪽(가이드·소개·약관·개인정보·404) · voca 10쪽 · voca-tutorial 2쪽(약관·개인정보): 한국어 본문이 HTML 정본(검색엔진이 색인하는 판)이고, `<head>` 끝의 `<script src="/content-i18n.js?v=…" data-key="<앱 언어 키>" data-doc="<파일명>">` 가 `?lang=` → 앱에서 고른 언어(localStorage, JSON) 순으로 언어를 정해 `/i18n/<doc>.<lang>.html` 조각(원문 `<main>` 과 같은 구조의 번역 + `data-title`/`data-desc`)으로 `<main>` 을 바꿔 끼운다. 브라우저 언어(navigator)는 일부러 쓰지 않는다 — 검색 로봇(en-US)이 영어판을 한국어 정본 대신 색인하지 않게. nav 끝에 언어 선택(바꾸면 `?lang=` 으로 다시 열림). 차트 스크립트는 `window.CI18N.ready` 뒤에 돌고 화면 문구는 `TR({ ko, en, ja, … })`(13개 언어). **원문을 고치면 12개 조각도 같이 고친 뒤** `node scripts/content-i18n-check.mjs`(구조·링크·속성·한글 잔존·차트 문구) 통과 + 페이지의 `?v=` 토큰을 올린다. 코인 14종의 privacy·terms·404 조각은 `gen_coin.py` 가 코인명·호스트를 바꿔 복제한다. voca/contact.html 은 자체 13개 언어 사전(이 장치 대상 아님).
+- **전 앱 일괄 스캔**: `node scripts/i18n-scan-all.mjs` — 모든 앱·페이지(프리미엄 모달 포함)를 13개 언어로 실제 렌더해 요약(동시 5개, 앱별 언어 심는 방식 내장). 푸시 전 ALL CLEAN 이어야 한다. 이름 필터: `node scripts/i18n-scan-all.mjs btc voca`.
+- **검증(2026-10-09)**: `node scripts/i18n-scan.mjs --url <로컬 페이지> --set qs:lang|ls:<키>|lsjson:<키>` — 실제 브라우저(Edge 헤드리스)로 13언어를 차례로 띄워, 보이는 텍스트·placeholder·aria-label·title·document.title·meta 가운데 그 언어에 안 맞는 문자 체계(日本語 화면의 한글, English 화면의 한자·가나 등)를 전부 찍는다(불일치 있으면 exit 1). 모달·탭은 `--pre` 로 연다. **UI 문자열을 건드린 푸시 전 필수.** 앱/브랜드 이름도 언어별 표기로 현지화한다(사무라이 택틱스 2 → サムライタクティクス 2 / Samurai Tactics 2). 지역 생활정보 앱 12종은 영어 단일 언어 설계.
 
 ---
 
@@ -326,6 +329,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - 코인 추가/데이터 → `scripts/coins.json` + `scripts/gen_coin.py`
 - OG 공유 현지화 → `apps/<app>/functions/_middleware.js`
 - 공유 썸네일(OG) → `scripts/og/gen_og.mjs` (SITES 설정 + 생성) · 렌더 검증 → `scripts/cdp-shot.mjs`
+- i18n 누락 스캔(13언어 실제 렌더 · 푸시 전 필수) → `scripts/i18n-scan.mjs` (§9)
 - 포털(broodev.com) 앱 목록 → `apps/home/assets/js/catalog.js` (`APPS`·`CATEGORIES`) · 모달/페이지네이션 → `apps/home/assets/js/portal.js`
 - 개발자 소개(dev.broodev.com) 앱 목록 → `apps/dev/dev1/app.jsx` (`PROJECTS` 배열) · 활성 홈 전환 → `apps/dev/functions/_middleware.js` `ACTIVE`
 - 공통 테마 → `packages/ui-terminal/theme.css`

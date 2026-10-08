@@ -1,0 +1,501 @@
+<main class="wrap" data-title="De wiskunde van daling en gespreid kopen — om −50% goed te maken is +100% nodig | broodev" data-desc="Berekent in tabellen de asymmetrie van verliesherstel. Hoe gemiddelde aankoopprijs en resultaat uiteenlopen wanneer dezelfde 12 miljoen won in één keer, in 4 gelijke delen of gespreid met weging naar daling wordt ingelegd, in drie dalingsscenario’s; de rekensom van opgebruikte munitie; en waarom een dalingsindicator bij een asset die naar nul gaat 100% consequent fout zit.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/methodology">Score-methodologie</a>
+        <a href="/indicators">Uitleg indicatoren</a>
+        <a href="/guide-fear-greed">De angst-index gebruiken</a>
+        <a href="/glossary">Begrippenlijst</a>
+      </nav>
+
+      <h1>De wiskunde van daling en gespreid kopen</h1>
+      <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems · Dit artikel bestaat uitsluitend uit berekeningen</p>
+
+      <p class="lead">
+        In dit artikel staat geen advies. <strong>Alleen berekeningen.</strong>
+        Het laat uitsluitend met cijfers zien waarom «het is flink gezakt, dus goedkoop» gevaarlijk is, en wat gespreid kopen werkelijk doet en wat het <em>niet doet</em>.
+        Ik zet de conclusie er meteen bij —
+        <strong>gespreid kopen is geen techniek om het rendement te verhogen. Het is een techniek om de bandbreedte van uitkomsten te versmallen.</strong>
+        De tabel met negen vakjes verderop bewijst dat.
+      </p>
+
+      <section class="bd-figs" aria-label="Live grafiek van de daling">
+        <p class="muted">Voordat we gaan rekenen, bekijken we hoe de hoofdrolspeler van dit artikel, de «daling vanaf de all-time high», er in de echte geschiedenis van BTC uitzag. De 0%-lijn betekent dat er nieuwe records worden gezet, en elk dal is een periode waarin de «benodigde stijging voor herstel» uit de tabellen moest worden betaald.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-dd-main" class="bd-pane"><div class="bd-loading">Grafiekgegevens laden…</div></div>
+          </div>
+          <p class="bd-cap">Daling van BTC vanaf de all-time high (ATH), volledige periode. Stippellijnen = −30% (het punt waarop het model «interesse» aanzet) en −50% (de zone «sterk gunstig om te kopen»). Oranje stippellijn = halving. Het diepste punt is ongeveer −93% in 2011. Gegevens: CoinMetrics Community API, dagelijkse slotkoersen van BTC — opgehaald op het moment van bezoek en in de browser berekend, dus <strong>bij benadering en alleen ter referentie</strong>.</p>
+        </div>
+      </section>
+
+      <h2 id="c1">Berekening 1 — De asymmetrie van break-even</h2>
+      <p>
+        We beginnen met de eenvoudigste en wreedste formule. Voor een asset die een daling <code>d</code> heeft gehad,
+        is <strong>de stijging die nodig is om terug te komen op de inleg</strong> niet <code>d</code>.
+      </p>
+      <pre><code>benodigde stijging = d ÷ (1 − d)
+
+bij −50%      0.50 ÷ 0.50 = +100%
+bij −80%      0.80 ÷ 0.20 = +400%</code></pre>
+      <p>
+        Bij een daling gaat het verlies <strong>van het resterende bedrag</strong> af; bij een stijging komt de winst <strong>bovenop het al gekrompen bedrag</strong>.
+        Door alleen dit verschil in de noemer zijn verlies en herstel nooit symmetrisch. Dit is de volledige tabel.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Daling</th><th>Benodigde stijging tot break-even</th><th>Wat er over is van 10 miljoen won</th><th>Gevoel</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>−10%</td><td>+11.1%</td><td>9 miljoen</td><td>Bijna symmetrisch. Tot hier klopt de intuïtie</td></tr>
+            <tr><td>−20%</td><td>+25.0%</td><td>8 miljoen</td><td>Het gat begint te groeien</td></tr>
+            <tr><td><strong>−30%</strong></td><td><strong>+42.9%</strong></td><td>7 miljoen</td><td>Het punt waarop ons model «interesse» aanzet</td></tr>
+            <tr><td>−40%</td><td>+66.7%</td><td>6 miljoen</td><td>−40, maar herstel vraagt +67. Al 1,7 keer zoveel</td></tr>
+            <tr><td><strong>−50%</strong></td><td><strong>+100.0%</strong></td><td>5 miljoen</td><td>Het punt dat ons model als «sterk gunstig om te kopen» ziet</td></tr>
+            <tr><td>−60%</td><td>+150.0%</td><td>4 miljoen</td><td>2,5 keer nodig</td></tr>
+            <tr><td>−70%</td><td>+233.3%</td><td>3 miljoen</td><td>3,3 keer</td></tr>
+            <tr><td>−80%</td><td>+400.0%</td><td>2 miljoen</td><td>5 keer. Je moet een hele cyclus wachten</td></tr>
+            <tr><td>−90%</td><td>+900.0%</td><td>1 miljoen</td><td>10 keer</td></tr>
+            <tr><td>−95%</td><td>+1,900.0%</td><td>500.000</td><td>20 keer. Praktisch een andere asset geworden</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Waar je in de tabel op moet letten zijn niet de waarden, maar <strong>de afstanden</strong>.
+        Terwijl de daling 40 procentpunt dieper wordt, van −10% naar −50%, stijgt het benodigde herstel van 11% naar 100%: <strong>89 procentpunt</strong> meer.
+        Maar van −50% naar −90%, met precies dezelfde 40 procentpunt extra daling, stijgt het benodigde herstel van 100% naar 900%: <strong>800 procentpunt</strong> meer.
+        <strong>Dezelfde 40 procentpunt, maar 9 keer zoveel schade.</strong> De daling groeit lineair, maar de prijs ervan groeit explosief.
+      </p>
+
+      <div class="note">
+        Hier volgt de eerste praktische les. <strong>«Het is toch al flink gezakt, dus nog wat verder maakt weinig uit» is een volledig misverstand.</strong>
+        Van −50% naar −70% gaan is niet «20 procentpunt meer gezakt», maar een gebeurtenis waarbij de herstellast <strong>van +100% naar +233% gaat, dus 2,3 keer zo groot wordt</strong>.
+        Elke extra daling is altijd duurder dan de vorige.
+      </div>
+
+      <h2 id="c2">Berekening 2 — Dalingen tellen niet op, ze vermenigvuldigen</h2>
+      <p>
+        De tweede valkuil is dat mensen dalingen <strong>optellen</strong>.
+        «Eerst −30% en toen nog eens −30%, dus −60%.» Nee. Dalingen vermenigvuldigen zich.
+      </p>
+      <pre><code>cumulatieve daling = (1 − d₁) × (1 − d₂) × … − 1
+
+twee keer −30%  →  0.7 × 0.7 = 0.49  →  −51%
+twee keer −50%  →  0.5 × 0.5 = 0.25  →  −75%  (herstel van +300% nodig)</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Opeenvolgende dalingen</th><th>Als je optelt</th><th>Werkelijke cumulatieve daling</th><th>Tot break-even</th></tr></thead>
+          <tbody>
+            <tr><td>−20% × 5 keer</td><td>−100% (alles kwijt?)</td><td><strong>−67.2%</strong></td><td>+205%</td></tr>
+            <tr><td>−30% × 2 keer</td><td>−60%</td><td><strong>−51.0%</strong></td><td>+104%</td></tr>
+            <tr><td>−30% × 3 keer</td><td>−90%</td><td><strong>−65.7%</strong></td><td>+191%</td></tr>
+            <tr><td>−50% × 2 keer</td><td>−100%</td><td><strong>−75.0%</strong></td><td>+300%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Dat het vermenigvuldigen is, is tegelijk goed en slecht nieuws.
+        Het goede: <strong>ook na vijf keer −20% kom je niet op nul</strong> — een vermenigvuldiging nadert nul alleen, maar bereikt het nooit.
+        Het slechte: <strong>tussentijdse opleving geeft veel minder terug dan je denkt</strong>.
+        Na −50% levert zelfs een opleving van +30% <code>0.5 × 1.3 = 0.65</code> op: nog steeds −35%.
+        Waarom de opluchting van «eindelijk veert het op» in een bearmarkt zo vaak bedrogen uitkomt: het antwoord zit in deze vermenigvuldiging.
+      </p>
+
+      <h2 id="c3">Berekening 3 — Waarom juist de 365-daagse top</h2>
+      <p>
+        Om een daling te meten, moet je bepalen <strong>vanaf waar het is gezakt</strong>. Met een ander referentiepunt geeft dezelfde prijs een andere daling.
+        Ons model gebruikt de <strong>365-daagse top</strong>, niet de all-time high (ATH). Die keuze heeft een prijs, en die schrijven we hier op.
+      </p>
+      <p>
+        Stel dat een munt drie jaar geleden 2 miljoen won bereikte, dat de hoogste koers van het afgelopen jaar 1 miljoen won is en dat hij nu 600.000 won waard is.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Referentiepunt</th><th>Berekening daling</th><th>Uitkomst</th><th>Wat dit getal zegt</th></tr></thead>
+          <tbody>
+            <tr><td>All-time high: 2 miljoen</td><td>60 ÷ 200 − 1</td><td><strong>−70%</strong></td><td>«Historische crashzone»</td></tr>
+            <tr><td>365-daagse top: 1 miljoen</td><td>60 ÷ 100 − 1</td><td><strong>−40%</strong></td><td>«Diepe correctie ten opzichte van het afgelopen jaar»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Dezelfde munt, dezelfde prijs, en getallen die bijna een factor twee verschillen. We kozen 365 dagen om één reden:
+        <strong>na verloop van tijd wordt de daling vanaf de ATH geen indicator meer, maar een constante.</strong>
+        Als je de top van 2021 voor altijd als referentie neemt, staan sommige munten al vijf jaar als «−70% ondergewaardeerd» aangegeven.
+        Een indicator die elke dag een koopsignaal geeft, is een indicator zonder enige informatie.
+      </p>
+      <div class="note warn">
+        <strong>De prijs — het 365-dagenvenster reset zichzelf in een lange bearmarkt.</strong>
+        Duurt de daling langer dan een jaar, dan <strong>zakt de 365-daagse top zelf mee de dalingsfase in.</strong>
+        Stel dat de prijs in 14 maanden van 100 naar 30 is gezakt. De top van «het afgelopen jaar» is nu niet 100, maar bijvoorbeeld 55.
+        De daling wordt dan berekend als <code>30 ÷ 55 − 1 = −45%</code>. Ten opzichte van de ATH is het −70%, maar onze indicator zegt −45%.
+        <strong>Er bestaat een fase waarin de dalingsscore juist op het diepste punt milder lijkt.</strong>
+        Dat is geen bug, maar een structurele beperking van de venstermethode (window). Dat moet je weten als je hem gebruikt.
+      </div>
+      <p>
+        Ook <strong>de grenzen van −30% en −50%</strong> zijn met dezelfde logica bepaald.
+        Bij crypto zijn correcties van −30% gewoon, <em>zelfs midden in een bullmarkt</em>. Daarom betekent −30% niet «koop», maar «begin te kijken» (herstellast +43%, nog een draaglijke zone).
+        −50% daarentegen is het punt waarop herstel <strong>+100%</strong> vraagt, en historisch kwam het vaker voor bij een cycluswissel dan bij correcties in een bullmarkt.
+        <strong>Beide grenzen zijn niet op de prijs gebaseerd, maar op «het punt waarop de herstellast verdubbelt».</strong>
+      </p>
+
+      <h2 id="c4">Berekening 4 — Dezelfde 12 miljoen won, drie methoden</h2>
+      <p>
+        Nu de kern. Er is een budget van <strong>12 miljoen won</strong>. Eén munt kost aanvankelijk <strong>1 miljoen won</strong>.
+        Er zijn 9 meetmomenten, van t0 tot t8 (denk aan maanden). We vergelijken drie manieren van uitvoeren.
+      </p>
+      <ul>
+        <li><strong>Strategie A — In één keer.</strong> Op t0 wordt voor de volle 12 miljoen won gekocht.</li>
+        <li><strong>Strategie B — 4 gelijke delen.</strong> Telkens 3 miljoen won op t0·t2·t4·t6. Mechanisch, <em>ongeacht de prijs</em>.</li>
+        <li><strong>Strategie C — Gespreid met weging naar daling.</strong> De 12 miljoen won wordt verdeeld in <strong>12 tranches</strong> van 1 miljoen, die <strong>alleen bij de eerste keer dat</strong> de daling vanaf de 365-daagse top een zone binnengaat worden uitgevoerd:</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dalingszone</th><th>Uitgevoerde tranches</th><th>Bedrag</th><th>Cumulatief verbruikt</th></tr></thead>
+          <tbody>
+            <tr><td>0 ~ −20%</td><td>0 tranches</td><td>0 won</td><td>0%</td></tr>
+            <tr><td>−20 ~ −35%</td><td>1 tranche</td><td>1 miljoen</td><td>8.3%</td></tr>
+            <tr><td>−35 ~ −50%</td><td>2 tranches</td><td>2 miljoen</td><td>25.0%</td></tr>
+            <tr><td>−50 ~ −65%</td><td>4 tranches</td><td>4 miljoen</td><td>58.3%</td></tr>
+            <tr><td>−65% of dieper</td><td>5 tranches</td><td>5 miljoen</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        Deze verdeling over zones en tranches is <strong>een voorbeeld om de berekening te laten zien</strong> en geen aanbeveling voor een bepaalde verdeling.
+        Het gaat niet om de getallen zelf, maar om de vorm <em>«hoe lager, hoe meer toegewezen»</em>.
+      </p>
+
+      <h3>Scenario ① — Diep gezakt, daarna gedeeltelijk herstel</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Moment</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prijs (×10.000 won)</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td>61</td></tr>
+            <tr><td><strong>Daling over 365 dagen</strong></td><td>0%</td><td>−12%</td><td>−26%</td><td>−38%</td><td>−45%</td><td>−56%</td><td>−62%</td><td>−53%</td><td>−39%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>We zetten precies uiteen wat elke strategie heeft gekocht. <strong>Aantal = bedrag ÷ prijs</strong> (bedragen en prijzen in eenheden van 10.000 won).</p>
+      <pre><code>Strategie A  t0: 1,200 ÷ 100 = 12.0000 munten
+             totaal 12.0000 munten · gem. prijs 100.00
+
+Strategie B  t0:  300 ÷ 100 =  3.0000 munten
+             t2:  300 ÷  74 =  4.0541 munten
+             t4:  300 ÷  55 =  5.4545 munten
+             t6:  300 ÷  38 =  7.8947 munten
+             totaal 20.4033 munten · gem. prijs 1,200 ÷ 20.4033 = 58.81
+
+Strategie C  t2(−26%): 100 ÷ 74 =  1.3514 munten   ← eerste keer in −20~−35
+             t3(−38%): 200 ÷ 62 =  3.2258 munten   ← eerste keer in −35~−50
+             t5(−56%): 400 ÷ 44 =  9.0909 munten   ← eerste keer in −50~−65
+             (−65% of dieper niet bereikt → 5 tranches, 500, niet uitgevoerd)
+             totaal 13.6681 munten · ingelegd 700 · gem. prijs 51.21 · resterende cash 500</code></pre>
+      <p>
+        Kijk je alleen naar de gemiddelde aankoopprijs, dan is de volgorde duidelijk. <strong>C(51.21) &lt; B(58.81) &lt; A(100.00)</strong>.
+        De methode met weging naar daling heeft de gemiddelde prijs <strong>bijna gehalveerd</strong> ten opzichte van in één keer.
+        Hier eindigen de meeste artikelen met «zie je wel, gespreid kopen is het antwoord». <strong>Wij stoppen hier niet.</strong>
+      </p>
+      <p>
+        Eerst iets om op te wijzen. <strong>Strategie C heeft de 12 miljoen won niet volledig kunnen uitgeven.</strong> Er is maar 7 miljoen ingelegd.
+        Bij de methode met weging naar daling <strong>klopt</strong> de aanname «we leggen hetzelfde totaalbedrag in» zelf <strong>niet.</strong>
+        Zakt de markt niet diep genoeg, dan blijft er budget over. Dat is geen bijwerking, maar de definitie van die strategie.
+        Voor een eerlijke vergelijking moet je daarom kijken naar <strong>het totale vermogen, inclusief de resterende cash</strong>.
+      </p>
+
+      <h2 id="c5">Berekening 5 — Drie strategieën × drie scenario’s, de waarheid in negen vakjes</h2>
+      <p>
+        Wie alleen scenario ① doorrekent, manipuleert de conclusie. <strong>Want ik heb het dalingspad zelf getekend.</strong>
+        Om eerlijk te zijn moet je ook <strong>de paden doorrekenen waarop gespreid kopen verliest</strong>. We maken er nog twee.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Scenario</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th><th>t8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>① Daling, dan gedeeltelijk herstel</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>47</td><td><strong>61</strong></td></tr>
+            <tr><td><strong>② Daling zonder herstel</strong></td><td>100</td><td>88</td><td>74</td><td>62</td><td>55</td><td>44</td><td>38</td><td>33</td><td><strong>29</strong></td></tr>
+            <tr><td><strong>③ Stijging zonder daling</strong></td><td>100</td><td>108</td><td>121</td><td>112</td><td>145</td><td>138</td><td>158</td><td>152</td><td><strong>168</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Scenario ② is tot t6 <strong>precies gelijk</strong> aan ①. Vanaf t7 zakt het verder in plaats van op te veren.
+        Strategie C voert hier op t7 (−67%) de laatste 5 tranches, 5 miljoen won, uit als <code>500 ÷ 33 = 15.1515 munten</code> en <strong>heeft daarmee het hele budget verbruikt</strong>.
+        In scenario ③ blijft de daling steken op maximaal −7% en <strong>bereikt zelfs de eerste drempel van strategie C (−20%) niet.</strong> C <strong>koopt geen enkele munt.</strong>
+      </p>
+      <p>Rendement op het totale vermogen op t8 (waarde van de munten + resterende cash). Het budget is voor alle drie de strategieën gelijk: 12 miljoen won.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Strategie</th><th>① Daling en herstel<br />(t8 = 61)</th><th>② Geen herstel<br />(t8 = 29)</th><th>③ Stijging zonder daling<br />(t8 = 168)</th><th>Beste − slechtste<br />(bandbreedte van uitkomsten)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A In één keer</strong></td>
+              <td>−39.0%</td>
+              <td><strong>−71.0%</strong></td>
+              <td><strong>+68.0%</strong></td>
+              <td><strong>139.0 pp</strong></td>
+            </tr>
+            <tr>
+              <td><strong>B 4 gelijke delen</strong></td>
+              <td>+3.7%</td>
+              <td>−50.7%</td>
+              <td>+32.3%</td>
+              <td>83.0 pp</td>
+            </tr>
+            <tr>
+              <td><strong>C Gewogen naar daling</strong></td>
+              <td><strong>+11.1%</strong></td>
+              <td><strong>−30.4%</strong></td>
+              <td><strong>0.0%</strong></td>
+              <td><strong>41.5 pp</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Lees deze negen vakjes rustig. <strong>Geen enkele strategie staat in alle drie de scenario’s bovenaan.</strong>
+      </p>
+      <ul>
+        <li><strong>Strategie C wint ruim in ① en ②.</strong> En <strong>is laatste in ③.</strong> Rendement 0%. Terwijl de markt 68% steeg, keek ze met de cash in de hand toe.</li>
+        <li><strong>Strategie A wint alleen in ③.</strong> En dan wel overweldigend (+68%). In ruil daarvoor incasseert ze in ② <strong>−71%</strong>. Volgens de tabel van berekening 1 is dat een gat waar je <strong>+245%</strong> nodig hebt om quitte te spelen.</li>
+        <li><strong>Strategie B is nergens de eerste en nergens de laatste.</strong></li>
+      </ul>
+      <p>
+        De meest rechtse kolom is de conclusie van dit hele artikel. <strong>Bandbreedte van uitkomsten: A 139 pp, B 83 pp, C 41.5 pp.</strong>
+        Hoe fijner je spreidt en hoe meer je naar daling weegt, <strong>hoe meer de top wordt afgeroomd en hoe hoger de bodem komt.</strong>
+        Wat gespreid kopen doet, is niet <em>het gemiddelde verhogen</em>, maar <strong>de verdeling versmallen</strong>.
+        Dat is geen kwestie van smaak, maar het resultaat van rekenkunde. Het is een ruil: je geeft de bovenkant op om de onderkant te kopen.
+      </p>
+      <div class="note">
+        <strong>«Met gespreid kopen verdien je meer» is fout. «Met gespreid kopen ga je minder hard onderuit» is juist.</strong>
+        Dat C in de tabel ① en ② won, komt ook doordat <strong>ik twee dalende paden en maar één stijgend pad heb getekend</strong>.
+        Met twee stijgende paden zou de gemiddelde rangorde omdraaien. <strong>Verander de paden en de rangorde verandert.</strong>
+        Het enige wat niet verandert is <strong>dat de «bandbreedte» de volgorde A &gt; B &gt; C volgt</strong>, en alleen dat is een betrouwbaar resultaat van deze simulatie.
+      </div>
+
+      <h2 id="c6">Berekening 6 — De rekensom van opgebruikte munitie</h2>
+      <p>
+        Waar de meeste mensen die zeggen gespreid te kopen in de praktijk op stuklopen, is niet de verdeeltabel.
+        Het is <strong>alles te hoog al uitgeven</strong>. Dat leggen we hier met cijfers vast.
+      </p>
+      <p>
+        We voegen <strong>strategie D</strong> toe. Die volgt precies de gangbare psychologie van iemand die uit angst «snel wil instappen».
+        Zodra de daling begint, legt ze <strong>telkens 4 miljoen won in op t1 (−12%)·t2 (−26%)·t3 (−38%)</strong> en <strong>heeft ze bij −38% het hele budget opgebruikt</strong>.
+        We rekenen op scenario ① (dat daarna nog tot −62% zakt en herstelt tot 61).
+      </p>
+      <pre><code>Strategie D  t1: 400 ÷ 88 =  4.5455 munten
+             t2: 400 ÷ 74 =  5.4054 munten
+             t3: 400 ÷ 62 =  6.4516 munten
+             totaal 16.4025 munten · gem. prijs 73.16 · resterende munitie 0
+
+             t4(−45%) · t5(−56%) · t6(−62%) ← kijkt alleen toe</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategie</th><th>Laagste aankoopprijs (×10.000 won)</th><th>Gem. aankoopprijs (×10.000 won)</th><th>Totaal aantal</th><th>Resultaat scenario ①</th></tr></thead>
+          <tbody>
+            <tr><td><strong>D Vroeg opgebruikt</strong> (alles op −38%)</td><td>62</td><td><strong>73.16</strong></td><td>16.4025 munten</td><td><strong>−16.6%</strong></td></tr>
+            <tr><td><strong>C Gewogen naar daling</strong> (munitie bewaard)</td><td>44</td><td><strong>51.21</strong></td><td>13.6681 munten</td><td><strong>+11.1%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Dezelfde daling, hetzelfde budget, hetzelfde «gespreid kopen». Toch <strong>splitst de gemiddelde aankoopprijs zich in 731.600 en 512.100 won</strong>.
+        <strong>Het verschil is 219.500 won, maar liefst 30%.</strong> Het resultaat, −16.6% tegenover +11.1%, ligt <strong>27.7 pp</strong> uit elkaar.
+      </p>
+      <p>
+        Wat strategie D fout deed, is niet <em>dat ze niet spreidde</em>. Ook D kocht in 3 keer.
+        Wat D fout deed, is <strong>het geld opmaken voordat de goedkoopste zone kwam</strong>.
+        In de simulatie kocht D geen enkele munt tegen de bodemprijs van 380.000 won.
+        <strong>De prijs van het hele budget uitgeven bij −38% is bij −62% alleen nog kunnen toekijken.</strong>
+      </p>
+      <div class="note warn">
+        <strong>De enige regel voor het verdelen van munitie — hoe lager, hoe meer er over moet zijn.</strong>
+        Daarom is de verdeling van strategie C (0 · 1 · 2 · 4 · 5 tranches) <strong>geen rekenkundige reeks, maar groeit ze naar achteren toe</strong>.
+        Hoe dieper de daling, <strong>hoe exponentieel meer je met hetzelfde geld kunt kopen</strong>.
+        Voor 1 miljoen won koop je <strong>bij prijs 74 1.35 munten</strong> en <strong>bij prijs 38 2.63 munten</strong> — <strong>bijna het dubbele</strong>.
+        De krachtigste aankopen vinden altijd plaats in de engste fase, en als je saldo dan nul is, is die fase <strong>alsof hij nooit heeft bestaan.</strong>
+      </div>
+
+      <h2 id="c7">Berekening 7 — Wat het betekent als er geen bodem is</h2>
+      <p>
+        Onder alle berekeningen tot nu toe lag <strong>één onuitgesproken aanname</strong>:
+        <strong>dat de asset overleeft.</strong> Valt die aanname weg, dan slaan alle tabellen hierboven om.
+      </p>
+      <p>We nemen het typische pad van een munt op weg naar delisting in de berekening op. 8 momenten, beginnend bij een prijs van 1 miljoen won.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Moment</th><th>t0</th><th>t1</th><th>t2</th><th>t3</th><th>t4</th><th>t5</th><th>t6</th><th>t7</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prijs (×10.000 won)</strong></td><td>100</td><td>70</td><td>45</td><td>25</td><td>12</td><td>5</td><td>1.5</td><td><strong>0.3</strong></td></tr>
+            <tr><td><strong>Daling over 365 dagen</strong></td><td>0%</td><td>−30%</td><td>−55%</td><td>−75%</td><td>−88%</td><td>−95%</td><td>−99%</td><td><strong>−100%</strong></td></tr>
+            <tr><td><strong>Deelscore daling</strong></td><td>laag</td><td>interesse</td><td><strong>maximaal</strong></td><td><strong>maximaal</strong></td><td><strong>maximaal</strong></td><td><strong>maximaal</strong></td><td><strong>maximaal</strong></td><td><strong>maximaal</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Kijk naar de onderste rij.</strong> Van t2 tot t7, <strong>de hele tijd</strong> dat de asset doodging, gaf de dalingsindicator de maximale score.
+        Bij −55% «sterk kopen», bij −95% «sterk kopen», bij −99% «sterk kopen».
+        <strong>De dalingsindicator zat hier geen enkele keer goed. Hij zat 100% consequent fout.</strong>
+        En omdat het <strong>een opzet is die «harder roept om te kopen naarmate het verder zakt»</strong>, zat hij er des te erger naast hoe meer hij fout zat.
+      </p>
+      <p>We laten de drie strategieën dit pad afleggen. De eindprijs is 3.000 won.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategie</th><th>Totaal aantal</th><th>Gem. aankoopprijs (×10.000 won)</th><th>Eindwaarde (×10.000 won)</th><th>Resultaat</th><th>Benodigde stijging tot break-even</th></tr></thead>
+          <tbody>
+            <tr><td>A In één keer</td><td>12.00 munten</td><td>100.00</td><td>3.6</td><td>−99.7%</td><td>+33,200%</td></tr>
+            <tr><td>B 4 gelijke delen</td><td>234.67 munten</td><td>5.11</td><td>70.4</td><td><strong>−94.1%</strong></td><td><strong>+1,595%</strong></td></tr>
+            <tr><td>C Gewogen naar daling</td><td>34.76 munten</td><td>34.52</td><td>10.4</td><td>−99.1%</td><td>+11,400%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Twee dingen worden hier zichtbaar. Ten eerste: <strong>alle drie de strategieën zijn dood.</strong>
+        Ten tweede: het resultaat van de strategie <strong>«die het best presteerde» is −94.1%</strong>.
+        Pak je de formule van berekening 1 er weer bij, dan heeft zelfs dit beste resultaat <strong>+1,595%</strong> nodig om quitte te spelen.
+        <strong>Deze tabel heeft geen winnaar. Alleen verliezers die er iets minder rampzalig aan toe zijn.</strong>
+      </p>
+      <p>
+        Kijk naar strategie C. De methode met weging naar daling was in scenario ① en ② zo superieur, en hier
+        <strong>volgde ze het signaal «het is goedkoop», pompte ze 91.7% van het budget in de zones −55% en −75% en eindigde ze op −99.1%.</strong>
+        Wegen naar daling betekent <strong>«hoe meer het zakt, hoe meer ik koop»</strong>, en
+        <strong>bij een asset die naar nul gaat is dat een algoritme dat het verlies maximaliseert.</strong>
+        Precies de eigenschap die C in scenario ① tot winnaar maakte, veroordeelt C hier ter dood. <strong>Het is dezelfde eigenschap.</strong>
+      </p>
+      <div class="note warn">
+        <strong>De voorwaarde van de dalingsindicator — «deze asset bestaat over vijf jaar nog».</strong>
+        Een daling veronderstelt dat <strong>de prijs zal terugkeren</strong>. Voor een asset die terugkeert is het een goede indicator;
+        voor een asset die verdwijnt is het <strong>de gevaarlijkste indicator</strong>. En <strong>de grafiek kan die twee niet onderscheiden.</strong>
+        Een bitcoingrafiek op −80% en de grafiek van een altcoin op −80% vlak voor delisting <strong>zien er precies hetzelfde uit.</strong>
+        Het verschil zit niet in de indicator, maar in <strong>fundamentals, liquiditeit, team en vrij te komen tokens (unlocks)</strong>, en ons model kijkt naar geen van die dingen.
+        De duizenden altcoins die inmiddels verdwenen zijn, <strong>zijn zonder uitzondering door de −90%-zone gegaan, en in elk van die fasen gaf de dalingsindicator de maximale score.</strong>
+      </div>
+
+      <h2 id="c8">Berekening 8 — Daarom geven we de daling maar 18% en 14%</h2>
+      <p>
+        Berekening 7 hierboven is de reden dat in ons model <strong>de daling in geen enkele modus het hoogste gewicht van de 6 indicatoren heeft</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modus</th><th>Gewicht daling</th><th>Plaats van 6</th><th>Indicator op 1</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Korte termijn</strong> (momentum)</td><td><strong>18%</strong></td><td>3e</td><td>RSI 28% · F&amp;G 28%</td></tr>
+            <tr><td><strong>Lange termijn</strong> (tegendraads)</td><td><strong>14%</strong></td><td>gedeeld 5e</td><td>RSI · MACD · F&amp;G · Mayer elk 18%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Opvallend is dat het <strong>op lange termijn juist lager is</strong> (18% → 14%).
+        «Moet je juist bij langetermijnbeleggen niet naar de daling kijken?» denk je misschien, maar de reden is <strong>dubbeltelling</strong>.
+      </p>
+      <p>
+        <strong>De daling en de Mayer Multiple stellen in feite dezelfde vraag</strong> — <em>«ligt de huidige prijs onder een referentielijn uit het verleden?»</em>
+        Alleen de referentie verschilt: de daling gebruikt de <strong>365-daagse top</strong>, Mayer het <strong>200-daags voortschrijdend gemiddelde</strong>.
+        In de langetermijnmodus weegt de Mayer Multiple <strong>18%</strong>, in de kopgroep.
+        Als de daling ook 18% kreeg, <strong>zou 36% naar één en hetzelfde perspectief (waardering) gaan</strong>.
+        We gebruiken 6 indicatoren <strong>juist om verschillende perspectieven te mengen</strong>, en dan stort dat ontwerp in.
+        Daarom geven we op lange termijn <strong>meer gewicht aan Mayer, met een stabielere referentie (het 200-daags gemiddelde), en verlagen we de daling, die van één enkele top afhangt.</strong>
+        De 365-daagse top is <strong>de waarde van één enkele dag</strong>, en als die dag een abnormale piek was, raakt de daling van het hele jaar daarna vertekend.
+        Een 200-daags <em>gemiddelde</em> heeft die zwakte niet.
+      </p>
+
+      <h3>De daling alleen kan geen STRONG BUY opleveren</h3>
+      <p>We controleren met een berekening wat het in de praktijk betekent dat de gewichten zo zijn vastgelegd. Als de daling <strong>de maximale score (100 punten)</strong> heeft, is de bijdrage aan het totaal als volgt.</p>
+      <pre><code>Kort:   100 punten × 0.18 = 18 punten bijdrage (de overige 82% komt van de andere 5 indicatoren)
+Lang:   100 punten × 0.14 = 14 punten bijdrage (de overige 86% komt van de andere 5 indicatoren)
+
+Om de drempel van STRONG BUY (80 punten) te halen, moet het gewogen gemiddelde van de andere 5 indicatoren zijn
+
+  Kort:  (80 − 18) ÷ 0.82 = minstens 75.6 punten
+  Lang:  (80 − 14) ÷ 0.86 = minstens 76.7 punten</code></pre>
+      <p>
+        Met andere woorden: <strong>zelfs als een crash van −70% de daling de maximale score geeft, haalt de score nooit 80 (STRONG BUY)
+        als RSI·MACD·angst-index·Mayer·kruising gemiddeld niet boven de 75 punten uitkomen.</strong>
+      </p>
+      <p>
+        Nog extremer — <strong>als alleen de daling 100 punten heeft en de andere vijf indicatoren allemaal op 0 staan, is het totaal 18 punten op korte en 14 punten op lange termijn</strong>.
+        Beide vallen in de <strong>zone 0~25</strong>, dus het langetermijntabblad toont <strong>OVERHEATED</strong> en het kortetermijntabblad <strong>AVOID (sterke neerwaartse trend)</strong>.
+        «Het is −70% gezakt en het langetermijntabblad zegt oververhit?» Het lijkt vreemd, maar het is <strong>precies het bedoelde gedrag</strong>.
+        Alleen de prijs is gezakt: de trend is dood, het sentiment is niet verbeterd en ten opzichte van het 200-daags gemiddelde is het nog steeds duur —
+        <strong>het delistingpad van berekening 7 ziet er precies zo uit.</strong>
+        Voorkomen dat de daling in haar eentje de andere vijf verslaat: dat is de bestaansreden van de gewichten 18%/14%.
+      </p>
+      <p class="muted">
+        Opmerking: bij munten die korter dan een jaar genoteerd zijn, <strong>bestaat er geen 365-daagse top, dus ontbreekt de daling</strong>.
+        In dat geval wordt de daling weggelaten, worden de gewichten van de overige indicatoren hergenormaliseerd en toont het dashboard <code>coverage: 5/6</code>.
+        De gedetailleerde berekening staat bij het onderdeel hernormalisatie in <a href="/methodology">Score-methodologie</a>.
+      </p>
+
+      <h2 id="c9">Waar deze berekeningen liegen</h2>
+      <p>Tot hier heb ik acht tabellen laten zien. Nu schrijf ik op <strong>waarom je die tabellen niet moet geloven</strong>.</p>
+      <ul>
+        <li>
+          <strong>De drie scenario’s heb ik zelf bedacht.</strong> Het is geen backtest, maar <strong>hypothetische paden</strong>.
+          Verander de getallen een beetje en de rangorde van de strategieën slaat zonder moeite om. Wat deze simulatie bewijst, is niet
+          <strong>«C is goed», maar alleen «hoe meer je spreidt, hoe smaller de bandbreedte van uitkomsten»</strong>.
+        </li>
+        <li>
+          <strong>De gemiddelde aankoopprijs is geen prestatiemaatstaf.</strong> In berekening 7 was de gemiddelde aankoopprijs van strategie B <strong>51.100 won</strong>, de laagste van de drie.
+          En ze <strong>eindigde op −94.1%.</strong> Een lage gemiddelde prijs betekent niet <em>dat je goedkoop hebt gekocht</em>, maar alleen
+          <strong>dat je bleef kopen terwijl het zakte</strong>. Gaat de asset dood, dan is de uitkomst nul, wat de gemiddelde prijs ook is.
+        </li>
+        <li>
+          <strong>Kosten, slippage en belastingen zijn allemaal op nul gezet.</strong> In werkelijkheid <strong>doe je bij gespreid kopen meer transacties en betaal je meer kosten.</strong>
+          Een deel van de verschillen in de tabellen verdwijnt in de praktijk gewoon.
+        </li>
+        <li>
+          <strong>De opportuniteitskosten zijn op nul gezet.</strong> Dat strategie C in scenario ③ op «0.0%» uitkomt, veronderstelt
+          <strong>dat de resterende cash niets oplevert</strong>. Met spaarrente wordt het iets beter;
+          omgekeerd is het, <strong>als andere assets in dat jaar zijn gestegen, een reëel verlies</strong>.
+        </li>
+        <li>
+          <strong>In een lange bearmarkt laat het 365-dagenvenster de daling ondieper lijken</strong> (de waarschuwing uit berekening 3).
+          In de diepste fase kan de indicator juist het minst gevoelig worden.
+        </li>
+        <li>
+          <strong>De verdeling over zones en tranches van strategie C (0·1·2·4·5) is een rekenvoorbeeld.</strong>
+          We raden deze verdeling niet aan en beweren ook niet dat ze optimaal is.
+          Verschuif je de zones naar −25/−40/−55, dan veranderen ook de uitkomsten. <strong>Er is geen juist antwoord.</strong>
+        </li>
+        <li>
+          <strong>De belangrijkste variabele zit niet in de berekening.</strong> Bestaat deze asset over vijf jaar nog?
+          Het antwoord staat niet in de tabellen, maar in <strong>de werkelijke inhoud van het project</strong>, en ons model kijkt daar niet naar.
+        </li>
+      </ul>
+
+      <p>
+        Samengevat. <strong>Een daling meet niet «hoe goedkoop iets is». Ze meet alleen «hoeveel het gezakt is».</strong>
+        Die twee betekenen alleen hetzelfde als de asset overleeft; zo niet, dan zeggen ze precies het tegenovergestelde.
+        <strong>Het moment waarop deze indicator het hardst «koop» roept, is niet te onderscheiden van het moment waarop de asset doodgaat</strong> —
+        dat is alles wat je over de daling moet weten.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Beleggingswaarschuwing</strong><br />
+        Alle scenario’s, prijzen, verdelingen en rendementen in dit document zijn <strong>hypothetische voorbeelden om rekenprincipes uit te leggen</strong>,
+        en geen echte marktgegevens of backtestresultaten. We bevelen geen enkele specifieke strategie, verdeling of asset aan.
+        Dit document is bedoeld <strong>voor educatie en referentie en is geen beleggingsadvies.</strong>
+        Crypto is een risicovolle asset waarmee <strong>verlies van de volledige inleg mogelijk is</strong>, en zoals in berekening 7
+        <strong>zijn er talloze gevallen waarin de waarde naar nul is gegaan.</strong>
+        Geen enkele techniek, ook gespreid kopen niet, voorkomt verlies.
+        Alle beleggingsbeslissingen en de gevolgen daarvan zijn volledig de verantwoordelijkheid van de gebruiker. Doe altijd je eigen onderzoek (DYOR).
+      </div>
+
+      <h2>Verder lezen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Score-methodologie</b><span>Alle 6 gewichten, inclusief 18%/14% voor de daling, en de berekening van de hernormalisatie</span></a>
+        <a href="/indicators"><b>Uitleg van de 6 indicatoren</b><span>Waar de andere vijf naast de daling naar kijken</span></a>
+        <a href="/guide-fear-greed"><b>Praktische gids voor de angst-index</b><span>Als dit artikel de «wiskunde» is, dan is dat de «procedure»</span></a>
+        <a href="/glossary"><b>Begrippenlijst</b><span>Definities van daling, gemiddelde aankoopprijs en Mayer Multiple</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+    </main>

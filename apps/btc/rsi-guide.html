@@ -86,6 +86,7 @@
         }
       }
     </script>
+    <script src="/content-i18n.js?v=20261009a" data-key="btc:lang" data-doc="rsi-guide"></script>
   </head>
   <body>
     <main class="wrap">
@@ -594,8 +595,12 @@ MACD   부분점수  90       × 14% = 12.6
       <footer>© 2026 broodev · 운영 Y-Systems · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a></footer>
     </main>
     <script>
-(function () {
+(window.CI18N ? window.CI18N.ready : Promise.resolve()).then(function () {
   'use strict';
+  // 13개 언어 — content-i18n.js 가 본문을 번역본으로 바꾼 뒤(window.CI18N.ready) 실행된다. 화면 문구는 TR({ ko: …, en: …, … }) 로
+  var LANG = (window.CI18N && window.CI18N.lang) || 'ko';
+  function TR(o) { return o[LANG] != null ? o[LANG] : (o.en != null ? o.en : o.ko); }
+
   if (!window.fetch || !window.localStorage) return;
   var NS = 'http://www.w3.org/2000/svg';
   var DAY = 86400000;
@@ -770,7 +775,21 @@ MACD   부분점수  90       × 14% = 12.6
     for (var i = 0; i < paneIds.length; i++) {
       var m = document.getElementById(paneIds[i]);
       if (!m) continue;
-      m.innerHTML = i === 0 ? '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>' : '';
+      m.innerHTML = i === 0 ? TR({
+        ko: '<div class="bd-err">차트 데이터를 불러오지 못했습니다 — 잠시 후 새로고침 해주세요.</div>',
+        en: '<div class="bd-err">Couldn’t load chart data — please refresh in a moment.</div>',
+        ja: '<div class="bd-err">チャートデータを読み込めませんでした — しばらくしてから再読み込みしてください。</div>',
+        zh: '<div class="bd-err">无法加载图表数据 — 请稍后刷新。</div>',
+        'zh-Hant': '<div class="bd-err">無法載入圖表資料 — 請稍後重新整理。</div>',
+        th: '<div class="bd-err">โหลดข้อมูลกราฟไม่สำเร็จ — โปรดรีเฟรชอีกครั้งในภายหลัง</div>',
+        es: '<div class="bd-err">No se pudieron cargar los datos del gráfico — actualiza la página en unos instantes.</div>',
+        fr: '<div class="bd-err">Impossible de charger les données du graphique — veuillez actualiser dans un instant.</div>',
+        de: '<div class="bd-err">Diagrammdaten konnten nicht geladen werden — bitte gleich neu laden.</div>',
+        it: '<div class="bd-err">Impossibile caricare i dati del grafico — ricarica la pagina tra poco.</div>',
+        pt: '<div class="bd-err">Não foi possível carregar os dados do gráfico — atualize a página em instantes.</div>',
+        ru: '<div class="bd-err">Не удалось загрузить данные графика — обновите страницу чуть позже.</div>',
+        nl: '<div class="bd-err">Grafiekgegevens konden niet worden geladen — vernieuw de pagina zo meteen.</div>'
+      }) : '';
     }
   }
 
@@ -993,9 +1012,9 @@ MACD   부분점수  90       × 14% = 12.6
     var xd = [priceW[0][0], priceW[priceW.length - 1][0]];
     drawChart({
       mount: 'bd-rsi-price',
-      title: 'BTC 가격 — 최근 3년',
+      title: TR({ ko: 'BTC 가격 — 최근 3년', en: 'BTC price — last 3 years', ja: 'BTC価格 — 直近3年', zh: 'BTC 价格 — 最近 3 年', 'zh-Hant': 'BTC 價格 — 最近 3 年', th: 'ราคา BTC — 3 ปีล่าสุด', es: 'Precio de BTC — últimos 3 años', fr: 'Prix du BTC — 3 dernières années', de: 'BTC-Preis — letzte 3 Jahre', it: 'Prezzo di BTC — ultimi 3 anni', pt: 'Preço do BTC — últimos 3 anos', ru: 'Цена BTC — последние 3 года', nl: 'BTC-prijs — afgelopen 3 jaar' }),
       height: 120, xDomain: xd, yFmt: fmtUsdShort,
-      series: [{ name: 'BTC 가격', color: INK, pts: downsample(priceW, 800), fmt: fmtUsd }]
+      series: [{ name: TR({ ko: 'BTC 가격', en: 'BTC price', ja: 'BTC価格', zh: 'BTC 价格', 'zh-Hant': 'BTC 價格', th: 'ราคา BTC', es: 'Precio de BTC', fr: 'Prix du BTC', de: 'BTC-Preis', it: 'Prezzo di BTC', pt: 'Preço do BTC', ru: 'Цена BTC', nl: 'BTC-prijs' }), color: INK, pts: downsample(priceW, 800), fmt: fmtUsd }]
     });
     drawChart({
       mount: 'bd-rsi-main',
@@ -1010,7 +1029,7 @@ MACD   부분점수  90       × 14% = 12.6
       series: [{ name: 'RSI(14)', color: INK, pts: downsample(rsiW, 800), fmt: function (v) { return v.toFixed(1); } }]
     });
   }, function () { showError(['bd-rsi-price', 'bd-rsi-main']); });
-})();
+});
     </script>
   </body>
 </html>

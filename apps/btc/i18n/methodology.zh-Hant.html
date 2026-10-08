@@ -1,0 +1,453 @@
+    <main class="wrap" data-title="買入時機評分是如何計算的 — 8項指標合成方法論 | broodev" data-desc="broodev買入時機評分（0~100）的設計文件。公開將包含2項鏈上指標（MVRV Z、Thermocap Z）在內的8項指標正規化為0~100分項分數的函數、短期（動能）與長期（逆向）兩套權重、底部評分（BOTTOM RADAR）的單獨合成、缺失指標的權重重新正規化、5級判定區間，以及這個模型的侷限。">
+      <nav class="nav">
+        <a href="/">← 儀表板</a>
+        <a href="/indicators">指標解讀</a>
+        <a href="/bitcoin-bottom">底部訊號</a>
+        <a href="/glossary">術語表</a>
+        <a href="/guide-fear-greed">恐懼指數使用指南</a>
+      </nav>
+
+      <h1>買入時機評分是如何計算的</h1>
+      <p class="muted">最後更新：2026-07-22 · 作者：Y-Systems · 對象：broodev買入時機評分 v2（含2項鏈上指標，共8項指標）</p>
+
+      <p class="lead">
+        broodev儀表板上顯示的<strong>0~100買入時機評分</strong>並不是黑箱。
+        它把8項公開指標 — 6項技術指標加上2項鏈上指標（MVRV Z-Score、Thermocap Z）— 分別換算成0~100的分項分數，再做加權平均。
+        本文原原本本地公開<strong>用什麼函數正規化、用什麼權重，以及為什麼這樣決定</strong>。
+        因為我們認為，要判斷一個數字是否可信，就必須能看到它的計算公式。
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">目錄</div>
+        <ol>
+          <li><a href="#design">設計原則 — 為什麼只靠一個指標不行</a></li>
+          <li><a href="#normalize">第1步：將8項指標正規化為0~100</a></li>
+          <li><a href="#onchain">2項鏈上指標 — MVRV Z、Thermocap Z（定義、來源、涵蓋範圍）</a></li>
+          <li><a href="#weights">第2步：兩套權重（短期、長期）</a></li>
+          <li><a href="#missing">第3步：缺失指標與權重重新正規化</a></li>
+          <li><a href="#bands">第4步：5級判定區間</a></li>
+          <li><a href="#bottom">單獨合成：底部評分（BOTTOM RADAR）</a></li>
+          <li><a href="#limits">本模型的侷限（必讀）</a></li>
+        </ol>
+      </div>
+
+      <h2 id="design">設計原則 — 為什麼只靠一個指標不行</h2>
+      <p>
+        「恐懼指數到底了，現在就買」這句話只對了一半。恐懼<strong>會出現在底部，也會出現在暴跌的正中央。</strong>
+        只看恐懼指數就進場，就成了所謂的<strong>「接刀子」</strong>。
+      </p>
+      <p>
+        所以本模型把性質不同的指標混合在一起，大致可分為以下幾類。
+      </p>
+      <ul>
+        <li><strong>逆向（mean-reversion）</strong> — 恐懼與貪婪指數、Mayer倍數、365日回撤。「別人賣出時才是機會」這一軸。</li>
+        <li><strong>動能（trend-following）</strong> — MACD、黃金/死亡交叉。「趨勢會延續」這一軸。</li>
+        <li><strong>過熱/低迷判別</strong> — RSI。兩邊都會用到的緩衝。</li>
+        <li><strong>鏈上估值（相對成本）</strong> — MVRV Z-Score（相對投資人平均持倉成本）、Thermocap Z（相對累計挖礦成本）。與上面三類不同，這一軸<strong>不是來自價格，而是來自區塊鏈帳本</strong>。</li>
+      </ul>
+      <p>
+        這兩條軸<strong>經常指向相反的方向。</strong>這正是關鍵所在。
+        只看逆向指標，下跌行情中會不斷發出「買入」訊號；只看動能指標，則會在高點發出「買入」訊號。
+        只有混合起來，才能分辨出<em>「情緒很恐慌，但趨勢已經反轉」</em>這樣的階段。
+      </p>
+
+      <h2 id="normalize">第1步：將8項指標正規化為0~100 — <em>分兩套</em></h2>
+      <p>要把單位各不相同的指標（RSI為0~100，Mayer倍數為0.5~3，回撤為%）合在一起，首先要換算到統一的尺度上。換算方向是<strong>越接近100越有利於買入</strong>。</p>
+
+      <div class="note">
+        <strong>這是本模型最常被誤解的地方。</strong><br />
+        每項指標的<strong>正規化函數不是一個，而是兩個</strong>。
+        <strong>短期（動能）分頁和長期（逆向）分頁使用不同的函數。</strong>
+        它<strong>並不是</strong>「把同一指標換算一次成0~100，只是給不同權重」的結構。
+        <strong>有時連符號本身都是相反的。</strong>
+      </div>
+
+      <p>
+        原因正如上一節所說。加密貨幣呈現<strong>短期動能、長期均值回歸</strong>的特性。
+        因此<strong>「低估」在長期分頁中是加分，在短期分頁中卻是扣分</strong>。這不是bug，而是設計。
+      </p>
+
+      <h3>Mayer倍數（Mayer Multiple）— 兩個函數差異最懸殊的指標</h3>
+      <p>Mayer倍數是<code>目前價格 ÷ 200日移動平均</code>。小於1表示價格位於長期趨勢線下方，也就是相對低估。</p>
+
+      <p><strong>長期（逆向）— 越便宜分數越高。</strong>不是線性的，而是分段的非線性轉換。</p>
+      <pre><code>conMayer(m):
+  m ≤ 0.8  →  100
+  m ≤ 1.4  →  50 + ((1.4 − m) / 0.6) × 50     // 100 → 50
+  m ≤ 2.4  →  10 + ((2.4 − m) / 1.0) × 40     // 50 → 10
+  m &gt; 2.4  →  10 − (m − 2.4) × 25             // 10 → 0</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer倍數</th><th>長期分項分數</th><th>解讀</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100</td><td>較200日均線折價20%以上 — 歷史低估區間</td></tr>
+            <tr><td><code>1.0</code></td><td>83.3</td><td>與200日均線持平</td></tr>
+            <tr><td><code>1.4</code></td><td>50</td><td>正常~高估的分界</td></tr>
+            <tr><td><code>2.4</code></td><td>10</td><td>進入極端過熱</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>歷史頂部區間</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>短期（動能）— 越貴分數越高。符號完全相反。</strong></p>
+      <pre><code>momMayer(m) = clamp(50 + (m − 1) × 25, 0, 100)
+
+  m = 0.75 → 43.75   （低估 = 短期內反而扣分）
+  m = 1.0  → 50
+  m = 1.6  → 65
+  m = 2.6  → 90      （過熱 = 短期內加分）</code></pre>
+      <p>
+        「貴了為什麼還加分？」— 因為<strong>在短期內，大幅高於200日均線的狀態本身就是強勁的上升趨勢</strong>。
+        從趨勢追蹤的角度看，這是有利於買入的訊號。反過來，深陷200日均線下方的狀態屬於<strong>下降趨勢</strong>，短期內是危險的。
+      </p>
+
+      <h3>Blow-off Top 防護 — 短期評分的安全裝置</h3>
+      <p>
+        如果只有上面的momMayer，就會出現<strong>在泡沫頂點短期評分持續上升</strong>的問題。
+        因此<strong>在合成完成後，對短期總分另行施加衰減</strong>。防護有兩項 —
+        <strong>① Mayer倍數 &gt; 2.0 時按乘法衰減</strong>，<strong>② 恐懼與貪婪指數 ≥ 90（極度貪婪）時扣分</strong>。
+        兩個條件同時成立時兩項都會套用，最終評分會被限制在0~100之間。
+      </p>
+      <pre><code>// ① Mayer倍數衰減（乘法）
+if (mayer &gt; 2.0):
+    短期總分 × = clamp(1 − (mayer − 2.0) × 0.55,  0.25,  1)
+
+  Mayer 2.0 → ×1.00（不衰減）
+  Mayer 2.5 → ×0.725  （總分削減27.5%）
+  Mayer 3.0 → ×0.45
+  Mayer 3.4 以上 → ×0.25（下限）
+
+// ② 恐懼與貪婪極端值扣分（減法）
+if (F&amp;G ≥ 90):
+    短期總分 − = (F&amp;G − 90) × 2.0
+
+  F&amp;G 90 → −0分
+  F&amp;G 95 → −10分
+  F&amp;G 100 → −20分</code></pre>
+      <p>
+        需要②的原因：momFng本身會替貪婪加分（短期 = 順著趨勢），所以即使在F&amp;G超過90的
+        <strong>歷史極端區</strong>，短期評分也會一直維持在高檔。從統計上看，這一區間很可能接近
+        週期頂部，因此不是在分項分數中，而是<strong>直接從總分中扣除</strong>。
+      </p>
+      <div class="note warn">
+        <strong>更正說明（2026-07-14）</strong> — 本文的舊版本只刊載了長期（逆向）正規化函數，
+        <strong>遺漏了短期（動能）函數與Blow-off Top防護</strong>。結果把Mayer倍數在短期中的貢獻
+        <strong>說成了相反的符號</strong>。現已依據程式碼更正。
+      </div>
+
+      <h3>恐懼與貪婪指數（F&amp;G）</h3>
+      <p><strong>長期（逆向）— 越恐懼分數越高。</strong>單日數值雜訊很大，因此<strong>混入7日與30日平均。</strong></p>
+      <pre><code>conFng = 0.5 × (100 − 目前值)
+       + 0.3 × (100 − 最近7日平均)
+       + 0.2 × (100 − 最近30日平均)
+
+// 僅在極端區間額外加權
+目前值 ≤ 25（極度恐懼）→ += (25 − 目前值) × 0.4
+目前值 ≥ 75（極度貪婪）→ −= (目前值 − 75) × 0.4</code></pre>
+      <p>
+        意圖有兩點。第一，<strong>區分「昨天一天的恐懼」和「持續一個月的恐懼」</strong> — 後者是強得多的訊號。
+        第二，只在25以下、75以上的<strong>極端區間額外加權</strong>。中間區間（40~60）的細微波動幾乎沒有意義。
+      </p>
+      <p><strong>短期（動能）— 越貪婪分數越高。</strong>不混入平均值，<strong>只用目前值</strong>。</p>
+      <pre><code>momFng = clamp(50 + (目前值 − 50) × 1.2, 0, 100)
+
+  恐懼 20 → 14   （短期內低分）
+  中性 50 → 50
+  貪婪 85 → 92   （短期內高分）</code></pre>
+
+      <h3>RSI(14, Wilder)</h3>
+      <p>標準Wilder方式的14日RSI。<strong>這裡的符號同樣是相反的。</strong></p>
+      <pre><code>conRsi(r) = clamp(50 + (50 − r) × 1.7, 0, 100)   // 長期：越超賣（RSI越低）分數越高
+momRsi(r) = clamp(50 + (r − 50) × 1.6, 0, 100)   // 短期：越強勢（RSI越高）分數越高</code></pre>
+      <p>
+        在長期分頁中，RSI 25是高分（<code>50 + 25×1.7 = 92.5</code>），
+        而在短期分頁中，RSI 25是低分（<code>50 − 25×1.6 = 10</code>）。<strong>同一個值，完全相反的解讀。</strong>
+      </p>
+
+      <h3>MACD(12·26·9) 柱狀圖</h3>
+      <p>
+        看的是MACD柱狀圖的<strong>方向轉變，而不是絕對值</strong>。也就是說，「柱狀圖為負但比前一根更大」（自底部上拐）是最強的買入動能訊號。
+        透過除以價格規模來正規化，因此即使幣價量級不同也可以比較。MACD本來就是趨勢指標，<strong>兩種模式下的方向差別不大。</strong>
+      </p>
+
+      <h3>相對365日高點的回撤（Drawdown）</h3>
+      <p>指價格從最近一年最高價下跌了多少。<strong>−30%起開始關注，−50%以上視為強烈有利於買入</strong>（長期視角）。回撤越深，越被視為分批買入的區間。</p>
+
+      <h3>黃金/死亡交叉（50/200移動平均）</h3>
+      <p>50日均線在200日均線上方（黃金交叉狀態）時趨勢有利，在下方（死亡交叉）時不利。扮演<strong>趨勢過濾器</strong>的角色。</p>
+
+      <h2 id="onchain">2項鏈上指標 — MVRV Z-Score · Thermocap Z</h2>
+      <p>
+        這是v2新增的兩項指標。上面6項全部<strong>由價格衍生</strong>，而這兩項來自<strong>區塊鏈帳本（誰以什麼價格取得了幣、挖礦支付了多少）</strong>。
+        這等於評分中首次納入了價格以外的資訊。
+      </p>
+
+      <h3>MVRV Z-Score（市值 vs 平均持倉成本）</h3>
+      <pre><code>已實現市值(Realized Cap) = 以「每枚幣最後一次移動當天的價格」估值的總額
+                         ≈ 全市場平均持倉成本總額
+MVRV Z-Score = (市值 − 已實現市值) ÷ σ(市值, 全部歷史)</code></pre>
+      <p>
+        <strong>資料來源：</strong>從CoinMetrics Community API（免費、不需金鑰）取得<code>CapMrktCurUSD</code>（市值）與<code>CapMVRVCur</code>（MVRV比率）的全歷史日線資料，
+        並以<code>已實現市值 = 市值 ÷ MVRV</code>推導得出。
+      </p>
+      <p>
+        <strong>涵蓋範圍：</strong>僅對CoinMetrics Community提供MVRV的<strong>10種幣</strong>進行計算 —
+        <code>BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA</code>。
+        不支援的幣（AVAX、SHIB、PEPE、GRT、SAND）以N/A處理，然後<a href="#missing">重新正規化權重</a>。
+      </p>
+
+      <h3>Thermocap Z（市值 vs 累計挖礦獎勵）— BTC專用</h3>
+      <pre><code>Thermocap   = 自2009年以來礦工收入（區塊獎勵 + 手續費, USD）的累計總額
+Thermocap Z = ln(市值 ÷ Thermocap) 的全歷史 z-score</code></pre>
+      <p>
+        <strong>資料來源：</strong>blockchain.info <code>charts/miners-revenue</code>（全部期間）。由於取樣間隔不固定，
+        每個樣本依其間隔（天數）加權後累加（積分近似）。之後與CoinMetrics的日線市值依日期對齊，計算比率。
+        挖礦獎勵這個概念本身屬於PoW的比特幣，因此<strong>這項指標只在BTC頁面計算，在山寨幣上一律為缺失（重新正規化）</strong>。
+      </p>
+
+      <h3>z → 分項分數對應（Z_ANCHORS）</h3>
+      <p>
+        兩項鏈上指標的長期（逆向）分項分數使用同一套對應。z越低（相對成本越便宜）分數越高，下列錨點之間做線性內插。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>z</th><th>≤ −1</th><th>0</th><th>0.5</th><th>1</th><th>2</th><th>3</th><th>4</th><th>6</th><th>≥ 8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>分項分數</strong></td><td>100</td><td>88</td><td>72</td><td>58</td><td>42</td><td>28</td><td>16</td><td>4</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        錨點的依據是BTC MVRV-Z的歷史分布 — 底部為 z &lt; 0，平常區間為1~2，過熱時超過5。
+        在0.5間隔較密的低區間（0~1）集中解析度，與Mayer倍數函數遵循同一原則：<em>評分應該在市場大部分時間所處的區間裡有意義地變動。</em>
+      </p>
+      <p><strong>短期（動能）函數在這裡同樣符號不同。</strong>把大幅高於平均持倉成本、成本的狀態解讀為趨勢強度。</p>
+      <pre><code>// 短期（動能）
+momMvrv  = clamp(50 + (MVRV比率 − 1) × 28, 0, 100)   // 高於平均持倉成本 = 趨勢強度 = 加分
+momTherm = clamp(50 + ThermocapZ × 14, 0, 100)
+
+// 長期（逆向）— 兩者都用上面的 Z_ANCHORS 對應
+conMvrv  = zToScore(MVRV Z)
+conTherm = zToScore(Thermocap Z)</code></pre>
+      <p>
+        這兩項指標<em>為什麼</em>在底部有效、在五次底部中實際呈現出怎樣的讀數，
+        在另一篇解說<a href="/bitcoin-bottom">如何判斷比特幣底部 — 市值 vs 平均持倉成本</a>中搭配即時圖表說明。
+      </p>
+
+      <h2 id="weights">第2步：兩套權重（短期、長期）</h2>
+      <p>
+        這是本模型的核心，也是它與大多數「恐懼指數網站」分道揚鑣的地方。
+        <strong>同一項指標，投資期間不同，解讀就必須相反。</strong>
+      </p>
+      <p>
+        加密貨幣在<strong>短區間內呈現動能（趨勢追蹤）特性</strong>，在<strong>長週期中呈現均值回歸（逆向）特性</strong>。
+        從1~3個月的角度看，上漲的會繼續上漲；從1年以上的角度看，極度恐懼與低估終究會被修正。
+        因此<strong>兩個分頁（短期、長期）分別使用不同的權重</strong>。
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>指標</th><th>短期（動能·1~3個月）</th><th>長期（逆向·1年以上）</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>恐懼與貪婪指數</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>365日回撤</td><td>15%</td><td>10%</td></tr>
+            <tr><td>MACD</td><td>12%</td><td>13%</td></tr>
+            <tr><td>MVRV Z-Score</td><td>10%</td><td><strong>18%</strong></td></tr>
+            <tr><td>黃金/死亡交叉</td><td>7%</td><td>10%</td></tr>
+            <tr><td>Mayer倍數</td><td><strong>4%</strong></td><td>13%</td></tr>
+            <tr><td>Thermocap Z</td><td>4%</td><td>10%</td></tr>
+            <tr><td><strong>合計（驗算）</strong></td><td><strong>100%</strong> <span class="muted">(24+12+24+4+15+7+10+4)</span></td><td><strong>100%</strong> <span class="muted">(13+13+13+13+10+10+18+10)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>最引人注目的配置有兩處 — <strong>長期最大權重是MVRV Z（18%）</strong>，以及<strong>Mayer倍數的短期4%</strong>得以保留。</p>
+      <ul>
+        <li>
+          <strong>長期第一位從Mayer換成了MVRV。</strong>在加入鏈上資料之前的版本中，Mayer倍數以長期18%居首。
+          但這兩項指標回答的是同一個問題（「相對成本/基準線是否偏貴」），而MVRV用的是<em>真實的取得成本</em>，Mayer用的是<em>200日平均這個替代品</em>。
+          既然作用相同，就應該把權重放在更直接的那一方。因此<strong>MVRV定為18%</strong>，Mayer降至13%，與RSI、MACD、恐懼指數同等。
+        </li>
+        <li>
+          <strong>Thermocap的長期權重為10%。</strong>它的週期重現性不錯，但只適用於BTC，在山寨幣頁面上一律缺失；
+          而且其分母（累計挖礦獎勵）的性質會隨每次減半略有變化，所以權重比MVRV低一級。
+        </li>
+        <li>
+          <strong>在短期中，鏈上指標同樣以「趨勢強度」發揮作用。</strong>大幅高於平均持倉成本的狀態在短期內是強趨勢（momMvrv）。
+          但這項資訊與RSI（24%）、回撤（15%）、MACD（12%）重疊，因此只給MVRV 10%、Thermocap 4% —
+          這與把Mayer倍數壓到4%是同一條<strong>重複訊號原則</strong>。
+        </li>
+        <li>
+          <strong>防範過熱的依然是防護機制，而不是權重。</strong>
+          <a href="#normalize">Blow-off Top防護</a>維持不變 — Mayer超過2.0時，<strong>對短期總分本身施加衰減</strong>（最多削減75%）。
+        </li>
+      </ul>
+      <p>
+        <strong>黃金/死亡交叉依然在長期中權重較高（7% → 10%）</strong>。50/200交叉是慢訊號，用於短期交易太遲，
+        但用來區分週期階段是有效的。
+      </p>
+
+      <div class="note">
+        <strong>在短期分頁中，RSI、恐懼指數、Mayer、MVRV的解讀全部反轉。</strong>
+        在長期（逆向）模式下是「恐懼 = 買入，低估 = 買入」，
+        而在短期（動能）模式下，高分給的是<strong>趨勢依然有效、情緒正在改善的一方</strong>。
+        同樣是恐懼指數20，<em>在長期分頁中得高分（≈86），在短期分頁中得低分（≈14）</em>。
+        <strong>這不是bug，而是設計。</strong>確切的函數全部寫在<a href="#normalize">第1步</a>中。
+      </div>
+
+      <p class="muted">
+        這些權重的依據是自有回測（2017年以後的BTC日線）的結果：短區間中動能方向、長區間中逆向方向
+        與未來報酬率更為一致。不過這是樣本有限的單一資產回測，
+        <strong>過去的一致並不保證未來。</strong>
+      </p>
+
+      <h2 id="missing">第3步：缺失指標與權重重新正規化</h2>
+      <p>
+        資料來源並不總是有回應。目前本模型使用的資料來源有五個 —
+        <strong>CoinGecko、Binance</strong>（價格、日線）、<strong>Alternative.me</strong>（恐懼與貪婪指數）、
+        <strong>CoinMetrics Community</strong>（鏈上：市值、MVRV，免費、不需金鑰）、<strong>blockchain.info</strong>（礦工收入 → Thermocap）。
+        Binance API在部分地區會被封鎖，新上市的幣沒有200天的資料，無法計算Mayer倍數。
+      </p>
+      <p>
+        2項鏈上指標還存在<strong>結構性缺失</strong>。MVRV只對CoinMetrics支援的10種幣（BTC、ETH、XRP、DOGE、BCH、LINK、XLM、LTC、DOT、MANA）計算，
+        Thermocap<strong>只對BTC</strong>計算。也就是說，山寨幣頁面上的評分本來就不是8項，而是6~7項指標的合成。
+      </p>
+      <p>
+        這時，<strong>不能把缺失指標當作0分處理。</strong>0分的意思是「非常差」，而不是「未知」。
+        否則僅僅因為沒有資料，評分就會暴跌。
+      </p>
+      <p>
+        因此缺失指標會被<strong>排除在計算之外，並將其餘指標的權重重新正規化，使合計為100%</strong>。
+        例如在長期分頁中若缺少MVRV（18%），就把其餘7項指標的權重除以<code>82%</code>重新縮放。
+      </p>
+      <p>
+        相對地，<strong>在儀表板與終端機中顯示涵蓋率</strong>（<code>coverage: 7/8 indicators (82% weight)</code>）。
+        涵蓋率低的評分代表可信度也相對較低，請務必確認。
+      </p>
+
+      <h2 id="bands">第4步：5級判定區間</h2>
+      <p>
+        把合成後的0~100評分分為五個區間並附上解讀。
+        <strong>兩個分頁的區間邊界相同，但在三個區間（65~80、25~45、0~25）中名稱不同</strong> — 因為同樣的分數在不同分頁中含義不同。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>評分</th><th>長期（逆向）判定</th><th>短期（動能）判定</th><th>含義</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td><strong>STRONG BUY</strong></td><td>多重訊號匯合</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong><br /><span class="muted">有利分批累積</span></td><td><strong>BUY</strong><br /><span class="muted">上升趨勢占優</span></td><td>有利買入的區間</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td><strong>NEUTRAL</strong></td><td>沒有明顯優勢。觀望</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong><br /><span class="muted">貪婪、高估初期</span></td><td><strong>WEAK</strong><br /><span class="muted">下跌動能占優</span></td><td>暫緩新進場與追高</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong><br /><span class="muted">過熱、接近頂部</span></td><td><strong>AVOID</strong><br /><span class="muted">強勁下降趨勢</span></td><td>暫緩新進場</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>為什麼名稱不同？</strong>因為即使分數相同，低分的<em>原因</em>在各分頁中也不一樣。
+        長期分頁是「逆向」視角，低分 = <em>市場過熱</em>；
+        短期分頁是「順勢」視角，低分 = <em>下降趨勢正在進行</em>。<br />
+        <strong>長期分頁0~25分</strong> = 恐懼指數處於貪婪、Mayer偏高 → <strong>過熱（OVERHEATED）</strong>。警惕接近頂部。<br />
+        <strong>短期分頁0~25分</strong> = RSI處於底部、趨勢已經崩壞 → <strong>下降趨勢（AVOID）</strong>。反轉前暫緩買入。<br />
+        同理，65~80解讀為長期ACCUMULATE（分批累積）vs 短期BUY（順勢買入），
+        25~45解讀為長期CAUTION（警惕過熱初期）vs 短期WEAK（下跌動能占優），觀點各不相同。
+        名稱相同的區間只有80~100（STRONG BUY）與45~65（NEUTRAL）兩個。
+      </div>
+      <p>
+        邊界是<strong>對連續分數的硬性切分</strong>。79分和81分實際上是一樣的。
+        區間只用來大致區分階段，請同時留意<strong>評分的走勢（正在上升還是正在下降）</strong>。
+      </p>
+
+      <h2 id="bottom">單獨合成：底部評分（BOTTOM RADAR）</h2>
+      <p>
+        儀表板上除了短期、長期評分之外，還有<strong>底部評分（BOTTOM RADAR）</strong>。
+        它不回答「現在買會不會漲」，只回答<strong>「現在是否處於歷史底部區間」</strong>這一個問題，所以另外使用一套權重。
+        動能指標（RSI、MACD、交叉）被完全排除，特點是把<strong>55%集中在以成本為基礎的2項鏈上指標上</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>指標</th><th>權重</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td></tr>
+            <tr><td>Mayer倍數</td><td>15%</td></tr>
+            <tr><td>365日回撤</td><td>15%</td></tr>
+            <tr><td>恐懼與貪婪指數</td><td>15%</td></tr>
+            <tr><td><strong>合計（驗算）</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        各項指標<strong>直接沿用長期（逆向）分項分數並重新加權</strong> — 沒有另外新建正規化函數。
+        缺失處理也相同：沒有的指標排除後重新正規化；非BTC時Thermocap一律被排除，CoinMetrics不支援的幣則MVRV也會被排除。
+        判定區間是與短期、長期不同的五個區間。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>底部評分</th><th>判定</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>歷史底部區間</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>低估</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>中性</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>高估</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>頂部區間、過熱</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        為什麼把過半權重放在鏈上指標上 — 這些指標在五次底部中實際呈現出怎樣的讀數，
+        在<a href="/bitcoin-bottom">如何判斷比特幣底部</a>中搭配即時圖表加以驗證。
+      </p>
+
+      <h2 id="limits">本模型的侷限（必讀）</h2>
+      <p>我們坦白寫出來。了解這個評分<strong>做不到什麼</strong>更為重要。</p>
+      <ul>
+        <li>
+          <strong>它不預測價格。</strong>這個評分只是概括「目前市場偏向超賣、恐懼一側，還是偏向過熱、貪婪一側」。
+          評分90的意思不是「會漲」，而是「歷史上這是這樣的階段」。
+        </li>
+        <li>
+          <strong>技術指標在強趨勢行情中會長時間失準。</strong>在強勁的下跌行情中，RSI可能連續數週停留在30以下。
+          常見的不是「超賣所以反彈」，而是「維持超賣繼續下跌」。
+        </li>
+        <li>
+          <strong>它對基本面、新聞、監管一無所知。</strong>交易所破產、監管公告、駭客攻擊之類的事件，不會立即反映在這8項指標中。
+          圖表很漂亮，公司卻可能正在崩潰。
+        </li>
+        <li>
+          <strong>鏈上指標存在鏈上特有的失真。</strong>已實現市值（MVRV的分母）<strong>即使只是交易所整理冷錢包、搬移幣</strong>，
+          也會在沒有實際買入的情況下被更新；反過來，在交易所<em>內部</em>易手的幣、以ETF份額形式交易的部分在鏈上不留痕跡，因此不會更新。
+          永久沉睡的早期挖礦幣以接近0的成本計入，結構性地壓低已實現市值。
+          另外，MVRV Z的分母即全歷史σ(市值)會隨市場擴大而變大，因此<strong>近期週期的z振幅比過去被壓低</strong> — 過去 z&gt;7 那樣的極端值可能不會再出現。
+        </li>
+        <li>
+          <strong>恐懼與貪婪指數是全市場指標。</strong>Alternative.me的F&amp;G實際上是以BTC為中心的市場情緒，
+          不反映個別山寨幣的特有狀況。在山寨幣頁面上，這項指標的解釋力不如BTC。
+        </li>
+        <li>
+          <strong>山寨幣的資料較淺。</strong>上市時間短的話，200日均線、365日高點可能不準確，甚至根本沒有。請務必確認涵蓋率顯示。
+        </li>
+        <li>
+          <strong>權重是作者的判斷。</strong>回測確認了方向，但24%和20%哪個正確，資料並不能給出明確答案。
+        </li>
+      </ul>
+
+      <div class="note warn">
+        <strong>⚠ 投資提醒</strong><br />
+        本評分是由公開指標合成的<strong>參考訊號，並非投資建議。</strong>
+        加密貨幣是可能損失全部本金的高風險資產。一切投資決策及其後果完全由使用者本人負責。請務必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸閱讀</h2>
+      <div class="related">
+        <a href="/indicators"><b>8項指標深度解讀</b><span>RSI、MACD、Mayer倍數、回撤、交叉、MVRV、Thermocap各自在說明什麼</span></a>
+        <a href="/bitcoin-bottom"><b>如何判斷比特幣底部</b><span>市值 vs 平均持倉成本 — 以即時圖表看底部評分的依據</span></a>
+        <a href="/guide-fear-greed"><b>恐懼指數實戰用法</b><span>在恐懼區間分批買入的方法與常見錯誤</span></a>
+        <a href="/"><b>前往儀表板</b><span>查看目前評分（15種幣）</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 營運方 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+    </main>

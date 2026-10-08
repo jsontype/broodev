@@ -1,0 +1,453 @@
+    <main class="wrap" data-title="How the Buy Timing Score Is Calculated — A Methodology for Combining 8 Indicators | broodev" data-desc="The design document for the broodev buy timing score (0–100). We publish the functions that normalize 8 indicators — including 2 on-chain metrics (MVRV Z and Thermocap Z) — into 0–100 sub-scores, the two weight sets for short-term (momentum) and long-term (contrarian), the separate BOTTOM RADAR composite, renormalization for missing indicators, the 5 verdict bands, and the limits of this model.">
+      <nav class="nav">
+        <a href="/">← Dashboard</a>
+        <a href="/indicators">Indicator guide</a>
+        <a href="/bitcoin-bottom">Bottom signals</a>
+        <a href="/glossary">Glossary</a>
+        <a href="/guide-fear-greed">Using the Fear Index</a>
+      </nav>
+
+      <h1>How the Buy Timing Score Is Calculated</h1>
+      <p class="muted">Last updated: 2026-07-22 · Author: Y-Systems · Scope: broodev buy timing score v2 (8 indicators, including 2 on-chain)</p>
+
+      <p class="lead">
+        The <strong>0–100 buy timing score</strong> on the broodev dashboard is not a black box.
+        It takes 8 public indicators — 6 technical indicators plus 2 on-chain ones (MVRV Z-Score and Thermocap Z) — converts each into a 0–100 sub-score, and then takes a weighted average.
+        This document lays out exactly <strong>which functions normalize them, which weights are used, and why those choices were made</strong>.
+        We believe you need to be able to see the formula before deciding whether to trust the number.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Contents</div>
+        <ol>
+          <li><a href="#design">Design principle — why one indicator isn't enough</a></li>
+          <li><a href="#normalize">Step 1: Normalizing 8 indicators to 0–100</a></li>
+          <li><a href="#onchain">The 2 on-chain metrics — MVRV Z and Thermocap Z (definition, source, coverage)</a></li>
+          <li><a href="#weights">Step 2: Two weight sets (short-term and long-term)</a></li>
+          <li><a href="#missing">Step 3: Missing indicators and weight renormalization</a></li>
+          <li><a href="#bands">Step 4: The 5 verdict bands</a></li>
+          <li><a href="#bottom">Separate composite: BOTTOM RADAR</a></li>
+          <li><a href="#limits">Limits of this model (must read)</a></li>
+        </ol>
+      </div>
+
+      <h2 id="design">Design principle — why one indicator isn't enough</h2>
+      <p>
+        “The Fear Index is at rock bottom, so buy now” is only half right. Fear <strong>shows up at bottoms, but it also shows up in the middle of a crash.</strong>
+        Buying on the Fear Index alone is what people call <strong>“catching a falling knife.”</strong>
+      </p>
+      <p>
+        So this model blends indicators of different character. They fall into a few broad groups.
+      </p>
+      <ul>
+        <li><strong>Contrarian (mean-reversion)</strong> — the Fear &amp; Greed Index, the Mayer Multiple, the 365-day drawdown. The “opportunity is when others sell” axis.</li>
+        <li><strong>Momentum (trend-following)</strong> — MACD and the golden/death cross. The “trends persist” axis.</li>
+        <li><strong>Overheated/oversold detection</strong> — RSI. A buffer used on both sides.</li>
+        <li><strong>On-chain valuation (relative to cost)</strong> — MVRV Z-Score (relative to investors' average purchase cost) and Thermocap Z (relative to cumulative mining cost). Unlike the three above, this axis comes <strong>not from price but from the blockchain ledger</strong>.</li>
+      </ul>
+      <p>
+        These two main axes <strong>often point in opposite directions.</strong> That is the whole point.
+        Contrarian indicators alone keep saying “buy” all the way down a bear market, and momentum indicators alone say “buy” at the top.
+        Only by blending them can you tell apart a phase like <em>“sentiment is fearful, but the trend has already turned.”</em>
+      </p>
+
+      <h2 id="normalize">Step 1: Normalizing 8 indicators to 0–100 — <em>in two versions</em></h2>
+      <p>To combine indicators with different units (RSI runs 0–100, the Mayer Multiple 0.5–3, drawdown is in %), we first have to bring them onto a common scale. We transform them so that <strong>closer to 100 means more favorable for buying</strong>.</p>
+
+      <div class="note">
+        <strong>This is the most frequently misunderstood part of the model.</strong><br />
+        Each indicator has <strong>not one normalization function but two</strong>.
+        <strong>The short-term (momentum) tab and the long-term (contrarian) tab use different functions.</strong>
+        It is <strong>not</strong> a structure where the same indicator is “converted to 0–100 once and then just given different weights.”
+        <strong>In some cases the sign itself is reversed.</strong>
+      </div>
+
+      <p>
+        The reason is the one given in the previous section. Crypto behaves with <strong>momentum in the short run and mean reversion in the long run</strong>.
+        So <strong>“undervalued” earns points on the long-term tab but loses points on the short-term tab</strong>. That is not a bug; it is by design.
+      </p>
+
+      <h3>Mayer Multiple — the indicator where the two functions differ most dramatically</h3>
+      <p>The Mayer Multiple is <code>current price ÷ 200-day moving average</code>. Below 1 means price is under the long-term trend line, i.e. relatively undervalued.</p>
+
+      <p><strong>Long-term (contrarian) — the cheaper, the higher the score.</strong> It is a piecewise nonlinear transform, not a linear one.</p>
+      <pre><code>conMayer(m):
+  m ≤ 0.8  →  100
+  m ≤ 1.4  →  50 + ((1.4 − m) / 0.6) × 50     // 100 → 50
+  m ≤ 2.4  →  10 + ((2.4 − m) / 1.0) × 40     // 50 → 10
+  m &gt; 2.4  →  10 − (m − 2.4) × 25             // 10 → 0</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mayer Multiple</th><th>Long-term sub-score</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100</td><td>20%+ discount to the 200-day line — historically undervalued zone</td></tr>
+            <tr><td><code>1.0</code></td><td>83.3</td><td>Equal to the 200-day line</td></tr>
+            <tr><td><code>1.4</code></td><td>50</td><td>Boundary between normal and overvalued</td></tr>
+            <tr><td><code>2.4</code></td><td>10</td><td>Entering extreme overheating</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>Historical top zone</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Short-term (momentum) — the more expensive, the higher the score. The sign is exactly reversed.</strong></p>
+      <pre><code>momMayer(m) = clamp(50 + (m − 1) × 25, 0, 100)
+
+  m = 0.75 → 43.75   (undervalued = actually a penalty in the short term)
+  m = 1.0  → 50
+  m = 1.6  → 65
+  m = 2.6  → 90      (overheated = a bonus in the short term)</code></pre>
+      <p>
+        “Why a bonus when it's expensive?” — Because <strong>in the short run, trading far above the 200-day line is itself a strong uptrend</strong>.
+        From a trend-following point of view, that is a buy-favorable signal. Conversely, being sunk below the 200-day line is a <strong>downtrend</strong> and is risky in the short run.
+      </p>
+
+      <h3>The blow-off top guard — a safety device for the short-term score</h3>
+      <p>
+        With momMayer alone, <strong>the short-term score would keep rising right up to the peak of a bubble</strong>.
+        So <strong>after the composite is computed, a separate damping is applied to the short-term total</strong>. The guard has two terms —
+        <strong>① if the Mayer Multiple &gt; 2.0, multiplicative damping</strong>, and <strong>② if the Fear &amp; Greed Index ≥ 90 (extreme greed), a point deduction</strong>.
+        If both conditions hold at once, both apply, and the final score is clamped to 0–100.
+      </p>
+      <pre><code>// ① Mayer Multiple damping (multiplicative)
+if (mayer &gt; 2.0):
+    short_total × = clamp(1 − (mayer − 2.0) × 0.55,  0.25,  1)
+
+  Mayer 2.0 → ×1.00 (no damping)
+  Mayer 2.5 → ×0.725  (total cut by 27.5%)
+  Mayer 3.0 → ×0.45
+  Mayer 3.4 or higher → ×0.25 (floor)
+
+// ② Fear &amp; Greed extreme deduction (subtractive)
+if (F&amp;G ≥ 90):
+    short_total − = (F&amp;G − 90) × 2.0
+
+  F&amp;G 90 → −0 pts
+  F&amp;G 95 → −10 pts
+  F&amp;G 100 → −20 pts</code></pre>
+      <p>
+        Why ② is needed: momFng itself rewards greed (short term = moving with the trend), so even at <strong>historical extremes</strong> where F&amp;G exceeds 90,
+        the short-term score would stay high. Statistically that zone is likely to be near a cycle top, so we
+        <strong>deduct directly from the total</strong> rather than from the sub-score.
+      </p>
+      <div class="note warn">
+        <strong>Correction notice (2026-07-14)</strong> — A previous version of this document included only the long-term (contrarian) normalization functions and
+        <strong>omitted the short-term (momentum) functions and the blow-off top guard</strong>. As a result, it described the short-term contribution of the Mayer Multiple
+        <strong>with the sign reversed</strong>. It has been corrected to match the code.
+      </div>
+
+      <h3>Fear &amp; Greed Index (F&amp;G)</h3>
+      <p><strong>Long-term (contrarian) — the more fear, the higher the score.</strong> A single day's value is noisy, so <strong>7-day and 30-day averages are blended in.</strong></p>
+      <pre><code>conFng = 0.5 × (100 − current value)
+       + 0.3 × (100 − last 7-day average)
+       + 0.2 × (100 − last 30-day average)
+
+// extra weighting only in the extreme zones
+current ≤ 25 (extreme fear)  → += (25 − current) × 0.4
+current ≥ 75 (extreme greed) → −= (current − 75) × 0.4</code></pre>
+      <p>
+        The intent is twofold. First, it <strong>distinguishes “one day of fear” from “a month of fear”</strong> — the latter is a much stronger signal.
+        Second, it adds <strong>extra weight only in the extreme zones</strong> at 25 and below or 75 and above. Small moves in the middle range (40–60) carry almost no meaning.
+      </p>
+      <p><strong>Short-term (momentum) — the more greed, the higher the score.</strong> No averages are blended in; <strong>only the current value</strong> is used.</p>
+      <pre><code>momFng = clamp(50 + (current − 50) × 1.2, 0, 100)
+
+  fear 20    → 14   (low score in the short term)
+  neutral 50 → 50
+  greed 85   → 92   (high score in the short term)</code></pre>
+
+      <h3>RSI(14, Wilder)</h3>
+      <p>The standard 14-day RSI using Wilder's method. <strong>The sign is reversed here too.</strong></p>
+      <pre><code>conRsi(r) = clamp(50 + (50 − r) × 1.7, 0, 100)   // long-term: the more oversold (lower RSI), the higher the score
+momRsi(r) = clamp(50 + (r − 50) × 1.6, 0, 100)   // short-term: the stronger (higher RSI), the higher the score</code></pre>
+      <p>
+        On the long-term tab, an RSI of 25 scores high (<code>50 + 25×1.7 = 92.5</code>),
+        while on the short-term tab, an RSI of 25 scores low (<code>50 − 25×1.6 = 10</code>). <strong>Same value, opposite interpretation.</strong>
+      </p>
+
+      <h3>MACD(12·26·9) histogram</h3>
+      <p>
+        We look at the <strong>change in direction of the MACD histogram, not its absolute value</strong>. In other words, “the histogram is negative but larger than the previous bar” (an upturn off the bottom) is the strongest buy-momentum signal.
+        It is normalized by dividing by price scale, so it is comparable across coins at different price levels. MACD is inherently a trend indicator, so <strong>its direction does not differ much between the two modes.</strong>
+      </p>
+
+      <h3>Drawdown from the 365-day high</h3>
+      <p>How far price has fallen from its high over the past year. We treat <strong>−30% as the start of interest and −50% or deeper as strongly buy-favorable</strong> (from a long-term view). The deeper the drawdown, the more it is treated as a zone for staged buying.</p>
+
+      <h3>Golden/death cross (50/200 moving averages)</h3>
+      <p>If the 50-day line is above the 200-day line (golden cross state), the trend is favorable; if below (death cross), unfavorable. It acts as a <strong>trend filter</strong>.</p>
+
+      <h2 id="onchain">The 2 on-chain metrics — MVRV Z-Score · Thermocap Z</h2>
+      <p>
+        These are the two indicators added in v2. Whereas the 6 above are all <strong>derived from price</strong>, these two come from <strong>the blockchain ledger (who acquired coins at what price, and how much was paid out for mining)</strong>.
+        It is the first time information from outside price has entered the score.
+      </p>
+
+      <h3>MVRV Z-Score (market cap vs average purchase cost)</h3>
+      <pre><code>Realized Cap  = total value of all coins, each priced at 'the price on the day it last moved'
+              ≈ the market's aggregate average purchase cost
+MVRV Z-Score  = (market cap − realized cap) ÷ σ(market cap, full history)</code></pre>
+      <p>
+        <strong>Data source:</strong> We pull <code>CapMrktCurUSD</code> (market cap) and <code>CapMVRVCur</code> (MVRV ratio) as full-history daily series from the CoinMetrics Community API (free, no key required),
+        and derive <code>realized cap = market cap ÷ MVRV</code>.
+      </p>
+      <p>
+        <strong>Coverage:</strong> It is computed only for the <strong>10 coins</strong> for which CoinMetrics Community provides MVRV —
+        <code>BTC · ETH · XRP · DOGE · BCH · LINK · XLM · LTC · DOT · MANA</code>.
+        For unsupported coins (AVAX, SHIB, PEPE, GRT, SAND), it is treated as N/A and the <a href="#missing">weights are renormalized</a>.
+      </p>
+
+      <h3>Thermocap Z (market cap vs cumulative mining rewards) — BTC only</h3>
+      <pre><code>Thermocap   = cumulative total of miner revenue (block rewards + fees, USD) since 2009
+Thermocap Z = full-history z-score of ln(market cap ÷ Thermocap)</code></pre>
+      <p>
+        <strong>Data source:</strong> blockchain.info <code>charts/miners-revenue</code> (full period). Because the sampling interval is irregular,
+        each sample is weighted by its interval (in days) before accumulating (an integral approximation). The result is then date-aligned with CoinMetrics daily market cap to form the ratio.
+        Since mining rewards are a concept of proof-of-work Bitcoin itself, <strong>this indicator is computed only on the BTC screen and is always missing (renormalized) for altcoins</strong>.
+      </p>
+
+      <h3>Mapping z to a sub-score (Z_ANCHORS)</h3>
+      <p>
+        The long-term (contrarian) sub-scores of both on-chain indicators use the same mapping. The lower z is (the cheaper relative to cost), the higher the score, with linear interpolation between the anchors below.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>z</th><th>≤ −1</th><th>0</th><th>0.5</th><th>1</th><th>2</th><th>3</th><th>4</th><th>6</th><th>≥ 8</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Sub-score</strong></td><td>100</td><td>88</td><td>72</td><td>58</td><td>42</td><td>28</td><td>16</td><td>4</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The anchors are based on the historical distribution of BTC MVRV-Z — bottoms at z &lt; 0, normal phases at 1–2, and overheating above 5.
+        Concentrating resolution in the low range (0–1) with tight 0.5 steps follows the same principle as the Mayer Multiple function: <em>the score should move meaningfully in the range where the market spends most of its time.</em>
+      </p>
+      <p><strong>The short-term (momentum) functions have a different sign here too.</strong> Trading far above the aggregate cost basis is read as trend strength.</p>
+      <pre><code>// short-term (momentum)
+momMvrv  = clamp(50 + (MVRV ratio − 1) × 28, 0, 100)   // above aggregate cost basis = trend strength = bonus
+momTherm = clamp(50 + ThermocapZ × 14, 0, 100)
+
+// long-term (contrarian) — both use the Z_ANCHORS mapping above
+conMvrv  = zToScore(MVRV Z)
+conTherm = zToScore(Thermocap Z)</code></pre>
+      <p>
+        <em>Why</em> these two indicators work at bottoms, and how they actually printed at five bottoms, is covered with live charts in the separate explainer
+        <a href="/bitcoin-bottom">How to spot a Bitcoin bottom — market cap vs average purchase cost</a>.
+      </p>
+
+      <h2 id="weights">Step 2: Two weight sets (short-term and long-term)</h2>
+      <p>
+        This is the core of the model, and where it parts ways with most “fear index sites.”
+        <strong>The same indicator has to be read in opposite ways depending on the investment horizon.</strong>
+      </p>
+      <p>
+        Crypto shows <strong>momentum (trend-following) behavior over short windows</strong> and <strong>mean-reversion (contrarian) behavior over long cycles</strong>.
+        Over 1–3 months, what is rising tends to keep rising; over a year or more, extreme fear and undervaluation eventually revert.
+        That is why <strong>the two tabs (short-term and long-term) each use different weights</strong>.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Indicator</th><th>Short-term (momentum · 1–3 months)</th><th>Long-term (contrarian · 1 year+)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>Fear &amp; Greed Index</td><td><strong>24%</strong></td><td>13%</td></tr>
+            <tr><td>365-day drawdown</td><td>15%</td><td>10%</td></tr>
+            <tr><td>MACD</td><td>12%</td><td>13%</td></tr>
+            <tr><td>MVRV Z-Score</td><td>10%</td><td><strong>18%</strong></td></tr>
+            <tr><td>Golden/death cross</td><td>7%</td><td>10%</td></tr>
+            <tr><td>Mayer Multiple</td><td><strong>4%</strong></td><td>13%</td></tr>
+            <tr><td>Thermocap Z</td><td>4%</td><td>10%</td></tr>
+            <tr><td><strong>Total (check)</strong></td><td><strong>100%</strong> <span class="muted">(24+12+24+4+15+7+10+4)</span></td><td><strong>100%</strong> <span class="muted">(13+13+13+13+10+10+18+10)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Two placements stand out — <strong>the largest long-term weight is MVRV Z (18%)</strong>, and <strong>the Mayer Multiple's short-term 4%</strong> has been kept.</p>
+      <ul>
+        <li>
+          <strong>The top long-term slot has moved from Mayer to MVRV.</strong> In the version before on-chain data was added, the Mayer Multiple was on top at 18% long-term.
+          But both indicators answer the same question (“is it expensive relative to cost/baseline?”), and MVRV uses the <em>actual acquisition cost</em> while Mayer uses <em>a proxy, the 200-day average</em>.
+          When two indicators play the same role, the more direct one should carry the weight. Hence <strong>MVRV at 18%</strong>, with Mayer lowered to 13%, on par with RSI, MACD and the Fear Index.
+        </li>
+        <li>
+          <strong>Thermocap is 10% long-term.</strong> Its cycle reproducibility is good, but it is BTC-only and therefore always missing on altcoin screens,
+          and its denominator (cumulative mining rewards) changes character a little with each halving, so it was weighted one step below MVRV.
+        </li>
+        <li>
+          <strong>In the short term, on-chain data also works as “trend strength.”</strong> Trading far above the aggregate cost basis is a strong trend in the short run (momMvrv).
+          But this information overlaps with RSI (24%), drawdown (15%) and MACD (12%), so MVRV gets only 10% and Thermocap 4% —
+          the same <strong>redundant-signal principle</strong> that held the Mayer Multiple down to 4%.
+        </li>
+        <li>
+          <strong>Overheating protection is still handled by the guard, not by the weights.</strong>
+          The <a href="#normalize">blow-off top guard</a> is unchanged — once Mayer exceeds 2.0, <strong>damping is applied to the short-term total itself</strong> (up to a 75% cut).
+        </li>
+      </ul>
+      <p>
+        <strong>The golden/death cross still weighs more in the long term (7% → 10%)</strong>. The 50/200 cross is a slow signal, too late for short-term trading,
+        but it remains useful for telling cycle phases apart.
+      </p>
+
+      <div class="note">
+        <strong>On the short-term tab, the interpretation of RSI, the Fear Index, Mayer and MVRV is entirely flipped.</strong>
+        In long-term (contrarian) mode, “fear = buy, undervalued = buy,”
+        but in short-term (momentum) mode, high scores go to <strong>a live trend and improving sentiment</strong>.
+        The same Fear Index of 20 gives <em>a high score (≈86) on the long-term tab and a low score (≈14) on the short-term tab</em>.
+        <strong>That is not a bug; it is by design.</strong> The exact functions are all written out in <a href="#normalize">Step 1</a>.
+      </div>
+
+      <p class="muted">
+        These weights were set based on our own backtest (BTC daily candles since 2017), which found that over short horizons the momentum direction,
+        and over long horizons the contrarian direction, lined up better with forward returns. That said, it is a single-asset backtest with a limited sample,
+        and <strong>past alignment does not guarantee the future.</strong>
+      </p>
+
+      <h2 id="missing">Step 3: Missing indicators and weight renormalization</h2>
+      <p>
+        Data sources don't always respond. The model currently uses five sources —
+        <strong>CoinGecko and Binance</strong> (prices and daily candles), <strong>Alternative.me</strong> (Fear &amp; Greed Index),
+        <strong>CoinMetrics Community</strong> (on-chain: market cap and MVRV, free, no key required), and <strong>blockchain.info</strong> (miner revenue → Thermocap).
+        The Binance API is blocked in some regions, and newly listed coins lack 200 days of data, so the Mayer Multiple cannot be computed for them.
+      </p>
+      <p>
+        The 2 on-chain metrics also have <strong>structural gaps</strong>. MVRV is computed only for the 10 coins CoinMetrics supports (BTC, ETH, XRP, DOGE, BCH, LINK, XLM, LTC, DOT, MANA),
+        and Thermocap <strong>only for BTC</strong>. In other words, the score on an altcoin screen is a composite of 6–7 indicators from the start, not 8.
+      </p>
+      <p>
+        In such cases, <strong>a missing indicator must not be scored as 0.</strong> A 0 means “very bad,” not “unknown.”
+        Otherwise the score would plunge simply because data is unavailable.
+      </p>
+      <p>
+        So a missing indicator is <strong>excluded from the calculation, and the remaining indicators' weights are renormalized to sum to 100%</strong>.
+        For example, if MVRV (18%) is missing on the long-term tab, the weights of the remaining 7 indicators are divided by <code>82%</code> and rescaled.
+      </p>
+      <p>
+        In return, <strong>coverage is shown on the dashboard and in the terminal</strong> (<code>coverage: 7/8 indicators (82% weight)</code>).
+        A score with low coverage is correspondingly less reliable, so always check it.
+      </p>
+
+      <h2 id="bands">Step 4: The 5 verdict bands</h2>
+      <p>
+        The composite 0–100 score is split into five ranges, each with an interpretation.
+        <strong>The range boundaries are the same on both tabs, but the band names differ in three ranges (65–80, 25–45, 0–25)</strong> — because the same score means different things depending on the tab.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Score</th><th>Long-term (contrarian) verdict</th><th>Short-term (momentum) verdict</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td><strong>STRONG BUY</strong></td><td><strong>STRONG BUY</strong></td><td>Multiple signals converge</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td><strong>ACCUMULATE</strong><br /><span class="muted">Favorable for staged accumulation</span></td><td><strong>BUY</strong><br /><span class="muted">Uptrend has the upper hand</span></td><td>Buy-favorable zone</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td><strong>NEUTRAL</strong></td><td><strong>NEUTRAL</strong></td><td>No clear edge. Wait and see</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td><strong>CAUTION</strong><br /><span class="muted">Early greed / overvaluation</span></td><td><strong>WEAK</strong><br /><span class="muted">Downside momentum dominates</span></td><td>Hold off on new or chase buying</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td><strong>OVERHEATED</strong><br /><span class="muted">Overheated, near a top</span></td><td><strong>AVOID</strong><br /><span class="muted">Strong downtrend</span></td><td>Hold off on new buying</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>Why are the names different?</strong> Because the <em>cause</em> of a low score differs by tab, even for the same number.
+        The long-term tab takes a “contrarian” view, so a low score = <em>the market is too hot</em>;
+        the short-term tab takes a “move with the trend” view, so a low score = <em>a downtrend is under way</em>.<br />
+        <strong>0–25 on the long-term tab</strong> = the Fear Index shows greed and Mayer is high → <strong>overheated (OVERHEATED)</strong>. Beware of being near a top.<br />
+        <strong>0–25 on the short-term tab</strong> = RSI is at the floor and the trend has broken down → <strong>downtrend (AVOID)</strong>. Hold off buying until a reversal.<br />
+        Likewise, 65–80 is read as long-term ACCUMULATE (staged accumulation) vs short-term BUY (trend-following buy),
+        and 25–45 as long-term CAUTION (beware of early overheating) vs short-term WEAK (downside momentum dominates).
+        Only two ranges share the same name: 80–100 (STRONG BUY) and 45–65 (NEUTRAL).
+      </div>
+      <p>
+        The boundaries are <strong>arbitrary cuts in a continuous score</strong>. 79 and 81 are effectively the same.
+        Use the bands only as a rough phase guide, and also watch <strong>the score's trajectory (is it rising or falling?)</strong>.
+      </p>
+
+      <h2 id="bottom">Separate composite: BOTTOM RADAR</h2>
+      <p>
+        Apart from the short-term and long-term scores, the dashboard has a <strong>BOTTOM RADAR</strong>.
+        It answers only one question — not “will it go up if I buy now?” but <strong>“are we in a historical bottom zone right now?”</strong> — so it uses its own weight set.
+        Momentum indicators (RSI, MACD, cross) are left out entirely, and the defining feature is that <strong>55% is concentrated on the 2 cost-based on-chain metrics</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indicator</th><th>Weight</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td></tr>
+            <tr><td>Mayer Multiple</td><td>15%</td></tr>
+            <tr><td>365-day drawdown</td><td>15%</td></tr>
+            <tr><td>Fear &amp; Greed Index</td><td>15%</td></tr>
+            <tr><td><strong>Total (check)</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Each indicator <strong>reuses its long-term (contrarian) sub-score as is, with new weights</strong> — no new normalization functions were created.
+        Missing data is handled the same way: absent indicators are excluded and the rest renormalized; off BTC, Thermocap is always dropped, and for coins CoinMetrics does not support, MVRV is dropped too.
+        The verdict bands are five ranges different from those of the short-term and long-term scores.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bottom score</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Historical bottom zone</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Undervalued</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutral</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Overvalued</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Top zone / overheated</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Why on-chain data carries the majority — and how these indicators actually printed at five bottoms — is verified with live charts in
+        <a href="/bitcoin-bottom">How to spot a Bitcoin bottom</a>.
+      </p>
+
+      <h2 id="limits">Limits of this model (must read)</h2>
+      <p>We'll be candid. Knowing what this score <strong>cannot do</strong> matters more.</p>
+      <ul>
+        <li>
+          <strong>It does not predict prices.</strong> The score merely summarizes “is the market currently on the oversold/fearful side or the overheated/greedy side?”
+          A score of 90 does not mean “it will go up”; it means “historically, this is what such phases looked like.”
+        </li>
+        <li>
+          <strong>Technical indicators can stay wrong for a long time in strong trends.</strong> In a strong bear market, RSI can sit below 30 for weeks.
+          Rather than “oversold, so it bounces,” “stays oversold and keeps falling” is common.
+        </li>
+        <li>
+          <strong>It knows nothing about fundamentals, news or regulation.</strong> Events like an exchange bankruptcy, a regulatory announcement or a hack are not immediately reflected in these 8 indicators.
+          The chart can look pretty while the company is collapsing.
+        </li>
+        <li>
+          <strong>On-chain indicators have distortions specific to on-chain data.</strong> Realized cap (the denominator in MVRV) is updated <strong>even when an exchange merely moves coins while reorganizing its cold wallets</strong>,
+          with no real purchase; conversely, coins that change hands <em>inside</em> an exchange, or volume traded as ETF shares, leave no on-chain trace and are not updated.
+          Early mined coins that have been dormant forever are booked at a cost near 0, structurally lowering realized cap.
+          Also, the full-history σ(market cap) in the MVRV Z denominator grows as the market grows, so <strong>z swings in recent cycles are compressed compared with the past</strong> — past extremes like z&gt;7 may never recur.
+        </li>
+        <li>
+          <strong>The Fear &amp; Greed Index is a market-wide indicator.</strong> Alternative.me's F&amp;G is essentially BTC-centric market sentiment
+          and does not reflect the specific situation of individual altcoins. On altcoin screens, this indicator has less explanatory power than for BTC.
+        </li>
+        <li>
+          <strong>Altcoins have shallow data.</strong> With a short listing history, the 200-day line and 365-day high are inaccurate or missing altogether. Be sure to check the coverage display.
+        </li>
+        <li>
+          <strong>The weights are the author's judgment.</strong> The backtest confirmed the direction, but the data does not say definitively whether 24% or 20% is right.
+        </li>
+      </ul>
+
+      <div class="note warn">
+        <strong>⚠ Investment notice</strong><br />
+        This score is <strong>a reference signal synthesized from public indicators, not investment advice.</strong>
+        Cryptocurrencies are high-risk assets in which you can lose your entire principal. All investment decisions and their consequences are solely the user's responsibility. Always do your own research (DYOR).
+      </div>
+
+      <h2>Read next</h2>
+      <div class="related">
+        <a href="/indicators"><b>In-depth guide to the 8 indicators</b><span>What RSI, MACD, the Mayer Multiple, drawdown, the cross, MVRV and Thermocap each tell you</span></a>
+        <a href="/bitcoin-bottom"><b>How to spot a Bitcoin bottom</b><span>Market cap vs average purchase cost — the basis for BOTTOM RADAR, with live charts</span></a>
+        <a href="/guide-fear-greed"><b>Using the Fear Index in practice</b><span>How to buy in stages during fear phases, and common mistakes</span></a>
+        <a href="/"><b>To the dashboard</b><span>Check the current score (15 coins)</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Operated by Y-Systems · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></footer>
+    </main>

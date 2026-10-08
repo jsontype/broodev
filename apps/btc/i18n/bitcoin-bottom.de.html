@@ -1,0 +1,293 @@
+<main class="wrap" data-title="Wie man den Bitcoin-Boden erkennt — Marktkapitalisierung vs. durchschnittlicher Einstandskurs | broodev" data-desc="Den Boden von Bitcoin erkennt man nicht am Preis, sondern daran, ob die Marktkapitalisierung unter den durchschnittlichen Einstandskurs der Anleger (die Realized Cap) gefallen ist. Mit Live-Charts rekonstruieren wir, wie die MVRV bei den fünf Böden 2011, 2015, 2018, 2020 und 2022 tatsächlich unter 1 fiel, und legen sämtliche Formeln des broodev-Boden-Scores (BOTTOM RADAR) offen, der zusätzlich die Thermocap (kumulierte Mining-Belohnungen) einbezieht.">
+      <nav class="nav">
+        <a href="/">← Übersicht</a>
+        <a href="/methodology">Score-Methodik</a>
+        <a href="/indicators">Indikatoren erklärt</a>
+        <a href="/bitcoin-bottom">Bodensignale</a>
+        <a href="/glossary">Glossar</a>
+      </nav>
+
+      <h1>Wie man den Bitcoin-Boden erkennt<br />— Marktkapitalisierung vs. durchschnittlicher Einstandskurs</h1>
+      <p class="muted">Zuletzt aktualisiert: 2026-07-22 · Autor: Y-Systems · Gegenstand: die On-Chain-Komponenten des broodev-Boden-Scores (BOTTOM RADAR)</p>
+
+      <p class="lead">
+        Jeder Versuch, den Bitcoin-Boden anhand des Preises zu finden, ist gescheitert. Der Boden 2018 lag bei 3.150 US-Dollar, der Boden 2022 bei 15.500 US-Dollar — <strong>ein Unterschied um das Fünffache.</strong>
+        Und doch hatten beide Böden eine Gemeinsamkeit, die nichts mit dem Preis zu tun hatte. <strong>Die Marktkapitalisierung von Bitcoin war unter die Summe dessen gefallen, was alle Anleger tatsächlich bezahlt hatten (den gesamten durchschnittlichen Einstandswert)</strong>.
+        Dieser Artikel zeichnet diese Beobachtung direkt mit Live-Daten nach, verfolgt chronologisch, wie sich das Signal bei den fünf Böden tatsächlich gezeigt hat,
+        und legt samt Formeln offen, mit welchen Gewichten der <strong>Boden-Score (BOTTOM RADAR)</strong> von broodev es zusammensetzt.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Inhalt</div>
+        <ol>
+          <li><a href="#concept">Warum der „durchschnittliche Einstandskurs“ den Boden verrät — die Realized Cap</a></li>
+          <li><a href="#chart-mc">Live-Chart ① — Marktkapitalisierung vs. durchschnittlicher Einstandskurs (2010 bis heute)</a></li>
+          <li><a href="#history">Fünf Böden — die Tage, an denen die MVRV unter 1 fiel</a></li>
+          <li><a href="#mvrv-z">Live-Chart ② — Standardisierung mit dem MVRV Z-Score</a></li>
+          <li><a href="#thermocap">Live-Chart ③ — Thermocap: der Boden aus Sicht der Mining-Kosten</a></li>
+          <li><a href="#divergence">So liest man die Momente, in denen beide Indikatoren auseinanderlaufen</a></li>
+          <li><a href="#limits">Die Grenzen dieser Indikatoren — eine Stichprobe von 4 Zyklen, das ETF-Zeitalter</a></li>
+          <li><a href="#radar">Wie sich der broodev-Boden-Score (BOTTOM RADAR) zusammensetzt — Gewichte offengelegt</a></li>
+          <li><a href="#faq">Häufige Fragen</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>Zu den Zahlen in diesem Artikel.</strong> Die Charts unten sind <strong>echte Daten, die beim Öffnen dieser Seite direkt von CoinMetrics Community API und blockchain.info abgerufen und in Ihrem Browser gezeichnet werden</strong> (6 Stunden Cache).
+        Die MVRV-Werte an früheren Böden und die anschließenden Renditen in den Tabellen sind dagegen <strong>rekonstruierte Näherungswerte</strong> — je nach Datenquelle und je nachdem, welcher Tag als Tief gilt, schwanken die Nachkommastellen.
+        Die These dieses Artikels hängt nicht an Nachkommastellen, sondern an dem <strong>wiederkehrenden Muster, dass „die Phasen, in denen die Marktkapitalisierung unter den Einstandswert fiel, mit den Böden zusammenfielen“</strong>.
+      </div>
+
+      <h2 id="concept">Warum der „durchschnittliche Einstandskurs“ den Boden verrät — die Realized Cap</h2>
+      <p>
+        Die Marktkapitalisierung kennt jeder: <code>aktueller Preis × Umlaufmenge</code>. Diese Zahl <em>unterstellt</em>, dass ein einziger letzter Handelspreis den Wert aller Coins repräsentiert.
+        On-Chain-Daten enthalten aber noch eine weitaus interessantere Zahl: die <strong>realisierte Marktkapitalisierung (Realized Cap)</strong>.
+      </p>
+      <pre><code>Marktkapitalisierung = aktueller Preis × Umlaufmenge                (bewertet jeden Coin zum 'heutigen Preis')
+Realized Cap         = Σ (jeder Coin × Preis am Tag seiner letzten Bewegung)
+                     = Summe dessen, was Anleger tatsächlich bezahlt haben ≈ Ø-Einstandskurs des Gesamtmarkts × Umlaufmenge</code></pre>
+      <p>
+        Die Blockchain zeichnet auf, <strong>wann jeder Coin zuletzt die Wallet gewechselt hat</strong>. Betrachtet man den Preis am Tag dieser Bewegung als „Anschaffungskosten“ des Coins und addiert alles,
+        erhält man den Gesamtbetrag, den der Markt tatsächlich in Bitcoin gesteckt hat. Bei Aktien entspräche das dem <strong>durchschnittlichen Kaufkurs aller Aktionäre multipliziert mit der Zahl der Aktien</strong>.
+        Deshalb nennt dieser Artikel die Realized Cap den <strong>„durchschnittlichen Einstandswert (gesamt)“</strong>.
+      </p>
+      <p>Das Verhältnis beider Zahlen ist die berühmte <strong>MVRV</strong>.</p>
+      <pre><code>MVRV = Marktkapitalisierung ÷ Realized Cap
+
+MVRV 2.0  → der durchschnittliche Halter hat sein Kapital verdoppelt (alle im Gewinn)
+MVRV 1.0  → der Gesamtmarkt steht genau bei null
+MVRV 0.8  → der durchschnittliche Halter liegt −20% im Minus (alle im Verlust)</code></pre>
+      <p>
+        Daraus ergibt sich die Logik des Bodens. <strong>Fällt die MVRV unter 1, liegen die Bitcoin-Halter insgesamt im Durchschnitt im Verlust.</strong>
+        Historisch sind in dieser Zone zwei Dinge passiert. Erstens erreicht die <strong>Kapitulation (capitulation)</strong> der Anleger, die ihre Verluste nicht mehr ertragen, ihren Höhepunkt.
+        Zweitens übernehmen langfristige Halter, die sich von Gewinn und Verlust nicht beirren lassen, diese Mengen. Es ist <strong>der Moment, in dem Coins von schwachen in starke Hände wandern</strong>,
+        und in allen vier Zyklen <strong>fiel dieser Moment mit einem großen Boden zusammen.</strong> Im Chart unten können Sie das selbst überprüfen.
+      </p>
+
+      <h2 id="chart-mc">Live-Chart ① — Marktkapitalisierung vs. durchschnittlicher Einstandskurs<span class="info-tip" tabindex="0" role="note" aria-label="Erklärung: Marktkapitalisierung vs. durchschnittlicher Einstandskurs">ⓘ<span class="tip-bubble"><b>Marktkapitalisierung vs. durchschnittlicher Einstandskurs</b>Die blaue Linie ist der durchschnittliche Einstandskurs der Anleger. Fällt die Marktkapitalisierung (weiß) unter diese Linie, liegt der Markt im Schnitt im Verlust – historisch war das stets eine Bodenzone.</span></span></h2>
+      <p>
+        Die weiße Linie ist die <strong>Marktkapitalisierung</strong>, die blaue der <strong>durchschnittliche Einstandswert (Realized Cap)</strong>. Die Skala ist logarithmisch, die orangefarbenen gestrichelten Linien markieren die vier Halvings.
+        Beim Überfahren mit der Maus werden Datum und beide Werte angezeigt. Es gibt nur eine Sache zu beachten — <strong>die Phasen, in denen die weiße Linie unter die blaue taucht</strong>. Das waren allesamt Böden.
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">Daten werden geladen und der Chart wird gezeichnet … (kann einige Sekunden dauern)</div></div>
+      <p class="chart-src">Daten: CoinMetrics Community API (CapMrktCurUSD · CapMVRVCur, Tageskerzen über die gesamte Historie · Realized Cap = Marktkapitalisierung ÷ MVRV) · 6 Stunden lokaler Cache · logarithmische Skala</p>
+      <p>
+        Achten Sie auf eine Eigenschaft der blauen Linie: <strong>Sie fällt kaum.</strong> Während die Marktkapitalisierung um −80% einbricht, sinkt der durchschnittliche Einstandswert nur sanft.
+        Denn der Einstandswert wird <em>nur dann aktualisiert, wenn tatsächlich gehandelt wird</em>. Selbst in einem von Angst beherrschten Markt bewegen sich die meisten Coins nicht, und der Einstandswert unbewegter Coins bleibt unverändert.
+        Deshalb verhält sich die blaue Linie <strong>nicht wie eine Schwerkraftlinie des Preises, sondern wie der Buchwert des Marktes</strong>. Dass die Marktkapitalisierung diesen Buchwert durchbricht, ist selten — und gerade weil es selten ist, ist es ein Signal.
+      </p>
+
+      <h2 id="history">Fünf Böden — die Tage, an denen die MVRV unter 1 fiel</h2>
+      <p>
+        In der Geschichte von Bitcoin lassen sich die Phasen, in denen die Marktkapitalisierung unter den durchschnittlichen Einstandswert fiel (MVRV &lt; 1), an einer Hand abzählen. Hier die Übersicht derer, die mit den fünf großen Böden zusammenfielen.
+        Alle Zahlen sind <strong>Näherungswerte</strong> — sie hängen davon ab, welcher Tag als Tief gilt.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bodenphase</th><th>Preis damals (ca.)</th><th>MVRV-Tief (ca.)</th><th>1 Jahr später (ca.)</th><th>2 Jahre später (ca.)</th></tr></thead>
+          <tbody>
+            <tr><td>November 2011</td><td>ca. 2 $</td><td><code>0.4~0.6</code></td><td>ca. 11 $ (+400% und mehr)</td><td>ca. 1.000 $ (das Hundertfache und mehr)</td></tr>
+            <tr><td>Januar 2015</td><td>ca. 170~230 $</td><td><code>0.55~0.7</code></td><td>ca. 380~430 $ (+90~130%)</td><td>ca. 900 $ (+300% und mehr)</td></tr>
+            <tr><td>Dezember 2018</td><td>ca. 3.200 $</td><td><code>um 0.7</code></td><td>ca. 7.200 $ (+120% und mehr)</td><td>ca. 23.000 $ (+600% und mehr)</td></tr>
+            <tr><td>März 2020</td><td>ca. 3.800~5.000 $</td><td><code>0.85~0.95</code> (einige Tage)</td><td>ca. 58.000 $ (+1.000% und mehr)</td><td>ca. 44.000 $ (+700% und mehr)</td></tr>
+            <tr><td>November 2022</td><td>ca. 15.500 $</td><td><code>0.75~0.85</code></td><td>ca. 37.000 $ (+130% und mehr)</td><td>ca. 90.000 $ (+480% und mehr)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Die fünf Böden hatten völlig unterschiedliche Ursachen: das Platzen der eigenen Blase (2011), die Nachwehen von Mt. Gox (2015), die Bereinigung der ICO-Blase (2018), die Pandemie-Panik (2020) und die FTX-Pleite (2022).
+        Die Preise reichen von 2 $ bis 15.500 $ — ein Unterschied um das <strong>7.750-Fache</strong>. Und doch <strong>lag die MVRV alle fünf Male unter 1, meist im Bereich 0,7~0,9</strong>.
+        Misst man nicht den absoluten Preis, sondern <strong>„wie stark der Abschlag gegenüber dem Einstandswert des Gesamtmarkts ist“</strong>, landen fünf völlig verschiedene Böden fast an derselben Stelle.
+      </p>
+      <div class="note warn">
+        <strong>Aber: Der Umkehrschluss gilt nicht.</strong> „MVRV &lt; 1 = sofortiger Boden“ stimmt nicht.
+        2011, 2014~2015 und Ende 2018 blieb die MVRV <strong>wochen- bis monatelang</strong> unter 1, und innerhalb dieser Zeit fiel der Preis weiter.
+        Dieser Indikator sagt nicht „hier ist der Tiefpunkt“, sondern liefert eine Zoneninformation: <strong>„Historisch haben diejenigen, die in dieser Zone gestaffelt gekauft haben, ein bis zwei Jahre später deutlich gewonnen.“</strong>
+        Lesen Sie ihn nicht als Timing-Werkzeug, sondern als <strong>Zonen-Werkzeug</strong>.
+      </div>
+
+      <h2 id="mvrv-z">Live-Chart ② — Standardisierung mit dem MVRV Z-Score</h2>
+      <p>
+        Das MVRV-Verhältnis hat eine Schwäche: <strong>Die Höhe der Hochs unterscheidet sich von Zyklus zu Zyklus</strong>. Am Hoch 2011 lag die MVRV über 7, 2021 erreichte sie nicht einmal 4.
+        Je größer der Markt wird, desto stärker wird die Amplitude gestaucht. Deshalb verwendet die broodev-Engine statt des Verhältnisses den <strong>Z-Score</strong> — er misst, um wie viele Standardabweichungen
+        sich die <em>Differenz</em> zwischen Marktkapitalisierung und Realized Cap im Verhältnis zur historischen Volatilität der Marktkapitalisierung entfernt hat.
+      </p>
+      <pre><code>MVRV Z-Score = (Marktkapitalisierung − Realized Cap) ÷ σ(Marktkapitalisierung)
+               σ = Standardabweichung der Marktkapitalisierung über die gesamte Historie
+
+z &lt; 0   → Marktkapitalisierung unter dem Ø-Einstandswert (historische Bodenzone)
+z ≈ 1~2 → normale Zone
+z &gt; 5   → historische Top-Zone (Gipfel 2011·2013·2017)</code></pre>
+      <p>
+        Der Chart unten zeigt den MVRV Z-Score über die gesamte Historie. Grün schattiert ist <strong>z &lt; 0 (Bodenzone)</strong>, rot schattiert <strong>z &gt; 5 (Überhitzungszone)</strong>.
+        Die Böden 2011·2015·2018·2022 tauchten alle unter die Nulllinie (März 2020 streifte sie nur), und die großen Hochs 2011·2013·2017 erreichten alle mit z 7~9 die rote Schattierung.
+        Allerdings <strong>blieb das z am Hoch 2021 bei etwa 3,5 stehen</strong> — ein Punkt, der im Abschnitt über die Grenzen wiederkehrt: Je größer der Markt wird, desto stärker wird die Amplitude nach oben gestaucht.
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">Daten werden geladen und der Chart wird gezeichnet …</div></div>
+      <p class="chart-src">Daten: aus derselben CoinMetrics-Community-API-Quelle wie der Chart oben berechnet · z = (Marktkap. − Realized Cap) ÷ σ(Marktkap.) · σ über die gesamte Historie bis zum jeweiligen Zeitpunkt (expandierendes Fenster) · 6 Stunden lokaler Cache</p>
+      <div class="note">
+        <strong>Wir legen die Berechnung unverändert offen.</strong> Der MVRV Z auf dem broodev-Dashboard
+        wird aus <code>CapMrktCurUSD</code> (Marktkapitalisierung) und <code>CapMVRVCur</code> (MVRV-Verhältnis) der CoinMetrics Community API
+        über <code>Realized Cap = Marktkapitalisierung ÷ MVRV</code> abgeleitet und anschließend mit der <strong>σ(Marktkapitalisierung) über die gesamte Historie</strong> standardisiert.
+        Die vergangenen Abschnitte im Chart werden mit <strong>der bis zu diesem Zeitpunkt verfügbaren σ</strong> (expandierendes Fenster) berechnet — um „den Wert, den ein Anleger an jenem Tag sehen konnte“, darzustellen.
+        Der letzte Punkt stimmt per Definition exakt mit dem aktuellen Dashboard-Wert überein. Die API ist kostenlos und benötigt keinen Schlüssel, sodass jeder dieselben Zahlen nachvollziehen kann.
+      </div>
+
+      <h2 id="thermocap">Live-Chart ③ — Thermocap: der Boden aus Sicht der Mining-Kosten</h2>
+      <p>
+        Ist die Realized Cap <strong>der Einstandswert der Anleger</strong>, so hat Bitcoin noch einen weiteren Einstandswert: <strong>die Kosten der Produzenten</strong>, also die Mining-Kosten.
+        Die <strong>Thermocap</strong> ist die <strong>kumulierte Summe (in USD) der seit dem Start von Bitcoin an Miner gezahlten Belohnungen (Block-Reward + Gebühren)</strong>.
+        Sie ist die Summe allen Geldes, das bisher in die Sicherheit des Netzwerks geflossen ist — gewissermaßen <strong>die Gesamtkosten für die Herstellung dieses Vermögenswerts</strong>.
+      </p>
+      <pre><code>Thermocap    = Σ (tägliche Miner-Erlöse in USD)  ← kumuliert seit 2009
+Thermocap Z  = z-score of ln(Marktkapitalisierung ÷ Thermocap)   [über die gesamte Historie]
+
+Das Verhältnis Marktkapitalisierung/Thermocap schwankte historisch zwischen dem Mehrfachen und dem Dutzendfachen.
+Je niedriger das z (der standardisierte Logarithmus des Verhältnisses), desto stärker die 'Unterbewertung gegenüber den Produktionskosten'.</code></pre>
+      <p>
+        Normalerweise notiert die Marktkapitalisierung ein Mehrfaches über der Thermocap (das liegt in der Natur eines langfristig steigenden Vermögenswerts). Entscheidend ist, <strong>wo innerhalb der historischen Spanne</strong> dieses Vielfache liegt,
+        und standardisiert man den Logarithmus des Vielfachen als z-score, werden die Zyklen miteinander vergleichbar. Im Chart unten sieht man, dass <strong>die Phasen, in denen z unter 0 fällt</strong>, mit den historischen Bodenzonen zusammenfallen.
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">Daten werden geladen und der Chart wird gezeichnet …</div></div>
+      <p class="chart-src">Daten: blockchain.info charts/miners-revenue (gesamter Zeitraum) — kumuliert, gewichtet nach den Tagen zwischen den Messpunkten (Integralnäherung) · datumsgenau an die tägliche Marktkapitalisierung von CoinMetrics angeglichen · z = z-score von ln(Marktkap./Thermocap) über die gesamte Historie · 6 Stunden lokaler Cache</p>
+      <p>
+        Der Nenner der Thermocap unterscheidet sich entscheidend von dem der Realized Cap: <strong>Er sinkt nie und wächst unabhängig vom Markt jeden Tag nur ein wenig.</strong>
+        Selbst wenn Anleger ihre Coins in Panik abstoßen, rührt sich die kumulierte Summe der Mining-Belohnungen nicht. Deshalb ist die Thermocap Z im Vergleich zu Indikatoren auf Basis der Realized Cap
+        <strong>eine langsamere und hartnäckigere Referenzlinie für den Boden</strong>. Dieser Indikator ist <strong>exklusiv für Bitcoin</strong>, für den Daten zu Mining-Belohnungen existieren — für Altcoins lässt er sich nicht berechnen.
+      </p>
+
+      <h2 id="divergence">So liest man die Momente, in denen beide Indikatoren auseinanderlaufen</h2>
+      <p>
+        Wenn beide „Einstandswert“-Indikatoren sind, warum dann beide beobachten? <strong>Weil sich ihre Nenner unterschiedlich schnell bewegen.</strong>
+        Die Realized Cap (der Nenner der MVRV) wird bei jedem Besitzerwechsel eines Coins aktualisiert — dauert ein Bullenmarkt lange an, steigt der Einstandswert selbst, und ist die Kapitulation vorbei, sackt er ab.
+        Die Thermocap tut nichts dergleichen, sie wird nur kumuliert. Dieser Geschwindigkeitsunterschied erzeugt das Signal.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kombination</th><th>Deutung</th><th>Historische Beispiele (ca.)</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z niedrig + Thermocap Z niedrig</td><td><strong>Tiefe Bodenzone.</strong> Nahe sowohl am Einstandswert der Anleger als auch an den Produktionskosten</td><td>2015 · Ende 2018 · Ende 2022</td></tr>
+            <tr><td>MVRV Z niedrig + Thermocap Z normal</td><td>Absturz mitten im Zyklus. Kapitulation hat stattgefunden, ein struktureller Boden ist aber nicht bestätigt</td><td>März 2020 · Juli 2021</td></tr>
+            <tr><td>MVRV Z normal + Thermocap Z hoch</td><td>Spätphase des Bullenmarkts. Der Einstandswert ist bereits stark gestiegen, wer nur auf die MVRV schaut, unterliegt einer Täuschung</td><td>November 2021 (zweites Hoch)</td></tr>
+            <tr><td>Beide hoch</td><td><strong>Historische Top-Zone.</strong> Die schlechteste Zeit für Neukäufe</td><td>Ende 2013 · Ende 2017</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Besonders wichtig ist die dritte Zeile. Hält ein Bullenmarkt länger als ein Jahr an, <strong>steigt die Realized Cap mit dem Preis mit, und die MVRV wirkt „normal“.</strong>
+        Am Zyklushoch im November 2021 lag die MVRV deutlich unter den Hochs von 2011~2017. Es ist genau dasselbe strukturelle Schweigen wie beim Mayer Multiple, das <a href="/mayer-multiple">im November 2021 Neutralität anzeigte</a>.
+        In solchen Momenten dient ein Indikator wie die Thermocap, <strong>dessen Nenner nicht mitsteigt</strong>, als Gegenprobe.
+      </p>
+
+      <h2 id="limits">Die Grenzen dieser Indikatoren — eine Stichprobe von 4 Zyklen, das ETF-Zeitalter</h2>
+      <p>Wir schreiben es ehrlich auf: wie weit die Argumentation dieses Artikels trägt.</p>
+      <ul>
+        <li>
+          <strong>Die Stichprobe umfasst nur 4 Zyklen.</strong> Die Beobachtung „MVRV &lt; 1 war der Boden“ stützt sich auf fünf Phasen, auf abgeschlossene Zyklen bezogen nur auf vier.
+          Eine Größe, die man kaum Statistik nennen mag — und <strong>eine Beobachtung ist kein Gesetz.</strong> Nichts garantiert, dass der nächste Zyklus an derselben Stelle stoppt.
+        </li>
+        <li>
+          <strong>Mögliche Verzerrung im ETF-Zeitalter.</strong> Seit 2024 sind große Mengen an Coins in Spot-ETFs und bei institutionellen Verwahrern gebunden.
+          ETF-Anteile wechseln den Besitzer ohne On-Chain-Bewegung, daher <strong>wird die Realized Cap (der Einstandswert) womöglich nicht aktualisiert, obwohl tatsächlich gehandelt wird.</strong>
+          Das ist ein struktureller Wandel, durch den der On-Chain-Einstandswert gegenüber dem tatsächlichen Marktwert zunehmend veraltet, und er erschwert den direkten Vergleich mit früheren Zyklen.
+        </li>
+        <li>
+          <strong>Die Realized Cap kann durch interne Bewegungen von Börsen verzerrt werden.</strong> Wenn eine Börse ihre Cold Wallets neu organisiert und Coins verschiebt,
+          wird der „Einstandswert“ dieser Mengen zum Preis des Bewegungstags neu erfasst, obwohl niemand tatsächlich gekauft hat. Umgekehrt hinterlassen Coins, die <em>innerhalb</em> einer Börse den Besitzer wechseln, keine On-Chain-Spur, und ihr Einstandswert wird nicht aktualisiert.
+        </li>
+        <li>
+          <strong>Das Problem der für immer schlafenden Coins.</strong> Coins, die früh gemined und nie bewegt wurden (geschätzt mehrere Millionen, darunter die Bestände von Satoshi),
+          werden mit einem Einstandswert nahe 0 erfasst. Das ist eine Verzerrung, die die Realized Cap strukturell zu niedrig ansetzt.
+        </li>
+        <li>
+          <strong>Die Eigenschaft der σ über die gesamte Historie.</strong> Da die σ(Marktkapitalisierung), der Nenner des MVRV Z, über die gesamte Historie berechnet wird, wächst σ mit der Marktgröße,
+          und <strong>die z-Amplitude jüngerer Zyklen wird stärker gedrückt als früher.</strong> Das bedeutet: „Extremwerte wie z &gt; 7 könnten nie wieder auftreten“ — und genau deshalb darf man die Schwellenwerte nicht als absolute Maßstäbe verwenden.
+        </li>
+      </ul>
+
+      <h2 id="radar">Wie sich der broodev-Boden-Score (BOTTOM RADAR) zusammensetzt — Gewichte offengelegt</h2>
+      <p>
+        Der <strong>BOTTOM RADAR</strong> auf dem broodev-Dashboard ist ein eigenständiger Composite-Score, der nicht die Frage „Steigt es, wenn ich jetzt kaufe?“ beantwortet, sondern nur eine einzige: <strong>„Befinden wir uns gerade in einer historischen Bodenzone?“</strong>
+        Seine Gewichte unterscheiden sich grundlegend von denen der Kurz- und Langfrist-Scores. Der Kern ist, dass 55% auf die beiden On-Chain-Einstandswert-Indikatoren entfallen.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Indikator</th><th>Gewicht</th><th>Warum dieses Gewicht</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>Im Verhältnis zum durchschnittlichen Einstandswert der Anleger. Das wichtigste Signal, das bei allen fünf Böden funktioniert hat</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>Im Verhältnis zu den Produktions-(Mining-)Kosten. Gegenprobe, wenn der Nenner der MVRV eine Täuschung erzeugt</td></tr>
+            <tr><td>Mayer Multiple</td><td>15%</td><td>Preis im Verhältnis zum 200-Tage-Durchschnitt. Eine reine Preisachse, die On-Chain-Daten nicht sehen</td></tr>
+            <tr><td>Rückgang vom 365T-Hoch</td><td>15%</td><td>Tiefe des Rückgangs vom Hoch. Da der Nenner ein festes Hoch ist, verstummt er auch spät im Bärenmarkt nicht</td></tr>
+            <tr><td>Angst-&amp;-Gier-Index</td><td>15%</td><td>Das Thermometer der Kapitulationsstimmung. Der Boden kam stets zusammen mit extremer Angst</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Die fünf Komponenten ergeben zusammen <strong>1.00</strong>. Jeder Indikator verwendet seinen langfristigen (antizyklischen) normalisierten Score — die beiden On-Chain-Indikatoren bilden ihren z-Wert über die Ankertabelle unten auf 0~100 ab —,
+        und Indikatoren ohne Daten erhalten nicht 0 Punkte, sondern <strong>werden aus der Berechnung ausgeschlossen, und die verbleibenden Gewichte werden auf eine Summe von 100% renormiert</strong>.
+        Bei Coins außer BTC fällt die Thermocap immer weg, bei von CoinMetrics nicht unterstützten Coins zusätzlich die MVRV — prüfen Sie daher unbedingt die Abdeckungsanzeige.
+      </p>
+      <pre><code>Zuordnung z → Score (Z_ANCHORS, stückweise lineare Interpolation)
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>Der Composite-Score wird in fünf Stufen gedeutet.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Boden-Score</th><th>Urteil</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>Historische Bodenzone — an derselben Stelle wie frühere große Böden</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>Unterbewertet — Abschlagszone gegenüber dem Einstandswert</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>Neutral</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>Überbewertet — Aufschlagszone gegenüber dem Einstandswert</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>Top-Zone / Überhitzung — an derselben Stelle wie frühere große Hochs</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Es gibt keinen Beweis, dass die Gewichte 35·20·15·15·15 optimal sind. Sicher ist nur die Richtung — bei der Bodenbeurteilung <strong>haben sich einstandswertbasierte On-Chain-Indikatoren über die Zyklen hinweg besser reproduziert als preisbasierte Indikatoren</strong>,
+        deshalb tragen sie die Mehrheit des Gewichts. Das gesamte Score-System (die Kombination der 8 Indikatoren in den Kurz- und Langfrist-Tabs) ist vollständig im <a href="/methodology">Dokument zur Score-Methodik</a> offengelegt.
+      </p>
+
+      <h2 id="faq">Häufige Fragen</h2>
+      <dl>
+        <dt>Ist es immer der Boden, wenn die MVRV unter 1 fällt?</dt>
+        <dd>
+          Nein. Historisch fielen Zonen mit MVRV &lt; 1 mit großen Böden zusammen, doch <em>innerhalb</em> dieser Zonen fiel der Preis teils noch um weitere 20~40% (2011, 2015).
+          Man sollte es nicht als „Tiefpunktsignal“ lesen, sondern als „eine Zone für gestaffelte Käufe, die historisch ein bis zwei Jahre später gute Ergebnisse brachte“ — und die Stichprobe umfasst nur vier Zyklen.
+        </dd>
+        <dt>Wo kann man die Realized Cap (den durchschnittlichen Einstandswert) sehen?</dt>
+        <dd>
+          Die Charts auf dieser Seite leiten die Realized Cap direkt aus Marktkapitalisierung und MVRV der CoinMetrics Community API (kostenlos, kein Schlüssel nötig) ab und zeichnen sie.
+          Die MVRV·Z-Karten und der Boden-Score (BOTTOM RADAR) auf dem broodev-Dashboard nutzen dieselben Daten und dieselben Formeln.
+        </dd>
+        <dt>Lässt sich diese Methode auch auf Altcoins anwenden?</dt>
+        <dd>
+          Nur teilweise. broodev berechnet den MVRV Z für die 10 Coins, für die CoinMetrics die MVRV bereitstellt (BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA);
+          nicht unterstützte Coins werden als N/A behandelt und die Gewichte renormiert. Die Thermocap (kumulierte Mining-Belohnungen) gibt es nur für Bitcoin.
+        </dd>
+        <dt>Warum ist es ein Boden, wenn die Marktkapitalisierung unter den durchschnittlichen Einstandswert fällt?</dt>
+        <dd>
+          Liegt die Marktkapitalisierung unter der Realized Cap, befinden sich die Halter insgesamt im Durchschnitt im Verlust. In dieser Zone erreicht die Kapitulation derer, die ihre Verluste nicht mehr ertragen, ihren Höhepunkt,
+          und während diese Mengen an langfristige Halter übergehen, erschöpft sich der Verkaufsdruck. Dies ist jedoch eine Beobachtung aus vier vergangenen Zyklen, kein garantiertes Gesetz.
+        </dd>
+      </dl>
+
+      <div class="note warn">
+        <strong>⚠ Hinweis zu Investitionen</strong><br />
+        Dieses Dokument und die Scores von broodev sind <strong>Referenzmaterial auf Basis öffentlicher Indikatoren und keine Anlageberatung.</strong>
+        Die historischen MVRV-Werte und Renditen im Text sind <strong>Näherungswerte, die je nach Datenquelle abweichen können, und vergangene Muster garantieren keine zukünftigen Ergebnisse.</strong>
+        Kryptowährungen sind Hochrisiko-Anlagen, bei denen <strong>ein Totalverlust des Kapitals möglich ist</strong>.
+        Die Verantwortung für alle Anlageentscheidungen und deren Ergebnisse (Gewinne und Verluste) liegt allein beim Nutzer. Recherchieren Sie immer selbst (DYOR).
+      </div>
+
+      <h2>Weiterlesen</h2>
+      <div class="related">
+        <a href="/methodology"><b>Score-Methodik</b><span>Mit welchen Gewichten die 8 Indikatoren kombiniert werden (alle Zahlen offengelegt)</span></a>
+        <a href="/indicators"><b>Die 8 Indikatoren erklärt</b><span>Inklusive MVRV und Thermocap: wann jeder Indikator Sie im Stich lässt</span></a>
+        <a href="/mayer-multiple"><b>Die Geschichte des Mayer Multiple</b><span>Was der 200-Tage-Durchschnitt in jedem Zyklus verriet — ein Bodenindikator auf der Preisachse</span></a>
+        <a href="/"><b>Zum Dashboard</b><span>Den Boden-Score (BOTTOM RADAR) jetzt prüfen</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Betrieben von Y-Systems · <a href="/privacy">Datenschutzerklärung</a> · <a href="/terms">Nutzungsbedingungen</a></footer>
+    </main>

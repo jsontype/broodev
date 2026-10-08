@@ -1,0 +1,481 @@
+<main class="wrap" data-title="關於黃金交叉的5個誤解 — 為什麼它是趨勢過濾器而不是買入訊號 | broodev" data-desc="黃金交叉不是買入訊號。本文把大眾媒體最常誤用的這個指標拆成5個常見說法逐一反駁，並以實際程式碼中的4級評分表與計算演示，公開broodev模型為何只給它短期8%、長期14%的權重。">
+      <nav class="nav">
+        <a href="/">← 儀表板</a>
+        <a href="/methodology">評分方法</a>
+        <a href="/indicators">指標解讀</a>
+        <a href="/guide-fear-greed">恐懼指數使用指南</a>
+        <a href="/glossary">術語表</a>
+      </nav>
+
+      <h1>關於黃金交叉的5個誤解</h1>
+      <p class="muted">最後更新：2026-07-14 · 作者：Y-Systems · 對象：broodev買入時機評分 v2（GC_DC指標）</p>
+
+      <p class="lead">
+        「比特幣黃金交叉在即……看漲訊號」——這樣的標題每個週期都會重演。
+        而<strong>這句話幾乎總是被用錯。</strong>
+        在我們處理的6個指標中，黃金交叉是<strong>最常被誤解的指標</strong>，
+        同時也是我們的模型<strong>給予權重最低的指標</strong>。這兩個事實並非毫無關聯。
+      </p>
+      <p>
+        本文不再重複定義。50日均線向上穿越200日均線就是黃金交叉，這一點寫在
+        <a href="/glossary">術語表</a>裡；它如何計入評分，則寫在
+        <a href="/methodology">評分方法</a>裡。這裡我們要做的是<strong>逐一打破五個流傳甚廣的說法</strong>，
+        並在原處放上<strong>我們的程式碼實際在做的事</strong>。
+        最後，我們會<strong>坦白模型的兩個已知缺陷</strong>。
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>常見說法</th><th>實際情況</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="#m1">①「出現黃金交叉＝現在就買」</a></td><td>從結構上看是<strong>最慢的訊號</strong>。不是上漲的預告，而是<strong>收據</strong></td></tr>
+            <tr><td><a href="#m2">②「死亡交叉＝暴跌開始」</a></td><td>反覆交叉（假訊號）很常見。在我們的模型裡，<strong>事件分數只有一天壽命</strong></td></tr>
+            <tr><td><a href="#m3">③「50和200是標準答案」</a></td><td>把股市的<strong>交易日慣例</strong>不加修正地移植到全年無休的市場</td></tr>
+            <tr><td><a href="#m4">④「兩線拉開越大，訊號越強」</a></td><td>我們的模型<strong>計算了間距卻不計入評分</strong>（刻意的簡化）</td></tr>
+            <tr><td><a href="#m5">⑤「權重8%等於沒用」</a></td><td>論述在這裡反轉。交叉<strong>不是加分項，而是扣分裝置</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="bd-figs" aria-label="黃金交叉即時圖表">
+        <p class="muted">在閱讀五個誤解之前，先看看在整段歷史中黃金交叉（▲）和死亡交叉（▼）實際出現在哪裡。交叉總是在「行情已經走了一大段之後」才到來，以及反覆交叉（假訊號）有多常見，一眼就能看出來。</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-gc-main" class="bd-pane"><div class="bd-loading">正在載入圖表資料…</div></div>
+          </div>
+          <p class="bd-cap">BTC價格（對數，灰色）與SMA50（藍色）·SMA200（紅色），全部期間。▲＝黃金交叉（50日均線上穿200日均線），▼＝死亡交叉。橘色虛線＝減半。資料：CoinMetrics Community API，BTC日線收盤價——在造訪時取得並於瀏覽器中計算的<strong>近似值，僅供參考</strong>。</p>
+        </div>
+      </section>
+
+      <h2 id="m1">誤解①「出現黃金交叉＝現在就買」</h2>
+
+      <h3>常見說法</h3>
+      <p>
+        這是新聞報導和YouTube縮圖最愛用的一句話。它把黃金交叉當成<strong>預告未來的信號彈</strong>。
+        往往還附帶一個統計：「歷史上黃金交叉之後平均上漲X%」。
+      </p>
+
+      <h3>錯在哪裡——算術本身就不允許</h3>
+      <p>
+        黃金交叉要成立，<strong>最近50日的平均價必須超過最近200日的平均價</strong>。
+        請在這裡停一下，想想這代表什麼。
+      </p>
+      <p>
+        200日均價是<strong>把200天的價格全部加總再除以200得到的值</strong>。就算昨天一天暴漲20%，
+        這次暴漲也只占200分之一的份額。要<strong>讓這條線有意義地抬升，價格必須連續數十天維持在高檔</strong>。
+        50日均線同樣帶著50天的慣性。
+      </p>
+      <p>
+        也就是說，<strong>兩個沉重的慣性體發生交叉這件事本身，就是「已經漲了很久」的證據</strong>。
+        黃金交叉並不<em>預告</em>上漲，它只是<em>在事後確認上漲已經持續得夠久</em>。
+      </p>
+      <div class="note">
+        <strong>打個比方，黃金交叉不是天氣預報，而是收據。</strong>
+        收據能準確告訴你買了什麼，但它是在<strong>付款完成之後</strong>才印出來的。
+        看著收據說「現在該買了」，順序就弄反了。
+      </div>
+      <p>
+        「黃金交叉之後平均漲幅」這類統計看起來很有說服力，原因也在這裡。
+        黃金交叉<strong>按定義只會出現在上漲行情中</strong>，所以其後的報酬自然不會差。
+        這不是指標的預測能力，而是<strong>樣本早已被篩選過的結果（選擇效應）</strong>。
+        這就好比拿「撐傘的日子都在下雨」的統計，來證明雨傘能預測降雨。
+      </p>
+
+      <h3>實際情況</h3>
+      <p>
+        等到從底部確認黃金交叉時，<strong>價格早已從低點漲了不少。</strong>
+        畢竟這代表價格漲到足以讓50日均線越過200日均線這條沉重的基準線。
+        因此我們的模型<strong>不把這個指標當作掌握進場時機的工具。</strong>
+        它只用來回答<strong>「現在處於什麼階段」</strong>，而不是「現在就買」。
+      </p>
+
+      <h2 id="m2">誤解②「死亡交叉＝暴跌開始」</h2>
+
+      <h3>常見說法</h3>
+      <p>
+        死亡交叉光聽名字就很不吉利。再加上「死亡十字」這樣的譯名，
+        它被當作<strong>「大暴跌要來了」的恐慌觸發器</strong>來消費。死亡交叉的新聞一出，恐慌性拋售就跟著來。
+      </p>
+
+      <h3>錯在哪裡——交叉會反覆</h3>
+      <p>
+        把誤解①的邏輯反過來，答案就出來了。<strong>死亡交叉同樣是一個緩慢的訊號。</strong>
+        等到死亡交叉確認時，<strong>下跌往往已經走完了相當一部分</strong>。
+        它與其說是「暴跌的開始」，不如說是「下跌已經持續很久」的確認書。
+        所以死亡交叉剛出現就反彈的情況——<strong>假訊號（whipsaw）</strong>——並不少見。
+      </p>
+      <p>
+        想像一下兩條移動平均線<strong>幾乎貼在一起的狀態</strong>。這時價格只要稍有波動，
+        50日均線就會跌到200日均線下方，過幾天又重新回到上方。
+        <strong>交叉不是一次性事件，而是可能反覆發生多次的事件</strong>。
+      </p>
+
+      <h3>實際情況——我們的程式碼如何處理這個問題（含坦白）</h3>
+      <p>
+        我們模型的交叉判定<strong>只比較昨天和今天這兩天</strong>。
+      </p>
+      <pre><code>昨天: 50日均線 ≤ 200日均線   →   今天: 50日均線 &gt; 200日均線   ⇒  GOLDEN_CROSS
+昨天: 50日均線 ≥ 200日均線   →   今天: 50日均線 &lt; 200日均線   ⇒  DEATH_CROSS
+其他情況                                                      ⇒  NONE（僅維持狀態）</code></pre>
+      <p>
+        結果，<strong>「交叉事件」恰好只在一天裡為真（true）。</strong>
+        到了隔天事件就消失了，只剩下「黃金交叉狀態／死亡交叉狀態」這種平淡的狀態值。
+      </p>
+      <div class="note">
+        <strong>這是刻意的設計。</strong>媒體會把一次黃金交叉炒上好幾個星期，
+        但在我們的模型裡，<strong>交叉新聞的保存期限只有24小時</strong>。
+        後面的評分表會顯示，事件當天的溢價（長期85分）<strong>隔天就會立刻降到60分。</strong>
+        「昨天出現了黃金交叉」這件事，不會讓今天的評分得到任何額外加分。
+      </div>
+      <div class="note warn">
+        <strong>坦白——我們的模型也會被假訊號晃動。</strong>
+        如果50日均線和200日均線幾乎貼在一起，在兩週內上下反覆交叉，
+        我們的評分也會<strong>85 → 60 → 15 → 35</strong>這樣劇烈波動。這個缺陷沒有辦法消除。
+        我們所做的只是<strong>替波動幅度加上一個上限</strong>——
+        這個上限正是<strong>8%·14%這樣的低權重</strong>。後面我們會算一算這些數字實際代表多少分。
+      </div>
+
+      <h2 id="m3">誤解③「50和200是標準答案」</h2>
+
+      <h3>常見說法</h3>
+      <p>
+        人們說起來，彷彿50和200有某種數學上的必然性。
+        圖表軟體的預設值就是這麼設的，於是大家更加深信不疑。
+      </p>
+
+      <h3>錯在哪裡——這是股市的慣例，而且還被錯誤地移植了</h3>
+      <p>
+        能為50和200提供依據的<strong>令人滿意的學術理由並不存在。</strong>這只是慣例。
+        在傳統股票圖表中，<strong>200大致是把一年的交易日（準確地說約252天）粗略取整得到的數</strong>，
+        <strong>50則是把大約一季（約63個交易日）取整得到的數</strong>。
+      </p>
+      <p>
+        但這裡出現了一個<strong>只有加密貨幣才有的問題</strong>，幾乎沒有人指出過。
+      </p>
+      <p>
+        <strong>股市每週開放5天，加密貨幣每週交易7天。</strong>
+        股票的「200日均線」是<strong>200個交易日</strong>，相當於日曆上的<strong>約280天（約9.2個月）</strong>。
+        而加密貨幣每天都會產生日K線，所以它的「200日均線」是<strong>200個日曆日，也就是約6.6個月</strong>。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>均線</th><th>股票（每週5天）</th><th>加密貨幣（每週7天）</th><th>實際差異</th></tr></thead>
+          <tbody>
+            <tr><td>200日均線</td><td>200個交易日 ≈ <strong>日曆280天</strong></td><td>200個日曆日 = <strong>日曆200天</strong></td><td>加密貨幣<strong>約短29%</strong></td></tr>
+            <tr><td>50日均線</td><td>50個交易日 ≈ <strong>日曆70天</strong></td><td>50個日曆日 = <strong>日曆50天</strong></td><td>加密貨幣<strong>約短29%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        總結一下，<strong>加密貨幣的「200日均線」看似原封不動照搬了股市慣例，實際上卻是一個短得多的視窗（window）</strong>。
+        要與股票200個交易日的日曆跨度對齊，加密貨幣需要用<strong>約280日均線</strong>。
+        <strong>整個業界都沒有做這個修正。</strong>
+      </p>
+
+      <h3>實際情況——那我們為什麼也照用200</h3>
+      <p>
+        我們的程式碼同樣使用<strong>200個日曆日</strong>，不做修正。以下如實寫出理由。
+      </p>
+      <ul>
+        <li>
+          <strong>第一，被人關注本身就是一種力量。</strong>50/200之所以在某種程度上有效，並不是因為它「正確」，
+          而是<strong>因為無數參與者盯著同樣的均線，在同樣的位置做出反應</strong>。
+          如果只有我們改用280日均線，就會<strong>失去這種自我實現的特性。</strong>沒人看的均線起不了支撐作用。
+        </li>
+        <li>
+          <strong>第二，它必須與梅耶倍數共用分母。</strong>梅耶倍數從定義上就是<code>現價 ÷ 200日移動平均</code>。
+          如果只把交叉改成280日均線，<strong>同一個模型裡就會出現兩條不同的「長期均線」</strong>，解讀就會錯位。
+        </li>
+        <li>
+          <strong>第三，因為我們清楚這種偏差的方向。</strong>加密貨幣的200日均線比慣例<strong>更短，因此更敏感，也更常交叉</strong>。
+          交叉頻繁就<strong>代表假訊號更多</strong>。所以我們從一開始就把這個指標的權重定得很低。
+          <strong>我們選擇的不是修正它，而是不太信任它。</strong>
+        </li>
+      </ul>
+      <p class="muted">
+        知道它不是標準答案而是<strong>共同的慣例</strong>，與不知道這一點，差別很大。
+        如果把50/200當作神聖的常數，就會賦予交叉過多的意義。
+      </p>
+
+      <h2 id="m4">誤解④「兩線拉開越大，訊號越強」</h2>
+
+      <h3>常見說法</h3>
+      <p>
+        這種解讀是：「50日均線遠遠高於200日均線，所以上漲趨勢很強」。
+        直覺上說得通，實際上也有一定道理。
+      </p>
+
+      <h3>錯在哪裡——準確地說，是我們沒有使用這項資訊</h3>
+      <p>
+        我們的程式碼<strong>確實計算了</strong>兩條線之間的間距。
+      </p>
+      <pre><code>gapPct = (50日均線 ÷ 200日均線 − 1) × 100</code></pre>
+      <p>
+        並且還在儀表板卡片上像<code>gap +12.4%</code>這樣<strong>顯示了出來。</strong>
+        然而<strong>這個值完全沒有進入評分計算。</strong>
+      </p>
+      <div class="note warn">
+        <strong>坦白 ─ 已知的簡化。</strong>
+        在我們的模型裡，<strong>間距+0.3%的黃金交叉狀態和間距+42%的黃金交叉狀態得到完全相同的分數</strong>
+        （長期60分，短期65分）。間距<strong>只顯示，不評分。</strong>
+      </div>
+      <p>
+        以下說明為什麼這樣處理。要把間距計入評分，就必須<strong>先規定「多少%算大間距」</strong>。
+        可是這個標準<strong>因資產而完全不同。</strong>低波動幣種的+10%間距，
+        和波動極其劇烈的迷因幣的+10%間距，意義截然不同。
+        老實說，我們<strong>沒能有把握地訂出一個適用於所有幣種的標準化基準。</strong>
+        與其塞進一個沒有根據的常數，我們<strong>寧可不用</strong>。
+      </p>
+
+      <h3>實際情況——這項資訊是留給人來用的</h3>
+      <p>
+        之所以沒有把間距從畫面上刪掉，是<strong>希望你親眼看一看、自己判斷</strong>。
+        <strong>間距越接近0，代表兩條線越貼近，也就意味著反覆交叉（假訊號）的風險越大</strong>。
+        <code>gap +0.4%</code>的黃金交叉狀態，是隨時可能翻轉為死亡交叉的<strong>不穩定的黃金交叉</strong>。
+        評分分辨不出這種差別，但<strong>你可以。</strong>這正是把這個值顯示出來的原因。
+      </p>
+
+      <h2 id="m5">誤解⑤「權重8%豈不等於沒用」</h2>
+      <p>
+        本文的方向在這裡反轉。前面四條都在<strong>貶低</strong>交叉。
+        但我們<strong>並沒有拋棄這個指標。</strong>為什麼？
+      </p>
+
+      <h3>大多數人不知道的事——交叉不是2級，而是4級</h3>
+      <p>
+        「是黃金交叉還是死亡交叉」這種<strong>二分法本身就錯了。</strong>
+        我們的程式碼區分<strong>四種狀態</strong>，因為<em>交叉發生的那一刻</em>和<em>交叉之後維持的狀態</em>是完全不同的兩回事。
+        以下是我們模型實際使用的分項評分表。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>狀態</th><th>含義</th><th>短期評分</th><th>長期評分</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GOLDEN_CROSS</strong></td><td>今天向上交叉（事件，僅當天有效）</td><td>75</td><td><strong>85</strong></td></tr>
+            <tr><td><strong>GOLDEN</strong></td><td>已經維持在50 &gt; 200的狀態</td><td>65</td><td>60</td></tr>
+            <tr><td><em>無資料</em></td><td>連50天的資料都沒有</td><td>50</td><td>50</td></tr>
+            <tr><td><strong>DEATH</strong></td><td>已經維持在50 &lt; 200的狀態</td><td><strong>40</strong></td><td><strong>35</strong></td></tr>
+            <tr><td><strong>DEATH_CROSS</strong></td><td>今天向下交叉（事件，僅當天有效）</td><td>30</td><td><strong>15</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        這張表中<strong>最重要的一列是「維持DEATH狀態」</strong>。分數<strong>不是50，而是35（長期）·40（短期）</strong>。
+      </p>
+      <p>
+        <strong>中性是50。</strong>然而死亡交叉狀態<strong>低於中性。</strong>
+        這代表——<strong>在死亡交叉狀態下，這個指標會把綜合評分「往下拉」</strong>。
+        它不是按兵不動，而是在<strong>扣分</strong>。
+      </p>
+      <div class="note">
+        <strong>這就是這個指標存在的理由。</strong>
+        黃金交叉<strong>不是幫你賺分的加分項。</strong>
+        死亡交叉才是<strong>削減分數的煞車</strong>。
+        當恐懼指數、梅耶倍數、回撤一起高喊「便宜，快買」的時候——
+        <a href="/indicators">三個逆向指標在下跌行情中會一起出錯</a>——
+        需要一個<strong>獨自踩下煞車、提醒「趨勢仍然向下」的裝置</strong>，那就是交叉。
+      </div>
+
+      <h2 id="walk">那它實際能改變多少分——計算演示</h2>
+      <p>
+        抽象的討論到此為止，以下<strong>代入真實數字來計算</strong>。
+        這是<strong>長期（逆向）分頁</strong>，情境是<strong>深度熊市的正中央</strong>，
+        也就是逆向指標齊聲高喊「現在是機會」的階段。
+      </p>
+      <p>長期權重為<strong>RSI 18% · MACD 18% · 恐懼與貪婪 18% · 梅耶 18% · 回撤 14% · 交叉 14%</strong>。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>指標</th><th>觀測值</th><th>分項評分</th><th>權重</th><th>貢獻</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>RSI(14)</td><td>24（超賣）</td><td>94.2</td><td>18%</td><td>16.96</td></tr>
+            <tr><td>梅耶倍數</td><td>0.75×（較200日均線折價25%）</td><td>100.0</td><td>18%</td><td>18.00</td></tr>
+            <tr><td>恐懼與貪婪</td><td>目前 18 / 7日 22 / 30日 27</td><td>81.8</td><td>18%</td><td>14.72</td></tr>
+            <tr><td>365日回撤</td><td>−58%</td><td>81.2</td><td>14%</td><td>11.37</td></tr>
+            <tr><td>MACD</td><td>為負 · 仍在惡化</td><td>35.0</td><td>18%</td><td>6.30</td></tr>
+            <tr><td><strong>交叉</strong></td><td><strong>維持DEATH狀態</strong></td><td><strong>35.0</strong></td><td><strong>14%</strong></td><td><strong>4.90</strong></td></tr>
+            <tr><td colspan="4"><strong>綜合評分</strong></td><td><strong>72.2</strong> → ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">
+        （恐懼與貪婪的81.8，是在<code>0.5×(100−18) + 0.3×(100−22) + 0.2×(100−27) = 79.0</code>的基礎上，
+        加上目前值在25以下時附加的極端獎勵<code>(25−18)×0.4 = 2.8</code>得到的。）
+      </p>
+
+      <h3>只改變交叉的話</h3>
+      <p>把其他5個指標<strong>全部固定</strong>，只替換交叉的狀態，看看綜合評分會怎麼變化。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>交叉狀態</th><th>分項評分</th><th>貢獻</th><th>綜合評分</th><th>判定</th></tr></thead>
+          <tbody>
+            <tr><td>GOLDEN_CROSS（當天）</td><td>85</td><td>11.90</td><td><strong>79.2</strong></td><td>ACCUMULATE</td></tr>
+            <tr><td>維持GOLDEN</td><td>60</td><td>8.40</td><td>75.7</td><td>ACCUMULATE</td></tr>
+            <tr><td>維持DEATH <em>（實際情境）</em></td><td>35</td><td>4.90</td><td>72.2</td><td>ACCUMULATE</td></tr>
+            <tr><td>DEATH_CROSS（當天）</td><td>15</td><td>2.10</td><td><strong>69.4</strong></td><td>ACCUMULATE</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>最高與最低之間相差9.8分。</strong>(85 − 15) × 14% = 9.8。
+        而且<strong>四種情況下的判定都一樣，都是ACCUMULATE。</strong>
+      </p>
+
+      <h3>這些數字說明了什麼——交叉無法單獨改變判定</h3>
+      <p>在這裡，我們模型的<strong>設計意圖用算術得到了證明</strong>。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>評分跨度</th><th>權重</th><th>對綜合評分的最大影響</th></tr></thead>
+          <tbody>
+            <tr><td><strong>短期（動能）</strong></td><td>75 − 30 = 45分</td><td>8%</td><td><strong>±3.6分</strong></td></tr>
+            <tr><td><strong>長期（逆向）</strong></td><td>85 − 15 = 70分</td><td>14%</td><td><strong>±9.8分</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        現在拿它和<a href="/methodology">判定區間</a>比較一下。
+        最窄的區間是<strong>ACCUMULATE（65~80），寬度為15分</strong>。
+      </p>
+      <div class="note">
+        <strong>長期分頁最大影響9.8分 &lt; 最小區間寬度15分。</strong><br />
+        <strong>短期分頁最大影響3.6分 &lt; 最小區間寬度15分。</strong><br /><br />
+        也就是說，<strong>無論在哪個分頁，交叉都無法單憑自身把判定翻轉一級。</strong>
+        這不是巧合，而是<strong>權重刻意這樣設計的結果</strong>。
+        交叉被加了上限，<strong>它可以推高或拉低分數，卻無法主導結論</strong>。
+      </div>
+      <p>
+        <strong>短期與長期之間的差距也可以透過計算確認。</strong>9.8 ÷ 3.6 ≈ <strong>2.7倍</strong>。
+        在長期分頁中，交叉的實際影響力約為短期分頁的2.7倍。
+        只看權重表（8% vs 14%），差距似乎是1.75倍，但<strong>把評分跨度也乘進去，實際上會擴大到2.7倍。</strong>
+        這是只比較權重數字時容易忽略的部分。
+      </p>
+      <p>
+        原因正如<a href="/methodology">評分方法</a>中所說明的。
+        <strong>50/200交叉對於以1~3個月為單位的交易來說太慢了。</strong>等訊號出來時，對短線交易者來說已經晚了。
+        所以在短期分頁裡只給了<strong>幾乎等同裝飾的8%</strong>。
+        反過來，它<strong>對區分週期階段（牛市還是熊市）是有效的</strong>，所以在長期分頁裡提高到了14%。
+      </p>
+
+      <h2 id="danger">我們的模型可能錯得最離譜的組合</h2>
+      <p>
+        請再看一眼上面演示表中的<strong>第一列（GOLDEN_CROSS，79.2分）</strong>。
+        其實那一列<strong>隱藏著內在矛盾。</strong>
+      </p>
+      <p>
+        梅耶倍數0.75代表<strong>現價比200日均線低25%</strong>。
+        那麼同一天<strong>50日均線卻上穿200日均線（黃金交叉）</strong>，這合理嗎？
+        通常這是矛盾的。價格遠在200日均線之下，50日均價卻在200日均價之上，這很難成立。
+      </p>
+      <p>
+        但<strong>恰恰有一個階段會真實出現這種組合：</strong>
+        <strong>從頂部開始急跌的那一刻</strong>。
+        價格已經垂直跌穿200日均線，<strong>50日均線卻還憑著慣性停留在200日均線上方</strong>。
+        這時我們的模型是這樣看的。
+      </p>
+      <ul>
+        <li>梅耶 0.75 →「歷史性低估！」<strong>100分</strong></li>
+        <li>RSI 24 →「極度超賣！」<strong>94分</strong></li>
+        <li>回撤 −58% →「強力買入區間！」<strong>81分</strong></li>
+        <li>交叉 → 仍處於<strong>GOLDEN狀態</strong>，煞車沒有踩下 <strong>60分</strong></li>
+      </ul>
+      <div class="note warn">
+        <strong>結果：在暴跌剛剛開始的位置，模型給出75分左右（ACCUMULATE）。</strong>
+        而<strong>這時你抓住的恰恰不是「落下的刀」的刀柄，而是刀刃</strong>。
+        煞車（死亡交叉）要到<strong>數十天之後</strong>才會踩下——那時已經跌去了一大截。
+        <strong>這是這個模型最危險的盲區，我們並沒有完全解決它。</strong>
+        只要把慢指標當作安全裝置，<strong>安全裝置本身也會慢。</strong>
+      </div>
+      <p>
+        所以如果在儀表板上看到<strong>梅耶倍數急劇下降，而交叉仍是GOLDEN</strong>，
+        <strong>應該把它讀作「可能是急跌初期」的警告，而不是「被低估」。</strong>
+        評分分辨不出這一點，必須由人來分辨。
+      </p>
+
+      <h2 id="asym">還有一點——只有交叉的缺值處理方式不同</h2>
+      <p>
+        正如<a href="/methodology">評分方法</a>中所寫，指標缺值時，我們<strong>不會把它記為0分，而是將其排除在計算之外，再對剩餘權重重新正規化</strong>。
+        因為「不知道」和「不好」是兩回事。
+      </p>
+      <p>
+        但<strong>交叉是個例外。</strong>把程式碼原樣搬過來是這樣的。
+      </p>
+      <pre><code>// 其他5個指標
+sLong: mm == null ? null : conMayer(...)   ← 為 null 則排除 + 重新正規化
+
+// 只有交叉
+sLong: gc == null ? 50 : ...               ← 即使缺值也回傳50分</code></pre>
+      <div class="note warn">
+        <strong>坦白 ─ 不對稱。</strong>
+        即使沒有資料，交叉回傳的也是<strong>50（中性）而不是null</strong>。
+        因此<strong>交叉永遠不會從涵蓋率顯示中缺席。</strong>
+        即使顯示<code>coverage 5/6</code>，缺的那一個也不是交叉——交叉總是被計入。
+        <strong>這代表在上市不滿一年的幣種上，一個「什麼都不知道的50分」正悄悄占據著14%（長期）的位置</strong>。
+      </div>
+      <p>
+        此外還有一點。資料<strong>不滿200天時</strong>，我們的程式碼會用現有的資料來求平均
+        （<code>Math.min(200, 資料長度)</code>）。也就是說，<strong>上市150天的幣種的「200日均線」其實是150日均線</strong>。
+        再加上交叉<em>事件</em>的判定至少需要201天的資料才能運作，
+        <strong>所以在上市不滿一年的幣種上，GOLDEN_CROSS·DEATH_CROSS事件根本不會發生。</strong>
+        只會出現狀態值（GOLDEN/DEATH）。
+      </p>
+      <p>
+        <strong>總之，這個指標只有在像比特幣這樣資料夠長的資產上才能完整發揮作用。</strong>
+        在新上市山寨幣的頁面上看交叉卡片時，請務必考慮到這一點。
+      </p>
+
+      <h2 id="conclusion">結論</h2>
+      <p>
+        一路走過五個誤解，交叉一直在被削弱。
+        它最慢、會反覆交叉、數字是隨意的慣例、間距連分都不評、權重在6個指標中墊底。
+        即便如此，我們曾把這個指標刪掉，後來又<strong>把它加了回來。</strong>理由只有一個。
+      </p>
+      <div class="note">
+        <strong>黃金交叉不是買入訊號，而是確認市場階段的工具。</strong><br /><br />
+        問這個指標<strong>「什麼時候買」，得到的永遠是遲到的答案</strong>。
+        但如果問它<strong>「現在趨勢朝向哪一邊」</strong>，得到的答案雖慢，卻<strong>很少說謊</strong>。
+        <br /><br />
+        當其餘五個指標興奮地喊著「便宜、可怕、跌了很多」時，
+        <strong>以「可是趨勢還在向下」為由悄悄扣掉一些分數</strong>——這就是我們交給這個指標的唯一工作。
+        <strong>它不是加分項，而是煞車。</strong>而好的煞車，是不需要經常踩的煞車。
+      </div>
+      <p>
+        所以下次再看到「黃金交叉在即！」的標題時，不妨這樣反問一句：
+        <strong>「所以它是叫我現在買，還是說已經漲了很多？」</strong>
+        從算術上說，<strong>永遠是後者</strong>。
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ 投資提醒</strong><br />
+        本文僅供<strong>教育與參考</strong>，<strong>不構成投資建議或買賣推薦。</strong>
+        文中的評分、權重與情境只是<strong>用來說明模型運作方式的範例</strong>，並不推薦任何特定幣種或策略。
+        加密貨幣是<strong>可能損失全部本金的高風險資產</strong>，技術指標無法預測未來。
+        正如正文所述，這個指標<strong>存在結構性盲區。</strong>
+        一切投資決策及其後果均由使用者本人全權負責。請務必自行研究（DYOR）。
+      </div>
+
+      <div class="note warn">
+        <strong>⚠ 投資提醒</strong><br />
+        本文與評分是綜合公開指標而成的<strong>參考資料，不構成投資建議或買入推薦。</strong>
+        文中的歷史案例與數值均為大致重建，<strong>過去不代表未來。</strong>
+        加密貨幣是可能<strong>損失全部本金</strong>的高風險資產。
+        一切投資決策及其後果均由使用者本人全權負責。請務必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸閱讀</h2>
+      <div class="related">
+        <a href="/methodology"><b>評分方法</b><span>6個指標以怎樣的權重合成——直到重新正規化與區間</span></a>
+        <a href="/indicators"><b>6個指標深度解讀</b><span>RSI、MACD、梅耶、回撤各自會在什麼時候失靈</span></a>
+        <a href="/guide-fear-greed"><b>恐懼指數實戰指南</b><span>逆向指標一起出錯的階段與分批買入</span></a>
+        <a href="/glossary"><b>術語表</b><span>移動平均、交叉、梅耶倍數等術語整理</span></a>
+        <a href="/"><b>前往儀表板</b><span>查看目前的交叉狀態與gap%</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 營運方 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+    </main>

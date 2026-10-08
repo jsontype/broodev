@@ -1,0 +1,522 @@
+    <main class="wrap" data-title="L’histoire du multiple de Mayer — ce que la moyenne mobile 200 jours a dit à chaque cycle du bitcoin | broodev" data-desc="Pourquoi Trace Mayer a-t-il choisi le chiffre 2,4 ? Nous retraçons chronologiquement la valeur réelle du multiple de Mayer aux sommets de 2013, 2017, 2021 et 2024 et aux planchers de 2015, 2018, 2020 et 2022, puis nous montrons par le calcul pourquoi le modèle broodev donne à cet indicateur des pondérations radicalement différentes : 4 % à court terme et 18 % à long terme.">
+      <nav class="nav">
+        <a href="/">← Tableau de bord</a>
+        <a href="/methodology">Méthodologie du score</a>
+        <a href="/indicators">Indicateurs expliqués</a>
+        <a href="/guide-fear-greed">Utiliser l’indice de peur</a>
+        <a href="/glossary">Glossaire</a>
+      </nav>
+
+      <h1>L’histoire du multiple de Mayer<br />— ce que la moyenne 200 jours a dit à chaque cycle</h1>
+      <p class="muted">Dernière mise à jour : 2026-07-14 · Auteur : Y-Systems · Objet : l’indicateur multiple de Mayer du score de timing d’achat broodev v2</p>
+
+      <p class="lead">
+        <code>Multiple de Mayer = prix actuel ÷ moyenne mobile 200 jours</code>. Une seule division, rien de plus.
+        Pourtant, ce chiffre pèse <strong>18 % dans le score long terme de broodev, et 4 % dans le score court terme</strong>. Un écart de quatre fois et demie.
+        Aucune formule n’explique pourquoi un même indicateur reçoit des poids aussi différents.
+        <strong>Seule l’histoire des cycles du bitcoin</strong> l’explique. Cet article n’est donc pas écrit comme un calcul, mais comme une chronique.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Chronologie</div>
+        <ol>
+          <li><a href="#origin">2014 — la question d’un podcasteur, et le chiffre 2,4</a></li>
+          <li><a href="#wild">2011~2013 — l’ère sauvage où le multiple dépassait 4</a></li>
+          <li><a href="#floor">2015 — l’année où est né le plancher de « 0,8 »</a></li>
+          <li><a href="#2017">2017 — la raison décisive d’une pondération court terme de 4 %</a></li>
+          <li><a href="#bottoms">2018 · 2020 — trois planchers marqués presque au même endroit</a></li>
+          <li><a href="#2021">2021 — deux sommets, deux multiples totalement différents</a></li>
+          <li><a href="#etf">2022~2026 — après les ETF, 2,4 ne reviendra peut-être jamais</a></li>
+          <li><a href="#weights">Alors pourquoi 4 % et 18 % ? — la réponse en chiffres</a></li>
+          <li><a href="#curve">Anatomie de la fonction de conversion — pourquoi couper à 0,8 · 1,4 · 2,4</a></li>
+          <li><a href="#silence">Les quatre endroits où cet indicateur se tait</a></li>
+          <li><a href="#today">Comment lire ce chiffre en 2026</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>À propos des chiffres de cet article.</strong> Les valeurs historiques du multiple citées ci-dessous sont des <strong>approximations reconstituées</strong> en divisant le cours de clôture quotidien par la moyenne mobile simple sur 200 jours.
+        Selon la plateforme d’échange dont on prend le prix, ou selon qu’on fixe la clôture en UTC, la première décimale peut varier.
+        Lisez donc non pas « c’était 2,9 au sommet », mais plutôt <strong>« c’était entre 2,5 et 3 »</strong>. Le propos de cet article ne tient pas aux décimales, mais à <strong>la tendance d’un cycle à l’autre</strong>.
+      </div>
+
+      <section class="bd-figs" aria-label="Graphiques en direct du multiple de Mayer">
+        <p class="muted">Les graphiques ci-dessous sont tracés en calculant directement dans votre navigateur l’historique complet des chandeliers journaliers BTC, téléchargé depuis l’API publique de CoinMetrics au moment de votre visite. Vérifiez d’abord la chronologie de l’article de vos propres yeux, puis lisez. Survolez avec la souris pour afficher la valeur à chaque date.</p>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-price" class="bd-pane"><div class="bd-loading">Chargement des données du graphique…</div></div>
+          </div>
+          <p class="bd-cap">Prix du BTC (échelle logarithmique) et moyenne mobile simple sur 200 jours. Pointillés orange = halvings (2012·2016·2020·2024). Données : CoinMetrics Community API, clôtures journalières du BTC — <strong>approximations, à titre indicatif</strong>, téléchargées et calculées dans le navigateur au moment de la visite.</p>
+        </div>
+        <div class="bd-fig">
+          <div class="bd-chart">
+            <div id="bd-mayer-mult" class="bd-pane"><div class="bd-loading">Chargement des données du graphique…</div></div>
+          </div>
+          <p class="bd-cap">Série temporelle du multiple de Mayer. Zone verte = 0,8 ou moins (zone historique de sous-évaluation), zone rouge = au-dessus de 2,4 (zone de surchauffe). Les valeurs extrêmes supérieures à 4 de 2011~2013 sont écrêtées à 4. Données : CoinMetrics Community API, clôtures journalières du BTC — <strong>approximations, à titre indicatif</strong>, téléchargées et calculées dans le navigateur au moment de la visite.</p>
+        </div>
+      </section>
+
+      <h2 id="origin">2014 — la question d’un podcasteur, et le chiffre 2,4</h2>
+      <p>
+        En 2014, la communauté bitcoin ne disposait d’aucun des indicateurs d’aujourd’hui. Pas de société de données on-chain, pas d’indice de peur et d’avidité.
+        Il n’y avait que des graphiques de prix et des messages de forum, et ceux qui venaient de vivre deux bulles d’affilée en 2013 (avril et novembre) ne se posaient qu’une question :
+        <strong>« Est-ce que je peux acheter maintenant ? »</strong>
+      </p>
+      <p>
+        Trace Mayer était un investisseur de la première heure dans le bitcoin et un podcasteur. Point important : ce n’était pas un trader.
+        La question <em>« ça va monter aujourd’hui ? »</em> ne l’intéressait pas ; ce qui l’intéressait, c’était <strong>« où en sera dans quelques années celui qui entre maintenant ? »</strong>.
+        Quand l’horizon de la question change, les outils nécessaires changent aussi.
+      </p>
+      <p>
+        L’outil qu’il a choisi est la <strong>moyenne mobile 200 jours</strong>, utilisée depuis près d’un siècle dans la finance traditionnelle.
+        La moyenne 200 jours correspond à peu près à <strong>une moyenne sur 10 mois de jours ouvrés</strong>. Une ligne lente, qu’une ou deux nouvelles ou une vague de liquidations ne font pas bouger.
+        L’idée de Mayer était simple : <strong>« Combien de fois au-dessus de cette ligne lente se trouve le prix du jour ? »</strong>
+      </p>
+      <pre><code>Multiple de Mayer = clôture du jour ÷ moyenne mobile simple 200 jours (SMA)
+
+multiple 1.0  → égal à la moyenne 200 jours
+multiple 0.7  → 30 % moins cher que la moyenne
+multiple 2.5  → 150 % plus cher que la moyenne</code></pre>
+
+      <h3>D’où vient le chiffre 2,4 ?</h3>
+      <p>
+        Mayer ne s’est pas arrêté là : il a lancé un <strong>backtest de règle</strong> (il a mis en jeu une prime dans la communauté pour faire réaliser les calculs par la foule).
+        La question était la suivante.
+      </p>
+      <p class="lead">
+        <em>« Entre une règle qui n’achète régulièrement que lorsque le multiple de Mayer est inférieur ou égal à X, et une règle qui achète n’importe quand, laquelle obtient le meilleur rendement à long terme ? Essayons toutes les valeurs de X, de 0,1 à 5. »</em>
+      </p>
+      <p>
+        Dans les résultats, ce qu’il a souligné n’était pas la valeur optimale, mais <strong>le point d’inflexion</strong>.
+        En relevant sans cesse le seuil (= acheter même quand c’est cher), la performance à long terme commençait à partir d’un certain point à se dégrader nettement, et ce point se situait <strong>aux alentours de 2,4</strong>.
+        Autrement dit, 2,4 n’est pas une prophétie du type « c’est le sommet », mais une statistique a posteriori : <strong>« acheter plus cher que cela a historiquement coûté cher »</strong>.
+      </p>
+      <div class="note warn">
+        <strong>Posons dès maintenant les limites.</strong> Au moment où Mayer a fait ses calculs, le bitcoin était <strong>un actif qui n’existait que depuis cinq ans</strong>.
+        Seuls deux cycles étaient complets, et l’essentiel de l’échantillon couvrait la « phase de croissance explosive initiale ».
+        <strong>2,4 est un chiffre tiré de deux cycles.</strong> Nous l’utilisons, mais en sachant que ce n’est pas une constante physique.
+        La dernière section de cet article explique pourquoi 2,4 est <em>déjà en train de vieillir</em>.
+      </div>
+
+      <h2 id="wild">2011~2013 — l’ère sauvage où le multiple dépassait 4</h2>
+      <p>
+        Si l’on applique l’indicateur aux données antérieures à sa création, le bitcoin des débuts affiche <strong>des valeurs absurdes selon les critères actuels</strong>.
+      </p>
+      <p>
+        Lors de la première grande bulle de juin 2011, le multiple a <strong>dépassé 5</strong>. Le prix valait donc cinq fois la moyenne 200 jours.
+        Aux deux sommets d’avril et de novembre 2013, il a aussi atteint <strong>la zone des 3~4</strong>.
+        À cette époque, la règle <em>« un multiple de 2,4 est dangereux »</em> était pratiquement inutile : le prix a encore doublé après avoir franchi 2,4.
+      </p>
+      <p>
+        Pourquoi ? La capitalisation se comptait en centaines de millions ou en quelques milliards de dollars, la liquidité était faible, il n’existait pas de marché des dérivés et la vente à découvert était pratiquement impossible.
+        C’était <strong>un marché où il n’y avait que des forces pour pousser vers le haut, et aucune pour tirer vers le bas</strong>. Dans un tel marché, cinq fois la moyenne 200 jours n’a rien d’étonnant.
+      </p>
+      <p>
+        La leçon que les données de cette époque nous donnent aujourd’hui est que <strong>« la valeur absolue du multiple de Mayer dépend de la structure du marché »</strong>.
+        Le même 2,4 signifiait « encore le début » en 2013 et devient « presque inaccessible » en 2021. Nous y reviendrons plus loin.
+      </p>
+
+      <h2 id="floor">2015 — l’année où est né le plancher de « 0,8 »</h2>
+      <p>
+        Après l’effondrement de Mt. Gox en 2014, le bitcoin a baissé pendant plus d’un an. Près du creux de janvier 2015, le multiple a été écrasé jusqu’à <strong>la zone des 0,6</strong>.
+        Mais le plus important n’est pas le creux lui-même : c’est le fait qu’avant et après, <strong>le multiple a rampé pendant des mois entre 0,7 et 0,9</strong>.
+      </p>
+      <p>
+        Ce « plancher qui traîne en longueur » est l’endroit d’où vient le <strong>0,8</strong> de notre fonction de conversion.
+        0,8 correspond à <strong>une décote de 20 %</strong> par rapport à la moyenne 200 jours. Et même en additionnant toutes les périodes de l’histoire du bitcoin où le multiple est passé sous 0,8,
+        on n’obtient qu’<strong>une infime partie de l’ensemble des jours de cotation</strong>. C’est rare — et c’est la seule justification de ce seuil.
+      </p>
+      <div class="note">
+        <strong>Ce que notre modèle ne fait pas sous 0,8.</strong> Un multiple de 0,6 est bel et bien « moins cher » que 0,8.
+        Pourtant, notre fonction de conversion <strong>aplatit tout ce qui est inférieur ou égal à 0,8 à 100 points.</strong> Que ce soit 0,6 ou 0,5, c’est 100 points.
+        Être moins cher ne rapporte pas davantage. Pourquoi ? Parce que <strong>la chute n’a pas de plancher</strong>.
+        Un modèle qui donnerait 105 points à 0,5 crierait « achetez » d’autant plus fort que le krach s’aggrave. Ce ne serait plus un indicateur, mais une <em>pédale d’accélérateur</em>.
+        Couper l’extrémité à plat, c’est renoncer à de la précision pour <strong>acheter de l’humilité</strong>.
+      </div>
+
+      <h2 id="2017">2017 — la raison décisive d’une pondération court terme de 4 %</h2>
+      <p>
+        Pour ceux qui croient au multiple de Mayer, 2017 a été <strong>l’année la plus douloureuse</strong>. Et c’est aussi à cause du bilan de cette année-là que la pondération court terme de notre modèle a été ramenée à 4 %.
+      </p>
+      <p>
+        En 2017, le bitcoin a commencé l’année autour de 1 000 dollars et l’a terminée fin décembre près de 20 000 dollars. La question est de savoir <strong>à quel moment de ce parcours le multiple a dit « c’est cher »</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Moment en 2017</th><th>Multiple approximatif</th><th>Ce que dit Mayer</th><th>Ce qui s’est réellement passé ensuite</th></tr></thead>
+          <tbody>
+            <tr><td>Mai~juin (autour de 2 500 dollars)</td><td><code>1.5~1.7</code></td><td>« Entrée en surchauffe »</td><td>Hausse d’environ <strong>7 fois de plus</strong> jusqu’à la fin de l’année</td></tr>
+            <tr><td>Août (autour de 4 000 dollars)</td><td><code>1.8~2.0</code></td><td>« Assez cher »</td><td>Hausse de <strong>4 fois de plus</strong> en 4 mois</td></tr>
+            <tr><td>Novembre (autour de 8 000 dollars)</td><td><code>2.0~2.2</code></td><td>« Proche de la zone de sommet »</td><td>Hausse de <strong>2,4 fois de plus</strong> en 6 semaines</td></tr>
+            <tr><td>Mi-décembre (autour de 19 000 dollars)</td><td><code>2.5~2.9</code></td><td>« Surchauffe extrême »</td><td>Le vrai sommet. La seule fois où il a eu raison</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Vous voyez ? Le multiple de Mayer <strong>a dit « c’est cher » toute l’année, et s’est trompé toute l’année.</strong> Puis il a eu raison les deux dernières semaines.
+      </p>
+      <p>
+        Attention à ne pas mal comprendre. Cela ne veut pas dire que <em>« le multiple de Mayer est un mauvais indicateur »</em>.
+        Entre <strong>celui qui est sorti en mai 2017 en voyant un multiple de 1,6</strong> et <strong>celui qui a ignoré ce 1,6 en mai 2017, a gardé ses positions et est sorti en décembre</strong> —
+        le second l’emporte largement en rendement à long terme, mais <strong>celui qui a continué à conserver jusqu’en 2018</strong> redevient moins bien loti que le premier.
+        Le même chiffre mène à des conclusions opposées selon l’horizon de temps.
+      </p>
+      <div class="note warn">
+        <strong>Voilà pourquoi la pondération court terme est de 4 %.</strong> L’onglet court terme de broodev raisonne sur <strong>1 à 3 mois</strong>.
+        Quelle que soit la ligne du tableau ci-dessus, l’avertissement « c’est cher » du multiple de Mayer <strong>n’a pas su prédire la direction des 1 à 3 mois suivants.</strong>
+        Placer un signal dont le décalage se compte en <em>mois, voire en un an</em> dans une fenêtre de <em>1 à 3 mois</em>, ce n’est plus un signal, c’est du <strong>bruit</strong>.<br /><br />
+        ⚠️ <strong>Important :</strong> dans l’onglet court terme, cet indicateur ne fonctionne <strong>pas</strong> selon la logique « cher = alerte ».
+        Au contraire, il fonctionne selon la logique <strong>« cher = tendance forte = points en plus »</strong>.
+        Alors qui arrête le sommet de la bulle ? <strong>Pas la pondération, mais un garde-fou distinct contre les sommets de type blow-off</strong>.
+        Dans <a href="#weights">la section suivante</a>, nous publions les deux fonctions et le garde-fou, code compris.
+      </div>
+
+      <h2 id="bottoms">2018 · 2020 — trois planchers marqués presque au même endroit</h2>
+      <p>
+        Cet indicateur, si capricieux aux sommets, est <strong>remarquablement constant aux planchers</strong>. C’est là sa véritable nature.
+      </p>
+      <p>
+        <strong>En décembre 2018</strong>, vers 3 150 dollars, à la fin d’un an de marché baissier, le multiple était dans <strong>la zone des 0,5~0,6</strong>.<br />
+        <strong>En mars 2020</strong>, quand le choc du Covid a coupé le prix en deux en une journée jusqu’autour de 3 800 dollars, le multiple était <strong>vers 0,6</strong>.<br />
+        <strong>En novembre 2022</strong>, quand FTX s’est effondré et que le prix a reculé jusqu’autour de 15 500 dollars, le multiple était de <strong>0,6~0,7</strong>.
+      </p>
+      <p>
+        <strong>En sept ans, trois planchers produits par trois causes totalement différentes (éclatement de sa propre bulle / pandémie / fraude d’une plateforme d’échange) se sont formés à un multiple presque identique.</strong>
+        Et ce alors que le prix a été multiplié par cinq, de 3 150 à 15 500 dollars.
+        C’est pour cela qu’on parle de la moyenne 200 jours comme de <strong>la gravité du prix</strong>. Le prix absolu est totalement différent d’un cycle à l’autre, mais <strong>la limite basse de l’écart possible par rapport à la moyenne 200 jours</strong> était semblable.
+      </p>
+      <p>
+        Mars 2020 mérite d’être noté à part. C’est en effet presque le seul cas où le multiple de Mayer a eu raison <strong>immédiatement et précisément</strong>.
+        La raison est claire : <strong>le choc s’est terminé en une seule journée</strong>.
+        Pendant que le prix s’effondrait à la verticale, la moyenne 200 jours n’a presque pas bougé, et le multiple s’est déchiré d’un coup jusqu’à 0,6.
+        <strong>Le multiple de Mayer est sensible aux « chutes brutales » et peu sensible aux « effondrements lents ».</strong> Cette phrase reviendra, douloureusement, dans la section sur les limites.
+      </p>
+
+      <h2 id="2021">2021 — deux sommets, deux multiples totalement différents</h2>
+      <p>
+        2021 est l’année la plus importante pour comprendre cet indicateur. Car <strong>la même année, deux sommets à des prix presque identiques se sont produits, avec des multiples complètement différents</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Sommet de 2021</th><th>Prix</th><th>Multiple approximatif</th><th>Score de notre fonction de conversion</th></tr></thead>
+          <tbody>
+            <tr><td>Avril (1er sommet)</td><td>environ 64 000 dollars</td><td><code>1.9~2.2</code></td><td>environ <strong>22~30 points</strong> (CAUTION)</td></tr>
+            <tr><td>Novembre (2e sommet, plus haut du cycle)</td><td>environ 69 000 dollars</td><td><code>1.3~1.4</code></td><td>environ <strong>50~55 points</strong> (NEUTRAL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Au véritable sommet du cycle, le multiple de Mayer a dit « neutre ».</strong>
+      </p>
+      <p>
+        Ce n’est pas un bug de l’indicateur, mais <strong>une évidence mathématique</strong>.
+        Après le sommet d’avril, pendant tout l’été où le prix a stagné autour de 30 000 dollars, la moyenne 200 jours n’a cessé de <em>remonter lentement.</em>
+        Quand le prix a touché 69 000 dollars en novembre, la moyenne 200 jours était déjà autour de 50 000 dollars. Le dénominateur ayant grossi, le multiple diminue.
+      </p>
+      <p>
+        <strong>Quand le sommet se fait en deux temps, le multiple de Mayer rate le second.</strong>
+        Plus le marché adopte une forme mature, qui « monte par paliers au lieu d’exploser d’un coup », plus l’alarme haute de cet indicateur perd de son efficacité.
+      </p>
+
+      <h2 id="etf">2022~2026 — après les ETF, 2,4 ne reviendra peut-être jamais</h2>
+      <p>
+        Si l’on aligne verticalement, cycle par cycle, le bilan jusqu’ici, on voit apparaître <strong>une tendance qui va dans un seul sens</strong>.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cycle</th><th>Multiple au sommet (approx.)</th><th>Multiple au plancher (approx.)</th><th>Amplitude</th></tr></thead>
+          <tbody>
+            <tr><td>2011</td><td><code>5 et plus</code></td><td><code>0.4~0.5</code></td><td>Extrême</td></tr>
+            <tr><td>2013</td><td><code>3~4</code></td><td><code>0.5~0.6</code> (2015)</td><td>Très grande</td></tr>
+            <tr><td>2017</td><td><code>2.5~2.9</code></td><td><code>0.5~0.6</code> (2018)</td><td>Grande</td></tr>
+            <tr><td>2021</td><td><code>1.9~2.2</code> (avril)</td><td><code>0.6~0.7</code> (2022)</td><td>Moyenne</td></tr>
+            <tr><td>2024~2025</td><td><code>1.5~1.8</code></td><td>—</td><td><strong>Faible</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Le multiple au sommet baisse à chaque cycle, et le multiple au plancher ne cesse de monter.</strong> L’amplitude se comprime.
+        Les causes ne sont pas difficiles à deviner.
+      </p>
+      <ul>
+        <li><strong>Les dérivés et la vente à découvert</strong> — le marché dispose désormais d’une force qui appuie vers le bas. Elle n’existait pas en 2013.</li>
+        <li><strong>Les capitaux institutionnels et les ETF au comptant</strong> — les flux depuis 2024 sont bien plus réguliers et progressifs que les frénésies des particuliers. Une hausse progressive, la moyenne 200 jours la rattrape.</li>
+        <li><strong>La taille de la capitalisation</strong> — pour qu’un actif de 1 000 milliards de dollars bondisse à trois fois sa moyenne 200 jours, le volume de capitaux nécessaire est d’un tout autre ordre.</li>
+      </ul>
+      <div class="note warn">
+        <strong>Disons-le honnêtement : la bande supérieure de notre modèle est déjà en train de vieillir.</strong>
+        La zone « multiple de Mayer au-dessus de 2,4 → 10 points ou moins » <strong>ne s’est pas déclenchée une seule fois au cours des deux derniers cycles.</strong>
+        Si la structure du marché reste ce qu’elle est, 2,4 pourrait devenir <em>un seuil mort qui ne sera plus jamais atteint</em>.
+        <br /><br />
+        Pourtant, nous <strong>n’avons pas encore abaissé</strong> cette valeur. À cause d’un dilemme.
+        Abaisser le seuil de 2,4 à 1,8 pour coller aux données récentes semblerait bien fonctionner aujourd’hui, mais ce serait <strong>tordre la courbe pour l’ajuster au passé (curve fitting)</strong>.
+        Un modèle réglé ainsi s’effondre dès que le cycle suivant reprend son ancienne forme.
+        <strong>Notre choix actuel : « conserver le seuil d’origine, mais consigner dans ce document le fait qu’il se déclenche moins souvent »</strong>.
+        Nous avons jugé préférable de rendre publiques les faiblesses du modèle plutôt que de le corriger en silence.
+      </div>
+
+      <h2 id="weights">Alors pourquoi 4 % et 18 % ? — la réponse en chiffres</h2>
+
+      <div class="note warn">
+        <strong>Rectificatif (2026-07-14)</strong> — la version précédente de cette section <strong>appliquait à tort la fonction de conversion long terme à la colonne court terme</strong>,
+        et décrivait ainsi la contribution court terme du multiple de Mayer <strong>avec le signe inversé</strong>.
+        Elle omettait aussi l’existence du <strong>garde-fou contre les sommets de type blow-off</strong>, qui assure en réalité la protection contre la surchauffe à court terme.
+        Ce qui suit a été entièrement corrigé sur la base du code.
+      </div>
+
+      <p>
+        Il y a ici un fait à connaître absolument. <strong>La fonction de normalisation du multiple de Mayer n’est pas unique : il y en a deux.</strong>
+        L’onglet court terme et l’onglet long terme utilisent <strong>des fonctions différentes</strong>, et <strong>de signes opposés</strong>.
+      </p>
+
+      <pre><code>// Long terme (à contre-courant) — plus c’est bon marché, plus le score est élevé
+conMayer(m):
+  m ≤ 0.8 → 100
+  m ≤ 1.4 → 50 + ((1.4 − m) / 0.6) × 50
+  m ≤ 2.4 → 10 + ((2.4 − m) / 1.0) × 40
+  m &gt; 2.4 → 10 − (m − 2.4) × 25
+
+// Court terme (momentum) — plus c’est cher, plus le score est élevé
+momMayer(m) = clamp(50 + (m − 1) × 25,  0,  100)</code></pre>
+
+      <p>
+        <strong>« Plus c’est cher, plus on gagne de points » à court terme : cela sonne comme une folie.</strong> Mais sur une fenêtre de 1 à 3 mois,
+        un prix largement au-dessus de la moyenne 200 jours ne signifie pas <strong>« surévaluation », mais « forte tendance haussière »</strong>.
+        2017 l’a exactement démontré — même après avoir dépassé un multiple de 2,4, le prix a continué de monter pendant des mois.
+        L’onglet court terme ne nie pas cette tendance.
+      </p>
+
+      <p>Calculons la contribution réelle.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Multiple de Mayer</th><th>Sous-score court terme<br /><span class="muted">momMayer</span></th><th>Contribution court terme<br /><span class="muted">×4%</span></th><th>Sous-score long terme<br /><span class="muted">conMayer</span></th><th>Contribution long terme<br /><span class="muted">×18%</span></th></tr></thead>
+          <tbody>
+            <tr><td><code>0.75</code> (sous-évalué)</td><td>43,75</td><td>1,75 pt</td><td>100</td><td><strong>18,0 pts</strong></td></tr>
+            <tr><td><code>1.0</code> (moyenne 200 jours)</td><td>50</td><td>2,0 pts</td><td>83,3</td><td>15,0 pts</td></tr>
+            <tr><td><code>1.6</code></td><td>65</td><td>2,6 pts</td><td>42,0</td><td>7,6 pts</td></tr>
+            <tr><td><code>2.6</code> (surchauffe)</td><td>90</td><td><strong>3,6 pts</strong></td><td>5,0</td><td>0,9 pt</td></tr>
+            <tr><td><strong>Amplitude (0,5~2,5)</strong></td><td>37,5 ~ 87,5</td><td><strong>environ 2,0 pts</strong></td><td>100 ~ 7,5</td><td><strong>environ 16,7 pts</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>Dans l’onglet court terme, l’amplitude totale du multiple de Mayer dépasse à peine 2 points.</strong> Et le sens est <em>sous-évalué → points en moins</em>.
+        <strong>Dans l’onglet long terme, il bouge de près de 17 points, en sens inverse</strong> — assez pour faire glisser <code>NEUTRAL(55 pts)</code> vers
+        <code>CAUTION(38 pts)</code>, soit une bande et demie d’un coup.
+        Le fait qu’il partage avec le RSI, le MACD et l’indice de peur et d’avidité <strong>la première place ex aequo (18 %)</strong> n’est pas excessif, car les planchers de 2018, 2020 et 2022
+        se sont tous formés dans la même zone de multiple. Peu d’indicateurs se sont reproduits ainsi à l’échelle des cycles.
+      </p>
+
+      <h3>Mais pourquoi 4 % à court terme, et pas 0 % ?</h3>
+      <p>
+        À court terme, le multiple de Mayer est <strong>un doublon des indicateurs de tendance</strong>. L’information « le prix s’est écarté au-dessus de la moyenne 200 jours »
+        est déjà largement contenue dans le RSI (28 %), le repli (18 %) et le MACD (14 %). Donner en plus un gros poids au multiple de Mayer reviendrait à
+        <strong>compter quatre fois le même signal</strong>. Nous l’avons donc ramené à 4 %.
+      </p>
+      <p>
+        <strong>S’il n’est pas à 0 %, c’est qu’il existe un angle que ces trois-là ne voient pas.</strong>
+        Le RSI et le MACD regardent la vitesse des <em>derniers jours</em>, et le repli regarde <em>l’écart par rapport au plus haut</em>.
+        Seul le multiple de Mayer mesure <strong>« de combien le prix s’est écarté de la ligne de référence de long terme qu’est la moyenne 200 jours »</strong>.
+        Le <strong>degré d’extension absolu</strong> de la tendance — aucun des trois autres ne peut le remplacer. Les 4 % correspondent à cette part.
+      </p>
+
+      <h3>Qui freine la surchauffe, alors ? — le garde-fou contre les sommets de type blow-off</h3>
+      <p>
+        Une objection naturelle surgit ici : <strong>« Si, à court terme, plus c’est cher plus on gagne de points, le score ne va-t-il pas continuer à monter au sommet d’une bulle ? »</strong>
+        Exact. Avec momMayer seul, c’est ce qui se passerait.
+      </p>
+      <p>
+        C’est pourquoi ce travail est confié <strong>non pas à la pondération, mais à un mécanisme distinct</strong>.
+        On applique un <strong>amortissement au score total court terme lui-même</strong>, une fois l’agrégation terminée.
+      </p>
+      <pre><code>if (Mayer &gt; 2.0):
+    score_total_court_terme ×= clamp(1 − (Mayer − 2.0) × 0.55,  0.25,  1)</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Multiple de Mayer</th><th>Coefficient</th><th>Si le score total court terme était de 70 points</th></tr></thead>
+          <tbody>
+            <tr><td><code>2.0</code></td><td>×1.00</td><td>70,0 (aucun amortissement)</td></tr>
+            <tr><td><code>2.5</code></td><td>×0.725</td><td>50,8 <span class="muted">(−19,2 pts)</span></td></tr>
+            <tr><td><code>3.0</code></td><td>×0.45</td><td>31,5 <span class="muted">(−38,5 pts)</span></td></tr>
+            <tr><td><code>3.4 et plus</code></td><td>×0.25 <span class="muted">(plancher)</span></td><td>17,5 <span class="muted">(−52,5 pts)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Voilà le vrai frein.</strong> Rien à voir avec l’amplitude de 2 points que produit une pondération de 4 %.
+        À un multiple de 2,5, <strong>27,5 % du score total court terme disparaissent d’un coup.</strong>
+        <code>ACCUMULATE(70 pts)</code> retombe à <code>NEUTRAL(50.8 pts)</code>.
+      </p>
+      <div class="note">
+        En résumé, dans l’onglet court terme, le multiple de Mayer joue <strong>deux rôles</strong>.<br />
+        <strong>① Pondération de 4 %</strong> — reflète <em>légèrement</em> le degré d’extension de la tendance (plus c’est cher, plus de points ; amplitude de 2 points)<br />
+        <strong>② Garde-fou blow-off</strong> — au-dessus d’un multiple de 2,0, <em>amortit le score total lui-même</em> (jusqu’à 75 % de réduction)<br />
+        <strong>« 4 %, donc le court terme ignore le multiple de Mayer » est un contresens.</strong> Ce n’est pas que son poids soit faible :
+        <strong>le rôle de défense contre la surchauffe a été transféré de la pondération vers le garde-fou</strong>.
+      </div>
+      <p class="muted">
+        Pour être honnêtes, notre backtest n’a pas pu dire de façon tranchée si le coefficient d’amortissement de 0,55 et le plancher de 0,25 sont optimaux.
+        La seule certitude est que « sans garde-fou, le score court terme était dangereusement élevé aux sommets de 2017 et 2021 ». Le reste relève du jugement.
+      </p>
+
+      <h2 id="curve">Anatomie de la fonction de conversion — pourquoi couper à 0,8 · 1,4 · 2,4</h2>
+      <p>
+        Notre fonction, qui convertit le multiple de Mayer en sous-score de 0 à 100, <strong>s’infléchit en trois points.</strong>
+        Chacun de ces points d’inflexion a une origine totalement différente.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Point d’inflexion</th><th>Origine</th><th>Signification</th></tr></thead>
+          <tbody>
+            <tr><td><code>0.8</code></td><td>Observation des planchers de 2015·2018·2022</td><td>Décote de 20 % par rapport à la moyenne 200 jours. Rarement atteint historiquement</td></tr>
+            <tr><td><code>1.4</code></td><td>Proche de la <strong>moyenne de long terme</strong> du multiple sur toute l’histoire du bitcoin</td><td>« Dans la moyenne = 50 points » — l’axe central de la fonction</td></tr>
+            <tr><td><code>2.4</code></td><td>Le backtest original de Trace Mayer</td><td>Le point au-delà duquel acheter plus cher dégradait la performance à long terme</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Que 1,4 vaille 50 points, c’est l’ossature de cette fonction.</strong> La moyenne de long terme du multiple de Mayer du bitcoin dépasse 1 —
+        autrement dit, être <em>au-dessus</em> de la moyenne 200 jours est l’état normal de cet actif (une propriété naturelle d’un actif à tendance haussière).
+        Nous avons donc posé non pas <strong>« 1,0 = neutre », mais « 1,4 ≈ neutre »</strong>.
+        L’interprétation courante qui prend un multiple de 1,0 comme neutre est, pour le bitcoin, <strong>structurellement trop optimiste</strong>.
+      </p>
+
+      <h3>Pourquoi la pente diffère selon les segments</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Segment</th><th>Variation du score</th><th>Variation du score par 0,1 de multiple</th><th>Pourquoi cette pente</th></tr></thead>
+          <tbody>
+            <tr><td><code>≤ 0.8</code></td><td>100 (fixe)</td><td><strong>0 point</strong></td><td>Plus bas, on ne donne pas plus (pour ne pas attraper un couteau qui tombe)</td></tr>
+            <tr><td><code>0.8 ~ 1.4</code></td><td>100 → 50</td><td><strong>−8,3 pts</strong></td><td>Le segment où le marché passe <strong>la plupart de son temps</strong> → résolution concentrée ici</td></tr>
+            <tr><td><code>1.4 ~ 2.4</code></td><td>50 → 10</td><td><strong>−4,0 pts</strong></td><td>1,6 ou 2,0, c’est de toute façon « cher » → pas besoin de résolution</td></tr>
+            <tr><td><code>&gt; 2.4</code></td><td>10 → 0</td><td>Amortissement vers 0</td><td>Aux extrêmes, la précision n’a pas de sens</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        L’essentiel est que <strong>la pente du segment 0,8~1,4 est plus de deux fois plus raide que celle du segment 1,4~2,4</strong>.
+        C’est voulu. Le bitcoin <strong>passe plus de la moitié de ses jours de cotation avec un multiple entre 0,8 et 1,4.</strong>
+        Ce que le modèle rencontre chaque jour, ce n’est pas 2,6, mais <strong>1,05 ou 1,25</strong>. C’est là qu’il faut concentrer la résolution pour que le score varie de façon significative.
+      </p>
+      <p>Voici ce que donne la fonction en pratique.</p>
+      <pre><code>multiple 0.70  →  100 pts    (zone des planchers 2018·2022)
+multiple 0.90  →   91.7 pts
+multiple 1.00  →   83.3 pts   (égal à la moyenne 200 jours)
+multiple 1.20  →   66.7 pts
+multiple 1.40  →   50.0 pts   ← axe central (moyenne de long terme)
+multiple 1.60  →   42.0 pts
+multiple 1.90  →   30.0 pts   (zone du sommet d’avril 2021)
+multiple 2.20  →   18.0 pts
+multiple 2.40  →   10.0 pts   ← le seuil de Mayer
+multiple 2.60  →    environ 6 pts (amortissement vers 0)</code></pre>
+      <p>
+        Plate aux deux extrémités et raide au milieu, c’est <strong>une courbe en S douce, retournée</strong>.
+        Cette fonction traduit en code le principe <em>« être avare de mots aux extrêmes, et bavard dans les zones ambiguës »</em>.
+      </p>
+
+      <h2 id="silence">Les quatre endroits où cet indicateur se tait</h2>
+      <p>
+        Jusqu’ici, nous avons vu <strong>ce que cet indicateur sait faire</strong>. Voyons maintenant <strong>où il n’a rien à dire</strong>.
+        En pratique, c’est ce côté-là qui compte le plus.
+      </p>
+
+      <h3>1. La fin d’un marché baissier — l’échec le plus sournois</h3>
+      <p>
+        Nous avons écrit plus haut que « le multiple de Mayer est sensible aux chutes brutales et peu sensible aux effondrements lents ». C’est ici qu’on en paie le prix.
+      </p>
+      <p>
+        Quand un marché baissier dure depuis environ un an, <strong>la moyenne 200 jours elle-même descend en suivant le prix.</strong>
+        Alors, même si le prix continue de baisser, <strong>le multiple se « normalise » autour de 0,9~1,0.</strong>
+        C’est exactement ce qui s’est passé mi-2018 et mi-2022. Avec un prix à −70 % de son plus haut, le multiple de Mayer <strong>affiche tranquillement « neutre ».</strong>
+      </p>
+      <div class="note warn">
+        <strong>C’est un défaut que le multiple de Mayer ne peut absolument pas corriger seul.</strong> C’est le destin d’un indicateur dont le dénominateur bouge.
+        Voilà pourquoi broodev intègre séparément le <strong>repli depuis le plus haut sur 365 jours</strong>.
+        Le dénominateur de l’indicateur de repli est <strong>un plus haut passé fixe</strong>, qui ne descend pas avec le prix.
+        <strong>Quand le multiple de Mayer se tait, le repli crie à sa place.</strong> Associer ces deux indicateurs n’est pas un doublon, mais <strong>une complémentarité</strong>.
+      </div>
+
+      <h3>2. Les coins sans 200 jours d’historique — et la façon dont nous l’avouons</h3>
+      <p>
+        Pour un coin coté depuis moins de 200 jours, la moyenne mobile 200 jours n’existe pas. Il n’y a <strong>par principe aucun moyen</strong> de calculer le multiple de Mayer.
+      </p>
+      <p>Notre application traite cette situation en deux étapes.</p>
+      <ul>
+        <li>
+          <strong>Quand les données sont insuffisantes mais existent</strong> — nous calculons avec la moyenne mobile la plus longue possible en remplacement,
+          et affichons à l’écran une <strong>étiquette indiquant combien de jours ont réellement été utilisés</strong>, par exemple <code>repli 200j (120j)</code>.
+          <strong>Un multiple calculé sur une moyenne de 120 jours n’est pas un multiple de Mayer.</strong> Une moyenne courte suit le prix plus vite, ce qui écrase le multiple autour de 1 : <strong>il capte mal la surchauffe comme la sous-évaluation.</strong>
+          Nous calculons cette valeur, mais <strong>nous ne cachons pas à l’écran qu’elle n’est pas la vraie</strong>.
+        </li>
+        <li>
+          <strong>Quand il n’y a rien du tout</strong> — l’indicateur n’est <strong>pas mis à 0 point, mais exclu du calcul</strong>.
+          Car 0 point signifie « mauvais », pas « inconnu ». Les pondérations des 5 indicateurs restants sont renormalisées pour totaliser 100 %,
+          et <code>coverage: 5/6 (82% weight)</code> est affiché. Dans l’onglet long terme, l’absence du multiple de Mayer signifie que <strong>18 % des éléments de jugement disparaissent d’un coup</strong>.
+          <strong>Quand cette mention s’affiche, lisez le score long terme avec un cran de confiance en moins.</strong>
+        </li>
+      </ul>
+
+      <h3>3. Les altcoins — les seuils sont taillés pour le BTC</h3>
+      <p>
+        0,8 et 2,4 sont <strong>des chiffres extraits de la structure de volatilité du bitcoin</strong>.
+        Si l’on applique la même règle à des altcoins deux à trois fois plus volatils que le bitcoin, le haut (2,4) est facilement franchi à chaque marché haussier, et le bas (0,8) à chaque marché baissier.
+        <strong>Un détecteur d’incendie qui sonne trop souvent finit par n’être écouté par personne.</strong>
+        Il est juste de considérer que le score du multiple de Mayer sur l’écran d’un altcoin a <strong>un pouvoir d’interprétation nettement inférieur</strong> à celui de l’écran BTC.
+      </p>
+
+      <h3>4. Rien ne prouve que la moyenne 200 jours soit une « juste valeur »</h3>
+      <p>
+        Le dernier point est le plus fondamental. Le multiple de Mayer est <strong>un indicateur qui ne regarde que le prix</strong>.
+        Il ignore l’on-chain, le coût de minage, les flux de capitaux et la réglementation.
+      </p>
+      <p>
+        Et <strong>le chiffre 200 jours lui-même n’a aucun fondement théorique.</strong>
+        Ce n’est qu’une durée utilisée <em>par convention</em> sur les marchés financiers traditionnels. 180 ou 250 jours seraient peut-être meilleurs.
+        La proposition « moyenne 200 jours = juste valeur du bitcoin » <strong>n’a jamais été démontrée.</strong>
+        La seule raison pour laquelle nous utilisons cet indicateur est une observation : <strong>« lors des cycles passés, le prix avait tendance à revenir vers elle »</strong>,
+        et <strong>une observation n’est pas une loi.</strong>
+      </p>
+
+      <h2 id="today">Comment lire ce chiffre en 2026</h2>
+      <p>Si l’on condense cette chronique en méthode de lecture pratique, cela tient en trois phrases.</p>
+      <ul>
+        <li>
+          <strong>Le multiple de Mayer ne dit pas « quand ». Il dit « combien ».</strong>
+          Une valeur de 2,2 ne signifie pas « ça va bientôt baisser », mais « acheter ici a historiquement coûté cher ». <strong>Ce n’est pas un outil de timing, mais un outil de valorisation</strong>.
+        </li>
+        <li>
+          <strong>Faites-lui confiance aux planchers, méfiez-vous-en aux sommets.</strong> Sous 0,8, le schéma s’est reproduit sur trois cycles.
+          Au-dessus de 2,4, il n’est pas venu une seule fois lors des deux derniers cycles. <strong>La fiabilité de cet indicateur n’est pas symétrique entre le haut et le bas.</strong>
+        </li>
+        <li>
+          <strong>Ne vous rassurez pas parce que le multiple est « normal ».</strong> Un 0,95 en fin de marché baissier n’est pas <em>normal</em> : c’est <strong>le bruit du silence de l’indicateur</strong>.
+          Dans ce cas, regardez le <a href="/indicators">repli sur 365 jours</a> et l’<a href="/guide-fear-greed">indice de peur et d’avidité</a>.
+        </li>
+      </ul>
+      <p>
+        Enfin, s’il fallait choisir la phrase de cet article à retenir le plus longtemps, ce serait sans doute <strong>novembre 2021</strong>.
+        Au véritable sommet du cycle, le multiple de Mayer <strong>a dit « neutre ».</strong>
+        Aucun indicateur n’a raison à chaque cycle, et <strong>celui-ci devient d’autant plus silencieux que le marché mûrit.</strong>
+        C’est pour cela que broodev ne produit pas son score à partir du seul multiple de Mayer, mais <a href="/methodology">en combine 6</a>.
+      </p>
+
+      <div class="note warn">
+        <strong>⚠ Avertissement sur l’investissement</strong><br />
+        Ce document et les scores de broodev sont <strong>des documents de référence combinant des indicateurs publics, et non des conseils en investissement.</strong>
+        Les valeurs historiques du multiple citées dans le texte sont <strong>des approximations susceptibles de varier selon la source de données, et les schémas passés ne garantissent pas l’avenir.</strong>
+        Les cryptomonnaies sont des actifs à haut risque <strong>pouvant entraîner la perte totale du capital</strong>.
+        Toute décision d’investissement et ses conséquences (gains ou pertes) relèvent entièrement de la responsabilité de l’utilisateur. Faites toujours vos propres recherches (DYOR).
+      </div>
+
+      <h2>À lire ensuite</h2>
+      <div class="related">
+        <a href="/methodology"><b>Méthodologie du score</b><span>Avec quelles pondérations les 6 indicateurs sont combinés (tous les chiffres publiés)</span></a>
+        <a href="/indicators"><b>Les 6 indicateurs expliqués</b><span>Quand le RSI, le MACD, le repli et les croisements vous trahissent-ils ?</span></a>
+        <a href="/guide-fear-greed"><b>Utiliser l’indice de peur en pratique</b><span>L’indicateur à regarder quand le multiple de Mayer se tait</span></a>
+        <a href="/glossary"><b>Glossaire</b><span>Moyenne 200 jours, SMA, sous-score : les termes expliqués</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · Exploité par Y-Systems · <a href="/privacy">Politique de confidentialité</a> · <a href="/terms">Conditions d’utilisation</a></footer>
+    </main>

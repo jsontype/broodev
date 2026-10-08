@@ -1,0 +1,321 @@
+<main class="wrap" data-title="如何判斷比特幣底部 — 市值 vs 平均持倉成本 | broodev" data-desc="比特幣的底部不是由價格界定，而是看「市值是否跌破投資人平均持倉成本（已實現市值）」。本文以即時圖表重建2011、2015、2018、2020、2022年五次底部中MVRV實際跌破1的紀錄，並完整公開連Thermocap（累計挖礦獎勵）也一併合成的broodev底部評分（BOTTOM RADAR）計算公式。">
+      <nav class="nav">
+        <a href="/">← 儀表板</a>
+        <a href="/methodology">評分方法</a>
+        <a href="/indicators">指標解讀</a>
+        <a href="/bitcoin-bottom">底部訊號</a>
+        <a href="/glossary">術語表</a>
+      </nav>
+
+      <h1>如何判斷比特幣底部<br />— 市值 vs 平均持倉成本</h1>
+      <p class="muted">最後更新：2026-07-22 · 作者：Y-Systems · 對象：broodev底部評分（BOTTOM RADAR）中的鏈上項目</p>
+
+      <p class="lead">
+        想用價格找出比特幣底部的嘗試，每一次都失敗了。2018年的底部是3,150美元，2022年的底部是15,500美元 — <strong>相差五倍。</strong>
+        然而這兩個底部有一個與價格無關的共同點：<strong>比特幣的市值跌到了所有投資人實際支付金額的總和（平均持倉成本總額）之下。</strong>
+        本文以即時資料把這項觀察直接畫出來，依時間順序追蹤這個訊號在五次底部中實際是如何出現的，
+        並連同計算公式一起公開broodev的<strong>底部評分（BOTTOM RADAR）</strong>以怎樣的權重將其合成。
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">目錄</div>
+        <ol>
+          <li><a href="#concept">為什麼「平均持倉成本」能告訴我們底部 — 已實現市值</a></li>
+          <li><a href="#chart-mc">即時圖表① — 市值 vs 平均持倉成本（2010年至今）</a></li>
+          <li><a href="#history">五次底部 — MVRV跌破1的那些日子</a></li>
+          <li><a href="#mvrv-z">即時圖表② — 用MVRV Z分數進行標準化</a></li>
+          <li><a href="#thermocap">即時圖表③ — Thermocap，挖礦成本所揭示的底部</a></li>
+          <li><a href="#divergence">如何解讀兩個指標出現分歧的時刻</a></li>
+          <li><a href="#limits">這些指標的侷限 — 樣本僅4個週期、ETF時代</a></li>
+          <li><a href="#radar">broodev底部評分（BOTTOM RADAR）的合成方法 — 公開權重</a></li>
+          <li><a href="#faq">常見問題</a></li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>關於本文中的數字。</strong>下方的圖表是在開啟本頁面時<strong>直接從CoinMetrics Community API與blockchain.info取得、在瀏覽器中繪製的真實資料</strong>（6小時快取）。
+        相反地，正文表格中過去底部時點的MVRV值與其後的報酬率是<strong>重建的近似值</strong> — 使用哪個資料來源、把低點定在哪一天，小數點後的數字都會有所浮動。
+        本文的論點不在小數點，而在於<strong>「市值跌破成本的區間與底部重合」這個反覆出現的模式</strong>。
+      </div>
+
+      <h2 id="concept">為什麼「平均持倉成本」能告訴我們底部 — 已實現市值</h2>
+      <p>
+        市值大家都知道：<code>現價 × 流通量</code>。這是一個<em>假定</em>最後一筆成交價能代表全部幣值的數字。
+        但鏈上資料裡還有一個比市值有趣得多的數字：<strong>已實現市值（Realized Cap）</strong>。
+      </p>
+      <pre><code>市值         = 現價 × 流通量                        （以「目前價格」評估所有幣）
+已實現市值   = Σ（每枚幣 × 該幣最後一次移動當天的價格）
+             = 投資人實際支付金額的總和 ≈ 全市場平均持倉成本 × 流通量</code></pre>
+      <p>
+        區塊鏈記錄著每一枚幣<strong>最後一次轉移錢包是在什麼時候</strong>。把幣移動當天的價格視為該幣的「取得成本」並全部加總，
+        就能得到整個市場實際投入比特幣的資金總額。換成股票來說，就相當於<strong>全體股東的平均買進價乘以股數</strong>。
+        因此本文把已實現市值稱為<strong>「平均持倉成本（總額）」</strong>。
+      </p>
+      <p>兩個數字的比值，就是大名鼎鼎的<strong>MVRV</strong>。</p>
+      <pre><code>MVRV = 市值 ÷ 已實現市值
+
+MVRV 2.0  → 平均持有者本金翻倍（全員獲利區間）
+MVRV 1.0  → 整個市場恰好打平
+MVRV 0.8  → 平均持有者虧損 −20%（全員虧損區間）</code></pre>
+      <p>
+        底部的邏輯就從這裡產生。<strong>MVRV跌破1，意味著比特幣持有者整體平均處於套牢狀態。</strong>
+        歷史上，在這個區間會發生兩件事。第一，承受不了虧損的投資人的<strong>恐慌拋售（投降式拋售，capitulation）</strong>達到高峰。
+        第二，接走這些籌碼的是不受盈虧左右的長期持有者。這是幣<strong>從弱手轉到強手的時刻</strong>，
+        而在四個週期中，這一時刻全部<strong>與大底重合。</strong>你可以在下方的圖表中親自確認。
+      </p>
+
+      <h2 id="chart-mc">即時圖表① — 市值 vs 平均持倉成本<span class="info-tip" tabindex="0" role="note" aria-label="市值 vs 平均持倉成本 說明">ⓘ<span class="tip-bubble"><b>市值 vs 平均持倉成本</b>藍線是投資人的平均持倉成本。市值（白色）跌到這條線以下，意味著市場平均處於虧損區間，歷史上是底部區域。</span></span></h2>
+      <p>
+        白線是<strong>市值</strong>，藍線是<strong>平均持倉成本（已實現市值）</strong>。採用對數刻度，橘色虛線是四次減半。
+        將滑鼠移到圖上即可顯示日期與兩個數值。要看的只有一件事 — <strong>白線鑽到藍線之下的區間</strong>。那些全都是底部。
+      </p>
+      <div class="chart-panel" id="chart1"><div class="chart-status">正在載入資料並繪製圖表…（可能需要幾秒鐘）</div></div>
+      <p class="chart-src">資料：CoinMetrics Community API（CapMrktCurUSD · CapMVRVCur，全部歷史日線 · 已實現市值 = 市值 ÷ MVRV）· 6小時本機快取 · 對數刻度</p>
+      <p>
+        請留意藍線的一個性質：<strong>它幾乎不跌。</strong>即使在市值暴跌 −80% 的過程中，平均持倉成本也只是緩慢地下降。
+        因為成本<em>只有在交易真正發生時</em>才會更新。即使在充滿恐懼的市場裡，大部分的幣也不會移動，而沒有移動的幣，其成本維持不變。
+        所以藍線的表現<strong>不像價格的引力線，而像市場的帳面價值</strong>。市值跌穿帳面價值的情況很少見，正因為少見，才成為訊號。
+      </p>
+
+      <h2 id="history">五次底部 — MVRV跌破1的那些日子</h2>
+      <p>
+        在比特幣歷史上，市值跌破平均持倉成本（MVRV &lt; 1）的階段屈指可數。將與五次大底重合的紀錄整理如下。
+        所有數值均為<strong>近似值</strong> — 會因把低點定在哪一天而不同。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>底部階段</th><th>當時價格（約）</th><th>MVRV最低值（約）</th><th>1年後（約）</th><th>2年後（約）</th></tr></thead>
+          <tbody>
+            <tr><td>2011年11月</td><td>約 $2</td><td><code>0.4~0.6</code></td><td>約 $11（+400%左右）</td><td>約 $1,000（數百倍）</td></tr>
+            <tr><td>2015年1月</td><td>約 $170~230</td><td><code>0.55~0.7</code></td><td>約 $380~430（+90~130%）</td><td>約 $900（+300%左右）</td></tr>
+            <tr><td>2018年12月</td><td>約 $3,200</td><td><code>0.7上下</code></td><td>約 $7,200（+120%左右）</td><td>約 $23,000（+600%左右）</td></tr>
+            <tr><td>2020年3月</td><td>約 $3,800~5,000</td><td><code>0.85~0.95</code>（數日間）</td><td>約 $58,000（+1,000%左右）</td><td>約 $44,000（+700%左右）</td></tr>
+            <tr><td>2022年11月</td><td>約 $15,500</td><td><code>0.75~0.85</code></td><td>約 $37,000（+130%左右）</td><td>約 $90,000（+480%左右）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        五次底部的成因各不相同：自身泡沫破裂（2011）、Mt. Gox事件餘波（2015）、ICO泡沫出清（2018）、疫情恐慌（2020）、FTX破產（2022）。
+        價格從$2到$15,500，相差<strong>7,750倍</strong>。然而<strong>MVRV五次全都低於1，大致落在0.7~0.9區間</strong>。
+        不用絕對價格，而用<strong>「相對整個市場的成本打了多少折」</strong>來衡量，五個截然不同的底部幾乎落在同一個位置。
+      </p>
+      <div class="note warn">
+        <strong>但反過來並不成立。</strong>「MVRV &lt; 1 = 立即見底」是不對的。
+        2011年、2014~2015年以及2018年底，MVRV在1以下停留了<strong>數週至數月</strong>，期間價格還在繼續下跌。
+        這個指標告訴你的不是「這裡就是最低點」，而是區間資訊：<strong>「歷史上在這個區間分批買進的人，1~2年後大獲全勝。」</strong>
+        請把它當作<strong>區間工具，而不是擇時工具</strong>來解讀。
+      </div>
+
+      <h2 id="mvrv-z">即時圖表② — 用MVRV Z分數進行標準化</h2>
+      <p>
+        MVRV比率有一個弱點：<strong>每個週期頂部的高度都不一樣</strong>。2011年頂部的MVRV超過7，而2021年還不到4。
+        這是因為市場越大，振幅就越被壓縮。所以broodev引擎不用比率，而用<strong>Z分數</strong> — 衡量市值與已實現市值之間的<em>差額</em>，
+        相對於市值的歷史波動度拉開了多少個標準差。
+      </p>
+      <pre><code>MVRV Z分數 = （市值 − 已實現市值）÷ σ（市值）
+             σ = 市值全部歷史的標準差
+
+z &lt; 0   → 市值低於平均持倉成本（歷史底部區）
+z ≈ 1~2 → 平常區間
+z &gt; 5   → 歷史頂部區（2011·2013·2017年的頂點）</code></pre>
+      <p>
+        下方的圖表是全部歷史的MVRV Z分數。綠色陰影是<strong>z &lt; 0（底部區）</strong>，紅色陰影是<strong>z &gt; 5（過熱區）</strong>。
+        2011·2015·2018·2022年的底部全都鑽到了0線以下（2020年3月只是擦到0線），而2011·2013·2017年的大頂全都觸及z 7~9的紅色陰影。
+        然而<strong>2021年頂部的z只停在3.5附近</strong> — 這說明市場越大，上方振幅越被壓縮，後面的侷限一節還會再談到。
+      </p>
+      <div class="chart-panel" id="chart2"><div class="chart-status">正在載入資料並繪製圖表…</div></div>
+      <p class="chart-src">資料：使用CoinMetrics Community API中與上圖相同的原始資料計算 · z = （市值 − 已實現市值）÷ σ（市值）· σ為截至各時點的全部歷史（擴展視窗）· 6小時本機快取</p>
+      <div class="note">
+        <strong>原樣公開計算方式。</strong>broodev儀表板上的MVRV Z，是從
+        CoinMetrics Community API的<code>CapMrktCurUSD</code>（市值）與<code>CapMVRVCur</code>（MVRV比率）依
+        <code>已實現市值 = 市值 ÷ MVRV</code>推導後，再除以<strong>全部歷史的σ（市值）</strong>進行標準化得到的值。
+        上圖的歷史區間使用<strong>截至該時點的σ</strong>（擴展視窗）計算 — 是為了畫出「當天的投資人能看到的數值」。
+        依定義，最後一個點與儀表板的目前值完全一致。API免費且無需金鑰，任何人都能重現同樣的數字。
+      </div>
+
+      <h2 id="thermocap">即時圖表③ — Thermocap，挖礦成本所揭示的底部</h2>
+      <p>
+        如果說已實現市值是<strong>投資人的成本</strong>，那麼比特幣還有另一種成本：<strong>生產者的成本</strong>，也就是挖礦成本。
+        <strong>Thermocap（熱市值）</strong>是比特幣誕生以來<strong>支付給礦工的獎勵（區塊獎勵 + 手續費）的累計總額（USD）</strong>。
+        它是迄今為止投入網路安全的資金總和 — 可以說是<strong>打造這項資產所花費的總成本</strong>。
+      </p>
+      <pre><code>Thermocap    = Σ（每日礦工收入 USD）  ← 自2009年起累計
+Thermocap Z  = ln（市值 ÷ Thermocap）的z分數   [以全部歷史為基準]
+
+市值/Thermocap比率在歷史上於數倍至數十倍之間擺盪。
+將比率取對數後標準化的z越低，越是「相對生產成本被低估」。</code></pre>
+      <p>
+        市值在Thermocap的數倍之上交易是正常狀態（這是長期上漲資產的性質）。重要的是這個倍數<strong>處於歷史區間的什麼位置</strong>，
+        把倍數的對數用z分數標準化後，就可以在週期之間進行比較。從下方的圖表可以看到，<strong>z跌破0的區間</strong>與歷史底部區重合。
+      </p>
+      <div class="chart-panel" id="chart3"><div class="chart-status">正在載入資料並繪製圖表…</div></div>
+      <p class="chart-src">資料：blockchain.info charts/miners-revenue（全期間）— 依樣本間隔天數加權累計（積分近似）· 與CoinMetrics日線市值依日期對齊 · z = ln（市值/Thermocap）的全部歷史z分數 · 6小時本機快取</p>
+      <p>
+        Thermocap的分母與已實現市值有決定性的不同。<strong>它絕不會減少，而且與市場無關，每天只會一點一點增加。</strong>
+        即使投資人在恐慌中拋售，挖礦獎勵的累計值也紋風不動。因此Thermocap Z比基於已實現市值的指標
+        <strong>更慢、更頑固，是一條底部基準線</strong>。這個指標需要挖礦獎勵資料，因此是<strong>比特幣專用</strong>的 — 無法對山寨幣計算。
+      </p>
+
+      <h2 id="divergence">如何解讀兩個指標出現分歧的時刻</h2>
+      <p>
+        同樣是「成本」指標，為什麼兩個都要看？<strong>因為分母變動的速度不同。</strong>
+        已實現市值（MVRV的分母）每當幣易手時就會更新 — 牛市拖得越久，成本本身就會墊高；拋售結束後，成本又會回落。
+        Thermocap沒有這些變化，只會累加。這種速度差異正是訊號的來源。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>組合</th><th>解讀</th><th>歷史案例（約）</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z 低 + Thermocap Z 低</td><td><strong>深度底部區。</strong>同時接近投資人成本與生產成本</td><td>2015年 · 2018年底 · 2022年底</td></tr>
+            <tr><td>MVRV Z 低 + Thermocap Z 普通</td><td>週期中段的急跌。出現了恐慌拋售，但尚未確認結構性底部</td><td>2020年3月 · 2021年7月</td></tr>
+            <tr><td>MVRV Z 普通 + Thermocap Z 高</td><td>牛市後段。成本已大幅墊高，只看MVRV會產生錯覺</td><td>2021年11月（第二個頂部）</td></tr>
+            <tr><td>兩者皆高</td><td><strong>歷史頂部區。</strong>新買進最糟糕的區間</td><td>2013年底 · 2017年底</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        第三列尤其重要。牛市持續一年以上時，<strong>已實現市值會跟著價格上來，讓MVRV看起來「正常」。</strong>
+        在2021年11月的週期最高點，MVRV比2011~2017年的各個頂部低得多。這與Mayer倍數<a href="/mayer-multiple">在2021年11月顯示中性</a>
+        是完全相同結構的沉默。這時，像Thermocap這樣<strong>分母不會跟著上來的指標</strong>就發揮交叉驗證的作用。
+      </p>
+
+      <h2 id="limits">這些指標的侷限 — 樣本僅4個週期、ETF時代</h2>
+      <p>坦白寫出來：本文的論據在多大程度上成立。</p>
+      <ul>
+        <li>
+          <strong>樣本只有4個週期。</strong>「MVRV &lt; 1就是底部」這項觀察的樣本是五個階段，以完整週期計只有四個。
+          這個規模稱之為統計都不好意思，而且<strong>觀察不是定律。</strong>無法保證下一個週期會停在同一個位置。
+        </li>
+        <li>
+          <strong>ETF時代可能帶來的扭曲。</strong>2024年以後，大量的幣被鎖定在現貨ETF與託管機構中。
+          ETF份額在沒有鏈上移動的情況下易手，因此<strong>即使發生了真實買賣，已實現市值（成本）也可能不會更新。</strong>
+          這是鏈上成本逐漸比真實市場成本更陳舊的結構性變化，會模糊與過去週期的直接比較。
+        </li>
+        <li>
+          <strong>已實現市值可能因交易所內部轉移而失真。</strong>交易所整理冷錢包並轉移幣時，
+          即使沒有真實買進，這部分籌碼的「成本」也會依轉移當天的價格重新記錄。反過來，在交易所<em>內部</em>易手的幣在鏈上沒有痕跡，成本不會更新。
+        </li>
+        <li>
+          <strong>永久沉睡之幣的問題。</strong>早期挖出後從未移動過的幣（中本聰持有的部分等，估計有數百萬枚），
+          其成本以接近0計算。這是使已實現市值在結構上被低估的偏差。
+        </li>
+        <li>
+          <strong>全部歷史σ的性質。</strong>MVRV Z的分母σ（市值）以全部歷史計算，因此市場規模越大，σ也越大，
+          <strong>最近週期的z振幅會比過去被壓低。</strong>這意味著「像z &gt; 7這樣的極端值可能不會再出現」，也是不能把門檻值當作絕對標準的原因。
+        </li>
+      </ul>
+
+      <h2 id="radar">broodev底部評分（BOTTOM RADAR）的合成方法 — 公開權重</h2>
+      <p>
+        broodev儀表板上的<strong>BOTTOM RADAR</strong>不是回答「現在買會不會漲」，而是只回答<strong>「現在是不是歷史底部區」</strong>這一個問題的獨立合成評分。
+        它的權重本身就與短期、長期評分不同。核心在於把55%集中給了兩個鏈上成本指標。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>指標</th><th>權重</th><th>為什麼是這個比重</th></tr></thead>
+          <tbody>
+            <tr><td>MVRV Z-Score</td><td><strong>35%</strong></td><td>相對投資人平均持倉成本。在五次底部中全部奏效的首要訊號</td></tr>
+            <tr><td>Thermocap Z</td><td><strong>20%</strong></td><td>相對生產（挖礦）成本。在MVRV的分母造成錯覺時進行交叉驗證</td></tr>
+            <tr><td>Mayer倍數</td><td>15%</td><td>相對200日均線的價格。鏈上資料看不到的純價格維度</td></tr>
+            <tr><td>相對365日高點的回撤</td><td>15%</td><td>相對高點的下跌深度。分母是固定的高點，即使在熊市後段也不會沉默</td></tr>
+            <tr><td>恐懼與貪婪指數</td><td>15%</td><td>恐慌拋售情緒的溫度計。底部總是伴隨著極度恐懼到來</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        五項合計為<strong>1.00</strong>。各指標使用長期（逆向）標準化評分 — 兩項鏈上指標依下方錨點表把z值對應到0~100 —
+        沒有資料的指標不以0分處理，而是<strong>從計算中剔除，再把剩餘權重重新正規化為合計100%</strong>。
+        在BTC以外的幣上，Thermocap總是會被剔除；在CoinMetrics不支援的幣上，連MVRV也會被剔除，請務必確認涵蓋率顯示。
+      </p>
+      <pre><code>z → 評分對應（Z_ANCHORS，分段線性內插）
+  z ≤ −1 → 100    z = 0 → 88    z = 0.5 → 72    z = 1 → 58
+  z = 2  → 42     z = 3 → 28    z = 4   → 16    z = 6 → 4     z ≥ 8 → 0</code></pre>
+      <p>合成評分分五個區間解讀。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>底部評分</th><th>判定</th></tr></thead>
+          <tbody>
+            <tr><td><strong>80 ~ 100</strong></td><td>歷史底部區 — 與過去各次大底處於同一位置</td></tr>
+            <tr><td><strong>65 ~ 80</strong></td><td>低估 — 相對成本打折的區間</td></tr>
+            <tr><td><strong>45 ~ 65</strong></td><td>中性</td></tr>
+            <tr><td><strong>25 ~ 45</strong></td><td>高估 — 相對成本有溢價的區間</td></tr>
+            <tr><td><strong>0 ~ 25</strong></td><td>頂部區·過熱 — 與過去各次大頂處於同一位置</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        沒有證據表明35·20·15·15·15的權重是最佳的。能確定的只有方向 — 在判定底部時，<strong>基於成本的鏈上指標比基於價格的指標在週期之間的可重現性更好</strong>，
+        所以把過半權重放在這一邊。整個評分體系（短期·長期分頁的8個指標合成）已在<a href="/methodology">評分方法文件</a>中全部公開。
+      </p>
+
+      <h2 id="faq">常見問題</h2>
+      <dl>
+        <dt>MVRV跌破1就一定是底部嗎？</dt>
+        <dd>
+          不是。歷史上MVRV &lt; 1的區間與大底重合，但即使<em>在該區間之內</em>，價格也曾再下跌20~40%（2011年、2015年）。
+          應把它理解為「歷史上1~2年後表現良好的分批買進區間」，而不是「最低點訊號」，而且樣本只有四個週期。
+        </dd>
+        <dt>在哪裡可以看到已實現市值（平均持倉成本）？</dt>
+        <dd>
+          本頁面的圖表直接從CoinMetrics Community API（免費·無需金鑰）的市值與MVRV推導出已實現市值並繪製。
+          broodev儀表板的MVRV·Z卡片與底部評分（BOTTOM RADAR）也使用相同的資料、相同的計算公式。
+        </dd>
+        <dt>這個方法也能用在山寨幣上嗎？</dt>
+        <dd>
+          只能部分使用。broodev在CoinMetrics提供MVRV的10種幣（BTC·ETH·XRP·DOGE·BCH·LINK·XLM·LTC·DOT·MANA）上計算MVRV Z，
+          不支援的幣以N/A處理後重新正規化權重。Thermocap（累計挖礦獎勵）為比特幣專用。
+        </dd>
+        <dt>為什麼市值跌破平均持倉成本就是底部？</dt>
+        <dd>
+          市值低於已實現市值，意味著持有者整體平均處於虧損狀態。在這個區間，承受不了虧損的恐慌拋售達到高峰，
+          隨著這些籌碼轉到長期持有者手中，賣壓逐漸耗盡。不過，這只是過去四個週期的觀察，並非有保證的定律。
+        </dd>
+      </dl>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "MVRV跌破1就一定是底部嗎？",
+            "acceptedAnswer": { "@type": "Answer", "text": "不是。歷史上MVRV < 1的區間與大底重合，但即使在該區間之內，價格也曾再下跌20~40%（2011年、2015年）。應把它理解為歷史上1~2年後表現良好的分批買進區間，而不是最低點訊號，而且樣本只有四個週期。" }
+          },
+          {
+            "@type": "Question",
+            "name": "在哪裡可以看到已實現市值（平均持倉成本）？",
+            "acceptedAnswer": { "@type": "Answer", "text": "btc.broodev.com/bitcoin-bottom 頁面的圖表直接從CoinMetrics Community API（免費，無需金鑰）的市值與MVRV推導出已實現市值並繪製。broodev儀表板的MVRV·Z卡片與底部評分（BOTTOM RADAR）也使用相同的資料、相同的計算公式。" }
+          },
+          {
+            "@type": "Question",
+            "name": "這個方法也能用在山寨幣上嗎？",
+            "acceptedAnswer": { "@type": "Answer", "text": "只能部分使用。broodev在CoinMetrics提供MVRV的10種幣（BTC、ETH、XRP、DOGE、BCH、LINK、XLM、LTC、DOT、MANA）上計算MVRV Z分數，不支援的幣以N/A處理後重新正規化權重。Thermocap（累計挖礦獎勵）為比特幣專用。" }
+          },
+          {
+            "@type": "Question",
+            "name": "為什麼市值跌破平均持倉成本就是底部？",
+            "acceptedAnswer": { "@type": "Answer", "text": "市值低於已實現市值，意味著持有者整體平均處於虧損狀態。在這個區間，承受不了虧損的恐慌拋售達到高峰，隨著這些籌碼轉到長期持有者手中，賣壓逐漸耗盡。不過，這只是過去四個週期的觀察，並非有保證的定律。" }
+          }
+        ]
+      }
+      </script>
+
+      <div class="note warn">
+        <strong>⚠ 投資提醒</strong><br />
+        本文件與broodev的評分是合成公開指標的<strong>參考資料，並非投資建議。</strong>
+        正文中過去的MVRV值與報酬率是可能因資料來源而異的<strong>近似值，過去的模式不能保證未來。</strong>
+        加密貨幣是<strong>可能損失全部本金</strong>的高風險資產。
+        所有投資判斷及其結果（盈虧）的責任完全由使用者本人承擔。請務必自行研究（DYOR）。
+      </div>
+
+      <h2>延伸閱讀</h2>
+      <div class="related">
+        <a href="/methodology"><b>評分方法</b><span>8個指標以怎樣的權重合成（數值全部公開）</span></a>
+        <a href="/indicators"><b>8個指標解讀</b><span>包括MVRV·Thermocap，各指標何時會失靈</span></a>
+        <a href="/mayer-multiple"><b>Mayer倍數的歷史</b><span>200日均線在每個週期告訴了我們什麼 — 價格維度的底部指標</span></a>
+        <a href="/"><b>前往儀表板</b><span>查看目前的底部評分（BOTTOM RADAR）</span></a>
+      </div>
+
+      <hr />
+      <footer>© 2026 broodev · 營運方 Y-Systems · <a href="/privacy">隱私權政策</a> · <a href="/terms">使用條款</a></footer>
+    </main>

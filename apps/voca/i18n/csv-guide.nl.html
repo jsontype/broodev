@@ -1,0 +1,160 @@
+<main class="wrap" data-title="Een CSV-woordenlijst maken — Je eigen stampset bouwen met Excel of Google Spreadsheets | VOCA DECK" data-desc="Praktische gids voor het maken van een CSV-woordenlijst met Excel, Google Spreadsheets of Kladblok. Zo los je onleesbare tekens (codering) op, ga je om met komma’s en aanhalingstekens, vijf principes voor goede woordkaarten en veelgemaakte fouten.">
+      <div class="panel">
+        <div class="titlebar"><span>▎VOCA DECK — CSV GUIDE</span><span>●</span></div>
+
+        <nav class="nav">
+          <a href="/">← Woordjesschrift</a>
+          <a href="/method">Hoe het werkt</a>
+          <a href="/study-guide">Leerstrategie</a>
+        </nav>
+
+        <h1>Een CSV-woordenlijst maken</h1>
+        <p class="muted">Laatst bijgewerkt: 2026-07-14 · Door Y-Systems</p>
+
+        <p class="lead">
+          VOCA DECK werkt met <strong>de woordenlijst die je zelf maakt</strong>. In plaats van een lijst van 5.000 woorden die iemand anders heeft samengesteld,
+          zijn <strong>200 woorden die je echt niet kende</strong> veel krachtiger.
+          Dit artikel legt uit <strong>hoe je een CSV maakt</strong> en lost het <strong>probleem met onleesbare tekens</strong> op waar bijna iedereen minstens één keer tegenaan loopt.
+        </p>
+
+        <div class="toc">
+          <div class="toc-title">Inhoud</div>
+          <ol>
+            <li><a href="#format">Wat is een CSV? (Het eenvoudigste formaat)</a></li>
+            <li><a href="#excel">Maken met Excel / Google Spreadsheets</a></li>
+            <li><a href="#encoding">⚠ Als tekst onleesbaar wordt — het coderingsprobleem</a></li>
+            <li><a href="#comma">Als de betekenis een komma bevat</a></li>
+            <li><a href="#design">Vijf principes voor goede woordkaarten</a></li>
+            <li><a href="#mistakes">Veelgemaakte fouten</a></li>
+          </ol>
+        </div>
+
+        <h2 id="format">Wat is een CSV? (Het eenvoudigste formaat)</h2>
+        <p>
+          CSV staat voor <strong>Comma-Separated Values</strong>: waarden gescheiden door komma’s.
+          Het klinkt ingewikkeld, maar het is gewoon <strong>een tekstbestand dat je in Kladblok kunt maken</strong>. Eén kaart per regel, met een komma tussen voor- en achterkant.
+        </p>
+        <pre><code>apple,appel
+diligent,ijverig
+procrastinate,uitstellen
+serendipity,gelukkig toeval</code></pre>
+        <p>
+          <strong>Links staat de voorkant (het woord), rechts de achterkant (de betekenis)</strong>. Meer is het niet.
+          Typ het zoals hierboven in Kladblok, sla het op als <code>woorden.csv</code> en klaar.
+        </p>
+        <div class="note">
+          Het hoeft niet per se “Engels woord – Nederlands” te zijn. Zolang er <strong>links een vraag en rechts een antwoord</strong> staat, kan alles.
+          Kanji – lezingen, historische jaartallen – gebeurtenissen, scheikundige formules – namen, gezichtskenmerken – namen van mensen… als de structuur klopt, wordt alles een stampset.
+        </div>
+
+        <h2 id="excel">Maken met Excel / Google Spreadsheets</h2>
+        <p>Heb je veel woorden, dan is het veel handiger om ze in een tabel bij te houden.</p>
+        <ol>
+          <li>Zet <strong>het woord in kolom A en de betekenis in kolom B</strong>. (Een koptekstrij is niet nodig.)</li>
+          <li>
+            <strong>Google Spreadsheets</strong>: Bestand → Downloaden → <strong>Kommagescheiden waarden (.csv)</strong><br />
+            <span class="muted">Google Spreadsheets slaat altijd op in UTF-8, dus <strong>tekens raken nooit verminkt. Dit is de veiligste methode.</strong></span>
+          </li>
+          <li>
+            <strong>Excel</strong>: Bestand → Opslaan als → kies <strong>CSV UTF-8 (door komma’s gescheiden)</strong><br />
+            <span class="muted">⚠ Kies je gewoon “CSV (gescheiden door lijstscheidingsteken)”, dan kunnen tekens verminkt raken. Kies altijd de optie met <strong>UTF-8</strong> erin.</span>
+          </li>
+        </ol>
+
+        <h2 id="encoding">⚠ Als tekst onleesbaar wordt — het coderingsprobleem</h2>
+        <p>
+          Open je je woordenlijst en zien de betekenissen eruit als <code>ì‚¬ê³¼</code>, dan is het een <strong>coderingsprobleem</strong>.
+          Het bestand is <strong>in iets anders dan UTF-8 opgeslagen (meestal CP949/ANSI van Windows)</strong>.
+        </p>
+        <p><strong>Oplossingen (de makkelijkste eerst)</strong></p>
+        <ol>
+          <li>
+            <strong>Opnieuw opslaan in Kladblok</strong> — open het bestand in Kladblok en sla het op via
+            <strong>Bestand → Opslaan als → codering op “UTF-8” zetten</strong>. Meestal is het daarmee opgelost.
+          </li>
+          <li>
+            <strong>Met Excel</strong> — sla het opnieuw op als “CSV UTF-8 (door komma’s gescheiden) (*.csv)”.
+          </li>
+          <li>
+            <strong>Werkt het nog steeds niet, ga dan via Google Spreadsheets</strong> — plak het in Google Spreadsheets en download het als CSV; UTF-8 is dan gegarandeerd.
+          </li>
+        </ol>
+        <div class="note warn">
+          <strong>Waarom gebeurt dit?</strong> In de computer worden tekens als getallen opgeslagen, en daar bestaan <strong>meerdere omzettingsregels</strong> voor.
+          UTF-8 is de wereldwijde standaard; CP949 is de oude Koreaanse Windows-codering. Als de regel bij het opslaan en bij het lezen verschilt, raken tekens verminkt.
+          <strong>Gebruik gewoon overal UTF-8.</strong>
+        </div>
+
+        <h2 id="comma">Als de betekenis een komma bevat</h2>
+        <p>
+          CSV scheidt cellen met komma’s. Wat gebeurt er dan als <strong>de betekenis zelf een komma bevat</strong>?
+        </p>
+        <pre><code>bank,bank, oever          ← ✗ valt uiteen in 3 cellen</code></pre>
+        <p>In dat geval zet je het gewoon <strong>tussen dubbele aanhalingstekens</strong>.</p>
+        <pre><code>bank,"bank, oever"        ← ✓ de betekenis blijft één geheel</code></pre>
+        <p>
+          Maak je het bestand in Excel of Google Spreadsheets, dan <strong>gebeurt dit automatisch.</strong> Je hoeft er alleen op te letten als je met de hand in Kladblok typt.
+          Nog eenvoudiger is <strong>een schuine streep of puntkomma in plaats van een komma</strong> te gebruiken: <code>bank,bank / oever</code>
+        </p>
+
+        <h2 id="design">Vijf principes voor goede woordkaarten</h2>
+        <p>Meer dan het formaat bepaalt <strong>de inhoudelijke opzet</strong> hoe efficiënt je onthoudt.</p>
+
+        <h3>① Eén begrip per kaart</h3>
+        <p>
+          Prop je vijf betekenissen op één kaart, dan <strong>onthoud je er niet één.</strong>
+          Een kaart als <code>run,rennen/leiden/zich kandidaat stellen/stromen/werken</code> is het slechtst denkbare.
+          Begin met <strong>de ene, meest gebruikte betekenis</strong> en maak er <strong>een aparte kaart</strong> van als je een andere nodig hebt.
+        </p>
+
+        <h3>② Alleen woorden die je niet kende</h3>
+        <p>
+          Zitten er woorden tussen die je al kent, dan is <strong>alle tijd die je kwijt bent aan het overslaan ervan verspild</strong>.
+          Gooi niet een heel woordenboekje erin, maar voeg gaandeweg <strong>de woorden toe waarop je bij het lezen vastliep</strong>.
+          <strong>Je eigen lijst van 200 woorden wint van andermans lijst van 5.000.</strong>
+        </p>
+
+        <h3>③ Voeg kort wat context toe (een voorbeeldzin)</h3>
+        <p>
+          Leer je alleen losse woorden, dan beland je in de toestand <strong>“ik ken de betekenis, maar kan het niet gebruiken”</strong>. Een korte voorbeeldzin op de achterkant
+          versterkt de <a href="/method">dubbele codering</a> en leidt tot echt gebruik.
+        </p>
+        <pre><code>procrastinate,"uitstellen — Stop procrastinating and start now."</code></pre>
+
+        <h3>④ Kies een richting (woord→betekenis of betekenis→woord)</h3>
+        <p>
+          Is je doel <strong>lezen en luisteren</strong>, dan volstaat de richting <code>woord,betekenis</code>.<br />
+          Is je doel <strong>spreken en schrijven</strong>, dan heb je de richting <code>betekenis,woord</code> nodig. Die is veel moeilijker, maar daar komt echte productieve vaardigheid vandaan.
+        </p>
+
+        <h3>⑤ Verdeel sets in kleine stukken</h3>
+        <p>
+          Met 1.000 woorden in één brok <strong>ben je na één ronde al uitgeput.</strong>
+          Verdeel ze in <strong>pakketten van 50~100</strong>, dan wordt de herhalingscyclus korter en profiteer je veel vaker van het <a href="/method#spacing">spacingeffect</a>.
+        </p>
+
+        <h2 id="mistakes">Veelgemaakte fouten</h2>
+        <ul>
+          <li><strong>Een lijst van 5.000 woorden van internet ongewijzigd gebruiken</strong> — 90% ken je al of gebruik je nooit.</li>
+          <li><strong>Vijf betekenissen op één kaart</strong> — er blijft niets hangen.</li>
+          <li><strong>In Excel opslaan als gewone CSV</strong> — tekens raken verminkt. Altijd <strong>CSV UTF-8</strong>.</li>
+          <li><strong>Te grote set</strong> — als een ronde lang duurt, duurt het veel te lang voordat je hetzelfde woord weer tegenkomt.</li>
+          <li><strong>Maken en niet gebruiken</strong> — de meest voorkomende en meest fatale fout. Besteed geen 3 uur aan de perfecte lijst, maar <strong>begin vandaag met 30 woorden.</strong></li>
+        </ul>
+
+        <div class="note">
+          Je woordenlijst wordt <strong>alleen in je browser (localStorage) opgeslagen</strong> en nooit naar een server gestuurd.
+          Wissel je van apparaat, dan moet je het CSV-bestand opnieuw openen, dus <strong>bewaar de originele CSV apart</strong>.
+        </div>
+
+        <h2>Verder lezen</h2>
+        <div class="related">
+          <a href="/method"><b>Het principe achter Flits-stampen</b><span>Waarom herhaalde blootstelling werkt — en waar de grenzen liggen</span></a>
+          <a href="/study-guide"><b>Gids voor leerstrategie</b><span>Hoeveel per dag, herhalingscycli, veelgemaakte fouten</span></a>
+          <a href="/"><b>Woordjesschrift openen</b><span>Begin meteen met je eigen CSV</span></a>
+        </div>
+
+        <hr />
+        <footer>© 2026 broodev · Beheerd door Y-Systems · <a href="/privacy">Privacybeleid</a> · <a href="/terms">Gebruiksvoorwaarden</a></footer>
+      </div>
+    </main>

@@ -1,5 +1,6 @@
 /* home3 i18n 런타임 — 13개 언어 (사전은 i18n-data.js 의 window.HOME3_I18N)
    감지: localStorage(home:lang) → ?lang= → navigator.languages 순서대로 첫 매치 → en
+   페이지 제목·설명: <html data-i18n-title="key" data-i18n-desc="key"> (생략 시 meta_title/meta_desc — 404.html 은 nf_meta_*)
    마크업: data-i18n="key"(textContent) · data-i18n-html="key"(innerHTML — 사전 문자열만) · data-i18n-aria-label="key"
            data-i18n-alt="key"(img alt — 기존 feat*_name·tes*_name·field_* 키 재사용) · data-lang-current(현재 언어명) · [data-lang="xx"](풀다운 항목, 클릭 → 저장 → 새로고침)
    ⚠ 이 파일은 jquery 다음, carousel.js(slick/swiper 초기화)·gsapAnimation.js(SplitText) 보다 먼저 실행돼야 한다 —
@@ -43,10 +44,16 @@
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
 
   function apply() {
-    document.documentElement.lang = cur;
-    document.title = t('meta_title');
+    var html = document.documentElement;
+    html.lang = cur;
+    // 페이지별 제목·설명 키: <html data-i18n-title="nf_meta_title" data-i18n-desc="nf_meta_desc"> (없으면 index 용 meta_title/meta_desc)
+    document.title = t(html.getAttribute('data-i18n-title') || 'meta_title');
     var md = document.querySelector('meta[name="description"]');
-    if (md) md.setAttribute('content', t('meta_desc'));
+    if (md) md.setAttribute('content', t(html.getAttribute('data-i18n-desc') || 'meta_desc'));
+    // OG/트위터 메타도 같은 값으로(크롤러용 정적 치환은 functions/_middleware.js 의 OG3 가 ?lang 별로 한다)
+    var ttl = document.title, dsc = md ? md.getAttribute('content') : '';
+    each('meta[property="og:title"],meta[name="twitter:title"],meta[property="og:image:alt"]', function (el) { el.setAttribute('content', ttl); });
+    each('meta[property="og:description"],meta[name="twitter:description"]', function (el) { el.setAttribute('content', dsc); });
     each('[data-i18n]', function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
     each('[data-i18n-html]', function (el) { el.innerHTML = t(el.getAttribute('data-i18n-html')); });
     each('[data-i18n-aria-label]', function (el) { el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria-label'))); });

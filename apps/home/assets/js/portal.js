@@ -83,7 +83,7 @@
     C.categories.forEach(function (cat) {
       var list = h('ul', { class: 'sitemap-list' });
       cat.apps.forEach(function (a) {
-        var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
+        var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: T('badge_beta', null, 'beta') }) : null);
         list.appendChild(h('li', null, [
           h('a', { href: a.url, target: '_blank', rel: 'noopener', title: appDesc(a) }, [
             h('span', { class: 'name' }, [document.createTextNode(appName(a)), badge]),
@@ -95,7 +95,7 @@
         h('header', { class: 'sitemap-cat-head' }, [
           h('span', { class: 'numeral', text: cat.numeral }),
           h('h4', { id: 'sitemap-cat-' + cat.id }, [document.createTextNode(catName(cat)), h('small', { text: nApps(cat.count) })]),
-          h('span', { class: 'en', text: cat.en })
+          h('span', { class: 'en', text: cat.en, translate: 'no', 'aria-hidden': 'true', 'data-i18n-skip': '' })
         ]),
         list
       ]));
@@ -116,7 +116,7 @@
     listEl.innerHTML = '';
     var slice = cat.apps.slice(p * PER_PAGE, p * PER_PAGE + PER_PAGE);
     slice.forEach(function (a) {
-      var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: 'beta' }) : null);
+      var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: T('badge_beta', null, 'beta') }) : null);
       listEl.appendChild(h('li', null, [
         h('a', { href: a.url, target: '_blank', rel: 'noopener', 'aria-label': appName(a) + ' — ' + host(a.url) }, [
           h('div', { class: 'app-main' }, [
@@ -166,7 +166,7 @@
           h('div', null, [
             h('span', { class: 'numeral', text: cat.numeral }),
             h('h3', { id: 'apps-cat-' + cat.id, text: catName(cat) }),
-            h('span', { class: 'en', text: cat.en })
+            h('span', { class: 'en', text: cat.en, translate: 'no', 'aria-hidden': 'true', 'data-i18n-skip': '' })
           ]),
           h('span', { class: 'count', html: T('n_apps_html', { n: cat.count }, '앱 <b>' + cat.count + '</b>개') })
         ]),
