@@ -142,5 +142,46 @@ for (const app of ['utils', 'btc', 'voca']) {
 }
 // 포털 legal.js: lifetime_list 가 null 이면 deal-row 를 숨기는 코드 + CSS
 if (!/deal-off/.test(read('apps/home/legal/legal.js')) || !/deal-off/.test(read('apps/home/legal/legal.css'))) fail('legal.js/css 에 deal-off 처리 없음');
+// ── 2026-10-09: 월간 플랜 문구(법적 문서·총람 13 언어) · 구 금액 잔존 · Payment Link 9개 · JSON-LD offers · 설명문
+const MONTHLY_KW = { ja: '月額', ko: '월간', en: '[Mm]onthly', zh: '月度|月付', 'zh-Hant': '月繳', th: 'รายเดือน', es: '[Mm]ensual', fr: '[Mm]ensuel', de: 'Monats|[Mm]onatlich', it: '[Mm]ensil', pt: '[Mm]ensa[li]', ru: '[Мм]есячн', nl: '[Mm]aand' };
+const langBlock = (file, l) => { const s = read(file); if (!CORE.includes(l)) return s; const m = new RegExp('<article data-lang-block="' + l + '"[\\s\\S]*?</article>').exec(s); return m ? m[0] : ''; };
+const kwCount = (txt, l) => (txt.match(new RegExp(MONTHLY_KW[l], 'g')) || []).length;
+// 최소 언급 횟수 — tokushoho: 販売価格(생성)·支払時期·解約·自動更新 / terms: 정의·유효기간·결제·개정·자동갱신·제공 종료 / refund: 범위·해지·귀책·종료·§3 제목·§3 본문 / premium: 가격행 3(생성)·공통 조건·FAQ 제목·FAQ 본문
+const NEED = { tokushoho: 4, terms: 6, refund: 6, premium: 6 };
+for (const l of LANGS) {
+  const core = CORE.includes(l);
+  const fileOf = (doc) => core ? (doc === 'premium' ? 'apps/home/premium.html' : 'apps/home/legal/' + doc + '.html') : 'apps/home/legal/i18n/' + doc + '.' + l + '.html';
+  for (const doc of Object.keys(NEED)) { const c = kwCount(langBlock(fileOf(doc), l), l); if (c < NEED[doc]) fail(`${fileOf(doc)} [${l}] 월간 플랜 언급 ${c}회 < ${NEED[doc]}`); }
+  const dm = /data-desc="([^"]*)"/.exec(langBlock(fileOf('premium'), l));
+  if (!dm || ![MONTHLY, YEARLY, PRICE].every(v => dm[1].includes(yen(v)))) fail(fileOf('premium') + ' [' + l + '] data-desc 에 현재 금액(월·연·買い切り)이 없음');
+}
+// 구 금액(¥2,500 · ¥5,000)이 서빙되는 HTML/JS 에 남아 있지 않은지(주석 제외 · functions/·에셋 제외)
+const walk = (dir, out = []) => { for (const e of fs.readdirSync(R + dir, { withFileTypes: true })) { const p = dir + '/' + e.name; if (e.isDirectory()) { if (!/^(functions|node_modules|vendor|assets|font|fonts|icon|images|scss|css)$/.test(e.name)) walk(p, out); } else if (/\.(html|js)$/.test(e.name) && fs.statSync(R + p).size < 400000) out.push(p); } return out; };
+const stripComments = (s) => s.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^[ \t]*\/\/.*$/gm, '');
+for (const f of [].concat(walk('apps/home'), walk('apps/utils'), ['apps/voca/index.html', 'apps/btc/index.html'])) {
+  const m = /¥2,500|¥5,000|"2500"|"5000"|2,500円|5,000円/.exec(stripComments(read(f)));
+  if (m) fail(f + ': 구 금액 「' + m[0] + '」 이 남아 있음');
+}
+// Payment Link 9개(utils 3 · btc 3 · voca 3): 모두 채워져 있고 서로 다른 buy.stripe.com 링크
+const grab = (s, re) => [...s.matchAll(re)].map(m => m[1]);
+const premBlock = /const PREM_PLANS = \{([\s\S]*?)\n\s*\}/.exec(bt);
+const links = grab(ub, /checkout: '([^']*)'/g).concat(premBlock ? grab(premBlock[1], /url: '([^']*)'/g) : [], grab(vo, /(?:monthly|yearly|lifetime)Url: '([^']*)'/g));
+if (links.length !== 9) fail('Payment Link 가 9개가 아님: ' + links.length);
+const badLinks = links.filter(u => !/^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(u));
+if (badLinks.length) fail('Payment Link 형식 오류(빈 값 포함): ' + JSON.stringify(badLinks));
+if (new Set(links).size !== links.length) fail('Payment Link 중복');
+// utils pptx/ai/psd: JSON-LD offers 3 플랜 금액(deal-gen F 가 생성) · meta description 의 금액
+for (const f of ['apps/utils/pptx.html', 'apps/utils/ai.html', 'apps/utils/psd.html']) {
+  const s = read(f);
+  const prices = grab(s, /"@type": "Offer", "name": "[^"]*", "price": "(\d+)"/g).map(Number);
+  if (prices.join() !== [MONTHLY, YEARLY, PRICE].join()) fail(f + ': JSON-LD offers 금액 [' + prices.join() + '] != [' + [MONTHLY, YEARLY, PRICE].join() + ']');
+  const md = /<meta name="description" content="([^"]*)"/.exec(s);
+  if (!md || ![MONTHLY, YEARLY, PRICE].every(v => md[1].includes(yen(v)))) fail(f + ': meta description 에 현재 금액 3개가 없음');
+}
+// utils desc_pricing(13) · voca prmDesc(13): 월간 플랜 언급
+const ANY_M = new RegExp(Object.values(MONTHLY_KW).join('|'));
+const dp = grab(read('apps/utils/js/i18n.js'), /desc_pricing: '([^']*)'/g), pd = grab(vo, /prmDesc: '([^']*)'/g);
+if (dp.length !== 13 || dp.some(t => !ANY_M.test(t))) fail('utils i18n.js desc_pricing: 13개가 아니거나 월간 언급 없음: ' + JSON.stringify(dp.filter(t => !ANY_M.test(t))));
+if (pd.length !== 13 || pd.some(t => !ANY_M.test(t))) fail('voca prmDesc: 13개가 아니거나 월간 언급 없음: ' + JSON.stringify(pd.filter(t => !ANY_M.test(t))));
 console.log(bad ? bad + ' PROBLEM(S)' : 'ALL CHECKS PASSED');
 process.exit(bad ? 1 : 0);

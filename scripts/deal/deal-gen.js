@@ -2,7 +2,7 @@
 //   node scripts/deal/deal-gen.js        → 바뀐 파일만 기록. 끝나면 node scripts/deal/deal-verify.js · btc 가 바뀌면 python scripts/gen_coin.py all
 // 타깃: apps/utils/js/i18n.js (promo_* 키) · apps/utils/pricing.html + i18n/pricing.{lang}.html (월간 카드 생성 · 연간/買い切り 카드 이름·이득 문구) ·
 //       apps/home/premium.html + legal/i18n/premium.{lang}.html (utils·btc·voca 카드의 가격 블록) · apps/home/legal/tokushoho.html + i18n (販売価格 행 · 販売 URL 행) ·
-//       apps/btc/index.html (PREM_DEAL · PREM_LEGAL) · apps/voca/index.html (PLAN_LBL · PLAN_DEAL · PREM_LEGAL)
+//       apps/btc/index.html (PREM_DEAL · PREM_LEGAL) · apps/voca/index.html (PLAN_LBL · PLAN_DEAL · PREM_LEGAL) · apps/utils/{pptx,ai,psd}.html (JSON-LD offers 의 3 플랜 금액)
 // 금액의 정본은 apps/home/legal/biz.js PLANS.utils (monthly · yearly · lifetime · lifetime_list). 각 앱 설정(utils biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 같은 값이어야 한다(deal-verify 가 검사)
 // 비교 가격(lifetime_list)이 null 이면(2026-10-07 결정: 가공 정가 금지) 할인 장치를 넣지 않는다. 월액 대비 이득(%)은 실제 플랜끼리의 비교라 항상 넣는다(2026-10-08).
 const fs = require('fs');
@@ -192,6 +192,16 @@ function patchTokushoho(html, lang) {
   return html;
 }
 perLang(R + 'apps/home/legal/tokushoho.html', (l) => R + 'apps/home/legal/i18n/tokushoho.' + l + '.html', patchTokushoho);
+
+// ── F. utils pptx/ai/psd 의 JSON-LD offers(검색엔진용 구조화 데이터) — 월간·연간·買い切り 3 플랜의 금액을 정본에서 생성(들여쓰기·줄끝은 원본 그대로)
+for (const p of ['pptx', 'ai', 'psd']) {
+  const file = R + 'apps/utils/' + p + '.html', src = fs.readFileSync(file, 'utf8'), eol = eolOf(src);
+  const m = /("offers": \[)\r?\n([ \t]*)\{ "@type": "Offer"[\s\S]*?\}\r?\n([ \t]*)\]/.exec(src);
+  if (!m) throw new Error('JSON-LD offers: ' + p);
+  const offer = (name, price) => `${m[2]}{ "@type": "Offer", "name": "Utils Premium — ${name}", "price": "${price}", "priceCurrency": "JPY", "availability": "https://schema.org/InStock", "url": "https://utils.broodev.com/pricing" }`;
+  const body = [offer('Monthly', MONTHLY), offer('Yearly', YEARLY), offer('Lifetime', PRICE)].join(',' + eol);
+  write(file, src.replace(m[0], `${m[1]}${eol}${body}${eol}${m[3]}]`), src);
+}
 
 // ── E. btc PREM_DEAL · voca PLAN_LBL/PLAN_DEAL · PREM_LEGAL — 마커 사이 재생성 (btc 가 바뀌면 python scripts/gen_coin.py all 로 코인 14종 재생성)
 function objLines(name, obj, keys, indent) {

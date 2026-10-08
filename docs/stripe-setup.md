@@ -327,6 +327,8 @@ KV 키: `lic:<KEY>` 본체 `{email, name, plan, status, expires, devices[], cust
    - btc(+코인 14): `apps/btc/index.html` `PREM_PLANS.monthly.url` · `yearly.url` · `lifetime.url` → `python scripts/gen_coin.py all`
    - voca: `apps/voca/index.html` `PREMIUM.monthlyUrl` · `yearlyUrl` · `lifetimeUrl`
    → 넣으면 버튼이 「購入する」로 살아난다. `node scripts/deal/deal-verify.js` 로 금액 일치 확인 후 커밋·푸시
+   ✅ **2026-10-09 9개 모두 연결됨**(utils `…4wM0g/0h/0i` · btc `…4wM0c/0a/0b` · voca `…4wM0d/0e/0f`). 남은 일: 구 링크 6개(年額 ¥2,500 · 買い切り ¥5,000 × 3 앱 — ID 는 각 앱 설정 파일 주석)를 Payment Links 에서 **無効化**, 옛 Price 는 1. 대로 아카이브
+   ⚠ Stripe 의 「更新前リマインド」 메일은 청구 주기가 긴 구독(안내상 3~6개월 이상)에만 발송되고 月額에는 가지 않는다 → 法的 문구(特商法 自動更新 행 · 프리미엄 총람 공통 조건 · 13언어)는 「更新日の前にメール」를 **年額에만** 적어 두었다(2026-10-09). 월액에도 알리려면 `invoice.upcoming` 웹훅으로 직접 메일을 보내야 한다(미구현)
 3. **カスタマーポータル**(§9): 「プラン変更」을 **ON** 으로 바꾸면 고객이 月額 ⇄ 年額 을 스스로 바꿀 수 있다(권장). 月額/年額 Price 둘 다 허용 목록에 넣는다
 4. **기존 구독자(¥2,500/年)**: 그대로 두면 다음 갱신에도 ¥2,500 이 청구된다. 새 가격이 더 싸므로 Subscriptions → 해당 구독 → Update → 가격을 ¥800 Price 로 바꿔 주는 것이 공정하다(비례 배분 없이 다음 갱신부터). 買い切り 기구매자는 변경 없음
 5. **웹훅·KV·Cloudflare**: 할 일 없음 — 같은 엔드포인트·이벤트. 월간 구독은 코드가 `invoice.paid` 로 1개월씩 연장한다(`interval === 'month'` 판별). 메일 템플릿의 금액은 `functions/_lib/mail.js` `PRICES` (3벌 동일)

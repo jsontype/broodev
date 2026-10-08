@@ -3002,12 +3002,12 @@
          숫자를 넣으면 할인 표시(취소선·-50%·発売記念)가 켜지므로 실제로 그 가격에 판 기간(최근 8주 중 과반)이 있을 때만. 가치 문구(PREM_DEAL.value)는 항상 표시.
          until: 'YYYY-MM-DD'(일본 시간 23:59 까지) 를 넣으면 「N일 남음」 카운트다운(실제 종료일만 — 가짜 마감 금지). 실제 결제 금액은 Stripe Price 그대로.
          ⚠ 景品表示法: list 는 종료 후 실제로 적용할 「将来の販売価格」 여야 한다 — docs/stripe-setup.md §13. 코인 14종은 gen_coin.py 가 그대로 복제 */
-      /* ★ 2026-10-08 가격 개정: 月額 ¥100(신설) · 年額 ¥800 · 買い切り ¥2,000 — 정본 apps/home/legal/biz.js PLANS 와 같게. url 은 새 Price 의 Payment Link(docs/stripe-setup.md §14).
-         비어 있는 동안 모달 버튼은 「準備中」(비활성) — 표시 가격과 다른 금액을 청구하지 않기 위해 구 링크(年額 ¥2,500 dRmfZjb2QaTGbQi9Ng4wM04 · 買い切り ¥5,000 cNi5kFdaY2naf2u7F84wM05)는 제거. 코인 14종은 gen_coin.py 가 복제 */
+      /* ★ 2026-10-08 가격 개정: 月額 ¥100(신설) · 年額 ¥800 · 買い切り ¥2,000 — 정본 apps/home/legal/biz.js PLANS 와 같게. url 은 새 Price 의 Payment Link(2026-10-09 연결 · docs/stripe-setup.md §14).
+         비우면 모달 버튼은 「準備中」(비활성) — 표시 가격과 다른 금액을 청구하는 링크를 두지 않기 위해 구 링크(年額 ¥2,500 dRmfZjb2QaTGbQi9Ng4wM04 · 買い切り ¥5,000 cNi5kFdaY2naf2u7F84wM05 — Stripe 에서 無効化)는 제거. 코인 14종은 gen_coin.py 가 복제 */
       const PREM_PLANS = {
-        monthly:  { price: 100, url: '' },
-        yearly:   { price: 800, url: '' },
-        lifetime: { price: 2000, list: null, url: '' },
+        monthly:  { price: 100, url: 'https://buy.stripe.com/5kQ8wR1sgge0aMe7F84wM0c' },    // Payment Link 2026-10-09 (Crypto Signal Premium — 月額 ¥100)
+        yearly:   { price: 800, url: 'https://buy.stripe.com/aFa14p6MA9PCg6y9Ng4wM0a' },    // Payment Link 2026-10-09 (— 年額 ¥800)
+        lifetime: { price: 2000, list: null, url: 'https://buy.stripe.com/bJedRb7QEd1O07AaRk4wM0b' },   // Payment Link 2026-10-09 (— 買い切り ¥2,000)
         until: null,
         years: 50,                                         // 買い切り 를 월액과 비교하는 기준 연수(카드 문구 「50 年使えば…」)
       }

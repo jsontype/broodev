@@ -71,7 +71,7 @@ Stripe 계정의 사업 웹사이트는 **broodev.com**(포털) 하나다. 법�
 
 | 페이지 | 내용 |
 |---|---|
-| `pricing.html` | 요금(무료 / 프리미엄 年額 / 買い切り, 税込) · 「ご購入前にご確認ください」(特商法 2022 최종확인화면 항목: 지불 시기·제공 시기·자동 갱신·해지·환불 — 링크는 전부 `https://broodev.com/legal/…`) · 기능 비교표 · FAQ. 구매 버튼은 `PLANS.*.checkout`(Payment Link) 이 비어 있으면 「準備中」 비활성 |
+| `pricing.html` | 요금(무료 / 프리미엄 月額 · 年額 · 買い切り, 税込 — 2026-10-08 개정, Payment Link 9개는 2026-10-09 연결) · 「ご購入前にご確認ください」(特商法 2022 최종확인화면 항목: 지불 시기·제공 시기·자동 갱신·해지·환불 — 링크는 전부 `https://broodev.com/legal/…`) · 기능 비교표 · FAQ. 구매 버튼은 `PLANS.*.checkout`(Payment Link) 이 비어 있으면 「準備中」 비활성 |
 
 - **ja·ko·en 세 언어가 한 파일 안에** `<article data-lang-block="ja|ko|en">` 로 들어 있고, 그 외 10개 언어는 `i18n/pricing.{lang}.html` 조각(위 절). `js/site.js` 가 현재 언어 블록만 보인다. **일본어가 正文**. JS 없이도 ja 블록은 보인다.
 - **사업자 정보·금액은 `js/biz.js`**(`window.BIZ`, `window.PLANS`) — 페이지는 `[data-biz="키"]`·`[data-price="yearly|lifetime"]`·`[data-price-monthly]`·`[data-checkout]`·`[data-portal]` 로 읽는다. **정본은 `apps/home/legal/biz.js`**(BIZ + `PLANS.utils`) — 屋号 `Y Systems`(하이픈 없음)·소재지·메일·금액을 두 파일과 Stripe Price 세 곳에서 같게 유지한다. **운영자 氏名·주소·전화는 어디에도 싣지 않는다**(「個人事業主 — 請求があれば遅滞なく開示」).
