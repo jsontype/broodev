@@ -321,7 +321,7 @@ KV 키: `lic:<KEY>` 본체 `{email, name, plan, status, expires, devices[], cust
    - `Utils Premium — 月額`(신규 상품) · ¥100 · 継続 · 月ごと
    - `Utils Premium — 年額` 상품의 가격에 **¥800 · 継続 · 年ごと** 추가 → 옛 ¥2,500 Price 는 **アーカイブ**(기존 구독자는 옛 가격 유지 — 약관 5조)
    - `Utils Premium — 買い切り` 상품에 **¥2,000 · 一括** 추가 → 옛 ¥5,000 Price 아카이브
-   - 같은 것을 `Crypto Signals Premium — 月額/年額/買い切り`, `VOCA DECK Premium — 月額/年額/買い切り` 에도(상품이 없으면 생성 · 明細書表記 `BROODEV CRYPTO` / `BROODEV VOCA`). 상품명에 月額/年額/買い切り 또는 monthly/yearly/lifetime 이 들어가야 웹훅이 플랜을 판별한다(없으면 금액 100/800/2000 으로 추정)
+   - 같은 것을 Stripe 에 이미 있는 상품명 그대로 `Crypto Signal Premium — 月額(신규)/年額/買い切り`, `Voca Premium — 月額(신규)/年額/買い切り` 에도(明細書表記 `BROODEV CRYPTO` / `BROODEV VOCA`). 웹훅은 상품명의 utils / crypto signal / voca 로 앱을, 月額·年額·買い切り(또는 interval·금액)로 플랜을 판별한다 — 이름 규칙을 지킬 것. 상품명에 月額/年額/買い切り 또는 monthly/yearly/lifetime 이 들어가야 웹훅이 플랜을 판별한다(없으면 금액 100/800/2000 으로 추정)
 2. **Payment Links 9개** (§8 설정 그대로: 메일 필수 · 請求先住所 必須 · 利用規約 동의 ON · 税 ID 수집 ON · 買い切り만 「決済後に請求書を作成」 ON · 月額/年額은 無料トライアル 없음) → 본番 링크를 넣는 곳:
    - utils: `apps/utils/js/biz.js` `PLANS.monthly.checkout` · `yearly.checkout` · `lifetime.checkout`
    - btc(+코인 14): `apps/btc/index.html` `PREM_PLANS.monthly.url` · `yearly.url` · `lifetime.url` → `python scripts/gen_coin.py all`
