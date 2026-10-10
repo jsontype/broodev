@@ -1,4 +1,4 @@
-<main class="wrap" data-title="Calculating MACD by Hand — An EMA, Signal Line &amp; Histogram Walkthrough with 42 Closing Prices | broodev" data-desc="We plug 42 closing prices in by hand and compute EMA12, EMA26, the MACD line, the signal line and the histogram one bar at a time. See, with real code and real numbers, why 30 bars produce zero histogram values, the real reason to use EMA instead of SMA, and why broodev looks at the histogram’s direction versus the previous bar rather than its absolute value.">
+<main class="wrap" data-title="Calculating MACD by Hand with 42 Closing Prices | broodev" data-desc="EMA12, EMA26, MACD line, signal and histogram computed bar by bar from 42 closes: why 30 bars give no histogram, why EMA, and why we score direction.">
       <nav class="nav">
         <a href="/">← Dashboard</a>
         <a href="/methodology">Scoring methodology</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>Calculating MACD by Hand<br />— A Walkthrough That Follows 42 Closing Prices to the End</h1>
-      <p class="muted">Last updated: 2026-07-14 · By Y-Systems · This article is not an explanation but a <strong>hands-on lab record</strong></p>
+      <p class="muted">Last updated: 2026-10-10 · By Y-Systems · This article is not an explanation but a <strong>hands-on lab record</strong></p>
+      <div class="note" data-model-note><strong>Model version note</strong> — The indicator count (6), weights and worked examples in this article come from the v1 model, before the two on-chain indicators (MVRV Z and Thermocap Z) were added. The dashboard score now uses v2, with 8 indicators and different weights; see the <a href="/methodology">scoring methodology</a> for the current figures.</div>
 
       <p class="lead">
         Let me start with a failure. Take <strong>30</strong> closing prices and run the standard MACD (12·26·9) on them:
@@ -125,7 +126,7 @@ Change in SMA-based MACD = +0.9917 − (−0.0385) = +1.030   ✅ matches the ta
         The EMA broodev uses <strong>takes the simple average of the first <code>period</code> values as its seed</strong> and updates exponentially from there.
         <code>α = 2 ÷ (period + 1)</code>. For EMA12, <code>α = 2/13 = 0.153846</code>.
       </p>
-      <pre><code>// broodev's actual code (apps/btc/index.html)
+      <pre><code>// broodev's actual code (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -687,8 +688,8 @@ Long-term mode:  sub-score span 38.4 × weight <strong>0.18</strong> = <strong>6
 
       <h2>Read next</h2>
       <div class="related">
-        <a href="/methodology"><b>Scoring methodology</b><span>The full weights of all 6 indicators, including MACD’s 14%/18%, and the renormalization</span></a>
-        <a href="/indicators"><b>The 6 indicators explained</b><span>Besides MACD, when each of the other five betrays you</span></a>
+        <a href="/methodology"><b>Scoring methodology</b><span>Weights and formulas for all 8 indicators, fully disclosed</span></a>
+        <a href="/indicators"><b>The 8 indicators in depth</b><span>When each indicator lets you down</span></a>
         <a href="/guide-fear-greed"><b>Using the Fear Index in practice</b><span>The very indicator MACD has to put the brakes on</span></a>
         <a href="/glossary"><b>Glossary</b><span>EMA, histogram, divergence, whipsaw and other terms explained</span></a>
       </div>

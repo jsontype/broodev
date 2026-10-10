@@ -1,4 +1,4 @@
-<main class="wrap" data-title="MACDを手計算してみる — 終値42本で追うEMA・シグナル・ヒストグラムのウォークスルー | broodev" data-desc="42本の終値を実際に代入し、EMA12・EMA26・MACD線・シグナル線・ヒストグラムを1本ずつ計算します。30本ではヒストグラムが1つも出ない理由、SMAではなくEMAを使う本当の理由、broodevがヒストグラムの絶対値ではなく前日比の方向を見る理由を、実際のコードと数字で確かめます。">
+<main class="wrap" data-title="MACDを手計算 — 終値42本で追うウォークスルー | broodev" data-desc="終値42本でEMA12・EMA26・MACD線・シグナル線・ヒストグラムを1本ずつ計算。30本ではヒストグラムが出ない理由、EMAを使う理由、方向を見る理由まで。">
       <nav class="nav">
         <a href="/">← ダッシュボード</a>
         <a href="/methodology">スコアの算出方法</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>MACDを手計算してみる<br />— 終値42本を最後まで追うウォークスルー</h1>
-      <p class="muted">最終更新：2026-07-14 · 執筆：Y-Systems · この記事は解説ではなく<strong>実習の記録</strong>です</p>
+      <p class="muted">最終更新：2026-10-10 · 執筆：Y-Systems · この記事は解説ではなく<strong>実習の記録</strong>です</p>
+      <div class="note" data-model-note><strong>モデルのバージョンについて</strong> — この記事の指標数（6つ）、ウェイト、計算例は、オンチェーン指標2種（MVRV Z・Thermocap Z）を加える前のv1モデルに基づいています。現在のダッシュボードのスコアは8指標を使うv2で、ウェイトも異なります。最新の数値は<a href="/methodology">スコアの算出方法</a>をご覧ください。</div>
 
       <p class="lead">
         まず失敗からお見せします。終値を<strong>30本</strong>用意して標準のMACD（12・26・9）を回すと、
@@ -125,7 +126,7 @@ SMA版MACDの変化 = +0.9917 − (−0.0385) = +1.030   ✅ 表と一致</code>
         broodevが使うEMAは、<strong>最初の<code>period</code>本の単純平均をシード（seed）にし</strong>、そこから指数的に更新していく方式です。
         <code>α = 2 ÷ (期間 + 1)</code>です。EMA12なら<code>α = 2/13 = 0.153846</code>。
       </p>
-      <pre><code>// broodev の実際のコード (apps/btc/index.html)
+      <pre><code>// broodev の実際のコード (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -687,8 +688,8 @@ const conMacd = (cur, prev, px) =&gt; clamp(
 
       <h2>続けて読む</h2>
       <div class="related">
-        <a href="/methodology"><b>スコアの算出方法</b><span>MACD 14%/18%を含む6指標のウェイトと再正規化をすべて公開</span></a>
-        <a href="/indicators"><b>6つの指標の解説</b><span>MACD以外の5つは、それぞれいつ裏切るのか</span></a>
+        <a href="/methodology"><b>スコアの算出方法</b><span>8指標のウェイトと計算式をすべて公開</span></a>
+        <a href="/indicators"><b>8指標の徹底解説</b><span>各指標が裏切るのはいつか</span></a>
         <a href="/guide-fear-greed"><b>恐怖指数の実践的な活用法</b><span>MACDがブレーキをかけるべき、まさにその指標</span></a>
         <a href="/glossary"><b>用語集</b><span>EMA・ヒストグラム・ダイバージェンス・ダマシの用語まとめ</span></a>
       </div>

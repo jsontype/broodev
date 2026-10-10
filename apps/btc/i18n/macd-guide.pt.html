@@ -1,4 +1,4 @@
-    <main class="wrap" data-title="Calcular o MACD à mão — EMA, linha de sinal e histograma passo a passo com 42 preços de fecho | broodev" data-desc="Introduzimos 42 preços de fecho e calculamos, barra a barra, a EMA12, a EMA26, a linha MACD, a linha de sinal e o histograma. Com código e números reais, verificamos porque é que 30 barras produzem zero valores de histograma, a verdadeira razão para usar a EMA em vez da SMA e porque é que o broodev olha para a direção face à barra anterior em vez do valor absoluto do histograma.">
+    <main class="wrap" data-title="Calcular o MACD à mão com 42 fechos | broodev" data-desc="EMA12, EMA26, linha MACD, sinal e histograma barra a barra com 42 fechos: porque 30 barras não dão histograma, porquê a EMA e porquê a direção.">
       <nav class="nav">
         <a href="/">← Painel</a>
         <a href="/methodology">Metodologia do score</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>Calcular o MACD à mão<br />— um walkthrough que acompanha 42 preços de fecho até ao fim</h1>
-      <p class="muted">Última atualização: 2026-07-14 · Autor: Y-Systems · Este texto não é uma explicação, é um <strong>registo de exercício prático</strong></p>
+      <p class="muted">Última atualização: 2026-10-10 · Autor: Y-Systems · Este texto não é uma explicação, é um <strong>registo de exercício prático</strong></p>
+      <div class="note" data-model-note><strong>Nota sobre a versão do modelo</strong> — O número de indicadores (6), os pesos e os exemplos de cálculo deste artigo referem-se ao modelo v1, anterior à inclusão dos dois indicadores on-chain (MVRV Z e Thermocap Z). A pontuação do painel usa agora a v2, com 8 indicadores e pesos diferentes; os valores atuais estão na <a href="/methodology">metodologia da pontuação</a>.</div>
 
       <p class="lead">
         Comecemos pelo fracasso. Se preparar <strong>30</strong> preços de fecho e correr o MACD padrão (12·26·9),
@@ -124,7 +125,7 @@ Variação do MACD versão SMA = +0.9917 − (−0.0385) = +1.030   ✅ coincide
         A EMA que o broodev usa <strong>toma a média simples das primeiras <code>period</code> barras como semente (seed)</strong> e, a partir daí, atualiza-se exponencialmente.
         <code>α = 2 ÷ (período + 1)</code>. Para a EMA12, <code>α = 2/13 = 0.153846</code>.
       </p>
-      <pre><code>// código real do broodev (apps/btc/index.html)
+      <pre><code>// código real do broodev (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -686,8 +687,8 @@ Modo longo prazo: amplitude do score parcial 38.4 × peso <strong>0.18</strong> 
 
       <h2>Continuar a ler</h2>
       <div class="related">
-        <a href="/methodology"><b>Metodologia do score</b><span>Pesos dos 6 indicadores, incluindo os 14%/18% do MACD, e renormalização — tudo publicado</span></a>
-        <a href="/indicators"><b>Guia dos 6 indicadores</b><span>Quando é que cada um dos outros cinco indicadores, além do MACD, nos trai</span></a>
+        <a href="/methodology"><b>Metodologia do score</b><span>Pesos e fórmulas dos 8 indicadores, todos divulgados</span></a>
+        <a href="/indicators"><b>Os 8 indicadores em detalhe</b><span>Quando cada indicador falha</span></a>
         <a href="/guide-fear-greed"><b>Guia prático do índice de medo</b><span>Precisamente o indicador em que o MACD tem de puxar o travão</span></a>
         <a href="/glossary"><b>Glossário</b><span>Termos como EMA, histograma, divergência e whipsaw explicados</span></a>
       </div>

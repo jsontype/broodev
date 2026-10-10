@@ -1,4 +1,4 @@
-    <main class="wrap" data-title="MACD met de hand berekenen — EMA, signaallijn en histogram stap voor stap met 42 slotkoersen | broodev" data-desc="We vullen 42 slotkoersen in en berekenen bar voor bar de EMA12, EMA26, MACD-lijn, signaallijn en het histogram. Met echte code en cijfers controleren we waarom 30 bars nul histogramwaarden opleveren, wat de echte reden is om EMA in plaats van SMA te gebruiken en waarom broodev naar de richting ten opzichte van de vorige bar kijkt in plaats van naar de absolute waarde van het histogram.">
+    <main class="wrap" data-title="MACD met de hand berekenen met 42 slotkoersen | broodev" data-desc="EMA12, EMA26, MACD-lijn, signaallijn en histogram per candle uit 42 slotkoersen: waarom 30 candles te weinig zijn, waarom EMA en waarom de richting telt.">
       <nav class="nav">
         <a href="/">← Dashboard</a>
         <a href="/methodology">Scoremethodologie</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>MACD met de hand berekenen<br />— een walkthrough die 42 slotkoersen tot het einde volgt</h1>
-      <p class="muted">Laatst bijgewerkt: 2026-07-14 · Auteur: Y-Systems · Dit stuk is geen uitleg, maar een <strong>verslag van een oefening</strong></p>
+      <p class="muted">Laatst bijgewerkt: 2026-10-10 · Auteur: Y-Systems · Dit stuk is geen uitleg, maar een <strong>verslag van een oefening</strong></p>
+      <div class="note" data-model-note><strong>Opmerking over de modelversie</strong> — Het aantal indicatoren (6), de gewichten en de rekenvoorbeelden in dit artikel komen uit het v1-model, van vóór de twee on-chain-indicatoren (MVRV Z en Thermocap Z). De score op het dashboard gebruikt nu v2, met 8 indicatoren en andere gewichten; de actuele cijfers staan in de <a href="/methodology">scoremethodologie</a>.</div>
 
       <p class="lead">
         Laten we beginnen met een mislukking. Neem <strong>30</strong> slotkoersen en draai de standaard-MACD (12·26·9):
@@ -125,7 +126,7 @@ Verandering MACD SMA-versie = +0.9917 − (−0.0385) = +1.030   ✅ klopt met d
         De EMA van broodev <strong>gebruikt het enkelvoudig gemiddelde van de eerste <code>period</code> waarden als startwaarde (seed)</strong> en wordt daarna exponentieel bijgewerkt.
         <code>α = 2 ÷ (periode + 1)</code>. Voor de EMA12 is <code>α = 2/13 = 0.153846</code>.
       </p>
-      <pre><code>// echte code van broodev (apps/btc/index.html)
+      <pre><code>// echte code van broodev (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -687,8 +688,8 @@ Langetermijnmodus: bandbreedte deelscore 38.4 × gewicht <strong>0.18</strong> =
 
       <h2>Verder lezen</h2>
       <div class="related">
-        <a href="/methodology"><b>Scoremethodologie</b><span>De gewichten van de 6 indicatoren, inclusief de 14%/18% van de MACD, en de hernormalisatie volledig openbaar</span></a>
-        <a href="/indicators"><b>Uitleg van de 6 indicatoren</b><span>Wanneer elk van de vijf andere indicatoren naast de MACD je in de steek laat</span></a>
+        <a href="/methodology"><b>Scoremethodologie</b><span>Gewichten en formules van alle 8 indicatoren, volledig openbaar</span></a>
+        <a href="/indicators"><b>De 8 indicatoren diepgaand</b><span>Wanneer elke indicator faalt</span></a>
         <a href="/guide-fear-greed"><b>Praktische gids voor de angstindex</b><span>Precies de indicator waarop de MACD moet remmen</span></a>
         <a href="/glossary"><b>Woordenlijst</b><span>Begrippen als EMA, histogram, divergentie en whipsaw op een rij</span></a>
       </div>

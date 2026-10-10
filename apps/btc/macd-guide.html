@@ -3,10 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MACD를 손으로 계산해보기 — 42봉 종가로 따라가는 EMA·시그널·히스토그램 워크스루 | broodev</title>
-    <meta name="description" content="42개 종가를 직접 대입해 EMA12·EMA26·MACD선·시그널선·히스토그램을 한 봉씩 계산합니다. 30봉으로는 히스토그램이 0개 나오는 이유, SMA 대신 EMA를 쓰는 진짜 이유, broodev가 히스토그램 절대값 대신 직전 대비 방향을 보는 이유를 실제 코드와 숫자로 확인합니다." />
+    <title>MACD 손으로 계산하기 — 종가 42개 워크스루 | broodev</title>
+    <meta name="description" content="종가 42개로 EMA12·EMA26·MACD선·시그널선·히스토그램을 한 봉씩 계산합니다. 30봉이면 히스토그램이 0개인 이유, EMA를 쓰는 이유, 방향을 보는 이유까지." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://btc.broodev.com/macd-guide" />
+    <!-- 언어별 주소(packages/seo L4): 한국어 = 기준 주소, 다른 12개 = ?lang=xx, x-default = 영어 -->
+    <link rel="alternate" hreflang="en" href="https://btc.broodev.com/macd-guide?lang=en" />
+    <link rel="alternate" hreflang="ja" href="https://btc.broodev.com/macd-guide?lang=ja" />
+    <link rel="alternate" hreflang="ko" href="https://btc.broodev.com/macd-guide" />
+    <link rel="alternate" hreflang="zh-Hans" href="https://btc.broodev.com/macd-guide?lang=zh" />
+    <link rel="alternate" hreflang="zh-Hant" href="https://btc.broodev.com/macd-guide?lang=zh-Hant" />
+    <link rel="alternate" hreflang="th" href="https://btc.broodev.com/macd-guide?lang=th" />
+    <link rel="alternate" hreflang="es" href="https://btc.broodev.com/macd-guide?lang=es" />
+    <link rel="alternate" hreflang="fr" href="https://btc.broodev.com/macd-guide?lang=fr" />
+    <link rel="alternate" hreflang="de" href="https://btc.broodev.com/macd-guide?lang=de" />
+    <link rel="alternate" hreflang="it" href="https://btc.broodev.com/macd-guide?lang=it" />
+    <link rel="alternate" hreflang="pt" href="https://btc.broodev.com/macd-guide?lang=pt" />
+    <link rel="alternate" hreflang="ru" href="https://btc.broodev.com/macd-guide?lang=ru" />
+    <link rel="alternate" hreflang="nl" href="https://btc.broodev.com/macd-guide?lang=nl" />
+    <link rel="alternate" hreflang="x-default" href="https://btc.broodev.com/macd-guide?lang=en" />
     <meta name="theme-color" content="#05080a" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -51,7 +66,7 @@
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "MACD를 손으로 계산해보기 — 42봉 종가로 따라가는 EMA·시그널·히스토그램 워크스루",
-        "description": "42개 종가를 직접 대입해 EMA12·EMA26·MACD선·시그널선·히스토그램을 한 봉씩 계산합니다. 30봉으로는 히스토그램이 0개 나오는 이유, SMA 대신 EMA를 쓰는 진짜 이유, broodev가 히스토그램 절대값 대신 직전 대비 방향을 보는 이유를 실제 코드와 숫자로 확인합니다.",
+        "description": "종가 42개로 EMA12·EMA26·MACD선·시그널선·히스토그램을 한 봉씩 계산합니다. 30봉이면 히스토그램이 0개인 이유, EMA를 쓰는 이유, 방향을 보는 이유까지.",
         "inLanguage": "ko",
         "mainEntityOfPage": {
           "@type": "WebPage",
@@ -59,7 +74,7 @@
         },
         "image": "https://btc.broodev.com/og-image.png",
         "datePublished": "2026-07-14",
-        "dateModified": "2026-07-14",
+        "dateModified": "2026-10-10",
         "author": {
           "@type": "Organization",
           "name": "Y-Systems",
@@ -89,7 +104,8 @@
       </nav>
 
       <h1>MACD를 손으로 계산해보기<br />— 종가 42개를 끝까지 따라가는 워크스루</h1>
-      <p class="muted">최종 수정: 2026-07-14 · 작성: Y-Systems · 이 글은 설명이 아니라 <strong>실습 기록</strong>입니다</p>
+      <p class="muted">최종 수정: 2026-10-10 · 작성: Y-Systems · 이 글은 설명이 아니라 <strong>실습 기록</strong>입니다</p>
+      <div class="note" data-model-note><strong>모델 버전 안내</strong> — 이 글의 지표 수(6개)와 가중치·계산 예시는 온체인 지표 2종(MVRV Z·Thermocap Z)을 더하기 전인 v1 모델 기준입니다. 지금 대시보드의 점수는 8개 지표를 쓰는 v2이고 가중치도 다릅니다. 현재 수치는 <a href="/methodology">점수 방법론</a>에서 확인하세요.</div>
 
       <p class="lead">
         먼저 실패부터 보여드리겠습니다. 종가 <strong>30개</strong>를 준비해 표준 MACD(12·26·9)를 돌리면
@@ -206,7 +222,7 @@ SMA 버전 MACD 변화 = +0.9917 − (−0.0385) = +1.030   ✅ 표와 일치</c
         broodev가 쓰는 EMA는 <strong>첫 <code>period</code>개의 단순평균을 시드(seed)로 삼고</strong>, 그 뒤부터 지수 갱신하는 방식입니다.
         <code>α = 2 ÷ (기간 + 1)</code>입니다. EMA12라면 <code>α = 2/13 = 0.153846</code>.
       </p>
-      <pre><code>// broodev 실제 코드 (apps/btc/index.html)
+      <pre><code>// broodev 실제 코드 (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -768,8 +784,8 @@ const conMacd = (cur, prev, px) =&gt; clamp(
 
       <h2>이어서 읽기</h2>
       <div class="related">
-        <a href="/methodology"><b>점수 방법론</b><span>MACD 14%/18%를 포함한 6개 지표 가중치와 재정규화 전체 공개</span></a>
-        <a href="/indicators"><b>6개 지표 해설</b><span>MACD 말고 나머지 다섯 개는 각각 언제 배신하는가</span></a>
+        <a href="/methodology"><b>점수 방법론</b><span>8개 지표의 가중치와 계산식 전체 공개</span></a>
+        <a href="/indicators"><b>8개 지표 심층 해설</b><span>각 지표가 언제 배신하는지</span></a>
         <a href="/guide-fear-greed"><b>공포지수 실전 활용법</b><span>MACD가 브레이크를 걸어야 할 바로 그 지표</span></a>
         <a href="/glossary"><b>용어집</b><span>EMA·히스토그램·다이버전스·휩쏘 용어 정리</span></a>
       </div>
@@ -1200,5 +1216,6 @@ const conMacd = (cur, prev, px) =&gt; clamp(
   }, function () { showError(['bd-macd-price', 'bd-macd-main']); });
 });
     </script>
+    <script src="/lang-suggest.js" data-key="btc:lang" data-json="1" data-base="ko" defer></script>
   </body>
 </html>

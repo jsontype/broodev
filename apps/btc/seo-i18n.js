@@ -369,8 +369,14 @@
     var a = function (href, label) { return '<a href="' + href + '">' + esc(label) + '</a>'; };
     var li = function (a) { return a.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join(''); };
     var qa = function (a) { return a.map(function (x) { return '<dt>' + esc(x.q) + '</dt><dd>' + esc(x.a) + '</dd>'; }).join(''); };
+    var ps = function (a) { return a.map(function (x) { return '<p>' + esc(x) + '</p>'; }).join(''); };
+    // 코인 고유 본문(코인 앱만 — scripts/gen_coin.py 가 scripts/coin-content/<코인>.json 을 COIN_SEO 로 넣는다). btc 는 이 키가 없다.
+    // 정적 section.seo(index.html)와 같은 순서: 제목 · 소개 · [코인 소개 · 지표 적용 · 가격 사이클] · 공통 해설 · FAQ
+    var coin = (d.coinH ? '<h2>' + esc(d.coinH) + '</h2>' + ps(d.coinP || []) : '') +
+      (d.applyH ? '<h2>' + esc(d.applyH) + '</h2><ul>' + li(d.apply || []) + '</ul>' : '') +
+      (d.histH ? '<h2>' + esc(d.histH) + '</h2><ul>' + li(d.hist || []) + '</ul>' : '');
     return '<h1>' + esc(d.title) + '</h1>' +
-      '<p>' + esc(d.intro) + '</p>' +
+      '<p>' + esc(d.intro) + '</p>' + coin +
       '<h2>' + esc(d.whatIsH) + '</h2><p>' + esc(d.whatIsP) + '</p>' +
       '<h2>' + esc(d.scoreH) + '</h2><ul>' + li(d.score) + '</ul><p>' + esc(d.scoreNote) + '</p>' +
       '<h2>' + esc(d.fngH) + '</h2><ul>' + li(d.fng) + '</ul>' +
@@ -393,7 +399,7 @@
     try {
       var d = SEO[lang] || SEO.en;
       var sec = document.querySelector('section.seo');
-      if (sec) { sec.innerHTML = build(d, lang); sec.setAttribute('lang', lang); sec.setAttribute('aria-label', d.title); }
+      if (sec) { sec.innerHTML = build(d, lang); sec.setAttribute('lang', lang === 'zh' ? 'zh-Hans' : lang); sec.setAttribute('aria-label', d.title); }
       var fd = document.querySelector('.site-foot .foot-desc');
       if (fd) fd.textContent = FOOT_DESC[lang] || FOOT_DESC.en;
     } catch (e) {}

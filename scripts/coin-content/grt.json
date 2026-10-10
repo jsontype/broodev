@@ -1,0 +1,723 @@
+{
+  "slug": "grt",
+  "ticker": "GRT",
+  "updated": "2026-10-10",
+  "mvrv": "none",
+  "langs": {
+    "ko": {
+      "meta": {
+        "t": "더그래프 공포·탐욕 지수 · 매수 타이밍 | GRT_SIGNAL",
+        "d": "더그래프(GRT) 가격에 RSI·MACD·마이어 배수 등을 적용한 0~100 매수 타이밍 점수와 시장 전체 공포·탐욕 지수. 설치 없이 무료."
+      },
+      "title": "더그래프(GRT) 매수 타이밍 점수 — 지표 대시보드",
+      "intro": "블록체인 데이터 인덱싱 프로토콜 더그래프(GRT)의 일봉 가격으로 RSI(14), MACD(12·26·9), 마이어 배수, 365일 고점 대비 낙폭, 50/200 골든·데드 크로스를 계산하고, 시장 전체 공포·탐욕 지수와 MVRV Z-점수 칸을 더해 7개 지표를 한 화면에 모았습니다. GRT는 MVRV 데이터가 없어 나머지 지표로 0~100 점수를 매기며, 무료로 바로 쓸 수 있습니다.",
+      "coinH": "더그래프(GRT)란?",
+      "coinP": [
+        "더그래프는 블록체인 데이터를 색인해 GraphQL로 조회할 수 있게 해 주는 탈중앙 인덱싱 프로토콜입니다. 야니브 탈, 브랜든 라미레즈, 야니스 폴만이 2018년 프로젝트를 시작했고, 2020년 12월 이더리움에서 메인넷과 GRT 토큰을 내놓았습니다. 개발자는 ‘서브그래프’로 어떤 온체인 데이터를 어떻게 색인할지 정의하고, 탈중앙 금융(DeFi) 앱 등은 이를 통해 필요한 데이터를 빠르게 불러옵니다.",
+        "더그래프는 자체 블록체인이 아니라 이더리움 계열 체인 위에서 동작하는 프로토콜이며, GRT는 ERC-20 토큰입니다. 인덱서는 GRT를 스테이킹하고 쿼리를 처리해 수수료와 인덱싱 보상을 받으며, 잘못된 데이터를 내면 스테이킹 일부가 삭감(슬래싱)될 수 있습니다. 큐레이터는 유용한 서브그래프에 GRT로 신호를 보내고, 위임자는 인덱서에게 GRT를 맡겨 보상을 나눠 받습니다. 인덱싱 보상 등 프로토콜의 주요 기능은 2024년까지 이더리움 레이어 2인 Arbitrum으로 옮겨졌습니다. 초기 공급량은 100억 개이며, 인덱싱 보상으로 해마다 새 GRT가 발행되는 한편 쿼리 수수료 등의 일부는 소각됩니다."
+      ],
+      "applyH": "더그래프에 지표를 적용할 때",
+      "apply": [
+        "변동성·상관관계: GRT는 비트코인보다 시가총액이 훨씬 작은 알트코인이라 시장 전체가 움직일 때 더 크게 흔들리고, 대체로 비트코인과 같은 방향으로 움직입니다. RSI가 과매도를 가리켜도 비트코인 추세가 돌아섰는지 함께 확인하는 것이 좋습니다.",
+        "공포·탐욕 지수: GRT 전용 값이 아니라 Alternative.me의 시장 전체 지수입니다. 쿼리 수요나 인덱서 참여 같은 프로토콜 고유 요인은 여기에 담기지 않습니다.",
+        "MVRV: CoinMetrics 커뮤니티 API에 GRT 데이터가 없어 MVRV Z-점수는 N/A이고, 매수 타이밍 점수는 나머지 지표의 가중치를 다시 맞춰 산출됩니다.",
+        "마이어 배수·낙폭: 낙폭은 최근 365일만 기준으로 삼기 때문에, 2021년 2월 사상 최고가 이후의 장기 하락은 이 수치에 드러나지 않을 수 있습니다. 비트코인 사이클로 정한 기준(0.8과 2.4, -30%와 -50%)을 GRT의 저평가 신호로 그대로 읽지 마세요.",
+        "공급 증가: 인덱싱 보상으로 새 GRT가 계속 늘어나는 구조여서, 가격만 보는 지표로는 희석 효과를 파악할 수 없습니다."
+      ],
+      "histH": "더그래프 가격 사이클 요약",
+      "hist": [
+        "2020년 12월: 메인넷 출시와 함께 GRT가 코인베이스 등 주요 거래소에 상장됐습니다.",
+        "2021년 2월: 알트코인 강세장 속에 약 2.8달러로 사상 최고가를 기록했습니다.",
+        "2022년: 약세장에서 고점 대비 95% 넘게 떨어졌습니다.",
+        "2023년 초: 인공지능(AI) 관련 코인에 관심이 몰리면서 짧은 기간에 크게 반등했습니다.",
+        "2024년: 6월 중앙화 호스티드 서비스가 종료되며 서브그래프가 탈중앙 네트워크로 옮겨졌습니다. 그해 상승장에서도 가격은 2021년 고점에 크게 못 미쳤습니다."
+      ],
+      "faq": [
+        {
+          "q": "더그래프만의 공포·탐욕 지수는 없나요?",
+          "a": "Alternative.me는 코인마다 지수를 따로 내지 않습니다. 이 화면에 나오는 값은 비트코인을 중심으로 산출되는 암호화폐 시장 전체 지수이며, 화면에도 ‘시장 전체’로 표기됩니다. GRT 자체의 과열이나 침체는 GRT 가격으로 계산하는 RSI·MACD·이동평균에서 살펴보세요."
+        },
+        {
+          "q": "GRT 화면의 MVRV Z-점수가 비어 있는 이유는 무엇인가요?",
+          "a": "이 화면이 쓰는 CoinMetrics 커뮤니티 API가 GRT의 MVRV를 제공하지 않기 때문입니다. 카드에는 N/A가 표시되고, 매수 타이밍 점수는 나머지 지표만으로 계산됩니다."
+        },
+        {
+          "q": "점수가 STRONG BUY면 GRT를 사야 하나요?",
+          "a": "투자 판단은 본인의 몫이며, 이 화면은 매수를 권하지 않습니다. 기본값인 ‘장기 · 역발상’ 모드에서 80 이상(STRONG BUY)은 여러 지표가 동시에 과매도·저평가 쪽을 가리킨다는 뜻이고, 25 미만(OVERHEATED)은 과열 신호가 겹쳤다는 뜻입니다. GRT는 2021년 고점 이후 긴 하락을 겪었으므로, 점수 하나에 기대기보다 50/200 이동평균 크로스 같은 추세 지표의 방향 변화도 함께 확인하세요."
+        },
+        {
+          "q": "쿼리 수요나 인덱서 스테이킹 같은 프로토콜 지표도 반영되나요?",
+          "a": "반영되지 않습니다. 점수는 GRT 가격 데이터(CoinGecko·Binance)와 시장 전체 공포·탐욕 지수만 사용합니다. 쿼리 수수료, 서브그래프 수, 스테이킹 규모 같은 사용량 지표는 Graph Explorer 같은 별도 자료에서 확인해야 합니다."
+        },
+        {
+          "q": "GRT는 이더리움 토큰인데 이더리움 점수를 봐야 하나요?",
+          "a": "GRT는 ERC-20 토큰이지만 독자적인 가격으로 거래되므로, 이 화면은 GRT 가격만으로 지표를 계산합니다. 이더리움 가스비나 네트워크 사용량은 점수에 들어가지 않으며, 이더리움 자체의 점수는 이더리움 화면에서 따로 볼 수 있습니다."
+        },
+        {
+          "q": "단기 모드와 장기 모드에서 GRT 점수가 반대로 나오는 이유는 무엇인가요?",
+          "a": "‘단기 · 모멘텀’ 모드는 추세가 강하고 RSI가 높을수록 점수를 높게, ‘장기 · 역발상’ 모드는 공포·과매도·깊은 낙폭일수록 점수를 높게 매깁니다. 같은 GRT 가격 데이터라도 두 모드의 점수가 엇갈릴 수 있으니, 자신의 투자 기간에 맞는 쪽을 보세요."
+        }
+      ]
+    },
+    "en": {
+      "meta": {
+        "t": "The Graph Fear & Greed · Buy-Timing Score | GRT_SIGNAL",
+        "d": "The Graph (GRT) buy-timing score from 0 to 100 using RSI, MACD, Mayer Multiple and more, alongside the market-wide Fear & Greed Index. Free, no install."
+      },
+      "title": "The Graph (GRT) Buy-Timing Score — an Indicator Dashboard",
+      "intro": "Using the daily price of The Graph (GRT), the blockchain data-indexing protocol, this page calculates RSI(14), MACD(12·26·9), the Mayer Multiple, the drawdown from the 365-day high and the 50/200 golden/death cross, then adds the market-wide Fear & Greed Index and an MVRV Z-Score slot to bring seven indicators together on one screen. GRT has no MVRV data, so the 0–100 score is built from the other indicators. It is free and ready to use.",
+      "coinH": "What is The Graph (GRT)?",
+      "coinP": [
+        "The Graph is a decentralized indexing protocol that organizes blockchain data so it can be queried with GraphQL. Yaniv Tal, Brandon Ramirez and Jannis Pohlmann started the project in 2018, and its mainnet and the GRT token launched on Ethereum in December 2020. Developers define ‘subgraphs’ that specify which on-chain data to index and how, and applications such as decentralized finance (DeFi) apps use them to fetch the data they need quickly.",
+        "The Graph is not a blockchain of its own but a protocol running on Ethereum-based chains, and GRT is an ERC-20 token. Indexers stake GRT and process queries to earn fees and indexing rewards, and part of their stake can be slashed if they serve incorrect data. Curators signal useful subgraphs with GRT, and delegators entrust GRT to indexers to share in their rewards. Core protocol functions such as indexing rewards had moved to Arbitrum, an Ethereum layer 2, by 2024. The initial supply was 10 billion GRT; indexing rewards add new tokens each year, while a share of query fees and other charges is burned."
+      ],
+      "applyH": "Applying the indicators to The Graph",
+      "apply": [
+        "Volatility and correlation: GRT is an altcoin with a far smaller market cap than Bitcoin, so it swings harder when the whole market moves and generally travels in the same direction as Bitcoin. Even when RSI flags oversold, check whether Bitcoin’s trend has turned.",
+        "Fear & Greed: this is not a GRT-specific value but Alternative.me’s market-wide index. Protocol-specific factors such as query demand or indexer participation are not captured in it.",
+        "MVRV: the CoinMetrics community API has no GRT data, so the MVRV Z-Score is N/A and the buy-timing score is produced by rebalancing the weights of the other indicators.",
+        "Mayer Multiple and drawdown: the drawdown is measured against the past 365 days only, so the long slide since the all-time high of February 2021 may not show up in it. Do not read the Bitcoin-derived thresholds (0.8 and 2.4; −30% and −50%) as undervaluation signals for GRT at face value.",
+        "Rising supply: because indexing rewards keep adding new GRT, the dilution effect cannot be seen in indicators that look only at price."
+      ],
+      "histH": "The Graph price cycles at a glance",
+      "hist": [
+        "December 2020: GRT was listed on major exchanges, including Coinbase, as the mainnet launched.",
+        "February 2021: Hit an all-time high of about $2.8 during the altcoin rally.",
+        "2022: Dropped more than 95% from its peak in the bear market.",
+        "Early 2023: Rebounded sharply over a short period as interest piled into AI-related coins.",
+        "2024: The centralized hosted service shut down in June, moving subgraphs to the decentralized network. Even in that year’s bull market, the price stayed far below its 2021 peak."
+      ],
+      "faq": [
+        {
+          "q": "Doesn’t The Graph have its own Fear & Greed Index?",
+          "a": "Alternative.me does not publish separate indexes for each coin. The value on this page is a crypto-market-wide index calculated with Bitcoin at its centre, and it is labelled “market-wide” on screen. For GRT’s own overheating or slump, look at RSI, MACD and the moving averages calculated from GRT’s price."
+        },
+        {
+          "q": "Why is the MVRV Z-Score empty on the GRT page?",
+          "a": "Because the CoinMetrics community API used by this page does not provide MVRV for GRT. The card shows N/A, and the buy-timing score is calculated from the remaining indicators only."
+        },
+        {
+          "q": "If the score says STRONG BUY, should I buy GRT?",
+          "a": "Investment decisions are yours, and this page does not recommend buying. In the default ‘Long · Contrarian’ mode, 80 or above (STRONG BUY) means several indicators point to oversold and undervalued conditions at once, and below 25 (OVERHEATED) means overheating signals are stacking up. GRT has been through a long decline since its 2021 peak, so rather than relying on the score alone, also watch for a change in direction in trend indicators such as the 50/200 moving-average cross."
+        },
+        {
+          "q": "Are protocol metrics such as query demand or indexer staking included?",
+          "a": "No. The score uses only GRT price data (CoinGecko, Binance) and the market-wide Fear & Greed Index. Usage metrics such as query fees, the number of subgraphs and the amount staked need to be checked in separate sources such as Graph Explorer."
+        },
+        {
+          "q": "GRT is an Ethereum token — should I look at the Ethereum score instead?",
+          "a": "GRT is an ERC-20 token, but it trades at its own price, so this page calculates the indicators from GRT’s price alone. Ethereum gas fees and network activity are not part of the score; the score for Ethereum itself is on the Ethereum page."
+        },
+        {
+          "q": "Why can the GRT score point in opposite directions in short-term and long-term mode?",
+          "a": "The ‘Short · Momentum’ mode scores higher when the trend is strong and RSI is high, while the ‘Long · Contrarian’ mode scores higher with fear, oversold readings and deep drawdowns. The same GRT price data can therefore produce conflicting scores in the two modes, so use the one that matches your time horizon."
+        }
+      ]
+    },
+    "ja": {
+      "meta": {
+        "t": "ザ・グラフ 恐怖・強欲指数 · 買い時 | GRT_SIGNAL",
+        "d": "ザ・グラフ(GRT)の価格にRSI・MACD・マイヤー倍率などの指標を当てはめた0〜100の買い時スコアと、市場全体の恐怖・強欲指数。インストール不要・無料。"
+      },
+      "title": "ザ・グラフ(GRT)の買い時スコア — 指標ダッシュボード",
+      "intro": "ブロックチェーンのデータ・インデックス・プロトコルであるザ・グラフ(GRT)の日足価格から、RSI(14)、MACD(12・26・9)、マイヤー倍率、365日高値からの下落率、50/200のゴールデン/デッドクロスを計算し、市場全体の恐怖・強欲指数とMVRV Zスコアの枠を加えて7指標を1画面にまとめました。GRTにはMVRVデータがないため、0〜100のスコアは他の指標で算出します。無料ですぐに使えます。",
+      "coinH": "ザ・グラフ(GRT)とは？",
+      "coinP": [
+        "ザ・グラフは、ブロックチェーンのデータをインデックス化してGraphQLで照会できるようにする分散型インデックス・プロトコルです。ヤニフ・タル、ブランドン・ラミレス、ヤニス・ポールマンが2018年にプロジェクトを始め、2020年12月にイーサリアム上でメインネットとGRTトークンを公開しました。開発者は「サブグラフ」でどのオンチェーンデータをどうインデックス化するかを定義し、分散型金融(DeFi)アプリなどはそれを通じて必要なデータをすばやく取得します。",
+        "ザ・グラフは独自のブロックチェーンではなくイーサリアム系チェーン上で動くプロトコルで、GRTはERC-20トークンです。インデクサーはGRTをステーキングしてクエリを処理し、手数料とインデックス報酬を得ますが、誤ったデータを返すとステークの一部が削減(スラッシング)されることがあります。キュレーターは有用なサブグラフにGRTでシグナルを送り、デリゲーターはインデクサーにGRTを預けて報酬を分け合います。インデックス報酬などプロトコルの主要機能は、2024年までにイーサリアムのレイヤー2であるArbitrumへ移されました。初期供給量は100億GRTで、インデックス報酬として毎年新しいGRTが発行される一方、クエリ手数料などの一部はバーンされます。"
+      ],
+      "applyH": "ザ・グラフに指標を当てはめるときの注意点",
+      "apply": [
+        "ボラティリティと相関：GRTはビットコインよりはるかに時価総額の小さいアルトコインなので、市場全体が動くとより大きく揺れ、おおむねビットコインと同じ方向に動きます。RSIが売られすぎを示しても、ビットコインのトレンドが転換したかどうかをあわせて確認しましょう。",
+        "恐怖・強欲指数：GRT専用の値ではなく、Alternative.meの市場全体の指数です。クエリ需要やインデクサーの参加状況といったプロトコル固有の要因は含まれていません。",
+        "MVRV：CoinMetricsコミュニティAPIにGRTのデータがないためMVRV ZスコアはN/Aとなり、買い時スコアは他の指標の重みを調整し直して算出されます。",
+        "マイヤー倍率と下落率：下落率は直近365日だけを基準にするため、2021年2月の史上最高値以来の長期下落はこの数値に表れないことがあります。ビットコインのサイクルから決めた基準(0.8と2.4、−30%と−50%)を、GRTの割安シグナルとしてそのまま読まないでください。",
+        "供給の増加：インデックス報酬で新しいGRTが増え続ける仕組みなので、価格だけを見る指標では希薄化の影響をつかめません。"
+      ],
+      "histH": "ザ・グラフの価格サイクルの要約",
+      "hist": [
+        "2020年12月：メインネットの公開と同時に、Coinbaseなど主要取引所にGRTが上場しました。",
+        "2021年2月：アルトコインの上昇相場のなか、約2.8ドルの史上最高値を付けました。",
+        "2022年：弱気相場で高値から95%以上下落しました。",
+        "2023年初め：AI関連コインに関心が集まり、短期間で大きく反発しました。",
+        "2024年：6月に中央集権型のホステッドサービスが終了し、サブグラフは分散型ネットワークへ移行しました。同年の上昇相場でも、価格は2021年の高値に遠く及びませんでした。"
+      ],
+      "faq": [
+        {
+          "q": "ザ・グラフ独自の恐怖・強欲指数はないのですか？",
+          "a": "Alternative.meはコインごとに個別の指数を出していません。このページの値はビットコインを中心に算出される暗号資産市場全体の指数で、画面上でも「市場全体」と表記しています。GRT自体の過熱や低迷は、GRTの価格から計算するRSI・MACD・移動平均で確認してください。"
+        },
+        {
+          "q": "GRTのページでMVRV Zスコアが空欄なのはなぜですか？",
+          "a": "このページが使うCoinMetricsコミュニティAPIが、GRTのMVRVを提供していないためです。カードにはN/Aが表示され、買い時スコアは残りの指標だけで計算されます。"
+        },
+        {
+          "q": "スコアがSTRONG BUYなら、GRTを買うべきですか？",
+          "a": "投資判断はご自身で行うものであり、このページは購入を勧めていません。初期設定の「長期 · 逆張り」モードでは、80以上(STRONG BUY)は複数の指標が同時に売られすぎ・割安を示していること、25未満(OVERHEATED)は過熱シグナルが重なっていることを意味します。GRTは2021年の高値から長く下落してきたので、スコアだけに頼らず、50/200移動平均クロスなどトレンド指標の向きの変化もあわせて確認してください。"
+        },
+        {
+          "q": "クエリ需要やインデクサーのステーキングといったプロトコル指標も反映されますか？",
+          "a": "反映されません。スコアに使うのはGRTの価格データ(CoinGecko・Binance)と市場全体の恐怖・強欲指数だけです。クエリ手数料、サブグラフの数、ステーキング量といった利用状況の指標は、Graph Explorerなど別の情報源で確認する必要があります。"
+        },
+        {
+          "q": "GRTはイーサリアムのトークンですが、イーサリアムのスコアを見るべきですか？",
+          "a": "GRTはERC-20トークンですが独自の価格で取引されているため、このページはGRTの価格だけで指標を計算します。イーサリアムのガス代やネットワーク利用状況はスコアに含まれず、イーサリアム自体のスコアはイーサリアムのページで確認できます。"
+        },
+        {
+          "q": "短期モードと長期モードでGRTのスコアが逆になるのはなぜですか？",
+          "a": "「短期 · モメンタム」モードはトレンドが強くRSIが高いほどスコアを高くし、「長期 · 逆張り」モードは恐怖・売られすぎ・深い下落ほどスコアを高くします。同じGRTの価格データでも2つのモードでスコアが食い違うことがあるので、ご自身の投資期間に合うほうを見てください。"
+        }
+      ]
+    },
+    "zh": {
+      "meta": {
+        "t": "The Graph恐惧贪婪指数 · 买入时机 | GRT_SIGNAL",
+        "d": "将RSI、MACD、梅耶倍数等指标应用于The Graph(GRT)价格，给出0–100买入时机评分，并显示全市场恐惧与贪婪指数。免费，无需安装。"
+      },
+      "title": "The Graph(GRT)买入时机评分——指标仪表板",
+      "intro": "本页根据区块链数据索引协议The Graph(GRT)的日线价格，计算RSI(14)、MACD(12·26·9)、梅耶倍数、距365日高点回撤和50/200金叉/死叉，再加上全市场恐惧与贪婪指数和MVRV Z分数栏位，把7项指标集中在一个页面。GRT没有MVRV数据，因此0–100评分由其余指标得出。免费，即开即用。",
+      "coinH": "什么是The Graph(GRT)？",
+      "coinP": [
+        "The Graph是一种去中心化索引协议，它为区块链数据建立索引，使其可以通过GraphQL查询。Yaniv Tal、Brandon Ramirez和Jannis Pohlmann于2018年启动该项目，2020年12月在以太坊上推出主网和GRT代币。开发者通过“子图”定义要索引哪些链上数据以及如何索引，去中心化金融(DeFi)应用等则借此快速获取所需数据。",
+        "The Graph不是独立的区块链，而是运行在以太坊系链上的协议，GRT是ERC-20代币。索引者质押GRT并处理查询，以获得手续费和索引奖励；如果提供错误数据，部分质押可能被罚没。策展人用GRT为有用的子图发出信号，委托人则把GRT委托给索引者以分享奖励。索引奖励等协议核心功能已在2024年前迁移到以太坊二层网络Arbitrum。初始供应量为100亿枚，索引奖励每年带来新增GRT，同时部分查询费用等会被销毁。"
+      ],
+      "applyH": "将指标用于The Graph时的注意事项",
+      "apply": [
+        "波动性与相关性：GRT是市值远小于比特币的山寨币，整体市场波动时摆动更大，走势也大体与比特币同向。即使RSI显示超卖，也最好确认比特币的趋势是否已经转向。",
+        "恐惧与贪婪指数：这不是GRT专属数值，而是Alternative.me的全市场指数，查询需求、索引者参与度等协议自身因素并未包含在内。",
+        "MVRV：CoinMetrics社区API没有GRT数据，因此MVRV Z分数为N/A，买入时机评分通过重新平衡其他指标的权重得出。",
+        "梅耶倍数与回撤：回撤只以最近365天为基准，2021年2月创下历史最高价以来的长期下跌可能不会反映在这个数值里。不要把依据比特币周期设定的阈值(0.8与2.4、−30%与−50%)直接当作GRT的低估信号。",
+        "供应增加：索引奖励不断带来新增GRT，只看价格的指标无法体现稀释效应。"
+      ],
+      "histH": "The Graph价格周期概览",
+      "hist": [
+        "2020年12月：主网上线的同时，GRT登陆Coinbase等主要交易所。",
+        "2021年2月：在山寨币牛市中创下约2.8美元的历史最高价。",
+        "2022年：熊市中较高点下跌超过95%。",
+        "2023年初：随着资金涌向AI相关币种，短期内大幅反弹。",
+        "2024年：6月中心化托管服务关闭，子图迁移到去中心化网络。即便在当年的牛市中，价格也远低于2021年高点。"
+      ],
+      "faq": [
+        {
+          "q": "The Graph没有自己的恐惧与贪婪指数吗？",
+          "a": "Alternative.me不会为每个币种单独发布指数。本页显示的是以比特币为中心计算的全加密市场指数，页面上也标注为“全市场”。GRT本身是否过热或低迷，请查看基于GRT价格计算的RSI、MACD和均线。"
+        },
+        {
+          "q": "为什么GRT页面的MVRV Z分数是空的？",
+          "a": "因为本页使用的CoinMetrics社区API不提供GRT的MVRV。卡片显示N/A，买入时机评分仅用其余指标计算。"
+        },
+        {
+          "q": "评分显示STRONG BUY，就该买GRT吗？",
+          "a": "投资决定由您自己做出，本页不建议买入。在默认的“长期 · 逆向”模式下，80分以上(STRONG BUY)表示多项指标同时指向超卖和低估，低于25分(OVERHEATED)则表示过热信号叠加。GRT自2021年高点以来经历了长期下跌，因此不要只看评分，也要留意50/200均线交叉等趋势指标的方向变化。"
+        },
+        {
+          "q": "查询需求、索引者质押等协议指标也会纳入吗？",
+          "a": "不会。评分只使用GRT价格数据(CoinGecko、Binance)和全市场恐惧与贪婪指数。查询费用、子图数量、质押规模等使用情况指标，需要在Graph Explorer等其他来源中查看。"
+        },
+        {
+          "q": "GRT是以太坊上的代币，应该看以太坊的评分吗？",
+          "a": "GRT虽然是ERC-20代币，但有自己独立的交易价格，因此本页只用GRT价格计算指标。以太坊的Gas费和网络使用情况不计入评分，以太坊本身的评分可在以太坊页面查看。"
+        },
+        {
+          "q": "为什么GRT在短期模式和长期模式下的评分会相反？",
+          "a": "“短期 · 动量”模式在趋势强、RSI高时给出更高分，“长期 · 逆向”模式则在恐惧、超卖和深度回撤时给出更高分。同样的GRT价格数据在两种模式下可能得出相互矛盾的评分，请选择与自己投资周期相符的模式。"
+        }
+      ]
+    },
+    "zh-Hant": {
+      "meta": {
+        "t": "The Graph恐懼貪婪指數 · 買入時機 | GRT_SIGNAL",
+        "d": "將RSI、MACD、梅耶倍數等指標套用於The Graph(GRT)價格，給出0–100買入時機評分，並顯示全市場恐懼與貪婪指數。免費，免安裝。"
+      },
+      "title": "The Graph(GRT)買入時機評分——指標儀表板",
+      "intro": "本頁根據區塊鏈資料索引協定The Graph(GRT)的日線價格，計算RSI(14)、MACD(12·26·9)、梅耶倍數、距365日高點回撤與50/200黃金/死亡交叉，再加上全市場恐懼與貪婪指數和MVRV Z分數欄位，把7項指標集中在一個頁面。GRT沒有MVRV資料，因此0–100評分由其餘指標得出。免費，開啟即可使用。",
+      "coinH": "什麼是The Graph(GRT)？",
+      "coinP": [
+        "The Graph是一種去中心化索引協定，為區塊鏈資料建立索引，使其能以GraphQL查詢。Yaniv Tal、Brandon Ramirez與Jannis Pohlmann於2018年啟動此專案，2020年12月在以太坊上推出主網與GRT代幣。開發者透過「子圖」定義要索引哪些鏈上資料以及如何索引，去中心化金融(DeFi)應用等則藉此快速取得所需資料。",
+        "The Graph不是獨立的區塊鏈，而是運行在以太坊系鏈上的協定，GRT是ERC-20代幣。索引者質押GRT並處理查詢，以獲得手續費與索引獎勵；若提供錯誤資料，部分質押可能遭罰沒。策展人以GRT為有用的子圖發出訊號，委託人則把GRT委託給索引者以分享獎勵。索引獎勵等協定核心功能已在2024年前遷移至以太坊第二層網路Arbitrum。初始供應量為100億枚，索引獎勵每年帶來新增GRT，同時部分查詢費用等會被銷毀。"
+      ],
+      "applyH": "將指標用於The Graph時的注意事項",
+      "apply": [
+        "波動性與相關性：GRT是市值遠小於比特幣的山寨幣，整體市場波動時擺盪更大，走勢也大致與比特幣同向。即使RSI顯示超賣，也最好確認比特幣的趨勢是否已經轉向。",
+        "恐懼與貪婪指數：這不是GRT專屬數值，而是Alternative.me的全市場指數，查詢需求、索引者參與度等協定本身的因素並未包含在內。",
+        "MVRV：CoinMetrics社群API沒有GRT資料，因此MVRV Z分數為N/A，買入時機評分透過重新平衡其他指標的權重得出。",
+        "梅耶倍數與回撤：回撤只以最近365天為基準，2021年2月創下歷史最高價以來的長期下跌可能不會反映在這個數值中。不要把依比特幣週期設定的門檻(0.8與2.4、−30%與−50%)直接當作GRT的低估訊號。",
+        "供應增加：索引獎勵不斷帶來新增GRT，只看價格的指標無法呈現稀釋效應。"
+      ],
+      "histH": "The Graph價格週期概覽",
+      "hist": [
+        "2020年12月：主網上線的同時，GRT登上Coinbase等主要交易所。",
+        "2021年2月：在山寨幣牛市中創下約2.8美元的歷史最高價。",
+        "2022年：熊市中自高點下跌超過95%。",
+        "2023年初：隨著資金湧向AI相關幣種，短期內大幅反彈。",
+        "2024年：6月中心化託管服務關閉，子圖遷移至去中心化網路。即便在當年的牛市中，價格也遠低於2021年高點。"
+      ],
+      "faq": [
+        {
+          "q": "The Graph沒有自己的恐懼與貪婪指數嗎？",
+          "a": "Alternative.me不會為每個幣種單獨發布指數。本頁顯示的是以比特幣為中心計算的全加密市場指數，頁面上也標示為「全市場」。GRT本身是否過熱或低迷，請查看以GRT價格計算的RSI、MACD與均線。"
+        },
+        {
+          "q": "為什麼GRT頁面的MVRV Z分數是空的？",
+          "a": "因為本頁使用的CoinMetrics社群API不提供GRT的MVRV。卡片顯示N/A，買入時機評分僅以其餘指標計算。"
+        },
+        {
+          "q": "評分顯示STRONG BUY，就該買GRT嗎？",
+          "a": "投資決定由您自己做出，本頁不建議買入。在預設的「長期 · 逆向」模式下，80分以上(STRONG BUY)代表多項指標同時指向超賣與低估，低於25分(OVERHEATED)則代表過熱訊號疊加。GRT自2021年高點以來經歷了長期下跌，因此不要只看評分，也要留意50/200均線交叉等趨勢指標的方向變化。"
+        },
+        {
+          "q": "查詢需求、索引者質押等協定指標也會納入嗎？",
+          "a": "不會。評分只使用GRT價格資料(CoinGecko、Binance)與全市場恐懼與貪婪指數。查詢費用、子圖數量、質押規模等使用情況指標，需要在Graph Explorer等其他來源查看。"
+        },
+        {
+          "q": "GRT是以太坊上的代幣，應該看以太幣的評分嗎？",
+          "a": "GRT雖然是ERC-20代幣，但有自己獨立的交易價格，因此本頁只用GRT價格計算指標。以太坊的Gas費與網路使用情況不計入評分，以太幣本身的評分可在以太幣頁面查看。"
+        },
+        {
+          "q": "為什麼GRT在短期模式和長期模式下的評分會相反？",
+          "a": "「短期 · 動能」模式在趨勢強、RSI高時給出較高分，「長期 · 逆向」模式則在恐懼、超賣與深度回撤時給出較高分。同樣的GRT價格資料在兩種模式下可能得出相互矛盾的評分，請選擇符合自己投資週期的模式。"
+        }
+      ]
+    },
+    "th": {
+      "meta": {
+        "t": "ดัชนีความกลัว-ความโลภ เดอะกราฟ · จังหวะซื้อ | GRT_SIGNAL",
+        "d": "คะแนนจังหวะซื้อ 0–100 ของเดอะกราฟ (GRT) จาก RSI, MACD, Mayer Multiple และตัวชี้วัดอื่น พร้อมดัชนีความกลัว-ความโลภทั้งตลาด ใช้ฟรี ไม่ต้องติดตั้ง"
+      },
+      "title": "คะแนนจังหวะซื้อเดอะกราฟ (GRT) — แดชบอร์ดตัวชี้วัด",
+      "intro": "หน้านี้ใช้ราคารายวันของเดอะกราฟ (GRT) โปรโตคอลจัดทำดัชนีข้อมูลบล็อกเชน มาคำนวณ RSI(14), MACD(12·26·9), Mayer Multiple, การย่อจากจุดสูงสุด 365 วัน และ Golden/Death Cross 50/200 แล้วเพิ่มดัชนีความกลัว-ความโลภทั้งตลาดและช่อง MVRV Z-Score รวม 7 ตัวชี้วัดไว้ในหน้าเดียว GRT ไม่มีข้อมูล MVRV คะแนน 0–100 จึงคำนวณจากตัวชี้วัดอื่น ใช้ได้ฟรีทันที",
+      "coinH": "เดอะกราฟ (GRT) คืออะไร?",
+      "coinP": [
+        "เดอะกราฟเป็นโปรโตคอลจัดทำดัชนีแบบกระจายศูนย์ ที่จัดระเบียบข้อมูลบล็อกเชนให้เรียกค้นได้ด้วย GraphQL โปรเจกต์เริ่มต้นในปี 2018 โดย Yaniv Tal, Brandon Ramirez และ Jannis Pohlmann และเปิดตัวเมนเน็ตพร้อมโทเคน GRT บนอีเธอเรียมในเดือนธันวาคม 2020 นักพัฒนากำหนด “ซับกราฟ” ว่าจะทำดัชนีข้อมูลบนเชนใดและอย่างไร แล้วแอปอย่างการเงินแบบกระจายศูนย์ (DeFi) ก็ใช้ซับกราฟเหล่านี้ดึงข้อมูลที่ต้องการได้อย่างรวดเร็ว",
+        "เดอะกราฟไม่ใช่บล็อกเชนของตัวเอง แต่เป็นโปรโตคอลที่ทำงานบนเชนตระกูลอีเธอเรียม และ GRT เป็นโทเคน ERC-20 อินเด็กเซอร์ (Indexer) สเตก GRT และประมวลผลคำค้นเพื่อรับค่าธรรมเนียมและรางวัลการทำดัชนี หากส่งข้อมูลผิดอาจถูกตัดเงินสเตกบางส่วน (slashing) ภัณฑารักษ์ (Curator) ใช้ GRT ส่งสัญญาณให้ซับกราฟที่มีประโยชน์ ส่วนผู้มอบสิทธิ์ (Delegator) ฝาก GRT ไว้กับอินเด็กเซอร์เพื่อแบ่งรางวัล ฟังก์ชันหลักของโปรโตคอลอย่างรางวัลการทำดัชนีย้ายไปอยู่บน Arbitrum ซึ่งเป็นเลเยอร์ 2 ของอีเธอเรียมภายในปี 2024 อุปทานเริ่มต้นคือ 1 หมื่นล้าน GRT รางวัลการทำดัชนีทำให้มี GRT ใหม่ทุกปี ขณะที่ค่าธรรมเนียมคำค้นบางส่วนถูกเผาทิ้ง"
+      ],
+      "applyH": "ข้อควรรู้เมื่อใช้ตัวชี้วัดกับเดอะกราฟ",
+      "apply": [
+        "ความผันผวนและความสัมพันธ์: GRT เป็นอัลต์คอยน์ที่มีมูลค่าตลาดเล็กกว่าบิตคอยน์มาก จึงแกว่งแรงกว่าเมื่อตลาดทั้งหมดเคลื่อนไหว และโดยทั่วไปเคลื่อนไปทางเดียวกับบิตคอยน์ แม้ RSI จะบอกว่าขายมากเกิน ก็ควรตรวจดูด้วยว่าเทรนด์ของบิตคอยน์กลับตัวแล้วหรือยัง",
+        "ดัชนีความกลัว-ความโลภ: ไม่ใช่ค่าเฉพาะของ GRT แต่เป็นดัชนีทั้งตลาดของ Alternative.me ปัจจัยเฉพาะของโปรโตคอล เช่น ความต้องการคำค้นหรือการมีส่วนร่วมของอินเด็กเซอร์ ไม่ได้รวมอยู่ในดัชนีนี้",
+        "MVRV: CoinMetrics community API ไม่มีข้อมูลของ GRT ค่า MVRV Z-Score จึงเป็น N/A และคะแนนจังหวะซื้อคำนวณโดยปรับสมดุลน้ำหนักของตัวชี้วัดอื่นใหม่",
+        "Mayer Multiple และการย่อตัว: การย่อตัวอิงเฉพาะ 365 วันล่าสุด ขาลงยาวนานนับจากจุดสูงสุดตลอดกาลเมื่อกุมภาพันธ์ 2021 จึงอาจไม่ปรากฏในตัวเลขนี้ อย่าอ่านเกณฑ์ที่ได้จากวัฏจักรบิตคอยน์ (0.8 และ 2.4, −30% และ −50%) เป็นสัญญาณราคาต่ำกว่ามูลค่าของ GRT ตรงๆ",
+        "อุปทานที่เพิ่มขึ้น: รางวัลการทำดัชนีเพิ่ม GRT ใหม่อย่างต่อเนื่อง ตัวชี้วัดที่ดูแต่ราคาจึงจับผลของการเจือจางไม่ได้"
+      ],
+      "histH": "สรุปวัฏจักรราคาเดอะกราฟ",
+      "hist": [
+        "ธันวาคม 2020: GRT เข้าลิสต์บนกระดานเทรดหลักอย่าง Coinbase พร้อมกับการเปิดตัวเมนเน็ต",
+        "กุมภาพันธ์ 2021: ทำจุดสูงสุดตลอดกาลราว 2.8 ดอลลาร์ในช่วงตลาดกระทิงของอัลต์คอยน์",
+        "2022: ร่วงกว่า 95% จากจุดสูงสุดในตลาดหมี",
+        "ต้นปี 2023: ดีดตัวแรงในช่วงสั้นๆ เมื่อความสนใจหลั่งไหลไปที่เหรียญเกี่ยวกับ AI",
+        "2024: บริการโฮสต์แบบรวมศูนย์ปิดตัวในเดือนมิถุนายน ซับกราฟจึงย้ายไปยังเครือข่ายกระจายศูนย์ และแม้ตลาดปีนั้นจะเป็นขาขึ้น ราคาก็ยังต่ำกว่าจุดสูงสุดปี 2021 อยู่มาก"
+      ],
+      "faq": [
+        {
+          "q": "เดอะกราฟไม่มีดัชนีความกลัว-ความโลภของตัวเองหรือ?",
+          "a": "Alternative.me ไม่ได้ออกดัชนีแยกตามเหรียญ ค่าในหน้านี้คือดัชนีของตลาดคริปโตทั้งหมดที่คำนวณโดยมีบิตคอยน์เป็นศูนย์กลาง และบนหน้าจอก็ระบุว่า “ทั้งตลาด” หากต้องการดูว่า GRT ร้อนแรงหรือซบเซาแค่ไหน ให้ดู RSI, MACD และเส้นเฉลี่ยที่คำนวณจากราคา GRT"
+        },
+        {
+          "q": "ทำไมช่อง MVRV Z-Score ในหน้า GRT จึงว่าง?",
+          "a": "เพราะ CoinMetrics community API ที่หน้านี้ใช้ไม่มีค่า MVRV ของ GRT การ์ดจึงแสดง N/A และคะแนนจังหวะซื้อคำนวณจากตัวชี้วัดที่เหลือเท่านั้น"
+        },
+        {
+          "q": "ถ้าคะแนนขึ้น STRONG BUY ควรซื้อ GRT ไหม?",
+          "a": "การตัดสินใจลงทุนเป็นของคุณเอง และหน้านี้ไม่ได้แนะนำให้ซื้อ ในโหมดเริ่มต้น “ยาว · สวนทาง” คะแนน 80 ขึ้นไป (STRONG BUY) หมายถึงหลายตัวชี้วัดชี้ไปที่ภาวะขายมากเกินและราคาต่ำกว่ามูลค่าพร้อมกัน ส่วนต่ำกว่า 25 (OVERHEATED) หมายถึงสัญญาณร้อนแรงเกินซ้อนกันอยู่ GRT ผ่านขาลงยาวนานนับจากจุดสูงสุดปี 2021 จึงไม่ควรดูแค่คะแนน แต่ควรดูการเปลี่ยนทิศของตัวชี้วัดเทรนด์อย่างการตัดกันของเส้นเฉลี่ย 50/200 ด้วย"
+        },
+        {
+          "q": "ตัวชี้วัดของโปรโตคอล เช่น ความต้องการคำค้นหรือการสเตกของอินเด็กเซอร์ นับรวมด้วยไหม?",
+          "a": "ไม่นับ คะแนนใช้เฉพาะข้อมูลราคา GRT (CoinGecko, Binance) และดัชนีความกลัว-ความโลภทั้งตลาด ตัวชี้วัดการใช้งานอย่างค่าธรรมเนียมคำค้น จำนวนซับกราฟ และปริมาณการสเตก ต้องดูจากแหล่งอื่น เช่น Graph Explorer"
+        },
+        {
+          "q": "GRT เป็นโทเคนบนอีเธอเรียม ควรดูคะแนนของอีเธอเรียมแทนไหม?",
+          "a": "GRT เป็นโทเคน ERC-20 แต่มีราคาซื้อขายของตัวเอง หน้านี้จึงคำนวณตัวชี้วัดจากราคา GRT เท่านั้น ค่าแก๊สและการใช้งานเครือข่ายอีเธอเรียมไม่ได้อยู่ในคะแนน ส่วนคะแนนของอีเธอเรียมเองดูได้ในหน้าอีเธอเรียม"
+        },
+        {
+          "q": "ทำไมคะแนน GRT ในโหมดสั้นและโหมดยาวจึงออกมาสวนทางกันได้?",
+          "a": "โหมด “สั้น · โมเมนตัม” ให้คะแนนสูงเมื่อเทรนด์แข็งแรงและ RSI สูง ส่วนโหมด “ยาว · สวนทาง” ให้คะแนนสูงเมื่อมีความกลัว ภาวะขายมากเกิน และการย่อตัวลึก ข้อมูลราคา GRT ชุดเดียวกันจึงอาจได้คะแนนที่ขัดกันในสองโหมด ควรเลือกดูโหมดที่ตรงกับกรอบเวลาการลงทุนของคุณ"
+        }
+      ]
+    },
+    "es": {
+      "meta": {
+        "t": "The Graph miedo y codicia · Momento de compra | GRT_SIGNAL",
+        "d": "Puntuación de compra 0–100 para The Graph (GRT) con RSI, MACD, múltiplo de Mayer y más, junto al índice de miedo y codicia del mercado. Gratis."
+      },
+      "title": "The Graph (GRT): puntuación de compra y panel de indicadores",
+      "intro": "Con el precio diario de The Graph (GRT), el protocolo de indexación de datos blockchain, esta página calcula el RSI(14), el MACD(12·26·9), el múltiplo de Mayer, la caída desde el máximo de 365 días y el cruce dorado/de la muerte 50/200, y suma el índice de miedo y codicia de todo el mercado y una casilla de MVRV Z-Score para reunir siete indicadores en una pantalla. GRT no tiene datos de MVRV, así que la puntuación de 0 a 100 se obtiene con los demás indicadores. Es gratuita y está lista para usar.",
+      "coinH": "¿Qué es The Graph (GRT)?",
+      "coinP": [
+        "The Graph es un protocolo de indexación descentralizado que organiza los datos de las blockchains para poder consultarlos con GraphQL. Yaniv Tal, Brandon Ramirez y Jannis Pohlmann iniciaron el proyecto en 2018, y la red principal y el token GRT se lanzaron en Ethereum en diciembre de 2020. Los desarrolladores definen «subgrafos» que indican qué datos on-chain indexar y cómo, y aplicaciones como las de finanzas descentralizadas (DeFi) los usan para obtener rápidamente los datos que necesitan.",
+        "The Graph no es una blockchain propia, sino un protocolo que funciona sobre cadenas del ecosistema Ethereum, y GRT es un token ERC-20. Los indexadores hacen staking de GRT y procesan consultas para cobrar comisiones y recompensas de indexación; si sirven datos incorrectos, parte de su stake puede ser recortada (slashing). Los curadores señalan con GRT los subgrafos útiles y los delegadores confían GRT a los indexadores para compartir sus recompensas. Funciones centrales del protocolo, como las recompensas de indexación, se trasladaron a Arbitrum, una capa 2 de Ethereum, a más tardar en 2024. El suministro inicial fue de 10.000 millones de GRT; las recompensas de indexación añaden tokens cada año, mientras que una parte de las comisiones de consulta y otros cargos se quema."
+      ],
+      "applyH": "Cómo aplicar los indicadores a The Graph",
+      "apply": [
+        "Volatilidad y correlación: GRT es una altcoin con una capitalización muy inferior a la de Bitcoin, así que oscila con más fuerza cuando se mueve todo el mercado y, en general, sigue la misma dirección que Bitcoin. Aunque el RSI marque sobreventa, comprueba también si la tendencia de Bitcoin ha cambiado.",
+        "Miedo y codicia: no es un valor propio de GRT, sino el índice de todo el mercado de Alternative.me. Los factores propios del protocolo, como la demanda de consultas o la participación de los indexadores, no se recogen en él.",
+        "MVRV: la API comunitaria de CoinMetrics no tiene datos de GRT, de modo que el MVRV Z-Score figura como N/A y la puntuación de compra se obtiene reequilibrando los pesos de los demás indicadores.",
+        "Múltiplo de Mayer y caída: la caída se mide solo frente a los últimos 365 días, así que el largo descenso desde el máximo histórico de febrero de 2021 puede no reflejarse en ella. No interpretes los umbrales derivados de Bitcoin (0,8 y 2,4; −30 % y −50 %) como señales de infravaloración de GRT sin más.",
+        "Suministro creciente: como las recompensas de indexación siguen añadiendo GRT nuevos, los indicadores que solo miran el precio no captan el efecto de dilución."
+      ],
+      "histH": "Resumen de los ciclos de precio de The Graph",
+      "hist": [
+        "Diciembre de 2020: con el lanzamiento de la red principal, GRT empezó a cotizar en grandes exchanges como Coinbase.",
+        "Febrero de 2021: marcó un máximo histórico de unos 2,8 $ en pleno rally de las altcoins.",
+        "2022: cayó más de un 95 % desde su máximo en el mercado bajista.",
+        "Principios de 2023: rebotó con fuerza en poco tiempo, cuando el interés se volcó en las monedas relacionadas con la IA.",
+        "2024: el servicio alojado centralizado cerró en junio y los subgrafos pasaron a la red descentralizada. Ni siquiera en el mercado alcista de ese año se acercó el precio a su máximo de 2021."
+      ],
+      "faq": [
+        {
+          "q": "¿The Graph no tiene su propio índice de miedo y codicia?",
+          "a": "Alternative.me no publica índices separados para cada moneda. El valor de esta página es un índice de todo el mercado cripto calculado con Bitcoin como eje, y en pantalla aparece como «de todo el mercado». Para ver si GRT en sí está recalentada o estancada, consulta el RSI, el MACD y las medias móviles calculados con su precio."
+        },
+        {
+          "q": "¿Por qué el MVRV Z-Score está vacío en la página de GRT?",
+          "a": "Porque la API comunitaria de CoinMetrics que usa esta página no ofrece MVRV para GRT. La tarjeta muestra N/A y la puntuación de compra se calcula solo con los demás indicadores."
+        },
+        {
+          "q": "Si la puntuación marca STRONG BUY, ¿debo comprar GRT?",
+          "a": "Las decisiones de inversión son tuyas y esta página no recomienda comprar. En el modo predeterminado «Largo · Contrario», 80 o más (STRONG BUY) significa que varios indicadores apuntan a la vez a sobreventa e infravaloración, y menos de 25 (OVERHEATED), que se acumulan señales de sobrecalentamiento. GRT arrastra una larga caída desde su máximo de 2021, así que no te fíes solo de la puntuación: vigila también los cambios de dirección en indicadores de tendencia como el cruce de medias 50/200."
+        },
+        {
+          "q": "¿Se incluyen métricas del protocolo como la demanda de consultas o el staking de los indexadores?",
+          "a": "No. La puntuación solo usa los datos de precio de GRT (CoinGecko, Binance) y el índice de miedo y codicia del mercado. Las métricas de uso, como las comisiones de consulta, el número de subgrafos o el volumen en staking, hay que consultarlas en otras fuentes, como Graph Explorer."
+        },
+        {
+          "q": "GRT es un token de Ethereum: ¿debería mirar la puntuación de Ethereum?",
+          "a": "GRT es un token ERC-20, pero cotiza a su propio precio, así que esta página calcula los indicadores solo con el precio de GRT. Las comisiones de gas y la actividad de la red Ethereum no forman parte de la puntuación; la de Ethereum se puede ver en su propia página."
+        },
+        {
+          "q": "¿Por qué la puntuación de GRT puede ir en sentidos opuestos en el modo corto y en el largo?",
+          "a": "El modo «Corto · Momentum» puntúa más alto cuando la tendencia es fuerte y el RSI está alto, mientras que el modo «Largo · Contrario» puntúa más alto con miedo, sobreventa y caídas profundas. Por eso los mismos precios de GRT pueden dar puntuaciones contradictorias en los dos modos; usa el que encaje con tu horizonte temporal."
+        }
+      ]
+    },
+    "fr": {
+      "meta": {
+        "t": "The Graph peur et avidité · Score d’achat | GRT_SIGNAL",
+        "d": "Score de timing d’achat 0–100 pour The Graph (GRT) : RSI, MACD, multiple de Mayer et plus, avec l’indice de peur et d’avidité du marché. Gratuit."
+      },
+      "title": "The Graph (GRT) : score de timing d’achat et tableau d’indicateurs",
+      "intro": "À partir du cours quotidien de The Graph (GRT), le protocole d’indexation de données blockchain, cette page calcule le RSI(14), le MACD(12·26·9), le multiple de Mayer, le repli depuis le plus haut sur 365 jours et le croisement doré/de la mort 50/200, puis ajoute l’indice de peur et d’avidité de tout le marché et un emplacement MVRV Z-Score pour réunir sept indicateurs sur un écran. GRT n’ayant pas de données MVRV, le score de 0 à 100 repose sur les autres indicateurs. Gratuit et prêt à l’emploi.",
+      "coinH": "Qu’est-ce que The Graph (GRT) ?",
+      "coinP": [
+        "The Graph est un protocole d’indexation décentralisé qui organise les données des blockchains pour qu’on puisse les interroger en GraphQL. Yaniv Tal, Brandon Ramirez et Jannis Pohlmann ont lancé le projet en 2018, et le réseau principal ainsi que le jeton GRT ont été lancés sur Ethereum en décembre 2020. Les développeurs définissent des « subgraphs » qui précisent quelles données on-chain indexer et comment, et des applications comme celles de la finance décentralisée (DeFi) s’en servent pour récupérer rapidement les données dont elles ont besoin.",
+        "The Graph n’est pas une blockchain à part entière mais un protocole qui fonctionne sur des chaînes de l’écosystème Ethereum, et le GRT est un jeton ERC-20. Les indexeurs stakent du GRT et traitent les requêtes pour toucher des frais et des récompenses d’indexation ; s’ils fournissent des données erronées, une partie de leur mise peut être confisquée (slashing). Les curateurs signalent les subgraphs utiles avec du GRT, et les délégateurs confient du GRT aux indexeurs pour partager leurs récompenses. Les fonctions centrales du protocole, comme les récompenses d’indexation, avaient été transférées vers Arbitrum, une couche 2 d’Ethereum, en 2024. L’offre initiale était de 10 milliards de GRT ; les récompenses d’indexation ajoutent de nouveaux jetons chaque année, tandis qu’une partie des frais de requête et d’autres prélèvements est brûlée."
+      ],
+      "applyH": "Appliquer les indicateurs à The Graph",
+      "apply": [
+        "Volatilité et corrélation : le GRT est un altcoin dont la capitalisation est bien plus faible que celle du Bitcoin ; il oscille donc plus fort quand tout le marché bouge et évolue en général dans le même sens que le Bitcoin. Même si le RSI signale une survente, vérifiez aussi si la tendance du Bitcoin s’est retournée.",
+        "Peur et avidité : il ne s’agit pas d’une valeur propre au GRT mais de l’indice de marché global d’Alternative.me. Les facteurs propres au protocole, comme la demande de requêtes ou la participation des indexeurs, n’y figurent pas.",
+        "MVRV : l’API communautaire de CoinMetrics n’a pas de données sur le GRT ; le MVRV Z-Score est donc N/A et le score de timing d’achat est obtenu en rééquilibrant les pondérations des autres indicateurs.",
+        "Multiple de Mayer et repli : le repli n’est mesuré que sur les 365 derniers jours ; la longue baisse depuis le record historique de février 2021 peut donc ne pas y apparaître. Ne lisez pas tels quels les seuils tirés du Bitcoin (0,8 et 2,4 ; −30 % et −50 %) comme des signaux de sous-évaluation du GRT.",
+        "Offre croissante : comme les récompenses d’indexation ajoutent sans cesse de nouveaux GRT, les indicateurs fondés uniquement sur le prix ne captent pas l’effet de dilution."
+      ],
+      "histH": "Les cycles de prix de The Graph en bref",
+      "hist": [
+        "Décembre 2020 : avec le lancement du réseau principal, le GRT est coté sur de grandes plateformes comme Coinbase.",
+        "Février 2021 : record historique d’environ 2,8 $ en pleine envolée des altcoins.",
+        "2022 : chute de plus de 95 % depuis le sommet dans le marché baissier.",
+        "Début 2023 : fort rebond en peu de temps, alors que l’intérêt se porte sur les cryptos liées à l’IA.",
+        "2024 : le service hébergé centralisé ferme en juin et les subgraphs passent sur le réseau décentralisé. Même pendant le marché haussier de cette année-là, le cours reste très loin de son sommet de 2021."
+      ],
+      "faq": [
+        {
+          "q": "The Graph n’a-t-il pas son propre indice de peur et d’avidité ?",
+          "a": "Alternative.me ne publie pas d’indice distinct pour chaque crypto. La valeur affichée ici est un indice de l’ensemble du marché crypto, calculé autour du Bitcoin, et elle est signalée comme « marché global » à l’écran. Pour savoir si le GRT lui-même surchauffe ou s’essouffle, regardez le RSI, le MACD et les moyennes mobiles calculés sur son prix."
+        },
+        {
+          "q": "Pourquoi le MVRV Z-Score est-il vide sur la page GRT ?",
+          "a": "Parce que l’API communautaire de CoinMetrics utilisée par cette page ne fournit pas de MVRV pour le GRT. La carte affiche N/A et le score de timing d’achat est calculé uniquement avec les autres indicateurs."
+        },
+        {
+          "q": "Si le score affiche STRONG BUY, faut-il acheter du GRT ?",
+          "a": "Les décisions d’investissement vous appartiennent et cette page ne recommande pas d’acheter. En mode par défaut « Long · Contrarian », un score de 80 ou plus (STRONG BUY) signifie que plusieurs indicateurs pointent à la fois vers la survente et la sous-évaluation, et un score inférieur à 25 (OVERHEATED) que les signaux de surchauffe s’accumulent. Le GRT a connu une longue baisse depuis son sommet de 2021 : ne vous fiez pas au seul score et surveillez aussi les changements de direction des indicateurs de tendance, comme le croisement des moyennes 50/200."
+        },
+        {
+          "q": "Les métriques du protocole, comme la demande de requêtes ou le staking des indexeurs, sont-elles prises en compte ?",
+          "a": "Non. Le score n’utilise que les données de prix du GRT (CoinGecko, Binance) et l’indice de peur et d’avidité du marché. Les métriques d’usage, comme les frais de requête, le nombre de subgraphs ou le montant staké, sont à consulter dans d’autres sources, par exemple Graph Explorer."
+        },
+        {
+          "q": "Le GRT est un jeton Ethereum : faut-il plutôt regarder le score d’Ethereum ?",
+          "a": "Le GRT est un jeton ERC-20, mais il s’échange à son propre prix ; cette page calcule donc les indicateurs à partir du seul cours du GRT. Les frais de gaz et l’activité du réseau Ethereum n’entrent pas dans le score ; celui d’Ethereum se consulte sur sa propre page."
+        },
+        {
+          "q": "Pourquoi le score du GRT peut-il s’inverser entre le mode court et le mode long ?",
+          "a": "Le mode « Court · Momentum » note plus haut quand la tendance est forte et le RSI élevé, tandis que le mode « Long · Contrarian » note plus haut en cas de peur, de survente et de repli profond. Les mêmes cours du GRT peuvent donc donner des scores contradictoires selon le mode : choisissez celui qui correspond à votre horizon d’investissement."
+        }
+      ]
+    },
+    "de": {
+      "meta": {
+        "t": "The Graph Angst & Gier · Kaufzeitpunkt-Score | GRT_SIGNAL",
+        "d": "Kaufzeitpunkt-Score von 0 bis 100 für The Graph (GRT) aus RSI, MACD, Mayer-Multiple und mehr, dazu der marktweite Angst- & Gier-Index. Kostenlos."
+      },
+      "title": "The Graph (GRT): Kaufzeitpunkt-Score und Indikator-Dashboard",
+      "intro": "Auf Basis des Tageskurses von The Graph (GRT), dem Protokoll zur Indexierung von Blockchain-Daten, berechnet diese Seite RSI(14), MACD(12·26·9), Mayer-Multiple, den Rückgang vom 365-Tage-Hoch und das 50/200-Golden/Death-Cross und ergänzt den marktweiten Angst- & Gier-Index sowie ein Feld für den MVRV Z-Score – so stehen sieben Indikatoren auf einer Seite. Für GRT gibt es keine MVRV-Daten, daher entsteht der Score von 0 bis 100 aus den übrigen Indikatoren. Kostenlos und sofort nutzbar.",
+      "coinH": "Was ist The Graph (GRT)?",
+      "coinP": [
+        "The Graph ist ein dezentrales Indexierungsprotokoll, das Blockchain-Daten so aufbereitet, dass sie sich per GraphQL abfragen lassen. Yaniv Tal, Brandon Ramirez und Jannis Pohlmann starteten das Projekt 2018; Mainnet und GRT-Token gingen im Dezember 2020 auf Ethereum an den Start. Entwickler definieren „Subgraphs“, die festlegen, welche On-Chain-Daten wie indexiert werden, und Anwendungen wie DeFi-Apps rufen darüber schnell die benötigten Daten ab.",
+        "The Graph ist keine eigene Blockchain, sondern ein Protokoll auf Ethereum-basierten Chains; GRT ist ein ERC-20-Token. Indexer staken GRT und bearbeiten Abfragen, wofür sie Gebühren und Indexierungsbelohnungen erhalten; liefern sie falsche Daten, kann ein Teil ihres Stakes gekürzt werden (Slashing). Kuratoren signalisieren nützliche Subgraphs mit GRT, und Delegatoren vertrauen Indexern GRT an, um an deren Belohnungen teilzuhaben. Zentrale Protokollfunktionen wie die Indexierungsbelohnungen wurden bis 2024 auf Arbitrum verlagert, ein Layer-2-Netzwerk von Ethereum. Das Anfangsangebot betrug 10 Milliarden GRT; Indexierungsbelohnungen bringen jedes Jahr neue Token hinzu, während ein Teil der Abfragegebühren und anderer Abgaben verbrannt wird."
+      ],
+      "applyH": "Indikatoren auf The Graph anwenden",
+      "apply": [
+        "Volatilität und Korrelation: GRT ist ein Altcoin mit weit geringerer Marktkapitalisierung als Bitcoin, schwankt deshalb stärker, wenn sich der Gesamtmarkt bewegt, und läuft meist in dieselbe Richtung wie Bitcoin. Auch wenn der RSI „überverkauft“ meldet, sollten Sie prüfen, ob der Bitcoin-Trend gedreht hat.",
+        "Angst & Gier: Das ist kein GRT-eigener Wert, sondern der marktweite Index von Alternative.me. Protokollspezifische Faktoren wie Abfragenachfrage oder Indexer-Beteiligung fließen nicht ein.",
+        "MVRV: Die Community-API von CoinMetrics hat keine GRT-Daten, daher steht der MVRV Z-Score auf N/A, und der Kaufzeitpunkt-Score entsteht durch Neugewichtung der übrigen Indikatoren.",
+        "Mayer-Multiple und Rückgang: Der Rückgang bezieht sich nur auf die letzten 365 Tage, sodass der lange Abstieg seit dem Allzeithoch im Februar 2021 darin womöglich nicht sichtbar ist. Lesen Sie die aus Bitcoin abgeleiteten Schwellen (0,8 und 2,4; −30 % und −50 %) nicht ungeprüft als Unterbewertungssignale für GRT.",
+        "Wachsendes Angebot: Da Indexierungsbelohnungen laufend neue GRT hinzufügen, erfassen rein preisbasierte Indikatoren den Verwässerungseffekt nicht."
+      ],
+      "histH": "Die Preiszyklen von The Graph im Überblick",
+      "hist": [
+        "Dezember 2020: Mit dem Mainnet-Start wurde GRT an großen Börsen wie Coinbase gelistet.",
+        "Februar 2021: Allzeithoch von rund 2,8 US-Dollar mitten in der Altcoin-Rally.",
+        "2022: Im Bärenmarkt fiel der Kurs um mehr als 95 % vom Hoch.",
+        "Anfang 2023: Kräftige Erholung binnen kurzer Zeit, als sich das Interesse auf KI-nahe Coins richtete.",
+        "2024: Im Juni wurde der zentrale Hosted Service eingestellt, und die Subgraphs zogen ins dezentrale Netzwerk um. Selbst im Bullenmarkt dieses Jahres blieb der Kurs weit unter dem Hoch von 2021."
+      ],
+      "faq": [
+        {
+          "q": "Hat The Graph keinen eigenen Angst- & Gier-Index?",
+          "a": "Alternative.me veröffentlicht keine separaten Indizes für einzelne Coins. Der Wert auf dieser Seite ist ein Index für den gesamten Kryptomarkt, berechnet mit Bitcoin als Zentrum, und auf dem Bildschirm als „marktweit“ gekennzeichnet. Ob GRT selbst heißläuft oder schwächelt, zeigen RSI, MACD und gleitende Durchschnitte auf Basis des GRT-Kurses."
+        },
+        {
+          "q": "Warum ist der MVRV Z-Score auf der GRT-Seite leer?",
+          "a": "Weil die Community-API von CoinMetrics, die diese Seite nutzt, kein MVRV für GRT liefert. Die Karte zeigt N/A, und der Kaufzeitpunkt-Score wird nur aus den übrigen Indikatoren berechnet."
+        },
+        {
+          "q": "Zeigt der Score STRONG BUY – sollte ich dann GRT kaufen?",
+          "a": "Anlageentscheidungen treffen Sie selbst, und diese Seite empfiehlt keinen Kauf. Im voreingestellten Modus „Lang · Antizyklisch“ bedeutet ein Wert ab 80 (STRONG BUY), dass mehrere Indikatoren gleichzeitig auf überverkauft und unterbewertet deuten, ein Wert unter 25 (OVERHEATED), dass sich Überhitzungssignale häufen. GRT hat seit dem Hoch von 2021 einen langen Abschwung hinter sich; verlassen Sie sich daher nicht allein auf den Score, sondern achten Sie auch auf Richtungswechsel bei Trendindikatoren wie dem 50/200-Kreuz."
+        },
+        {
+          "q": "Fließen Protokollkennzahlen wie Abfragenachfrage oder Indexer-Staking ein?",
+          "a": "Nein. Der Score nutzt nur GRT-Kursdaten (CoinGecko, Binance) und den marktweiten Angst- & Gier-Index. Nutzungskennzahlen wie Abfragegebühren, Zahl der Subgraphs oder Staking-Volumen müssen Sie in anderen Quellen wie dem Graph Explorer nachsehen."
+        },
+        {
+          "q": "GRT ist ein Ethereum-Token – sollte ich lieber auf den Ethereum-Score schauen?",
+          "a": "GRT ist zwar ein ERC-20-Token, wird aber zu einem eigenen Preis gehandelt; diese Seite berechnet die Indikatoren daher allein aus dem GRT-Kurs. Gasgebühren und Netzwerkaktivität von Ethereum gehen nicht in den Score ein; den Score für Ethereum selbst finden Sie auf der Ethereum-Seite."
+        },
+        {
+          "q": "Warum kann der GRT-Score im kurzen und im langen Modus gegensätzlich ausfallen?",
+          "a": "Der Modus „Kurz · Momentum“ vergibt höhere Werte bei starkem Trend und hohem RSI, der Modus „Lang · Antizyklisch“ dagegen bei Angst, überverkauften Werten und tiefen Rückgängen. Dieselben GRT-Kursdaten können in beiden Modi daher widersprüchliche Scores ergeben; nutzen Sie den, der zu Ihrem Anlagehorizont passt."
+        }
+      ]
+    },
+    "it": {
+      "meta": {
+        "t": "The Graph paura e avidità · Timing d’acquisto | GRT_SIGNAL",
+        "d": "Punteggio d’acquisto 0–100 per The Graph (GRT) con RSI, MACD, multiplo di Mayer e altro, più l’indice di paura e avidità del mercato. Gratis."
+      },
+      "title": "The Graph (GRT): punteggio di acquisto e cruscotto degli indicatori",
+      "intro": "Partendo dal prezzo giornaliero di The Graph (GRT), il protocollo di indicizzazione dei dati blockchain, questa pagina calcola RSI(14), MACD(12·26·9), multiplo di Mayer, ribasso dal massimo a 365 giorni e Golden/Death Cross 50/200, poi aggiunge l’indice di paura e avidità dell’intero mercato e uno spazio per l’MVRV Z-Score, riunendo sette indicatori in un’unica schermata. GRT non ha dati MVRV, quindi il punteggio da 0 a 100 si basa sugli altri indicatori. Gratuita e pronta all’uso.",
+      "coinH": "Che cos’è The Graph (GRT)?",
+      "coinP": [
+        "The Graph è un protocollo di indicizzazione decentralizzato che organizza i dati delle blockchain per renderli interrogabili con GraphQL. Yaniv Tal, Brandon Ramirez e Jannis Pohlmann hanno avviato il progetto nel 2018, e la mainnet e il token GRT sono stati lanciati su Ethereum nel dicembre 2020. Gli sviluppatori definiscono dei «subgraph» che stabiliscono quali dati on-chain indicizzare e come, e applicazioni come quelle di finanza decentralizzata (DeFi) li usano per recuperare rapidamente i dati di cui hanno bisogno.",
+        "The Graph non è una blockchain a sé, ma un protocollo che funziona su catene dell’ecosistema Ethereum, e GRT è un token ERC-20. Gli indexer mettono in staking GRT ed elaborano le query per ottenere commissioni e ricompense di indicizzazione; se forniscono dati errati, parte del loro stake può essere tagliata (slashing). I curator segnalano con GRT i subgraph utili e i delegator affidano GRT agli indexer per condividerne le ricompense. Funzioni centrali del protocollo, come le ricompense di indicizzazione, sono state trasferite entro il 2024 su Arbitrum, un layer 2 di Ethereum. L’offerta iniziale era di 10 miliardi di GRT; le ricompense di indicizzazione aggiungono nuovi token ogni anno, mentre una parte delle commissioni sulle query e di altri oneri viene bruciata."
+      ],
+      "applyH": "Applicare gli indicatori a The Graph",
+      "apply": [
+        "Volatilità e correlazione: GRT è un’altcoin con una capitalizzazione molto inferiore a quella del Bitcoin, quindi oscilla di più quando si muove tutto il mercato e in genere va nella stessa direzione del Bitcoin. Anche se l’RSI segnala ipervenduto, controlla se il trend del Bitcoin si è invertito.",
+        "Paura e avidità: non è un valore specifico di GRT, ma l’indice dell’intero mercato di Alternative.me. I fattori propri del protocollo, come la domanda di query o la partecipazione degli indexer, non vi rientrano.",
+        "MVRV: l’API community di CoinMetrics non ha dati su GRT, perciò l’MVRV Z-Score è N/A e il punteggio di acquisto si ottiene ribilanciando i pesi degli altri indicatori.",
+        "Multiplo di Mayer e ribasso: il ribasso si misura solo sugli ultimi 365 giorni, quindi il lungo calo dal massimo storico di febbraio 2021 potrebbe non comparire. Non leggere alla lettera le soglie derivate dal Bitcoin (0,8 e 2,4; −30% e −50%) come segnali di sottovalutazione di GRT.",
+        "Offerta in crescita: dato che le ricompense di indicizzazione continuano ad aggiungere nuovi GRT, gli indicatori basati solo sul prezzo non colgono l’effetto di diluizione."
+      ],
+      "histH": "I cicli di prezzo di The Graph in sintesi",
+      "hist": [
+        "Dicembre 2020: con il lancio della mainnet, GRT arriva sui principali exchange, tra cui Coinbase.",
+        "Febbraio 2021: tocca un massimo storico di circa 2,8 dollari nel pieno del rally delle altcoin.",
+        "2022: nel mercato ribassista perde oltre il 95% dal massimo.",
+        "Inizio 2023: forte rimbalzo in poco tempo, quando l’interesse si concentra sulle monete legate all’IA.",
+        "2024: a giugno chiude l’hosted service centralizzato e i subgraph passano alla rete decentralizzata. Nemmeno nel mercato rialzista di quell’anno il prezzo si avvicina al massimo del 2021."
+      ],
+      "faq": [
+        {
+          "q": "The Graph non ha un proprio indice di paura e avidità?",
+          "a": "Alternative.me non pubblica indici separati per ogni moneta. Il valore in questa pagina è un indice dell’intero mercato cripto, calcolato con il Bitcoin al centro, e sullo schermo è indicato come «intero mercato». Per capire se GRT in sé è surriscaldata o in affanno, guarda RSI, MACD e medie mobili calcolati sul suo prezzo."
+        },
+        {
+          "q": "Perché l’MVRV Z-Score è vuoto nella pagina di GRT?",
+          "a": "Perché l’API community di CoinMetrics usata da questa pagina non fornisce l’MVRV di GRT. La scheda mostra N/A e il punteggio di acquisto si calcola solo con gli altri indicatori."
+        },
+        {
+          "q": "Se il punteggio segna STRONG BUY, devo comprare GRT?",
+          "a": "Le decisioni di investimento spettano a te e questa pagina non consiglia di comprare. Nella modalità predefinita «Lungo · Contrarian», 80 o più (STRONG BUY) significa che più indicatori indicano insieme ipervenduto e sottovalutazione, mentre sotto 25 (OVERHEATED) si sommano segnali di surriscaldamento. GRT viene da un lungo calo dal massimo del 2021: non affidarti solo al punteggio e osserva anche i cambi di direzione degli indicatori di trend, come l’incrocio delle medie 50/200."
+        },
+        {
+          "q": "Le metriche del protocollo, come la domanda di query o lo staking degli indexer, sono incluse?",
+          "a": "No. Il punteggio usa solo i dati di prezzo di GRT (CoinGecko, Binance) e l’indice di paura e avidità del mercato. Le metriche d’uso, come le commissioni sulle query, il numero di subgraph o l’importo in staking, vanno verificate in altre fonti, per esempio Graph Explorer."
+        },
+        {
+          "q": "GRT è un token di Ethereum: dovrei guardare il punteggio di Ethereum?",
+          "a": "GRT è un token ERC-20, ma si scambia a un prezzo proprio, quindi questa pagina calcola gli indicatori solo dal prezzo di GRT. Le commissioni gas e l’attività della rete Ethereum non entrano nel punteggio; quello di Ethereum si trova nella sua pagina."
+        },
+        {
+          "q": "Perché il punteggio di GRT può essere opposto tra modalità breve e lunga?",
+          "a": "La modalità «Breve · Momentum» assegna punteggi più alti con trend forte e RSI elevato, mentre la modalità «Lungo · Contrarian» li assegna con paura, ipervenduto e ribassi profondi. Gli stessi prezzi di GRT possono quindi dare punteggi contrastanti nelle due modalità: usa quella adatta al tuo orizzonte temporale."
+        }
+      ]
+    },
+    "pt": {
+      "meta": {
+        "t": "The Graph medo/ganância · Pontuação de compra | GRT_SIGNAL",
+        "d": "Pontuação de compra de 0 a 100 do The Graph (GRT) com RSI, MACD, múltiplo de Mayer e mais, junto do índice de medo e ganância do mercado. Grátis."
+      },
+      "title": "The Graph (GRT): pontuação de compra e painel de indicadores",
+      "intro": "A partir do preço diário do The Graph (GRT), o protocolo de indexação de dados de blockchain, esta página calcula o RSI(14), o MACD(12·26·9), o múltiplo de Mayer, a queda desde a máxima de 365 dias e o cruzamento dourado/da morte 50/200, e junta o índice de medo e ganância de todo o mercado e um espaço para o MVRV Z-Score, reunindo sete indicadores num só ecrã. O GRT não tem dados de MVRV, por isso a pontuação de 0 a 100 assenta nos restantes indicadores. É gratuita e está pronta a usar.",
+      "coinH": "O que é o The Graph (GRT)?",
+      "coinP": [
+        "O The Graph é um protocolo de indexação descentralizado que organiza os dados das blockchains para poderem ser consultados com GraphQL. Yaniv Tal, Brandon Ramirez e Jannis Pohlmann iniciaram o projeto em 2018, e a rede principal e o token GRT foram lançados na Ethereum em dezembro de 2020. Os programadores definem «subgraphs» que indicam que dados on-chain indexar e como, e aplicações como as de finanças descentralizadas (DeFi) usam-nos para obter rapidamente os dados de que precisam.",
+        "O The Graph não é uma blockchain própria, mas um protocolo que funciona sobre cadeias do ecossistema Ethereum, e o GRT é um token ERC-20. Os indexadores fazem staking de GRT e processam consultas para receber comissões e recompensas de indexação; se fornecerem dados incorretos, parte do stake pode ser cortada (slashing). Os curadores sinalizam com GRT os subgraphs úteis e os delegadores confiam GRT aos indexadores para partilhar as recompensas. Funções centrais do protocolo, como as recompensas de indexação, foram transferidas até 2024 para a Arbitrum, uma camada 2 da Ethereum. A oferta inicial foi de 10 mil milhões de GRT; as recompensas de indexação acrescentam novos tokens todos os anos, enquanto parte das comissões de consulta e de outros encargos é queimada."
+      ],
+      "applyH": "Como aplicar os indicadores ao The Graph",
+      "apply": [
+        "Volatilidade e correlação: o GRT é uma altcoin com uma capitalização muito inferior à do Bitcoin, por isso oscila com mais força quando todo o mercado se move e, em geral, segue a mesma direção do Bitcoin. Mesmo que o RSI indique sobrevenda, confirme também se a tendência do Bitcoin já virou.",
+        "Medo e ganância: não é um valor próprio do GRT, mas o índice de todo o mercado da Alternative.me. Fatores próprios do protocolo, como a procura de consultas ou a participação dos indexadores, não estão refletidos nele.",
+        "MVRV: a API comunitária da CoinMetrics não tem dados do GRT, pelo que o MVRV Z-Score fica N/A e a pontuação de compra é obtida reequilibrando os pesos dos outros indicadores.",
+        "Múltiplo de Mayer e queda: a queda é medida apenas face aos últimos 365 dias, por isso a longa descida desde a máxima histórica de fevereiro de 2021 pode não aparecer nela. Não leia à letra os limiares derivados do Bitcoin (0,8 e 2,4; −30% e −50%) como sinais de subvalorização do GRT.",
+        "Oferta crescente: como as recompensas de indexação continuam a acrescentar GRT novos, os indicadores que só olham para o preço não captam o efeito de diluição."
+      ],
+      "histH": "Resumo dos ciclos de preço do The Graph",
+      "hist": [
+        "Dezembro de 2020: com o lançamento da rede principal, o GRT foi listado em grandes corretoras, como a Coinbase.",
+        "Fevereiro de 2021: atingiu uma máxima histórica de cerca de 2,8 dólares em plena subida das altcoins.",
+        "2022: caiu mais de 95% desde o pico no mercado em baixa.",
+        "Início de 2023: recuperou com força em pouco tempo, quando o interesse se virou para as moedas ligadas à IA.",
+        "2024: o serviço alojado centralizado encerrou em junho e os subgraphs passaram para a rede descentralizada. Nem no mercado em alta desse ano o preço se aproximou da máxima de 2021."
+      ],
+      "faq": [
+        {
+          "q": "O The Graph não tem um índice de medo e ganância próprio?",
+          "a": "A Alternative.me não publica índices separados para cada moeda. O valor desta página é um índice de todo o mercado cripto, calculado com o Bitcoin como eixo, e aparece no ecrã identificado como «mercado global». Para saber se o próprio GRT está sobreaquecido ou em marasmo, veja o RSI, o MACD e as médias móveis calculados com o seu preço."
+        },
+        {
+          "q": "Porque é que o MVRV Z-Score está vazio na página do GRT?",
+          "a": "Porque a API comunitária da CoinMetrics usada por esta página não fornece MVRV para o GRT. O cartão mostra N/A e a pontuação de compra é calculada apenas com os restantes indicadores."
+        },
+        {
+          "q": "Se a pontuação indicar STRONG BUY, devo comprar GRT?",
+          "a": "As decisões de investimento são suas e esta página não recomenda comprar. No modo predefinido «Longo · Contrário», 80 ou mais (STRONG BUY) significa que vários indicadores apontam ao mesmo tempo para sobrevenda e subvalorização, e menos de 25 (OVERHEATED) significa que os sinais de sobreaquecimento se acumulam. O GRT vem de uma longa queda desde a máxima de 2021, por isso não confie apenas na pontuação e acompanhe também as mudanças de direção em indicadores de tendência, como o cruzamento das médias 50/200."
+        },
+        {
+          "q": "As métricas do protocolo, como a procura de consultas ou o staking dos indexadores, são incluídas?",
+          "a": "Não. A pontuação usa apenas os dados de preço do GRT (CoinGecko, Binance) e o índice de medo e ganância do mercado. Métricas de utilização, como as comissões de consulta, o número de subgraphs ou o montante em staking, têm de ser consultadas noutras fontes, como o Graph Explorer."
+        },
+        {
+          "q": "O GRT é um token da Ethereum: devo olhar antes para a pontuação da Ethereum?",
+          "a": "O GRT é um token ERC-20, mas é negociado a um preço próprio, por isso esta página calcula os indicadores apenas com o preço do GRT. As taxas de gas e a atividade da rede Ethereum não entram na pontuação; a da própria Ethereum pode ser vista na respetiva página."
+        },
+        {
+          "q": "Porque é que a pontuação do GRT pode ser oposta nos modos curto e longo?",
+          "a": "O modo «Curto · Momentum» dá pontuações mais altas quando a tendência é forte e o RSI está alto, enquanto o modo «Longo · Contrário» as dá com medo, sobrevenda e quedas profundas. Os mesmos preços do GRT podem, por isso, gerar pontuações contraditórias nos dois modos; use o que corresponde ao seu horizonte de investimento."
+        }
+      ]
+    },
+    "ru": {
+      "meta": {
+        "t": "The Graph: страх и жадность · оценка покупки | GRT_SIGNAL",
+        "d": "Оценка покупки The Graph (GRT) от 0 до 100 по RSI, MACD, мультипликатору Майера и другим индикаторам плюс общерыночный индекс страха и жадности. Бесплатно."
+      },
+      "title": "The Graph (GRT): оценка момента покупки и панель индикаторов",
+      "intro": "По дневной цене The Graph (GRT) — протокола индексации блокчейн-данных — эта страница рассчитывает RSI(14), MACD(12·26·9), мультипликатор Майера, просадку от 365-дневного максимума и золотой/мёртвый крест 50/200, а затем добавляет общерыночный индекс страха и жадности и ячейку MVRV Z-оценки, собирая семь индикаторов на одном экране. Данных MVRV для GRT нет, поэтому оценка от 0 до 100 строится по остальным индикаторам. Бесплатно и сразу готово к работе.",
+      "coinH": "Что такое The Graph (GRT)?",
+      "coinP": [
+        "The Graph — децентрализованный протокол индексации, который упорядочивает данные блокчейнов, чтобы к ним можно было обращаться через GraphQL. Проект в 2018 году начали Янив Таль, Брэндон Рамирес и Яннис Польман, а в декабре 2020 года в сети Ethereum запустились основная сеть и токен GRT. Разработчики описывают «сабграфы» — какие ончейн-данные индексировать и как, — а приложения, например сервисы децентрализованных финансов (DeFi), через них быстро получают нужные данные.",
+        "The Graph — не самостоятельный блокчейн, а протокол, работающий на сетях экосистемы Ethereum; GRT — токен стандарта ERC-20. Индексаторы стейкают GRT и обрабатывают запросы, получая комиссии и награды за индексацию; за выдачу неверных данных часть их стейка может быть списана (слэшинг). Кураторы сигнализируют о полезных сабграфах с помощью GRT, а делегаторы доверяют GRT индексаторам, чтобы делить с ними награды. Ключевые функции протокола, в том числе награды за индексацию, к 2024 году перенесли в Arbitrum — сеть второго уровня Ethereum. Начальное предложение составляло 10 млрд GRT; награды за индексацию ежегодно добавляют новые токены, а часть комиссий за запросы и других сборов сжигается."
+      ],
+      "applyH": "Как применять индикаторы к The Graph",
+      "apply": [
+        "Волатильность и корреляция: GRT — альткоин с капитализацией намного меньше, чем у биткоина, поэтому при движении всего рынка он колеблется сильнее и, как правило, идёт в ту же сторону, что и биткоин. Даже если RSI показывает перепроданность, проверьте, развернулся ли тренд биткоина.",
+        "Страх и жадность: это не показатель GRT, а общерыночный индекс Alternative.me. Факторы самого протокола — спрос на запросы или активность индексаторов — в нём не учитываются.",
+        "MVRV: в общедоступном API CoinMetrics нет данных по GRT, поэтому MVRV Z-оценка равна N/A, а оценка момента покупки получается перебалансировкой весов остальных индикаторов.",
+        "Мультипликатор Майера и просадка: просадка считается только за последние 365 дней, поэтому долгое снижение после исторического максимума февраля 2021 года может в ней не отражаться. Не воспринимайте пороги, выведенные из биткоина (0,8 и 2,4; −30% и −50%), как прямые сигналы недооценки GRT.",
+        "Растущее предложение: награды за индексацию постоянно добавляют новые GRT, и индикаторы, смотрящие только на цену, эффект размывания не улавливают."
+      ],
+      "histH": "Ценовые циклы The Graph вкратце",
+      "hist": [
+        "Декабрь 2020: вместе с запуском основной сети GRT появился на крупных биржах, включая Coinbase.",
+        "Февраль 2021: исторический максимум около 2,8 доллара на волне роста альткоинов.",
+        "2022: на медвежьем рынке цена упала более чем на 95% от пика.",
+        "Начало 2023: резкий отскок за короткий срок, когда интерес инвесторов сместился к монетам, связанным с ИИ.",
+        "2024: в июне закрылся централизованный хостинговый сервис, и сабграфы перешли в децентрализованную сеть. Даже на бычьем рынке того года цена оставалась далеко ниже максимума 2021 года."
+      ],
+      "faq": [
+        {
+          "q": "Разве у The Graph нет собственного индекса страха и жадности?",
+          "a": "Alternative.me не публикует отдельные индексы для каждой монеты. На этой странице показан индекс всего крипторынка, рассчитанный с биткоином в центре, и на экране он помечен как «весь рынок». Перегрет ли или угнетён сам GRT, смотрите по RSI, MACD и скользящим средним, рассчитанным по его цене."
+        },
+        {
+          "q": "Почему на странице GRT пустует MVRV Z-оценка?",
+          "a": "Потому что общедоступный API CoinMetrics, который использует эта страница, не даёт MVRV для GRT. На карточке стоит N/A, а оценка момента покупки рассчитывается только по остальным индикаторам."
+        },
+        {
+          "q": "Если оценка показывает STRONG BUY, нужно покупать GRT?",
+          "a": "Инвестиционные решения принимаете вы сами, и эта страница не рекомендует покупку. В режиме по умолчанию «Долго · Контртренд» значение 80 и выше (STRONG BUY) означает, что сразу несколько индикаторов указывают на перепроданность и недооценку, а ниже 25 (OVERHEATED) — что накапливаются сигналы перегрева. После пика 2021 года GRT пережил долгое падение, поэтому не полагайтесь только на оценку и следите за сменой направления трендовых индикаторов, например пересечения средних 50/200."
+        },
+        {
+          "q": "Учитываются ли метрики протокола — спрос на запросы или стейкинг индексаторов?",
+          "a": "Нет. Оценка использует только ценовые данные GRT (CoinGecko, Binance) и общерыночный индекс страха и жадности. Метрики использования — комиссии за запросы, число сабграфов, объём стейкинга — нужно смотреть в других источниках, например в Graph Explorer."
+        },
+        {
+          "q": "GRT — токен Ethereum. Может, стоит смотреть на оценку Эфириума?",
+          "a": "GRT — токен стандарта ERC-20, но торгуется по собственной цене, поэтому эта страница считает индикаторы только по цене GRT. Комиссии за газ и активность сети Ethereum в оценку не входят; оценку самого Эфириума можно посмотреть на его странице."
+        },
+        {
+          "q": "Почему оценка GRT в краткосрочном и долгосрочном режимах может быть противоположной?",
+          "a": "Режим «Кратко · Моментум» ставит более высокие оценки при сильном тренде и высоком RSI, а режим «Долго · Контртренд» — при страхе, перепроданности и глубокой просадке. Поэтому одни и те же цены GRT могут дать противоречащие друг другу оценки в двух режимах; выбирайте тот, что соответствует вашему инвестиционному горизонту."
+        }
+      ]
+    },
+    "nl": {
+      "meta": {
+        "t": "The Graph Angst & Hebzucht · Koopmoment | GRT_SIGNAL",
+        "d": "Koopmoment-score van 0 tot 100 voor The Graph (GRT) met RSI, MACD, Mayer Multiple en meer, plus de marktbrede Angst- & Hebzucht-index. Gratis."
+      },
+      "title": "The Graph (GRT): koopmoment-score en indicatorendashboard",
+      "intro": "Op basis van de dagkoers van The Graph (GRT), het protocol voor het indexeren van blockchaindata, berekent deze pagina RSI(14), MACD(12·26·9), de Mayer Multiple, de daling vanaf de 365-daagse top en de 50/200 Golden/Death Cross, en voegt de marktbrede Angst- & Hebzucht-index en een vak voor de MVRV Z-score toe, zodat zeven indicatoren op één scherm staan. Voor GRT zijn er geen MVRV-gegevens, dus de score van 0 tot 100 komt uit de overige indicatoren. Gratis en direct te gebruiken.",
+      "coinH": "Wat is The Graph (GRT)?",
+      "coinP": [
+        "The Graph is een gedecentraliseerd indexeringsprotocol dat blockchaindata zo ordent dat je ze met GraphQL kunt opvragen. Yaniv Tal, Brandon Ramirez en Jannis Pohlmann begonnen het project in 2018, en het mainnet en de GRT-token werden in december 2020 op Ethereum gelanceerd. Ontwikkelaars definiëren ‘subgraphs’ die vastleggen welke on-chaindata hoe worden geïndexeerd, en toepassingen zoals apps voor gedecentraliseerde financiën (DeFi) halen daarmee snel de data op die ze nodig hebben.",
+        "The Graph is geen eigen blockchain, maar een protocol dat draait op chains binnen het Ethereum-ecosysteem; GRT is een ERC-20-token. Indexers staken GRT en verwerken query’s, waarvoor ze vergoedingen en indexeringsbeloningen krijgen; leveren ze foutieve data, dan kan een deel van hun stake worden ingehouden (slashing). Curators geven met GRT aan welke subgraphs nuttig zijn, en delegators vertrouwen GRT toe aan indexers om mee te delen in hun beloningen. Kernfuncties van het protocol, zoals de indexeringsbeloningen, waren in 2024 overgezet naar Arbitrum, een layer 2 van Ethereum. Het beginaanbod was 10 miljard GRT; indexeringsbeloningen voegen elk jaar nieuwe tokens toe, terwijl een deel van de queryvergoedingen en andere heffingen wordt verbrand."
+      ],
+      "applyH": "Indicatoren toepassen op The Graph",
+      "apply": [
+        "Volatiliteit en correlatie: GRT is een altcoin met een veel kleinere marktkapitalisatie dan Bitcoin, dus hij schommelt harder wanneer de hele markt beweegt en gaat doorgaans dezelfde kant op als Bitcoin. Ook als de RSI oversold aangeeft, kun je beter nagaan of de trend van Bitcoin al gekeerd is.",
+        "Angst & hebzucht: dit is geen GRT-specifieke waarde, maar de marktbrede index van Alternative.me. Protocolfactoren zoals de vraag naar query’s of de deelname van indexers zitten er niet in.",
+        "MVRV: de community-API van CoinMetrics heeft geen gegevens over GRT, dus de MVRV Z-score staat op N/A en de koopmoment-score ontstaat door de gewichten van de andere indicatoren opnieuw te verdelen.",
+        "Mayer Multiple en daling: de daling wordt alleen gemeten ten opzichte van de laatste 365 dagen, waardoor de lange neergang sinds de recordkoers van februari 2021 er mogelijk niet in zichtbaar is. Lees de van Bitcoin afgeleide drempels (0,8 en 2,4; −30% en −50%) niet zomaar als signalen van onderwaardering voor GRT.",
+        "Groeiend aanbod: omdat indexeringsbeloningen steeds nieuwe GRT toevoegen, vangen indicatoren die alleen naar de prijs kijken het verwateringseffect niet op."
+      ],
+      "histH": "De prijscycli van The Graph in het kort",
+      "hist": [
+        "December 2020: met de lancering van het mainnet kwam GRT op grote beurzen zoals Coinbase.",
+        "Februari 2021: recordkoers van ongeveer 2,8 dollar midden in de altcoinrally.",
+        "2022: in de bearmarkt meer dan 95% gedaald vanaf de top.",
+        "Begin 2023: in korte tijd sterk hersteld, toen de belangstelling zich richtte op munten die met AI te maken hebben.",
+        "2024: in juni stopte de gecentraliseerde hosted service en verhuisden de subgraphs naar het gedecentraliseerde netwerk. Zelfs in de bullmarkt van dat jaar bleef de koers ver onder de top van 2021."
+      ],
+      "faq": [
+        {
+          "q": "Heeft The Graph geen eigen Angst- & Hebzucht-index?",
+          "a": "Alternative.me publiceert geen aparte index per munt. De waarde op deze pagina is een index voor de hele cryptomarkt, berekend met Bitcoin als middelpunt, en staat op het scherm aangeduid als ‘hele markt’. Of GRT zelf oververhit raakt of wegzakt, zie je aan de RSI, de MACD en de voortschrijdende gemiddelden die op de koers van GRT zijn berekend."
+        },
+        {
+          "q": "Waarom is de MVRV Z-score leeg op de GRT-pagina?",
+          "a": "Omdat de community-API van CoinMetrics die deze pagina gebruikt geen MVRV voor GRT levert. De kaart toont N/A en de koopmoment-score wordt alleen met de overige indicatoren berekend."
+        },
+        {
+          "q": "Als de score STRONG BUY aangeeft, moet ik dan GRT kopen?",
+          "a": "Beleggingsbeslissingen neem je zelf, en deze pagina raadt niet aan om te kopen. In de standaardmodus ‘Lang · Contrair’ betekent 80 of hoger (STRONG BUY) dat meerdere indicatoren tegelijk wijzen op oversold en onderwaardering, en onder 25 (OVERHEATED) dat signalen van oververhitting zich opstapelen. GRT heeft sinds de top van 2021 een lange daling achter de rug; vertrouw daarom niet alleen op de score en let ook op richtingsveranderingen in trendindicatoren zoals de kruising van de 50/200-gemiddelden."
+        },
+        {
+          "q": "Worden protocolcijfers zoals de vraag naar query’s of het staken door indexers meegenomen?",
+          "a": "Nee. De score gebruikt alleen koersgegevens van GRT (CoinGecko, Binance) en de marktbrede Angst- & Hebzucht-index. Gebruikscijfers zoals queryvergoedingen, het aantal subgraphs of het gestakete bedrag moet je in andere bronnen nagaan, bijvoorbeeld Graph Explorer."
+        },
+        {
+          "q": "GRT is een Ethereum-token: moet ik dan naar de Ethereum-score kijken?",
+          "a": "GRT is weliswaar een ERC-20-token, maar wordt tegen een eigen prijs verhandeld, dus deze pagina berekent de indicatoren alleen op de koers van GRT. Gaskosten en netwerkactiviteit van Ethereum tellen niet mee in de score; de score van Ethereum zelf staat op de Ethereum-pagina."
+        },
+        {
+          "q": "Waarom kan de GRT-score in de korte en de lange modus tegengesteld uitvallen?",
+          "a": "De modus ‘Kort · Momentum’ geeft hogere scores bij een sterke trend en een hoge RSI, terwijl de modus ‘Lang · Contrair’ dat doet bij angst, oversold-waarden en diepe dalingen. Dezelfde GRT-koersen kunnen in beide modi dus tegenstrijdige scores opleveren; gebruik de modus die bij je beleggingshorizon past."
+        }
+      ]
+    }
+  }
+}

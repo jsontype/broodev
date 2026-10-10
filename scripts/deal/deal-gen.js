@@ -2,7 +2,7 @@
 //   node scripts/deal/deal-gen.js        → 바뀐 파일만 기록. 끝나면 node scripts/deal/deal-verify.js · btc 가 바뀌면 python scripts/gen_coin.py all
 // 타깃: apps/utils/js/i18n.js (promo_* 키) · apps/utils/pricing.html + i18n/pricing.{lang}.html (월간 카드 생성 · 연간/買い切り 카드 이름·이득 문구) ·
 //       apps/home/premium.html + legal/i18n/premium.{lang}.html (utils·btc·voca 카드의 가격 블록) · apps/home/legal/tokushoho.html + i18n (販売価格 행 · 販売 URL 행) ·
-//       apps/btc/index.html (PREM_DEAL · PREM_LEGAL) · apps/voca/index.html (PLAN_LBL · PLAN_DEAL · PREM_LEGAL) · apps/utils/{pptx,ai,psd}.html (JSON-LD offers 의 3 플랜 금액)
+//       apps/btc/app.jsx (PREM_DEAL · PREM_LEGAL — 2026-10-10 부터 btc 앱 JSX 원문은 app.jsx) · apps/voca/index.html (PLAN_LBL · PLAN_DEAL · PREM_LEGAL) · apps/utils/{pptx,ai,psd}.html (JSON-LD offers 의 3 플랜 금액)
 // 금액의 정본은 apps/home/legal/biz.js PLANS.utils (monthly · yearly · lifetime · lifetime_list). 각 앱 설정(utils biz.js · btc PREM_PLANS · voca PREMIUM.plans)과 같은 값이어야 한다(deal-verify 가 검사)
 // 비교 가격(lifetime_list)이 null 이면(2026-10-07 결정: 가공 정가 금지) 할인 장치를 넣지 않는다. 월액 대비 이득(%)은 실제 플랜끼리의 비교라 항상 넣는다(2026-10-08).
 const fs = require('fs');
@@ -217,13 +217,13 @@ function patchMarkers(file, name, keys, obj, marker) {
   write(file, src.replace(re, (a, open, _b, close) => open + body + close), src);
 }
 const DEAL_KEYS = ['label', 'limited', 'was', 'save', 'best', 'two', 'after', 'days', 'buy', 'peryear', 'once', 'tax', 'value', 'pm', 'py', 'pl', 'permonth', 'cancel', 'soon', 'valueY'];
-patchMarkers(R + 'apps/btc/index.html', 'PREM_DEAL', DEAL_KEYS, deal, 'deal-i18n');
+patchMarkers(R + 'apps/btc/app.jsx', 'PREM_DEAL', DEAL_KEYS, deal, 'deal-i18n');
 patchMarkers(R + 'apps/voca/index.html', 'PLAN_DEAL', DEAL_KEYS, deal, 'deal-i18n');
 patchMarkers(R + 'apps/voca/index.html', 'PLAN_LBL', ['m', 'y', 'l', 'due', 'note'], vplan, 'plan-lbl');
-patchMarkers(R + 'apps/btc/index.html', 'PREM_LEGAL', ['seller', 'tokushoho', 'refund', 'terms'], legal, 'prem-legal');
+patchMarkers(R + 'apps/btc/app.jsx', 'PREM_LEGAL', ['seller', 'tokushoho', 'refund', 'terms'], legal, 'prem-legal');
 patchMarkers(R + 'apps/voca/index.html', 'PREM_LEGAL', ['seller', 'tokushoho', 'refund', 'terms'], legal, 'prem-legal');
 
 console.log(report.join('\n'));
 const changed = report.filter(r => r.startsWith('updated'));
-console.log(changed.length + ' file(s) updated' + (changed.some(r => r.includes('apps/btc/')) ? ' — apps/btc 가 바뀜: python scripts/gen_coin.py all 을 실행할 것' : ''));
+console.log(changed.length + ' file(s) updated' + (changed.some(r => r.includes('apps/btc/')) ? ' — apps/btc 가 바뀜: python scripts/gen_coin.py all 을 실행할 것(btc · 코인 app.js 컴파일까지 — node scripts/build-jsx.mjs)' : ''));
 console.log(`prices: monthly ${MONTHLY} · yearly ${YEARLY} (${V.offY}% vs monthly) · lifetime ${PRICE} (${V.offL}% vs ${YEARS}y monthly · ${ratio}× yearly) · list ${LIST}`);

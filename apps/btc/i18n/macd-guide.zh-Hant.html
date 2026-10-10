@@ -1,4 +1,4 @@
-    <main class="wrap" data-title="親手計算 MACD — 用 42 根收盤價逐步走完 EMA·訊號線·柱狀圖 | broodev" data-desc="直接代入 42 個收盤價，逐根 K 線計算 EMA12·EMA26·MACD 線·訊號線·柱狀圖。用實際程式碼與數字確認：為何只有 30 根 K 線時柱狀圖一個值都算不出來、捨 SMA 而用 EMA 的真正原因，以及 broodev 為何不看柱狀圖的絕對值，而看它相對前一根的方向。">
+    <main class="wrap" data-title="親手計算 MACD — 用42根收盤價走完全程 | broodev" data-desc="用42根收盤價逐根計算EMA12、EMA26、MACD線、訊號線與柱狀圖：為何30根算不出柱狀圖、為何用EMA，以及為何看方向。">
       <nav class="nav">
         <a href="/">← 儀表板</a>
         <a href="/methodology">評分方法</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>親手計算 MACD<br />— 把 42 個收盤價一路算到底的實作演練</h1>
-      <p class="muted">最後更新：2026-07-14 · 作者：Y-Systems · 本文不是說明文，而是一份<strong>實作紀錄</strong></p>
+      <p class="muted">最後更新：2026-10-10 · 作者：Y-Systems · 本文不是說明文，而是一份<strong>實作紀錄</strong></p>
+      <div class="note" data-model-note><strong>模型版本說明</strong> — 本文中的指標數量（6個）、權重與計算範例，是以加入兩項鏈上指標（MVRV Z、Thermocap Z）之前的v1模型為準。目前儀表板的評分採用8項指標的v2，權重也不同。最新數值請見<a href="/methodology">評分方法</a>。</div>
 
       <p class="lead">
         先從失敗講起。準備 <strong>30 個</strong>收盤價，跑標準 MACD（12·26·9），
@@ -125,7 +126,7 @@ SMA 版 MACD 變化 = +0.9917 − (−0.0385) = +1.030   ✅ 與表格一致</co
         broodev 使用的 EMA，<strong>以前 <code>period</code> 個值的簡單平均作為種子（seed）</strong>，之後再進行指數更新。
         <code>α = 2 ÷ (期間 + 1)</code>。若是 EMA12，則 <code>α = 2/13 = 0.153846</code>。
       </p>
-      <pre><code>// broodev 實際程式碼 (apps/btc/index.html)
+      <pre><code>// broodev 實際程式碼 (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -687,8 +688,8 @@ const conMacd = (cur, prev, px) =&gt; clamp(
 
       <h2>延伸閱讀</h2>
       <div class="related">
-        <a href="/methodology"><b>評分方法</b><span>完整公開包括 MACD 14%/18% 在內的 6 個指標權重與重新正規化</span></a>
-        <a href="/indicators"><b>6 個指標解讀</b><span>除了 MACD 之外，其餘五個各在什麼時候背叛你</span></a>
+        <a href="/methodology"><b>評分方法</b><span>8項指標的權重與公式全部公開</span></a>
+        <a href="/indicators"><b>8項指標深度解讀</b><span>每項指標何時會失靈</span></a>
         <a href="/guide-fear-greed"><b>恐懼指數實戰使用指南</b><span>正是 MACD 需要替它踩煞車的那個指標</span></a>
         <a href="/glossary"><b>術語表</b><span>EMA·柱狀圖·背離·whipsaw 等術語整理</span></a>
       </div>

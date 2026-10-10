@@ -58,16 +58,18 @@
       if (m) els[i].textContent = m[lang] || m.en; // dev 등 매핑 없는 칩은 그대로 둠
     }
   }
+  // 표시 언어(packages/seo L1): ?lang= → 화면 언어(<html lang>, 앱이 ?lang → btc:lang → ko 로 정함) → ko. 브라우저 언어(navigator)는 쓰지 않는다
+  function norm(l) { return l === 'zh-Hans' ? 'zh' : l; }
   function detect() {
     try { var q = new URLSearchParams(location.search).get('lang'); if (q) return q; } catch (e) {}
-    return document.documentElement.lang || (navigator.language || 'en').slice(0, 2);
+    return norm(document.documentElement.lang) || 'ko';
   }
   window.renderFooter = localize;
   function run() { localize(detect()); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
   try {
-    new MutationObserver(function () { localize(document.documentElement.lang || 'ko'); })
+    new MutationObserver(function () { localize(norm(document.documentElement.lang) || 'ko'); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
   } catch (e) {}
 })();

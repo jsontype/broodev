@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
     <!-- OG 이미지(1200x630) 생성기. ?lang= 로 언어 선택 후 Edge 헤드리스로 스크린샷.
          예) msedge --headless --window-size=1200,630 --screenshot=og-ja.png "file:///.../og-image.html?lang=ja" -->
     <style>
@@ -15,9 +16,9 @@
       }
       .wrap { position: absolute; inset: 0; padding: 72px 80px; display: flex; flex-direction: column; justify-content: center; }
       .badge { display: inline-flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #00ff9c; border: 1px solid rgba(0,255,156,.4); border-radius: 8px; padding: 8px 16px; width: max-content; text-shadow: 0 0 12px rgba(0,255,156,.5); }
-      .title { font-size: 74px; font-weight: 800; line-height: 1.12; margin-top: 30px; max-width: 770px; color: #eafff5; }
-      .title b { color: #00ff9c; text-shadow: 0 0 24px rgba(0,255,156,.45); }
-      .sub { font-size: 29px; color: #9fe9cf; margin-top: 22px; max-width: 770px; }
+      .title { font-size: 74px; font-weight: 800; line-height: 1.12; margin-top: 30px; max-width: 700px; color: #eafff5; }
+      .title b { white-space: nowrap; color: #00ff9c; text-shadow: 0 0 24px rgba(0,255,156,.45); }
+      .sub { font-size: 29px; color: #9fe9cf; margin-top: 22px; max-width: 700px; }
       .tags { display: flex; gap: 14px; margin-top: 34px; font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #4f7a6c; flex-wrap: wrap; }
       .tag { border: 1px solid rgba(0,255,156,.2); border-radius: 6px; padding: 5px 12px; }
       .ring { position: absolute; right: 86px; top: 50%; transform: translateY(-50%); width: 300px; height: 300px; }
@@ -26,7 +27,7 @@
   </head>
   <body>
     <div class="wrap">
-      <div class="badge">₿ SAND_SIGNAL</div>
+      <div class="badge">SAND_SIGNAL</div>
       <div class="title" id="title"></div>
       <div class="sub" id="sub"></div>
       <div class="tags"><span class="tag">Fear &amp; Greed</span><span class="tag">RSI</span><span class="tag">MACD</span><span class="tag">Mayer</span><span class="tag">0–100</span></div>
@@ -34,7 +35,7 @@
     <svg class="ring" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7" />
       <circle cx="50" cy="50" r="42" fill="none" stroke="#00ff9c" stroke-width="7" stroke-linecap="round" stroke-dasharray="190 264" transform="rotate(-90 50 50)" style="filter: drop-shadow(0 0 6px #00ff9c)" />
-      <text x="50" y="60" font-size="34" text-anchor="middle" fill="#00ff9c" font-family="monospace">₿</text>
+      <text x="50" y="57.5" font-size="21" font-weight="700" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace">SAND</text>
     </svg>
     <div class="scan"></div>
     <script>
@@ -47,6 +48,13 @@
       var m = T[lang] || T.en;
       document.getElementById('title').innerHTML = m.t;
       document.getElementById('sub').textContent = m.s;
+      // 긴 코인명(코인 앱): 제목이 2줄을 넘으면 글자 크기를 줄인다(폰트 로드 뒤 — scripts/og/gen_coin_og.mjs 가 body[data-fit] 을 기다린다)
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
+        var el = document.getElementById('title'), fs = 74;
+        if (lang === 'ko') el.style.wordBreak = 'keep-all'; // 한국어는 어절 단위로만 줄바꿈(「지|수」처럼 낱자에서 끊기지 않게 · 2026-10-10)
+        while (el.scrollHeight > 180 && fs > 40) { fs -= 2; el.style.fontSize = fs + 'px'; }
+        document.body.setAttribute('data-fit', fs);
+      });
     </script>
   </body>
 </html>

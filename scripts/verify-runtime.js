@@ -12,7 +12,9 @@ const stubEl = () => ({ setAttribute: noop, appendChild: noop, style: {}, replac
 
 function run(app, search) {
   const html = fs.readFileSync(`${R}/apps/${app}/index.html`, 'utf8');
-  const m = html.match(/<script type="text\/babel"[^>]*>([\s\S]*?)<\/script>/);
+  // btc·코인(2026-10-10~): 앱 JSX 원문은 app.jsx(사전 컴파일 → app.js). 없으면 예전처럼 index.html 의 text/babel 블록
+  const jsxP = `${R}/apps/${app}/app.jsx`;
+  const m = fs.existsSync(jsxP) ? [null, fs.readFileSync(jsxP, 'utf8')] : html.match(/<script type="text\/babel"[^>]*>([\s\S]*?)<\/script>/);
   if (!m) return { ok: true, note: 'babel 스크립트 없음' };
 
   const code = B.transform(m[1], { presets: [['react', { runtime: 'classic' }]] }).code;

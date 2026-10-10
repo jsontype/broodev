@@ -1,4 +1,4 @@
-    <main class="wrap" data-title="Calculer le MACD à la main — Parcours pas à pas des EMA, de la ligne de signal et de l’histogramme sur 42 clôtures | broodev" data-desc="On injecte 42 clôtures pour calculer bougie par bougie l’EMA12, l’EMA26, la ligne MACD, la ligne de signal et l’histogramme. Pourquoi 30 bougies donnent zéro histogramme, la vraie raison d’utiliser l’EMA plutôt que la SMA, et pourquoi broodev regarde la direction par rapport à la veille plutôt que la valeur absolue de l’histogramme — vérifié avec le vrai code et de vrais chiffres.">
+    <main class="wrap" data-title="Calculer le MACD à la main sur 42 clôtures | broodev" data-desc="EMA12, EMA26, ligne MACD, signal et histogramme bougie par bougie sur 42 clôtures : pourquoi 30 bougies ne suffisent pas, pourquoi l’EMA et la direction.">
       <nav class="nav">
         <a href="/">← Tableau de bord</a>
         <a href="/methodology">Méthodologie du score</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>Calculer le MACD à la main<br />— 42 clôtures suivies jusqu’au bout</h1>
-      <p class="muted">Dernière mise à jour : 2026-07-14 · Auteur : Y-Systems · Ce texte n’est pas une explication, c’est un <strong>compte rendu d’exercice</strong></p>
+      <p class="muted">Dernière mise à jour : 2026-10-10 · Auteur : Y-Systems · Ce texte n’est pas une explication, c’est un <strong>compte rendu d’exercice</strong></p>
+      <div class="note" data-model-note><strong>Note sur la version du modèle</strong> — Le nombre d’indicateurs (6), les pondérations et les exemples de calcul de cet article proviennent du modèle v1, antérieur à l’ajout des deux indicateurs on-chain (MVRV Z et Thermocap Z). Le score du tableau de bord utilise désormais la v2, avec 8 indicateurs et d’autres pondérations ; les chiffres actuels figurent dans la <a href="/methodology">méthodologie du score</a>.</div>
 
       <p class="lead">
         Commençons par l’échec. Préparez <strong>30</strong> clôtures et lancez un MACD standard (12·26·9) :
@@ -124,7 +125,7 @@ Variation du MACD version SMA = +0.9917 − (−0.0385) = +1.030   ✅ conforme 
         L’EMA utilisée par broodev <strong>prend comme amorce (seed) la moyenne simple des <code>period</code> premières valeurs</strong>, puis applique la mise à jour exponentielle.
         <code>α = 2 ÷ (période + 1)</code>. Pour l’EMA12, <code>α = 2/13 = 0.153846</code>.
       </p>
-      <pre><code>// code réel de broodev (apps/btc/index.html)
+      <pre><code>// code réel de broodev (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -686,8 +687,8 @@ Mode long terme  : amplitude du sous-score 38.4 × pondération <strong>0.18</st
 
       <h2>À lire ensuite</h2>
       <div class="related">
-        <a href="/methodology"><b>Méthodologie du score</b><span>Pondérations des 6 indicateurs, dont les 14 %/18 % du MACD, et renormalisation, entièrement publiées</span></a>
-        <a href="/indicators"><b>Les 6 indicateurs expliqués</b><span>Quand chacun des cinq autres, hors MACD, vous trahit</span></a>
+        <a href="/methodology"><b>Méthodologie du score</b><span>Poids et formules des 8 indicateurs, entièrement publiés</span></a>
+        <a href="/indicators"><b>Les 8 indicateurs en détail</b><span>Quand chaque indicateur vous trahit</span></a>
         <a href="/guide-fear-greed"><b>Utiliser l’indice de peur en pratique</b><span>L’indicateur précis que le MACD doit freiner</span></a>
         <a href="/glossary"><b>Glossaire</b><span>EMA, histogramme, divergence, whipsaw : les termes en bref</span></a>
       </div>

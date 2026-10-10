@@ -1,4 +1,4 @@
-<main class="wrap" data-title="手算MACD — 用42根收盘价走一遍EMA·信号线·柱状图的计算全过程 | broodev" data-desc="把42个收盘价逐一代入，一根一根地计算EMA12、EMA26、MACD线、信号线和柱状图。用真实的代码和数字说明：为什么30根K线算不出一个柱状图值，为什么用EMA而不是SMA的真正原因，以及broodev为什么看柱状图相对前一根的方向而不是绝对值。">
+<main class="wrap" data-title="手算MACD — 用42根收盘价走完全过程 | broodev" data-desc="用42根收盘价逐根计算EMA12、EMA26、MACD线、信号线和柱状图：为何30根算不出柱状图、为何用EMA，以及为何看方向。">
       <nav class="nav">
         <a href="/">← 仪表盘</a>
         <a href="/methodology">评分方法论</a>
@@ -8,7 +8,8 @@
       </nav>
 
       <h1>手算MACD<br />— 把42个收盘价一路算到底的实操演练</h1>
-      <p class="muted">最后更新：2026-07-14 · 作者：Y-Systems · 本文不是讲解，而是一份<strong>实操记录</strong></p>
+      <p class="muted">最后更新：2026-10-10 · 作者：Y-Systems · 本文不是讲解，而是一份<strong>实操记录</strong></p>
+      <div class="note" data-model-note><strong>模型版本说明</strong> — 本文中的指标数量（6个）、权重和计算示例基于加入两项链上指标（MVRV Z、Thermocap Z）之前的v1模型。现在仪表板的评分使用8项指标的v2，权重也不同。最新数值请见<a href="/methodology">评分方法</a>。</div>
 
       <p class="lead">
         先从失败说起。准备<strong>30个</strong>收盘价，跑一遍标准MACD（12·26·9），
@@ -125,7 +126,7 @@ SMA版MACD的变化 = +0.9917 − (−0.0385) = +1.030   ✅ 与表格一致</co
         broodev使用的EMA，是<strong>以前<code>period</code>个值的简单平均作为种子（seed）</strong>，之后再按指数方式更新。
         <code>α = 2 ÷ (周期 + 1)</code>。EMA12的话，<code>α = 2/13 = 0.153846</code>。
       </p>
-      <pre><code>// broodev 实际代码 (apps/btc/index.html)
+      <pre><code>// broodev 实际代码 (apps/btc/app.jsx)
 function ema(values, period) {
   const alpha = 2 / (period + 1)
   let seed = 0
@@ -687,8 +688,8 @@ const conMacd = (cur, prev, px) =&gt; clamp(
 
       <h2>延伸阅读</h2>
       <div class="related">
-        <a href="/methodology"><b>评分方法论</b><span>完整公开包括MACD 14%/18%在内的6个指标权重与重新归一化</span></a>
-        <a href="/indicators"><b>6个指标详解</b><span>除了MACD，其余五个分别会在什么时候背叛你</span></a>
+        <a href="/methodology"><b>评分方法论</b><span>8项指标的权重与公式全部公开</span></a>
+        <a href="/indicators"><b>8项指标深度解读</b><span>每项指标何时会失灵</span></a>
         <a href="/guide-fear-greed"><b>恐惧指数实战指南</b><span>MACD需要为之踩刹车的正是这个指标</span></a>
         <a href="/glossary"><b>术语表</b><span>EMA·柱状图·背离·来回打脸等术语整理</span></a>
       </div>
