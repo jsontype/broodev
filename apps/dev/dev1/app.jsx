@@ -1,5 +1,5 @@
 /* =============================================================================
-   broodev dev2 — ">_ COSMIC COMPILER"
+   broodev dev1 — ">_ COSMIC COMPILER" (13개 언어 — 문구는 i18n.js 사전)
    스크롤 = 엔터키. 페이지 전체 = 한 번의 빌드.
    Yang Donghwa(@jsontype) · Y-Systems · broodev
    - React 18 UMD + framer-motion UMD + Canvas 2D (빌드 불필요, three.js 없음)
@@ -11,6 +11,20 @@ const M = window.Motion;
 /* ---- Motion 로드 실패 시 정적 폴백 --------------------------------------- */
 if (!M) document.documentElement.classList.add('static-fallback');
 const { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useReducedMotion } = M || {};
+
+/* ---- i18n — 13개 언어 사전·감지는 i18n.js(window.DEV1_I18N, head 에서 먼저 실행) ------
+   언어는 페이지 로드 시 한 번 정해지고, 바꾸면 새로고침한다 → 아래 모듈 상수(PROJECTS·WHOAMI_TEXT…)에 바로 써도 된다 */
+const I18N = window.DEV1_I18N || { t: k => k, lang: 'ko', LANGS: ['ko'], NAMES: { ko: '한국어' }, htmlLang: l => l, set() {} };
+const T = I18N.t;
+/* 사전 문자열 → JSX: **굵게** → <b>, 줄바꿈(\n) → <br /> (innerHTML 없이) */
+function rich(str) {
+  return String(str).split('\n').map((line, i) => (
+    <React.Fragment key={i}>
+      {i > 0 && <br />}
+      {line.split(/\*\*(.+?)\*\*/g).map((part, j) => (j % 2 ? <b key={j}>{part}</b> : part))}
+    </React.Fragment>
+  ));
+}
 
 const EMAIL = 'jsontype@broodev.com';
 const LINKS = {
@@ -59,72 +73,63 @@ const ORBITS = [
 
 const PROJECTS = [
   { hash: 'e8b4a17', name: 'SAMURAI_TACTICS_2', status: 'live', statusLabel: 'LIVE', cat: 'game',
-    desc: '한 줄 전장 턴제 검술 로그라이크 — 큐 콤보·일섬 오의·4단계 난이도·업적 30종.',
+    desc: T('p_samurai'),
     url: 'https://samurai.broodev.com', link: 'samurai.broodev.com' },
   { hash: 'a3f9c21', name: 'BTC_SIGNAL', status: 'live', statusLabel: 'LIVE', cat: 'crypto',
-    desc: '15종 코인의 공포·탐욕 지수와 지표 합성 매수 타이밍 점수(0~100) · 13개 언어 · 코인별 전용 도메인(eth·ltc 등 14개 서브도메인).',
+    desc: T('p_btc'),
     url: 'https://btc.broodev.com', link: 'btc.broodev.com' },
   { hash: '7be02d4', name: 'VOCA_DECK', status: 'live', statusLabel: 'LIVE', cat: 'learn',
-    desc: '깜빡이 단어암기장 — CSV 임포트·3초 자동 반복·TTS. 설치 없이 링크 하나로.',
+    desc: T('p_voca'),
     url: 'https://voca.broodev.com', link: 'voca.broodev.com' },
   { hash: 'c51ffa9', name: 'GREENLAND_INFO', status: 'live', statusLabel: 'LIVE', cat: 'arctic',
-    desc: '그린란드 15개 마을의 날씨·조석·오로라·극야 카운트다운·결항 리스크 + 36명령 터미널.',
+    desc: T('p_greenland'),
     url: 'https://greenland.broodev.com', link: 'greenland.broodev.com' },
   { hash: 'd72e9a5', name: 'AFRICA_UTILITY', status: 'live', statusLabel: 'LIVE', cat: 'africa',
-    desc: '나이지리아·케냐·가나·남아공 정전·환율·송금 실효비용·USSD 코드 + 32명령 터미널.',
+    desc: T('p_africa'),
     url: 'https://africa.broodev.com', link: 'africa.broodev.com' },
   { hash: 'b19d3c8', name: 'MONGOL_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '울란바토르 대기질·날씨·투그릭 환율 — 몽골 생활 인포패널.',
+    desc: T('p_mongol'),
     url: 'https://mongolia.broodev.com', link: 'mongolia.broodev.com' },
   { hash: 'e2a7f14', name: 'NEPAL_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '비크람 삼바트 달력 변환·루피 환율·산악 날씨 — 네팔 인포패널.',
+    desc: T('p_nepal'),
     url: 'https://nepal.broodev.com', link: 'nepal.broodev.com' },
   { hash: '9c4d0b2', name: 'PINAS_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '태풍 시그널·USD/PHP 환율·정부 조회 — 필리핀 인포패널.',
+    desc: T('p_pinas'),
     url: 'https://philippines.broodev.com', link: 'philippines.broodev.com' },
   { hash: '3f8e6a9', name: 'BANGLA_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '홍수·사이클론 경보·로드셰딩 — 방글라데시 인포패널.',
+    desc: T('p_bangla'),
     url: 'https://bangladesh.broodev.com', link: 'bangladesh.broodev.com' },
   { hash: '6b1c9e3', name: 'CARIB_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'islands',
-    desc: '허리케인 대비·정전·환율 — 카리브 인포패널.',
+    desc: T('p_carib'),
     url: 'https://caribbean.broodev.com', link: 'caribbean.broodev.com' },
   { hash: 'd94a2c7', name: 'NUNAVUT_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'arctic',
-    desc: '캐나다 북극권의 날씨·생활 정보 — 누나부트 인포패널.',
+    desc: T('p_nunavut'),
     url: 'https://nunavut.broodev.com', link: 'nunavut.broodev.com' },
   { hash: '58e7d1f', name: 'PACIFIC_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'islands',
-    desc: '남태평양 사이클론·해양·환율·시즌 정보 — 태평양 인포패널.',
+    desc: T('p_pacific'),
     url: 'https://pacific.broodev.com', link: 'pacific.broodev.com' },
   { hash: 'a7f3b85', name: 'PAKISTAN_UTILITY', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '로드셰딩·PKR 환율·생활 유틸 — 파키스탄 데일리 유틸.',
+    desc: T('p_pakistan'),
     url: 'https://pakistan.broodev.com', link: 'pakistan.broodev.com' },
   { hash: '2c9f7e4', name: 'LANKA_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '정전·기차·루피 환율·시험 조회 — 스리랑카 인포패널.',
+    desc: T('p_lanka'),
     url: 'https://srilanka.broodev.com', link: 'srilanka.broodev.com' },
   { hash: 'f1b8d36', name: 'STAN_PANEL', status: 'live', statusLabel: 'LIVE', cat: 'asia',
-    desc: '중앙아시아 5국의 돈·서류·생활 유틸 — 스탄 패널.',
+    desc: T('p_stan'),
     url: 'https://stans.broodev.com', link: 'stans.broodev.com' },
 ];
 const CATS = [
-  ['game', '게임'], ['crypto', '암호화폐'], ['learn', '학습'], ['arctic', '극지'],
-  ['asia', '아시아'], ['africa', '아프리카'], ['islands', '카리브 · 태평양'],
+  ['game', T('cat_game')], ['crypto', T('cat_crypto')], ['learn', T('cat_learn')], ['arctic', T('cat_arctic')],
+  ['asia', T('cat_asia')], ['africa', T('cat_africa')], ['islands', T('cat_islands')],
 ];
 
 const SERVICES = [
-  { no: '01', name: 'WEB BUILD', desc: 'React·Next·Vue·Nuxt 풀사이클 — 기획에서 배포·운영까지. 도쿄 프로덕션 현장에서 검증된 프론트엔드 아키텍처로 만듭니다.' },
-  { no: '02', name: 'GLOBAL SHIP', desc: '13개 언어 다국어·현지화 운영 노하우. 국가별 생활 데이터 서비스 설계 — 국경 없는 웹앱을 만듭니다.' },
-  { no: '03', name: 'TEACH & SHARE', desc: '코딩 레슨·멘토링 — 만드는 법과 함께 "왜"를 가르칩니다.' },
+  { no: '01', name: 'WEB BUILD', desc: T('svc1') },
+  { no: '02', name: 'GLOBAL SHIP', desc: T('svc2') },
+  { no: '03', name: 'TEACH & SHARE', desc: T('svc3') },
 ];
 
-const WHOAMI_TEXT = `$ cat ./about.md
-
-# Yang Donghwa — @jsontype
-도쿄에서 일하는 한국인 프론트엔드 개발자.
-낮에는 도쿄의 프로덕션 코드를 만들고,
-밤에는 broodev 우주에 15개의 웹앱을
-쏘아 올립니다.
-
-원칙은 하나 — "양보다 질".
-설치 없이. 국경 없이. 무료로.`;
+const WHOAMI_TEXT = '$ cat ./about.md\n\n# Yang Donghwa — @jsontype\n' + T('whoami_body');
 
 const CHAPTERS = [
   ['boot', '00 boot'], ['whoami', '01 whoami'], ['stack', '02 stack'],
@@ -284,6 +289,42 @@ function GlyphField() {
 /* ========================================================================== */
 /* 상단 빌드 프로그레스 바 + HUD 챕터 내비게이션                              */
 /* ========================================================================== */
+/* 언어 풀다운(🌐) — dev3 와 같은 13개 언어·같은 저장 키(home:lang). 선택 → 저장 → 새로고침(?lang=) */
+function LangMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = e => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('click', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+  const cur = I18N.lang;
+  return (
+    <div className={'lang-dd' + (open ? ' open' : '')} ref={ref}>
+      <button type="button" className="lang-btn" aria-haspopup="listbox" aria-expanded={open} aria-label={T('lang_label')}
+        onClick={() => setOpen(o => !o)}>
+        <span aria-hidden="true">🌐</span>
+        <span className="lang-name">{I18N.NAMES[cur]}</span>
+        <span className="lang-code" aria-hidden="true">{cur === 'zh-Hant' ? '繁' : cur.toUpperCase()}</span>
+        <span className="lang-caret" aria-hidden="true">▾</span>
+      </button>
+      {open && (
+        <ul className="lang-menu" role="listbox" aria-label={T('lang_label')}>
+          {I18N.LANGS.map(l => (
+            <li key={l}>
+              <a href={'?lang=' + l} role="option" aria-selected={l === cur} lang={I18N.htmlLang(l)} className={l === cur ? 'on' : ''}
+                onClick={e => { e.preventDefault(); setOpen(false); I18N.set(l); }}>{I18N.NAMES[l]}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function BuildBar() {
   const barRef = useRef(null);
   const { scrollYProgress } = useScroll();
@@ -293,16 +334,17 @@ function BuildBar() {
     barRef.current.textContent = `[${'#'.repeat(filled)}${'·'.repeat(10 - filled)}] ${String(Math.round(v * 100)).padStart(3, ' ')}%  compiling universe...`;
   });
   return (
-    <div className="buildbar" aria-hidden="true">
-      <span className="bb-logo">&gt;_ broodev</span>
-      <span className="bb-track" ref={barRef}>[··········]   0%  compiling universe...</span>
+    <div className="buildbar">
+      <span className="bb-logo" aria-hidden="true">&gt;_ broodev</span>
+      <span className="bb-track" ref={barRef} aria-hidden="true">[··········]   0%  compiling universe...</span>
+      <LangMenu />
     </div>
   );
 }
 
 function Hud({ active }) {
   return (
-    <nav className="hud" aria-label="챕터 이동">
+    <nav className="hud" aria-label={T('hud_aria')}>
       {CHAPTERS.map(([id, label]) => (
         <a key={id} href={'#' + id} className={active === id ? 'on' : ''}>
           [{label.slice(0, 2)}<span className="hud-label"> {label.slice(3)}</span>]
@@ -359,19 +401,17 @@ function Boot({ reduce }) {
   useEffect(() => { apply(reduce ? 0 : p.get()); }, [apply, reduce]);
 
   return (
-    <section className="track" id="boot" ref={ref} style={{ height: reduce ? 'auto' : '260vh' }} aria-label="인트로">
+    <section className="track" id="boot" ref={ref} style={{ height: reduce ? 'auto' : '260vh' }} aria-label={T('boot_aria')}>
       <div className="pin boot-inner">
         {/* 이벤트 호라이즌 — space-portfolio(MIT) 자산, assets/LICENSE-assets.txt */}
         <video className="blackhole" ref={bhRef} src="assets/blackhole.webm"
           autoPlay loop muted playsInline aria-hidden="true" />
-        <span className="hero-chip" ref={chipRef}>✦ FRONTEND DEVELOPER — TOKYO</span>
+        <span className="hero-chip" ref={chipRef}>✦ {T('hero_chip')}</span>
         <div className="boot-name" ref={nameRef}>
           <span className="boot-line" ref={el => lineRefs.current[0] = el} style={reduce ? { backgroundPositionX: '0%' } : {}}>Yang Donghwa</span>
           <span className="boot-line l2" ref={el => lineRefs.current[1] = el} style={reduce ? { backgroundPositionX: '0%' } : {}}>Jsontype</span>
           <span className="boot-line l3" ref={el => lineRefs.current[2] = el} style={reduce ? { backgroundPositionX: '0%' } : {}}><span className="l3-prompt">&gt;_&nbsp;</span>Broodev<span className="boot-cursor" /></span>
-          <p className="boot-sub kr" ref={subRef}>
-            도쿄의 프론트엔드 개발자 <b>양동화</b> — 설치 없는 웹앱들의 우주 <b>broodev</b>를 만듭니다
-          </p>
+          <p className="boot-sub kr" ref={subRef}>{rich(T('boot_sub'))}</p>
         </div>
         <div className="boot-prompt" ref={promptRef}>
           $ scroll --to-explore <span className="t-caret">▊</span>
@@ -401,17 +441,17 @@ function Whoami({ reduce }) {
   const x3 = useTransform(pm, [0, 1], ['14%', '-12%']);
 
   return (
-    <section className="whoami" id="whoami" ref={ref} aria-label="소개">
+    <section className="whoami" id="whoami" ref={ref} aria-label={T('whoami_aria')}>
       <div className="wrap whoami-grid">
         <div className="term">
           <div className="term-bar"><i /><i /><i className="g" /><span>jsontype@tokyo: ~/universe</span></div>
-          <div className="term-body" ref={typeRef} aria-label="양동화 소개">{reduce ? WHOAMI_TEXT : '▊'}</div>
+          <div className="term-body" ref={typeRef} aria-label={T('whoami_term_aria')}>{reduce ? WHOAMI_TEXT : '▊'}</div>
         </div>
         <div className="kw-stack" aria-hidden="true">
           <motion.div className="kw" style={reduce ? {} : { x: x1 }}><span className="fill">01</span>Ship</motion.div>
           <motion.div className="kw" style={reduce ? {} : { x: x2 }}><span className="fill">02</span>Solve</motion.div>
           <motion.div className="kw" style={reduce ? {} : { x: x3 }}><span className="fill">03</span>Scale</motion.div>
-          <p className="kw-desc">만들면 끝까지 배포한다. 사소하지만 절실한 문제를 푼다. 13개 언어로 국경을 넘는다.</p>
+          <p className="kw-desc kr">{T('kw_desc')}</p>
         </div>
       </div>
     </section>
@@ -485,11 +525,11 @@ function Stack({ reduce }) {
   useEffect(() => { layout(reduce ? 0.5 : 0); const t = setTimeout(() => layout(reduce ? 0.5 : p.get()), 300); return () => clearTimeout(t); }, [layout, reduce]);
 
   return (
-    <section className="track" id="stack" ref={ref} style={{ height: reduce ? 'auto' : '320vh' }} aria-label="기술 스택">
+    <section className="track" id="stack" ref={ref} style={{ height: reduce ? 'auto' : '320vh' }} aria-label={T('stack_aria')}>
       <div className="pin stack-inner">
         <div className="stack-head">
           <div className="h-cmd"><span className="cmd">$</span> ls ./stack <span className="out" style={{ color: 'var(--faint)' }}>--orbit</span></div>
-          <div className="h-sub">스크롤 = 공전. 28개의 기술이 세 개의 궤도를 돕니다. 끝까지 돌리면 — 직렬(Syzygy).</div>
+          <div className="h-sub kr">{T('stack_sub')}</div>
         </div>
         <div className="orbit-field" ref={fieldRef}>
           <video className="orbit-bg" src="assets/skills-bg.webm" autoPlay loop muted playsInline aria-hidden="true" />
@@ -497,7 +537,7 @@ function Stack({ reduce }) {
           {ORBITS.map((o, i) => <div className={'orbit-ring r' + i} key={i} ref={el => ringRefs.current[i] = el} />)}
           <div className="orbit-core" ref={coreRef}>
             <div className="oc-sig">&gt;_</div>
-            <div className="oc-txt kr">프론트엔드를 축으로<br />백엔드·인프라까지 —<br />혼자서 궤도 전체를 돕니다.</div>
+            <div className="oc-txt kr">{rich(T('stack_core'))}</div>
           </div>
           {NODES.map((n, idx) => (
             <div className="orbit-node" key={n.name} ref={el => nodeRefs.current[idx] = el}>
@@ -506,7 +546,7 @@ function Stack({ reduce }) {
             </div>
           ))}
           <div className="syzygy-flash" ref={flashRef} style={{ transform: 'scaleY(0)', opacity: 0 }} aria-hidden="true" />
-          {FIELD.mobile && <div className="orbit-more">+{allNodes.length - NODES.length} more in orbit</div>}
+          {FIELD.mobile && <div className="orbit-more">{T('orbit_more').replace('{n}', allNodes.length - NODES.length)}</div>}
         </div>
       </div>
     </section>
@@ -518,10 +558,10 @@ function Stack({ reduce }) {
 /* ========================================================================== */
 function DeepLog() {
   return (
-    <section className="board" id="apps" aria-label="프로젝트">
+    <section className="board" id="apps" aria-label={T('apps_aria')}>
       <div className="log-head">
         <div className="h-cmd"><span className="cmd">$</span> ls universe/ --all</div>
-        <div className="h-sub">15개 앱 — 전부 라이브. 카테고리별로 한눈에, 클릭하면 새 탭으로.</div>
+        <div className="h-sub kr">{T('apps_sub')}</div>
       </div>
       {CATS.map(([key, label]) => {
         const items = PROJECTS.filter(pr => pr.cat === key);
@@ -533,7 +573,7 @@ function DeepLog() {
               {items.map(pr => (
                 <a className="bcard" key={pr.hash} href={pr.url} target="_blank" rel="noopener">
                   <div className="b-top"><h3 className="b-name">{pr.name}</h3><span className="b-live">{pr.statusLabel}</span></div>
-                  <p className="b-desc">{pr.desc}</p>
+                  <p className="b-desc kr">{pr.desc}</p>
                   <div className="b-link">$ open {pr.link} ↗</div>
                 </a>
               ))}
@@ -563,10 +603,10 @@ function Services({ reduce }) {
   const fadeUp = { initial: reduce ? {} : { opacity: 0, y: 26 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } };
 
   return (
-    <section className="services" id="svc" ref={ref} aria-label="서비스">
+    <section className="services" id="svc" ref={ref} aria-label={T('svc_aria')}>
       <div className="wrap svc-head">
         <div className="h-cmd"><span className="cmd">$</span> cat ./services</div>
-        <div className="h-sub kr">만드는 것, 배포하는 것, 나누는 것 — 세 개의 모듈</div>
+        <div className="h-sub kr">{T('svc_sub')}</div>
       </div>
       <motion.div className="marquee" style={reduce ? {} : { x: mx1 }} aria-hidden="true">
         <span className="giant">Web Build — Global Ship — Teach &amp; Share — </span>
@@ -580,15 +620,15 @@ function Services({ reduce }) {
             <motion.div className="svc" key={s.no} {...fadeUp} transition={{ ...fadeUp.transition, delay: i * 0.09 }}>
               <div className="s-no">[{s.no}]</div>
               <div className="s-name">{s.name}</div>
-              <p className="s-desc">{s.desc}</p>
+              <p className="s-desc kr">{s.desc}</p>
             </motion.div>
           ))}
         </div>
         <div className="counters">
-          <div className="counter"><div className="c-num"><Counter to={14} p={p} range={[0.35, 0.7]} /><b>+</b></div><div className="c-label">Apps Shipped</div></div>
-          <div className="counter"><div className="c-num"><Counter to={13} p={p} range={[0.38, 0.72]} /></div><div className="c-label">Languages</div></div>
-          <div className="counter"><div className="c-num"><Counter to={28} p={p} range={[0.4, 0.74]} /></div><div className="c-label">Tech Stack</div></div>
-          <div className="counter"><div className="c-num"><Counter to={12} p={p} range={[0.42, 0.76]} /></div><div className="c-label">Countries Next</div></div>
+          <div className="counter"><div className="c-num"><Counter to={14} p={p} range={[0.35, 0.7]} /><b>+</b></div><div className="c-label">{T('c_apps')}</div></div>
+          <div className="counter"><div className="c-num"><Counter to={13} p={p} range={[0.38, 0.72]} /></div><div className="c-label">{T('c_langs')}</div></div>
+          <div className="counter"><div className="c-num"><Counter to={28} p={p} range={[0.4, 0.74]} /></div><div className="c-label">{T('c_stack')}</div></div>
+          <div className="counter"><div className="c-num"><Counter to={12} p={p} range={[0.42, 0.76]} /></div><div className="c-label">{T('c_countries')}</div></div>
         </div>
       </div>
     </section>
@@ -649,7 +689,7 @@ function Finale({ reduce }) {
   const pathD = 'M' + CONSTEL_PTS.map(pt => pt.join(' ')).join(' L ');
 
   return (
-    <section className="track" id="ssh" ref={ref} style={{ height: reduce ? 'auto' : '300vh' }} aria-label="연락하기">
+    <section className="track" id="ssh" ref={ref} style={{ height: reduce ? 'auto' : '300vh' }} aria-label={T('ssh_aria')}>
       <div className="pin finale-inner">
         <div className="f-term" ref={termRef} aria-hidden="true">{reduce ? BUILD_LINE : ''}</div>
         <div className="f-giant" ref={giantRef} style={reduce ? { opacity: 1 } : { opacity: 0 }}>
@@ -660,25 +700,25 @@ function Finale({ reduce }) {
         <div className="paper-face" ref={paperRef} style={reduce ? {} : { clipPath: 'circle(0% at 50% 58%)' }}>
           <div ref={pfRef} style={reduce ? {} : { opacity: 0 }}>
             <div className="pf-build">$ deploy — <span className="ok">build succeeded · 0 errors ✓</span></div>
-            <h2 className="pf-title">Let's Build<br />The Next Orbit</h2>
-            <p className="pf-sub kr">다음 궤도를 함께 설계할 사람을 찾습니다.<br />프로젝트, 협업, 강의 — 어떤 신호든 환영합니다.</p>
+            <h2 className="pf-title">{rich(T('pf_title'))}</h2>
+            <p className="pf-sub kr">{rich(T('pf_sub'))}</p>
             <div className="pf-ctas">
-              <button className="pf-btn primary" onClick={copyEmail}>{copied ? 'COPIED ✓' : 'COPY EMAIL — ' + EMAIL}</button>
+              <button className="pf-btn primary" onClick={copyEmail}>{copied ? T('copied') : T('copy_email') + ' — ' + EMAIL}</button>
               <a className="pf-btn" href={LINKS.github} target="_blank" rel="noopener">GITHUB</a>
               <a className="pf-btn" href={LINKS.linkedin} target="_blank" rel="noopener">LINKEDIN</a>
             </div>
-            <div className="pf-status"><span className="dot" />status: open for collaboration — tokyo · seoul · remote</div>
+            <div className="pf-status"><span className="dot" />{T('pf_status')}</div>
             <div className="pf-constellation" aria-hidden="true">
               <svg width="300" height="56" viewBox="0 0 300 56" fill="none">
                 <path d={pathD} stroke="#111512" strokeWidth="1.2" pathLength="1" ref={constelRef}
                   style={{ strokeDasharray: 1, strokeDashoffset: reduce ? 0 : 1 }} />
                 {CONSTEL_PTS.map((pt, i) => <circle key={i} cx={pt[0]} cy={pt[1]} r="2.6" fill={i === CONSTEL_PTS.length - 1 ? '#00c46a' : '#111512'} />)}
               </svg>
-              <div className="pf-caption">당신은 방금 한 사람의 우주를 컴파일했습니다 — 6 sections · 0 errors</div>
+              <div className="pf-caption kr">{T('pf_caption')}</div>
             </div>
           </div>
           <div className="pf-footer">
-            © Y-SYSTEMS · BROODEV — YANG DONGHWA (@JSONTYPE) · <a href={LINKS.old} target="_blank" rel="noopener">OLD PORTFOLIO</a>
+            © Y-SYSTEMS · BROODEV — YANG DONGHWA (@JSONTYPE) · <a href={LINKS.old} target="_blank" rel="noopener">{T('old_portfolio')}</a>
           </div>
         </div>
       </div>
@@ -789,9 +829,9 @@ function StaticApp() {
     <main className="wrap kr" style={{ padding: '80px 24px', maxWidth: 760 }}>
       <h1 style={{ fontFamily: 'var(--mono)' }}>&gt;_ Yang Donghwa — @jsontype</h1>
       <p style={{ whiteSpace: 'pre-wrap' }}>{WHOAMI_TEXT}</p>
-      <h2>Projects</h2>
+      <h2>{T('apps_aria')}</h2>
       {PROJECTS.map(pr => <p key={pr.hash}><b>{pr.name}</b> — {pr.desc} {pr.url && <a href={pr.url}>{pr.link}</a>}</p>)}
-      <h2>Services</h2>
+      <h2>{T('svc_aria')}</h2>
       {SERVICES.map(s => <p key={s.no}><b>{s.name}</b> — {s.desc}</p>)}
       <p><a href={'mailto:' + EMAIL}>{EMAIL}</a> · <a href={LINKS.github}>GitHub</a> · <a href={LINKS.linkedin}>LinkedIn</a></p>
     </main>

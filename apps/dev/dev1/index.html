@@ -49,7 +49,11 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;300;400;700;800&display=swap" />
 
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=7" />
+
+  <!-- 13개 언어: 사전 + 감지(localStorage home:lang → ?lang= → 브라우저 언어 → en, dev3 와 같은 키). head 끝에서 동기 실행해
+       title·description·og·<html lang> 을 먼저 갈아끼우고 window.DEV1_I18N 을 연다(app.jsx 가 사용). 정적 원문은 한국어. -->
+  <script src="i18n.js?v=2"></script>
 </head>
 <body>
   <div id="root">
@@ -57,15 +61,17 @@
     <section style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;font-family:monospace;">
       <p style="letter-spacing:4px;color:#00ff88;">&gt;_ COSMIC COMPILER</p>
       <h1 style="font-size:clamp(2rem,7vw,4.5rem);color:#e8f5ee;margin:10px 0;text-transform:uppercase;">Yang Donghwa<br />@jsontype</h1>
-      <p style="max-width:560px;color:#8fa39a;">도쿄의 한국인 프론트엔드 개발자. 설치 없는 무료 웹앱들의 우주 broodev(15개 앱 · 13개 언어)를 만듭니다. 문의 jsontype@broodev.com</p>
+      <p style="max-width:560px;color:#8fa39a;" data-i18n="fb_desc">도쿄의 한국인 프론트엔드 개발자. 설치 없는 무료 웹앱들의 우주 broodev(15개 앱 · 13개 언어)를 만듭니다. 문의 jsontype@broodev.com</p>
     </section>
   </div>
+  <!-- 정적 폴백 문구를 지금 번역 — DOMContentLoaded 는 아래 CDN 스크립트를 기다리므로 느린 회선에서 한국어 원문이 몇 초 보인다 -->
+  <script>window.DEV1_I18N && window.DEV1_I18N.applyBody && window.DEV1_I18N.applyBody();</script>
 
   <!-- React 18 (CDN) + Motion for React (framer-motion UMD) + 브라우저 Babel — 빌드 불필요 -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/framer-motion@12/dist/framer-motion.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
-  <script type="text/babel" data-presets="react" src="app.jsx?v=12"></script>
+  <script type="text/babel" data-presets="react" src="app.jsx?v=14"></script>
 </body>
 </html>

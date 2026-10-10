@@ -32,25 +32,72 @@
       footer a { color: var(--dim); }
       @media (prefers-reduced-motion: no-preference) { .caret { animation: blink 1s steps(1) infinite; } }
       @keyframes blink { 50% { opacity: 0; } }
+      :is(:lang(ja), :lang(zh), :lang(th)) .kr { word-break: normal; }
     </style>
   </head>
   <body>
     <main class="wrap">
       <p class="chip">&gt;_ COSMIC COMPILER</p>
       <h1>404</h1>
-      <div class="term" aria-label="터미널">
+      <div class="term" aria-label="터미널" data-i18n-aria-label="term">
         <div><span class="p">$</span> open ./page</div>
         <div class="err">open: ./page: No such file or directory</div>
         <div><span class="p">$</span> <span class="caret">▊</span></div>
       </div>
-      <p class="kr">찾으시는 페이지가 없거나 이동했습니다.<br />The page you're looking for doesn't exist or has moved.</p>
-      <nav class="links" aria-label="바로가기">
-        <a href="./"><b>홈</b> — Yang Donghwa (@jsontype)</a>
-        <a href="./#apps"><b>apps</b> — broodev 앱 전체</a>
-        <a href="https://broodev.com/"><b>broodev.com</b> — 전체 앱 포털</a>
-        <a href="https://btc.broodev.com/"><b>btc.broodev.com</b> — 코인 매수 타이밍 시그널</a>
+      <p class="kr" data-i18n="msg">찾으시는 페이지가 없거나 이동했습니다.</p>
+      <nav class="links" aria-label="바로가기" data-i18n-aria-label="nav">
+        <a href="./"><b data-i18n="home">홈</b> — Yang Donghwa (@jsontype)</a>
+        <a href="./#apps"><b>apps</b> — <span data-i18n="apps">broodev 앱 전체</span></a>
+        <a href="https://broodev.com/"><b>broodev.com</b> — <span data-i18n="portal">전체 앱 포털</span></a>
+        <a href="https://btc.broodev.com/"><b>btc.broodev.com</b> — <span data-i18n="btc">코인 매수 타이밍 시그널</span></a>
       </nav>
       <footer>© 2026 broodev · Y-Systems · <a href="mailto:jsontype@broodev.com">jsontype@broodev.com</a></footer>
     </main>
+    <script>
+      /* 13개 언어 — 단독 페이지라 사전을 인라인으로 둔다(앱 본체 i18n.js 와 같은 감지 규칙·저장 키 home:lang).
+         없는 경로 아래에서 서빙돼도(활성 홈일 때 미들웨어가 /<ACTIVE>/404.html 을 돌려줌) 외부 파일 없이 동작한다. */
+      (function () {
+        var LANGS = ['en', 'ja', 'ko', 'zh', 'zh-Hant', 'th', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl'];
+        var D = {
+          ko: { title: '404 — 페이지를 찾을 수 없습니다 | broodev', term: '터미널', msg: '찾으시는 페이지가 없거나 이동했습니다.', nav: '바로가기', home: '홈', apps: 'broodev 앱 전체', portal: '전체 앱 포털', btc: '코인 매수 타이밍 시그널' },
+          en: { title: '404 — Page not found | broodev', term: 'Terminal', msg: "The page you're looking for doesn't exist or has moved.", nav: 'Shortcuts', home: 'Home', apps: 'All broodev apps', portal: 'Portal of all apps', btc: 'Crypto buy-timing signal' },
+          ja: { title: '404 — ページが見つかりません | broodev', term: 'ターミナル', msg: 'お探しのページは存在しないか、移動しました。', nav: 'ショートカット', home: 'ホーム', apps: 'broodev のアプリ一覧', portal: '全アプリのポータル', btc: '暗号資産の買いタイミング・シグナル' },
+          zh: { title: '404 — 找不到页面 | broodev', term: '终端', msg: '你要找的页面不存在或已移动。', nav: '快捷链接', home: '首页', apps: 'broodev 全部应用', portal: '全部应用门户', btc: '加密货币买入时机信号' },
+          'zh-Hant': { title: '404 — 找不到頁面 | broodev', term: '終端機', msg: '你要找的頁面不存在或已移動。', nav: '快速連結', home: '首頁', apps: 'broodev 全部應用程式', portal: '全部應用程式入口', btc: '加密貨幣買進時機訊號' },
+          th: { title: '404 — ไม่พบหน้านี้ | broodev', term: 'เทอร์มินัล', msg: 'ไม่พบหน้าที่คุณค้นหา หรือหน้านั้นถูกย้ายไปแล้ว', nav: 'ทางลัด', home: 'หน้าแรก', apps: 'แอป broodev ทั้งหมด', portal: 'พอร์ทัลรวมทุกแอป', btc: 'สัญญาณจังหวะซื้อคริปโต' },
+          es: { title: '404 — Página no encontrada | broodev', term: 'Terminal', msg: 'La página que buscas no existe o se ha movido.', nav: 'Accesos directos', home: 'Inicio', apps: 'Todas las apps de broodev', portal: 'Portal de todas las apps', btc: 'Señal del momento de compra de criptomonedas' },
+          fr: { title: '404 — Page introuvable | broodev', term: 'Terminal', msg: "La page que vous cherchez n'existe pas ou a été déplacée.", nav: 'Raccourcis', home: 'Accueil', apps: 'Toutes les applis broodev', portal: 'Portail de toutes les applis', btc: "Signal du bon moment pour acheter des cryptos" },
+          de: { title: '404 — Seite nicht gefunden | broodev', term: 'Terminal', msg: 'Die gesuchte Seite existiert nicht oder wurde verschoben.', nav: 'Schnellzugriff', home: 'Start', apps: 'Alle broodev-Apps', portal: 'Portal mit allen Apps', btc: 'Kaufzeitpunkt-Signal für Kryptowährungen' },
+          it: { title: '404 — Pagina non trovata | broodev', term: 'Terminale', msg: 'La pagina che cerchi non esiste o è stata spostata.', nav: 'Collegamenti rapidi', home: 'Home', apps: 'Tutte le app broodev', portal: 'Portale di tutte le app', btc: "Segnale del momento d'acquisto delle cripto" },
+          pt: { title: '404 — Página não encontrada | broodev', term: 'Terminal', msg: 'A página que procura não existe ou foi movida.', nav: 'Atalhos', home: 'Início', apps: 'Todas as apps broodev', portal: 'Portal de todas as apps', btc: 'Sinal do momento de compra de criptomoedas' },
+          ru: { title: '404 — Страница не найдена | broodev', term: 'Терминал', msg: 'Страница, которую вы ищете, не существует или была перемещена.', nav: 'Быстрые ссылки', home: 'Главная', apps: 'Все приложения broodev', portal: 'Портал всех приложений', btc: 'Сигнал момента покупки криптовалют' },
+          nl: { title: '404 — Pagina niet gevonden | broodev', term: 'Terminal', msg: 'De pagina die je zoekt bestaat niet of is verplaatst.', nav: 'Snelkoppelingen', home: 'Home', apps: 'Alle broodev-apps', portal: 'Portaal met alle apps', btc: 'Signaal voor het koopmoment van crypto' }
+        };
+        function norm(tag) {
+          tag = String(tag || '').toLowerCase();
+          if (!tag) return null;
+          if (tag.indexOf('zh') === 0) return /hant|tw|hk|mo/.test(tag) ? 'zh-Hant' : 'zh';
+          var p = tag.split('-')[0];
+          return LANGS.indexOf(p) >= 0 ? p : null;
+        }
+        var cur = null;
+        try { cur = localStorage.getItem('home:lang'); } catch (e) { /* 프라이빗 모드 등 */ }
+        if (LANGS.indexOf(cur) < 0) {
+          var q = /[?&]lang=([A-Za-z-]+)/.exec(location.search);
+          cur = q && norm(q[1]);
+          if (!cur) {
+            var c = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+            for (var i = 0; i < c.length && !cur; i++) cur = norm(c[i]);
+          }
+          cur = cur || 'en';
+        }
+        var d = D[cur];
+        document.documentElement.lang = cur === 'zh' ? 'zh-Hans' : cur;
+        document.title = d.title;
+        var all = function (sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); };
+        all('[data-i18n]').forEach(function (el) { el.textContent = d[el.getAttribute('data-i18n')]; });
+        all('[data-i18n-aria-label]').forEach(function (el) { el.setAttribute('aria-label', d[el.getAttribute('data-i18n-aria-label')]); });
+      })();
+    </script>
   </body>
 </html>
