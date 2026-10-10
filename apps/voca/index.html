@@ -544,6 +544,12 @@
       /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 ◐ 테마 + 🌐 언어 선택 · 모바일 햄버거) ===== */
       .site-nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: var(--t-nav-bg); border-bottom: 1px solid var(--t-nav-line); }
       .site-nav-brand { color: var(--t-nav-accent); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none;  white-space: nowrap; }
+      /* 브랜드는 이 맨 위 줄 한 곳만(앱 헤더의 중복 브랜드 제거 · 2026-10-10) — 로고는 탭 아이콘과 같은 V(/favicon.svg), 옆에 언어별 앱 이름(모바일에선 숨김) */
+      .site-nav-brand { display: inline-flex; align-items: center; gap: 7px; }
+      .site-nav-brand img { width: 18px; height: 18px; flex-shrink: 0; }
+      .site-nav-sub { color: var(--t-nav-link); font-weight: 700; font-size: 12px; letter-spacing: 0; }
+      .site-nav-sub::before { content: '·'; margin: 0 6px 0 1px; opacity: .6; }
+      @media (max-width: 560px) { .site-nav-sub { display: none; } }
       .site-nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid var(--t-nav-accent); color: var(--t-nav-accent); font-size: 18px; line-height: 1; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
       .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
       .site-nav-links a { color: var(--t-nav-link); font-size: 12.5px; text-decoration: none; padding: 3px 0; border-bottom: 1px solid transparent; transition: .15s; white-space: nowrap; }
@@ -590,7 +596,7 @@
          AdSense "우수한 사용자 환경" 요건: 탐색 메뉴(메뉴 바)로 콘텐츠를 주제별 구성.
          #root 바깥이라 React 렌더에도 살아있고, JS 없는 크롤러도 읽는다. -->
     <nav class="site-nav" aria-label="VOCA DECK">
-      <a class="site-nav-brand" href="/">▎VOCA DECK</a>
+      <a class="site-nav-brand" href="/"><img src="/favicon.svg" alt="" aria-hidden="true">VOCA DECK<span class="site-nav-sub" data-app-sub>깜빡이</span></a>
       <button class="site-nav-toggle" type="button" aria-label="메뉴" aria-expanded="false">≡</button>
       <div class="site-nav-links">
         <a href="/" data-nk="0" aria-current="page">암기장</a>
@@ -621,6 +627,7 @@
         var CODES = LANGS.map(function (l) { return l[0]; });
         var NAV = {"ko":["암기장","암기법 원리","CSV 만들기","학습 전략","간격 반복","소개","다른 앱"],"en":["Deck","How It Works","Make CSV","Study Guide","Spaced Repetition","About","More Apps"],"ja":["暗記帳","暗記の原理","CSV作成","学習法","間隔反復","紹介","他のアプリ"],"zh":["记忆卡","记忆原理","制作CSV","学习策略","间隔重复","关于","更多应用"],"zh-Hant":["記憶卡","記憶原理","製作CSV","學習策略","間隔重複","關於","更多應用"],"th":["ชุดคำ","หลักการจำ","สร้าง CSV","กลยุทธ์เรียน","การทบทวนแบบเว้นช่วง","เกี่ยวกับ","แอปอื่น ๆ"],"es":["Mazo","Cómo funciona","Crear CSV","Guía de estudio","Repetición espaciada","Acerca de","Más apps"],"fr":["Paquet","Principe","Créer un CSV","Guide d’étude","Répétition espacée","À propos","Autres apps"],"de":["Deck","Prinzip","CSV erstellen","Lernleitfaden","Verteiltes Lernen","Über uns","Weitere Apps"],"it":["Mazzo","Come funziona","Crea CSV","Guida allo studio","Ripetizione dilazionata","Chi siamo","Altre app"],"pt":["Baralho","Como funciona","Criar CSV","Guia de estudo","Repetição espaçada","Sobre","Mais apps"],"ru":["Колода","Как это работает","Создать CSV","Руководство","Интервальное повторение","О нас","Другие приложения"],"nl":["Deck","Hoe het werkt","CSV maken","Studiegids","Gespreide herhaling","Over ons","Meer apps"]};
         /* 헤더 접근성 라벨 [햄버거 메뉴, 테마, 언어] — 13개 언어 */
+        var APPNAME = {"en": "Flashing Memorizer", "ja": "点滅式単語帳", "ko": "깜빡이", "zh": "闪示单词", "zh-Hant": "閃示單字", "th": "ท่องศัพท์แบบแฟลช", "es": "Memorización flash", "fr": "Mémorisation flash", "de": "Blitz-Vokabeltrainer", "it": "Memorizzazione flash", "pt": "Memorização flash", "ru": "Флеш-запоминание", "nl": "Flits-stampen"};   // 앱 사전의 appName 과 같은 값(맨 위 브랜드 옆 표시)
         var UI = {"ko":["메뉴","테마","언어"],"en":["Menu","Theme","Language"],"ja":["メニュー","テーマ","言語"],"zh":["菜单","主题","语言"],"zh-Hant":["選單","主題","語言"],"th":["เมนู","ธีม","ภาษา"],"es":["Menú","Tema","Idioma"],"fr":["Menu","Thème","Langue"],"de":["Menü","Design","Sprache"],"it":["Menu","Tema","Lingua"],"pt":["Menu","Tema","Idioma"],"ru":["Меню","Тема","Язык"],"nl":["Menu","Thema","Taal"]};
         function detect() {
           try {
@@ -647,6 +654,8 @@
           if (sel.value !== code) sel.value = code;
           var ui = UI[code] || UI.en;
           toggle.setAttribute('aria-label', ui[0]);
+          var sub = nav.querySelector('[data-app-sub]');
+          if (sub) sub.textContent = APPNAME[code] || APPNAME.en;
           var tlab = nav.querySelector('.site-nav-theme');
           tlab.setAttribute('title', ui[1]);
           tlab.querySelector('select').setAttribute('aria-label', ui[1]);
@@ -3257,11 +3266,7 @@
           <React.Fragment>
           <div className="stage" style={{ background: displayBg }}>
             <header className="app-header">
-              <a className="brand" href="https://voca.broodev.com/" title="broodev">
-                <img src="/favicon.svg" alt="" aria-hidden="true" />
-                <span className="logo">broodev</span>
-              </a>
-              <span className="app-name">VOCA DECK<span className="dot">·</span><span className="full">{t.appName}</span></span>
+              {/* 브랜드(V 로고 · VOCA DECK · 앱 이름)는 맨 위 사이트 메뉴 한 곳에만 — 여기엔 앱 도구만(2026-10-10) */}
               <span className="tb-spacer" />
               {streak > 0 && <span className="prm-chip" title={t.streakTitle}>🔥 {streak}</span>}
               {gateOn && (isPremium ? (
