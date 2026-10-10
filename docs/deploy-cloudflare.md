@@ -46,7 +46,7 @@
 2. **btc 호스트 확보** — `https://btc.broodev.com` 이 현재 200 으로 살아 있다. 어느 프로젝트가 서빙 중인지 확인:
    - `broodev-web` 의 Custom domains 에 `btc.broodev.com` 이 붙어 있다면 → 1번 뒤 그 호스트도 **포털**이 돼 버린다. 거기서 도메인을 **제거**하고, 새 Pages 프로젝트 `broodev-btc`(Connect to Git · 같은 레포 · Framework None · Build command 비움 · output `.` · **Root directory `apps/btc`**)를 만들어 Custom domains 에 `btc.broodev.com` 추가(DNS 는 자동 생성). Functions(`apps/btc/functions/`)는 자동 인식.
    - 이미 별도 프로젝트 `broodev-btc`(Root `apps/btc`)가 서빙 중이면 → 할 일 없음(푸시로 새 canonical 이 배포됨).
-3. **www**: `www.broodev.com` 은 현재 미해석(ENOTFOUND). 쓰려면 `broodev-web` Custom domains 에 추가(포털로 감). 안 쓰면 그대로.
+3. **www**: `www.broodev.com` 은 현재 미해석(ENOTFOUND — 2026-10-10 재확인). 쓰려면 ① `broodev-web` 프로젝트 Custom domains 에 `www.broodev.com` 추가(CF 가 CNAME 생성) ② Rules → Redirect Rules → 「Hostname equals www.broodev.com」 → 동적 `concat("https://broodev.com", http.request.uri)` 301(경로·쿼리 유지). 그러면 www 유입·백링크가 apex 정본으로 모인다. 안 쓸 거면 위 표의 「(+ www)」를 지운다.
 4. **dev.broodev.com**: `broodev-dev` 는 Root `apps/dev` 그대로 — 건드릴 것 없음. 푸시 후 `/` 가 dev3(JSONTYPE 프리로더) 로 뜨고 `/dev1/` `/dev2/` `/dev3/` 는 미리보기(noindex) 인지 확인. Functions 가 처음 생기는 프로젝트이므로 배포 로그에 "Functions" 번들이 올라갔는지 확인(Build output `.` 이면 자동). 홈 전환은 `ACTIVE` 수정 또는 Settings → Variables → `DEV_ACTIVE=dev2` + Retry.
 5. **home.broodev.com 정리**: `broodev-home` 프로젝트(있다면)는 Root `apps/home` 이라 그대로 두면 **포털 복제본**이 된다 → 둘 중 하나:
    - (권장) Custom domains 에서 `home.broodev.com` 제거 → 프로젝트 **삭제** → DNS 에 남은 `home` CNAME 삭제. 외부에 뿌린 home.broodev.com 링크가 있으면 존 **Redirect Rule**(`home.broodev.com/*` → `https://dev.broodev.com/${1}` 301) 하나 추가(DNS 에 `home` 프록시 레코드가 있어야 룰이 탄다).
@@ -165,6 +165,9 @@ btc 가 CF Pages(btc.broodev.com)에서 정상 확인되어 GitHub Pages는 은�
 - (남은 수동 작업) GitHub 저장소 **Settings → Pages** 에서 비활성화 + 기존 `btc → jsontype.github.io` DNS 레코드가 남아있으면 삭제.
 
 ## 5. 배포 후 체크리스트 (2026-10-03 현행)
+
+> **2026-10-10 SEO 언어 정책 배포 뒤 할 일은 아래 §6.**
+
 - [ ] https://broodev.com — **앱 포털** 렌더(히어로 영상 · 헤더 `Apps (35)` → 전체화면 모달 · 카테고리 6종) + `/ads.txt` `/robots.txt` `/sitemap.xml` `/og-image.png` 200
 - [ ] https://btc.broodev.com — **코인 시그널 대시보드** 정상 렌더(백지 아님) + canonical `https://btc.broodev.com/` + `/sitemap.xml` 200
 - [ ] `node scripts/verify-runtime.js` — 5경로 "실행 OK" (btc index.html 을 건드린 배포라면 필수) · `node scripts/verify-coins.mjs`
@@ -179,6 +182,20 @@ btc 가 CF Pages(btc.broodev.com)에서 정상 확인되어 GitHub Pages는 은�
 - [ ] (선택) Search Console 색인 추이 확인 + sitemap 제출
 
 전체 라이브 검증 세트: [`adsense-compliance.md`](adsense-compliance.md) 부록 A.
+
+## 6. 검색 노출(SEO) 운영 — 2026-10-10 언어 정책 배포 뒤 (운영자)
+
+코드 쪽 정책은 `packages/seo/README.md`(L1~L6). 배포만으로 끝나지 않는 대시보드 작업:
+
+1. **Google Search Console** — 도메인 속성 `broodev.com`(DNS TXT 인증 완료)에서:
+   - Sitemaps → `https://broodev.com/sitemap-index.xml` 제출(서브도메인 사이트맵 33개 묶음 — 교차 호스트라 **도메인 속성에서만** 인정). 상태가 「성공」인지.
+   - URL 검사 → `broodev.com/` · `btc.broodev.com/` · `eth.broodev.com/` · `utils.broodev.com/` · `voca.broodev.com/` · `samurai.broodev.com/` · `dev.broodev.com/` 에 「실제 URL 테스트」 → 렌더 스크린샷이 **기준 언어**(포털·btc·utils 는 한국어)인지, 「Google 이 선택한 표준」이 자기 주소인지 → 「색인 생성 요청」.
+   - 같은 방법으로 `?lang=ja` 주소 하나(예: `btc.broodev.com/?lang=ja`)의 표준이 **자기 자신**인지(예전엔 루트였다).
+   - 페이지 색인 보고서: 「noindex 로 제외」에 samurai 가 사라지는지 · 「중복, Google 이 다른 표준 선택」(코인 → btc) 이 줄어드는지 · 국제 타겟팅(hreflang) 오류.
+2. **www.broodev.com** — §1-D 3번(커스텀 도메인 + 301 Redirect Rule) 또는 표에서 「(+ www)」 삭제.
+3. **네이버 서치어드바이저** — dev.broodev.com 인증 메타는 이제 dev1·dev2·dev3 모두에 있다(활성 홈을 바꿔도 유지). 코인 14개 호스트에 복사돼 있던 btc 토큰은 지웠다 — 네이버 유입을 원하면 호스트별로 등록해 받은 토큰을 각 코인(→ `gen_coin.py` 의 코인 설정)에 넣는다.
+4. **Pages Functions 무료 한도** — 언어 메타 미들웨어가 새로 붙은 프로젝트(포털 · utils · samurai · memo · excel · stans)는 `_routes.json` 으로 HTML 정본 경로만 함수를 탄다. 대시보드 설정 변경은 필요 없다(Functions 는 `functions/` 폴더로 자동 인식). 일일 요청 수는 Workers & Pages → 사용량에서 확인.
+5. **배포 뒤 확인(누구나)**: `node scripts/seo-render.mjs --url https://btc.broodev.com/` → `htmlLang ko` · 제안 바 없음 / `curl -s "https://btc.broodev.com/?lang=ja" | grep canonical` → `?lang=ja` 자기 자신 / `curl -sI https://<프로젝트>.pages.dev/` → `X-Robots-Tag: noindex`.
 
 ## 메모: 모노레포 자동 빌드 최적화
 CF Pages 프로젝트별 **Build watch paths** 를 각 앱 폴더로 좁히면, 해당 앱이 바뀔 때만 재배포된다(예: `broodev-btc` 는 `apps/btc/*`, `broodev-web`(포털) 은 `apps/home/*` 변경 시에만).

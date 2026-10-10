@@ -55,16 +55,16 @@ broodev/
 | 앱 | 도메인 | 설명 | 스택 | 상태 |
 | --- | --- | --- | --- | --- |
 | [home](apps/home/) | **broodev.com** (루트) | **전체 앱 포털** — 히어로·소개·카테고리·대표 앱·원칙·연락 + 헤더 `Apps (N)` → 전체화면 카테고리 모달(카테고리마다 앱 5개 + 페이지네이션). 앱 목록은 `assets/js/catalog.js` | 정적 HTML · AIXOR 템플릿 · jQuery · Bootstrap 5 · GSAP · AOS · EmailJS | 🟡 Root directory 전환 대기 |
-| [btc](apps/btc/) | **btc.broodev.com** (2026-10-03 루트에서 이전) | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 (대표앱) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
-| 코인 14종 | ~~`<coin>.broodev.com`~~ → **`broodev.com/?coin=<coin>`** | eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana — **루트 앱으로 통합됨**(코인 선택기). 서브도메인 복제본은 noindex·광고 제거 상태로 잔존, 301 예정 | React 18 (CDN) · 무빌드 | ⚪ 통합됨 |
+| [btc](apps/btc/) | **btc.broodev.com** (2026-10-03 루트에서 이전) | 비트코인 공포·탐욕 지수 & 매수 타이밍 점수 (대표앱) | React 18 (CDN) · `app.jsx` 사전 컴파일(`scripts/build-jsx.mjs`, 2026-10-10) | 🟢 라이브 |
+| 코인 14종 | `<coin>.broodev.com` | eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana — btc 템플릿에서 `scripts/gen_coin.py` 로 생성. 지표 7개(THERM 은 btc 전용) · 코인별 고유 본문·FAQ·OG(`scripts/coin-content/`, 2026-10-10). `btc.broodev.com/?coin=<coin>` → `<coin>.broodev.com` 301 | React 18 (CDN) · `app.jsx` 사전 컴파일 | 🟢 라이브 |
 | [voca](apps/voca/) | voca.broodev.com | 깜빡이 단어암기장 (CSV 자동 반복 암기·13개국어) | React 18 (CDN) · 무빌드 | 🟢 라이브 |
-| [voca-tutorial](apps/voca-tutorial/) | voca-tutorial.broodev.com | 깜빡이 사용법 10단계 인터랙티브 튜토리얼 | React 18 (CDN) · 무빌드 | 🟡 배포 대기 |
+| [voca-tutorial](apps/voca-tutorial/) | voca-tutorial.broodev.com | 깜빡이 사용법 10단계 인터랙티브 튜토리얼 | React 18 (CDN) · 무빌드 | 🟢 라이브 |
 | [dev](apps/dev/) | **dev.broodev.com** | **개발자 소개 3종을 한 프로젝트로** — `functions/_middleware.js` 의 `ACTIVE` 가 루트(/)에 띄울 홈을 고른다(현재 `dev3`). `/dev1/` `/dev2/` `/dev3/` 로 각각 미리보기(noindex). 구 `apps/home/home1·2·3`(2026-10-03 이동, home.broodev.com 폐기) | Pages Function 1개 + 정적 | 🟢 라이브(푸시 시 전환) |
 | ├ [dev1](apps/dev/dev1/) | dev.broodev.com/dev1/ | 개발자 소개 + 앱 목록 (구 `dev` → `home1`) | React 18(CDN) · 정적 | — |
 | ├ [dev2](apps/dev/dev2/) | dev.broodev.com/dev2/ | 양동화 업적 포트폴리오 — Photollax 템플릿 (텍스트 교체 완료, 사진은 템플릿 원본) — 구 y-systems 레포 `home/` | 정적 HTML · Bootstrap 3 · jQuery | — |
 | └ [dev3](apps/dev/dev3/) | dev.broodev.com (루트 = 현재 활성) | 양동화 업적 포트폴리오 v3 — Davies 템플릿 (텍스트 교체 완료, 사진은 AI 생성, 프리로더·히어로 JSONTYPE, GitHub 버튼) | 정적 HTML · Bootstrap 5 · GSAP · Swiper · **13개 언어 i18n** · EmailJS · OG 썸네일 | — |
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
-| [samurai](games/samurai/) | samurai.broodev.com | 사무라이 택틱스 2 — 한 줄 전장 턴제 검술 로그라이크 (구 `apps/games/st2`, 2026-10-02 `games/samurai` 로 이동) | 자기완결형 · 13개국어 | 🟢 라이브 |
+| [samurai](games/samurai/) | samurai.broodev.com | 사무라이 택틱스 2 — 한 줄 전장 턴제 검술 로그라이크 (구 `apps/games/st2`, 2026-10-02 `games/samurai` 로 이동) | 자기완결형 · 13개국어 | 🟢 라이브 · 2026-10-10 색인 허용(소개·조작법·FAQ 본문 · sitemap · 404) |
 | [utils](apps/utils/) | utils.broodev.com | **업무 유틸 모음**(구 `megahouse`, 2026-10-02 개명 — 일에 필요한 도구를 계속 추가). **「写真ならべ / 사진 나란히 / Photo Layout」 시리즈**(2026-10-03 형식별 앱 분리): 사진 업로드 → 용지(A4·A3·A5·B4·B5·Letter·Legal)·세로/가로·가로×세로 각 1~5 격자로 배열 — **Excel 앱**(`/`, .xlsx) · **PowerPoint 앱**(`/pptx`, .pptx), Illustrator·Photoshop 은 준비 중(프리미엄 예정). 브라우저 내 처리 — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS / PptxGenJS(CDN, 페이지별) · 자체 13개 언어 i18n · EmailJS 문의 폼 | 🟢 라이브 |
 | [excel](apps/excel/) | excel.broodev.com | **엑셀 에디터 SHEET**(2026-10-10) — 여러 시트·수식·병합·서식, IndexedDB 자동 저장/자동 불러오기(탭 간 충돌 사본), .xlsx/.csv 가져오기 · .xlsx/.csv/.pdf 내보내기 · 인쇄, Google 계정 동기화(Drive appDataFolder · 범위 drive.appdata 하나 · 서버 없음). 포털 카탈로그 status `soon` | 자기완결형 바닐라 JS · x-data-spreadsheet 1.1.9 · ExcelJS 4.4.0 · pdf-lib 1.17.1(CDN) · Google Identity Services · 13개 언어 | 🟡 Pages 프로젝트·도메인 생성 대기 |
 | [memo](apps/memo/) | memo.broodev.com | **쿠키 메모장 MEMO**(2026-10-10) — 입력 즉시 localStorage 자동 저장·열면 자동 복원(「쿠키처럼 기기별」), 검색·고정·.txt/.md 내보내기·JSON 백업, Google 계정 동기화(Drive appDataFolder · LWW + 충돌 사본 + 묘비). 포털 카탈로그 status `soon` | 자기완결형 바닐라 JS · Google Identity Services · 13개 언어 | 🟡 Pages 프로젝트·도메인 생성 대기 |

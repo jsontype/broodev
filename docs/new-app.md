@@ -51,12 +51,12 @@
 
 ### 3. i18n (13개 언어)
 - **언어**: `en, ko, ja, zh, zh-Hant, th, es, fr, de, it, pt, ru, nl`. 우측 상단 🌐 드롭다운.
-- **detectLang 우선순위**: `localStorage` → URL `?lang=` → `navigator.language` → (zh-Hant 라우팅) → `en` 폴백.
+- **표시 언어(2026-10-10 · `packages/seo/README.md` L1)**: URL `?lang=` → 앱 저장 키 → **기준 언어(정적 `<html lang>`)**. `navigator.language` 로 고르지 않는다(구글봇 en-US 렌더 = 원본 언어). 브라우저 언어 안내는 `/lang-suggest.js` 제안 바(L2).
 - **두 구성**:
   - btc: 인라인 `T`(메인 번들) + 기능별 보조(`MODE_I18N`, `GATE_I18N`) + `seo-i18n.js`(하단 SEO 13언어).
   - web/admin: `i18n/<lang>.js` 파일 + `i18n.js` 코어. `window.__WEB`/`window.__ADMIN` 등 전역으로 읽음.
 - **누락 키 = en 폴백** 항상 보장(`(MAP[lang] || MAP.en)`).
-- **hreflang**: head에 `<link rel="alternate" hreflang="xx" href="...?lang=xx">` 13개.
+- **hreflang(L4)**: 기준 언어 → 기준 주소(`?lang` 없음), 나머지 12개 → `?lang=xx`, **x-default → 영어 버전**. 각 `?lang` 주소의 canonical 은 **자기 자신**(서버 미들웨어 `functions/_lib/seo-lang.js` — L3). sitemap 도 같은 묶음(L5).
 - **OG/공유 썸네일 현지화**: `functions/_middleware.js`(Cloudflare Pages Function)에서 HTMLRewriter로 `?lang`별 OG meta 치환. 언어별 OG 이미지(og-ko/en/ja…) 준비.
 - **UI 함정**: 긴 언어(독일어 `Antizyklisch` 등)에서 라벨이 버튼 폭을 넘김 → **라벨을 분리**(주 단어 크게 + 부가어 아주 작게)하거나 단어 1개로. 13개 언어를 **실제 폭으로 시각 검증**할 것(정적 CSS 하니스 스크린샷).
 - **기본값 리셋**: 영속된 사용자 선택을 무시하고 새 기본값을 강제하려면 **localStorage 키를 bump**(`btc:mode`→`btc:mode2`).
@@ -138,15 +138,17 @@
 - ■ **React 훅 규칙**: 모든 훅을 early-return/조건 분기 **앞**에 둔다. 로딩/게이트 화면도 훅 이후 분기 금지.
 
 ### C. i18n (13개 언어)
-- ■ 언어 13종 + 🌐 드롭다운 + `detectLang`(localStorage→?lang→navigator→en).
+- ■ 언어 13종 + 🌐 드롭다운 + 표시 언어 `?lang`→저장값→기준 언어(**navigator 금지**) + `<script src="/lang-suggest.js" data-key="<저장 키>" data-base="<기준 언어>" defer>`.
 - ■ 누락 키 **en 폴백** 보장.
-- ■ head **hreflang 13개** alternate.
+- ■ head **hreflang 13개 + x-default(영어 버전)** · `?lang` 버전마다 자기 canonical(서버 미들웨어).
 - ■ 모든 텍스트 13언어 번역(밴드/조언/FAQ/UI). 새 문자열 추가 시 13개 동시.
 - ■ **긴 언어 오버플로 시각 검증**(정적 하니스 스크린샷). de/fr/nl/ru 주의.
 - □ 공유 OG 현지화 → `functions/_middleware.js`(HTMLRewriter) + 언어별 OG 이미지.
 - ■ **공유 썸네일 `og-image.png`(1200×630)** — 카카오톡·LINE·X 는 `og:image` 가 없으면 빈 카드가 뜬다. [`scripts/og/gen_og.mjs`](../scripts/og/gen_og.mjs) 의 `SITES` 에 앱 설정(배경·액센트·배지·제목·태그) 추가 → `node scripts/og/gen_og.mjs <id>` → head 에 `og:image`(절대 URL) + `og:image:width/height/alt` + `twitter:card=summary_large_image` + `twitter:image`. 카카오 캐시는 https://developers.kakao.com/tool/clear/og 에서 지운다.
 
 ### D. SEO
+- ■ **언어 정책 L1~L6 한 번에**: `node scripts/seo-sync.mjs --add <slug> --suggest --fn` → `functions/_middleware.js`(`seoLang({ origin, base, meta })`) + 사전에서 생성한 `functions/_lib/seo-meta.js`(`scripts/seo-meta-gen.mjs` 에 앱 추가) + `_routes.json`(HTML 경로만 · `/api/*` 있으면 포함) + sitemap(`scripts/seo-sitemap-gen.mjs` 에 앱 추가) + 보이는 정적 `<h1>` + `404.html`.
+- ■ **통과 기준**: `node scripts/seo-check.mjs apps/<slug> --server wrangler --render` FAIL 0 · 구글봇 렌더 언어 = 원본 언어 · 포털 정적 목록 `node scripts/gen-portal-static.mjs` · 포털 `sitemap-index.xml` 에 새 호스트 추가(도메인 연결 뒤).
 - ■ `<title>`(키워드) / `meta description`(120~155자) / keywords / `robots: index,follow` / `canonical` / OG.
 - ■ **`#root` 바깥 정적 `<section class="seo">`**: 키워드 풍부한 본문 + FAQ(크롤러용).
 - ■ JSON-LD: `WebApplication`(+무료 offer) + `FAQPage`(방문 FAQ와 **텍스트 일치**). 추가 후 **파싱 검증**.

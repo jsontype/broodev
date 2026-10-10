@@ -11,14 +11,15 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
+  - **예외(2026-10-10): btc + 코인 14종은 미리 컴파일한다.** 원문 `apps/<앱>/app.jsx` → `node scripts/build-jsx.mjs` → `app.js`(커밋 · `index.html` 의 `<script src="app.js?v=<해시>" defer>`). 브라우저 Babel(약 3MB · 방문마다 변환)을 없애 모바일 첫 화면이 15초 가까이 걸리던 문제를 줄였다. 다른 React 앱(voca · voca-tutorial · dev1 등)은 여전히 브라우저 Babel.
 - 현재 **24개 앱**(2026-10-10 `excel`·`memo` 추가 — 아래 끝 참조): `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(**broodev.com 루트 = 앱 포털**, AIXOR 템플릿 · 전체 앱 카테고리 모달 · 2026-10-03, §6.3) + `dev`(개발자 소개 3종 `dev1·dev2·dev3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 dev3 · 구 `home1·2·3`, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 「写真ならべ / 사진 나란히」 시리즈: Excel 앱 `/` · PowerPoint 앱 `/pptx` · Illustrator 앱 `/ai` · Photoshop 앱 `/psd` — 뒤 셋은 프리미엄, 2026-10-05 ai·psd 공개). dev2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, dev3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). **2026-10-03 부터 `btc` 의 정본 호스트는 `btc.broodev.com`**(루트는 포털) — 코인 14종도 그 기준으로 재생성됨. **2026-10-10**: `excel`(엑셀 에디터 SHEET) · `memo`(쿠키 메모장 MEMO) — React·Babel 없는 **자기완결형 바닐라 JS**(여러 파일 `js/*.js`, 빠른 첫 로딩) · 터미널 테마 · 13개 언어 · 브라우저 저장소 자동 저장 + Google Drive appDataFolder 동기화(§6.7).
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
 ### ⚠ 분석 전 반드시 알아야 할 것 (오해 방지)
 1. **빌드 시스템이 없다.** `npm install`/`vite`/`webpack` 찾지 말 것. `apps/<name>/index.html`을 정적 서빙할 뿐.
-2. **React는 `<script type="text/babel">` 안의 인라인 JSX**로 존재한다(별도 `.jsx`를 `src`로 부르기도 함). 트랜스파일은 **런타임 브라우저 Babel**이 한다.
-3. **`apps/btc/index.html`은 ~2,240줄 단일 파일**에 스타일·i18n·로직이 전부 인라인이다(자기완결형). 큰 파일이라고 분리된 게 아니다.
+2. **React는 대부분 `<script type="text/babel">` 안의 인라인 JSX**로 존재한다(별도 `.jsx`를 `src`로 부르기도 함). 트랜스파일은 **런타임 브라우저 Babel**이 한다. **단 btc·코인 14종은 `app.jsx`(원문) → `app.js`(사전 컴파일 산출물, 커밋)** — `index.html` 에는 JSX 가 없다(위 TL;DR 예외).
+3. **btc 는 `index.html`(마크업·스타일·정적 SEO 본문·인라인 사전) + `app.jsx`(React 앱 원문, 약 2,600줄) + `app.js`(빌드 산출물)** 이다. 앱 로직을 고칠 곳은 `app.jsx` — 고친 뒤 `node scripts/build-jsx.mjs` (코인까지: `python scripts/gen_coin.py all`).
 4. **코인 앱(eth·xrp·…)은 btc의 복제본**이다. 직접 수정하지 말고 **btc(템플릿) 수정 → 재생성**한다(아래 §5).
 5. **`node_modules` 없음** → import 그래프/의존성 분석 도구가 "의존성 없음"이라 보고해도 정상이다.
 
@@ -174,7 +175,7 @@ broodev/
 ### 6.1 btc (대표앱 · 코인 템플릿) — `broodev.com` + `btc.broodev.com`
 - **비트코인 공포·탐욕 지수 & 매수 타이밍 점수(0~100)** 대시보드.
 - 데이터 출처: **CoinGecko**(가격·시총·365일 차트), **Binance**(24h 티커·일봉 klines), **Alternative.me**(공포·탐욕 지수, 시장 전체값).
-- **6개 지표 합성**: 공포·탐욕 지수 · RSI(14) · MACD(12·26·9) · 마이어 배수(가격÷200일선) · 365일 고점 대비 낙폭 · 골든/데드 크로스(50/200 MA).
+- **8개 지표 합성**: 공포·탐욕 지수(시장 전체) · RSI(14) · MACD(12·26·9) · 마이어 배수(가격÷200일선) · 365일 고점 대비 낙폭 · 골든/데드 크로스(50/200 MA) · MVRV Z(온체인) · Thermocap Z(온체인 · btc 전용). 코인 앱은 7개(THERM 없음).
 - 점수 5단계: **STRONG BUY · ACCUMULATE · NEUTRAL · CAUTION · OVERHEATED**.
 - 탭: **단기(모멘텀 추세추종)** / **장기(역발상 사이클)**.
 - 프리미엄은 앱 안에서 라이선스 키로 해제(why·추이·BOTTOM RADAR·고급 지표 — 「광고 제거」는 광고가 실제로 나오지 않아 혜택 문구에서 뺐다, 2026-10-10. 라이선스 보유자에겐 광고 스크립트를 로드하지 않는 동작은 유지). 예전 `member/`(라이선스 없이 열리던 광고 없는 사본)는 2026-10-10 삭제, `/member` → `/` 301.
@@ -186,7 +187,9 @@ broodev/
 ### 6.2 코인 14종 — `<coin>.broodev.com`
 btc와 **동일 구조**, 코인만 파라미터화. 목록:
 `eth·xrp·doge·bch·link·xlm·ltc·avax·shib·dot·pepe·grt·sand·mana`.
-공포·탐욕 지수는 시장 전체값이라 코인별 차별화는 **가격 기반 5개 지표**가 담당.
+지표 7개(THERM 은 btc 전용). **MVRV 는 CoinMetrics 커뮤니티 데이터가 최신일 때만**(2026-10-09 확인: eth·xrp·doge·bch·link·xlm·ltc·mana 있음 · avax·shib·pepe·grt·sand 없음 · dot 은 2022-06 에서 멈춰 10일 넘게 낡은 데이터는 N/A 처리). 공포·탐욕 지수는 시장 전체값(코인 전용 지수 아님).
+- **코인별 고유 본문(2026-10-10)**: `scripts/coin-content/<slug>.json`(코인 소개 · 지표 적용 시 주의 · 사이클 요약 · FAQ, 13개 언어) → `gen_coin.py` 가 정적 `section.seo` · `seo-i18n.js` · FAQPage JSON-LD · 언어별 서버 메타에 넣는다(btc 본문과 5-gram 겹침 0.86 → 약 0.2). 코인별 OG 이미지 3장(ko/en/ja): `node scripts/og/gen_coin_og.mjs`.
+- 코인 사이트의 btc 전용 글 링크는 `https://btc.broodev.com/<글>` 절대 주소 + 코인 `_redirects` 301(코인 사이트엔 그 글이 없다). 비트코인 고유 서술(「BTC 중심」 등)은 gen_coin 의 보호 구역이라 코인명으로 바뀌지 않는다.
 
 ### 6.3 home — `broodev.com` 루트 = 앱 포털 (`apps/home`) · dev — `dev.broodev.com` = 개발자 소개 (`apps/dev` = dev1 · dev2 · dev3 + 스위치)
 - **2026-10-03 역할 교대.** `broodev.com` 은 **포털**("포탈을 여는 느낌"), `dev.broodev.com` 은 **개발자 소개 사이트**. 구 `apps/home/home1·2·3` 은 `apps/dev/dev1·2·3` 로 이동(폴더명만 바뀜 — JS 전역·`home3:ready` 이벤트·`localStorage(home:lang)` 키 등 내부 식별자는 유지), 구 `apps/dev` 공사중 페이지는 삭제, home.broodev.com 은 폐기.
@@ -253,7 +256,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 
 ## 9. i18n (13개국어)
 언어: `en, ko, ja, zh, zh-Hant, th, es, fr, de, it, pt, ru, nl`. 우측 상단 🌐 드롭다운.
-- `detectLang` 우선순위: `localStorage` → URL `?lang=` → `navigator.language` → `en` 폴백.
+- **표시 언어(2026-10-10 · `packages/seo/README.md` L1)**: `?lang=` → 앱 저장 키(사용자가 고른 언어) → **기준 언어(정적 `<html lang>`)**. `navigator.language` 로 고르지 않는다 — 구글봇은 미국 영어(en-US)로 렌더하므로 예전처럼 브라우저 언어로 바꾸면 한국어 정본 대신 영어판이 색인됐다. 브라우저 언어가 기준 언어와 다르면 `/lang-suggest.js` 가 「○○로 보기」 제안 바만 띄운다. 예외: 기준 언어가 en 인 지역 패널이 13개 언어 밖의 지역어(greenland 의 da)를 고르는 것(`seo-allow-navigator` 표시).
 - **두 구성**:
   - 자기완결형(btc/코인): 인라인 번들 `T` + `seo-i18n.js`(하단 SEO 13언어) + `foot-i18n.js`(푸터).
   - 분리형(dev/admin): `i18n/<lang>.js` 파일 + `i18n.js` 코어.
@@ -269,6 +272,22 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - **정적 크롤러 콘텐츠는 `#root` 바깥**에 둔다(React가 `#root`를 통째 교체하므로). btc/코인은 `<section class="seo">`.
 - head 필수: 키워드 `<title>`·`meta description`(120~155자)·`keywords`·`robots`·`canonical`·OG·JSON-LD(`WebApplication`+`FAQPage`, FAQ 텍스트 일치).
 - `sitemap.xml`(+lastmod)·`robots.txt`(+Sitemap)·파비콘 4종을 **실제 파일**로(SPA라 없으면 index.html 반환).
+- **언어 정책(2026-10-10 전수 점검 → 전 앱 적용) — 정본: [`packages/seo/README.md`](packages/seo/README.md) L1~L6.**
+  - L1 표시 언어는 `?lang` → 저장값 → 기준 언어(navigator 금지) · L2 브라우저 언어는 `lang-suggest.js` 제안 바만
+  - L3 언어별 주소 `P?lang=xx` 마다 **서버(Pages Functions)가** canonical·og:url = 자기 자신, `<html lang>`, title·description·OG 를 그 언어로(`functions/_lib/seo-lang.js` 공용 헬퍼) · `*.pages.dev` noindex
+  - L4 hreflang: 기준 언어 → 기준 주소, 12개 → `?lang=xx`, **x-default → 영어 버전** · L5 sitemap 은 언어 버전마다 `<url>` + 같은 xhtml:link 묶음 · 404.html
+  - L6 보이는 정적 `<h1>` · title/description 길이 · 확장자 없는 내부 링크
+- **공용 파일은 사본**: `packages/seo/lang-suggest.js` · `seo-lang.js` → 각 앱 `/lang-suggest.js` · `functions/_lib/seo-lang.js`. 원본만 고치고 `node scripts/seo-sync.mjs`(검사 `--check` · 새 앱 `--add <app> --suggest --fn`).
+- **서버 메타는 사전에서 생성(손으로 베끼지 말 것 — 사전 문구를 고치면 다시 돌린다)**:
+  | 앱 | 생성 명령 |
+  | --- | --- |
+  | btc + 코인 14종 | `python scripts/gen_coin.py meta` (코인까지 `all`) |
+  | utils | `node apps/utils/functions/_lib/seo-meta.gen.mjs` |
+  | voca · voca-tutorial | `node scripts/seo-meta-voca.mjs` |
+  | samurai | `node scripts/samurai-seo-meta.mjs` |
+  | home(포털 · premium · legal) · dev(dev1·2·3) · memo · excel · stans | `node scripts/seo-meta-gen.mjs <앱|all>` (`--check`) |
+- **사이트맵 생성**: `node scripts/seo-sitemap-gen.mjs <memo|excel|home|dev|all>` · 포털 원본 HTML 의 정적 앱 목록·숫자: `node scripts/gen-portal-static.mjs`(catalog.js · i18n-data.js 를 고치면). 포털 `sitemap-index.xml` 은 서브도메인 사이트맵 33개 묶음(Search Console 도메인 속성에서 제출).
+- **검사**: `node scripts/seo-check.mjs <앱 폴더…> [--server wrangler] [--render]`(정적 L1~L6 · wrangler 로 ?lang 응답 · 구글봇/일본어 사용자 렌더) · `node scripts/seo-render.mjs --url <url> [--as user --lang ja-JP --click-lsg]`. wrangler 는 레포에 없다 — `SEO_CHECK_WRANGLER` 또는 `--wrangler` 로 경로 지정.
 
 ---
 
@@ -286,6 +305,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - **1 앱 = 1 Pages 프로젝트.** Root directory = `apps/<name>`, Build command 없음, 정적.
 - **master 푸시 = 프로덕션 자동 재배포**(Automatic deployments). 브랜치 푸시 = Preview.
 - 커스텀 도메인 연결 시 DNS(CNAME)는 Cloudflare가 자동 생성(도메인이 CF에 있음).
+- **Pages Functions(2026-10-10)**: 언어별 서버 메타(L3) · pages.dev noindex 미들웨어가 btc·코인·voca·voca-tutorial·dev(기존) + **home · utils · samurai · memo · excel · stans(신규)** 에 있다. 새로 붙인 앱은 `_routes.json` 으로 **HTML 정본 경로만** 함수를 타게 했다(무료 요청 한도 · utils · voca 는 `/api/*` 포함). 자산 요청은 함수를 거치지 않는다.
 
 | Pages 프로젝트 | Root | 도메인 | 상태 |
 | --- | --- | --- | --- |
@@ -316,7 +336,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 2. `packages/ui-terminal/theme.css` 스타일 재사용(인라인 사본).
 3. **필수 하드 규칙 준수**: `@babel/standalone@7`, 훅 규칙, `minmax(0,1fr)`.
 4. **13개국어** i18n + 🌐 + hreflang. 새 문자열 13언어 동시.
-5. **SEO**: `#root` 바깥 `<section class="seo">`(단어암기 키워드+FAQ), head 메타·canonical(`https://<slug>.broodev.com/`)·JSON-LD(`WebApplication`)·`sitemap.xml`·`robots.txt`·파비콘 4종.
+5. **SEO**: `#root` 바깥 `<section class="seo">`(키워드+FAQ), head 메타·canonical(`https://<slug>.broodev.com/`)·JSON-LD(`WebApplication`)·`sitemap.xml`·`robots.txt`·파비콘 4종 + **언어 정책 L1~L6**(`packages/seo/README.md`): `node scripts/seo-sync.mjs --add <slug> --suggest --fn` → `functions/_middleware.js`(seo-lang) + 사전에서 생성한 `seo-meta.js`(`scripts/seo-meta-gen.mjs` 에 앱 추가) + `_routes.json` + `scripts/seo-sitemap-gen.mjs` → `node scripts/seo-check.mjs apps/<slug> --server wrangler --render` 통과.
 6. **AdSense**: 인증 메타 + `ads.txt` + Auto Ads(광고 앱일 때). 정적 `privacy.html`·`terms.html`.
 7. **공통 푸터**: 현재 푸터는 코인 전용(`foot-fam`) → 비코인 앱이 생기므로 **푸터를 “코인 시그널 / 도구·학습” 구획으로 확장**할지 먼저 정한다. 정하면 btc 템플릿+`foot-i18n.js` 수정 후 `gen_coin.py all` 재생성으로 전 앱 반영.
 8. **포털 등록**: `apps/home/assets/js/catalog.js` 의 `APPS` 배열에 한 줄 추가(카테고리·도메인·한 줄 설명 — 헤더 카운트·모달·카테고리 섹션이 자동 반영, OG 태그의 앱 수는 `scripts/og/gen_og.mjs` 수동). 개발자 소개 `apps/dev/dev1/app.jsx` 의 `PROJECTS` 도 갱신(내부링크 = SEO 권위).
@@ -336,11 +356,17 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 | 그리드 `1fr` | 모바일 우측 잘림 | `minmax(0,1fr)` + `min-width:0` |
 | 자동 커밋/푸시 | 버그 프로덕션 직행 | 사용자 지시 시에만 |
 | 헤드리스로 렌더 검증 | CDN React/Babel 미실행 → 무효 | 정적 HTML 하니스 스크린샷 / 라이브 fetch로 검증 |
+| 표시 언어를 `navigator` 로 자동 전환 | 구글봇(en-US 렌더)에게 영어판이 색인 · 한국어 정본 소실(2026-10-10 점검) | `?lang` → 저장값 → 기준 언어 + `lang-suggest.js` 제안 바(`packages/seo` L1·L2) |
+| `?lang` 주소의 canonical 을 루트로 고정 | 구글이 hreflang 묶음 전체를 무시 → 다른 언어 검색 노출 0 | 서버가 언어 버전마다 자기 canonical(`seo-lang.js`, L3) |
+| 사전 문구만 고치고 seo-meta 재생성 안 함 | 화면 제목과 서버 메타 불일치(seo-check FAIL) | 생성기 다시 실행(§10 표) |
+| btc `index.html` 에서 JSX 를 찾음 | 2026-10-10 부터 없음 | `apps/btc/app.jsx` 수정 → `node scripts/build-jsx.mjs` |
 
 ---
 
 ## 15. 빠른 참조 (어디에 뭐가 있나)
-- 코인 공통 로직·UI → `apps/btc/index.html` (수정 후 `gen_coin.py all`)
+- 코인 공통 로직·UI → `apps/btc/app.jsx`(React 앱) · `apps/btc/index.html`(마크업·스타일·정적 본문) (수정 후 `node scripts/build-jsx.mjs` · 코인까지 `python scripts/gen_coin.py all`)
+- 코인별 고유 본문 → `scripts/coin-content/<slug>.json` (13개 언어 · 수정 후 `gen_coin.py all`)
+- SEO 정책·공용 파일 → `packages/seo/` (README L1~L6 · `scripts/seo-sync.mjs` · `seo-check.mjs` · `seo-render.mjs` · `seo-meta-gen.mjs` · `seo-sitemap-gen.mjs` · `gen-portal-static.mjs`)
 - 코인 하단 SEO 본문 → `apps/btc/seo-i18n.js`
 - 푸터·코인명 다국어 → `apps/btc/foot-i18n.js` (+ 각 앱 사본)
 - 코인 추가/데이터 → `scripts/coins.json` + `scripts/gen_coin.py`
