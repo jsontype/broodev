@@ -41,6 +41,12 @@ const JOBS = [
   ...['index', '404', 'premium', 'legal/tokushoho', 'legal/terms', 'legal/privacy', 'legal/refund'].map((d) => ({ name: 'home/' + d, root: 'apps/home', page: d + '.html', set: ['qs:lang'], wait: 4500, allow: '写真ならべ' })),
   // dev.broodev.com 은 미들웨어가 활성 홈(dev3)을 루트로 서빙한다 — 404 페이지가 /assets/… 절대경로를 쓰므로 dev3 폴더를 루트로
   ...['index', '404'].map((d) => ({ name: 'dev/dev3/' + d, root: 'apps/dev/dev3', page: d + '.html', set: ['qs:lang'], wait: 4500 })),
+  // dev1 · dev2(2026-10-10 13개 언어) — 미리보기 경로 /dev1/ · /dev2/ 와 같은 구조로(상대 경로 자산) apps/dev 를 루트로
+  ...['index', '404'].map((d) => ({ name: 'dev/dev1/' + d, root: 'apps/dev', page: 'dev1/' + d + '.html', set: ['qs:lang', 'ls:home:lang'], wait: 6000 })),
+  ...['index', 'blog', 'blog-detail', '404'].map((d) => ({ name: 'dev/dev2/' + d, root: 'apps/dev', page: 'dev2/' + d + '.html', set: ['qs:lang', 'ls:home:lang'], wait: 5000 })),
+  // 2026-10-10 SEO 로 새로 생긴 404(13개 언어)
+  { name: 'samurai/404', root: 'games/samurai', page: '404.html', set: ['qs:lang'], wait: 2500, allow: SAMURAI_ALLOW },
+  { name: 'voca-tutorial/404', root: 'apps/voca-tutorial', page: '404.html', set: ['lsjson:vocatut:lang'], wait: 3000 },
   { name: 'admin', root: 'apps/admin', page: 'index.html', set: ['ls:broodev:lang'], wait: 7000 },
   ...['index', 'pptx', 'ai', 'psd', 'pricing', 'contact', '404'].map((d) => ({ name: 'utils/' + d, root: 'apps/utils', page: d + '.html', set: ['qs:lang'], wait: d === 'psd' ? 9000 : 5000 })),
   // 엑셀 에디터(SHEET) · 쿠키 메모장(MEMO) — 2026-10-10. 엑셀은 CDN(x-spreadsheet·ExcelJS·pdf-lib) 로딩이 있어 대기를 길게
