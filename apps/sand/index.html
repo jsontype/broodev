@@ -366,6 +366,15 @@
       .ind-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-bottom: 22px; }
       .ind-card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 14px 12px; transition: transform .15s, box-shadow .2s; }
       .ind-card:hover { transform: translateY(-2px); box-shadow: 0 0 26px -8px var(--accent, var(--neon)); }
+      /* 프리미엄 지표 잠금 카드 — 중립색 · 값 자리·차트·부분점수 크기의 모자이크 */
+      .ind-card.status-locked { --accent: var(--dim); }
+      .ind-card .ind-head .pg-prem { margin-left: auto; }
+      .ind-card .mosaic-hit { display: flex; width: 100%; margin-top: 8px; }
+      .ind-card .ind-lock-value .mosaic-bar { width: 132px; height: 28px; }
+      .ind-card .ind-lock-line .mosaic-bar { width: 100%; height: 9px; }
+      .ind-card .ind-lock-line.short .mosaic-bar { width: 62%; }
+      .ind-lock-chart { margin-top: 10px; cursor: pointer; }
+      .ind-lock-chart .duo-mosaic { height: 40px; }
       .ind-card.status-ok { --accent: var(--ok); } .ind-card.status-warn { --accent: var(--warn); } .ind-card.status-crit { --accent: var(--crit); } .ind-card.status-na { --accent: var(--crit); }
       .ind-head { display: flex; justify-content: space-between; align-items: baseline; }
       .ind-short { font-size: 15px; font-weight: 800; letter-spacing: 1px; color: var(--accent, var(--neon)); }
@@ -1645,6 +1654,8 @@
        * 따라서 ?coin=pepe 화면에서도 이 값은 PEPE 의 지수가 아니라 시장 전체 지수다.
        * 예전에는 이를 그냥 "페페 공포·탐욕 지수"처럼 보이게 두었는데, 이는 사용자를 오도한다.
        * 비-SAND 화면에서는 라벨에 "시장 전체" 를 명시한다. */
+      // 프리미엄 지표(카드 아래 줄) — 비프리미엄에겐 지표 이름만 보이고 값·세부·차트·부분점수·가중치·설명은 모자이크(2026-10-10). 터미널 show 도 같은 기준
+      const PREMIUM_IND = new Set(['DD', 'GC_DC', 'MVRV', 'THERM'])
       const INDICATOR_META = [
         { key: 'RSI', short: 'RSI·14', name: 'Relative Strength Index (Wilder)', desc: '과매도(<30) = 매수 / 과매수(>70) = 경계' },
         { key: 'MACD', short: 'MACD', name: 'MACD 12·26·9 히스토그램', desc: '음→양 / 바닥 상향전환 = 매수 모멘텀' },
@@ -2166,10 +2177,29 @@
       /* =========================================================
        *  지표 카드
        * ========================================================= */
-      function IndicatorCard({ meta, part, mode = 'long', xm }) {
+      function IndicatorCard({ meta, part, mode = 'long', xm, locked, onPremium }) {
         const { t, lang } = useI18n()
         const oc = getOnchain(lang)
         const ti = t.ind[meta.key] || (oc.ind && oc.ind[meta.key]) || { name: meta.name, desc: meta.desc }
+        if (locked) {
+          /* 프리미엄 지표 — 비프리미엄에겐 짧은 이름·지표 이름(이름 위 설명 툴팁 포함)만. 값·세부·차트·부분점수·가중치·설명 문장은 렌더하지 않는다
+             (흐림 처리가 아니라 값 자체가 DOM 에 없음) · 카드 색도 값과 무관한 중립색 */
+          const lock = (cls) => <button type="button" className={'mosaic-hit ' + cls} onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>
+          return (
+            <article className="ind-card status-locked">
+              <span className="corner tl" /><span className="corner br" />
+              <div className="ind-head">
+                <Term k={meta.key}><span className="ind-short">{meta.short}</span></Term>
+                <button type="button" className="pg-prem" onClick={onPremium}>Premium</button>
+              </div>
+              <div className="ind-name">{ti.name}</div>
+              {lock('ind-lock-value')}
+              <div className="ind-lock-chart" onClick={onPremium} role="button" tabIndex={0} aria-label="Premium" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPremium() } }}><div className="duo-mosaic" /></div>
+              {lock('ind-lock-line')}
+              {lock('ind-lock-line short')}
+            </article>
+          )
+        }
         // 단기(모멘텀)면 모멘텀 설명·부분점수·가중치, 장기(역발상)면 기존 역발상값
         const desc = mode === 'short' ? ((xm && xm.ind && xm.ind[meta.key]) || (oc.indMom && oc.indMom[meta.key]) || ti.desc) : ti.desc
         const weight = (mode === 'short' ? WEIGHTS_MOM : WEIGHTS_CON)[meta.key]
@@ -2410,6 +2440,7 @@
             case 'show': {
               const key = SHOW_MAP[(args[0] || '').toLowerCase()]
               if (!key || !a) { print(tt.showUsage); break }
+              if (!ctx.premium && PREMIUM_IND.has(key)) { print('  ' + (PREM_UI[lang] || PREM_UI.en).body); break }   // 프리미엄 지표 — 카드처럼 값을 내주지 않는다
               const m = INDICATOR_META.find((x) => x.key === key), p = a.parts[key]
               const ti = t.ind[key] || { name: m.name, desc: m.desc }
               print(`  ${m.short} — ${ti.name}`, tt.showVal(p.value, p.detail), tt.showScore(p.sShort == null ? 'N/A' : p.sShort.toFixed(1) + '/100', Math.round(WEIGHTS_MOM[key] * 100)), `    ${ti.desc}`)
@@ -3042,19 +3073,19 @@
       }
       const getOnchain = (lang) => ONCHAIN_I18N[lang] || ONCHAIN_I18N.en
       const PREM_UI = {
-        ko: { label: 'PREMIUM', body: '오늘의 점수는 무료입니다. why, BOTTOM RADAR(바닥 점수·판정·차트), 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간', life: '평생', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)', emailPh: '이메일' },
-        en: { label: 'PREMIUM', body: "Today's score is free. why, BOTTOM RADAR (bottom score, verdict and chart), history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly', life: 'Lifetime', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)', emailPh: 'email' },
-        ja: { label: 'PREMIUM', body: '今日のスコアは無料。why・BOTTOM RADAR（底スコア・判定・チャート）・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額', life: '買い切り', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）', emailPh: 'メールアドレス' },
-        zh: { label: 'PREMIUM', body: '今日评分免费。why、BOTTOM RADAR（底部评分·判定·图表）、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付', life: '买断', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）', emailPh: '电子邮箱' },
-        'zh-Hant': { label: 'PREMIUM', body: '今日評分免費。why、BOTTOM RADAR（底部評分·判定·圖表）、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付', life: '買斷', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）', emailPh: '電子郵件' },
-        th: { label: 'PREMIUM', body: 'คะแนนวันนี้ฟรี why, BOTTOM RADAR (คะแนนก้นตลาด การตัดสิน และกราฟ), แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี', life: 'ตลอดชีพ', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)', emailPh: 'อีเมล' },
-        es: { label: 'PREMIUM', body: 'La puntuación de hoy es gratis. why, BOTTOM RADAR (puntuación de suelo, veredicto y gráfico), el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual', life: 'De por vida', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)', emailPh: 'correo electrónico' },
-        fr: { label: 'PREMIUM', body: 'Le score du jour est gratuit. why, BOTTOM RADAR (score de plancher, verdict et graphique), l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel', life: 'À vie', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)', emailPh: 'adresse e-mail' },
-        de: { label: 'PREMIUM', body: 'Der heutige Score ist kostenlos. why, BOTTOM RADAR (Boden-Score, Urteil und Chart), Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich', life: 'Lebenslang', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)', emailPh: 'E-Mail-Adresse' },
-        it: { label: 'PREMIUM', body: 'Il punteggio di oggi è gratis. why, BOTTOM RADAR (punteggio del minimo, verdetto e grafico), lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale', life: 'A vita', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)', emailPh: 'indirizzo e-mail' },
-        pt: { label: 'PREMIUM', body: 'A pontuação de hoje é grátis. why, BOTTOM RADAR (pontuação de fundo, veredito e gráfico), o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual', life: 'Vitalício', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)', emailPh: 'endereço de e-mail' },
-        ru: { label: 'PREMIUM', body: 'Сегодняшний балл бесплатный. why, BOTTOM RADAR (балл дна, вердикт и график), история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год', life: 'Навсегда', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)', emailPh: 'эл. почта' },
-        nl: { label: 'PREMIUM', body: 'De score van vandaag is gratis. why, BOTTOM RADAR (bodemscore, oordeel en grafiek), verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks', life: 'Levenslang', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)', emailPh: 'e-mailadres' },
+        ko: { label: 'PREMIUM', body: '오늘의 점수는 무료입니다. why, BOTTOM RADAR(바닥 점수·판정·차트), 고급 지표(DD·365, 50/200, MVRV·Z, THERM·Z), 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간', life: '평생', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)', emailPh: '이메일' },
+        en: { label: 'PREMIUM', body: "Today's score is free. why, BOTTOM RADAR (bottom score, verdict and chart), advanced indicators (DD·365, 50/200, MVRV·Z, THERM·Z), history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly', life: 'Lifetime', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)', emailPh: 'email' },
+        ja: { label: 'PREMIUM', body: '今日のスコアは無料。why・BOTTOM RADAR（底スコア・判定・チャート）・上級指標（DD·365、50/200、MVRV·Z、THERM·Z）・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額', life: '買い切り', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）', emailPh: 'メールアドレス' },
+        zh: { label: 'PREMIUM', body: '今日评分免费。why、BOTTOM RADAR（底部评分·判定·图表）、高级指标（DD·365、50/200、MVRV·Z、THERM·Z）、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付', life: '买断', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）', emailPh: '电子邮箱' },
+        'zh-Hant': { label: 'PREMIUM', body: '今日評分免費。why、BOTTOM RADAR（底部評分·判定·圖表）、進階指標（DD·365、50/200、MVRV·Z、THERM·Z）、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付', life: '買斷', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）', emailPh: '電子郵件' },
+        th: { label: 'PREMIUM', body: 'คะแนนวันนี้ฟรี why, BOTTOM RADAR (คะแนนก้นตลาด การตัดสิน และกราฟ), ตัวชี้วัดขั้นสูง (DD·365, 50/200, MVRV·Z, THERM·Z), แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี', life: 'ตลอดชีพ', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)', emailPh: 'อีเมล' },
+        es: { label: 'PREMIUM', body: 'La puntuación de hoy es gratis. why, BOTTOM RADAR (puntuación de suelo, veredicto y gráfico), indicadores avanzados (DD·365, 50/200, MVRV·Z, THERM·Z), el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual', life: 'De por vida', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)', emailPh: 'correo electrónico' },
+        fr: { label: 'PREMIUM', body: 'Le score du jour est gratuit. why, BOTTOM RADAR (score de plancher, verdict et graphique), indicateurs avancés (DD·365, 50/200, MVRV·Z, THERM·Z), l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel', life: 'À vie', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)', emailPh: 'adresse e-mail' },
+        de: { label: 'PREMIUM', body: 'Der heutige Score ist kostenlos. why, BOTTOM RADAR (Boden-Score, Urteil und Chart), erweiterte Indikatoren (DD·365, 50/200, MVRV·Z, THERM·Z), Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich', life: 'Lebenslang', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)', emailPh: 'E-Mail-Adresse' },
+        it: { label: 'PREMIUM', body: 'Il punteggio di oggi è gratis. why, BOTTOM RADAR (punteggio del minimo, verdetto e grafico), indicatori avanzati (DD·365, 50/200, MVRV·Z, THERM·Z), lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale', life: 'A vita', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)', emailPh: 'indirizzo e-mail' },
+        pt: { label: 'PREMIUM', body: 'A pontuação de hoje é grátis. why, BOTTOM RADAR (pontuação de fundo, veredito e gráfico), indicadores avançados (DD·365, 50/200, MVRV·Z, THERM·Z), o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual', life: 'Vitalício', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)', emailPh: 'endereço de e-mail' },
+        ru: { label: 'PREMIUM', body: 'Сегодняшний балл бесплатный. why, BOTTOM RADAR (балл дна, вердикт и график), расширенные индикаторы (DD·365, 50/200, MVRV·Z, THERM·Z), история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год', life: 'Навсегда', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)', emailPh: 'эл. почта' },
+        nl: { label: 'PREMIUM', body: 'De score van vandaag is gratis. why, BOTTOM RADAR (bodemscore, oordeel en grafiek), geavanceerde indicatoren (DD·365, 50/200, MVRV·Z, THERM·Z), verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks', life: 'Levenslang', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)', emailPh: 'e-mailadres' },
       }
       const premUi = (lang) => PREM_UI[lang] || PREM_UI.en
       /* 요금 플랜 — list(비교 가격·정가)는 2026-10-07 결정으로 null: 영구 ¥2,000(2026-10-08 개정) 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
@@ -3501,7 +3532,7 @@
               <BottomRadar analysis={analysis} chain={chain && (chain.status === 'live' || chain.status === 'cached') ? chain : null} premium={premium} onPremium={() => setShowPrm(true)} />
 
               <section className="ind-grid">
-                {INDICATOR_META.map((m) => <IndicatorCard key={m.key} meta={m} part={analysis?.parts?.[m.key]} mode={mode} xm={xm} />)}
+                {INDICATOR_META.map((m) => <IndicatorCard key={m.key} meta={m} part={analysis?.parts?.[m.key]} mode={mode} xm={xm} locked={!premium && PREMIUM_IND.has(m.key)} onPremium={() => setShowPrm(true)} />)}
               </section>
 
               <Terminal ctx={ctx} />
