@@ -105,6 +105,8 @@
         }
         return { readLic: readLic, writeLic: writeLic, clearLic: clearLic, device: device };
       })();
+      // 라이선스 보유자: 금색 Premium 배지(맨 위 메뉴)를 첫 화면부터 숨긴다 — html.is-licensed (활성화·해제 때 앱이 다시 맞춤)
+      try { if (window.__csSeat.readLic()) document.documentElement.classList.add('is-licensed'); } catch (e) {}
       (function () {
         var coin;
         try { coin = window.__SUBCOIN || (new URLSearchParams(location.search).get('coin') || 'btc').toLowerCase(); } catch (e) { coin = 'btc'; }
@@ -577,6 +579,7 @@
       .seo dd { margin: 3px 0 0; }
       /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 언어 선택 · 모바일 햄버거) ===== */
       .site-nav { position: relative; z-index: 2; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: rgba(4,8,10,.92); border-bottom: 1px solid var(--line); }
+      .is-licensed [data-prem-link] { display: none !important; }   /* 라이선스 보유자에겐 홍보용 금색 Premium 링크 숨김 */
       .site-nav-brand { color: var(--neon); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none; text-shadow: 0 0 10px rgba(0,255,156,.4); white-space: nowrap; }
       .site-nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid var(--line); color: var(--neon); font-size: 18px; line-height: 1; padding: 3px 9px; border-radius: 4px; cursor: pointer; }
       .site-nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
@@ -3333,6 +3336,8 @@
           window.addEventListener('hashchange', fromHash)
           return () => window.removeEventListener('hashchange', fromHash)
         }, [])
+        /* 라이선스 보유 여부 → html.is-licensed (금색 Premium 배지 숨김 — 활성화·해제 즉시 반영) */
+        useEffect(() => { document.documentElement.classList.toggle('is-licensed', !!premium) }, [premium])
         /* 정적 내비 배지의 -50% 를 PREM_PLANS 와 동기화 — 할인이 끝났거나(list null) 이미 프리미엄이면 숨김 */
         useEffect(() => {
           const v = dealVars()

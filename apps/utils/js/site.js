@@ -13,7 +13,7 @@
   'use strict';
   var I = window.MH_I18N, BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
   if (!I) return;
-  var V = '20261009b';
+  var V = '20261010a';
   var DOC = document.body ? document.body.getAttribute('data-page') : null;
 
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }

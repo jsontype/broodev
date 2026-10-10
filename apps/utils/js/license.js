@@ -39,7 +39,9 @@
     write({ key: String(key), exp: exp || null, plan: plan || null, at: nowIso(), checked: nowIso() });
     emit();
   }
-  function emit() { try { document.dispatchEvent(new CustomEvent('mh:license', { detail: read() })); } catch (e) { /* 구형 */ } }
+  // html.is-licensed — 금색 Premium 배지(메뉴·도구 제목) 숨김 표시. 페이지 머리의 인라인 스크립트가 첫 화면에 붙이고, 여기서 활성화·해제·만료 때 다시 맞춘다
+  function flag() { try { document.documentElement.classList.toggle('is-licensed', active()); } catch (e) { /* 구형 */ } }
+  function emit() { flag(); try { document.dispatchEvent(new CustomEvent('mh:license', { detail: read() })); } catch (e) { /* 구형 */ } }
 
   // 형식(xlsx/pptx/ai/psd)이 프리미엄인지 — biz.js 가 없는 페이지(index/pptx 는 biz.js 를 싣지 않음)를 위해 기본값 내장
   function isPremiumFormat(fmt) {
@@ -122,5 +124,6 @@
 
   root.MH_LICENSE = { active: active, set: set, clear: clear, read: read, isPremiumFormat: isPremiumFormat, normalize: normalize, activate: activate, deactivate: deactivate, refresh: refresh, resend: resend, device: device };
 
+  flag();
   setTimeout(function () { refresh(false); }, 0);   // 페이지 스크립트가 다 붙은 뒤 조용히 재검증
 }(window));

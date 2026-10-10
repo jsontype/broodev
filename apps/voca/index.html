@@ -44,7 +44,7 @@
       (function () {
         try {
           var L = JSON.parse(localStorage.getItem('voca:license') || 'null');
-          if (L && L.key && (!L.exp || Date.parse(L.exp) >= Date.now())) return;
+          if (L && L.key && (!L.exp || Date.parse(L.exp) >= Date.now())) { document.documentElement.classList.add('is-licensed'); return; }   // 라이선스 보유자: 광고 없음 + 금색 Premium 배지 숨김(html.is-licensed)
         } catch (e) {}
         var s = document.createElement('script');
         s.async = true;
@@ -543,6 +543,7 @@
       .seo-guides a { color: var(--t-link); }
       /* ===== 사이트 탐색 메뉴 (13개 언어 i18n · 헤더 ◐ 테마 + 🌐 언어 선택 · 모바일 햄버거) ===== */
       .site-nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 9px 18px; background: var(--t-nav-bg); border-bottom: 1px solid var(--t-nav-line); }
+      .is-licensed [data-prem-link] { display: none !important; }   /* 라이선스 보유자에겐 홍보용 금색 Premium 링크 숨김 */
       .site-nav-brand { color: var(--t-nav-accent); font-weight: 800; font-size: 14px; letter-spacing: .5px; text-decoration: none;  white-space: nowrap; }
       /* 브랜드는 이 맨 위 줄 한 곳만(앱 헤더의 중복 브랜드 제거 · 2026-10-10) — 로고는 탭 아이콘과 같은 V(/favicon.svg), 옆에 언어별 앱 이름(모바일에선 숨김) */
       .site-nav-brand { display: inline-flex; align-items: center; gap: 7px; }
@@ -2694,6 +2695,8 @@
           return PREMIUM.launch
         })()
         const isPremium = !!(lic && lic.key && (!lic.exp || Date.parse(lic.exp) >= Date.now()))
+        // 라이선스 보유 여부 → html.is-licensed (맨 위 메뉴의 금색 Premium 링크 숨김 — 활성화·해제 즉시 반영)
+        useEffect(() => { document.documentElement.classList.toggle('is-licensed', isPremium) }, [isPremium])
         /* 정적 내비 배지의 -50% 를 PREMIUM.plans 와 동기화 — 할인이 끝났거나(list null) 이미 프리미엄이면 숨김 */
         useEffect(() => {
           const v = dealVars()
