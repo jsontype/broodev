@@ -399,6 +399,32 @@ Thermocap Z  = z-score of ln(시가총액 ÷ Thermocap)   [전 역사 기준]
   // 13개 언어 — content-i18n.js 가 본문을 번역본으로 바꾼 뒤(window.CI18N.ready) 실행된다. 화면 문구는 TR({ ko: …, en: …, … }) 로
   var LANG = (window.CI18N && window.CI18N.lang) || 'ko';
   function TR(o) { return o[LANG] != null ? o[LANG] : (o.en != null ? o.en : o.ko); }
+  // ── 프리미엄 지표의 라이브 차트는 라이선스 보유자만(2026-10-10) — 비프리미엄은 데이터 요청 없이 모자이크 + ✦ PREMIUM 안내(→ 앱의 프리미엄 창)
+  //    판정은 앱(index.html __csSeat)과 같은 저장 위치: 쿠키 cs_lic(.broodev.com) → localStorage btc:license · 만료일이 지나면 무효
+  function hasLicense() {
+    try {
+      var m = document.cookie.match(/(?:^|; )cs_lic=([^;]*)/);
+      var L = JSON.parse((m ? decodeURIComponent(m[1]) : '') || localStorage.getItem('btc:license') || 'null');
+      return !!(L && L.key && (!L.exp || Date.parse(L.exp) >= Date.now()));
+    } catch (e) { return false; }
+  }
+  function lockCharts(ids) {
+    if (!document.getElementById('bd-lock-css')) {
+      var st = document.createElement('style');
+      st.id = 'bd-lock-css';
+      st.textContent = '.bd-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;padding:22px 12px;border:1px solid rgba(255,255,255,.08);border-radius:6px;text-decoration:none;color:inherit;background-image:linear-gradient(90deg,rgba(0,0,0,.5) 1px,transparent 1px),linear-gradient(rgba(0,0,0,.5) 1px,transparent 1px),linear-gradient(180deg,#24362c,#0b120e 45%,#1c2b24);background-size:12px 12px,12px 12px,100% 100%}' +
+        '.bd-lock-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:99px;background:linear-gradient(135deg,#ffe29a 0%,#f7b733 45%,#ff8a3d 100%);color:#2a1600;font-size:12px;font-weight:800;letter-spacing:.5px}' +
+        '.bd-lock-text{font-size:12.5px;color:#cfe3d8;text-align:center;max-width:36em;line-height:1.5}' +
+        '.bd-lock:hover .bd-lock-text{text-decoration:underline}';
+      document.head.appendChild(st);
+    }
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (!el) continue;
+      el.innerHTML = '<a class="bd-lock" href="/#premium"><span class="bd-lock-pill">\u2726 PREMIUM</span><span class="bd-lock-text">' + TR({ ko: '실시간 차트는 프리미엄 전용입니다 — 프리미엄 보기 →', en: 'Live charts are for Premium members — see Premium →', ja: 'ライブチャートはプレミアム限定です — プレミアムを見る →', zh: '实时图表为高级版专享 — 查看高级版 →', 'zh-Hant': '即時圖表為 Premium 專屬 — 查看 Premium →', th: 'กราฟเรียลไทม์สำหรับสมาชิกพรีเมียม — ดูพรีเมียม →', es: 'Los gráficos en vivo son exclusivos de Premium — ver Premium →', fr: 'Les graphiques en direct sont réservés à Premium — voir Premium →', de: 'Live-Charts sind Premium vorbehalten — Premium ansehen →', it: 'I grafici in tempo reale sono riservati a Premium — scopri Premium →', pt: 'Os gráficos ao vivo são exclusivos do Premium — ver Premium →', ru: 'Графики в реальном времени доступны в Премиум — подробнее →', nl: 'Live grafieken zijn voor Premium — bekijk Premium →' }) + '</span></a>';
+    }
+  }
+  if (!hasLicense()) { lockCharts(['chart1', 'chart2', 'chart3']); return; }
 
         var CM_URL = 'https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=CapMrktCurUSD,CapMVRVCur&frequency=1d&page_size=10000'
         var MR_URL = 'https://api.blockchain.info/charts/miners-revenue?timespan=all&format=json&cors=true'

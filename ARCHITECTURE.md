@@ -68,7 +68,7 @@ broodev/
 │  │  ├─ seo-i18n.js        #root 바깥 정적 SEO 본문의 13언어 데이터+렌더러(window.renderSEO)
 │  │  ├─ foot-i18n.js       공통 자매 푸터 코인명 13언어화(window.renderFooter, §8)
 │  │  ├─ functions/_middleware.js  Cloudflare Pages Function: ?lang 별 OG 메타 현지화(HTMLRewriter)
-│  │  ├─ member/index.html  프리미엄(광고 없음·noindex) 버전
+│  │  ├─ (member/ 삭제 2026-10-10 — 라이선스 키 프리미엄이 앱 안에 생겨 불필요 · /member → / 301, _redirects)
 │  │  ├─ adsense/index.html 고아 폴더(구 광고버전, 링크 안 됨) — 정리 대상 기술부채
 │  │  ├─ privacy.html·terms.html   정적 정책 페이지(AdSense 필수)
 │  │  ├─ og-image.png·og-en.png·og-ja.png·og-image.html   공유 썸네일
@@ -171,7 +171,7 @@ broodev/
 - **6개 지표 합성**: 공포·탐욕 지수 · RSI(14) · MACD(12·26·9) · 마이어 배수(가격÷200일선) · 365일 고점 대비 낙폭 · 골든/데드 크로스(50/200 MA).
 - 점수 5단계: **STRONG BUY · ACCUMULATE · NEUTRAL · CAUTION · OVERHEATED**.
 - 탭: **단기(모멘텀 추세추종)** / **장기(역발상 사이클)**.
-- 광고버전(루트, 색인·광고) ↔ `member/`(프리미엄, 광고·게이트 전무 + noindex) 2버전.
+- 프리미엄은 앱 안에서 라이선스 키로 해제(광고 제거·why·추이·BOTTOM RADAR·고급 지표). 예전 `member/`(라이선스 없이 열리던 광고 없는 사본)는 2026-10-10 삭제, `/member` → `/` 301.
 - **PREMIUM 모달 플랜 카드(2026-10-07)**: 월간 ¥100 / 연간 ¥800 / 평생 ¥2,000 세 카드(2026-10-08 개정 · Payment Link 가 빈 플랜은 「準備中」). 평생 카드는 「いちばんお得」 리본 + **「年額 2 年分の価格で、ずっと使える（3 年目からは実質無料）」**(13개국어 `PREM_DEAL.value`, 항상 표시) + 모달 하단 판매자·特商法·返金·利用規約 링크(`PREM_LEGAL`). 비교 가격 장치(정가 취소선·`-50%`·「발매 기념 특가 · 기간 한정」·小字, `PREM_DEAL`)는 `PREM_PLANS.lifetime.list` 가 숫자일 때만 켜지며 **2026-10-07 결정으로 `null`**(영구 ¥5,000 — 가공 정가는 景品表示法 有利誤認). `PREM_PLANS.until` 은 실제 종료일 → 「N일 남음」. 실제 결제 금액은 Stripe Price ¥5,000 그대로. 코인 14종은 재생성으로 반영. voca 도 같은 구조(`PREMIUM.plans` · `PLAN_DEAL`), utils 는 `js/promo.js`, 포털 총람은 `legal/biz.js` `lifetime_list` — 법적 주의(景品表示法 将来価格)와 운용은 `docs/stripe-setup.md` §13.
 - **프리미엄 존재 알림(2026-10-07, btc·voca)**: utils 처럼 한눈에 보이게 — 사이트 내비·타이틀의 **금색 `✦ Premium` 배지**(`.pg-prem`, utils 와 같은 룩 · `list` 가 숫자일 때만 `-50%` 꼬리), 비프리미엄 사용자에게 상단 **안내 스트립**(`.prem-strip`: 혜택 요약 + 「¥2,000 · 年額 2.5 年分の価格で、ずっと」(할인 중이면 ~~정가~~ ¥5,000 -50%) + 「지금 구매 →」, × 로 세션 동안 숨김), 잠긴 요소(모자이크·차트)에 배지. **`#premium` 해시로 앱을 열면 모달이 바로 뜬다**(내비 링크 · 포털 `premium.html` 의 「앱 열고 구매」 가 `https://btc.broodev.com/#premium` 등으로 링크). 내비 배지의 `-50%` 는 App 이 `[data-prem-off]` 로 동기화(할인 종료·프리미엄 활성 시 숨김).
 - `#root` 바깥 `<section class="seo">`(정적 SEO 본문+FAQ, 크롤러용) + 공통 자매 푸터.

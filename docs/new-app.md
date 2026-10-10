@@ -26,7 +26,7 @@
     apps/
       web/    → broodev.com        (포털, 색인 O, 광고 O 예정)
       btc/    → btc.broodev.com     (앱, 광고판)
-        member/   → /member/  (유료·광고없음·noindex)
+        (member/ 는 2026-10-10 삭제 — 프리미엄은 앱 안 라이선스 키로. /member → / 301)
         adsense/  → /adsense/ (구 광고버전, 고아 — 정리 대상 기술부채)
         functions/_middleware.js    (Cloudflare Pages Function: ?lang OG 현지화)
       admin/  → admin.broodev.com   (비공개 콘솔, Google SSO, robots Disallow)
