@@ -1,6 +1,6 @@
 /* broodev.com 법적 페이지 · premium.html 공통 — 13개 언어 풀다운 + 번역 조각 로딩 + biz.js 값 채움
    - 언어 목록·이름·순서는 utils(js/i18n.js) 와 동일한 13개. 풀다운 <ul id="legal-lang-menu"> 는 비워 두면 이 파일이 채운다(5개 페이지에 13개를 중복 기재하지 않기 위해)
-   - 감지: ?lang=(utils 푸터 링크가 실어 보냄) → localStorage(broodev:lang — 포털 assets/js/i18n.js 와 같은 키: 포털에서 고른 언어가 여기에도 이어진다) → navigator.languages 첫 매치(zh-TW/HK/MO → zh-Hant) → en
+   - 감지: ?lang=(utils 푸터 링크가 실어 보냄) → localStorage(broodev:lang — 포털 assets/js/i18n.js 와 같은 키: 포털에서 고른 언어가 여기에도 이어진다) → 이 페이지의 기준 언어(정적 <html lang> = ja). 브라우저 언어(navigator)는 쓰지 않는다 — packages/seo/README.md L1, 안내는 /lang-suggest.js
    - 상단 헤더 메뉴(포털 셸) 라벨은 [data-nav="apps|premium|about|contact"] ← NAV (포털 i18n-data.js 의 nav_* 와 같은 문구)
    - 본문: 페이지 HTML 에는 <article data-lang-block="ja|ko|en"> 3개만 들어 있다(일본어 正文 · JS 없이도 ja 가 보임).
      그 외 10개 언어(zh·es·pt·fr·ru·de·it·th·zh-Hant·nl)는 /legal/i18n/{doc}.{lang}.html 조각(같은 구조의 <article> 1개)을 선택 시 fetch 해서 끼워 넣는다
@@ -15,7 +15,7 @@
 (function () {
   'use strict';
   var BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
-  var V = '20261010c';
+  var V = '20261010s';
   var LANGS = ['en', 'ja', 'ko', 'zh', 'es', 'pt', 'fr', 'ru', 'de', 'it', 'th', 'zh-Hant', 'nl'];
   var NAMES = { en: 'English', ja: '日本語', ko: '한국어', zh: '简体中文', es: 'Español', pt: 'Português', fr: 'Français', ru: 'Русский', de: 'Deutsch', it: 'Italiano', th: 'ไทย', 'zh-Hant': '繁體中文', nl: 'Nederlands' };
   var HTML_LANG = { zh: 'zh-Hans' };
@@ -105,9 +105,9 @@
     }
     var saved = null; try { saved = localStorage.getItem(STORE); } catch (e) { /* 프라이빗 모드 */ }
     if (LANGS.indexOf(saved) >= 0) return saved;
-    var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
-    for (var i = 0; i < cands.length; i++) { var l = norm(cands[i]); if (l) return l; }
-    return 'en';
+    // 기준 언어 = 이 페이지의 정적 <html lang>(premium·legal 은 ja — JS 없이도 보이는 正文). navigator 미사용(packages/seo/README.md L1:
+    // 구글봇 en-US 렌더 = 원본 언어). 브라우저 언어 안내는 /lang-suggest.js 제안 바만.
+    return norm(document.documentElement.getAttribute('lang')) || 'ja';
   }
 
   // 지금 문서 안에 있는 언어 블록(처음엔 ja·ko·en, 조각을 받으면 늘어남). 없는 언어는 en(없으면 첫 블록)으로

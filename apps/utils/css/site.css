@@ -50,7 +50,8 @@ form input.pg-input::placeholder,form textarea.pg-textarea::placeholder,form inp
 .pg-doc{display:flex;flex-direction:column;min-height:100%;padding:40px;color:var(--OnSurface)}
 .pg-doc article{max-width:860px}
 .pg-doc article[hidden]{display:none}
-.pg-doc h4{margin-bottom:10px}
+.pg-doc h4,.pg-doc .pg-doc-h1{margin-bottom:10px}
+.pg-doc .pg-doc-h1{max-width:860px}
 .pg-doc h5{margin:34px 0 10px;font-size:18px}
 .pg-doc h6{margin:22px 0 6px;font-size:15px;font-weight:700}
 .pg-doc p,.pg-doc li,.pg-doc td,.pg-doc th,.pg-doc dd,.pg-doc dt{font-size:15px;line-height:1.8}
@@ -144,7 +145,7 @@ form input.pg-input::placeholder,form textarea.pg-textarea::placeholder,form inp
    사이드바 항목(.menu-item) · 페이지 제목 옆(h4) · 잠금 안내 · 요금 카드에 공통. 준비 중 항목에서는 부모의 opacity 로 자연히 흐려짐 */
 .pg-prem{display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 6px;border-radius:99px;background:linear-gradient(135deg,#ffe29a 0%,#f7b733 45%,#ff8a3d 100%);color:#2a1600;font-size:9.5px;line-height:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,190,70,.35),0 0 10px rgba(255,170,50,.45);animation:pg-prem-glow 2.4s ease-in-out infinite}
 /* 라이선스 보유자(html.is-licensed): 홍보용 금색 배지를 사이드바 메뉴·도구 제목에서 숨김 — 요금 페이지 본문의 플랜 설명 배지는 그대로 */
-.is-licensed .menu-item .pg-prem,.is-licensed h4>.pg-prem,.is-licensed h5>.pg-prem{display:none!important}
+.is-licensed .menu-item .pg-prem,.is-licensed .pg-h1row>.pg-prem,.is-licensed h4>.pg-prem,.is-licensed h5>.pg-prem{display:none!important}
 .pg-prem::before{content:"✦";font-size:9px;line-height:1}
 h4 .pg-prem,h5 .pg-prem{margin-left:10px;padding:3px 9px 3px 8px;font-size:11px;line-height:16px;vertical-align:middle;position:relative;top:-3px}
 @keyframes pg-prem-glow{0%,100%{box-shadow:0 0 0 1px rgba(255,190,70,.35),0 0 8px rgba(255,170,50,.35)}50%{box-shadow:0 0 0 1px rgba(255,210,110,.7),0 0 18px rgba(255,180,60,.75)}}
@@ -200,3 +201,22 @@ h4 .pg-prem,h5 .pg-prem{margin-left:10px;padding:3px 9px 3px 8px;font-size:11px;
 .light-theme .pg-deal-limited,.light-theme .pg-deal-days{color:#c2410c}
 @keyframes pgDealPulse{50%{box-shadow:0 0 14px rgba(49,248,163,.75)}}
 @media (prefers-reduced-motion:reduce){.pg-deal-tag,.pg-menu-deal{animation:none}}
+
+/* 도구 제목 줄(2026-10-10 SEO): 제목은 h1(.h4 크기 유지), 프리미엄 배지는 h1 밖 같은 줄 — 제목 텍스트에 「PREMIUM」이 섞이지 않게 */
+.pg-h1row{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px}
+.pg-h1row>.pg-prem{padding:3px 9px 3px 8px;font-size:11px;line-height:16px}
+
+/* SEO 본문(section.seo — 도구 4쪽의 미리보기 아래 · 푸터 위): 도구 설명 · 사용 순서 · 쓰임새 · FAQ (2026-10-10, packages/seo L6).
+   템플릿 h2/h3 기본값(44px/36px)이 이 영역엔 커서 본문 크기에 맞춤. 페이지 제목 h1 은 .h4 클래스로 기존 h4 헤드라인 크기 유지(styles.css) */
+.seo{max-width:860px;margin:40px 0 0;padding:26px 0 30px;border-top:1px solid var(--Line);color:var(--OnSurface)}
+.seo h2{font-size:19px;line-height:28px;font-weight:600;margin:26px 0 8px;color:var(--OnSurface)}
+.seo h2:first-child{margin-top:0}
+.seo h3{font-size:15px;line-height:24px;font-weight:600;margin:16px 0 4px;color:var(--OnSurface)}
+.seo p,.seo li{font-size:14px;line-height:1.75;color:var(--Secondary);overflow-wrap:anywhere}
+.seo p{margin:0 0 8px}
+.seo ol,.seo ul{margin:0 0 8px 22px;padding:0}
+.seo ol{list-style:decimal}
+.seo ul{list-style:disc}
+.seo li{margin:4px 0;list-style:inherit}  /* styles.css 의 li{list-style:none} 을 풀어 ol 번호 · ul 점 표시 */
+.seo-faq h3:first-child{margin-top:4px}
+@media (max-width:640px){.seo{margin-top:28px;padding-top:20px}.seo h2{font-size:17px;line-height:25px}}

@@ -10,6 +10,14 @@
     pdflib: 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
     gis: 'https://accounts.google.com/gsi/client'
   };
+  /* SRI(하위 리소스 무결성, 2026-10-10) — 버전 고정 jsDelivr 파일의 sha384. CDN 이 다른 내용을 주면 브라우저가 실행·적용을 거부한다.
+     버전을 올리면 해시를 다시 계산: curl -s <url> | openssl dgst -sha384 -binary | openssl base64 -A  (index.html 의 preload 두 줄도 같은 값)
+     GIS(accounts.google.com/gsi/client)는 Google 이 내용을 계속 바꾸는 주소라 SRI 를 걸 수 없다(제외). */
+  var SRI = {};
+  SRI[CDN.xs] = 'sha384-JCkvYwhpxJNPUlVfdLGiX2ukj3j3jsQUSmzb1LihEGHGA1weF6xaDc43WLXavjWD';
+  SRI[CDN.xsCss] = 'sha384-8u70s1jKp9CWt79Fk0MB7T8vwCFSff25zPZcvGAes1dtIYD9bTE+oLDWNa3cxHPG';
+  SRI[CDN.exceljs] = 'sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz';
+  SRI[CDN.pdflib] = 'sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI';
   var MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   var LS = { lang: I.STORAGE_KEY, current: 'excel:current', sync: 'excel:sync', ping: 'excel:ping', hint: 'excel:hint-off' };
   var SAVE_DEBOUNCE = 600;
@@ -157,6 +165,7 @@
       loadScript.cache[url] = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
         s.src = url; s.async = true;
+        if (SRI[url]) { s.integrity = SRI[url]; s.crossOrigin = 'anonymous'; }
         s.onload = function () { resolve(globalName ? window[globalName] : true); };
         s.onerror = function () { delete loadScript.cache[url]; reject(new Error('load ' + url.split('/')[2])); };
         document.head.appendChild(s);
@@ -170,6 +179,7 @@
       loadCss.cache[url] = new Promise(function (resolve, reject) {
         var l = document.createElement('link');
         l.rel = 'stylesheet'; l.href = url;
+        if (SRI[url]) { l.integrity = SRI[url]; l.crossOrigin = 'anonymous'; }
         l.onload = function () { resolve(true); };
         l.onerror = function () { delete loadCss.cache[url]; reject(new Error('load ' + url.split('/')[2])); };
         document.head.appendChild(l);
@@ -1044,17 +1054,33 @@
     if (!syncEngine) ensureEngine();
     syncEngine.syncNow().then(function (r) { toast(r && r.ok ? t('tSynced') : t('tSyncFail'), r && r.ok ? '' : 'warn'); });
   }
+  /* 연결 해제 = 이 앱의 Drive 권한을 Google 계정에서 철회(revoke)까지(memo 와 같은 방식, 2026-10-10 검수).
+     만료된 토큰으로는 철회하지 않는다(효과 없음). 유효한 토큰이 없으면 클릭 제스처 안에서 새 토큰을 받아 철회하고,
+     그래도 실패하면(팝업 차단·GIS 실패·successful:false·15초 초과) 해제는 그대로 진행하고 Google 계정 권한 페이지에서 직접 지우도록 안내한다. */
+  var PERMS_URL = 'https://myaccount.google.com/permissions';
   function disconnect() {
     closePops();
     modal({ title: t('syncOff'), message: t('confirmDisconnect'), okText: t('syncOff') }).then(function (ok) {
       if (!ok) return;
-      try { if (accessToken && window.google && window.google.accounts) window.google.accounts.oauth2.revoke(accessToken, function () {}); } catch (e) { /* ignore */ }
+      var valid = accessToken && Date.now() < tokenExp ? accessToken : null;
       accessToken = null; tokenExp = 0;
       lsSet(LS.sync, null);
       if (syncEngine) { syncEngine.stop(); syncEngine = null; }
       syncState = null;
       renderSyncUi(); renderStatus();
-      toast(t('tDisconnected'));
+      var tokP = valid ? Promise.resolve(valid) : (CLIENT_ID ? getToken({ refresh: true }) : Promise.reject(new Error('noclient')));
+      tokP.then(function (tok) {
+        accessToken = null; tokenExp = 0;   // getToken 이 다시 넣은 토큰도 지운다(해제 상태)
+        return new Promise(function (res, rej) {
+          try {
+            window.google.accounts.oauth2.revoke(tok, function (r) { if (r && r.successful === false) rej(new Error((r && r.error) || 'revoke')); else res(); });
+            setTimeout(function () { rej(new Error('timeout')); }, 15000);
+          } catch (e) { rej(e); }
+        });
+      }).then(function () { toast(t('tDisconnected')); }, function () {
+        accessToken = null; tokenExp = 0;
+        toast(t('revokeManual'), 'warn', 15000, { text: t('openPermissions'), fn: function () { try { window.open(PERMS_URL, '_blank', 'noopener'); } catch (e) { /* ignore */ } } });
+      });
     });
   }
   function renderSyncUi() {

@@ -10,7 +10,7 @@
 
   var CATEGORIES = [
     { id: 'crypto', name: '코인 시그널', en: 'CRYPTO SIGNALS', numeral: 'I',
-      desc: '공포·탐욕 지수에 RSI·MACD·마이어 배수 등 8개 지표를 합성한 0~100 매수 타이밍 점수. 15종 코인, 13개 언어.' },
+      desc: '공포·탐욕 지수에 RSI·MACD·마이어 배수 등을 합성한 0~100 매수 타이밍 점수(비트코인 8개 · 다른 코인 7개 지표). 15종 코인, 13개 언어.' },
     { id: 'panel', name: '생활 인포패널', en: 'DAILY INFO PANELS', numeral: 'II',
       desc: '정전·환율·재난 경보·행정 조회를 나라별로 한 화면에. 그 나라 말로, 가볍게.' },
     { id: 'learn', name: '학습', en: 'LEARNING', numeral: 'III',
@@ -26,7 +26,7 @@
   var coin = function (sub, ko, ticker, en) {
     return { id: sub, cat: 'crypto', name: ko + ' 시그널', en: ticker + '_SIGNAL', status: 'live',
       url: 'https://' + sub + '.broodev.com/',
-      desc: en + '(' + ticker + ') 공포·탐욕 지수 · 8개 지표 합성 매수 타이밍 점수',
+      desc: en + '(' + ticker + ') 매수 타이밍 점수 — 공포·탐욕 지수(시장 전체) 등 7개 지표 합성',
       ticker: ticker, coin: en };   // i18n: coin_name/coin_desc 패턴용 (portal.js)
   };
 

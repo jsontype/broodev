@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nunavut Panel — daily info for Arctic Canada | weather · wind chill · aurora · sealift · hunting · Inuktitut</title>
-    <meta name="description" content="Free daily info panel for 10 Nunavut communities: weather with computed wind chill, blizzard caution, aurora (Kp) outlook tuned for high latitude, sealift season explainer, harvest log, Inuktitut syllabics chart and phrases. No account, no install." />
+    <title>Nunavut Panel — weather, wind chill, aurora &amp; Inuktitut</title>
+    <meta name="description" content="Free panel for 10 Nunavut communities: weather with wind chill, blizzard caution, aurora (Kp) outlook, sealift explainer, harvest log, Inuktitut syllabics." />
     <!-- 광고 없음 · 하단 정적 SEO 본문(크롤러블) 보유 → index 허용 -->
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://nunavut.broodev.com/" />
@@ -34,6 +34,7 @@
 
       header.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px 12px; }
       .brand { font-family: var(--font); font-weight: 700; font-size: 15px; color: var(--gold); letter-spacing: .5px; }
+      h1.brand { margin: 0; }
       .brand .flag { color: var(--red); }
       .brand small { color: var(--dim); font-weight: 400; }
       .top .sp { flex: 1; }
@@ -126,7 +127,7 @@
   <body>
     <div class="wrap">
       <header class="top">
-        <span class="brand">▎<span class="flag">ᓄᓇᕗᑦ</span> NUNAVUT PANEL <small id="h-sub">· sila · travel · hunt · language</small></span>
+        <h1 class="brand">▎<span class="flag">ᓄᓇᕗᑦ</span> NUNAVUT PANEL <small id="h-sub">· sila · travel · hunt · language</small></h1>
         <span class="sp"></span>
         <select class="sel" id="com-sel" aria-label="Community / Communauté"></select>
         <select class="sel" id="lang-sel" aria-label="Language / Langue">
@@ -636,10 +637,12 @@
         get: function (k, d) { try { var r = localStorage.getItem(k); return r != null ? JSON.parse(r) : d; } catch (e) { return d; } },
         set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
       };
-      /* first visit: browser language auto-detect — fr* = fr, else en */
-      var lang = store.get('nu:lang', null);
-      if (!lang) { var bl = String((navigator.languages && navigator.languages[0]) || navigator.language || 'en').toLowerCase(); lang = /^fr/.test(bl) ? 'fr' : 'en'; }
-      if (!I[lang]) lang = 'en';
+      /* display language (packages/seo/README.md L1): ?lang=en|fr → saved choice (nu:lang) → page base language en.
+         The browser language is NOT used — Googlebot (en-US) and every first visit see the same English page as the static HTML; French via the selector. */
+      var lang = null;
+      try { var ql = new URLSearchParams(location.search).get('lang'); if (ql && I[ql]) lang = ql; } catch (e) {}
+      if (!lang) lang = store.get('nu:lang', null);
+      if (!lang || !I[lang]) lang = 'en';
       var comId = store.get('nu:com', 'iqaluit');
       var tab = store.get('nu:tab', 'sila');
       var cache = {}; // comId → { fc, marine, at }

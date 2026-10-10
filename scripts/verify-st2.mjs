@@ -1,8 +1,8 @@
-// 사무라이 택틱스 2 검증 v2 (레포 보존판) — 문법·i18n 완전성·13언어 부팅·전투·튜토리얼 스모크
+// 사무라이 택틱스 2 검증 v2 (레포 보존판) — 문법·i18n 완전성·13언어 부팅·전투·튜토리얼 스모크 + SEO 정합성(소개 섹션·FAQ JSON-LD·seo-meta·hreflang·sitemap)
 // node scripts/verify-st2.mjs
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const R = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const html = readFileSync(`${R}/games/samurai/index.html`, 'utf8')
@@ -14,7 +14,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 try { new Function(code); ok('문법', true) } catch (e) { ok('문법', false, e.message); process.exit(1) }
 
-function boot(search, navLang) {
+function boot(search, navLang, preLs = {}) {
   const noop = () => {}
   const mkEl = () => ({ dataset: {}, style: {}, set innerHTML(v) { this._h = v }, get innerHTML() { return this._h || '' }, querySelectorAll: () => [], onclick: null })
   const gameEl = mkEl()
@@ -31,7 +31,7 @@ function boot(search, navLang) {
     querySelector: (sel) => metas[sel] || null,
     addEventListener: noop, querySelectorAll: () => [],
   }
-  const ls = { _m: {}, getItem(k) { return this._m[k] ?? null }, setItem(k, v) { this._m[k] = String(v) }, removeItem(k) { delete this._m[k] } }
+  const ls = { _m: { ...preLs }, getItem(k) { return this._m[k] ?? null }, setItem(k, v) { this._m[k] = String(v) }, removeItem(k) { delete this._m[k] } }
   const location = { search, href: 'https://samurai.broodev.com/' + search, hash: '', hostname: 'samurai.broodev.com' }
   const f = new Function('document', 'window', 'localStorage', 'navigator', 'location',
     code + '; return { G: window.__ST2__, I18N: I18N, LANGS: LANGS, L: L, LANG: LANG };')
@@ -56,10 +56,13 @@ for (const lc of base.LANGS) {
 }
 
 /* 언어 감지 */
+/* 언어 감지 — packages/seo/README.md L1: ?lang > localStorage(st2:lang) > 기준 언어 ko. 브라우저 언어(navigator)로는 정하지 않는다(구글봇 en-US 렌더 = 원본 ko) */
 ok('감지: ?lang 우선', boot('?lang=ja', 'ko').LANG === 'ja')
-ok('감지: 브라우저 언어', boot('', 'fr-FR').LANG === 'fr')
-ok('감지: zh-TW → zh-Hant', boot('', 'zh-TW').LANG === 'zh-Hant')
-ok('감지: 미지원 → en', boot('', 'sw-KE').LANG === 'en')
+ok('감지: ?lang 이 저장값보다 우선', boot('?lang=de', 'ko', { 'st2:lang': 'ja' }).LANG === 'de')
+ok('감지: 저장값(st2:lang)', boot('', 'ko', { 'st2:lang': 'ru' }).LANG === 'ru')
+ok('감지: 브라우저 언어 무시 → ko', boot('', 'fr-FR').LANG === 'ko' && boot('', 'en-US').LANG === 'ko')
+ok('감지: ?lang=zh-TW → zh-Hant', boot('?lang=zh-TW', 'ko').LANG === 'zh-Hant')
+ok('감지: 미지원 ?lang → ko', boot('?lang=sw', 'sw-KE').LANG === 'ko')
 
 /* 13언어 부팅 + 타이틀 렌더 + 플레이스홀더 잔존 없음 */
 for (const lc of base.LANGS) {
@@ -75,7 +78,8 @@ const EN_HUD = /\b(STAGE|WAVE|TURN|SCORE|BEST)\b/
 for (const lc of base.LANGS) {
   const b = boot('?lang=' + lc, 'ko')
   const h = b.gameEl.innerHTML
-  const h1 = (h.match(/<h1[^>]*>([^]*?)<\/h1>/) || [])[1] || ''
+  /* 화면 제목은 h2.scr-t(문서의 h1 은 헤더의 정적 브랜드 하나 — L6) */
+  const h1 = (h.match(/<h2 class="scr-t"[^>]*>([^]*?)<\/h2>/) || [])[1] || ''
   const parts = {
     'h1': h1.replace(/<[^>]+>/g, ''),
     '.brand': b.chrome.brandname.textContent + ' ' + b.chrome.brandtag.textContent,
@@ -175,6 +179,63 @@ ok('튜토리얼 완주(ja)', S.tut.step === 6 && !/[가-힣]/.test(ja.gameEl.in
 
 /* 언어 선택기 */
 ok('언어 선택기 렌더(13옵션)', (base.gameEl.innerHTML.match(/<option /g) || []).length === 13)
+
+/* ===== SEO 정합성 (packages/seo/README.md L1~L6) ===== */
+{
+  const I = base.I18N
+  const SEO_KEYS = ['aboutH', 'about1', 'about2', 'ctlH', 'ctlKey', 'ctlTouch', 'ctlMobile', 'featH', 'f1', 'f2', 'f3', 'f4', 'f5', 'faqH', 'q1', 'a1', 'q2', 'a2', 'q3', 'a3', 'q4', 'a4', 'q5', 'a5']
+  const miss = base.LANGS.filter((lc) => !I[lc].seo || SEO_KEYS.some((k) => !String(I[lc].seo[k] || '').trim()))
+  ok('소개 문구(seo) 13언어 전부', miss.length === 0, miss.join(','))
+  const dupEn = base.LANGS.filter((lc) => lc !== 'en' && SEO_KEYS.some((k) => I[lc].seo[k] === I.en.seo[k]))
+  ok('소개 문구 en 복붙 없음', dupEn.length === 0, dupEn.join(','))
+  const HANG = /[가-힣]/, HAN = /[\u3400-\u9FFF]/
+  const leak = base.LANGS.filter((lc) => lc !== 'ko' && SEO_KEYS.some((k) => HANG.test(I[lc].seo[k]) || (!['ja', 'zh', 'zh-Hant'].includes(lc) && HAN.test(I[lc].seo[k]))))
+  ok('소개 문구 문자 체계(한글·한자 새지 않음)', leak.length === 0, leak.join(','))
+
+  const unesc = (t) => t.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+  const stat = {}
+  for (const m of html.matchAll(/<(\w+) data-seo="(\w+)"[^>]*>([^<]*)<\/\1>/g)) stat[m[2]] = unesc(m[3])
+  const badStat = SEO_KEYS.filter((k) => stat[k] !== I.ko.seo[k])
+  ok('정적 소개(section.seo) = ko 사전', badStat.length === 0 && Object.keys(stat).length === SEO_KEYS.length, badStat.join(','))
+
+  const ld = [...html.matchAll(/<script type="application\/ld\+json"( data-ld="faq")?>([^]*?)<\/script>/g)].map((m) => ({ faq: !!m[1], j: JSON.parse(m[2]) }))
+  const faq = ld.find((x) => x.faq && x.j['@type'] === 'FAQPage')
+  const faqOk = faq && faq.j.mainEntity.length === 5 && faq.j.mainEntity.every((q, i) => q.name === I.ko.seo['q' + (i + 1)] && q.acceptedAnswer.text === I.ko.seo['a' + (i + 1)])
+  ok('FAQPage(data-ld="faq") = 화면 ko FAQ', !!faqOk)
+  const vg = ld.find((x) => x.j['@type'] === 'VideoGame')
+  ok('VideoGame JSON-LD(무료 offer · Web Browser · inLanguage 13)', !!vg && vg.j.gamePlatform === 'Web Browser' && vg.j.offers.price === '0' && vg.j.inLanguage.length === 13)
+
+  const headPart = html.slice(0, html.indexOf('</head>'))
+  const bodyPart = html.slice(html.indexOf('<body'), html.indexOf('<script>'))
+  ok('정적 <h1> 1개(본문)', (bodyPart.match(/<h1[\s>]/g) || []).length === 1 && (code.match(/<h1[\s>]/g) || []).length === 0)
+  const robots = (headPart.match(/<meta name="robots" content="([^"]*)"/) || [])[1]
+  console.log('  ℹ meta robots = ' + robots)
+  const hl = [...headPart.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/g)].map((m) => m[1] + ' ' + m[2])
+  const O = 'https://samurai.broodev.com/'
+  const want = base.LANGS.map((lc) => (lc === 'zh' ? 'zh-Hans' : lc) + ' ' + (lc === 'ko' ? O : O + '?lang=' + lc)).concat(['x-default ' + O + '?lang=en'])
+  ok('hreflang 묶음(L4: ko=/ · ?lang=xx · x-default=en)', hl.length === 14 && want.every((w) => hl.includes(w)), hl.length === 14 && want.every((w) => hl.includes(w)) ? '' : hl.join(' | '))
+  ok('canonical = 기준 주소', headPart.includes('<link rel="canonical" href="' + O + '" />'))
+
+  const smPath = `${R}/games/samurai/sitemap.xml`
+  const sm = existsSync(smPath) ? readFileSync(smPath, 'utf8') : ''
+  const locs = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
+  const smOk = locs.length === 13 && sm.split('<url>').slice(1).every((u) => want.every((w) => { const [h2, href] = w.split(' '); return u.includes(`hreflang="${h2}" href="${href}"`) }))
+  ok('sitemap.xml 13개 버전 + 같은 hreflang 묶음', smOk, locs.length + '개')
+  const rb = existsSync(`${R}/games/samurai/robots.txt`) ? readFileSync(`${R}/games/samurai/robots.txt`, 'utf8') : ''
+  ok('robots.txt Sitemap 줄', /^Sitemap: https:\/\/samurai\.broodev\.com\/sitemap\.xml$/m.test(rb) && !/Disallow:\s*\/\s*$/m.test(rb))
+  ok('404.html 존재', existsSync(`${R}/games/samurai/404.html`))
+
+  /* functions/_lib/seo-meta.js = 사전에서 생성한 값(runtime document.title 과 같은 식) */
+  const metaPath = `${R}/games/samurai/functions/_lib/seo-meta.js`
+  let META = null
+  try { META = (await import(pathToFileURL(metaPath).href)).default } catch (e) { META = null }
+  const badMeta = base.LANGS.filter((lc) => lc !== 'ko').filter((lc) => {
+    const m = META && META['/'] && META['/'][lc], p = I[lc]
+    const b = boot('?lang=' + lc, 'ko')
+    return !m || m.t !== b.doc.title || m.t !== `${p.title} — ${p.tag} | broodev games` || m.d !== p.desc || m.ot !== `${p.title} — ${p.tag}`
+  })
+  ok('seo-meta.js = 사전·런타임 제목(12언어)', !!META && badMeta.length === 0, badMeta.join(',') || (META ? '' : '파일 없음 — node scripts/samurai-seo-meta.mjs'))
+}
 
 console.log(fail === 0 ? '\n전부 통과' : `\n실패 ${fail}건`)
 process.exit(fail ? 1 : 0)

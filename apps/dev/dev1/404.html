@@ -80,17 +80,11 @@
           var p = tag.split('-')[0];
           return LANGS.indexOf(p) >= 0 ? p : null;
         }
-        var cur = null;
-        try { cur = localStorage.getItem('home:lang'); } catch (e) { /* 프라이빗 모드 등 */ }
-        if (LANGS.indexOf(cur) < 0) {
-          var q = /[?&]lang=([A-Za-z-]+)/.exec(location.search);
-          cur = q && norm(q[1]);
-          if (!cur) {
-            var c = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
-            for (var i = 0; i < c.length && !cur; i++) cur = norm(c[i]);
-          }
-          cur = cur || 'en';
-        }
+        // ?lang= → localStorage(home:lang) → 기준 언어 ko — navigator 미사용(packages/seo L1)
+        var q = /[?&]lang=([A-Za-z-]+)/.exec(location.search);
+        var cur = q && norm(q[1]);
+        if (!cur) { try { var sv = localStorage.getItem('home:lang'); if (LANGS.indexOf(sv) >= 0) cur = sv; } catch (e) { /* 프라이빗 모드 등 */ } }
+        cur = cur || 'ko';
         var d = D[cur];
         document.documentElement.lang = cur === 'zh' ? 'zh-Hans' : cur;
         document.title = d.title;

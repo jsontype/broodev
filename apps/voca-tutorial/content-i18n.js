@@ -2,7 +2,8 @@
  *   HTML 안의 한국어 본문이 정본(검색엔진이 색인하는 판). 다른 12개 언어는 /i18n/<doc>.<lang>.html 조각(<main> 전체 번역)을 받아 바꿔 끼운다.
  *   언어 결정: ?lang= → 앱에서 고른 언어(localStorage[data-key], JSON 문자열) → 한국어.
  *     브라우저 언어(navigator)는 쓰지 않는다 — 검색 로봇(en-US)이 렌더한 영어판이 한국어 정본 대신 색인되지 않게. 처음 온 사람은 nav 의 언어 선택으로 바꾼다.
- *     ?lang= 과 언어 선택은 앱 키에 저장 → 앱 본체·다른 콘텐츠 페이지도 같은 언어로 열린다. 언어를 바꾸면 ?lang= 을 붙여 다시 연다(차트 스크립트가 새 언어로 한 번만 돌게).
+ *     언어 선택(사용자가 고른 언어)만 앱 키에 저장 → 앱 본체·다른 콘텐츠 페이지도 같은 언어로 열린다. 언어를 바꾸면 ?lang= 을 붙여 다시 연다(차트 스크립트가 새 언어로 한 번만 돌게).
+ *     ?lang= 으로 연 언어는 저장하지 않는다(L1) — 대신 같은 사이트 링크를 누를 때 ?lang= 을 이어 붙인다(voca · voca-tutorial 사본 2026-10-10 · btc·코인 사본은 아직 저장함).
  *   페이지 스크립트(차트 등)는 window.CI18N.ready 뒤에 돌린다: (window.CI18N ? window.CI18N.ready : Promise.resolve()).then(function () { … window.CI18N.lang … })
  *     ready 는 번역본으로 바꾼 뒤(또는 한국어·실패 시 즉시) 풀린다. lang 은 실제로 보이는 언어(조각을 못 받으면 'ko').
  *   사용: <head> 끝에 <script src="/content-i18n.js?v=…" data-key="btc:lang" data-doc="about"></script> (defer 없이 — 번역이 들어올 때까지 본문을 가려
@@ -30,7 +31,19 @@
   var q = null;
   try { q = new URLSearchParams(location.search).get('lang'); } catch (e) {}
   var lang = valid(q);
-  if (lang) save(lang); else lang = valid(stored()) || 'ko';
+  if (!lang) lang = valid(stored()) || 'ko'; // ?lang= 으로 연 언어는 저장하지 않는다(packages/seo L1 — 저장 키 = 사용자가 고른 언어만 · 아래 언어 선택에서 저장)
+
+  // 같은 사이트 안 링크를 누르면 지금 언어를 ?lang= 으로 이어 붙인다(저장 대신 주소로 언어를 잇기 — 누르는 순간에만 바꿔 정적 href 는 그대로)
+  if (lang !== 'ko') document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a || a.hasAttribute('download')) return;
+    try {
+      var u = new URL(a.getAttribute('href'), location.href);
+      if (u.origin !== location.origin || u.searchParams.has('lang') || /\.(?!html$)[a-z0-9]+$/i.test(u.pathname) || (u.pathname === location.pathname && u.hash)) return;
+      u.searchParams.set('lang', lang);
+      a.href = u.pathname + u.search + u.hash;
+    } catch (err) {}
+  }, true);
 
   var css = document.createElement('style');
   css.textContent = 'html.ci18n-wait main{visibility:hidden}' +

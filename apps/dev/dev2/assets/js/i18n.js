@@ -1,5 +1,5 @@
 /* dev2 i18n 런타임 — 13개 언어 (사전은 i18n-data.js 의 window.HOME2_I18N). dev3/assets/js/i18n.js 를 이 템플릿에 맞게 옮긴 것.
-   감지: localStorage(home:lang) → ?lang= → navigator.languages 순서대로 첫 매치 → en  (dev3 와 같은 키라 홈을 바꿔 끼워도 언어가 유지된다)
+   감지: ?lang= → localStorage(home:lang) → 기준 언어 ko — navigator 미사용(packages/seo L1 · 세 사이트 같은 키·순서라 홈을 바꿔 끼워도 언어 유지)
    페이지 제목·설명: <html data-i18n-title="key" data-i18n-desc="key"> (생략 시 meta_title/meta_desc)
    마크업: data-i18n="key"(textContent) · data-i18n-aria-label · data-i18n-alt · data-i18n-placeholder · data-i18n-titleattr(title 속성)
            data-lang-current(현재 언어명) · [data-lang="xx"](풀다운 항목, 클릭 → 저장 → 새로고침)
@@ -24,14 +24,13 @@
   }
 
   function detect() {
+    // 표시 언어: ?lang= → localStorage(home:lang) → 기준 언어 ko(정적 <html lang>) — navigator 미사용(packages/seo/README.md L1: 구글봇 en-US 렌더 = 원본 한국어). 브라우저 언어 안내는 lang-suggest.js 제안 바
+    var q = /[?&]lang=([A-Za-z-]+)/.exec(root.location ? root.location.search : '');
+    if (q && norm(q[1])) { fromQuery = true; return norm(q[1]); }
     var saved = null;
     try { saved = localStorage.getItem(KEY); } catch (e) { /* 프라이빗 모드 등 */ }
     if (LANGS.indexOf(saved) >= 0) return saved;
-    var q = /[?&]lang=([A-Za-z-]+)/.exec(root.location ? root.location.search : '');
-    if (q && norm(q[1])) { fromQuery = true; return norm(q[1]); }
-    var cands = root.navigator && root.navigator.languages && root.navigator.languages.length ? root.navigator.languages : [root.navigator && root.navigator.language];
-    for (var i = 0; i < cands.length; i++) { var n = norm(cands[i]); if (n) return n; }
-    return 'en';
+    return 'ko';
   }
 
   var cur = detect();

@@ -1,6 +1,7 @@
 /* broodev 포털(index.html · 404.html) i18n 런타임 — 13개 언어. 사전은 assets/js/i18n-data.js 의 window.BROODEV_I18N (ko 가 원문, en 이 번역 기준)
    - 언어 집합·순서·이름은 utils(js/i18n.js)·legal(legal.js) 와 동일. 저장 키 'broodev:lang' 은 legal.js 와 공유 → 포털 ↔ 법적 페이지 사이에서 언어가 따라간다
-   - 감지: ?lang= → localStorage(broodev:lang) → navigator.languages 첫 매치(zh-TW/HK/MO → zh-Hant) → en
+   - 감지: ?lang= → localStorage(broodev:lang) → 기준 언어 ko(정적 <html lang>). navigator(브라우저 언어)로 고르지 않는다 —
+     구글봇(en-US 렌더)이 원본 한국어 정본을 그대로 보게(packages/seo/README.md L1). 브라우저 언어 안내는 /lang-suggest.js 제안 바만.
    - 마크업: data-i18n="key"(textContent) · data-i18n-html="key"(innerHTML — 사전의 내 문자열만; <span data-count> 같은 자리표시 포함 가능) ·
              data-i18n-placeholder / data-i18n-aria-label / data-i18n-alt / data-i18n-title(속성) · data-lang-current(현재 언어명) ·
              .portal-lang(풀다운 — 여러 개 가능: 헤더 + 햄버거 사이드바) 안의 .portal-lang-toggle / .portal-lang-menu(비워 두면 13개 항목을 채움)
@@ -29,10 +30,7 @@
     if (q && norm(q[1])) return norm(q[1]);
     var saved = null; try { saved = localStorage.getItem(STORE); } catch (e) { /* 프라이빗 모드 */ }
     if (LANGS.indexOf(saved) >= 0) return saved;
-    var nav = root.navigator || {};
-    var cands = nav.languages && nav.languages.length ? nav.languages : [nav.language];
-    for (var i = 0; i < cands.length; i++) { var l = norm(cands[i]); if (l) return l; }
-    return 'en';
+    return 'ko';   // 기준 언어 — navigator 미사용(L1)
   }
   var cur = detect();
   try { if (/[?&]lang=/.test(location.search)) localStorage.setItem(STORE, cur); } catch (e) { /* 저장 못 해도 이번 페이지는 적용 */ }

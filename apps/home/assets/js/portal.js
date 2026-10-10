@@ -86,6 +86,7 @@
   /* ── 사이트맵 섹션(#sitemap-list): 전체 앱을 카테고리별로 전부 펼친다 — 모달과 달리 페이지네이션 없음 ── */
   var sitemap = document.getElementById('sitemap-list');
   if (sitemap) {
+    sitemap.innerHTML = '';   // 원본 HTML 의 정적 목록(기준 언어 ko — scripts/gen-portal-static.mjs)을 지우고 현재 언어로 다시 그린다
     C.categories.forEach(function (cat) {
       var list = h('ul', { class: 'sitemap-list' });
       cat.apps.forEach(function (a) {
@@ -257,7 +258,7 @@
     var br = (m = /Edg\/(\d+)/.exec(ua)) ? 'Edge ' + m[1] : (m = /OPR\/(\d+)/.exec(ua)) ? 'Opera ' + m[1] : (m = /SamsungBrowser\/(\d+)/.exec(ua)) ? 'Samsung ' + m[1]
       : (m = /(?:Chrome|CriOS)\/(\d+)/.exec(ua)) ? 'Chrome ' + m[1] : (m = /(?:Firefox|FxiOS)\/(\d+)/.exec(ua)) ? 'Firefox ' + m[1] : (m = /Version\/(\d+).*Safari/.exec(ua)) ? 'Safari ' + m[1] : '브라우저?';
     var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
-    return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · ' + navigator.language;
+    return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · ' + navigator.language;   // seo-allow-navigator(문의 메일의 환경 정보 — 표시 언어와 무관)
   }
   function nowJST() { try { return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Tokyo', hour12: false }) + ' (JST)'; } catch (e) { return String(new Date()); } }
   var form = document.getElementById('contactForm');

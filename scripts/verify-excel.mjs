@@ -74,8 +74,8 @@ section('i18n · SEO');
   ok(I.normLang('zh-TW') === 'zh-Hant' && I.normLang('zh-CN') === 'zh' && I.normLang('pt-BR') === 'pt' && I.normLang('xx') === null, 'normLang 매핑');
   ok(I.detectLang({ search: '?lang=ja' }, { getItem: () => 'ko' }, { languages: ['de'] }) === 'ja', 'detectLang: ?lang 우선');
   ok(I.detectLang({ search: '' }, { getItem: () => 'ko' }, { languages: ['de'] }) === 'ko', 'detectLang: localStorage 다음');
-  ok(I.detectLang({ search: '' }, { getItem: () => null }, { languages: ['fr-CA', 'en'] }) === 'fr', 'detectLang: navigator.languages');
-  ok(I.detectLang({ search: '' }, { getItem: () => null }, { languages: ['sv'] }) === 'en', 'detectLang: en 폴백');
+  ok(I.detectLang({ search: '' }, { getItem: () => null }, { languages: ['fr-CA', 'en'] }) === 'ko', 'detectLang: navigator 무시 → 기준 언어 ko (SEO L1)');
+  ok(I.detectLang({ search: '' }, { getItem: () => null }, { languages: ['sv'] }) === 'ko', 'detectLang: 기준 언어 ko 폴백');
   ok(I.t('ko', 'nope-key') === 'nope-key' && I.t('xx', 'appName') === I.U.en.appName, 'en 폴백');
   const seoBlock = (/<!--SEO:START-->\n([\s\S]*?)\n\s*<!--SEO:END-->/.exec(html) || [])[1];
   ok(seoBlock === staticSeo(), '정적 SEO 본문 = i18n ko 원문 (--fix-static 으로 갱신)');
@@ -238,6 +238,23 @@ function device(drive, ck) {
   return dev;
 }
 const bodyOf = async (st, id) => { const r = await st.getRecord(id); return r && r.sheets ? r.sheets[0].rows[0].cells[0].text : (r && r.deleted ? '<deleted>' : null); };
+
+section('원격 레코드 검증 (sync.js cleanItems — 손상·악성 Drive 파일 방어)');
+{
+  const raw = JSON.parse('{"__proto__": {"id": "__proto__", "updatedAt": 1, "sheets": []}, "a": {"id": "a", "name": "책", "sheets": [{"name": "s1"}], "createdAt": 5, "updatedAt": 9, "evil": 1},' +
+    ' "b": {"id": "x", "updatedAt": 2, "sheets": []}, "c": {"id": "c", "updatedAt": "9", "sheets": []}, "d": {"id": "d", "updatedAt": 3, "sheets": "oops"},' +
+    ' "e": {"id": "e", "updatedAt": 4, "deleted": true, "name": "x", "sheets": [{}]}, "f": {"id": "f", "updatedAt": 6, "name": {"x": 1}, "sheets": [{}, null]},' +
+    ' "g": {"id": "g", "updatedAt": 7, "name": 3, "sheets": [{}], "conflictOf": "a"}, "constructor": {"id": "constructor", "updatedAt": 1, "sheets": []}}');
+  const r = Sync.cleanItems(raw);
+  ok(Object.getPrototypeOf(r.items) === Object.prototype && !Object.prototype.hasOwnProperty.call(r.items, '__proto__'), 'cleanItems: __proto__ 키 거부(프로토타입 오염 없음)');
+  ok(!Object.prototype.hasOwnProperty.call(r.items, 'constructor'), 'cleanItems: constructor 키 거부');
+  ok(r.items.a && r.items.a.name === '책' && r.items.a.sheets.length === 1 && !('evil' in r.items.a), 'cleanItems: 정상 레코드는 유지 · 모르는 필드는 버림');
+  ok(!r.items.b && !r.items.c && !r.items.d && !r.items.f, 'cleanItems: id 불일치 · updatedAt 비숫자 · sheets 비배열 · sheets 안 null → 버림');
+  ok(r.items.e && r.items.e.deleted === true && !('sheets' in r.items.e) && !('name' in r.items.e), 'cleanItems: 묘비는 {id, deleted, updatedAt} 로 정규화');
+  ok(r.items.g && r.items.g.name === '' && r.items.g.conflictOf === 'a', 'cleanItems: name 비문자열 → 빈 문자열 · conflictOf 유지');
+  ok(r.dropped === 6, 'cleanItems: 버린 수 = 6', String(r.dropped));
+  ok(Object.keys(Sync.cleanItems(null).items).length === 0 && Object.keys(Sync.cleanItems([1, 2]).items).length === 0, 'cleanItems: items 가 없거나 배열이면 빈 객체');
+}
 
 section('동기화 엔진 + 가짜 Drive (두 기기)');
 {

@@ -53,8 +53,7 @@
         var lang = null;
         try { lang = pick(new URLSearchParams(location.search).get('lang')); } catch (e) {}
         if (!lang) { try { lang = pick(localStorage.getItem('memo:lang')); } catch (e) {} }
-        if (!lang) { var n = navigator.languages || [navigator.language]; for (var i = 0; i < n.length && !lang; i++) lang = pick(n[i]); }
-        lang = lang || 'en';
+        lang = lang || 'ko';   // 기준 언어(정적 <html lang="ko">) — navigator 미사용(packages/seo L1)
         var d = D[lang];
         document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
         document.title = d[0] + ' (404) | MEMO';

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>문의 &amp; 버그 신고 | broodev</title>
     <meta name="description" content="broodev 앱 문의 및 버그 신고 — 서비스 이용 중 발견한 버그나 개선 제안을 운영자에게 직접 보낼 수 있습니다." />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="noindex, follow" />
     <link rel="canonical" href="https://voca.broodev.com/contact" />
     <meta name="theme-color" content="#05080a" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -363,15 +363,7 @@
         if (q && C[q]) return q;
         /* 앱(index.html)에서 고른 언어 — localStorage 'voca:lang' 은 JSON 문자열("ja") */
         try { var s = JSON.parse(localStorage.getItem('voca:lang') || 'null'); if (s && C[s]) return s; } catch (e) {}
-        try {
-          var cands = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
-          for (var i = 0; i < cands.length; i++) {
-            var lc = String(cands[i] || '').toLowerCase(), base = lc.split('-')[0];
-            if (base === 'zh') return /hant|tw|hk|mo/.test(lc) ? 'zh-Hant' : 'zh';
-            if (C[base]) return base;
-          }
-        } catch (e) {}
-        return 'en';
+        return 'ko'; // 기준 언어 — 브라우저 언어(navigator)로 정하지 않는다(packages/seo L1 · 제안 바는 lang-suggest.js)
       }
 
       var LANG = detectLang();
@@ -604,5 +596,6 @@
         });
       });
     </script>
+    <script src="/lang-suggest.js" data-key="voca:lang" data-json="1" data-base="ko" defer></script>
   </body>
 </html>

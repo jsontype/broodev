@@ -187,7 +187,7 @@
       }).then(function (txt) {
         if (txt == null) return null;
         if (!txt) return { items: {} };
-        try { var js = JSON.parse(txt); return { items: (js && js.items && typeof js.items === 'object') ? js.items : {} }; }
+        try { var js = JSON.parse(txt); var c = cleanItems(js && js.items); if (c.dropped && root.console) root.console.warn('[sheet-sync] invalid remote record(s) dropped: ' + c.dropped); return { items: c.items }; }
         catch (e) { return { items: {} }; }   // 손상된 파일 — 로컬을 그대로 올려 복구한다
       });
     }
@@ -351,5 +351,25 @@
     };
   }
 
-  root.SheetSync = { mergeRecords: mergeRecords, createSyncEngine: createSyncEngine, SyncError: SyncError, SCOPE: SCOPE, DRIVE_FILES: DRIVE_FILES, DRIVE_UPLOAD: DRIVE_UPLOAD, FILE_APP: FILE_APP };
+  /* 원격(Drive) 레코드 검증(2026-10-10 검수) — 다른 기기·손상 파일·악성 파일의 값을 그대로 IndexedDB·그리드에 넣지 않는다.
+     키 = id · id 는 1~200자 문자열 · updatedAt 은 유한한 수 · name 은 문자열(300자) · sheets 는 객체 배열 · 묘비는 {id, deleted, updatedAt} 로 정규화 ·
+     __proto__ / constructor / prototype 키는 거부. 알 수 없는 필드는 버린다. 반환: { items, dropped } */
+  var BAD_KEY = /^(__proto__|constructor|prototype)$/;
+  function finiteNum(v) { return typeof v === 'number' && isFinite(v); }
+  function cleanItems(items) {
+    var out = {}, dropped = 0;
+    if (!items || typeof items !== 'object' || Array.isArray(items)) return { items: out, dropped: 0 };
+    Object.keys(items).forEach(function (k) {
+      var r = items[k];
+      if (BAD_KEY.test(k) || !k || k.length > 200 || !r || typeof r !== 'object' || Array.isArray(r) || r.id !== k || !finiteNum(r.updatedAt)) { dropped++; return; }
+      if (r.deleted) { out[k] = { id: k, deleted: true, updatedAt: r.updatedAt }; return; }
+      if (!Array.isArray(r.sheets) || r.sheets.some(function (s) { return !s || typeof s !== 'object' || Array.isArray(s); })) { dropped++; return; }
+      var o = { id: k, name: typeof r.name === 'string' ? r.name.slice(0, 300) : '', sheets: r.sheets, createdAt: finiteNum(r.createdAt) ? r.createdAt : r.updatedAt, updatedAt: r.updatedAt };
+      if (typeof r.conflictOf === 'string' && r.conflictOf && r.conflictOf.length <= 200) o.conflictOf = r.conflictOf;
+      out[k] = o;
+    });
+    return { items: out, dropped: dropped };
+  }
+
+  root.SheetSync = { cleanItems: cleanItems, mergeRecords: mergeRecords, createSyncEngine: createSyncEngine, SyncError: SyncError, SCOPE: SCOPE, DRIVE_FILES: DRIVE_FILES, DRIVE_UPLOAD: DRIVE_UPLOAD, FILE_APP: FILE_APP };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

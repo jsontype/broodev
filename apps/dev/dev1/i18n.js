@@ -1,5 +1,5 @@
 /* dev1 i18n — 13개 언어 사전 + 런타임 (React 앱 app.jsx 와 index.html 정적 폴백이 함께 쓴다)
-   감지: localStorage('home:lang') → ?lang= → navigator.languages 순서대로 첫 매치 → en  (dev3 와 같은 키·순서 — 홈을 바꿔 끼워도 언어 유지)
+   감지: ?lang= → localStorage(home:lang) → 기준 언어 ko — navigator 미사용(packages/seo L1 · 세 사이트 같은 키·순서라 홈을 바꿔 끼워도 언어 유지)
    ⚠ <head> 끝에서 동기 실행(app.jsx 보다 먼저) — title·meta description·og·<html lang> 을 즉시 갈아끼우고, window.DEV1_I18N 을 연다.
    마크업: data-i18n="key"(textContent) — index.html 의 React 마운트 전 정적 폴백용. React 쪽은 DEV1_I18N.t(key).
    언어 변경 = 저장 후 새로고침(?lang=xx) — 스크롤 스크럽 연출이 모듈 상수(WHOAMI·PROJECTS)를 읽으므로 다시 그리는 편이 안전하다.
@@ -714,15 +714,13 @@
   }
 
   function detect() {
+    // 표시 언어: ?lang= → localStorage(home:lang) → 기준 언어 ko(정적 <html lang>) — navigator 미사용(packages/seo/README.md L1: 구글봇 en-US 렌더 = 원본 한국어). 브라우저 언어 안내는 lang-suggest.js 제안 바
+    var q = /[?&]lang=([A-Za-z-]+)/.exec(root.location ? root.location.search : '');
+    if (q && norm(q[1])) return norm(q[1]);
     var saved = null;
     try { saved = localStorage.getItem(KEY); } catch (e) { /* 프라이빗 모드 등 */ }
     if (LANGS.indexOf(saved) >= 0) return saved;
-    var q = /[?&]lang=([A-Za-z-]+)/.exec(root.location ? root.location.search : '');
-    if (q && norm(q[1])) return norm(q[1]);
-    var nav = root.navigator || {};
-    var cands = nav.languages && nav.languages.length ? nav.languages : [nav.language];
-    for (var i = 0; i < cands.length; i++) { var n = norm(cands[i]); if (n) return n; }
-    return 'en';
+    return 'ko';
   }
 
   var cur = detect();

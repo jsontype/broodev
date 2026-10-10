@@ -1,66 +1,72 @@
-// Cloudflare Pages Function (엣지) — 공유 메타(OG) 다국어화 (btc의 _middleware.js 컨벤션)
-// 카톡/페북 등 크롤러는 JS를 안 돌리고 URL의 HTML만 읽는다. 그래서 ?lang= 에 따라
-// 응답 직전에 title/description/OG 메타를 해당 언어로 갈아끼운다.
-// 기본(ko) 또는 미지원 lang → 원본 HTML 그대로(한국어).
-// M 은 앱 첫 화면(/) 문구라 루트 문서에만 적용한다. 콘텐츠·문의 페이지는 각자 자기 제목/언어를 가지므로 손대지 않는다.
+// Cloudflare Pages Function (엣지) — 언어별 주소(?lang=xx)의 원본 HTML 을 그 언어의 정본으로 (packages/seo/README.md L3)
+// 크롤러는 JS 를 안 돌리고 URL 의 HTML 만 읽는다. 그래서 ?lang= 에 따라 응답 직전에 바꾼다.
+//   공통(_lib/seo-lang.js — packages/seo 공용 사본): canonical·og:url = 자기 자신, <html lang>, title·description, og/twitter 제목·설명, og:locale
+//   여기서 더: og:image:alt(루트) · JSON-LD 를 그 언어로 — FAQPage = 화면의 FAQ 번역(seo-i18n.js), TechArticle 제목·설명·언어·@id, WebApplication 이름·설명
+//   대상 = 루트(/) + 콘텐츠 페이지(가이드·소개·privacy·terms). 값은 _lib/seo-meta.js(앱 사전·i18n 조각에서 생성 — node scripts/seo-meta-voca.mjs).
+//   기본(ko) · 미지원 lang · 메타 없는 경로(/contact 등) → 원본 HTML 그대로(한국어 · canonical = ?lang 없는 주소). 200 이 아닌 응답(404 등)도 그대로.
+//   *.pages.dev(프리뷰/기본 도메인) → X-Robots-Tag: noindex, nofollow (seo-lang.js 가 붙임 · 정본은 voca.broodev.com)
 
-const M = {
-  en: { t: 'Flashing Vocabulary Memorizer · Auto-repeat CSV decks | VOCA DECK', d: 'Free flashing vocabulary memorizer that alternates words and meanings in large type. Open a CSV deck for 3-second auto play, memorized marks, random order and TTS. No install.', l: 'en_US', a: 'Flashing Vocabulary Memorizer VOCA DECK' },
-  ja: { t: '点滅式単語暗記 · CSV自動リピート | VOCA DECK', d: '単語と意味を大きな文字で交互に表示する無料の点滅式単語暗記ツール。CSVを開くと3秒間隔の自動再生、暗記マーク、ランダム順、TTS読み上げに対応。インストール不要。', l: 'ja_JP', a: '点滅式単語暗記 VOCA DECK' },
-  zh: { t: '闪示单词记忆 · CSV自动循环 | VOCA DECK', d: '免费闪示单词记忆工具，以大字交替显示单词与释义。打开CSV即可每3秒自动播放、标记已记、随机顺序与TTS朗读。无需安装。', l: 'zh_CN', a: '闪示单词记忆 VOCA DECK' },
-  'zh-Hant': { t: '閃示單字記憶 · CSV自動循環 | VOCA DECK', d: '免費閃示單字記憶工具，以大字交替顯示單字與釋義。開啟CSV即可每3秒自動播放、標記已記、隨機順序與TTS朗讀。免安裝。', l: 'zh_TW', a: '閃示單字記憶 VOCA DECK' },
-  th: { t: 'ท่องศัพท์แบบแฟลช · เล่นซ้ำอัตโนมัติจาก CSV | VOCA DECK', d: 'โปรแกรมท่องศัพท์ฟรี สลับคำและความหมายด้วยตัวอักษรขนาดใหญ่ เปิดไฟล์ CSV เล่นซ้ำอัตโนมัติทุก 3 วินาที ทำเครื่องหมายจำ สุ่มลำดับ และ TTS', l: 'th_TH', a: 'ท่องศัพท์แบบแฟลช VOCA DECK' },
-  es: { t: 'Memorizador de vocabulario · Repetición automática CSV | VOCA DECK', d: 'Memorizador de vocabulario gratuito que alterna palabras y significados en letras grandes. Abre un CSV: reproducción automática cada 3 s, marcas, orden aleatorio y TTS. Sin instalación.', l: 'es_ES', a: 'Memorizador de vocabulario VOCA DECK' },
-  fr: { t: 'Mémorisation de vocabulaire · Répétition auto CSV | VOCA DECK', d: 'Mémorisation de vocabulaire gratuite : mots et sens alternent en grands caractères. Ouvrez un CSV : lecture auto toutes les 3 s, marques, ordre aléatoire, TTS. Sans installation.', l: 'fr_FR', a: 'Mémorisation de vocabulaire VOCA DECK' },
-  de: { t: 'Vokabeltrainer mit Blitzanzeige · CSV-Autowiederholung | VOCA DECK', d: 'Kostenloser Vokabeltrainer: Wörter und Bedeutungen erscheinen abwechselnd in großer Schrift. CSV öffnen – Autoplay alle 3 s, Markierungen, Zufallsreihenfolge, TTS. Ohne Installation.', l: 'de_DE', a: 'Vokabeltrainer mit Blitzanzeige VOCA DECK' },
-  it: { t: 'Memorizzatore di vocaboli · Ripetizione automatica CSV | VOCA DECK', d: 'Memorizzatore di vocaboli gratuito: parole e significati si alternano a caratteri grandi. Apri un CSV: riproduzione automatica ogni 3 s, contrassegni, ordine casuale e TTS. Senza installazione.', l: 'it_IT', a: 'Memorizzatore di vocaboli VOCA DECK' },
-  pt: { t: 'Memorizador de vocabulário · Repetição automática CSV | VOCA DECK', d: 'Memorizador de vocabulário gratuito: palavras e significados alternam em letras grandes. Abra um CSV: reprodução automática a cada 3 s, marcas, ordem aleatória e TTS. Sem instalação.', l: 'pt_PT', a: 'Memorizador de vocabulário VOCA DECK' },
-  ru: { t: 'Тренажёр слов · Автоповтор из CSV | VOCA DECK', d: 'Бесплатный тренажёр слов: слова и значения поочерёдно показываются крупным шрифтом. Откройте CSV — автоповтор каждые 3 с, отметки, случайный порядок и озвучка. Без установки.', l: 'ru_RU', a: 'Тренажёр слов VOCA DECK' },
-  nl: { t: 'Woordjes stampen · Automatisch herhalen uit CSV | VOCA DECK', d: 'Gratis woordjestrainer: woorden en betekenissen wisselen elkaar af in grote letters. Open een CSV: elke 3 s automatisch verder, markeringen, willekeurige volgorde en TTS. Geen installatie.', l: 'nl_NL', a: 'Woordjes stampen VOCA DECK' },
-};
+import { seoLang, normPath, LANGS, HTML_LANG } from './_lib/seo-lang.js';
+import META from './_lib/seo-meta.js';
 
-const ROOT_PATHS = new Set(['/', '/index.html', '/index']);
+const ORIGIN = 'https://voca.broodev.com';
+const BASE = 'ko';
+const lang = seoLang({ origin: ORIGIN, base: BASE, meta: META, remove: null });
 
 class AttrSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('content', this.v); } }
-class TextSetter { constructor(v) { this.v = v; } element(el) { el.setInnerContent(this.v); } }
-class LangSetter { constructor(v) { this.v = v; } element(el) { el.setAttribute('lang', this.v); } }
 
-export async function onRequest(context) {
-  const res = await ogRewrite(context);
-  // *.pages.dev(프리뷰/기본 도메인)는 broodev.com 정본의 복제본 — 색인 금지로 중복 콘텐츠 차단
-  try {
-    if (new URL(context.request.url).hostname.endsWith('.pages.dev')) {
-      const r = new Response(res.body, res);
-      r.headers.set('X-Robots-Tag', 'noindex, nofollow');
-      return r;
-    }
-  } catch (e) {}
-  return res;
+// <script type="application/ld+json"> 본문을 모아 JSON 으로 고친 뒤 한 번에 바꿔 쓴다(텍스트가 여러 조각으로 올 수 있음)
+class LdRewrite {
+  constructor(fix) { this.fix = fix; this.buf = ''; }
+  text(t) {
+    this.buf += t.text;
+    if (!t.lastInTextNode) { t.remove(); return; }
+    let out = this.buf;
+    try { out = JSON.stringify(this.fix(JSON.parse(this.buf))).replace(/</g, '\\u003c'); } catch (e) { out = this.buf; }
+    this.buf = '';
+    t.replace(out, { html: true });
+  }
 }
 
-async function ogRewrite(context) {
-  const { request, next } = context;
-  const res = await next();
+function ldFixer(l, path, m) {
+  const tag = HTML_LANG[l] || l;
+  const self = ORIGIN + path + '?lang=' + encodeURIComponent(l);
+  const short = m.t.replace(/ \| VOCA DECK$/, '');
+  const fix = (n) => {
+    if (!n || typeof n !== 'object') return n;
+    const ty = n['@type'];
+    if (ty === 'FAQPage') {
+      if (!m.faq) return null; // 번역이 없는 FAQ 는 화면 문구와 달라지므로 뺀다
+      n.mainEntity = m.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }));
+      return n;
+    }
+    if (ty === 'TechArticle' || ty === 'Article') {
+      n.headline = short; n.description = m.d; n.inLanguage = tag;
+      if (n.mainEntityOfPage && typeof n.mainEntityOfPage === 'object') n.mainEntityOfPage['@id'] = self;
+      return n;
+    }
+    if (ty === 'WebApplication' && path === '/') { n.name = 'VOCA DECK — ' + (m.an || short); n.description = m.d; n.url = self; return n; }
+    return n;
+  };
+  return (data) => {
+    if (Array.isArray(data['@graph'])) { data['@graph'] = data['@graph'].map(fix).filter(Boolean); return data; }
+    return fix(data);
+  };
+}
+
+export async function onRequest(context) {
+  const res = await lang(context);
   try {
     const ct = res.headers.get('content-type') || '';
-    if (!ct.includes('text/html')) return res;
-    const url = new URL(request.url);
-    if (!ROOT_PATHS.has(url.pathname)) return res; // /privacy?lang=ja 등에 앱 첫 화면 제목을 씌우지 않음
-    const lang = url.searchParams.get('lang');
-    const m = lang && M[lang];
-    if (!m) return res; // ko/미지정/미지원 → 원본(한국어) 그대로
-
-    return new HTMLRewriter()
-      .on('html', new LangSetter(lang))
-      .on('title', new TextSetter(m.t))
-      .on('meta[name="description"]', new AttrSetter(m.d))
-      .on('meta[property="og:title"]', new AttrSetter(m.t))
-      .on('meta[property="og:description"]', new AttrSetter(m.d))
-      .on('meta[property="og:locale"]', new AttrSetter(m.l))
-      .on('meta[name="twitter:title"]', new AttrSetter(m.t))
-      .on('meta[name="twitter:description"]', new AttrSetter(m.d))
-      .on('meta[property="og:image:alt"]', new AttrSetter(m.a))
-      .transform(res);
+    if (!ct.includes('text/html') || res.status !== 200) return res;
+    const url = new URL(context.request.url);
+    const l = url.searchParams.get('lang');
+    const path = normPath(url.pathname);
+    const m = l && l !== BASE && LANGS.includes(l) && META[path] && META[path][l];
+    if (!m) return res;
+    let rw = new HTMLRewriter().on('script[type="application/ld+json"]', new LdRewrite(ldFixer(l, path, m)));
+    if (m.an) rw = rw.on('meta[property="og:image:alt"]', new AttrSetter(m.an + ' VOCA DECK'));
+    return rw.transform(res);
   } catch (e) {
     return res;
   }

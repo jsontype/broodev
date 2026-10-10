@@ -1,6 +1,8 @@
 /* =============================================================================
    memo · i18n.js — 13개 언어 사전 + 언어 감지
-   detectLang: ?lang= → localStorage('memo:lang') → navigator.languages → en · 누락 키는 en 폴백
+   detectLang: ?lang= → localStorage('memo:lang') → 기준 언어 ko(정적 <html lang>) · 누락 키는 en 폴백
+   navigator(브라우저 언어)로 화면 언어를 고르지 않는다 — 구글봇(en-US 렌더)이 원본 한국어 정본을 그대로 보게(packages/seo/README.md L1).
+   브라우저 언어가 다르면 /lang-suggest.js 가 「○○로 보기」 제안 바만 띄운다.
    브랜드(MEMO · Google · Drive)·파일 확장자(.txt .md .json)·단축키 표기는 번역하지 않는다.
    ========================================================================== */
 (function (root) {
@@ -808,9 +810,7 @@
     try { q = pickFrom(new URLSearchParams(location.search).get('lang')); } catch (e) {}
     if (q) return q;
     try { var s = pickFrom(localStorage.getItem('memo:lang')); if (s) return s; } catch (e) {}
-    var nav = (typeof navigator !== 'undefined' && (navigator.languages || [navigator.language])) || [];
-    for (var i = 0; i < nav.length; i++) { var p = pickFrom(nav[i]); if (p) return p; }
-    return 'en';
+    return 'ko';   // 기준 언어(정적 <html lang="ko">) — navigator 미사용(L1)
   }
   function t(lang, key, vars) {
     var d = T[lang] || T.en;

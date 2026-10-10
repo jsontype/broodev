@@ -21,8 +21,9 @@
     var br = (m = /Edg\/(\d+)/.exec(ua)) ? 'Edge ' + m[1] : (m = /OPR\/(\d+)/.exec(ua)) ? 'Opera ' + m[1] : (m = /SamsungBrowser\/(\d+)/.exec(ua)) ? 'Samsung ' + m[1]
       : (m = /(?:Chrome|CriOS)\/(\d+)/.exec(ua)) ? 'Chrome ' + m[1] : (m = /(?:Firefox|FxiOS)\/(\d+)/.exec(ua)) ? 'Firefox ' + m[1] : (m = /Version\/(\d+).*Safari/.exec(ua)) ? 'Safari ' + m[1] : '브라우저?';
     var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
-    var lang = (I ? I.lang() : navigator.language);
-    return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · ' + navigator.language + ' · UI ' + lang;
+    // UI 언어 = i18n.js 가 정한 표시 언어(?lang → mh:lang → ko). navigator.language 는 운영자 진단용 「브라우저 언어」로만 적는다(표시 언어 결정에 쓰지 않음 — L1)
+    var lang = (I ? I.lang() : (document.documentElement.getAttribute('lang') || 'ko'));
+    return os + ' · ' + br + ' · ' + (touch ? '터치(모바일)' : '데스크톱') + ' · 화면 ' + screen.width + '×' + screen.height + ' · 창 ' + innerWidth + '×' + innerHeight + ' · 브라우저 ' + navigator.language + ' · UI ' + lang;
   }
   function nowJST() { try { return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Tokyo', hour12: false }) + ' (JST)'; } catch (e) { return String(new Date()); } }
 

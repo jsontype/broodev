@@ -39,7 +39,7 @@ if (!(MONTHLY > 0 && YEARLY > MONTHLY && PRICE > YEARLY)) fail('legal/biz.js 금
 }
 // btc / voca 객체
 const DEAL_KEYS = 20, LBL_KEYS = 5, LEGAL_KEYS = 4;
-for (const [f, name, keys] of [['apps/btc/index.html', 'PREM_DEAL', DEAL_KEYS], ['apps/voca/index.html', 'PLAN_DEAL', DEAL_KEYS], ['apps/voca/index.html', 'PLAN_LBL', LBL_KEYS], ['apps/btc/index.html', 'PREM_LEGAL', LEGAL_KEYS], ['apps/voca/index.html', 'PREM_LEGAL', LEGAL_KEYS]]) {
+for (const [f, name, keys] of [['apps/btc/app.jsx', 'PREM_DEAL', DEAL_KEYS], ['apps/voca/index.html', 'PLAN_DEAL', DEAL_KEYS], ['apps/voca/index.html', 'PLAN_LBL', LBL_KEYS], ['apps/btc/app.jsx', 'PREM_LEGAL', LEGAL_KEYS], ['apps/voca/index.html', 'PREM_LEGAL', LEGAL_KEYS]]) {
   const s = read(f);
   const m = new RegExp('const ' + name + ' = \\{\\n([\\s\\S]*?)\\n\\s*\\}').exec(s);
   if (!m) { fail(name + ' not found in ' + f); continue; }
@@ -62,7 +62,7 @@ for (const [f, name, keys] of [['apps/btc/index.html', 'PREM_DEAL', DEAL_KEYS], 
   console.log(f, name, 'ok (13 langs)');
 }
 // 카운트다운 종료 시각은 일본 시간 23:59 — 오프셋 없이 파싱하면 보는 사람의 시간대가 된다
-for (const f of ['apps/utils/js/promo.js', 'apps/btc/index.html', 'apps/voca/index.html']) if (!/T23:59:59\+09:00/.test(read(f))) fail(f + ': until 파싱에 +09:00 없음');
+for (const f of ['apps/utils/js/promo.js', 'apps/btc/app.jsx', 'apps/voca/index.html']) if (!/T23:59:59\+09:00/.test(read(f))) fail(f + ': until 파싱에 +09:00 없음');
 // HTML: utils pricing 13 블록 · premium 13 블록 · tokushoho 13 블록
 function checkFile(file, tests) {
   const s = read(file);
@@ -107,7 +107,7 @@ for (const [f, re] of [['apps/utils/pricing.html', /<article data-lang-block="ja
 // 들여쓰기 복구 확인(plan-name 줄이 열 0 에서 시작하지 않음)
 for (const l of LANGS.filter(x => !CORE.includes(x))) { if (/\n<div class="plan-name">/.test(read('apps/utils/i18n/pricing.' + l + '.html'))) fail('indent lost ' + l); }
 // 금액 일치: utils biz · legal biz(3 앱) · btc · voca — 월간/연간/買い切り/비교 가격
-const ub = read('apps/utils/js/biz.js'), bt = read('apps/btc/index.html'), vo = read('apps/voca/index.html');
+const ub = read('apps/utils/js/biz.js'), bt = read('apps/btc/app.jsx'), vo = read('apps/voca/index.html');
 const lv = DEAL ? String(LIST) : 'null';
 if (!new RegExp('monthly: +\\{ price: ' + MONTHLY + ',').test(ub) || !new RegExp('yearly: +\\{ price: ' + YEARLY + ',').test(ub) || !new RegExp('lifetime: \\{ price: ' + PRICE + ', list: ' + lv + ',').test(ub)) fail('utils biz.js 금액이 legal/biz.js 와 다름');
 if ((lb.match(new RegExp('monthly: ' + MONTHLY + ', yearly: ' + YEARLY + ', lifetime: ' + PRICE + ', lifetime_list: ' + lv, 'g')) || []).length !== 3) fail('legal biz.js 3 앱의 금액이 같지 않음');
@@ -115,7 +115,8 @@ if (!new RegExp('monthly: +\\{ price: ' + MONTHLY + ', url:').test(bt) || !new R
 if (!new RegExp('monthly: \\{ price: ' + MONTHLY + ' \\}, yearly: \\{ price: ' + YEARLY + ' \\}, lifetime: \\{ price: ' + PRICE + ', list: ' + lv + ' \\}').test(vo)) fail('voca PREMIUM.plans 금액이 다름');
 // 정적 내비 배지의 -50% 꼬리는 비어 있고 hidden · 모달 플랜 카드 3장(월간·연간·買い切り) + 가치 문구 + 법적 링크
 for (const f of ['apps/btc/index.html', 'apps/voca/index.html', 'apps/eth/index.html']) {
-  const s = read(f);
+  const jsx = f.replace('index.html', 'app.jsx');   // btc·코인: 앱 JSX 원문은 app.jsx(2026-10-10 사전 컴파일) — 정적 HTML 과 합쳐서 본다
+  const s = read(f) + (f !== 'apps/voca/index.html' && fs.existsSync(R + jsx) ? read(jsx) : '');
   if (!/data-prem-off hidden><\/span>/.test(s)) fail(f + ': 정적 내비 배지에 -50% 텍스트가 박혀 있음');
   if ((s.match(/<div className="prm-value">/g) || []).length < 2) fail(f + ': prm-value(연간·買い切り) 없음');
   if (!/'pm', v\)/.test(s) || !/'valueY', v\)/.test(s)) fail(f + ': 월간 카드/연간 이득 문구 렌더 없음');
@@ -158,7 +159,7 @@ for (const l of LANGS) {
 // 구 금액(¥2,500 · ¥5,000)이 서빙되는 HTML/JS 에 남아 있지 않은지(주석 제외 · functions/·에셋 제외)
 const walk = (dir, out = []) => { for (const e of fs.readdirSync(R + dir, { withFileTypes: true })) { const p = dir + '/' + e.name; if (e.isDirectory()) { if (!/^(functions|node_modules|vendor|assets|font|fonts|icon|images|scss|css)$/.test(e.name)) walk(p, out); } else if (/\.(html|js)$/.test(e.name) && fs.statSync(R + p).size < 400000) out.push(p); } return out; };
 const stripComments = (s) => s.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^[ \t]*\/\/.*$/gm, '');
-for (const f of [].concat(walk('apps/home'), walk('apps/utils'), ['apps/voca/index.html', 'apps/btc/index.html'])) {
+for (const f of [].concat(walk('apps/home'), walk('apps/utils'), ['apps/voca/index.html', 'apps/btc/index.html', 'apps/btc/app.jsx'])) {
   const m = /¥2,500|¥5,000|"2500"|"5000"|2,500円|5,000円/.exec(stripComments(read(f)));
   if (m) fail(f + ': 구 금액 「' + m[0] + '」 이 남아 있음');
 }
@@ -175,8 +176,15 @@ for (const f of ['apps/utils/pptx.html', 'apps/utils/ai.html', 'apps/utils/psd.h
   const s = read(f);
   const prices = grab(s, /"@type": "Offer", "name": "[^"]*", "price": "(\d+)"/g).map(Number);
   if (prices.join() !== [MONTHLY, YEARLY, PRICE].join()) fail(f + ': JSON-LD offers 금액 [' + prices.join() + '] != [' + [MONTHLY, YEARLY, PRICE].join() + ']');
+  // meta description: 2026-10-10 부터 검색 결과 길이(packages/seo L6)에 맞춰 금액을 빼도 된다(금액은 본문·JSON-LD offers 에 있음).
+  // 대신 금액을 적었다면 현재 금액이어야 한다(낡은 금액이 검색 결과에 남지 않게).
   const md = /<meta name="description" content="([^"]*)"/.exec(s);
-  if (!md || ![MONTHLY, YEARLY, PRICE].every(v => md[1].includes(yen(v)))) fail(f + ': meta description 에 현재 금액 3개가 없음');
+  if (!md) fail(f + ': meta description 없음');
+  else {
+    const cur = [MONTHLY, YEARLY, PRICE].map(yen);
+    const stale = (md[1].match(/¥[\d,]+/g) || []).filter((x) => !cur.includes(x));
+    if (stale.length) fail(f + ': meta description 에 현재와 다른 금액 ' + stale.join(', '));
+  }
 }
 // utils desc_pricing(13) · voca prmDesc(13): 월간 플랜 언급
 const ANY_M = new RegExp(Object.values(MONTHLY_KW).join('|'));

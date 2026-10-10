@@ -1,7 +1,7 @@
 /* Utils — 안내 페이지 공통 (pricing.html · contact.html · 404.html — 법적 문서는 broodev.com/legal/ 로 통합)
    - 헤더 언어 풀다운(#pg-lang) 토글 + [data-lang] 클릭 → MH_I18N.set
    - <title>·meta description 은 i18n.js apply() 가 <body data-page> 에 맞춰 title_* / desc_* 키로 교체 (여기서는 안 함)
-   - 언어별 본문: 페이지 HTML 에는 <article data-lang-block="ja|ko|en"> 3개만 있다(JS 없을 땐 ja 가 보임). 그 외 10개 언어는
+   - 언어별 본문: 페이지 HTML 에는 <article data-lang-block="ja|ko|en"> 3개만 있다(JS 없을 땐 기준 언어 ko 가 보임 — 2026-10-10 SEO 로 ja → ko). 그 외 10개 언어는
      i18n/{data-page}.{lang}.html 조각(같은 구조의 <article> 1개)을 선택 시 fetch 해 끼워 넣는다(13개를 한 파일에 넣으면 10배 무거워지므로).
      조각을 못 받으면(오프라인·404) en 블록. 조각 변경 시 V 와 5개 페이지의 ?v= 를 같이 올린다
    - [data-biz="키"] ← BIZ (언어별 변형 키 '_ko' '_en' 이 있으면 우선) · [data-biz-href="email"] ← mailto:
@@ -13,7 +13,7 @@
   'use strict';
   var I = window.MH_I18N, BIZ = window.BIZ || {}, PLANS = window.PLANS || {};
   if (!I) return;
-  var V = '20261010a';
+  var V = '20261010b';
   var DOC = document.body ? document.body.getAttribute('data-page') : null;
 
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
@@ -90,6 +90,13 @@
     });
   }
 
+  // 조각 안 내부 링크(a[href^="/"])에 현재 언어 — i18n.js apply() 는 조각을 끼우기 전에 돌았으므로 끼운 뒤 같은 규칙(I.href)으로 한 번 더
+  function localLinks(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('a[href^="/"]:not([data-lang]):not([href^="//"]):not([href^="/api/"])'), function (a) {
+      a.setAttribute('href', I.href(a.getAttribute('href')));
+    });
+  }
+
   // 긴 본문(data-lang-block): 있는 블록은 바로, 없는 언어는 i18n/{DOC}.{lang}.html 조각을 받아 끼운 뒤 표시. 실패하면 en
   var blocks = {}, failed = {}, seq = 0;
   each('[data-lang-block]', function (el) { blocks[el.getAttribute('data-lang-block')] = true; });
@@ -110,6 +117,7 @@
         var art = tpl.content.querySelector('[data-lang-block="' + lang + '"]');
         if (!art) throw new Error('no article');
         art.hidden = true;
+        localLinks(art);
         var all = document.querySelectorAll('[data-lang-block]'), last = all[all.length - 1];
         last.parentNode.insertBefore(art, last.nextSibling);
         blocks[lang] = true;

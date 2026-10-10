@@ -4,29 +4,30 @@
 <head>
     <meta charset="utf-8">
     <title>사진 나란히 Illustrator — 사진을 아트보드에 자동 배열 | Utils</title>
-    <meta name="description" content="사진을 올리기만 하면 파일명 순서대로 아트보드 한 장에 가로×세로 격자로 배열된 Illustrator(.ai) 파일을 바로 내려받습니다. 사진은 배치 이미지, 캡션은 텍스트로 편집 가능. 브라우저에서만 처리, 서버 전송 없음. 미리보기 무료 · 다운로드는 프리미엄(월 ¥100 · 연 ¥800 · 평생 ¥2,000).">
+    <meta name="description" content="사진을 올리면 아트보드마다 가로×세로 격자로 배열한 Illustrator(.ai) 파일을 만듭니다. 캡션은 편집 가능한 텍스트. 미리보기 무료 · 다운로드는 프리미엄.">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <!-- SEO: 크롤러용 신호는 전부 head 에(눈에 안 보임). 본문 문구는 i18n 이 브라우저 언어로 바꾸고, 언어별 URL 은 ?lang= (hreflang) — 숨긴 텍스트 블록은 스팸 정책 위반이라 쓰지 않는다.
+    <!-- SEO: 크롤러용 신호는 전부 head 에(눈에 안 보임). 본문 문구는 i18n 이 ?lang= → 저장값(mh:lang) → ko 순으로 고르고(navigator 안 씀), 언어별 URL 은 ?lang= (hreflang) — 숨긴 텍스트 블록은 스팸 정책 위반이라 쓰지 않는다.
          이 페이지 = 「写真ならべ」 시리즈의 Illustrator 앱 (pptx.html 의 복제 — 다른 곳: data-page, 제목·설명·JSON-LD, 스크립트 pdf-lib(.ai 는 PDF 호환), 사이드바 active). 2026-10-05 공개 -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <meta name="keywords" content="사진 나란히, 사진 일러스트레이터 배열, 사진 ai 격자, 사진 아트보드 자동 배치, 写真ならべ, 写真 Illustrator 配置, 写真 イラレ 並べる, 写真 アートボード グリッド, photo layout illustrator, photo grid ai file, photos to illustrator artboard, image grid artboards, Y Systems Utils, broodev">
     <meta name="author" content="Y Systems">
     <link rel="canonical" href="https://utils.broodev.com/ai">
-    <!-- 13개 언어 (js/i18n.js 가 브라우저 언어로 자동 선택 · ?lang= 로 고정) — sitemap.xml 의 xhtml:link 와 같은 목록 -->
-    <link rel="alternate" hreflang="x-default" href="https://utils.broodev.com/ai">
+    <!-- 언어별 주소(packages/seo/README.md L3·L4): ko = 이 주소(정본), 나머지 12개 = ?lang=xx — functions/_middleware.js 가 그 응답의 canonical·<html lang>·title·description 을 그 언어로 바꾼다.
+         x-default = 영어 버전. sitemap.xml 의 xhtml:link 와 같은 목록 -->
     <link rel="alternate" hreflang="en" href="https://utils.broodev.com/ai?lang=en">
     <link rel="alternate" hreflang="ja" href="https://utils.broodev.com/ai?lang=ja">
-    <link rel="alternate" hreflang="ko" href="https://utils.broodev.com/ai?lang=ko">
+    <link rel="alternate" hreflang="ko" href="https://utils.broodev.com/ai">
     <link rel="alternate" hreflang="zh-Hans" href="https://utils.broodev.com/ai?lang=zh">
+    <link rel="alternate" hreflang="zh-Hant" href="https://utils.broodev.com/ai?lang=zh-Hant">
+    <link rel="alternate" hreflang="th" href="https://utils.broodev.com/ai?lang=th">
     <link rel="alternate" hreflang="es" href="https://utils.broodev.com/ai?lang=es">
-    <link rel="alternate" hreflang="pt" href="https://utils.broodev.com/ai?lang=pt">
     <link rel="alternate" hreflang="fr" href="https://utils.broodev.com/ai?lang=fr">
-    <link rel="alternate" hreflang="ru" href="https://utils.broodev.com/ai?lang=ru">
     <link rel="alternate" hreflang="de" href="https://utils.broodev.com/ai?lang=de">
     <link rel="alternate" hreflang="it" href="https://utils.broodev.com/ai?lang=it">
-    <link rel="alternate" hreflang="th" href="https://utils.broodev.com/ai?lang=th">
-    <link rel="alternate" hreflang="zh-Hant" href="https://utils.broodev.com/ai?lang=zh-Hant">
+    <link rel="alternate" hreflang="pt" href="https://utils.broodev.com/ai?lang=pt">
+    <link rel="alternate" hreflang="ru" href="https://utils.broodev.com/ai?lang=ru">
     <link rel="alternate" hreflang="nl" href="https://utils.broodev.com/ai?lang=nl">
+    <link rel="alternate" hreflang="x-default" href="https://utils.broodev.com/ai?lang=en">
 
     <!-- Open Graph / 공유 썸네일 (카카오톡·LINE·X) — 이미지는 scripts/gen_og.mjs 가 생성 -->
     <meta property="og:type" content="website">
@@ -97,6 +98,58 @@
     }
     </script>
 
+    <!-- FAQPage: 화면 section.seo 의 FAQ(한국어 정본)와 같은 문답. ?lang=xx 버전에서는 미들웨어가 뺀다(번역 화면과 어긋나지 않게) -->
+    <script type="application/ld+json" data-ld="faq">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "ko",
+      "url": "https://utils.broodev.com/ai",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "무료로 쓸 수 있나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "미리보기는 무료입니다. .ai 다운로드에는 프리미엄이 필요하며, Excel 출력은 계속 무료입니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Illustrator 에서 사진을 따로 움직일 수 있나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "네. 사진은 한 장씩 따로 배치된 이미지로 들어가 있어 위치와 크기를 바꿀 수 있습니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "캡션은 텍스트로 편집되나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "파일명이 영문자 · 숫자 같은 라틴 문자로만 되어 있으면 편집할 수 있는 텍스트로 들어갑니다. 한글 · 일본어처럼 그 밖의 문자가 든 파일명은 캡션이 이미지로 들어갑니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "사진이 서버로 전송되나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "아니요. 사진을 읽는 것부터 파일을 만드는 것까지 모두 브라우저 안에서 처리되며, 사진은 서버로 전송되지 않습니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "사진 순서는 어떻게 정해지나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "파일명에 든 숫자를 수의 크기로 비교해 정렬합니다. 그래서 1.jpg, 2.jpg, 10.jpg 는 이 순서대로 놓입니다. 원하는 순서가 있으면 파일명 앞에 번호를 붙여 올리세요."
+          }
+        }
+      ]
+    }
+    </script>
+
     <!-- Theme Style -->
     <link rel="stylesheet" type="text/css" href="css/animate.min.css">
     <link rel="stylesheet" type="text/css" href="css/animation.css">
@@ -116,7 +169,7 @@
 
     <!-- 공통(로고 워드마크 · 언어 풀다운 · 하단 법적 링크 · 안내 페이지). ?v= 는 캐시 버스터 — 우리가 고치는 js/css 를 바꾸면 7개 페이지의 토큰을 같이 올릴 것
          (Cloudflare 가 브라우저에 4시간 캐시를 주므로, 새 HTML + 옛 JS 조합이 생기면 풀다운·번역이 깨진다 — 2026-10-04 실제 발생) -->
-    <link rel="stylesheet" href="css/site.css?v=20261010a">
+    <link rel="stylesheet" href="css/site.css?v=20261010b">
 
     <!-- 앱 전용 스타일 (템플릿 CSS 위에 덧씀) -->
     <style>
@@ -166,7 +219,7 @@
                 <div class="section-menu-left">
                     <div class="box-logo">
                         <!-- 로고: Y Systems 워드마크만 (Y 마크 아이콘은 2026-10-02 제거). 텍스트라 dark/light 는 CSS 변수로 자동 -->
-                        <a href="index.html" id="site-logo-inner" class="pg-logo" aria-label="Y Systems">
+                        <a href="/" id="site-logo-inner" class="pg-logo" aria-label="Y Systems">
                             <span class="pg-logo-text">Y Systems</span>
                         </a>
                         <div class="button-show-hide">
@@ -181,27 +234,27 @@
                                 <div class="center-heading" data-i18n="series">사진 나란히</div>
                                 <ul>
                                     <li class="menu-item">
-                                        <a href="index.html" class="">
+                                        <a href="/" class="">
                                             <div class="icon"><span class="pg-fmt pg-fmt-xlsx" aria-hidden="true">X</span></div>
                                             <div class="text">Excel</div>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a href="pptx.html" class="">
+                                        <a href="/pptx" class="">
                                             <div class="icon"><span class="pg-fmt pg-fmt-pptx" aria-hidden="true">P</span></div>
                                             <div class="text">PowerPoint</div>
                                             <span class="pg-prem" title="Premium">Premium</span>
                                         </a>
                                     </li>
                                     <li class="menu-item active">
-                                        <a href="ai.html" class="">
+                                        <a href="/ai" class="">
                                             <div class="icon"><span class="pg-fmt pg-fmt-ai" aria-hidden="true">Ai</span></div>
                                             <div class="text">Illustrator</div>
                                             <span class="pg-prem" title="Premium">Premium</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a href="psd.html" class="">
+                                        <a href="/psd" class="">
                                             <div class="icon"><span class="pg-fmt pg-fmt-psd" aria-hidden="true">Ps</span></div>
                                             <div class="text">Photoshop</div>
                                             <span class="pg-prem" title="Premium">Premium</span>
@@ -213,13 +266,13 @@
                                 <div class="center-heading" data-i18n="menu_more">기타</div>
                                 <ul>
                                     <li class="menu-item">
-                                        <a href="pricing.html" class="">
+                                        <a href="/pricing" class="">
                                             <div class="icon"><i class="icon-Star"></i></div>
                                             <div class="text"><span data-i18n="menu_pricing">요금 · 프리미엄</span><span class="pg-badge pg-menu-deal" data-promo="tag" hidden></span></div>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a href="contact.html" class="">
+                                        <a href="/contact" class="">
                                             <div class="icon"><i class="icon-EnvelopeSimple"></i></div>
                                             <div class="text" data-i18n="menu_contact">문의 · 제안</div>
                                         </a>
@@ -273,16 +326,16 @@
                                 <div class="flex-grow-1 relative">
                                     <div class="left text-to-image-wrap">
                                         <div class="heading">
-                                            <h4 class="mb-12"><span data-i18n="heading_ai">사진 나란히 — Illustrator</span><span class="pg-prem">Premium</span></h4>
+                                            <div class="pg-h1row mb-12"><h1 class="h4" data-i18n="heading_ai">사진 나란히 — Illustrator</h1><span class="pg-prem">Premium</span></div>
                                             <p class="text-Secondary" data-i18n="intro_ai">사진을 올리면 파일명 순서대로, 선택한 용지 크기의 아트보드 한 장에 지정한 가로×세로 개수로 배열된 Illustrator(.ai) 파일을 바로 내려받습니다. 사진은 각각 따로 움직일 수 있는 배치 이미지, 캡션은 텍스트로 들어가 그대로 편집할 수 있습니다. PDF 호환 .ai 라 Illustrator 가 그대로 열며, 여러 페이지는 아트보드 여러 장이 됩니다. 모든 처리는 브라우저 안에서 — 사진은 서버로 전송되지 않습니다.</p>
                                         </div>
                                         <!-- 잠금 안내: 라이선스(js/license.js)가 없을 때만 app.js 가 표시. 미리보기는 무료, 다운로드는 프리미엄 -->
                                         <div class="pg-prem-note" id="pg-prem-note" hidden>
                                             <span class="pg-prem" aria-hidden="true">Premium</span>
                                             <span data-i18n="prem_note_ai">Illustrator(.ai) 출력은 프리미엄 기능입니다. 미리보기는 무료, 다운로드에는 프리미엄이 필요합니다. Excel 출력은 계속 무료입니다.</span>
-                                            <a href="pricing.html" class="pg-prem-cta" data-i18n="prem_cta">요금 · 프리미엄 보기 →</a>
+                                            <a href="/pricing" class="pg-prem-cta" data-i18n="prem_cta">요금 · 프리미엄 보기 →</a>
                                             <span class="pg-deal" data-deal hidden><span class="pg-deal-tag" data-promo="tag"></span><span data-promo="promo_label"></span><span class="pg-deal-limited" data-promo="promo_limited"></span><span data-promo="promo_save"></span></span>
-                                            <a href="pricing.html#pg-license" class="pg-prem-have" data-i18n="prem_have_key">이미 구매하셨나요? 라이선스 키 입력</a>
+                                            <a href="/pricing#pg-license" class="pg-prem-have" data-i18n="prem_have_key">이미 구매하셨나요? 라이선스 키 입력</a>
                                         </div>
                                         <div class="text-to-image-content">
                                             <div class="mb-16 flex items-center justify-content-between flex-wrap gap16">
@@ -297,15 +350,46 @@
                                                 <span id="pg-status" class="text-Secondary" role="status" aria-live="polite"></span>
                                             </div>
                                         </div>
+                                        <!-- SEO 본문(L6): JS 없이도 읽히는 도구 설명 · 사용 순서 · 쓰임새 · FAQ. 문구 = js/i18n.js seo_* (13개 언어). FAQ 한국어 문구는 head 의 FAQPage JSON-LD(data-ld="faq")와 같아야 한다 -->
+                                        <section class="seo" aria-labelledby="seo-what">
+                                            <h2 id="seo-what" data-i18n="seo_h_what">어떤 도구인가요</h2>
+                                            <p data-i18n="seo_ai_what">사진 여러 장을 아트보드에 가로×세로 격자로 배열한 Illustrator(.ai) 파일을 만드는 웹 도구입니다. PDF 호환 .ai 라 Illustrator 에서 그대로 열리고, 페이지가 여러 장이면 아트보드도 여러 장이 됩니다. 미리보기는 무료, 다운로드는 프리미엄 기능입니다.</p>
+                                            <h2 data-i18n="seo_h_steps">사용 순서</h2>
+                                            <ol>
+                                                <li data-i18n="seo_step1">사진을 업로드 칸에 끌어다 놓거나 클릭해서 고릅니다. 여러 번 나눠 올려도 하나로 합쳐지고, 파일명 순서로 다시 정렬됩니다.</li>
+                                                <li data-i18n="seo_step2">용지(A4 · A3 · A5 · B4 · B5 · Letter · Legal)와 방향(세로 · 가로), 한 페이지에 넣을 가로 개수와 세로 개수(각 1~5)를 고릅니다.</li>
+                                                <li data-i18n="seo_step3">사진 아래에 파일명 캡션을 넣을지, 이미지 최대 크기(1200 · 1600 · 2400px 또는 원본)를 정합니다. 미리보기에서 배치를 확인하고, 뺄 사진은 × 버튼으로 제외합니다.</li>
+                                                <li data-i18n="seo_ai_step4">「생성 · 다운로드」를 누르면 .ai 파일이 저장됩니다. 미리보기까지는 무료이고, 다운로드에는 프리미엄이 필요합니다.</li>
+                                            </ol>
+                                            <h2 data-i18n="seo_h_uses">주요 쓰임새</h2>
+                                            <ul>
+                                                <li data-i18n="seo_ai_use1">Illustrator 에서 다듬을 사진 페이지의 기본 배치</li>
+                                                <li data-i18n="seo_ai_use2">사진 목록 · 카탈로그 페이지 초안</li>
+                                                <li data-i18n="seo_ai_use3">여러 페이지 분량의 사진을 아트보드 단위로 정리</li>
+                                            </ul>
+                                            <h2 data-i18n="seo_h_faq">자주 묻는 질문</h2>
+                                            <div class="seo-faq">
+                                                <h3 data-i18n="seo_ai_q1">무료로 쓸 수 있나요?</h3>
+                                                <p data-i18n="seo_ai_a1">미리보기는 무료입니다. .ai 다운로드에는 프리미엄이 필요하며, Excel 출력은 계속 무료입니다.</p>
+                                                <h3 data-i18n="seo_ai_q2">Illustrator 에서 사진을 따로 움직일 수 있나요?</h3>
+                                                <p data-i18n="seo_ai_a2">네. 사진은 한 장씩 따로 배치된 이미지로 들어가 있어 위치와 크기를 바꿀 수 있습니다.</p>
+                                                <h3 data-i18n="seo_ai_q3">캡션은 텍스트로 편집되나요?</h3>
+                                                <p data-i18n="seo_ai_a3">파일명이 영문자 · 숫자 같은 라틴 문자로만 되어 있으면 편집할 수 있는 텍스트로 들어갑니다. 한글 · 일본어처럼 그 밖의 문자가 든 파일명은 캡션이 이미지로 들어갑니다.</p>
+                                                <h3 data-i18n="seo_fq_local">사진이 서버로 전송되나요?</h3>
+                                                <p data-i18n="seo_fa_local">아니요. 사진을 읽는 것부터 파일을 만드는 것까지 모두 브라우저 안에서 처리되며, 사진은 서버로 전송되지 않습니다.</p>
+                                                <h3 data-i18n="seo_fq_order">사진 순서는 어떻게 정해지나요?</h3>
+                                                <p data-i18n="seo_fa_order">파일명에 든 숫자를 수의 크기로 비교해 정렬합니다. 그래서 1.jpg, 2.jpg, 10.jpg 는 이 순서대로 놓입니다. 원하는 순서가 있으면 파일명 앞에 번호를 붙여 올리세요.</p>
+                                            </div>
+                                        </section>
                                         <!-- 하단 법적 링크 (Stripe 심사·特商法: 운영자 표기·약관·개인정보·환불·문의가 첫 화면에서 1클릭) -->
                                         <footer class="pg-foot">
                                             <span>© 2026 Y Systems</span><span class="sep">|</span>
-                                            <a href="pricing.html" data-i18n="foot_pricing">요금</a>
+                                            <a href="/pricing" data-i18n="foot_pricing">요금</a>
                                             <a href="https://broodev.com/legal/tokushoho" data-i18n="foot_tokushoho">특정상거래법 표기</a>
                                             <a href="https://broodev.com/legal/terms" data-i18n="foot_terms">이용약관</a>
                                             <a href="https://broodev.com/legal/privacy" data-i18n="foot_privacy">개인정보 처리방침</a>
                                             <a href="https://broodev.com/legal/refund" data-i18n="foot_refund">환불·해지 정책</a>
-                                            <a href="contact.html" data-i18n="foot_contact">문의</a>
+                                            <a href="/contact" data-i18n="foot_contact">문의</a>
                                             <a href="https://dev.broodev.com/" data-i18n="foot_dev">개발자 소개</a>
                                         </footer>
                                     </div>
@@ -415,15 +499,16 @@
     <script src="js/bootstrap-select.min.js"></script>
     <script src="js/nice-select.min.js"></script>
     <script src="js/main.js"></script>
+    <!-- 브라우저 언어 ≠ 기준 언어(ko)일 때 「○○로도 볼 수 있습니다」 제안 바(L2 · packages/seo 사본 — 직접 고치지 말 것). CDN 라이브러리(defer)보다 앞에 둔다 — defer 는 문서 순서로 실행되므로 뒤에 두면 큰 번들을 다 받을 때까지 바가 안 뜬다 -->
+    <script src="/lang-suggest.js" data-key="mh:lang" data-base="ko" defer></script>
     <!-- 앱: pdf-lib (CDN, 버전 고정 — .ai 는 PDF 호환이라 PDF 로 만들어 .ai 로 내려준다. 이 페이지 전용) + i18n + 라이선스(프리미엄 잠금) + 핵심 로직 + DOM -->
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous" defer></script>
-    <script src="js/i18n.js?v=20261010a"></script>
-    <script src="js/biz.js?v=20261010a"></script>
-    <script src="js/promo.js?v=20261010a"></script>
-    <script src="js/license.js?v=20261010a"></script>
-    <script src="js/photo-grid.js?v=20261010a"></script>
-    <script src="js/app.js?v=20261010a"></script>
-
+    <script src="js/i18n.js?v=20261010c"></script>
+    <script src="js/biz.js?v=20261010b"></script>
+    <script src="js/promo.js?v=20261010b"></script>
+    <script src="js/license.js?v=20261010b"></script>
+    <script src="js/photo-grid.js?v=20261010b"></script>
+    <script src="js/app.js?v=20261010b"></script>
 </body>
 
 </html>

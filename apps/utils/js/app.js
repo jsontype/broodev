@@ -3,7 +3,7 @@
    ai.html "ai" → Illustrator(.ai = PDF 호환 · pdf-lib), psd.html "psd" → Photoshop(.psd · ag-psd, 여러 페이지는 JSZip 으로 ZIP)
    (2026-10-03 「写真ならべ」 시리즈로 앱 분리 — 포맷 select 는 없어짐. 그 외 설정은 네 페이지가 localStorage mh:settings 를 공유. dpi 는 psd 페이지에만 select 가 있다)
    프리미엄(2026-10-04): PowerPoint·Illustrator·Photoshop 출력은 유료(js/license.js). 라이선스가 없으면 미리보기까지는 되고
-   생성·다운로드 버튼이 「프리미엄 — 요금 보기」로 바뀌어 pricing.html 로 보낸다. Excel 은 항상 무료·전 기능 */
+   생성·다운로드 버튼이 「프리미엄 — 요금 보기」로 바뀌어 /pricing 으로 보낸다. Excel 은 항상 무료·전 기능 */
 (function () {
   'use strict';
   var PG = window.PhotoGrid, I = window.MH_I18N, LIC = window.MH_LICENSE;
@@ -179,7 +179,7 @@
 
   function generate() {
     if (busy) return;
-    if (LOCKED) { location.href = 'pricing.html'; return; }   // 프리미엄 형식 · 라이선스 없음 → 요금 페이지
+    if (LOCKED) { location.href = I.href ? I.href('/pricing') : '/pricing'; return; }   // 프리미엄 형식 · 라이선스 없음 → 요금 페이지(확장자 없는 정본 주소 + 현재 언어)
     if (!files.length) { setStatus('st_need', null, true); return; }
     var fmt = S.format, LB = LIBS[fmt];
     var lib = LB.get();
