@@ -537,6 +537,11 @@
       .bottom-answer.na .bottom-answer-a { color: var(--dim); font-size: 16px; }
       .bottom-answer-why { flex-basis: 100%; color: var(--dim); font-size: 11.5px; }
       .mosaic-hit { display: inline-flex; align-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+      /* 비프리미엄 바닥 레이더(BottomRadarLocked) — 점수 자리·설명 줄 크기의 모자이크 */
+      .mosaic-hit.mosaic-score .mosaic-bar { width: 132px; height: 44px; }
+      .mosaic-hit.mosaic-line .mosaic-bar { width: min(460px, 78vw); height: 14px; }
+      .mosaic-hit.mosaic-line.short .mosaic-bar { width: min(300px, 56vw); }
+      .bottom-locked-row { margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .mosaic-bar { display: inline-block; width: min(280px, 52vw); height: 22px; border-radius: 3px; background-image: linear-gradient(90deg, rgba(0,0,0,.55) 1px, transparent 1px), linear-gradient(rgba(0,0,0,.55) 1px, transparent 1px), linear-gradient(135deg, #6a7a72, #c5d4cc 40%, #3d4c45 70%, #9aaea4); background-size: 8px 8px, 8px 8px, 100% 100%; }
       .duo-lock { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
       .duo-mosaic { height: clamp(200px, 34vw, 300px); border: 1px solid var(--line); border-radius: 4px; background-image: linear-gradient(90deg, rgba(0,0,0,.5) 1px, transparent 1px), linear-gradient(rgba(0,0,0,.5) 1px, transparent 1px), linear-gradient(180deg, #24362c, #0b120e 45%, #1c2b24); background-size: 12px 12px, 12px 12px, 100% 100%; }
@@ -1739,7 +1744,8 @@
           sShort: hasMvrv ? clamp(50 + (chain.mvrv - 1) * 28, 0, 100) : null, // 모멘텀: 총평단 위 = 추세 강도
           sLong: hasMvrv ? zToScore(chain.mvrvZ) : null,                      // 역발상: z 낮을수록 바닥권
           value: hasMvrv ? chain.mvrv.toFixed(2) + '×' : 'N/A',
-          detail: hasMvrv ? `z ${chain.mvrvZ.toFixed(2)}` + (chain.underCost ? ' ⚑' : '') : D.nodata,
+          // ⚑(시총 < 평균 매수원가) 표시는 뺐다(2026-10-10) — BOTTOM RADAR 의 프리미엄 판정 「예, 지금은 바닥」과 같은 조건이라 무료 지표 카드·터미널 show mvrv 로 판정이 새지 않게
+          detail: hasMvrv ? `z ${chain.mvrvZ.toFixed(2)}` : D.nodata,
           series: hasMvrv && chain.mvrvSeries ? chain.mvrvSeries : [],
           times: hasMvrv && chain.mvrvTimes ? chain.mvrvTimes : null,
         }
@@ -2251,11 +2257,52 @@
           </div>
         )
       }
+      /* 비프리미엄용 바닥 레이더 — 결과(점수·등급·설명·판정·이유·MVRV·경고·차트)를 하나도 렌더하지 않는다(2026-10-10).
+         CSS 로 흐리게 한 진짜 값은 개발자 도구·스크린리더로 그대로 읽히므로 값 대신 모자이크 막대만 둔다.
+         카드 색도 등급과 무관한 중립색 — 초록/노랑/빨강 테두리만으로 등급이 드러나지 않게. 제목·질문·안내문(정적 문구)만 보인다 */
+      function BottomRadarLocked({ oc, showChart, onPremium }) {
+        const lock = (cls) => <button type="button" className={'mosaic-hit' + (cls ? ' ' + cls : '')} onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>
+        return (
+          <section className="panel bottom-radar status-locked" style={{ '--accent': 'var(--dim)' }}>
+            <span className="corner tl" /><span className="corner br" />
+            <div className="bottom-head">
+              <div className="panel-label">// {oc.bottom.title} — {oc.bottom.q}</div>
+              <div className="bottom-answer locked">
+                <span className="bottom-answer-q">{oc.bottom.q}</span>
+                {lock()}
+                <button type="button" className="pg-prem" onClick={onPremium}>Premium</button>
+              </div>
+              <div className="bottom-score-row">{lock('mosaic-score')}</div>
+              <div className="bottom-advice">{lock('mosaic-line')}</div>
+              <div className="bottom-locked-row">{lock('mosaic-line short')}<button type="button" className="pg-prem" onClick={onPremium}>Premium</button></div>
+            </div>
+            {showChart && (
+              <>
+                <div className="duo-title">
+                  <span className="term u" tabIndex={0}>
+                    {oc.bottom.chartTitle}
+                    <span className="tip" role="tooltip">
+                      <span className="tip-title">{oc.bottom.tipTitle}</span>
+                      <span className="tip-body">{oc.bottom.tipBody}</span>
+                    </span>
+                  </span>
+                </div>
+                <div className="duo-lock" onClick={onPremium} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPremium() } }}>
+                  <div className="duo-mosaic" />
+                  <span className="pg-prem duo-lock-badge">Premium</span>
+                </div>
+              </>
+            )}
+            <div className="bottom-note">{oc.bottom.note}</div>
+          </section>
+        )
+      }
       function BottomRadar({ analysis, chain, premium, onPremium }) {
         const { lang } = useI18n()
         const oc = getOnchain(lang)
         const B = analysis && analysis.bottom
         if (!B || B.score == null) return null
+        if (!premium) return <BottomRadarLocked oc={oc} showChart={!!(B.hasOnchain && chain && chain.chart)} onPremium={onPremium} />
         const bandTx = oc.bottom.bands[B.band.id] || ONCHAIN_I18N.ko.bottom.bands[B.band.id]
         const color = B.band.color === 'ok' ? 'var(--ok)' : B.band.color === 'warn' ? 'var(--warn)' : 'var(--crit)'
         // 한 줄 결론 — 바닥 여부를 예/아니오로 명시. 기준 = 시가총액(흰선) < 평균 매수원가(파란선), 즉 MVRV<1.
@@ -2270,8 +2317,8 @@
               <div className="panel-label">// {oc.bottom.title} — {oc.bottom.q}</div>
               <div className={`bottom-answer ${verdict}`} role="status">
                 <span className="bottom-answer-q">{oc.bottom.q}</span>
-                {premium ? <span className="bottom-answer-a">{ans[verdict]}</span> : <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>}
-                {why && (premium ? <span className="bottom-answer-why">{why}</span> : <button type="button" className="pg-prem" onClick={onPremium}>Premium</button>)}
+                <span className="bottom-answer-a">{ans[verdict]}</span>
+                {why && <span className="bottom-answer-why">{why}</span>}
               </div>
               <div className="bottom-score-row">
                 <span className="bottom-score" style={{ color }}>{B.score.toFixed(0)}</span>
@@ -2279,18 +2326,13 @@
                 <span className="bottom-verdict" style={{ color }}>{bandTx.label}</span>
               </div>
               <div className="bottom-advice">{bandTx.advice}</div>
-              {premium && B.hasOnchain && (
+              {B.hasOnchain && (
                 <div className="bottom-stats">
                   {B.mvrv != null && <span>MVRV <b>{B.mvrv.toFixed(2)}×</b> · z <b>{B.mvrvZ.toFixed(2)}</b></span>}
                   {B.thermZ != null && <span>Thermocap z <b>{B.thermZ.toFixed(2)}</b></span>}
                 </div>
               )}
-              {!premium ? (
-                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <button type="button" className="mosaic-hit" onClick={onPremium} aria-label="Premium"><span className="mosaic-bar" /></button>
-                  <button type="button" className="pg-prem" onClick={onPremium}>Premium</button>
-                </div>
-              ) : B.hasOnchain && B.underCost ? (
+              {B.hasOnchain && B.underCost ? (
                 /* 흰선(시가총액)이 파란선(평균 매수원가) 아래 = MVRV<1 → 빨간 바닥 경고 */
                 <div className="bottom-alert" role="alert">
                   <div className="bottom-alert-title">{oc.bottom.underCostTitle || ONCHAIN_I18N.ko.bottom.underCostTitle}</div>
@@ -2313,12 +2355,7 @@
                   </span>
                   <span className="duo-src">coinmetrics{chain.thermZ != null ? ' · blockchain.info' : ''}</span>
                 </div>
-                {premium ? <DuoLogChart chart={chain.chart} oc={oc} /> : (
-                  <div className="duo-lock" onClick={onPremium} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPremium() } }}>
-                    <div className="duo-mosaic" />
-                    <span className="pg-prem duo-lock-badge">Premium</span>
-                  </div>
-                )}
+                <DuoLogChart chart={chain.chart} oc={oc} />
               </>
             )}
             <div className="bottom-note">{oc.bottom.note}</div>
@@ -2384,6 +2421,7 @@
               break
             }
             case 'bottom': {
+              if (!ctx.premium) { print('  ' + (PREM_UI[lang] || PREM_UI.en).body); break }   // 바닥 레이더는 프리미엄 — 화면처럼 터미널도 점수를 내주지 않는다
               if (!a || !a.bottom || a.bottom.score == null) { print(tt.needData); break }
               const B = a.bottom
               print(`  BOTTOM SCORE: ${B.score.toFixed(1)} / 100   [${B.band.id.replace('B_', '')}]`)
@@ -3001,19 +3039,19 @@
       }
       const getOnchain = (lang) => ONCHAIN_I18N[lang] || ONCHAIN_I18N.en
       const PREM_UI = {
-        ko: { label: 'PREMIUM', body: '오늘의 점수는 무료입니다. why, 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간', life: '평생', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)', emailPh: '이메일' },
-        en: { label: 'PREMIUM', body: "Today's score is free. why, history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly', life: 'Lifetime', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)', emailPh: 'email' },
-        ja: { label: 'PREMIUM', body: '今日のスコアは無料。why・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額', life: '買い切り', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）', emailPh: 'メールアドレス' },
-        zh: { label: 'PREMIUM', body: '今日评分免费。why、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付', life: '买断', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）', emailPh: '电子邮箱' },
-        'zh-Hant': { label: 'PREMIUM', body: '今日評分免費。why、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付', life: '買斷', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）', emailPh: '電子郵件' },
-        th: { label: 'PREMIUM', body: 'คะแนนวันนี้ฟรี why แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี', life: 'ตลอดชีพ', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)', emailPh: 'อีเมล' },
-        es: { label: 'PREMIUM', body: 'La puntuación de hoy es gratis. why, el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual', life: 'De por vida', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)', emailPh: 'correo electrónico' },
-        fr: { label: 'PREMIUM', body: 'Le score du jour est gratuit. why, l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel', life: 'À vie', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)', emailPh: 'adresse e-mail' },
-        de: { label: 'PREMIUM', body: 'Der heutige Score ist kostenlos. why, Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich', life: 'Lebenslang', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)', emailPh: 'E-Mail-Adresse' },
-        it: { label: 'PREMIUM', body: 'Il punteggio di oggi è gratis. why, lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale', life: 'A vita', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)', emailPh: 'indirizzo e-mail' },
-        pt: { label: 'PREMIUM', body: 'A pontuação de hoje é grátis. why, o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual', life: 'Vitalício', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)', emailPh: 'endereço de e-mail' },
-        ru: { label: 'PREMIUM', body: 'Сегодняшний балл бесплатный. why, история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год', life: 'Навсегда', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)', emailPh: 'эл. почта' },
-        nl: { label: 'PREMIUM', body: 'De score van vandaag is gratis. why, verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks', life: 'Levenslang', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)', emailPh: 'e-mailadres' },
+        ko: { label: 'PREMIUM', body: '오늘의 점수는 무료입니다. why, BOTTOM RADAR(바닥 점수·판정·차트), 7일을 넘는 추이, 광고 제거, 극단적인 날의 메일은 프리미엄입니다. 투자 조언이 아닙니다.', key: '구매 후 메일로 온 키를 붙여 넣으세요.', yearly: '연간', life: '평생', activate: '활성화', close: '닫기', mail: '공포·탐욕이 극단인 날에만 메일 (투자 조언이 아닙니다)', emailPh: '이메일' },
+        en: { label: 'PREMIUM', body: "Today's score is free. why, BOTTOM RADAR (bottom score, verdict and chart), history beyond 7 days, no ads, and extreme-day email are premium. This is not investment advice.", key: 'Paste the key from the email you get after purchase.', yearly: 'Yearly', life: 'Lifetime', activate: 'Activate', close: 'Close', mail: 'Email only on extreme fear or greed days (not investment advice)', emailPh: 'email' },
+        ja: { label: 'PREMIUM', body: '今日のスコアは無料。why・BOTTOM RADAR（底スコア・判定・チャート）・7日を超える推移・広告なし・極端な日のメールはプレミアム。投資助言ではありません。', key: '購入後のメールに届くキーを貼り付けてください。', yearly: '年額', life: '買い切り', activate: '有効化', close: '閉じる', mail: '恐怖・強欲が極端な日だけメール（投資助言ではありません）', emailPh: 'メールアドレス' },
+        zh: { label: 'PREMIUM', body: '今日评分免费。why、BOTTOM RADAR（底部评分·判定·图表）、超过7天的走势、去广告、极端日邮件为高级功能。不构成投资建议。', key: '请粘贴购买后邮件里的密钥。', yearly: '年付', life: '买断', activate: '激活', close: '关闭', mail: '仅在恐惧或贪婪极端的日子发邮件（不构成投资建议）', emailPh: '电子邮箱' },
+        'zh-Hant': { label: 'PREMIUM', body: '今日評分免費。why、BOTTOM RADAR（底部評分·判定·圖表）、超過7天的走勢、移除廣告、極端日郵件為進階功能。不構成投資建議。', key: '請貼上購買後郵件裡的金鑰。', yearly: '年付', life: '買斷', activate: '啟用', close: '關閉', mail: '僅在恐懼或貪婪極端的日子寄信（不構成投資建議）', emailPh: '電子郵件' },
+        th: { label: 'PREMIUM', body: 'คะแนนวันนี้ฟรี why, BOTTOM RADAR (คะแนนก้นตลาด การตัดสิน และกราฟ), แนวโน้มเกิน 7 วัน ไม่มีโฆษณา และอีเมลวันสุดขั้วเป็นพรีเมียม นี่ไม่ใช่คำแนะนำการลงทุน', key: 'วางคีย์จากอีเมลหลังซื้อ', yearly: 'รายปี', life: 'ตลอดชีพ', activate: 'เปิดใช้', close: 'ปิด', mail: 'อีเมลเฉพาะวันที่ความกลัวหรือความโลภสุดขั้ว (ไม่ใช่คำแนะนำการลงทุน)', emailPh: 'อีเมล' },
+        es: { label: 'PREMIUM', body: 'La puntuación de hoy es gratis. why, BOTTOM RADAR (puntuación de suelo, veredicto y gráfico), el historial de más de 7 días, sin anuncios y el correo en días extremos son premium. No es asesoramiento de inversión.', key: 'Pega la clave del correo que llega tras la compra.', yearly: 'Anual', life: 'De por vida', activate: 'Activar', close: 'Cerrar', mail: 'Correo solo en días de miedo o codicia extremos (no es asesoramiento de inversión)', emailPh: 'correo electrónico' },
+        fr: { label: 'PREMIUM', body: 'Le score du jour est gratuit. why, BOTTOM RADAR (score de plancher, verdict et graphique), l’historique au-delà de 7 jours, sans pub et l’e-mail des jours extrêmes sont premium. Ce n’est pas un conseil en investissement.', key: 'Collez la clé reçue par e-mail après l’achat.', yearly: 'Annuel', life: 'À vie', activate: 'Activer', close: 'Fermer', mail: 'E-mail seulement les jours de peur ou d’avidité extrêmes (pas un conseil en investissement)', emailPh: 'adresse e-mail' },
+        de: { label: 'PREMIUM', body: 'Der heutige Score ist kostenlos. why, BOTTOM RADAR (Boden-Score, Urteil und Chart), Verlauf über 7 Tage, werbefrei und E-Mail an extremen Tagen sind Premium. Keine Anlageberatung.', key: 'Fügen Sie den Schlüssel aus der E-Mail nach dem Kauf ein.', yearly: 'Jährlich', life: 'Lebenslang', activate: 'Aktivieren', close: 'Schließen', mail: 'E-Mail nur an extremen Angst- oder Gier-Tagen (keine Anlageberatung)', emailPh: 'E-Mail-Adresse' },
+        it: { label: 'PREMIUM', body: 'Il punteggio di oggi è gratis. why, BOTTOM RADAR (punteggio del minimo, verdetto e grafico), lo storico oltre 7 giorni, senza pubblicità e l’e-mail nei giorni estremi sono premium. Non è una consulenza di investimento.', key: 'Incolla la chiave ricevuta via e-mail dopo l’acquisto.', yearly: 'Annuale', life: 'A vita', activate: 'Attiva', close: 'Chiudi', mail: 'E-mail solo nei giorni di paura o avidità estreme (non è una consulenza di investimento)', emailPh: 'indirizzo e-mail' },
+        pt: { label: 'PREMIUM', body: 'A pontuação de hoje é grátis. why, BOTTOM RADAR (pontuação de fundo, veredito e gráfico), o histórico além de 7 dias, sem anúncios e o e-mail em dias extremos são premium. Não é aconselhamento de investimento.', key: 'Cole a chave do e-mail recebido após a compra.', yearly: 'Anual', life: 'Vitalício', activate: 'Ativar', close: 'Fechar', mail: 'E-mail só em dias de medo ou ganância extremos (não é aconselhamento de investimento)', emailPh: 'endereço de e-mail' },
+        ru: { label: 'PREMIUM', body: 'Сегодняшний балл бесплатный. why, BOTTOM RADAR (балл дна, вердикт и график), история дольше 7 дней, без рекламы и письмо в крайние дни — премиум. Это не инвестиционная рекомендация.', key: 'Вставьте ключ из письма после покупки.', yearly: 'Год', life: 'Навсегда', activate: 'Активировать', close: 'Закрыть', mail: 'Письмо только в дни крайнего страха или жадности (не инвестиционная рекомендация)', emailPh: 'эл. почта' },
+        nl: { label: 'PREMIUM', body: 'De score van vandaag is gratis. why, BOTTOM RADAR (bodemscore, oordeel en grafiek), verloop langer dan 7 dagen, zonder advertenties en mail op extreme dagen zijn premium. Geen beleggingsadvies.', key: 'Plak de sleutel uit de mail na aankoop.', yearly: 'Jaarlijks', life: 'Levenslang', activate: 'Activeren', close: 'Sluiten', mail: 'Mail alleen op dagen van extreme angst of hebzucht (geen beleggingsadvies)', emailPh: 'e-mailadres' },
       }
       const premUi = (lang) => PREM_UI[lang] || PREM_UI.en
       /* 요금 플랜 — list(비교 가격·정가)는 2026-10-07 결정으로 null: 영구 ¥2,000(2026-10-08 개정) 이라 「정가 ¥10,000」 은 판 적도 받을 계획도 없는 가공 가격(景品表示法 有利誤認).
