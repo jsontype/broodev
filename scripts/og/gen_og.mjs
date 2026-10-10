@@ -37,7 +37,7 @@ export const SITES = [
     badge: 'BROODEV · APP PORTAL', titleSize: 170,
     title: '<i style="font-family:Georgia,\'Times New Roman\',serif;font-weight:400;font-style:italic;letter-spacing:-.03em">broo</i><b>dev</b><span style="color:#666">.</span>',
     sub: '쓸모 있는 웹앱 포털 — 코인 시그널 15 · 생활 인포패널 12 · 학습 · 업무 도구 · 게임 · 설치 없이, 13개 언어로',
-    tags: ['33 apps', '6 categories', '13 languages', 'no install'], deco: 'none' }, // 앱 수는 apps/home/assets/js/catalog.js 와 맞출 것
+    tags: ['35 apps', '6 categories', '13 languages', 'no install'], deco: 'none' }, // 앱 수는 apps/home/assets/js/catalog.js 와 맞출 것 (2026-10-10 memo·excel 추가로 35)
   // 개발자 소개 사이트 3종 (2026-10-03 apps/home/home1~3 → apps/dev/dev1~3)
   { id: 'dev3', out: 'apps/dev/dev3/og-image.png', domain: 'dev.broodev.com',
     theme: { bg: '#000000', glow: '#07C42C', accent: '#07C42C', text: '#FFFFFF', dim: '#A6A6A6', font: 'sans' },
@@ -67,6 +67,15 @@ export const SITES = [
     badge: '◐ BROODEV', title: 'VOCA_DECK', titleSize: 118,
     sub: '깜빡이 단어암기장 · CSV 자동 반복', sub2: 'Blink-style Vocabulary Memorizer',
     tags: ['free', 'no install', 'CSV', 'TTS', '13 languages'] },
+  // ── 업무 도구: 엑셀 에디터(SHEET) · 쿠키 메모장(MEMO) — 2026-10-10 신설. packages/ui-terminal 네온 그린(바탕 #05080a · 네온 #00ff9c), 링 안 글자 = 각 앱 favicon.svg 의 글자
+  { id: 'excel', out: 'apps/excel/og-image.png', domain: 'excel.broodev.com', theme: TERM('#05080a', '#00ff9c'),
+    badge: '▎BROODEV · SHEET', title: '엑셀 에디터<br><b>SHEET</b>', titleSize: 84,
+    sub: '여러 시트 · 수식 · 병합 · 서식 · 자동 저장 · xlsx · csv · pdf 내보내기 · Google 계정으로 다른 PC와 동기화 — 설치 없이 무료',
+    tags: ['XLSX', 'CSV', 'PDF', 'autosave', 'Google sync', '13 languages'], deco: 'ring', glyph: 'S' },
+  { id: 'memo', out: 'apps/memo/og-image.png', domain: 'memo.broodev.com', theme: TERM('#05080a', '#00ff9c'),
+    badge: '▎BROODEV · MEMO', title: '쿠키 메모장<br><b>MEMO</b>', titleSize: 84,
+    sub: '입력 즉시 자동 저장 · 다시 열면 그대로 · 검색 · 고정 · .txt / .md 내보내기 · Google 계정으로 다른 PC · 휴대폰과 동기화',
+    tags: ['autosave', '.txt · .md', 'Google sync', '13 languages'], deco: 'ring', glyph: 'M' },
   // ── 생활 인포패널 12종 (각 앱의 팔레트)
   { id: 'africa', out: 'apps/africa/og-image.png', domain: 'africa.broodev.com', theme: TERM('#140f08', '#ffb648'),
     badge: '▎AFRICA DAILY UTILITY', title: 'Africa Daily <b>Utility</b>',

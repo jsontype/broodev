@@ -40,6 +40,12 @@
     return el;
   }
   function host(url) { try { return new URL(url).host.replace(/^www\./, ''); } catch (e) { return url; } }
+  // 아직 도메인이 연결되지 않은 앱(status 'soon')은 링크하지 않는다 — 없는 호스트로 가는 깨진 링크 방지(2026-10-10). 「준비 중」 배지로만 보인다.
+  function linkAttrs(a, extra) {
+    var o = a.status === 'soon' ? { role: 'link', 'aria-disabled': 'true', 'class': 'is-soon' } : { href: a.url, target: '_blank', rel: 'noopener' };
+    Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; });
+    return o;
+  }
 
   /* ── 숫자 채우기: data-count="total|categories|languages|cat:<id>" ── */
   Array.prototype.forEach.call(document.querySelectorAll('[data-count]'), function (el) {
@@ -85,7 +91,7 @@
       cat.apps.forEach(function (a) {
         var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: T('badge_beta', null, 'beta') }) : null);
         list.appendChild(h('li', null, [
-          h('a', { href: a.url, target: '_blank', rel: 'noopener', title: appDesc(a) }, [
+          h('a', linkAttrs(a, { title: appDesc(a) }), [
             h('span', { class: 'name' }, [document.createTextNode(appName(a)), badge]),
             h('span', { class: 'host', text: host(a.url) })
           ])
@@ -118,7 +124,7 @@
     slice.forEach(function (a) {
       var badge = a.status === 'soon' ? h('span', { class: 'app-badge soon', text: T('badge_soon', null, '준비 중') }) : (a.status === 'beta' ? h('span', { class: 'app-badge', text: T('badge_beta', null, 'beta') }) : null);
       listEl.appendChild(h('li', null, [
-        h('a', { href: a.url, target: '_blank', rel: 'noopener', 'aria-label': appName(a) + ' — ' + host(a.url) }, [
+        h('a', linkAttrs(a, { 'aria-label': appName(a) + ' — ' + host(a.url) }), [
           h('div', { class: 'app-main' }, [
             h('span', { class: 'app-name' }, [document.createTextNode(appName(a)), badge]),
             h('span', { class: 'app-desc', text: appDesc(a) })

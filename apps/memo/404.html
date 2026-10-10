@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>페이지를 찾을 수 없습니다 (404) | MEMO</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="theme-color" content="#05080a" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      :root { --neon: #00ff9c; --bg: #05080a; --text: #c8ffe6; --dim: #6f9c8d; --line: rgba(0,255,156,.18); }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: radial-gradient(1200px 800px at 70% -10%, #0c1a18 0%, var(--bg) 55%) fixed, var(--bg); color: var(--text); font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; }
+      header { display: flex; align-items: center; height: 52px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+      .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--neon); font-weight: 800; letter-spacing: 1.5px; text-decoration: none; }
+      .brand img { width: 22px; height: 22px; }
+      main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 40px 16px; text-align: center; }
+      .code { font-size: 64px; font-weight: 800; color: var(--neon); text-shadow: 0 0 22px rgba(0,255,156,.45); line-height: 1; }
+      h1 { margin: 0; font-size: 18px; }
+      p { margin: 0; color: var(--dim); font-size: 13px; line-height: 1.7; max-width: 460px; }
+      a.btn { margin-top: 6px; display: inline-block; padding: 9px 16px; border: 1px solid var(--neon); border-radius: 5px; color: var(--neon); text-decoration: none; font-size: 13px; }
+      a.btn:hover { background: var(--neon); color: #04110c; }
+    </style>
+  </head>
+  <body>
+    <header><a class="brand" href="/"><img src="/favicon.svg" alt="" aria-hidden="true" />MEMO</a></header>
+    <main>
+      <div class="code">404</div>
+      <h1 id="h">페이지를 찾을 수 없습니다</h1>
+      <p id="p">요청하신 주소에 해당하는 페이지가 없습니다. 메모는 첫 화면에서 쓸 수 있습니다.</p>
+      <a class="btn" id="a" href="/">쿠키 메모장으로 가기</a>
+    </main>
+    <script>
+      (function () {
+        var D = {
+          ko: ['페이지를 찾을 수 없습니다', '요청하신 주소에 해당하는 페이지가 없습니다. 메모는 첫 화면에서 쓸 수 있습니다.', '쿠키 메모장으로 가기'],
+          en: ['Page not found', 'There is no page at this address. You can write notes on the home screen.', 'Go to Cookie Notepad'],
+          ja: ['ページが見つかりません', 'このアドレスのページはありません。メモはトップ画面で書けます。', 'クッキーメモ帳へ'],
+          zh: ['找不到页面', '此地址没有对应的页面。可以在首页写笔记。', '前往曲奇记事本'],
+          'zh-Hant': ['找不到頁面', '此網址沒有對應的頁面。可以在首頁寫筆記。', '前往餅乾記事本'],
+          th: ['ไม่พบหน้านี้', 'ไม่มีหน้าที่อยู่นี้ คุณเขียนโน้ตได้ที่หน้าแรก', 'ไปที่สมุดโน้ตคุกกี้'],
+          es: ['Página no encontrada', 'No hay ninguna página en esta dirección. Puedes escribir notas en la pantalla principal.', 'Ir a Bloc de notas Cookie'],
+          fr: ['Page introuvable', 'Il n’y a aucune page à cette adresse. Vous pouvez écrire vos notes sur l’écran d’accueil.', 'Aller au Bloc-notes Cookie'],
+          de: ['Seite nicht gefunden', 'Unter dieser Adresse gibt es keine Seite. Notizen schreibst du auf der Startseite.', 'Zum Cookie-Notizblock'],
+          it: ['Pagina non trovata', 'Non esiste una pagina a questo indirizzo. Puoi scrivere le note nella schermata principale.', 'Vai a Blocco note Cookie'],
+          pt: ['Página não encontrada', 'Não há página neste endereço. Você pode escrever notas na tela inicial.', 'Ir para o Bloco de notas Cookie'],
+          ru: ['Страница не найдена', 'По этому адресу страницы нет. Заметки можно писать на главном экране.', 'Перейти в Блокнот Cookie'],
+          nl: ['Pagina niet gevonden', 'Op dit adres staat geen pagina. Notities schrijf je op het startscherm.', 'Naar Cookie-kladblok']
+        };
+        var L = ['en', 'ja', 'ko', 'zh', 'zh-Hant', 'th', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'nl'];
+        function pick(c) { if (!c) return null; if (L.indexOf(c) >= 0) return c; c = String(c).toLowerCase(); if (/^zh[-_](tw|hk|mo|hant)/.test(c)) return 'zh-Hant'; if (/^zh/.test(c)) return 'zh'; c = c.slice(0, 2); return L.indexOf(c) >= 0 ? c : null; }
+        var lang = null;
+        try { lang = pick(new URLSearchParams(location.search).get('lang')); } catch (e) {}
+        if (!lang) { try { lang = pick(localStorage.getItem('memo:lang')); } catch (e) {} }
+        if (!lang) { var n = navigator.languages || [navigator.language]; for (var i = 0; i < n.length && !lang; i++) lang = pick(n[i]); }
+        lang = lang || 'en';
+        var d = D[lang];
+        document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+        document.title = d[0] + ' (404) | MEMO';
+        document.getElementById('h').textContent = d[0];
+        document.getElementById('p').textContent = d[1];
+        var a = document.getElementById('a'); a.textContent = d[2]; a.href = '/?lang=' + encodeURIComponent(lang);
+      })();
+    </script>
+  </body>
+</html>

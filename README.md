@@ -35,7 +35,9 @@ broodev/
 │  │  ├─ dev2/                                       업적 포트폴리오 (Photollax 템플릿 · 구 y-systems 레포 home/)
 │  │  └─ dev3/                                       업적 포트폴리오 v3 (Davies 템플릿 · 13개 언어 · EmailJS) ← 현재 활성
 │  ├─ admin/      →  admin.broodev.com                관리자(데이터 수집·운영) — Google SSO 단독 접근
-│  └─ utils/      →  utils.broodev.com                업무 유틸 모음 (구 megahouse) — 「写真ならべ / 사진 나란히」 Excel 앱(/) · PowerPoint 앱(/pptx) (구 y-systems 레포 apps/megahouse/)
+│  ├─ utils/      →  utils.broodev.com                업무 유틸 모음 (구 megahouse) — 「写真ならべ / 사진 나란히」 Excel 앱(/) · PowerPoint 앱(/pptx) (구 y-systems 레포 apps/megahouse/)
+│  ├─ excel/      →  excel.broodev.com                엑셀 에디터 SHEET — 스프레드시트 편집 · IndexedDB 자동 저장 · xlsx/csv/pdf 내보내기 · Google Drive(appDataFolder) 동기화 (2026-10-10)
+│  └─ memo/       →  memo.broodev.com                 쿠키 메모장 MEMO — localStorage 자동 저장/복원 · .txt/.md/.json · Google Drive(appDataFolder) 동기화 (2026-10-10)
 ├─ games/
 │  └─ samurai/    →  samurai.broodev.com              사무라이 택틱스 2 (구 apps/games/st2 · 2026-10-02 이동 — Pages Root 는 games/samurai)
 ├─ packages/
@@ -43,7 +45,7 @@ broodev/
 ├─ scripts/
 │  ├─ gen_coin.py    코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화)
 │  ├─ coins.json     코인 14종 데이터(id·심볼·13언어 코인명)
-│  ├─ og/gen_og.mjs  공유 썸네일(og-image.png 1200×630) 생성기 — 19개 사이트 설정 내장
+│  ├─ og/gen_og.mjs  공유 썸네일(og-image.png 1200×630) 생성기 — 21개 사이트 설정 내장
 │  └─ cdp-shot.mjs   실제 시간 렌더 검증 하니스(헤드리스 + DevTools 프로토콜 · 모바일/느린 회선 에뮬레이션)
 └─ .github/workflows/   배포 파이프라인
 ```
@@ -64,6 +66,10 @@ broodev/
 | [admin](apps/admin/) | admin.broodev.com | 데이터 수집·운영 관리자 | React 18(CDN) · Google Identity | 🟡 개발 중 |
 | [samurai](games/samurai/) | samurai.broodev.com | 사무라이 택틱스 2 — 한 줄 전장 턴제 검술 로그라이크 (구 `apps/games/st2`, 2026-10-02 `games/samurai` 로 이동) | 자기완결형 · 13개국어 | 🟢 라이브 |
 | [utils](apps/utils/) | utils.broodev.com | **업무 유틸 모음**(구 `megahouse`, 2026-10-02 개명 — 일에 필요한 도구를 계속 추가). **「写真ならべ / 사진 나란히 / Photo Layout」 시리즈**(2026-10-03 형식별 앱 분리): 사진 업로드 → 용지(A4·A3·A5·B4·B5·Letter·Legal)·세로/가로·가로×세로 각 1~5 격자로 배열 — **Excel 앱**(`/`, .xlsx) · **PowerPoint 앱**(`/pptx`, .pptx), Illustrator·Photoshop 은 준비 중(프리미엄 예정). 브라우저 내 처리 — 구 y-systems 레포 `apps/megahouse/` | 정적 HTML · Bootstrap 5 · jQuery · ExcelJS / PptxGenJS(CDN, 페이지별) · 자체 13개 언어 i18n · EmailJS 문의 폼 | 🟢 라이브 |
+| [excel](apps/excel/) | excel.broodev.com | **엑셀 에디터 SHEET**(2026-10-10) — 여러 시트·수식·병합·서식, IndexedDB 자동 저장/자동 불러오기(탭 간 충돌 사본), .xlsx/.csv 가져오기 · .xlsx/.csv/.pdf 내보내기 · 인쇄, Google 계정 동기화(Drive appDataFolder · 범위 drive.appdata 하나 · 서버 없음). 포털 카탈로그 status `soon` | 자기완결형 바닐라 JS · x-data-spreadsheet 1.1.9 · ExcelJS 4.4.0 · pdf-lib 1.17.1(CDN) · Google Identity Services · 13개 언어 | 🟡 Pages 프로젝트·도메인 생성 대기 |
+| [memo](apps/memo/) | memo.broodev.com | **쿠키 메모장 MEMO**(2026-10-10) — 입력 즉시 localStorage 자동 저장·열면 자동 복원(「쿠키처럼 기기별」), 검색·고정·.txt/.md 내보내기·JSON 백업, Google 계정 동기화(Drive appDataFolder · LWW + 충돌 사본 + 묘비). 포털 카탈로그 status `soon` | 자기완결형 바닐라 JS · Google Identity Services · 13개 언어 | 🟡 Pages 프로젝트·도메인 생성 대기 |
+
+> **엑셀·메모 Google 동기화**는 `config.js` 의 `GOOGLE_CLIENT_ID` 가 비어 있으면 「준비 중」으로 꺼져 있다. 켜는 법(두 앱 공용 OAuth 클라이언트 1개) → [apps/memo/README.md](apps/memo/README.md) 「Google 동기화 켜기」. 개인정보처리방침 2-(8) 이 이 연동을 설명한다(2026-10-10).
 
 ### 🪙 코인 시그널 패밀리 (15종) — `scripts/gen_coin.py`
 btc를 템플릿으로 **동일 구조·기능**의 코인 앱을 찍어낸다. 코인 추가/재생성:
@@ -92,6 +98,8 @@ python3 scripts/gen_coin.py all          # 전체(14종)
 | ~~broodev-home~~ | ~~`apps/home`~~ | ~~home.broodev.com~~ 2026-10-03 폐기(삭제 또는 dev 로 301) |
 | broodev-admin | `apps/admin` | admin.broodev.com |
 | broodev-utils | `apps/utils` | utils.broodev.com |
+| broodev-excel | `apps/excel` (2026-10-10 · 생성 대기) | excel.broodev.com |
+| broodev-memo | `apps/memo` (2026-10-10 · 생성 대기) | memo.broodev.com |
 
 > 모두 Cloudflare Pages 무빌드(정적) 배포. 자세한 절차는 [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
 > **코인 14종은 각각 Pages 프로젝트(Root `apps/<coin>`) + 커스텀 도메인 `<coin>.broodev.com` 을 수동 추가**해야 한다(코드는 준비 완료). AdSense는 도메인(broodev.com) 승인이 서브도메인까지 커버.

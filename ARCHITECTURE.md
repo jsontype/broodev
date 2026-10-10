@@ -11,7 +11,7 @@
 - **broodev**는 Google AdSense 수익화를 목표로 **실사용 웹앱을 한 도메인 아래 모아** 운영하는 앱 포트폴리오다.
 - **1 앱 = `apps/<name>/` 폴더 = Cloudflare Pages 프로젝트 1개 = 서브도메인 1개.**
 - **무빌드 정적**: 빌드 단계가 **없다.** 각 앱은 CDN React 18 UMD + 브라우저 Babel(`@babel/standalone@7`)로 브라우저에서 JSX를 컴파일한다. `node_modules`·`package.json`·번들러 **없음**.
-- 현재 **22개 앱**: `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(**broodev.com 루트 = 앱 포털**, AIXOR 템플릿 · 전체 앱 카테고리 모달 · 2026-10-03, §6.3) + `dev`(개발자 소개 3종 `dev1·dev2·dev3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 dev3 · 구 `home1·2·3`, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 「写真ならべ / 사진 나란히」 시리즈: Excel 앱 `/` · PowerPoint 앱 `/pptx` · Illustrator 앱 `/ai` · Photoshop 앱 `/psd` — 뒤 셋은 프리미엄, 2026-10-05 ai·psd 공개). dev2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, dev3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). **2026-10-03 부터 `btc` 의 정본 호스트는 `btc.broodev.com`**(루트는 포털) — 코인 14종도 그 기준으로 재생성됨.
+- 현재 **24개 앱**(2026-10-10 `excel`·`memo` 추가 — 아래 끝 참조): `btc`(대표) + **코인 14종** + `voca`(단어암기장) + `voca-tutorial`(voca 사용법 튜토리얼) + `home`(**broodev.com 루트 = 앱 포털**, AIXOR 템플릿 · 전체 앱 카테고리 모달 · 2026-10-03, §6.3) + `dev`(개발자 소개 3종 `dev1·dev2·dev3` 을 Pages 프로젝트 하나로 — `functions/_middleware.js` 의 `ACTIVE` 가 루트에 띄울 홈을 고른다, 현재 dev3 · 구 `home1·2·3`, §6.3) + `admin`(관리자) + `utils`(업무 유틸 모음, 구 megahouse — 「写真ならべ / 사진 나란히」 시리즈: Excel 앱 `/` · PowerPoint 앱 `/pptx` · Illustrator 앱 `/ai` · Photoshop 앱 `/psd` — 뒤 셋은 프리미엄, 2026-10-05 ai·psd 공개). dev2·utils 는 **구 y-systems 레포에서 통합한 순수 정적 사이트**, dev3 는 Davies 템플릿 기반 순수 정적 + **자체 13개 언어 i18n**(React·테마 없음, §4 "순수 정적"). **2026-10-03 부터 `btc` 의 정본 호스트는 `btc.broodev.com`**(루트는 포털) — 코인 14종도 그 기준으로 재생성됨. **2026-10-10**: `excel`(엑셀 에디터 SHEET) · `memo`(쿠키 메모장 MEMO) — React·Babel 없는 **자기완결형 바닐라 JS**(여러 파일 `js/*.js`, 빠른 첫 로딩) · 터미널 테마 · 13개 언어 · 브라우저 저장소 자동 저장 + Google Drive appDataFolder 동기화(§6.7).
 - **코인 앱 14종은 손으로 만들지 않는다** — `apps/btc`를 템플릿으로 [`scripts/gen_coin.py`](scripts/gen_coin.py)가 생성한다.
 - **배포**: master 푸시 = Cloudflare Pages 자동 재배포(프로덕션).
 
@@ -102,6 +102,12 @@ broodev/
 │     ├─ contact.html       문의·제안 폼(사이드바 ✉) → EmailJS 운영자 메일 (js/contact.js · docs/emailjs-template.md)
 │     └─ js/biz.js          이 앱의 가격·Payment Link (정본은 apps/home/legal/biz.js → docs/stripe-setup.md)
 │     ├─ index.html  js/photo-grid.js(핵심)  js/app.js(DOM)  css/  scss/  font/  icon/  images/
+│  ├─ excel/                엑셀 에디터 SHEET → excel.broodev.com (자기완결형 바닐라 JS · 2026-10-10 · §6.7)
+│  │  ├─ index.html  config.js(GOOGLE_CLIENT_ID)  css/app.css  404.html  _redirects  robots.txt  sitemap.xml  ads.txt  og-image.png  파비콘 4종(글자 S)
+│  │  └─ js/ i18n.js(13언어) · store.js(IndexedDB 래퍼) · sync.js(Drive appDataFolder · LWW · 충돌 사본 · 묘비 · 401 재시도, DOM 없음) · convert.js(수식·xlsx⇄그리드·CSV) · pdf.js · app.js(화면)
+│  ├─ memo/                 쿠키 메모장 MEMO → memo.broodev.com (자기완결형 바닐라 JS · 2026-10-10 · §6.7)
+│  │  ├─ index.html  config.js(GOOGLE_CLIENT_ID)  css/memo.css  404.html  _redirects  robots.txt  sitemap.xml  ads.txt  og-image.png  파비콘 4종(글자 M)
+│  │  └─ js/ i18n.js(13언어) · store.js(localStorage 읽고-병합-쓰기 · 탭 간 병합) · sync.js(3-way LWW · 충돌 사본 · 묘비 · Drive REST v3, DOM 없음) · app.js(화면)
 ├─ games/                   apps 와 형제 — 게임은 여기 (2026-10-02 apps/games 에서 이동)
 │  └─ samurai/              사무라이 택틱스 2 (구 st2 · 자기완결형 · 13개국어 · scripts/verify-st2.mjs 로 검증) → samurai.broodev.com, Pages Root games/samurai
 ├─ packages/
@@ -111,7 +117,7 @@ broodev/
 ├─ scripts/
 │  ├─ gen_coin.py           코인 앱 생성기 (apps/btc → apps/<coin> 정밀 파라미터화, §5)
 │  ├─ coins.json            코인 14종 데이터(id·Binance 심볼·13언어 코인명)
-│  ├─ og/gen_og.mjs         공유 썸네일(og-image.png 1200×630) 생성기 — SITES 에 19개 사이트 설정 내장(기본 레이아웃 + voca 용 layout:'card'), Edge/Chrome 헤드리스 스크린샷
+│  ├─ og/gen_og.mjs         공유 썸네일(og-image.png 1200×630) 생성기 — SITES 에 21개 사이트 설정 내장(기본 레이아웃 + voca 용 layout:'card'), Edge/Chrome 헤드리스 스크린샷
 │  ├─ cdp-shot.mjs          실제 시간 렌더 검증 하니스(헤드리스 + DevTools 프로토콜 · --mobile · --net slow · --ls · --eval) — docs/new-app.md §8
 │  └─ deal/                평생 플랜 할인 문구 13언어의 단일 소스(deal-i18n.json) + 생성기(deal-gen.js, 마커 기준 멱등) + 검증(deal-verify.js) — docs/stripe-setup.md §13
 ├─ docs/
@@ -171,7 +177,7 @@ broodev/
 - **6개 지표 합성**: 공포·탐욕 지수 · RSI(14) · MACD(12·26·9) · 마이어 배수(가격÷200일선) · 365일 고점 대비 낙폭 · 골든/데드 크로스(50/200 MA).
 - 점수 5단계: **STRONG BUY · ACCUMULATE · NEUTRAL · CAUTION · OVERHEATED**.
 - 탭: **단기(모멘텀 추세추종)** / **장기(역발상 사이클)**.
-- 프리미엄은 앱 안에서 라이선스 키로 해제(광고 제거·why·추이·BOTTOM RADAR·고급 지표). 예전 `member/`(라이선스 없이 열리던 광고 없는 사본)는 2026-10-10 삭제, `/member` → `/` 301.
+- 프리미엄은 앱 안에서 라이선스 키로 해제(why·추이·BOTTOM RADAR·고급 지표 — 「광고 제거」는 광고가 실제로 나오지 않아 혜택 문구에서 뺐다, 2026-10-10. 라이선스 보유자에겐 광고 스크립트를 로드하지 않는 동작은 유지). 예전 `member/`(라이선스 없이 열리던 광고 없는 사본)는 2026-10-10 삭제, `/member` → `/` 301.
 - **PREMIUM 모달 플랜 카드(2026-10-07)**: 월간 ¥100 / 연간 ¥800 / 평생 ¥2,000 세 카드(2026-10-08 개정 · Payment Link 가 빈 플랜은 「準備中」). 평생 카드는 「いちばんお得」 리본 + **「年額 2 年分の価格で、ずっと使える（3 年目からは実質無料）」**(13개국어 `PREM_DEAL.value`, 항상 표시) + 모달 하단 판매자·特商法·返金·利用規約 링크(`PREM_LEGAL`). 비교 가격 장치(정가 취소선·`-50%`·「발매 기념 특가 · 기간 한정」·小字, `PREM_DEAL`)는 `PREM_PLANS.lifetime.list` 가 숫자일 때만 켜지며 **2026-10-07 결정으로 `null`**(영구 ¥5,000 — 가공 정가는 景品表示法 有利誤認). `PREM_PLANS.until` 은 실제 종료일 → 「N일 남음」. 실제 결제 금액은 Stripe Price ¥5,000 그대로. 코인 14종은 재생성으로 반영. voca 도 같은 구조(`PREMIUM.plans` · `PLAN_DEAL`), utils 는 `js/promo.js`, 포털 총람은 `legal/biz.js` `lifetime_list` — 법적 주의(景品表示法 将来価格)와 운용은 `docs/stripe-setup.md` §13.
 - **프리미엄 존재 알림(2026-10-07, btc·voca)**: utils 처럼 한눈에 보이게 — 사이트 내비·타이틀의 **금색 `✦ Premium` 배지**(`.pg-prem`, utils 와 같은 룩 · `list` 가 숫자일 때만 `-50%` 꼬리), 비프리미엄 사용자에게 상단 **안내 스트립**(`.prem-strip`: 혜택 요약 + 「¥2,000 · 年額 2.5 年分の価格で、ずっと」(할인 중이면 ~~정가~~ ¥5,000 -50%) + 「지금 구매 →」, × 로 세션 동안 숨김), 잠긴 요소(모자이크·차트)에 배지. **`#premium` 해시로 앱을 열면 모달이 바로 뜬다**(내비 링크 · 포털 `premium.html` 의 「앱 열고 구매」 가 `https://btc.broodev.com/#premium` 등으로 링크). 내비 배지의 `-50%` 는 App 이 `[data-prem-off]` 로 동기화(할인 종료·프리미엄 활성 시 숨김).
 - `#root` 바깥 `<section class="seo">`(정적 SEO 본문+FAQ, 크롤러용) + 공통 자매 푸터.
@@ -218,6 +224,15 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - **평생 플랜 가격 표시(2026-10-07)**: 요금 카드에는 항상 월액 대비 이득을 보여 준다 — 연간 「月額より 33% お得（12 か月分 ¥1,200 → ¥800）」 · 買い切り 「50 年使えば月額より 96% お得（¥60,000 → ¥2,000）· 年額 2.5 年分の価格で、ずっと」(`pg-value`, 13언어 · 2026-10-08 개정: 월간 ¥100 신설 · 연간 ¥800 · 買い切り ¥2,000, 월간 카드는 생성기가 연간 카드를 복제). 비교 가격(정가 취소선·-50%) 장치는 `js/biz.js` `PLANS.lifetime.list` 가 숫자일 때만 — **2026-10-07 결정으로 `null`**(영구 ¥5,000 이라 가공 정가가 되므로 景品表示法 有利誤認). 켤 때: `PLANS.lifetime.list`·`PLANS.promo.until` → `js/promo.js` 가 요금 페이지 카드(13언어 · `i18n/pricing.*.html` 조각 포함)·pptx/ai/psd 잠금 안내·사이드바 메뉴 배지에 「~~¥10,000~~ ¥5,000 · -50% · 발매 기념 · 기간 한정 · ¥5,000 절약」 을 그린다(문구 `js/i18n.js` `promo_*`). `list: null` 이면 전부 숨김. 상세·법적 주의 `docs/stripe-setup.md` §13.
 - **무료/프리미엄 경계 = 출력 형식(2026-10-04)**: Excel(.xlsx) 출력은 전 기능 무료·제한 없음, PowerPoint(.pptx) · Illustrator(.ai) · Photoshop(.psd) 출력이 프리미엄(ai·psd 는 2026-10-05 공개, 한 라이선스로 셋 다) — 예전 「20장 · A4·Letter · 3×3 · 1600px」 상한은 폐기. `js/license.js`(`MH_LICENSE`, localStorage `mh:license` — 2026-10-05 부터 서버 `/api/license/verify` 연동) + `app.js` 가 pptx·ai·psd 페이지의 다운로드만 잠근다(미리보기 무료, 생성 버튼 → 요금 페이지 · 라이선스 활성화 시 `mh:license` 이벤트로 해제). 금빛 글로우 배지 `.pg-prem`(사이드바·제목·안내·요금표). JS/CSS 참조는 `?v=YYYYMMDD` 캐시 버스터(Cloudflare Browser Cache TTL 4h 로 HTML 과 JS 가 어긋나 풀다운·i18n 이 깨진 사고 재발 방지 — utils 7페이지 · home legal 5페이지). broodev.com 법적 페이지도 같은 13개 언어 풀다운(`legal.js`; 페이지 안에는 ja·ko·en, 그 외 10개 언어는 `legal/i18n/{doc}.{lang}.html` 조각 50개를 선택 시 fetch — 폴백은 en 본문 + 그 언어 안내; 하단 `.legal-foot` 링크 라벨도 `[data-foot]` + legal.js `FOOT` 사전으로 13개 언어).
 - **문의·제안 폼 `contact.html`(2026-10-03)**: 사이드바 「その他」 그룹의 ✉ 「お問い合わせ · ご提案」(요금 아래) → 종류(버그/제안/기타)·이름·이메일·내용 → **EmailJS**(포털·dev3·voca 와 같은 `broodev_service`/`broodev_template`, `kind: 'utils (utils.broodev.com) · 버그 신고'`) 로 운영자 메일. `js/contact.js`, 상태 문구·라벨은 i18n `ct_*`, SDK 미로드 시 mailto 폴백, `noindex`. `.pg-foot` 의 「문의」도 mailto 대신 이 페이지로.
+
+### 6.7 excel · memo — `excel.broodev.com` · `memo.broodev.com` (2026-10-10)
+- **엑셀 에디터 SHEET**(`apps/excel`): x-data-spreadsheet 1.1.9 그리드(여러 시트·수식·병합·서식·틀 고정·실행 취소) + 수식 입력줄(휴대폰 편집 경로). .xlsx(ExcelJS 4.4.0)·.csv 가져오기, .xlsx·.csv·.pdf(pdf-lib 1.17.1 — canvas 로 브라우저 글꼴 렌더 → 이미지 PDF, CJK·태국어 OK) 내보내기, 인쇄. 라이브러리는 필요할 때만 CDN 지연 로드. 상세 [apps/excel/README.md](apps/excel/README.md).
+- **쿠키 메모장 MEMO**(`apps/memo`): 여러 메모 목록 + 편집기, 검색·고정·정렬, 삭제 되돌리기(7초), .txt/.md 내보내기, JSON 백업/가져오기(병합). 상세 [apps/memo/README.md](apps/memo/README.md).
+- **저장(두 앱 공통 설계)**: 편집 600ms 디바운스로 이 브라우저에 자동 저장·열면 자동 복원 — 메모는 `localStorage`(`memo:notes:v1`), 엑셀은 IndexedDB(`broodev-excel`, 직접 쓴 작은 래퍼). 사용자는 「쿠키」라 부르지만 쿠키(4KB)는 쓰지 않고 화면에 「이 브라우저에만 저장(쿠키처럼 기기별)」으로 설명. 다른 탭 편집은 `storage` 이벤트로 감지해 병합 + 알림(덮어쓰기 사고 없음).
+- **Google 동기화(다른 PC 연동)**: Google Identity Services 토큰 클라이언트 + Drive REST v3 **appDataFolder**, 범위 `drive.appdata` 하나(사용자의 다른 파일 접근 불가). 서버·DB 없음 — 데이터는 사용자 본인 Drive 에만. 항목(메모 1개 / 통합문서 1개)별 `updatedAt` LWW, 동시 수정의 진 쪽은 「(충돌 사본)」으로 보존, 삭제는 묘비로 전파. 액세스 토큰은 메모리에만, 401 → 재요청 후 재시도, 오프라인이면 로컬 저장 계속 + 「동기화 대기 중」. 이전에 연결했으면 앱을 열 때 `prompt: ''` 로 조용히 재연결(팝업이 막히면 「다시 연결」).
+- **설정**: `config.js` 의 `GOOGLE_CLIENT_ID` — 빈 값이면 「Google 동기화 — 준비 중」(비활성). 두 앱이 **OAuth 클라이언트 하나**를 공유(승인된 JS 출처 memo·excel 둘 다) — 절차는 apps/memo/README.md 「Google 동기화 켜기」. 개인정보처리방침 2-(8)(`apps/home/legal/privacy.html` + `legal/i18n/privacy.*.html`)이 범위·목적·철회·Limited Use 를 13개 언어로 설명.
+- **검증**: `node scripts/verify-memo.mjs` · `node scripts/verify-excel.mjs`(Node 에서 가짜 Drive(fetch 목)로 병합·충돌·묘비·401·오프라인) · `node scripts/i18n-scan-all.mjs memo excel`.
+- 포털 카탈로그(`catalog.js`)에는 업무 도구 카테고리에 `status: 'soon'` 으로 등록 — Pages 프로젝트·도메인이 붙으면 `'live'`.
 
 ---
 
@@ -282,6 +297,8 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 | `broodev-voca` | `apps/voca` | voca.broodev.com | 라이브 |
 | `broodev-voca-tutorial` | `apps/voca-tutorial` | voca-tutorial.broodev.com | **미생성 — 수동 추가 필요** |
 | `broodev-utils` | `apps/utils` | utils.broodev.com | 라이브 (2026-10-03 확인 · 구 megahouse) |
+| `broodev-excel` | `apps/excel` | excel.broodev.com | **미생성 — 수동 추가 필요**(2026-10-10 · 코드 준비 완료, `docs/deploy-cloudflare.md` §2-C) |
+| `broodev-memo` | `apps/memo` | memo.broodev.com | **미생성 — 수동 추가 필요**(2026-10-10 · 코드 준비 완료, `docs/deploy-cloudflare.md` §2-C) |
 | `broodev-<coin>` | `apps/<coin>` | `<coin>.broodev.com` | **미생성(14종) — 수동 추가 필요** |
 
 절차 상세: [`docs/deploy-cloudflare.md`](docs/deploy-cloudflare.md).
@@ -331,6 +348,7 @@ btc와 **동일 구조**, 코인만 파라미터화. 목록:
 - 공유 썸네일(OG) → `scripts/og/gen_og.mjs` (SITES 설정 + 생성) · 렌더 검증 → `scripts/cdp-shot.mjs`
 - i18n 누락 스캔(13언어 실제 렌더 · 푸시 전 필수) → `scripts/i18n-scan.mjs` (§9)
 - 포털(broodev.com) 앱 목록 → `apps/home/assets/js/catalog.js` (`APPS`·`CATEGORIES`) · 모달/페이지네이션 → `apps/home/assets/js/portal.js`
+- 엑셀·메모 Google 동기화 클라이언트 ID → `apps/excel/config.js` · `apps/memo/config.js` (`GOOGLE_CLIENT_ID`, 설정 절차 apps/memo/README.md) · 동기화 엔진 → 각 앱 `js/sync.js`
 - 개발자 소개(dev.broodev.com) 앱 목록 → `apps/dev/dev1/app.jsx` (`PROJECTS` 배열) · 활성 홈 전환 → `apps/dev/functions/_middleware.js` `ACTIVE`
 - 공통 테마 → `packages/ui-terminal/theme.css`
 - 배포 절차 → `docs/deploy-cloudflare.md`

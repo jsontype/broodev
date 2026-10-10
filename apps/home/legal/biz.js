@@ -16,8 +16,8 @@ window.BIZ = {
   email: 'support@broodev.com',
   invoice_no: 'T5810420183858',                     // 適格請求書発行事業者 登録番号(2026-10-04 기입) — Stripe 의 Account tax ID(JP TRN)와 동일
   site: 'https://broodev.com/',
-  updated: '2026-10-07',
-  updated_ja: '2026年10月7日',
+  updated: '2026-10-10',                            // 2026-10-10 개인정보처리방침 2-(8) Google 계정 연동(쿠키 메모장 · 엑셀 에디터) 신설
+  updated_ja: '2026年10月10日',
 };
 
 /* 프리미엄을 파는 앱과 税込 가격 — 특상법 販売価格 행 · premium.html 표에 쓰인다. 앱이 늘면 항목 추가

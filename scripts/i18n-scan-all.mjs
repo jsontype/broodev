@@ -43,6 +43,9 @@ const JOBS = [
   ...['index', '404'].map((d) => ({ name: 'dev/dev3/' + d, root: 'apps/dev/dev3', page: d + '.html', set: ['qs:lang'], wait: 4500 })),
   { name: 'admin', root: 'apps/admin', page: 'index.html', set: ['ls:broodev:lang'], wait: 7000 },
   ...['index', 'pptx', 'ai', 'psd', 'pricing', 'contact', '404'].map((d) => ({ name: 'utils/' + d, root: 'apps/utils', page: d + '.html', set: ['qs:lang'], wait: d === 'psd' ? 9000 : 5000 })),
+  // 엑셀 에디터(SHEET) · 쿠키 메모장(MEMO) — 2026-10-10. 엑셀은 CDN(x-spreadsheet·ExcelJS·pdf-lib) 로딩이 있어 대기를 길게
+  ...['index', '404'].map((d) => ({ name: 'excel/' + d, root: 'apps/excel', page: d + '.html', set: ['qs:lang'], wait: d === 'index' ? 6000 : 3000 })),
+  ...['index', '404'].map((d) => ({ name: 'memo/' + d, root: 'apps/memo', page: d + '.html', set: ['qs:lang'], wait: d === 'index' ? 4000 : 3000 })),
   // 지역 앱은 현지어 + 영어 설계 — 영어 화면에 남은 외국 문자만 본다(몽골의 зуд(조드) 같은 현지어 용어 병기는 의도)
   ...REGIONAL_EN.map((a) => ({ name: a + '(en)', root: 'apps/' + a, page: 'index.html', set: ['qs:x'], langs: 'en', wait: 3500, allow: a === 'mongolia' ? '[\u0400-\u04FF]' : undefined })),
   { name: 'greenland(en)', root: 'apps/greenland', page: 'index.html', set: ['lsjson:gl:lang'], langs: 'en', wait: 3500 },

@@ -100,6 +100,13 @@
     { id: 'utils', cat: 'work', name: '업무 도구 모음 — 사진 나란히 (写真ならべ) Excel · PowerPoint', en: 'UTILS', status: 'live', featured: true,
       url: 'https://utils.broodev.com/',
       desc: '사진을 올리면 용지(A4·A3·B4·Letter…)와 가로×세로 격자에 맞춰 배열한 .xlsx(Excel 앱) / .pptx(PowerPoint 앱, /pptx)를 내려받는다. 브라우저 안에서만 처리. Illustrator(.ai) · Photoshop(.psd) 출력도 있다 — PowerPoint 와 함께 프리미엄(Excel 은 무료).' },
+    // 2026-10-10 신설 — Pages 프로젝트·커스텀 도메인 연결 전이라 'soon'(링크는 살리고 "준비 중" 표시). 도메인이 붙으면 'live' 로.
+    { id: 'excel', cat: 'work', name: '엑셀 에디터', en: 'SHEET', status: 'soon',
+      url: 'https://excel.broodev.com/',
+      desc: '설치 없이 브라우저에서 쓰는 무료 스프레드시트. 여러 시트·수식·병합·서식, 자동 저장, xlsx·csv 가져오기와 xlsx·csv·pdf 내보내기, Google 계정으로 다른 PC와 동기화.' },
+    { id: 'memo', cat: 'work', name: '쿠키 메모장', en: 'MEMO', status: 'soon',
+      url: 'https://memo.broodev.com/',
+      desc: '입력 즉시 자동 저장되고 다시 열면 그대로 불러오는 무료 온라인 메모장. 검색·고정·.txt/.md 내보내기, Google 계정으로 다른 PC·휴대폰과 동기화.' },
 
     // ── 게임
     { id: 'samurai', cat: 'game', name: '사무라이 택틱스 2', en: 'SAMURAI_TACTICS_2', status: 'live',

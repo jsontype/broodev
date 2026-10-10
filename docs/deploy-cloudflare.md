@@ -10,6 +10,8 @@
 | `broodev-dev` | `apps/dev` (dev1·dev2·dev3 + 스위치 Function · 구 home1·2·3) | 없음(정적 + Pages Function) | dev.broodev.com (§1-D) |
 | ~~`broodev-home`~~ | ~~`apps/home`~~ | — | ~~home.broodev.com~~ **2026-10-03 폐기** — 내용이 `apps/dev` 로 이동. 프로젝트 삭제 또는 dev.broodev.com 으로 301 (§1-D) |
 | `broodev-utils` | `apps/utils` (구 megahouse) | 없음(정적) | utils.broodev.com (§2-B) |
+| `broodev-excel` | `apps/excel` (2026-10-10 · 엑셀 에디터 SHEET) | 없음(정적) | excel.broodev.com (§2-C) — **생성 대기** |
+| `broodev-memo` | `apps/memo` (2026-10-10 · 쿠키 메모장 MEMO) | 없음(정적) | memo.broodev.com (§2-C) — **생성 대기** |
 
 ---
 
@@ -51,10 +53,10 @@
    - 또는 프로젝트 유지 + Root directory 를 `apps/dev` 로 바꿔 dev 와 동일 내용 서빙(중복 콘텐츠 — 비권장).
 6. **Build watch paths**(선택): `broodev-web` → `apps/home/*`, `broodev-btc` → `apps/btc/*`, `broodev-dev` → `apps/dev/*`.
 7. **캐시/공유 썸네일**: 루트가 통째로 바뀌므로 Caching → **Purge Everything** 1회. 카카오톡 미리보기는 `https://developers.kakao.com/tool/debugger/sharing` 에서 `https://broodev.com/` · `https://dev.broodev.com/` 캐시 초기화.
-8. **확인**: `https://broodev.com/` 포털 렌더(헤더 Apps (33) → 모달) · `/ads.txt` `/robots.txt` `/sitemap.xml` `/og-image.png` 200 · `https://btc.broodev.com/` 대시보드 + `view-source` 의 canonical 이 `https://btc.broodev.com/` · `https://eth.broodev.com/` 푸터 "비트코인" 링크가 btc.broodev.com · `https://dev.broodev.com/` dev3 · `https://home.broodev.com/` 미해석 또는 301.
+8. **확인**: `https://broodev.com/` 포털 렌더(헤더 Apps (35) → 모달) · `/ads.txt` `/robots.txt` `/sitemap.xml` `/og-image.png` 200 · `https://btc.broodev.com/` 대시보드 + `view-source` 의 canonical 이 `https://btc.broodev.com/` · `https://eth.broodev.com/` 푸터 "비트코인" 링크가 btc.broodev.com · `https://dev.broodev.com/` dev3 · `https://home.broodev.com/` 미해석 또는 301.
 9. **Search Console**(선택): `broodev.com` 속성의 사이트맵은 포털 1 URL 로 바뀜. btc 가이드 페이지 색인을 유지하려면 `btc.broodev.com` 속성 추가 + `https://btc.broodev.com/sitemap.xml` 제출. 루트의 옛 btc URL(`/methodology` 등)은 포털에서 404 가 되므로, 유지가 중요하면 존 Redirect Rule `broodev.com/(methodology|indicators|glossary|guide-fear-greed|...)` → `https://btc.broodev.com/$1` 301 을 추가(선택).
 
-> ⚠ AdSense: 2026-07 에 "루트가 얇은 포털"이라 탈락했던 이력이 있다(§1-B). 지금은 AdSense 추진 중단 상태(adsense-compliance.md §0-E)라 당장 영향은 없지만, 재심사를 다시 하게 되면 루트가 포털이라는 점을 감안할 것. 포털은 소개·원칙·카테고리·대표 앱·연락 섹션 + 앱 33종 목록을 가진 콘텐츠형으로 만들었다.
+> ⚠ AdSense: 2026-07 에 "루트가 얇은 포털"이라 탈락했던 이력이 있다(§1-B). 지금은 AdSense 추진 중단 상태(adsense-compliance.md §0-E)라 당장 영향은 없지만, 재심사를 다시 하게 되면 루트가 포털이라는 점을 감안할 것. 포털은 소개·원칙·카테고리·대표 앱·연락 섹션 + 앱 35종 목록(2026-10-10 excel·memo 추가)을 가진 콘텐츠형으로 만들었다.
 
 ## 1-B. (AdSense 대응) broodev.com 루트 = btc 앱으로 전환 — 🗂 이력(2026-07 ~ 2026-10-03, §1-D 로 대체)
 `broodev.com` 루트가 AdSense **“가치 없는 콘텐츠”**로 미충족됨(2026-07). 심사 관문인 루트에 얇은 포털 대신 **콘텐츠가 풍부한 btc 앱을 서빙**한다. 코드 준비(canonical=`https://broodev.com/`, 정적 푸터, `privacy.html`·`terms.html`, sitemap/robots)는 이미 `apps/btc` 에 반영됨 — Cloudflare에서 루트만 재지정하면 된다.
@@ -124,6 +126,19 @@
 
 > ⚠ `apps/home/home2/assets/js/custom.js` 의 문의 폼은 `assets/php/email.php` 로 POST 한다 — Pages 는 PHP 를 실행하지 않으므로 **동작하지 않는다**(y-systems 레포 시절부터 동일). home3 의 폼은 백엔드 없이 **mailto** 로 연다. 실제 수신 폼이 필요하면 Pages Function 또는 외부 폼 서비스로 교체.
 
+## 2-C. excel · memo (excel.broodev.com · memo.broodev.com) — 2026-10-10 신설
+
+> 두 앱 모두 무빌드 정적(자기완결형 바닐라 JS). 코드·SEO·파비콘·og-image·ads.txt·sitemap·robots·`_redirects`(/* → 404.html 404)는 레포에 준비돼 있다 — 대시보드 작업만 남았다.
+
+1. 새 Pages 프로젝트 `broodev-excel` — Connect to Git(같은 레포) · Framework **None** · Build command **비움** · Build output `.` · **Root directory `apps/excel`** → Save and Deploy.
+2. 새 Pages 프로젝트 `broodev-memo` — 같은 설정, **Root directory `apps/memo`**.
+3. 각 프로젝트 → **Custom domains** → `excel.broodev.com` / `memo.broodev.com` 추가(DNS 레코드 자동 생성).
+4. **Build watch paths**(권장): `apps/excel/*` / `apps/memo/*` — 다른 앱 커밋에 재배포되지 않게.
+5. **Google 동기화 켜기**(선택 — 안 하면 「Google 동기화 — 준비 중」으로 비활성, 로컬 자동 저장은 정상): Google Cloud 콘솔에서 OAuth 동의 화면(앱 이름 `broodev` · 지원 메일 `support@broodev.com` · 홈페이지 `https://broodev.com/` · 개인정보처리방침 `https://broodev.com/legal/privacy` · 승인된 도메인 `broodev.com` · 범위 `drive.appdata` 하나 · 프로덕션 게시) → OAuth 클라이언트 ID(웹, 승인된 JS 출처 `https://memo.broodev.com` · `https://excel.broodev.com` · 로컬 `http://127.0.0.1:8931` · `http://127.0.0.1:8947`) → **Google Drive API 사용 설정** → 발급 ID 를 `apps/memo/config.js` · `apps/excel/config.js` 의 `GOOGLE_CLIENT_ID` 에 넣고 푸시. 상세 단계: [apps/memo/README.md](../apps/memo/README.md) 「Google 동기화 켜기」.
+6. **포털 상태 전환**: 도메인이 열리면 `apps/home/assets/js/catalog.js` 의 두 항목 `status: 'soon'` → `'live'`(「준비 중」 배지 제거) + `index.html` 의 `catalog.js?v=` 토큰 올리기.
+7. **확인**: `https://excel.broodev.com/` · `https://memo.broodev.com/` 렌더 + `/og-image.png` `/ads.txt` `/robots.txt` `/sitemap.xml` 200 · `/없는경로` → 404 페이지(상태 404) · 편집 → 새로고침해도 그대로 · (동기화를 켰다면) 두 브라우저에서 같은 계정으로 연결해 내용이 넘어오는지.
+8. **Search Console**(선택): 두 호스트 속성 추가 + `/sitemap.xml` 제출. AdSense 는 broodev.com 승인이 서브도메인까지 커버 — CMP(동의 메시지)는 AdSense 대시보드에서.
+
 ## 3. btc (btc.broodev.com) — 2026-07-16 폐기 → **2026-10-03 유일한 btc 배포로 복귀**
 
 > 2026-07-16 에 "루트와 중복 광고 클론"이라 삭제했고, 08-31 원복 때 루트 복제본으로 부활했다.
@@ -150,7 +165,7 @@ btc 가 CF Pages(btc.broodev.com)에서 정상 확인되어 GitHub Pages는 은�
 - (남은 수동 작업) GitHub 저장소 **Settings → Pages** 에서 비활성화 + 기존 `btc → jsontype.github.io` DNS 레코드가 남아있으면 삭제.
 
 ## 5. 배포 후 체크리스트 (2026-10-03 현행)
-- [ ] https://broodev.com — **앱 포털** 렌더(히어로 영상 · 헤더 `Apps (33)` → 전체화면 모달 · 카테고리 6종) + `/ads.txt` `/robots.txt` `/sitemap.xml` `/og-image.png` 200
+- [ ] https://broodev.com — **앱 포털** 렌더(히어로 영상 · 헤더 `Apps (35)` → 전체화면 모달 · 카테고리 6종) + `/ads.txt` `/robots.txt` `/sitemap.xml` `/og-image.png` 200
 - [ ] https://btc.broodev.com — **코인 시그널 대시보드** 정상 렌더(백지 아님) + canonical `https://btc.broodev.com/` + `/sitemap.xml` 200
 - [ ] `node scripts/verify-runtime.js` — 5경로 "실행 OK" (btc index.html 을 건드린 배포라면 필수) · `node scripts/verify-coins.mjs`
 - [ ] https://eth.broodev.com — 코인 앱 렌더 + 푸터 "비트코인" 링크 = btc.broodev.com (코인 서브도메인 전체 동일)
@@ -160,6 +175,7 @@ btc 가 CF Pages(btc.broodev.com)에서 정상 확인되어 GitHub Pages는 은�
 - [ ] broodev.com/adsense/ — 301 (존 Redirect Rule)
 - [ ] `*.pages.dev` — `X-Robots-Tag: noindex` / 커스텀 도메인엔 없음
 - [ ] https://admin.broodev.com — 로그인 게이트 표시(허용 계정만 진입)
+- [ ] https://excel.broodev.com · https://memo.broodev.com — 렌더 · 자동 저장 후 새로고침 복원 · `/없는경로` 404 (§2-C)
 - [ ] (선택) Search Console 색인 추이 확인 + sitemap 제출
 
 전체 라이브 검증 세트: [`adsense-compliance.md`](adsense-compliance.md) 부록 A.
